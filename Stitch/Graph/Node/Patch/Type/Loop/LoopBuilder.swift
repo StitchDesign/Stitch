@@ -103,7 +103,7 @@ func loopBuilderEval(node: PatchNode,
                                         inputPortIndex: index,
                                         loopIndex: 0) != nil {
                         // Recalculate this node on next graph step
-                        node?.calculate()
+                        node?.scheduleForNextGraphStep()
                     }
                 }
                 

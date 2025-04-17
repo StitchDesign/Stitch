@@ -28,6 +28,11 @@ struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
     @MainActor
     func handle(state: GraphState) -> GraphResponse {
         
+        guard let document = state.documentDelegate else {
+            fatalErrorIfDebug()
+            return .noChange
+        }
+        
         for selectedLayer in selectedLayers {
             state.layerHiddenStatusToggled(selectedLayer,
                                            newVisibilityStatus: newVisibilityStatus)
@@ -35,7 +40,7 @@ struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
         
         // TODO: why do we have to immediately update the preview layers? Why isn't setting `state.shouldResortPreviewLayers = true` enough?
         state.shouldResortPreviewLayers = true
-        state.updateOrderedPreviewLayers()
+        state.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
         
         return .persistenceResponse
     }

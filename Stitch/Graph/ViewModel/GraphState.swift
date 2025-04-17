@@ -275,7 +275,7 @@ extension GraphState {
         self.visibleCanvasNodes = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
         
         if !document.isDebugMode {
-            self.updateOrderedPreviewLayers()
+            self.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
             
             // Calculate graph
             self.initializeGraphComputation()

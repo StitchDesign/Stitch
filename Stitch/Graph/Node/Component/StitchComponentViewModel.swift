@@ -265,7 +265,7 @@ extension StitchComponentViewModel {
             splitter.updateValuesInInput(input.allLoopedValues)
         }
         
-        self.graph.calculate(from: self.graph.allNodesToCalculate)
+        self.graph.runGraphAndUpdateUI(from: self.graph.allNodesToCalculate)
         
         return self.evaluateOutputSplitters()
     }
@@ -335,6 +335,6 @@ extension GraphState {
         let downstreamNodes = changedDownstreamInputs.map(\.nodeId).toSet
         
         // Calculate connections from component outputs
-        parentGraph.calculate(from: downstreamNodes)
+        parentGraph.runGraphAndUpdateUI(from: downstreamNodes)
     }
 }
