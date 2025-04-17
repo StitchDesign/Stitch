@@ -11,57 +11,6 @@ import RealityKit
 import StitchSchemaKit
 import StitchEngine
 
-extension PinToId {
-    static let defaultPinToId = Self.root
-
-    var display: String {
-        switch self {
-        case .root:
-            return LayerDropdownChoice.RootLayerDropDownChoice.name
-        case .parent:
-            return LayerDropdownChoice.ParentLayerDropDownChoice.name
-        case .layer(let x):
-            return x.id.description
-        }
-    }
-    
-    static func fromString(_ s: String) -> Self? {
-        if let id = UUID(uuidString: s) {
-            return .layer(.init(id))
-        } else if s.lowercased() == LayerDropdownChoice.RootLayerDropDownChoice.name.lowercased() {
-            return .root
-        } else if s.lowercased() == LayerDropdownChoice.ParentLayerDropDownChoice.name.lowercased() {
-            return .parent
-        } else {
-            return nil
-        }
-        
-    }
-}
-
-struct PinReceiverSizeData: Equatable, Hashable, Codable {
-    // for anchoring
-    var size: CGSize
-    var origin: CGPoint // always 0,0 for
-}
-
-/// the data for "View B", which receives the pinned View A
-struct PinReceiverData: Equatable {
-
-    // for anchoring
-    var size: CGSize
-    var origin: CGPoint // always 0,0 for
-
-    // for rotation
-    // Note: not applicable for PinTo.root, since PreviewWindow cannot be rotated
-    var center: CGPoint
-
-    // Note: for PinTo.root, will always be 0
-    var rotationX: CGFloat
-    var rotationY: CGFloat
-    var rotationZ: CGFloat
-}
-
 @Observable
 final class LayerViewModel: Sendable {
     private let mediaImportCoordinator = MediaLayerImportCoordinator()
@@ -584,17 +533,13 @@ extension LayerViewModel {
         if !inputSupportsLoopedValues {
             // Lengthen array for this loop to ensure there's a looped value
             guard let lengthenedValues = lengthenedValuesList[safe: portId] else {
-#if DEV_DEBUG
-                //                log("LayerViewModel.createSortedInputs: unable to lengthen values for: \(valuesList)")
-                //                    log("LayerViewModel.createSortedInputs: layer with id: \(layer) \(self.id.layerNodeId)")
-#endif
+                // log("LayerViewModel.createSortedInputs: unable to lengthen values for: \(valuesList)")
+                // log("LayerViewModel.createSortedInputs: layer with id: \(layer) \(self.id.layerNodeId)")
                 return
             }
             
             guard let value = lengthenedValues[safe: loopIndex] else {
-#if DEV_DEBUG
-                log("LayerViewModel.createSortedInputs: unable to get looped value for lengthened values: \(lengthenedValues)\t loop index: \(loopIndex)")
-#endif
+                // log("LayerViewModel.createSortedInputs: unable to get looped value for lengthened values: \(lengthenedValues)\t loop index: \(loopIndex)")
                 return
             }
             
@@ -610,24 +555,24 @@ extension LayerViewModel {
             }
         }
         
-        // Multi-value key paths (all anchors in reality node)
-        else {
-            // MARK: no longer used
-            fatalErrorIfDebug()
-//            // No looping index used for multi-value key path
-//            if let values = lengthenedValuesList[safe: portId] {
-//                let oldValues = self.getValues(for: inputType)
-//                
-//                // Saves render cycles
-//                if oldValues != values {
-//                    self.updatePreviewLayerInput(values, inputType: inputType)
-//                    
-//                    if inputType.shouldResetGraphPreviews {
-//                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
-//                    }
-//                }
-//            }
-        }
+        //        // Multi-value key paths (all anchors in reality node)
+        //        else {
+        //            // MARK: no longer used
+        //            fatalErrorIfDebug()
+        ////            // No looping index used for multi-value key path
+        ////            if let values = lengthenedValuesList[safe: portId] {
+        ////                let oldValues = self.getValues(for: inputType)
+        ////
+        ////                // Saves render cycles
+        ////                if oldValues != values {
+        ////                    self.updatePreviewLayerInput(values, inputType: inputType)
+        ////
+        ////                    if inputType.shouldResetGraphPreviews {
+        ////                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+        ////                    }
+        ////                }
+        ////            }
+        //        }
     }
     
     @MainActor

@@ -9,6 +9,52 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
+extension PinToId {
+    static let defaultPinToId = Self.root
+
+    var display: String {
+        switch self {
+        case .root:
+            return LayerDropdownChoice.RootLayerDropDownChoice.name
+        case .parent:
+            return LayerDropdownChoice.ParentLayerDropDownChoice.name
+        case .layer(let x):
+            return x.id.description
+        }
+    }
+    
+    static func fromString(_ s: String) -> Self? {
+        if let id = UUID(uuidString: s) {
+            return .layer(.init(id))
+        } else if s.lowercased() == LayerDropdownChoice.RootLayerDropDownChoice.name.lowercased() {
+            return .root
+        } else if s.lowercased() == LayerDropdownChoice.ParentLayerDropDownChoice.name.lowercased() {
+            return .parent
+        } else {
+            return nil
+        }
+        
+    }
+}
+
+
+/// the data for "View B", which receives the pinned View A
+struct PinReceiverData: Equatable {
+
+    // for anchoring
+    var size: CGSize
+    var origin: CGPoint // always 0,0 for
+
+    // for rotation
+    // Note: not applicable for PinTo.root, since PreviewWindow cannot be rotated
+    var center: CGPoint
+
+    // Note: for PinTo.root, will always be 0
+    var rotationX: CGFloat
+    var rotationY: CGFloat
+    var rotationZ: CGFloat
+}
+
 // MARK: SORTING
 
 /*
