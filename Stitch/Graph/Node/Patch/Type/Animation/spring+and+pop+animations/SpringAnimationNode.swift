@@ -77,7 +77,7 @@ func springAnimationEval(node: PatchNode,
         var willRunAgain = false
         let currentSpringStates = animationObserver.springStates
 
-        // Number type is the only type that doesn't unpack
+        // Number/layer dimension type is the only type that doesn't unpack
         let toValues = (values.first ?? .number(.zero)).unpackValues() ??
             [.number(values.first?.getNumber ?? .zero)]
         let currentOutputs = values[safe: outputIndex]?.unpackValues() ??
@@ -89,11 +89,14 @@ func springAnimationEval(node: PatchNode,
         // Returns unpacked numbers to later be packed into PortValues
         let outputResults: PortValues = zip(toValues, currentOutputs)
             .enumerated().map { index, springValues in
-//                let (toValue, currentOutputValue) = springValues
-                let toValue = springValues.0
+                guard let toValue = springValues.0.getNumber else {
+                    // Return whatever our input is to support non-number layer dimensions
+                    return springValues.0
+                }
+                
                 let currentOutputValue = springValues.1
                 
-                let result = springAnimationOp(toValue: toValue.getNumber ?? .zero,
+                let result = springAnimationOp(toValue: toValue,
                                                values: values,
                                                currentOutputValue: currentOutputValue.getNumber ?? .zero,
                                                state: currentSpringStates[safe: index] ?? nil,
