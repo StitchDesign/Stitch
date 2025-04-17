@@ -115,12 +115,8 @@ extension Patch {
 
         // ANIMATION
         // TODO: add .size, .anchor etc.?
-        case .classicAnimation, .transition:
+        case .classicAnimation, .transition, .popAnimation, .springAnimation:
             return AnimationNodeType.choices
-
-        // TODO: ?: add .color, and update .springAnimation
-        case .popAnimation, .springAnimation:
-            return .init([.number, .position])
 
         // PACK
         case .pack, .unpack:
