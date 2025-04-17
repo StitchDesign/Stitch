@@ -414,7 +414,7 @@ extension Patch {
             return .single(.image)
         case .videoImport:
             return .single(.video)
-        case .soundImport:
+        case .soundImport, .speaker:
             return .single(.audio)
         case .coreMLClassify:
             return .single(.coreML)
