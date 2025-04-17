@@ -16,8 +16,10 @@ struct MathExpressionFormulaEdited: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         
+        let graph = state.visibleGraph
+        
         // Can fail when e.g. used in node view; that's okay.
-        guard let node = state.visibleGraph.getNode(id) else {
+        guard let node = graph.getNode(id) else {
             log("MathExpressionFormulaEdited: no math expression defined for node \(id)")
             return
         }
@@ -27,7 +29,7 @@ struct MathExpressionFormulaEdited: StitchDocumentEvent {
         node.patchNode?.updateMathExpressionNodeInputs(newExpression: newExpression, 
                                                        node: node,
                                                        activeIndex: state.activeIndex)
-        node.calculate()
+        node.scheduleForNextGraphStep()
     }
 }
 

@@ -119,7 +119,7 @@ extension InputNodeRowObserver {
             layerNode.layerSizeUpdated(newValue: newSize)
         }
 
-        node.calculate()
+        node.scheduleForNextGraphStep()
     }
     
     @MainActor

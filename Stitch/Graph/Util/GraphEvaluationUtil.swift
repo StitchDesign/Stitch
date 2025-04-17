@@ -28,7 +28,7 @@ extension GraphState {
     
     @MainActor
     func initializeGraphComputation() {
-        self.calculate(from: self.allNodesToCalculate)
+        self.runGraphAndUpdateUI(from: self.allNodesToCalculate)
     }
         
     @MainActor
@@ -40,7 +40,8 @@ extension GraphState {
 
 extension NodeViewModel {
     @MainActor
-    func calculate() {
+    func scheduleForNextGraphStep() {
+        // TODO: Can this ever be called when we don't have a graph? It doesn't make sense
         self.graphDelegate?.scheduleForNextGraphStep(self.id)
     }
 }
