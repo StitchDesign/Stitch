@@ -412,9 +412,8 @@ extension LayerNodeViewModel: SchemaObserver {
     /// Helper which discovers a layer node's inputs and passes its port into a callback.
     @MainActor
     func forEachInput(_ callback: @escaping ((LayerInputObserver) -> ())) {
-        self.layer.layerGraphNode.inputDefinitions.forEach {
-            let port = self[keyPath: $0.layerNodeKeyPath]
-            callback(port)
+        self.allLayerInputObservers.forEach {
+            callback($0)
         }
     }
     
@@ -528,33 +527,10 @@ extension LayerNodeViewModel {
                                           graph: graph)
         }
         
-        self.refreshAllBlockedLayerInputs(graph: graph, activeIndex: activeIndex)
+        // TODO: why is this necessary?
+        self.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)
+    }
         
-        // Set blocked fields after all fields have been initialized
-//        self.forEachInput { layerInput in
-//            
-//            updateLayerNodeBlockedFields(layerNode: self,
-//                                         layerInput: layerInput.port,
-//                                         graph: graph,
-//                                         activeIndex: activeIndex)
-//            
-////            self.blockOrUnblockFields(
-////                newValue: layerInput.getActiveValue(activeIndex: activeIndex),
-////                layerInput: layerInput.port,
-////                activeIndex: activeIndex)
-//        }
-    }
-    
-    @MainActor
-    func refreshAllBlockedLayerInputs(graph: GraphReader, activeIndex: ActiveIndex) {
-        self.forEachInput { layerInput in
-            updateLayerNodeBlockedFields(layerNode: self,
-                                         layerInput: layerInput.port,
-                                         graph: graph,
-                                         activeIndex: activeIndex)
-        }
-    }
-    
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
         // Use cache for inputs for perf

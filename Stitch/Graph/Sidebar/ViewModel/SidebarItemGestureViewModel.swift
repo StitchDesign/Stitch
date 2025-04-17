@@ -50,8 +50,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     @MainActor weak var parentDelegate: SidebarItemGestureViewModel? {
         didSet {
             dispatch(AssignedLayerUpdated(changedLayerNode: self.id.asLayerNodeId))
-            dispatch(LayerGroupIdChanged(layerNodeId: self.id.asLayerNodeId,
-                                         activeIndex: sidebarDelegate?.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
+            dispatch(LayerGroupIdChanged(nodeId: self.id))
         }
     }
 

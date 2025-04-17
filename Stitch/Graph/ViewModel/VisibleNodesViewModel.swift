@@ -185,7 +185,8 @@ extension VisibleNodesViewModel {
 
             case .layer(let layerNode):
                 // We must refresh all the blocked layer inputs
-                layerNode.refreshAllBlockedLayerInputs(graph: graph, activeIndex: activeIndex)
+                layerNode.refreshBlockedInputs(graph: graph,
+                                               activeIndex: activeIndex)
             }
         }
     }

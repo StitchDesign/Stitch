@@ -7,710 +7,202 @@
 
 import Foundation
 
-struct LayerGroupIdChanged: GraphEvent {
-    let layerNodeId: LayerNodeId
-    let activeIndex: ActiveIndex
+/// Fired from sidebar when the sidebar item's parent changes during a drag gesture
+struct LayerGroupIdChanged: StitchDocumentEvent {
+    let nodeId: NodeId
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
+        
+        let graph = state.visibleGraph
         
         // If this layer node now has a layer group parent, block the position and unblock
-        guard let layerNode = state.getLayerNode(layerNodeId.id) else {
-            log("LayerGroupIdChanged: could not find layer node for node \(layerNodeId)")
+        guard let layerNode = graph.getLayerNode(nodeId) else {
+            log("LayerGroupIdChanged: could not find layer node for node \(nodeId)")
             return
         }
         
-        // Use offset rather than position inputs if parent uses non-ZStack orientation.
-        // NOTE: complication: the parent's layout-orientation could vary by loop-index, but blocking/unblocking fields and the inspector-view are currently unaware of loop-index.
-        if let parentId = layerNode.layerGroupId,
-           let parentLayerNodeViewModel = state.getLayerNode(parentId),
-           let parentLayerViewModel = parentLayerNodeViewModel.previewLayerViewModels[safe: activeIndex.adjustedIndex(parentLayerNodeViewModel.previewLayerViewModels.count)] ?? parentLayerNodeViewModel.previewLayerViewModels.first,
-           parentLayerViewModel.orientation.getOrientation != StitchOrientation.none {
-            
-            layerNode.blockPositionInput()
-            layerNode.unblockOffsetInput()
-        } else {
-            layerNode.unblockPositionInput()
-            layerNode.blockOffsetInput()
-        }
+        layerNode.refreshBlockedInputs(graph: graph, activeIndex: state.activeIndex)
     }
 }
 
-// TODO: we also need to block or unblock the inputs of the row on the canvas as well
-extension LayerNodeViewModel {
-    
+extension LayerNodeReader {
+    /// After row observer's values or row view model's field has changed, we may need to change which inputs/fields on the layer node are being blocked.
     @MainActor
-    func getLayerInputObserver(_ layerInput: LayerInputPort) -> LayerInputObserver {
-        self[keyPath: layerInput.layerNodeKeyPath]
-    }
-    
-    @MainActor
-    func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels {
-        let port = self[keyPath: key.layerNodeKeyPath]
+    func refreshBlockedInputs(graph: GraphReader, activeIndex: ActiveIndex) {
+        // 'Blocking context' is per layer node, not layer input,
+        // since the blocking of a single layer input depends on other layer inputs on the same layer node (and certain facts about the layer node's parent)
         
-        return port.allInputData.flatMap { inputData in
-            inputData.inspectorRowViewModel.cachedFieldValueGroups.flatMap {
-                $0.fieldObservers
-            }
+        let getValue = { (node: LayerNodeReader, port: LayerInputPort) -> PortValue in
+            node.getLayerInputObserver(port).getActiveValue(activeIndex: activeIndex)
         }
-    }
-}
-
-extension NodeViewModel {
-    
-    /// Gets fields for a layer specifically for its inputs in the layer inpsector, rather than a node.
-    @MainActor
-    func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels? {
-        guard let layerNode = self.layerNode else {
-            fatalErrorIfDebug() // when can this actually happen?
-            return nil
-        }
-        return layerNode.getLayerInspectorInputFields(key)
-    }
-    
-    /// Gets field for a layer specifically for its inputs in the layer inpsector, rather than a node.
-    @MainActor
-    func getLayerInspectorInputField(_ key: LayerInputPort) -> InputFieldViewModel? {
-        self.getLayerInspectorInputFields(key)?.first
-    }
-}
-
-extension LayerInputPort {
-    
-    var asFullInput: LayerInputType {
-        .init(layerInput: self,
-              portType: .packed)
-    }
-    
-    var asFirstField: LayerInputType {
-        .init(layerInput: self,
-              portType: .unpacked(.port0))
-    }
-    
-    // Note: we currently don't block any fields in inputs with 3 or more fields
-    var asSecondField: LayerInputType {
-        .init(layerInput: self,
-              portType: .unpacked(.port1))
-    }
-}
-
-
-extension LayerNodeViewModel {
-    
-    @MainActor
-    func scrollEnabled() -> Bool {
-        guard self.layer == .group else {
-            return false
-        }
-        
-        return (self.scrollXEnabledPort.allLoopedValues + self.scrollYEnabledPort.allLoopedValues).contains { $0.getBool == true }
-    }
-    
-    @MainActor
-    func usesGrid() -> Bool {
-        guard self.layer == .group else {
-            return false
-        }
-        
-        return self.orientationPort.allLoopedValues.contains { $0.getOrientation == .grid }
-    }
-}
-
-// TODO: Need a smarter way of handling this. Blocked and unblocked fields should be by loop-index, but inputs on inspector and canvas items are not displayed by loop-index;
-// e.g. suppose a layer node's SizingScenario has a loop of `[.constrainHeight, .constrainWidth]` -- which inputs should be blocked?
-// ... Should it be according to activeIndex ?
-extension LayerNodeViewModel {
-    
-    @MainActor
-    func blockOrUnblockFields(newValue: PortValue,
-                              layerInput: LayerInputPort,
-                              activeIndex: ActiveIndex) {
-        
-        // log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
-        
-        // TODO: Which is better? To look at layer input or port value?
-        // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
-        switch layerInput {
-            
-        case .orientation:
-            newValue.getOrientation.map(self.layerGroupOrientationUpdated)
-            
-        case .size:
-            newValue.getSize.map(self.layerSizeUpdated)
-            
-        case .sizingScenario:
-            newValue.getSizingScenario.map {
-                self.sizingScenarioUpdated(scenario: $0,
-                                           activeIndex: activeIndex)
-            }
-            
-        case .isPinned:
-            newValue.getBool.map(self.isPinnedUpdated)
-                    
-        case .scrollXEnabled:
-            newValue.getBool.map(self.scrollXEnabledUpdated)
-            
-        case .scrollYEnabled:
-            newValue.getBool.map(self.scrollYEnabledUpdated)
-            
-        default:
-            return
-        }
-    }
-        
-    /*
-     // the entire minSize input blocked:
-     self.blockedFields.contains(.init(layerInput: .minSize, portType: .packed))
-     
-     // just the width field on the minSize input blocked:
-     self.blockedFields.contains(.init(layerInput: .minSize, portType: .unpacked(.port0)))
-     */
-    @MainActor
-    func setBlockStatus(_ layerInputType: LayerInputType, // e.g. minSize packed input, or min
-                        // blocked = add to blocked-set, else remove
-                        isBlocked: Bool) {
-        
-        self.getLayerInputObserver(layerInputType.layerInput)
-            .setBlockStatus(layerInputType, isBlocked: isBlocked)
-    }
-    
-    @MainActor
-    func layerGroupOrientationUpdated(newValue: StitchOrientation) {
-        
-        // Changing the orientation of a parent (layer group) updates fields on the children
-        let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
-        
-        // log("layerGroupOrientationUpdated: layer group \(self.id) had children: \(children.map(\.id))")
-        
-        switch newValue {
-        
-        case .none:
-            // Block `spacing` input on the LayerGroup
-
-            /*
-              TODO: block `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
-             
-             (Or maybe not, since those children themselves could be LayerGroups with out spacing etc.?)
-             */
-            self.blockSpacingInput()
-            self.blockGridLayoutInputs()
-            self.blockLayerGroupAlignmentInput()
-            
-            children.forEach {
-                $0.blockOffsetInput()
-                $0.unblockPositionInput()
-            }
-            
-        case .horizontal, .vertical:
-            // Unblock `spacing` input on the LayerGroup
-            // TODO: unblock `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
-            self.unblockSpacingInput()
-            self.blockGridLayoutInputs()
-            self.unblockLayerGroupAlignmentInput()
-            
-            children.forEach {
-                $0.unblockOffsetInput()
-                $0.blockPositionInput()
-            }
-            
-        case .grid:
-            self.unblockSpacingInput()
-            self.unblockGridLayoutInputs()
-            self.blockLayerGroupAlignmentInput()
-            
-            children.forEach {
-                if self.scrollEnabled() {
-                    // grid + scroll = block the offset input on children
-                    $0.blockOffsetInput()
-                } else {
-                    $0.unblockOffsetInput()
-                }
-                
-                $0.blockPositionInput()
-            }
-        }
-    }
-    
-    // LayerGroup's isPinned = true: we unblock pin inputs and block position, anchoring etc.
-    
-    // LayerGroup's StitchOrientation = None
-    
-    @MainActor
-    func blockSpacingInput() {
-        setBlockStatus(LayerInputPort.spacing.asFullInput, isBlocked: true)
-        
-        // Note: a layer group can be padded, no matter its orientation
-        // setBlockStatus(LayerInputPort.padding.asFullInput, isBlocked: true)
-    }
-    
-    @MainActor
-    func blockGridLayoutInputs() {
-        setBlockStatus(LayerInputPort.spacingBetweenGridColumns.asFullInput, isBlocked: true)
-        setBlockStatus(LayerInputPort.spacingBetweenGridRows.asFullInput, isBlocked: true)
-        setBlockStatus(LayerInputPort.itemAlignmentWithinGridCell.asFullInput, isBlocked: true)
-    }
-    
-    @MainActor
-    func blockLayerGroupAlignmentInput() {
-        setBlockStatus(LayerInputPort.layerGroupAlignment.asFullInput, isBlocked: true)
-    }
-    
-    // LayerGroup's StitchOrientation = Vertical, Horizontal
-    
-    @MainActor
-    func unblockSpacingInput() {
-        setBlockStatus(LayerInputPort.spacing.asFullInput, isBlocked: false)
-        
-        // Note: a layer group can be padded, no matter its orientation
-        // setBlockStatus(LayerInputPort.padding.asFullInput, isBlocked: false)
-    }
-    
-    // LayerGroup's StitchOrientation = Grid
-    
-    @MainActor
-    func unblockGridLayoutInputs() {
-        setBlockStatus(LayerInputPort.spacingBetweenGridColumns.asFullInput, isBlocked: false)
-        setBlockStatus(LayerInputPort.spacingBetweenGridRows.asFullInput, isBlocked: false)
-        setBlockStatus(LayerInputPort.itemAlignmentWithinGridCell.asFullInput, isBlocked: false)
-    }
-    
-    @MainActor
-    func unblockLayerGroupAlignmentInput() {
-        setBlockStatus(LayerInputPort.layerGroupAlignment.asFullInput, isBlocked: false)
-    }
-    
-    @MainActor
-    func blockPositionInput() {
-        setBlockStatus(LayerInputPort.position.asFullInput, isBlocked: true)
-    }
-    
-    @MainActor
-    func unblockPositionInput() {
-        setBlockStatus(LayerInputPort.position.asFullInput, isBlocked: false)
-    }
-    
-    @MainActor
-    func blockOffsetInput() {
-        setBlockStatus(LayerInputPort.offsetInGroup.asFullInput, isBlocked: true)
-    }
-    
-    @MainActor
-    func unblockOffsetInput() {
-        setBlockStatus(LayerInputPort.offsetInGroup.asFullInput, isBlocked: false)
-    }
-    
-    
-    // Only for changes to .size (not .minSize, .maxSize) inputs ?
-    @MainActor
-    func layerSizeUpdated(newValue: LayerSize) {
-        self.layerDimensionUpdated(newValue: newValue.width,
-                                   dimension: .width)
-        
-        self.layerDimensionUpdated(newValue: newValue.height,
-                                   dimension: .height)
-    }
-    
-    // When LayerDimension is `pt` or `parent percent`, disable the min/max along that same dimension.
-    @MainActor
-    private func layerDimensionUpdated(newValue: LayerDimension,
-                                       dimension: LengthDimension) {
-                
-        let stitch = self
-                
-        switch newValue {
-            
-        case .number:
-            // block min and max along this given dimension
-            switch dimension {
-            case .width:
-                // Note: the width (non-min/max width) field must have already been unblocked for us to be able to edit the width layer dimension
-                stitch.blockMinAndMaxWidthFields()
-            case .height:
-                stitch.blockMinAndMaxHeightFields()
-            }
-            
-        case .auto, .fill, .hug, .parentPercent:
-            switch dimension {
-            case .width:
-                stitch.unblockMinAndMaxWidthFields()
-            case .height:
-                stitch.unblockMinAndMaxHeightFields()
-            }
-        }
-    }
-    
-    // Assumes input was already updated via e.g. PickerOptionSelected
-    @MainActor
-    func sizingScenarioUpdated(scenario: SizingScenario,
-                               activeIndex: ActiveIndex) {
-        
-        // log("sizingScenarioUpdated: scenario: \(scenario)")
-        
-        let stitch = self
-                
-        // NOTE: does this work with loops? What is the relationship between a loop of fields
-        
-        switch scenario {
-            
-        case .auto:
-            // TODO: unblock e.g. min/max width when width set to grow/hug (will be a different action / scenario?)
                         
-            // if sizing scenario is auto, unblock the width and height fields:
-            stitch.unblockSizeInput()
-            
-            // ... and block the min and max width and height (until width and height are set to grow or hug)
-            // TODO: check whether each dimenion's field != point; if so, unblock that dimension's min/max fields
-//            stitch.blockMinAndMaxSizeInputs()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
-                                    
-            // ... and block the aspect ratio inputs:
-            stitch.blockAspectRatio()
-            
-        case .constrainHeight:
-            // if height is constrained, block-out the height inputs (height, min height, max height):
-            stitch.blockHeightFields()
-                        
-            // ... and unblock the width field:
-            // TODO: also unblock min/max width fields if width field != point
-            stitch.unblockWidthField()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
-            
-            // ... and unblock the aspect ratio inputs:
-            stitch.unblockAspectRatio()
-            
-        case .constrainWidth:
-            // if width is constrained, block-out the width inputs (width, min width, max width):
-            stitch.blockWidthFields()
-            
-            // ... and unblock the height fields:
-            // TODO: also unblock min/max height fields if height field != point
-            stitch.unblockHeightField()
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
-            
-            // ... and unblock the aspect ratio inputs:
-            stitch.unblockAspectRatio()
-        }
-    }
-    
-    // SizingScenario = Auto
-    
-    @MainActor
-    func unblockSizeInput() {
-        self.setBlockStatus(LayerInputPort.size.asFullInput,
-                            isBlocked: false)
-    }
-    
-    @MainActor
-    func blockMinAndMaxSizeInputs() {
-        setBlockStatus(LayerInputPort.minSize.asFullInput,
-                       isBlocked: true)
-        setBlockStatus(LayerInputPort.maxSize.asFullInput,
-                       isBlocked: true)
-    }
-    
-    @MainActor
-    func updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: ActiveIndex) {
-        // Check the input itself (the value at the active-index), not the field view model.
-        guard let widthIsNumber = self.getLayerInputObserver(.size).getActiveValue(activeIndex: activeIndex).getSize?.width.isNumber else {
-            fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
-            return
-        }
-        
-        if !widthIsNumber {
-            self.unblockMinAndMaxWidthFields()
-        } else {
-            self.blockMinAndMaxWidthFields()
-        }
-    }
-    
-    @MainActor
-    func updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: ActiveIndex) {
-        // Check the input itself (the value at the active-index), not the field view model.
-        guard let heightIsNumber = self.getLayerInputObserver(.size).getActiveValue(activeIndex: activeIndex).getSize?.height.isNumber else {
-            fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
-            return
-        }
-        
-        if !heightIsNumber {
-            self.unblockMinAndMaxHeightFields()
-        } else {
-            self.blockMinAndMaxHeightFields()
-        }
-    }
-    
-    @MainActor
-    func blockAspectRatio() {
-        [LayerInputPort.widthAxis, .heightAxis, .contentMode]
-            .forEach {
-                setBlockStatus($0.asFullInput, isBlocked: true)
-            }
-    }
+        let parentGroupOrientation: StitchOrientation? = self.layerGroupId
+            .map { graph.getLayerNodeReader($0) }?
+            .map { getValue($0, .orientation) }?
+            .getOrientation
 
-    // SizingScenario = ConstrainHeight
-
-    @MainActor func blockHeightFields() {
-        setBlockStatus(LayerInputPort.size.asSecondField,
-                       isBlocked: true)
-        setBlockStatus(LayerInputPort.minSize.asSecondField,
-                       isBlocked: true)
-        setBlockStatus(LayerInputPort.maxSize.asSecondField,
-                       isBlocked: true)
-    }
-    
-    // Only unblock min/max width fields if user has a
-    @MainActor func unblockWidthField() {
-        setBlockStatus(LayerInputPort.size.asFirstField,
-                       isBlocked: false)
-    }
-    
-    
-    @MainActor
-    func unblockAspectRatio() {
-        setBlockStatus(LayerInputPort.widthAxis.asFullInput,
-                       isBlocked: false)
-        setBlockStatus(LayerInputPort.heightAxis.asFullInput,
-                       isBlocked: false)
-        setBlockStatus(LayerInputPort.contentMode.asFullInput,
-                       isBlocked: false)
-    }
-    
-    // SizingScenario = ConstrainWidth
-    
-    @MainActor func blockWidthFields() {
-        setBlockStatus(LayerInputPort.size.asFirstField,
-                       isBlocked: true)
-        setBlockStatus(LayerInputPort.minSize.asFirstField,
-                       isBlocked: true)
-        setBlockStatus(LayerInputPort.maxSize.asFirstField,
-                       isBlocked: true)
-    }
-    
-    @MainActor func unblockHeightField() {
-        setBlockStatus(LayerInputPort.size.asSecondField,
-                       isBlocked: false)
-    }
-    
-    // SizingScenario = Auto, LayerDimension = Point, Width
-    
-    @MainActor func blockMinAndMaxWidthFields() {
-        setBlockStatus(LayerInputPort.minSize.asFirstField, isBlocked: true)
-        setBlockStatus(LayerInputPort.maxSize.asFirstField, isBlocked: true)
-    }
+        // TODO: perf-wise, is it better to avoid currying in high-intensity call sites? Could use the less concise `getActiveValueAt` method instead
+        let fn = curry(getValue)(self)
         
-    // SizingScenario = Auto, LayerDimension = Point, Height
-    
-    @MainActor func blockMinAndMaxHeightFields() {
-        setBlockStatus(LayerInputPort.minSize.asSecondField, isBlocked: true)
-        setBlockStatus(LayerInputPort.maxSize.asSecondField, isBlocked: true)
-    }
-    
-    // SizingScenario = Auto, LayerDimension = Auto/Hug/Fill etc., Width
-    
-    @MainActor func unblockMinAndMaxWidthFields() {
-        setBlockStatus(LayerInputPort.minSize.asFirstField, isBlocked: false)
-        setBlockStatus(LayerInputPort.maxSize.asFirstField, isBlocked: false)
-    }
-    
-    // SizingScenario = Auto, LayerDimension = Auto/Hug/Fill etc., Height
-    
-    @MainActor func unblockMinAndMaxHeightFields() {
-        setBlockStatus(LayerInputPort.minSize.asSecondField, isBlocked: false)
-        setBlockStatus(LayerInputPort.maxSize.asSecondField, isBlocked: false)
-    }
-    
-
-    // MARK: BLOCKING, UNBLOCKING PINNING INPUTS
-    
-    @MainActor
-    func isPinnedUpdated(newValue: Bool) {
-        
-        let node = self
-        
-        if newValue {
-            // Unblock all pin-related inputs
-            node.unblockPinInputs()
-            
-            // Block position and anchoring
-            node.blockPositionAndAnchoringInputs()
-            
-        } else {
-            // Block all pin-related inputs
-            node.blockPinInputs()
-            
-            // Unblock position and anchoring
-            node.unblockPositionAndAnchoringInputs()
+        self.allLayerInputObservers.forEach { input in
+            input.maybeBlockFields(isPinned: fn(.isPinned).getBool ?? false,
+                                   parentGroupOrientation: parentGroupOrientation,
+                                   scrollXEnabled: fn(.scrollXEnabled).getBool ?? false,
+                                   scrollYEnabled: fn(.scrollYEnabled).getBool ?? false,
+                                   size: fn(.size).getSize ?? .zero,
+                                   sizingScenario: fn(.sizingScenario).getSizingScenario ?? .defaultSizingScenario)
         }
     }
-    
-    // LayerGroup's isPinned = false: we block pin inputs and unblock position, anchoring etc.
-
-    @MainActor
-    func blockPinInputs() {
-        LayerInputPortSet.pinning.forEach {
-            // Do not block the `isPinned` input itself
-            if $0 != .isPinned {
-                // packed = block entire input
-                self.setBlockStatus($0.asFullInput,
-                                    isBlocked: true)
-            }
-        }
-    }
-
-    @MainActor
-    func unblockPositionAndAnchoringInputs() {
-        setBlockStatus(LayerInputPort.position.asFullInput,
-                       isBlocked: false)
-        setBlockStatus(LayerInputPort.anchoring.asFullInput,
-                       isBlocked: false)
-    }
-
-    // LayerGroup's isPinned = true: we unblock pin inputs and block position, anchoring etc.
-
-    @MainActor
-    func unblockPinInputs() {
-        LayerInputPortSet.pinning.forEach {
-            // Do not block the `isPinned` input itself
-            if $0 != .isPinned {
-                // packed = unblock entire input
-                self.setBlockStatus(.init(layerInput: $0, portType: .packed),
-                                    isBlocked: false)
-            }
-        }
-    }
-
-    @MainActor
-    func blockPositionAndAnchoringInputs() {
-        setBlockStatus(.init(layerInput: .position, portType: .packed),
-                       isBlocked: true)
-        setBlockStatus(.init(layerInput: .anchoring, portType: .packed),
-                       isBlocked: true)
-    }
-    
-    
-    // MARK: BLOCKING, UNBLOCKING LAYER GROUP SCROLL INPUTS
-    
-    @MainActor
-    func scrollXEnabledUpdated(_ enabled: Bool) {
-        // if enabled: unblock jump-y ports
-        // if disabled: block jump-y ports
-        
-        // Changing the scroll-enabled of a parent (layer group) updates fields on the children
-        let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
-        
-        if enabled {
-            self.setBlockStatus(LayerInputPort.scrollJumpToX.asFullInput,
-                                isBlocked: false)
-            self.setBlockStatus(LayerInputPort.scrollJumpToXStyle.asFullInput,
-                                isBlocked: false)
-            self.setBlockStatus(LayerInputPort.scrollJumpToXLocation.asFullInput,
-                                isBlocked: false)
-                        
-            children.forEach {
-                if self.usesGrid() {
-                    // grid + scroll = block the offset input on children
-                    $0.blockOffsetInput()
-                } else {
-                    $0.unblockOffsetInput()
-                }
-            }
-            
-        } else {
-            self.setBlockStatus(LayerInputPort.scrollJumpToX.asFullInput,
-                                isBlocked: true)
-            self.setBlockStatus(LayerInputPort.scrollJumpToXStyle.asFullInput,
-                                isBlocked: true)
-            self.setBlockStatus(LayerInputPort.scrollJumpToXLocation.asFullInput,
-                                isBlocked: true)
-            
-            children.forEach {
-                $0.unblockOffsetInput()
-            }
-        }
-        
-    }
-    
-    @MainActor
-    func scrollYEnabledUpdated(_ enabled: Bool) {
-        // if enabled: unblock jump-y ports
-        // if disabled: block jump-y ports
-        
-        // Changing the scroll-enabled of a parent (layer group) updates fields on the children
-        let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
-        
-        if enabled {
-            self.setBlockStatus(LayerInputPort.scrollJumpToY.asFullInput,
-                                isBlocked: false)
-            self.setBlockStatus(LayerInputPort.scrollJumpToYStyle.asFullInput,
-                                isBlocked: false)
-            self.setBlockStatus(LayerInputPort.scrollJumpToYLocation.asFullInput,
-                                isBlocked: false)
-            
-            children.forEach {
-                if self.usesGrid() {
-                    // grid + scroll = block the offset input on children
-                    $0.blockOffsetInput()
-                } else {
-                    $0.unblockOffsetInput()
-                }
-            }
-            
-        } else {
-            self.setBlockStatus(LayerInputPort.scrollJumpToY.asFullInput,
-                                isBlocked: true)
-            self.setBlockStatus(LayerInputPort.scrollJumpToYStyle.asFullInput,
-                                isBlocked: true)
-            self.setBlockStatus(LayerInputPort.scrollJumpToYLocation.asFullInput,
-                                isBlocked: true)
-            
-            children.forEach {
-                $0.unblockOffsetInput()
-            }
-        }
-        
-    }
-    
 }
 
 extension LayerInputObserver {
+    // For this `self: LayerInputPort` (i.e. layer input),
+    // and given these conditions (`BlockingContext`),
+    // block or unblock certain
+    
+    /// For a given layer input (`LayerInputObserver`), should the whole input or certain individual fields be blocked?
+    /// Depeneds on a variety of conditions, represented by `LayerInputBlockingContext`
     @MainActor
-    func setBlockStatus(_ keypathPortType: LayerInputType, // e.g. minSize packed input, or min
-                        // blocked = add to blocked-set, else remove
-                        isBlocked: Bool) {
+//    func maybeBlockFields(context: LayerInputBlockingContext) {
+    func maybeBlockFields(
+        isPinned: Bool,
+        parentGroupOrientation: StitchOrientation?,
+        scrollXEnabled: Bool,
+        scrollYEnabled: Bool,
+        size: LayerSize,
+        sizingScenario: SizingScenario
+    ) {
+                                           
+        // Wipe the existing blocked fields
+        self.blockedFields = .init()
         
-        if keypathPortType.layerInput == .position,
-            self.layer == .oval {
-            log("setBlockStatus: changing position")
-        }
+        let input: LayerInputPort = self.port
         
-        log("setBlockStatus: \(self.layer): isBlocked: \(isBlocked), keypathPortType: \(keypathPortType)")
-        log("setBlockStatus: self.blockedFields was: \(self.blockedFields)")
-        
-        let allChanged = keypathPortType.portType == .packed
-                
-        if isBlocked {
-            
-            if allChanged {
-                // log("LayerInputObserver: setBlockStatus: will block all")
-                self.blockedFields = .init([.packed])
-                
-                // Probably you need to remove the individual unpacked types?
-//                self.blockedFields.insert(.packed)
-                
-            } else {
-                // log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
-                self.blockedFields.insert(keypathPortType.portType)
-            }
-            
-        } else {
-            if allChanged {
-                self.blockedFields = .init()
-//                self.blockedFields.remove(.packed)
-            } else {
-                // log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
-                self.blockedFields.remove(keypathPortType.portType)
+        let block = { (inputOrField: LayerInputType) -> () -> Void in
+            return {
+                self.blockedFields.insert(inputOrField.portType)
             }
         }
         
-        log("setBlockStatus: self.blockedFields is now: \(self.blockedFields)")
+        // Usually when blocking an input, we block ALL of its fields at once...
+        let blockFullInput: () -> Void = block(input.asFullInput)
+        
+        // ... Exception: e.g. for sizingScenario = constrainWidth, we block size input's width ("first field") but not its height ("second field")
+        let blockFirstField = block(input.asFirstField)
+        let blockSecondField = block(input.asSecondField)
+        
+
+        let isPinned = isPinned
+        
+        let hasParent = parentGroupOrientation.isDefined
+
+        let hasZStackParent = hasParent && parentGroupOrientation == StitchOrientation.none
+        let hasNonZStackParent = hasParent && parentGroupOrientation != StitchOrientation.none
+        let hasGridParent = hasParent && parentGroupOrientation != StitchOrientation.grid
+        
+        let scrollEnabled = scrollXEnabled || scrollYEnabled
+        
+        let hasStaticWidth = size.width.isNumber
+        let hasStaticHeight = size.height.isNumber
+        
+        let widthIsConstrained: Bool = sizingScenario == .constrainWidth
+        let heightIsConstrained: Bool = sizingScenario == .constrainHeight
+        
+                
+        // Note: most layer inputs cannot be blocked
+        switch input {
+        
+        // For root level layers or layers in ZStacks
+        case .position:
+            // Blocked when layer is pinned or has a non-ZStack parent
+            if isPinned || hasNonZStackParent {
+                // The position input is always blocked *as a whole*
+                blockFullInput()
+            }
+            
+        case .anchoring:
+            if isPinned {
+                blockFullInput()
+            }
+        
+        // Offset-in-group is only for HStack/VStack/Grid
+        case .offsetInGroup:
+            // Blocked if the layer either has no parent, or has a z-stack parent, or has a scrollable grid parent
+            if !hasParent || hasZStackParent || (hasGridParent && scrollEnabled) {
+                blockFullInput()
+            }
+            
+        // Only for layers in HStack/VStack (and NOT Grid?)
+        case .spacing:
+            if !hasParent || hasZStackParent || hasGridParent  {
+                blockFullInput()
+            }
+        
+        // Grid-specific inputs; only for children of a grid
+        case .spacingBetweenGridRows, .spacingBetweenGridColumns, .itemAlignmentWithinGridCell:
+            if !hasGridParent {
+                blockFullInput()
+            }
+            
+        // For layers in HStack/VStack
+        case .layerGroupAlignment:
+            if !hasParent || hasZStackParent || hasGridParent {
+                blockFullInput()
+            }
+        
+        case .size:
+            // constrained-width blocks the width field
+            if widthIsConstrained {
+                blockFirstField()
+            }
+            // constrained-height blocks the height field
+            if heightIsConstrained {
+                blockSecondField()
+            }
+        
+        case .minSize:
+            if hasStaticWidth || widthIsConstrained {
+                blockFirstField()
+            }
+            if hasStaticHeight || heightIsConstrained {
+                blockSecondField()
+            }
+            
+        case .maxSize:
+            if hasStaticWidth || widthIsConstrained {
+                blockFirstField()
+            }
+            if hasStaticHeight || heightIsConstrained {
+                blockSecondField()
+            }
+        
+        // aspect ratio inputs, only for constrained height/width
+        case .widthAxis, .heightAxis, .contentMode:
+            if sizingScenario == .auto {
+                blockFullInput()
+            }
+          
+        case .scrollJumpToX, .scrollJumpToXStyle, .scrollJumpToXLocation:
+            if !scrollXEnabled {
+                blockFullInput()
+            }
+            
+        case .scrollJumpToY, .scrollJumpToYStyle, .scrollJumpToYLocation:
+            if !scrollYEnabled {
+                blockFullInput()
+            }
+            
+        // Pinning inputs: blocked if pinning is not enabled
+        // Note: `isPinned` itself is NEVER blocked
+        case .pinTo, .pinAnchor, .pinOffset:
+            if !isPinned {
+                blockFullInput()
+            }
+            
+        // Note: VAST MAJORITY of inputs can NEVER be "blocked" whether in part or whole
+        default:
+            return
+            
+        } // switch self
     }
 }

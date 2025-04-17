@@ -148,54 +148,15 @@ extension NodeRowViewModel {
         
         
         // Whenever we update ui-fields' values, we need to potentially block or unblock the same/other fields.
-        // TODO: blocking or unblocking fields is only for a layer node; but requires reading from graph state etc.
-//        if let node = self.nodeDelegate,
-//           let document = node.graphDelegate?.documentDelegate,
-//           let layerInputForThisRow = document.graph.getInputRowObserver(self.nodeIOCoordinate)?.id.keyPath,
-//           let layerNode = node.layerNodeViewModel {
-//            layerNode.blockOrUnblockFields(
-//                newValue: newValue,
-//                layerInput: layerInputForThisRow.layerInput,
-//                activeIndex: document.activeIndex)
-//        }
-        
         if let node = self.nodeDelegate,
            let graph = node.graphDelegate,
-           let document = graph.documentDelegate,
            let layerNode = node.layerNodeReader,
-           let layerInputForThisRow: LayerInputPort = document.graph.getInputRowObserver(self.nodeIOCoordinate)?.id.keyPath?.layerInput {
+           let activeIndex = graph.documentDelegate?.activeIndex {
             
-            // "Blocking fields on a layer input" should be driven by updates to a row observer, not a row view model;
-            // and actually should be for *layer input observer*, NOT row observer (which could be many for a single layer input observer)
-            updateLayerNodeBlockedFields(layerNode: layerNode,
-                                         layerInput: layerInputForThisRow,
-                                         graph: graph,
-                                         activeIndex: document.activeIndex)
+            layerNode.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)
         }
     }
 }
-
-@MainActor
-func updateLayerNodeBlockedFields(layerNode: LayerNodeReader,
-                                  layerInput: LayerInputPort,
-                                  graph: GraphReader,
-                                  activeIndex: ActiveIndex) {
-    
-    let layerInputObserver: LayerInputObserver = layerNode.getLayerInputObserver(layerInput)
-    
-    guard let blockContext = LayerInputBlockingContext.create(
-        from: graph,
-        activeIndex: activeIndex,
-        // Setting blocked fields on this layer input actually also depends on the values in other inputs in the layer
-        layerNode: layerNode) else {
-        
-        fatalErrorIfDebug()
-        return
-    }
-    
-    layerInputObserver.maybeBlockFields(context: blockContext)
-}
-
 
 extension NodeRowObserver {
     @MainActor

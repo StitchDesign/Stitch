@@ -11,6 +11,14 @@ import Foundation
 // FUNCTIONS THAT HAVE NOTHING TO DO WITH DOMAIN LOGIC
 
 /* ----------------------------------------------------------------
+ Functional helpers
+ ---------------------------------------------------------------- */
+
+func curry<A, B, C>(_ function: @escaping (A, B) -> C) -> (A) -> (B) -> C {
+    return { a in { b in function(a, b) } }
+}
+
+/* ----------------------------------------------------------------
  Helper functions
  ---------------------------------------------------------------- */
 

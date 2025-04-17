@@ -120,28 +120,12 @@ extension GraphState {
             return
         }
         
-        node.removeIncomingEdge(at: input.id,
-                                         graph: self)
-        
+        node.removeIncomingEdge(at: input.id, graph: self)
         
         // Block or unblock certain layer inputs
-        if let layerNode = node.layerNode,
-           let layerInput = input.id.keyPath?.layerInput {
-            updateLayerNodeBlockedFields(layerNode: layerNode,
-                                         layerInput: layerInput,
-                                         graph: self,
-                                         activeIndex: activeIndex)
+        if let layerNode = node.layerNode {
+            layerNode.refreshBlockedInputs(graph: self, activeIndex: activeIndex)
         }
-        
-//        // Block or unblock certain layer inputs
-//        if let layerInputType: LayerInputType = input.id.keyPath,
-//           let layerNode: LayerNodeViewModel = nodeViewModel.layerNode {
-//            
-//            
-//            layerNode.blockOrUnblockFields(newValue: value,
-//                                           layerInput: layerInputType.layerInput,
-//                                           activeIndex: activeIndex)
-//        }
         
         let newCommandType = value.shapeCommandType
         
