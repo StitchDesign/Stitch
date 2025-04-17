@@ -16,7 +16,7 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     let document: StitchDocumentViewModel
-    let outputCoordinate: OutputPortViewData
+    let outputCoordinate: OutputPortIdAddress
     
     var isDraggingOutput: Bool {
         graph.edgeDrawingObserver.drawingGesture.isDefined

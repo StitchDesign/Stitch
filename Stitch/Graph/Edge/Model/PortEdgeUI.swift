@@ -11,13 +11,13 @@ typealias VisibleEdges = [PortEdgeUI]
 
 // Better: `GraphEdge`
 struct PortEdgeUI: Equatable, Hashable {
-    let from: OutputPortViewData // ie nodeId, portId
-    let to: InputPortViewData
+    let from: OutputPortIdAddress // ie nodeId, portId
+    let to: InputPortIdAddress
 }
 
 extension PortEdgeUI: Identifiable {
     // Inputs can only have one edge so we use that as our identifiable
-    var id: InputPortViewData {
+    var id: InputPortIdAddress {
         self.to
     }
     
