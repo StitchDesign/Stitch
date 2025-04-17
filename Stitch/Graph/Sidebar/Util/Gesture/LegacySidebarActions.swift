@@ -248,7 +248,8 @@ extension ProjectSidebarObservable {
                            to index: SidebarIndex,
                            draggedItemsPlusChildrenCount: Int,
                            oldCount: Int) {
-        guard let graph = self.graphDelegate else {
+        guard let graph = self.graphDelegate,
+              let document = self.graphDelegate?.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
@@ -286,7 +287,7 @@ extension ProjectSidebarObservable {
         self.items.updateSidebarIndices()
                 
         // TODO: should only be for layers sidebar
-        graph.updateOrderedPreviewLayers()
+        graph.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
     }
 }
 

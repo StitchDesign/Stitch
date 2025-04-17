@@ -36,7 +36,7 @@ extension InputNodeRowViewModel {
                                                                               startingDiffFromCenter: .zero)
 
             self.rowDelegate?.removeUpstreamConnection(node: node)
-            self.nodeDelegate?.calculate()
+            self.nodeDelegate?.scheduleForNextGraphStep()
             graphState.encodeProjectInBackground()
             
             return
