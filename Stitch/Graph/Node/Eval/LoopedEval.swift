@@ -181,17 +181,7 @@ extension NodeViewModel {
             return evalOp(values, ephemeralObserver, loopIndex)
         }
     }
-    
-//    @MainActor
-//    /// Looped eval for PortValues returning an EvalFlowResult.
-//    func loopedEval<T: NodeEphemeralObservable>(_ ephemeralObserverType: T.Type,
-//                                                evalOp: @escaping NodeEphemeralObservableOp<PortValues, T>) -> EvalResult {
-//        self.loopedEval(T.self) { values, ephemeralObserver, loopIndex in
-//            evalOp(values, ephemeralObserver, loopIndex)
-//        }
-//        .createPureEvalResult()
-//    }
-    
+
     @MainActor
     /// Looped eval for PortValues returning an EvalFlowResult.
     func loopedEval<Result: NodeEvalOpResultable>(evalOp: @escaping OpWithIndex<Result>) -> EvalResult {
