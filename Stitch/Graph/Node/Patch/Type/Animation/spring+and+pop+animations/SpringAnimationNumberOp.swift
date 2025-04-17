@@ -9,36 +9,29 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct SpringAnimationResult {
+    let result: Double
+    let resultType: SpringAnimationResultType
+}
+
+enum SpringAnimationResultType {
+    case complete
+    case inProgress(SpringValueState)
+}
+
 // NOTE: Used by both pop and spring animation nodes.
-func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
-                             computedState: ComputedNodeState,
-                             graphTime: TimeInterval,
-                             isPopAnimation: Bool) -> ImpureEvalOpResult {
+func springAnimationOp(toValue: Double,
+                       values: PortValues,
+                       currentOutputValue: Double,
+                       state: SpringValueState?,
+                       graphTime: TimeInterval,
+                       isPopAnimation: Bool) -> SpringAnimationResult {
         
     //    log("springAnimationNumberOp: eval called")
     //    log("springAnimationNumberOp: isPopAnimation: \(isPopAnimation)")
-        
-    let animationState = computedState.springAnimationState ?? .one(.init())
-    
-    // Coerce animation state to single type
-    var singleAnimationState: OneFieldSpringAnimation
-    switch animationState {
-    case .one(let _singleAnimationState):
-        singleAnimationState = _singleAnimationState
-    default:
-        singleAnimationState = OneFieldSpringAnimation(values: .init())
-    }
-    
-    // the goal number
-    let toValue: Double = values.first?.getNumber ?? .zero
-    
-    
-    // Pop node has 3 inputs, so the current output will be the 4th value, i.e. index = 3
-    // Spring node has 4 inputs, so current output will be 5th value, i.e. index = 4
-    let currentOutputIndex = isPopAnimation ? 3 : 4
     
     // i.e. current output
-    let position: Double = graphTime.graphJustStarted ? toValue : values[safe: currentOutputIndex]?.getNumber ?? toValue
+    let position: Double = graphTime.graphJustStarted ? toValue : currentOutputValue
     
     //    log("springAnimationNumberOp: position: \(position)")
     //    log("springAnimationNumberOp: toValue: \(toValue)")
@@ -74,7 +67,7 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
     let roundedPosition = position.rounded(toPlaces: 5)
     let roundedToValue = toValue.rounded(toPlaces: 5)
     
-    let smallVelocity: Bool = singleAnimationState.values.springValues.map({
+    let smallVelocity: Bool = state.map({
         $0.currentVelocity <= SPRING_ANIMATION_VELOCITY_EPSILON
     }) ?? false
     let nearDestination = roundedPosition == roundedToValue
@@ -94,16 +87,12 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
         //        log("springAnimationNumberOp: roundedToValue: \(roundedToValue)")
         //        log("springAnimationNumberOp: toValue: \(toValue)")
         
-        // wipe animation values
-        singleAnimationState.values.springValues = nil
-        computedState.springAnimationState = .one(singleAnimationState)
-        
-        return .init(outputs: [.number(toValue)],
-                     willRunAgain: false)
+        return .init(result: toValue,
+                     resultType: .complete)
     }
     
     // i.e. Do we need to initialize the animation?
-    guard var springValues = singleAnimationState.values.springValues else {
+    guard var springValues = state else {
         
         //        log("springAnimationNumberOp: will initialize springValues")
         
@@ -112,7 +101,7 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
                             stiffness: stiffness,
                             damping: damping)
         
-        singleAnimationState.values.springValues = .init(
+        let newState = SpringValueState(
             spring: spring,
             // When an animation starts,
             // we animate from the current output (fromValue),
@@ -120,12 +109,10 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
             fromValue: position,
             toValue: toValue)
         
-        computedState.springAnimationState = .one(singleAnimationState)
-        
         // Exit from eval, but indicate that node should run again
         // TODO: this will exit before we've run the animation at stepTime=0; is that okay? stepTime=0 always returns the `fromValue`?
-        return .init(outputs: [.number(position)],
-                     willRunAgain: true)
+        return .init(result: position,
+                     resultType: .inProgress(newState))
     }
     
     // log("springAnimationNumber: springValues.spring.mass: \(springValues.spring.mass)")
@@ -145,30 +132,20 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
         
         // Reset animation progress: step-time and velocity
         springValues.stepTime = .zero
-        // springValues.currentVelocity = .zero // maybe doesn't need to be reset?
-        
-        // Put updated springValues back in animationState
-        singleAnimationState.values.springValues = springValues
-        computedState.springAnimationState = .one(singleAnimationState)
-        
-        // Note: retargeting requires resetting "runtime so far" and velocity, but otherwise animation step can continue on as expected. DO NOT return early.
-        //        return .init(outputs: [.number(position)],
-        //                     willRunAgain: true)
-        
     }
-        
-    // TODO: the node's inputs (spring node = mass, damping, stiffness; pop node = bounciness, speed) should be saved on animation state, and parameters are only considered to have changed when the node's current inputs do not match what was saved in animation state
-    let massChanged = Int(springValues.spring.mass) != Int(mass)
-    let dampingChanged = Int(springValues.spring.damping) != Int(damping)
-    let stiffnessChanged = Int(springValues.spring.stiffness) != Int(stiffness)
+
+    let newSpring = Spring(mass: mass,
+                           stiffness: stiffness,
+                           damping: damping)
+
+    // Diff checking needs to be off Spring object since values change there
+    let massChanged = Int(springValues.spring.mass) != Int(newSpring.mass)
+    let dampingChanged = Int(springValues.spring.damping) != Int(newSpring.damping)
+    let stiffnessChanged = Int(springValues.spring.stiffness) != Int(newSpring.stiffness)
     let parametersChanged = massChanged || dampingChanged || stiffnessChanged
                            
     if parametersChanged {
         // log("springAnimationNumberOp: parameters changed")
-        
-        let newSpring = Spring(mass: mass,
-                               stiffness: stiffness,
-                               damping: damping)
         
         springValues.spring = newSpring
         
@@ -180,14 +157,10 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
         springValues.stepTime = .zero
         springValues.currentVelocity = .zero
         
-        // Put updated springValues back in animationState
-        singleAnimationState.values.springValues = springValues
-        computedState.springAnimationState = .one(singleAnimationState)
-        
         // Note: current output does not automatically change just because mass, stiffness or damping changed;
         // we'll need to run
-        return .init(outputs: [.number(position)],
-                     willRunAgain: true)
+        return .init(result: position,
+                     resultType: .inProgress(springValues))
     }
     
     // i.e. Regular run of animation
@@ -211,11 +184,9 @@ func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
                 
     // Set new velocity
     springValues.currentVelocity = newVelocity
-    singleAnimationState.values.springValues = springValues
-    computedState.springAnimationState = .one(singleAnimationState)
     
     // log("springAnimationNumber: newPosition: \(newPosition)")
     
-    return .init(outputs: [.number(newPosition)],
-                 willRunAgain: true)
+    return .init(result: newPosition,
+                 resultType: .inProgress(springValues))
 }
