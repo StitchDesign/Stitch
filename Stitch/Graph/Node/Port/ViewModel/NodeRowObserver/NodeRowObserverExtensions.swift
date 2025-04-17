@@ -36,6 +36,7 @@ extension NodeRowObserver {
         }
     }
     
+    // TODO: this is currently invoked by StitchEngine, but does this overlap with `portsToUpdate`? `portsToUpdate` is for field-UI
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor

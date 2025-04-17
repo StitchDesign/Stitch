@@ -165,7 +165,7 @@ extension InputNodeRowObserver {
                 self.updateValuesInInput(newFlattenedValues)
 
                 // Recalculate node once values update
-                self.nodeDelegate?.calculate()
+                self.nodeDelegate?.scheduleForNextGraphStep()
             }
             
             return

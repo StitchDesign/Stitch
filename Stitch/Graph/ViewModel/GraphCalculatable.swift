@@ -28,11 +28,7 @@ extension GraphState: GraphCalculatable {
     }
     
     @MainActor
-    func updateOrderedPreviewLayers() {
-        guard let activeIndex = self.documentDelegate?.activeIndex else {
-            fatalErrorIfDebug()
-            return
-        }
+    func updateOrderedPreviewLayers(activeIndex: ActiveIndex) {
         
         let layerNodes: LayerNodesDict = self.layerNodesDict()
         
@@ -98,7 +94,7 @@ extension GraphState: GraphCalculatable {
     }
     
     @MainActor
-    func getNodeViewModel(id: UUID) -> NodeViewModel? {
+    func getNode(id: UUID) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }
 }

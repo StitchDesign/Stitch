@@ -80,7 +80,6 @@
 		B53265F0298FAAC200FB10B0 /* AsyncSingletonMediaEval.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53265EF298FAAC200FB10B0 /* AsyncSingletonMediaEval.swift */; };
 		B5368D112A886ADA00FE3489 /* LayerActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5368D102A886ADA00FE3489 /* LayerActions.swift */; };
 		B5368D132A886C1900FE3489 /* InteractionLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5368D122A886C1900FE3489 /* InteractionLayer.swift */; };
-		B5379EF42D9E31A300EC772B /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5379EF32D9E31A300EC772B /* StitchEngine */; };
 		B5380E312CF8E51600E6D801 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5380E302CF8E51600E6D801 /* StitchEngine */; };
 		B53857B02B50682400428962 /* NodeDefinitionKinds.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53857AF2B50682400428962 /* NodeDefinitionKinds.swift */; };
 		B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5386FAF2C9A929B00AD8065 /* StitchEngine */; };
@@ -759,6 +758,8 @@
 		ECB1B7B826FB9E67006D9C95 /* MediaKeyUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7B726FB9E67006D9C95 /* MediaKeyUtils.swift */; };
 		ECB33C6226F15A1C0069885B /* ProjectsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB33C6126F15A1C0069885B /* ProjectsUtils.swift */; };
 		ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */; };
+		ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD52DB14D80006EFB93 /* StitchEngine */; };
+		ECB46CD92DB15E9F006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD82DB15E9F006EFB93 /* StitchEngine */; };
 		ECB5361F26DD7A9600C3BE97 /* StitchFolderUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5361E26DD7A9600C3BE97 /* StitchFolderUtil.swift */; };
 		ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB54D6F288638A200EB75D0 /* RepeatingAnimationNode.swift */; };
 		ECB5A8162657230600D46D3E /* SampleHoldNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5A8152657230600D46D3E /* SampleHoldNode.swift */; };
@@ -1970,8 +1971,9 @@
 				EC39E75C26822ACA00674841 /* AudioKit in Frameworks */,
 				E4A848AD2D32FCFA0029AFDE /* Storage in Frameworks */,
 				B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */,
+				ECB46CD92DB15E9F006EFB93 /* StitchEngine in Frameworks */,
 				EC53F3C3287E27250021095B /* Numerics in Frameworks */,
-				B5379EF42D9E31A300EC772B /* StitchEngine in Frameworks */,
+				ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */,
 				EC15E42A2602A08B006F2E08 /* CloudKit.framework in Frameworks */,
 				201953DA25B25D3300D5296C /* Tagged in Frameworks */,
 				EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */,
@@ -4713,7 +4715,8 @@
 				B5B8105B2D77E1C90095DA9D /* StitchEngine */,
 				B53AA63F2D9B1683008D5C23 /* StitchEngine */,
 				B5E030682D9C5BEF00FDC5A5 /* StitchEngine */,
-				B5379EF32D9E31A300EC772B /* StitchEngine */,
+				ECB46CD52DB14D80006EFB93 /* StitchEngine */,
+				ECB46CD82DB15E9F006EFB93 /* StitchEngine */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4801,7 +4804,7 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
-				B5379EF22D9E31A300EC772B /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				ECB46CD72DB15E9F006EFB93 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6646,14 +6649,6 @@
 				revision = f771d9ae644935d1e1acfb861be00f403de083b5;
 			};
 		};
-		B5379EF22D9E31A300EC772B /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchEngine";
-			requirement = {
-				kind = revision;
-				revision = 960b58d152a01543d7924f8f095ae9b6fe526fd5;
-			};
-		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GianniCarlo/DirectoryWatcher.git";
@@ -6742,6 +6737,14 @@
 				version = 2.6.3;
 			};
 		};
+		ECB46CD72DB15E9F006EFB93 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
+			requirement = {
+				kind = revision;
+				revision = ffa44cccf7b4cb40a8e00958fd7f14eee664d6c2;
+			};
+		};
 		ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/timdonnelly/DisplayLink.git";
@@ -6778,11 +6781,6 @@
 		};
 		B51D8A012CD13D420016CCDA /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = StitchEngine;
-		};
-		B5379EF32D9E31A300EC772B /* StitchEngine */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B5379EF22D9E31A300EC772B /* XCRemoteSwiftPackageReference "StitchEngine" */;
 			productName = StitchEngine;
 		};
 		B5380E302CF8E51600E6D801 /* StitchEngine */ = {
@@ -6892,6 +6890,15 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EC91034829109DF3007C548E /* XCRemoteSwiftPackageReference "SoulverCore" */;
 			productName = SoulverCore;
+		};
+		ECB46CD52DB14D80006EFB93 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		ECB46CD82DB15E9F006EFB93 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECB46CD72DB15E9F006EFB93 /* XCRemoteSwiftPackageReference "StitchEngine" */;
+			productName = StitchEngine;
 		};
 		ECD5438D29A003F8009D0A30 /* DisplayLink */ = {
 			isa = XCSwiftPackageProductDependency;

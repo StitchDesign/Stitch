@@ -167,7 +167,6 @@ extension NodeRowViewModel {
 
         if shouldUpdate {
             self.cachedActiveValue = newViewValue
-
             self.activeValueChanged(oldValue: oldViewValue,
                                     newValue: newViewValue)
         }

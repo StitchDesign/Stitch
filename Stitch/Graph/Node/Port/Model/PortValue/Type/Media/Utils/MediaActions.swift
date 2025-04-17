@@ -293,7 +293,7 @@ extension GraphState {
         let outputValues = outputValues
         var nodeIdsToRecalculate = NodeIdSet()
         
-        guard let node = graph.getNodeViewModel(nodeId) else {
+        guard let node = graph.getNode(nodeId) else {
             log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
             return
         }
@@ -376,7 +376,7 @@ extension GraphState {
     func mediaPickerNoneChanged(rowObserver: InputNodeRowObserver,
                                 activeIndex: ActiveIndex,
                                 isFieldInsideLayerInspector: Bool) {
-            let emptyPortValue = PortValue.asyncMedia(nil)
+        let emptyPortValue = PortValue.asyncMedia(nil)
         self.handleInputEditCommitted(input: rowObserver,
                                       value: emptyPortValue,
                                       activeIndex: activeIndex,
