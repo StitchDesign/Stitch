@@ -33,7 +33,6 @@ func keyboardEval(node: PatchNode,
     // We should always have a document delegate
     assertInDebug(graph.documentDelegate.isDefined)
     
-    let graphTime = graph.graphStepState.graphTime
     let keypressState = graph.documentDelegate?.keypressState ?? .init()
 
     return node.loopedEval { values, _ in

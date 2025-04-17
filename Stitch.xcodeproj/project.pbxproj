@@ -605,7 +605,7 @@
 		EC6C68D42937D27A0023B700 /* ArrayCountNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C68D32937D27A0023B700 /* ArrayCountNode.swift */; };
 		EC6DF0A929FA04F60052545E /* StitchJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6DF0A829FA04F60052545E /* StitchJSON.swift */; };
 		EC6DF0AB29FA050F0052545E /* jsonPerfTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6DF0AA29FA050F0052545E /* jsonPerfTests.swift */; };
-		EC6E69B42DA9930400C3A017 /* Readers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E69B32DA9930400C3A017 /* Readers.swift */; };
+		EC6E69B42DA9930400C3A017 /* GraphReaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E69B32DA9930400C3A017 /* GraphReaders.swift */; };
 		EC6EDC2D27FF907300843E62 /* SidebarListItemSelectionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC2C27FF907300843E62 /* SidebarListItemSelectionActions.swift */; };
 		EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3127FF93CF00843E62 /* SidebarSelectionState.swift */; };
 		EC6EDC3427FF943700843E62 /* SidebarVisibilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */; };
@@ -842,6 +842,7 @@
 		ECCFB36E2C35E18800E94D60 /* PreviewCommonSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB36D2C35E18800E94D60 /* PreviewCommonSizeModifier.swift */; };
 		ECD039252641F28E003926B4 /* GroupLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD039242641F28E003926B4 /* GroupLayerNode.swift */; };
 		ECD039272641F3C9003926B4 /* PreviewGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD039262641F3C9003926B4 /* PreviewGroup.swift */; };
+		ECD0CB3E2DB095E300E1B97A /* GraphSetters.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD0CB3D2DB095E300E1B97A /* GraphSetters.swift */; };
 		ECD0E1A028D3697D00133045 /* Base64StringToImagePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD0E19F28D3697D00133045 /* Base64StringToImagePatchNode.swift */; };
 		ECD0E1A228D3699800133045 /* ImageToBase64StringNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD0E1A128D3699800133045 /* ImageToBase64StringNode.swift */; };
 		ECD1407729397804005CEA9C /* DeviceTimeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD1407629397804005CEA9C /* DeviceTimeNode.swift */; };
@@ -1576,7 +1577,7 @@
 		EC6C68D32937D27A0023B700 /* ArrayCountNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayCountNode.swift; sourceTree = "<group>"; };
 		EC6DF0A829FA04F60052545E /* StitchJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchJSON.swift; sourceTree = "<group>"; };
 		EC6DF0AA29FA050F0052545E /* jsonPerfTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = jsonPerfTests.swift; sourceTree = "<group>"; };
-		EC6E69B32DA9930400C3A017 /* Readers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Readers.swift; sourceTree = "<group>"; };
+		EC6E69B32DA9930400C3A017 /* GraphReaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReaders.swift; sourceTree = "<group>"; };
 		EC6EDC2C27FF907300843E62 /* SidebarListItemSelectionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionActions.swift; sourceTree = "<group>"; };
 		EC6EDC3127FF93CF00843E62 /* SidebarSelectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectionState.swift; sourceTree = "<group>"; };
 		EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityState.swift; sourceTree = "<group>"; };
@@ -1811,6 +1812,7 @@
 		ECCFB36D2C35E18800E94D60 /* PreviewCommonSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCommonSizeModifier.swift; sourceTree = "<group>"; };
 		ECD039242641F28E003926B4 /* GroupLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupLayerNode.swift; sourceTree = "<group>"; };
 		ECD039262641F3C9003926B4 /* PreviewGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGroup.swift; sourceTree = "<group>"; };
+		ECD0CB3D2DB095E300E1B97A /* GraphSetters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphSetters.swift; sourceTree = "<group>"; };
 		ECD0E19F28D3697D00133045 /* Base64StringToImagePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base64StringToImagePatchNode.swift; sourceTree = "<group>"; };
 		ECD0E1A128D3699800133045 /* ImageToBase64StringNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageToBase64StringNode.swift; sourceTree = "<group>"; };
 		ECD1407629397804005CEA9C /* DeviceTimeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceTimeNode.swift; sourceTree = "<group>"; };
@@ -3269,7 +3271,8 @@
 			isa = PBXGroup;
 			children = (
 				205E6DDD25AFCB23001C5C27 /* GraphState.swift */,
-				EC6E69B32DA9930400C3A017 /* Readers.swift */,
+				EC6E69B32DA9930400C3A017 /* GraphReaders.swift */,
+				ECD0CB3D2DB095E300E1B97A /* GraphSetters.swift */,
 				EC0F334B2BED93EF008093BC /* GraphDelegate.swift */,
 				8B77BA782713CED300255C40 /* GraphUI.swift */,
 				ECBB94722D60007A005311D5 /* HomescreenProjectSelectionState.swift */,
@@ -5090,6 +5093,7 @@
 				EC82939426F96C0700307D91 /* MediaConstants.swift in Sources */,
 				EC35A511297622030014D14A /* JSONShapeCommand.swift in Sources */,
 				E4F7AC262974B6E700B7F55A /* PreviewRealityLayer.swift in Sources */,
+				ECD0CB3E2DB095E300E1B97A /* GraphSetters.swift in Sources */,
 				EC5E6C892B71839600B4CACC /* AnimatableForwardCircuitLine.swift in Sources */,
 				EC28CC9C287E348A00987792 /* PatchDefaultNodeExtensions.swift in Sources */,
 				ECB1B7B226FB9D7A006D9C95 /* FileUtils.swift in Sources */,
@@ -5471,7 +5475,7 @@
 				B55501052C1BC8890081C3F1 /* SidebarSwipeSetting.swift in Sources */,
 				EC3420E22AF9C2EC00EBD896 /* CommentBoxHelpers.swift in Sources */,
 				B5EFD5B32D5E57AD006A68FB /* StitchAINodeUtils.swift in Sources */,
-				EC6E69B42DA9930400C3A017 /* Readers.swift in Sources */,
+				EC6E69B42DA9930400C3A017 /* GraphReaders.swift in Sources */,
 				ECDFF6302A0E994700729D2A /* ShapeToCommandsNode.swift in Sources */,
 				ECE2AFEA2C0A43D200F5FE87 /* InsertNodeMenuActions.swift in Sources */,
 				ECCF23512D4C6C5A00BC2F2F /* StepTypeAction.swift in Sources */,
