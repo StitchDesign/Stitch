@@ -170,10 +170,7 @@ extension GraphState {
         }
         #endif
 
-        guard let graphMovement = self.documentDelegate?.graphMovement else {
-            fatalErrorIfDebug()
-            return
-        }
+        let graphMovement = document.graphMovement
         
         self.selectedEdges = .init()
 
