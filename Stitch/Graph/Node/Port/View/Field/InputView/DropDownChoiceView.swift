@@ -40,6 +40,10 @@ struct DropDownChoiceView: View {
         } label: {
             StitchTextView(string: finalChoiceDisplay,
                            fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
+            // Required to force picker's display to always be large enough to display full option
+            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+                   height: NODE_ROW_HEIGHT,
+                   alignment: .leading)
         }
         #if targetEnvironment(macCatalyst)
         .menuIndicator(.hidden) // hide caret indicator
