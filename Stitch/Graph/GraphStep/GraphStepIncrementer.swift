@@ -152,6 +152,8 @@ extension Array where Element: NodeRowViewModel {
 
 extension GraphState {
     @MainActor func calculateOnGraphStep() {
+        // TODO: look for cycle nodes
+        
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
         // log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
         
@@ -195,7 +197,7 @@ extension GraphState {
             node.checkARTransformUpdate(self)
         }
         
-        if nodesToRunOnGraphStep.isEmpty {
+        if nodesToRunOnGraphStep.isEmpty && !self.hasUnprocessedCycleNodes {
             /*
              Usually we can return `nil` if there were no must run nodes
              or if we didn't need to recalculate the graph;
