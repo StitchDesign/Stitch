@@ -183,35 +183,42 @@ extension GraphState {
     @MainActor
     func multipleSidebarLayersSelected() -> [LayerInputPort : Set<Int>]? {
                 
-        let selectedNodes: [NodeViewModel] = self.sidebarSelectionState.primary.compactMap {
-            self.getNode($0)
+        let selectedNodes: LayerNodes = self.sidebarSelectionState.primary.compactMap {
+            self.getLayerNode($0)
         }
-        
-        guard selectedNodes.count == self.sidebarSelectionState.primary.count else {
-            // Can happen when we delete a node that is technically still selected
+                
+        guard !self.sidebarSelectionState.primary.isEmpty,
+              selectedNodes.count == self.sidebarSelectionState.primary.count else {
+            // Can happen when we delete a node that is technically still selected ?
             log("multipleSidebarLayersSelected: could not retrieve nodes for some layers?")
-            return nil
-        }
-        
-        guard let _ = self.sidebarSelectionState.primary.first else {
-            log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
             return nil
         }
       
         var commonLayerInputs = Set<LayerInputPort>()
-                
+            
+        
+        // Iterate through every layer input; for a given layer input,
+        // if all of the selected nodes' layer definitions support that layer input,
+        // a
         LayerInputPort.allCases.forEach { layerInputPort in
             
             let everySelectedLayerUsesThisPort = selectedNodes.allSatisfy { selectedNode in
                 
                 // The layer inputs this layer-node supports
-                guard let layerInputs = selectedNode.layerNode?.layer.layerGraphNode.inputDefinitions else {
-                    // Did not
-                    log("multipleSidebarLayersSelected: Did not have a layer node for a selected layer?")
-                    return false
-                }
+                let selectedNodeSupportsThisInput = selectedNode.inputDefinitions.contains(layerInputPort)
                 
-                return layerInputs.contains(layerInputPort)
+                // Note: if even a single field on the input is blocked, we consider the input to be ineligible for layer multiselect
+                // TODO: smarter logic here? logic below prevents us from editing the size.height fields of 2+ layers that both have sizingScenario = constrainWidth
+                let isInputBlocked = selectedNode
+                    .getLayerInputObserver(layerInputPort)
+                    .blockedFields
+                    .contains(where: { (blocked: LayerInputKeyPathType) in
+                        blocked == layerInputPort.asFirstField.portType ||
+                        blocked == layerInputPort.asSecondField.portType ||
+                        blocked == layerInputPort.asFullInput.portType
+                    })
+                
+                return selectedNodeSupportsThisInput && !isInputBlocked
             }
             
             if everySelectedLayerUsesThisPort {
@@ -219,10 +226,14 @@ extension GraphState {
             }
         }
         
-        // log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
-        
-        let heterogenousMap = commonLayerInputs.getHeterogenousFieldsMap(graph: self)
-        return heterogenousMap
+        return commonLayerInputs.getHeterogenousFieldsMap(graph: self)
+    }
+}
+
+extension LayerNodeViewModel {
+    @MainActor
+    var inputDefinitions: LayerInputPortSet {
+        self.layer.layerGraphNode.inputDefinitions
     }
 }
 
