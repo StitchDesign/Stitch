@@ -158,7 +158,7 @@ protocol StepActionable: Hashable, Codable {
     func applyAction(document: StitchDocumentViewModel) throws
     
     @MainActor
-    func removeAction(graph: GraphState)
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel)
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws
 }
@@ -202,8 +202,10 @@ struct StepActionAddNode: StepActionable {
         }
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState,
+                      document: StitchDocumentViewModel) {
         graph.deleteNode(id: self.nodeId,
+                         document: document,
                          willDeleteLayerGroupChildren: true)
     }
     
@@ -293,7 +295,7 @@ struct StepActionConnectionAdded: StepActionable {
         }
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
         graph.removeEdgeAt(input: self.inputPort)
     }
     
@@ -358,7 +360,7 @@ struct StepActionChangeValueType: StepActionable {
                                                       activeIndex: document.activeIndex)
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
         // Do nothing, assume node will be removed
     }
     
@@ -441,7 +443,7 @@ struct StepActionSetInput: StepActionable {
                                  activeIndex: document.activeIndex)
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
         // Do nothing, assume node will be removed
     }
     

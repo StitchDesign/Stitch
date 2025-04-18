@@ -124,7 +124,7 @@ extension StitchDocumentViewModel {
     // When an individual sidebar item is deleted via the swipe menu
     @MainActor
     func sidebarItemDeleted(itemId: SidebarListItemId) {
-        self.visibleGraph.deleteNode(id: itemId)
+        self.visibleGraph.deleteNode(id: itemId, document: self)
         self.visibleGraph.updateGraphData(self)
         self.visibleGraph.encodeProjectInBackground()
     }

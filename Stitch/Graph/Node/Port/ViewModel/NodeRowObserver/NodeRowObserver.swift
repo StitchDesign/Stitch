@@ -190,6 +190,7 @@ extension NodeRowObserver {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: graph.selectedEdges,
+                               selectedCanvasItems: graph.selection.selectedCanvasItems,
                                drawingObserver: graph.edgeDrawingObserver)
         }
     }

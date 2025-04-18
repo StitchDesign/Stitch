@@ -26,29 +26,36 @@ extension InputNodeRowObserver {
     
     @MainActor
     func updatePortColorAndUpstreamOutputPortColor(selectedEdges: Set<PortEdgeUI>,
+                                                   selectedCanvasItems: CanvasItemIdSet,
                                                    drawingObserver: EdgeDrawingObserver) {
         self.allRowViewModels.forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: selectedEdges,
+                               selectedCanvasItems: selectedCanvasItems,
+                               // Not really applicable for input port color
                                drawingObserver: drawingObserver)
         }
         
         // Note: previously this was only done when node-tapped
         // Update this input's upstream-output's port color
-        self.upstreamOutputObserver?.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
-                                                                  drawingObserver: drawingObserver)
+        self.upstreamOutputObserver?.updateRowViewModelsPortColor(
+            selectedEdges: selectedEdges,
+            selectedCanvasItems: selectedCanvasItems,
+            drawingObserver: drawingObserver)
     }
 }
 
 extension NodeRowObserver {
     @MainActor
     func updateRowViewModelsPortColor(selectedEdges: Set<PortEdgeUI>,
+                                      selectedCanvasItems: CanvasItemIdSet,
                                       drawingObserver: EdgeDrawingObserver) {
         self.allRowViewModels.forEach {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: selectedEdges,
+                               selectedCanvasItems: selectedCanvasItems,
                                drawingObserver: drawingObserver)
         }
     }
@@ -65,8 +72,10 @@ extension OutputNodeRowObserver {
     
     @MainActor
     func updatePortColorAndDownstreamInputsPortColors(selectedEdges: Set<PortEdgeUI>,
+                                                      selectedCanvasItems: CanvasItemIdSet,
                                                       drawingObserver: EdgeDrawingObserver) {
         self.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
+                                          selectedCanvasItems: selectedCanvasItems,
                                           drawingObserver: drawingObserver)
         
         // Note: previously this was only done when node-tapped
@@ -74,6 +83,7 @@ extension OutputNodeRowObserver {
         self.getDownstreamInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
             // TODO: the input observer is connected to this output observer, so why can't I use outputObserver.hasEdge etc.? Why must I retrieve the downstream input's observer? Does this indicate something is out of sync?
             inputObserver.updateRowViewModelsPortColor(selectedEdges: selectedEdges,
+                                                       selectedCanvasItems: selectedCanvasItems,
                                                        drawingObserver: drawingObserver)
         }
     }

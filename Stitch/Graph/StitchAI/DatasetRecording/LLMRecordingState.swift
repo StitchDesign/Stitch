@@ -278,7 +278,7 @@ extension StitchDocumentViewModel {
             .reversed()
             .forEach { action in
                 let step = try action.convertToType()
-                step.removeAction(graph: graph)
+                step.removeAction(graph: graph, document: self)
             }
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph

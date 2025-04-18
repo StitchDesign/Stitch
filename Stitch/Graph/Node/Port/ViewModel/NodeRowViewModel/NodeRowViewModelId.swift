@@ -26,7 +26,7 @@ extension NodeRowViewModelId {
             return false
         }
     }
-    
+        
     static let empty: Self = .init(graphItemType: .node(.node(.init())),
                                    nodeId: .init(),
                                    portId: -1)

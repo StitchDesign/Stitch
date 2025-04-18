@@ -72,14 +72,19 @@ extension InputNodeRowViewModel {
     func calculatePortColor(hasEdge: Bool,
                             hasLoop: Bool,
                             selectedEdges: Set<PortEdgeUI>,
-                            // not actually used
+                            selectedCanvasItems: CanvasItemIdSet,
                             drawingObserver: EdgeDrawingObserver) -> PortColor {
-        let isEdgeSelected = self.hasSelectedEdge(selectedEdges: selectedEdges)
+        
+        guard let canvasItemId = self.id.graphItemType.getCanvasItemId else {
+//            let selectedCanvasItems = self.graphDelegate?.selection.selectedCanvasItems else {
+            fatalErrorIfDebug() // called incorrectly
+            return .noEdge
+        }
         
         // Note: inputs always ignore actively-drawn or animated (edge-edit-mode) edges etc.
-        let isSelected = self.isCanvasItemSelected ||
-            self.isConnectedToASelectedCanvasItem ||
-            isEdgeSelected
+        let canvasItemIsSelected = selectedCanvasItems.contains(canvasItemId)
+        let isSelected = canvasItemIsSelected || self.isConnectedToASelectedCanvasItem(selectedCanvasItems) || self.hasSelectedEdge(selectedEdges: selectedEdges)
+        
         return PortColor(isSelected: isSelected,
                          hasEdge: hasEdge,
                          hasLoop: hasLoop)
