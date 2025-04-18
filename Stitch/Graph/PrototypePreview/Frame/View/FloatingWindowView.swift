@@ -183,19 +183,31 @@ struct FloatingWindowView: View {
             .onChanged { value in
                 self.isDragging = true
 
+                let windowWidth = self.previewWindowSizing.dimensions.width
+                let windowHeight = self.previewWindowSizing.dimensions.height
+                
                 let (x, y) = aspectRatioAdjustedX(
                     translationHeight: value.translation.height,
                     pwDeviceSize: self.previewWindowSizing.previewWindowDeviceSize)
-
-        //        self.activeAdjustedTranslation = .init(width: x, height: y)
-                let suggested: CGSize = .init(width: x, height: y)
                 
-                if self.previewWindowSizing.getDimensions(suggested).height < 200 {
-                    return // Do not let preview window get too small
-                } else {
-                    self.previewWindowSizing.activeAdjustedTranslation = suggested
+                let suggested: CGSize = .init(width: x, height: y)
+               
+                let proposedDimensions = self.previewWindowSizing.getDimensions(suggested)
+                let dimensionLimit: CGFloat = 200.0
+                
+                if windowHeight >= windowWidth,
+                    proposedDimensions.height < dimensionLimit {
+                    // log("portrait too small")
+                    return
                 }
                 
+                if windowWidth > windowHeight,
+                   proposedDimensions.width < dimensionLimit {
+                    // log("landscape too small")
+                    return
+                }
+                
+                self.previewWindowSizing.activeAdjustedTranslation = suggested
             }
             .onEnded({ _ in
                 self.isDragging = false
@@ -219,19 +231,6 @@ struct FloatingWindowView: View {
         //            return self.previewWindowSizing.dimensions.width.magnitude / 4
         //        }
         
-    }
-}
-
-struct FloatingWindowView_Previews: PreviewProvider {
-
-    @Namespace static var namespace
-
-    static var previews: some View {
-        FloatingWindowView(store: .init(),
-                           document: StitchDocumentViewModel.createEmpty(),
-                           deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
-                           showPreviewWindow: true,
-                           namespace: namespace)
     }
 }
 
