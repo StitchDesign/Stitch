@@ -157,19 +157,6 @@ struct LayerPropertyRowOriginReader: ViewModifier {
     }
 }
 
-struct LayerInspectorSectionToggled: GraphEvent {
-    let section: LayerInspectorSection
-    
-    func handle(state: GraphState) {
-        let alreadyClosed = state.propertySidebar.collapsedSections.contains(section)
-        if alreadyClosed {
-            state.propertySidebar.collapsedSections.remove(section)
-        } else {
-            state.propertySidebar.collapsedSections.insert(section)
-        }
-    }
-}
-
 struct LayerInspectorInputView: View {
     
     // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
@@ -226,7 +213,7 @@ struct LayerInspectorInputsSectionView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     let node: NodeViewModel
-    
+        
     @State private var expanded = true
     @State private var isHovered = false
       
@@ -263,10 +250,19 @@ struct LayerInspectorInputsSectionView: View {
             .onHover {
                 self.isHovered = $0
             }
+            .onChange(of: self.graph.propertySidebar.collapsedSections, initial: true, { oldValue, newValue in
+                self.expanded = newValue.contains(self.section) ? false : true
+            })
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
-                    dispatch(LayerInspectorSectionToggled(section: section))
+
+                    let alreadyClosed = self.graph.propertySidebar.collapsedSections.contains(self.section)
+                    if alreadyClosed {
+                        self.graph.propertySidebar.collapsedSections.remove(self.section)
+                    } else {
+                        self.graph.propertySidebar.collapsedSections.insert(self.section)
+                    }
                     
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.propertySidebar.selectedProperty,
