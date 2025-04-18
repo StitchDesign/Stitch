@@ -154,45 +154,18 @@ extension OutputNodeRowObserver {
         }
         
         return downstreamConnections.reduce(into: CanvasItemIdSet()) { partialResult, inputId in
+            
             if let canvasItem = graph.getCanvasItem(inputId: inputId) {
                 partialResult.insert(canvasItem.id)
-            }
-        }
-    }
-    
-    @MainActor
-    func getConnectedDownstreamNodes() -> [CanvasItemViewModel] {
-        guard let graph = self.nodeDelegate?.graphDelegate,
-              let downstreamConnections: Set<NodeIOCoordinate> = graph.connections.get(self.id) else {
-            return .init()
-        }
-        
-        // Find all connected downstream canvas items
-        let connectedDownstreamNodes: [CanvasItemViewModel] = downstreamConnections
-            .flatMap { (downstreamCoordinate: NodeIOCoordinate) -> [CanvasItemViewModel] in
-                // Finds the downstream node
-                guard let node = graph.getNode(downstreamCoordinate.nodeId) else {
-                    return .init()
+                
+                // If the downstream canvas item is a group input splitter,
+                // we need to also add the group's own canvas item id
+                if graph.getNode(canvasItem.id.nodeId)?.splitterType == .input,
+                   let groupNodeCanvasId = canvasItem.parentGroupNodeId.flatMap({ graph.getGroupNode($0) })?.id {
+                    partialResult.insert(groupNodeCanvasId)
                 }
-                // Assumes a 1:1 mapping of node : canvas item,
-                // but for a layer node, the canvas observers will be separate
-                return node.getAllCanvasObservers()
             }
-        
-        // why do we need to include the group's canvas item here?
-        
-        // Include group nodes if any splitters are found
-        let downstreamGroupNodes: [CanvasItemViewModel] = connectedDownstreamNodes.compactMap { canvas in
-            guard let node = canvas.nodeDelegate,
-                  node.splitterType?.isGroupSplitter ?? false,
-                  let groupNodeId = canvas.parentGroupNodeId else {
-                      return nil
-                  }
-            
-            return graph.getNode(groupNodeId)?.nodeType.groupNode
         }
-        
-        return connectedDownstreamNodes + downstreamGroupNodes
     }
     
     @MainActor func getDownstreamInputsObservers() -> [InputNodeRowObserver] {

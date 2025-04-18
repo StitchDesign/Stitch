@@ -14,9 +14,10 @@ protocol GraphReader {
     
     // Reading from, writing to a layer node
     @MainActor func getLayerNode(_ id: NodeId) -> LayerNodeViewModel?
-    
     // Reading from a layer node
     @MainActor func getLayerNodeReader(_ id: NodeId) -> LayerNodeReader?
+    
+    @MainActor func getGroupNode(_ id: NodeId) -> CanvasItemViewModel?
     
     @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
     
@@ -36,6 +37,10 @@ extension GraphState: GraphReader {
     
     func getLayerNodeReader(_ id: NodeId) -> LayerNodeReader? {
         self.getNode(id)?.layerNodeViewModel
+    }
+
+    func getGroupNode(_ id: NodeId) -> CanvasItemViewModel? {
+        self.getNode(id)?.nodeType.groupNode
     }
     
     @MainActor

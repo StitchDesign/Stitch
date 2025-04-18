@@ -179,6 +179,12 @@ extension NodeRowViewModel {
                          selectedEdges: Set<PortEdgeUI>,
                          selectedCanvasItems: CanvasItemIdSet,
                          drawingObserver: EdgeDrawingObserver) {
+        
+        // We can only update the port color on a row view model on the canvas, never the inspector
+        guard self.id.graphItemType.getCanvasItemId.isDefined else {
+            return
+        }
+        
         let newColor = self.calculatePortColor(hasEdge: hasEdge,
                                                hasLoop: hasLoop,
                                                selectedEdges: selectedEdges,
