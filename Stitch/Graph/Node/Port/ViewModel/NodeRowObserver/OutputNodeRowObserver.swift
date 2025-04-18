@@ -79,6 +79,7 @@ extension OutputNodeRowObserver {
     func updateValuesInOutput(_ newValues: PortValues, graph: GraphState) {
         self.setValuesInRowObserver(newValues,
                                     selectedEdges: graph.selectedEdges,
+                                    selectedCanvasItems: graph.selection.selectedCanvasItems,
                                     drawingObserver: graph.edgeDrawingObserver)
         self.outputPostProcessing(graph)
     }
@@ -146,6 +147,20 @@ extension OutputNodeRowObserver {
     }
     
     @MainActor
+    func getDownstreamCanvasItemsIds() -> Set<CanvasItemId> {
+        guard let graph = self.nodeDelegate?.graphDelegate,
+              let downstreamConnections: Set<InputCoordinate> = graph.connections.get(self.id) else {
+            return .init()
+        }
+        
+        return downstreamConnections.reduce(into: CanvasItemIdSet()) { partialResult, inputId in
+            if let canvasItem = graph.getCanvasItem(inputId: inputId) {
+                partialResult.insert(canvasItem.id)
+            }
+        }
+    }
+    
+    @MainActor
     func getConnectedDownstreamNodes() -> [CanvasItemViewModel] {
         guard let graph = self.nodeDelegate?.graphDelegate,
               let downstreamConnections: Set<NodeIOCoordinate> = graph.connections.get(self.id) else {
@@ -154,13 +169,17 @@ extension OutputNodeRowObserver {
         
         // Find all connected downstream canvas items
         let connectedDownstreamNodes: [CanvasItemViewModel] = downstreamConnections
-            .flatMap { downstreamCoordinate -> [CanvasItemViewModel] in
-                guard let node = graph.getNodeViewModel(downstreamCoordinate.nodeId) else {
+            .flatMap { (downstreamCoordinate: NodeIOCoordinate) -> [CanvasItemViewModel] in
+                // Finds the downstream node
+                guard let node = graph.getNode(downstreamCoordinate.nodeId) else {
                     return .init()
                 }
-                
+                // Assumes a 1:1 mapping of node : canvas item,
+                // but for a layer node, the canvas observers will be separate
                 return node.getAllCanvasObservers()
             }
+        
+        // why do we need to include the group's canvas item here?
         
         // Include group nodes if any splitters are found
         let downstreamGroupNodes: [CanvasItemViewModel] = connectedDownstreamNodes.compactMap { canvas in
@@ -170,7 +189,7 @@ extension OutputNodeRowObserver {
                       return nil
                   }
             
-            return graph.getNodeViewModel(groupNodeId)?.nodeType.groupNode
+            return graph.getNode(groupNodeId)?.nodeType.groupNode
         }
         
         return connectedDownstreamNodes + downstreamGroupNodes

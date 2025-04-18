@@ -19,6 +19,15 @@ extension GraphItemType {
     static let empty: Self = .layerInspector(.keyPath(.init(layerInput: .size,
                                                             portType: .packed)))
     
+    var getCanvasItemId: CanvasItemId? {
+        switch self {
+        case .node(let x):
+            return x
+        default:
+            return nil
+        }
+    }
+    
     var isLayerInspector: Bool {
         switch self {
         case .layerInspector:

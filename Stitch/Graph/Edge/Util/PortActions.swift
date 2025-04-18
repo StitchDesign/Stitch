@@ -32,6 +32,7 @@ extension InputNodeRowObserver {
             return
         }
         
+        // Here we care about nodes, not canvas items
         let downstreamStitches = upstreamOutputObserver.getConnectedDownstreamNodes()
             .map { $0.nodeDelegate?.id }
             .toSet

@@ -113,7 +113,8 @@ struct LLMActionDeleted: StitchDocumentEvent {
                 
         do {
             // Run deletion process for action
-            try deletedAction.convertToType().removeAction(graph: state.visibleGraph)
+            try deletedAction.convertToType().removeAction(graph: state.visibleGraph,
+                                                           document: state)
             
             // Filter out removed action before re-applying actions
             let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }

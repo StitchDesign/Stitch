@@ -247,6 +247,7 @@ extension GraphState {
             // Then calculate port colors:
             node.updateObserversPortColorsAndConnectedItemsPortColors(
                 selectedEdges: self.selectedEdges,
+                selectedCanvasItems: self.selection.selectedCanvasItems,
                 drawingObserver: self.edgeDrawingObserver)
         }
         
