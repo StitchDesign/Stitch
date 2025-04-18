@@ -62,9 +62,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
 extension OutputNodeRowViewModel {
     @MainActor
     func findConnectedCanvasItems(rowObserver: OutputNodeRowObserver) -> CanvasItemIdSet {
-        let downstreamCanvases = rowObserver.getConnectedDownstreamNodes()
-        let downstreamCanvasIds = downstreamCanvases.map { $0.id }
-        return Set(downstreamCanvasIds)
+        rowObserver.getDownstreamCanvasItemsIds()
     }
     
     /// Note: an actively-drawn edge SITS ON TOP OF existing edges. So there is no distinction between port color vs edge color.
@@ -75,7 +73,14 @@ extension OutputNodeRowViewModel {
     func calculatePortColor(hasEdge: Bool,
                             hasLoop: Bool,
                             selectedEdges: Set<PortEdgeUI>,
+                            selectedCanvasItems: CanvasItemIdSet,
                             drawingObserver: EdgeDrawingObserver) -> PortColor {
+        
+        guard let canvasItemId = self.id.graphItemType.getCanvasItemId else {
+//            let selectedCanvasItems = self.graphDelegate?.selection.selectedCanvasItems else {
+            fatalErrorIfDebug() // called incorrectly
+            return .noEdge
+        }
         
         if let drawnEdge = drawingObserver.drawingGesture,
            drawnEdge.output.id == self.id {
@@ -87,9 +92,9 @@ extension OutputNodeRowViewModel {
         
         // Otherwise, common port color logic applies:
         else {
-            let isSelected = self.isCanvasItemSelected ||
-                self.isConnectedToASelectedCanvasItem ||
-            self.hasSelectedEdge(selectedEdges: selectedEdges)
+            let canvasItemIsSelected = selectedCanvasItems.contains(canvasItemId)
+            let isSelected = canvasItemIsSelected || self.isConnectedToASelectedCanvasItem(selectedCanvasItems) || self.hasSelectedEdge(selectedEdges: selectedEdges)
+            
             return PortColor(isSelected: isSelected,
                              hasEdge: hasEdge,
                              hasLoop: hasLoop)

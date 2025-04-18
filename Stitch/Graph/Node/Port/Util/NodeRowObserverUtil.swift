@@ -27,27 +27,14 @@ extension NodeRowViewModel {
         
         return node.kind
     }
-    
+ 
     @MainActor
-    var isCanvasItemSelected: Bool {
-        guard let graph = self.graphDelegate,
-              let canvasId = self.canvasItemDelegate?.id else { return false }
-        
-        return graph.selection.selectedCanvasItems.contains(canvasId)
-    }
-
-    @MainActor
-    var isConnectedToASelectedCanvasItem: Bool {
-        guard let graph = self.graphDelegate else {
-            return false
-        }
-        
+    func isConnectedToASelectedCanvasItem(_ selectedCanvasItems: CanvasItemIdSet) -> Bool {
         for connectedCanvasItemId in self.connectedCanvasItems {
-            guard graph.selection.selectedCanvasItems.contains(connectedCanvasItemId) else {
-                continue
+            if selectedCanvasItems.contains(connectedCanvasItemId) {
+                // Found connected canvas item that is selected
+                return true
             }
-            // Found connected canvas item that is selected
-            return true
         }
         return false
     }

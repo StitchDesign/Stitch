@@ -178,13 +178,16 @@ extension NodeViewModel {
     }
     
     @MainActor func updateObserversPortColorsAndConnectedItemsPortColors(selectedEdges: Set<PortEdgeUI>,
-                                                                                 drawingObserver: EdgeDrawingObserver) {
+                                                                         selectedCanvasItems: CanvasItemIdSet,
+                                                                         drawingObserver: EdgeDrawingObserver) {
         self.inputsObservers.forEach {
             $0.updatePortColorAndUpstreamOutputPortColor(selectedEdges: selectedEdges,
+                                                         selectedCanvasItems: selectedCanvasItems,
                                                          drawingObserver: drawingObserver)
         }
         self.outputsObservers.forEach {
             $0.updatePortColorAndDownstreamInputsPortColors(selectedEdges: selectedEdges,
+                                                            selectedCanvasItems: selectedCanvasItems,
                                                             drawingObserver: drawingObserver)
         }
     }

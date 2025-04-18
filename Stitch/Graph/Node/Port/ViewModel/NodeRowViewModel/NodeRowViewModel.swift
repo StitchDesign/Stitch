@@ -37,6 +37,7 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     @MainActor func calculatePortColor(hasEdge: Bool,
                                        hasLoop: Bool,
                                        selectedEdges: Set<PortEdgeUI>,
+                                       selectedCanvasItems: CanvasItemIdSet,
                                        // output only
                                        drawingObserver: EdgeDrawingObserver) -> PortColor
 
@@ -176,10 +177,18 @@ extension NodeRowViewModel {
     func updatePortColor(hasEdge: Bool,
                          hasLoop: Bool,
                          selectedEdges: Set<PortEdgeUI>,
+                         selectedCanvasItems: CanvasItemIdSet,
                          drawingObserver: EdgeDrawingObserver) {
+        
+        // We can only update the port color on a row view model on the canvas, never the inspector
+        guard self.id.graphItemType.getCanvasItemId.isDefined else {
+            return
+        }
+        
         let newColor = self.calculatePortColor(hasEdge: hasEdge,
                                                hasLoop: hasLoop,
                                                selectedEdges: selectedEdges,
+                                               selectedCanvasItems: selectedCanvasItems,
                                                drawingObserver: drawingObserver)
         self.setPortColorIfChanged(newColor)
     }

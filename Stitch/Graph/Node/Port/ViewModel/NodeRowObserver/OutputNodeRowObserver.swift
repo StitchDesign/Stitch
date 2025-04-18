@@ -79,6 +79,7 @@ extension OutputNodeRowObserver {
     func updateValuesInOutput(_ newValues: PortValues, graph: GraphState) {
         self.setValuesInRowObserver(newValues,
                                     selectedEdges: graph.selectedEdges,
+                                    selectedCanvasItems: graph.selection.selectedCanvasItems,
                                     drawingObserver: graph.edgeDrawingObserver)
         self.outputPostProcessing(graph)
     }
@@ -146,34 +147,25 @@ extension OutputNodeRowObserver {
     }
     
     @MainActor
-    func getConnectedDownstreamNodes() -> [CanvasItemViewModel] {
+    func getDownstreamCanvasItemsIds() -> Set<CanvasItemId> {
         guard let graph = self.nodeDelegate?.graphDelegate,
-              let downstreamConnections: Set<NodeIOCoordinate> = graph.connections.get(self.id) else {
+              let downstreamConnections: Set<InputCoordinate> = graph.connections.get(self.id) else {
             return .init()
         }
         
-        // Find all connected downstream canvas items
-        let connectedDownstreamNodes: [CanvasItemViewModel] = downstreamConnections
-            .flatMap { downstreamCoordinate -> [CanvasItemViewModel] in
-                guard let node = graph.getNodeViewModel(downstreamCoordinate.nodeId) else {
-                    return .init()
-                }
-                
-                return node.getAllCanvasObservers()
-            }
-        
-        // Include group nodes if any splitters are found
-        let downstreamGroupNodes: [CanvasItemViewModel] = connectedDownstreamNodes.compactMap { canvas in
-            guard let node = canvas.nodeDelegate,
-                  node.splitterType?.isGroupSplitter ?? false,
-                  let groupNodeId = canvas.parentGroupNodeId else {
-                      return nil
-                  }
+        return downstreamConnections.reduce(into: CanvasItemIdSet()) { partialResult, inputId in
             
-            return graph.getNodeViewModel(groupNodeId)?.nodeType.groupNode
+            if let canvasItem = graph.getCanvasItem(inputId: inputId) {
+                partialResult.insert(canvasItem.id)
+                
+                // If the downstream canvas item is a group input splitter,
+                // we need to also add the group's own canvas item id
+                if graph.getNode(canvasItem.id.nodeId)?.splitterType == .input,
+                   let groupNodeCanvasId = canvasItem.parentGroupNodeId.flatMap({ graph.getGroupNode($0) })?.id {
+                    partialResult.insert(groupNodeCanvasId)
+                }
+            }
         }
-        
-        return connectedDownstreamNodes + downstreamGroupNodes
     }
     
     @MainActor func getDownstreamInputsObservers() -> [InputNodeRowObserver] {
