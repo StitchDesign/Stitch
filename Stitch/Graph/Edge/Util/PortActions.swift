@@ -32,8 +32,9 @@ extension InputNodeRowObserver {
             return
         }
         
-        let downstreamStitches = upstreamOutputObserver.getConnectedDownstreamNodes()
-            .map { $0.nodeDelegate?.id }
+        // Here we care about nodes, not canvas items
+        let downstreamStitches = upstreamOutputObserver.getDownstreamCanvasItemsIds()
+            .map(\.nodeId)
             .toSet
         
         let willUpstreamBeDisconnected = downstreamStitches == Set([self.id.nodeId])

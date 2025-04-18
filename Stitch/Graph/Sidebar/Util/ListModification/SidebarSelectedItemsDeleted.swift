@@ -12,7 +12,7 @@ import SwiftUI
 // MARK: actions on currently selected items
 
 struct SidebarSelectedItemsDeleted: GraphEventWithResponse {
-
+    
     func handle(state: GraphState) -> GraphResponse {
         state.layersSidebarViewModel.deleteSelectedItems()
         return .shouldPersist
@@ -40,15 +40,13 @@ extension ProjectSidebarObservable {
 extension LayersSidebarViewModel {
     @MainActor
     func didItemsDelete(ids: Set<SidebarListItemId>) {
-        self.graphDelegate?.didItemsDelete(ids: ids)
-    }
-}
-
-extension GraphState {
-    @MainActor
-    func didItemsDelete(ids: Set<SidebarListItemId>) {
+        guard let graph = self.graphDelegate,
+              let document = self.graphDelegate?.documentDelegate else {
+            return
+        }
+        
         ids.forEach {
-            self.deleteNode(id: $0)
+            graph.deleteNode(id: $0, document: document)
         }
     }
 }

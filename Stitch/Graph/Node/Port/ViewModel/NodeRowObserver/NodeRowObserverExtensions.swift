@@ -18,6 +18,7 @@ extension NodeRowObserver {
     @MainActor
     func setValuesInRowObserver(_ newValues: PortValues,
                                 selectedEdges: Set<PortEdgeUI>,
+                                selectedCanvasItems: CanvasItemIdSet,
                                 drawingObserver: EdgeDrawingObserver) {
         
         self.allLoopedValues = newValues
@@ -32,6 +33,7 @@ extension NodeRowObserver {
             $0.updatePortColor(hasEdge: self.hasEdge,
                                hasLoop: self.hasLoopedValues,
                                selectedEdges: selectedEdges,
+                               selectedCanvasItems: selectedCanvasItems,
                                drawingObserver: drawingObserver)
         }
     }

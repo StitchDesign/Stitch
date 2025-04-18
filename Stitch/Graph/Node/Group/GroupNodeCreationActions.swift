@@ -232,7 +232,7 @@ extension StitchDocumentViewModel {
                     return
                 }
                 
-                graph.deleteNode(id: node.id)
+                graph.deleteNode(id: node.id, document: self)
             }
         }
 
