@@ -90,12 +90,17 @@ extension OutputNodeRowViewModel {
     @MainActor
     func portDragged(gesture: DragGesture.Value,
                      graphState: GraphState) {
+        
+        guard let document = graphState.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
 
         // exit edge editing state
         graphState.edgeEditingState = nil
 
         graphState.edgeAnimationEnabled = true
-
+        
         //        log("OutputDragStarted: output: \(output)")
         //        log("OutputDragStarted: diffFromCenter: \(diffFromCenter)")
         //        log("OutputDragStarted: state.outputDragStartedCount: \(state.outputDragStartedCount)")
@@ -107,10 +112,8 @@ extension OutputNodeRowViewModel {
         //        }
 
         // Starting port drag
-        if !graphState
-            .edgeDrawingObserver
-            .drawingGesture
-            .isDefined {
+        if !graphState.edgeDrawingObserver.drawingGesture.isDefined {
+            
             graphState.outputDragStartedCount += 1
 
             let diffFromCenter = Self.calculateDiffFromCenter(from: gesture)
@@ -129,6 +132,9 @@ extension OutputNodeRowViewModel {
 
             graphState.edgeDrawingObserver.drawingGesture = drag
 
+            // Wipe selected edges, canvas items. etc.
+            graphState.resetAlertAndSelectionState(document: document)
+            
             //        log("OutputDragStarted: state.edgeDrawingObserver.drawingGesture: \(state.edgeDrawingObserver.drawingGesture)")
         } else {
             graphState.outputDragStartedCount = 0
