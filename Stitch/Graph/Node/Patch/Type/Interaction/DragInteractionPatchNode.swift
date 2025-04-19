@@ -201,7 +201,6 @@ func dragInteractionEvalOp(values: PortValues,
      */
     
     let receivedResetPulse = resetPulse.shouldPulse(graphTime) || graphTime.graphJustStarted
-    log("pulse test: \(resetPulse)")
     
     // Save is dragging state for next cycle
     state.wasDragging = interactiveLayer.dragStartingPoint.isDefined
