@@ -31,11 +31,9 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     
     @MainActor var cachedActiveValue: PortValue
     @MainActor var cachedFieldValueGroups = FieldGroupList()
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
-    
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
-    
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var portViewData: PortAddressType?
