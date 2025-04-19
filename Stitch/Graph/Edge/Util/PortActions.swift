@@ -24,8 +24,7 @@ extension InputNodeRowObserver {
     /// 2. Flattens values.
     /// 3. Returns side effects for media which needs to be cleared.
     @MainActor
-    func removeUpstreamConnection(isVisible: Bool? = nil,
-                                  node: NodeViewModel) {
+    func removeUpstreamConnection(node: NodeViewModel) {
         
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
             log("InputNodeRowObserver: removeUpstreamConnection: could not find upstream output observer")
@@ -180,10 +179,7 @@ extension NodeViewModel {
             return
         }
         
-        inputObserver.removeUpstreamConnection(
-            isVisible: self.isVisibleInFrame(graph.visibleCanvasIds,
-                                             graph.selectedSidebarLayers),
-            node: node)
+        inputObserver.removeUpstreamConnection(node: node)
     }
 }
 

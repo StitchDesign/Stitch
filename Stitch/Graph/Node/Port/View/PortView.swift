@@ -31,8 +31,10 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         rowViewModel.portColor.color(theme)
     }
     
-    var body: some View {        
-        Rectangle().fill(portColor)
+    @State private var portIsBeingDragged = false
+    
+    var body: some View {
+        Rectangle().fill(self.portColor)
         //            Rectangle().fill(portBodyColor)
         //                .overlay {
         //                    if !hasEdge {
@@ -47,14 +49,15 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
             .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
             .background {
                 Rectangle()
-                    .fill(portColor)
+                    .fill(self.portColor)
                     .frame(width: 8)
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
             }
-            .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
-                                             graphState: graph))
+            .overlay(PortEntryExtendedHitBox(rowViewModel: self.rowViewModel,
+                                             graphState: self.graph,
+                                             portIsBeingDragged: self.$portIsBeingDragged))
             .animation(.linear(duration: self.animationTime),
-                       value: portColor)
+                       value: self.portColor)
         
         // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
         
@@ -72,17 +75,11 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                                               nodeIO: NodeRowViewModelType.nodeIO))
             }
     }
-    
-    @MainActor
-    var isDraggingFromThisOutput: Bool {
-        NodeRowViewModelType.nodeIO == .output &&
-        self.rowViewModel.isDragging
-    }
-    
+        
     // Only animate port colors if we're dragging from this output
-    @MainActor
+//    @MainActor
     var animationTime: Double {
-        isDraggingFromThisOutput ? DrawnEdge.animationDuration : .zero
+        self.portIsBeingDragged ? DrawnEdge.animationDuration : .zero
     }
 }
 
@@ -125,7 +122,9 @@ extension Color {
 struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
     @Bindable var rowViewModel: RowViewModel
     @Bindable var graphState: GraphState
-
+    
+    @Binding var portIsBeingDragged: Bool
+    
     // NOTE: We want to place the gesture detectors on the .overlay'd view.
     var body: some View {
         Color.HITBOX_COLOR
@@ -143,13 +142,13 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
-                            rowViewModel.isDragging = true
+                            self.portIsBeingDragged = true
                             rowViewModel.portDragged(gesture: gesture,
                                                      graphState: graphState)
                         } // .onChanged
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
-                            rowViewModel.isDragging = false
+                            self.portIsBeingDragged = false
                             rowViewModel.portDragEnded(graphState: graphState)
                         }
             )

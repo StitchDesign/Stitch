@@ -30,7 +30,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
-    @MainActor var isDragging = false
     @MainActor var portViewData: PortAddressType?
     
     
@@ -42,8 +41,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     /*
      // Can an inspector output-row ever have a canvas item delegate ? Or would a "layer output on the graph" be represented as a non-nil canvas item reference on the `OutputLayerNodeRowData` ?
      // i.e. is this `canvasItemDelegate` only for
-     
-     
      */
     @MainActor weak var canvasItemDelegate: CanvasItemViewModel?
     
