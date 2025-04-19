@@ -152,8 +152,6 @@ extension Array where Element: NodeRowViewModel {
 
 extension GraphState {
     @MainActor func calculateOnGraphStep() {
-        // TODO: look for cycle nodes
-        
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
         // log("calculateOnGraphStep: nodesToRunOnGraphStep: \(nodesToRunOnGraphStep)")
         
