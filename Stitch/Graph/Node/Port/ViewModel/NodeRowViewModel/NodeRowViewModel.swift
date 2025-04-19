@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
+protocol NodeRowViewModel: Observable, Identifiable, Sendable, AnyObject {
     associatedtype RowObserver: NodeRowObserver
     // fka `PortViewType`
     associatedtype PortAddressType: PortIdAddress
-    
+        
     var id: NodeRowViewModelId { get }
     
     static var nodeIO: NodeIO { get }
@@ -109,15 +109,15 @@ extension NodeRowViewModel {
                 rowObserverLayerInput: layerInput)
         }
         
-        self.updatePortViewData()
+//        self.updatePortViewData()
     }
     
-    @MainActor func updatePortViewData() {
-        let newPortViewData = self.getPortViewData()
-        if self.portViewData != newPortViewData {
-            self.portViewData = newPortViewData
-        }
-    }
+//    @MainActor func updatePortViewData() {
+//        let newPortViewData = self.getPortViewData()
+//        if self.portViewData != newPortViewData {
+//            self.portViewData = newPortViewData
+//        }
+//    }
     
     /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
     @MainActor

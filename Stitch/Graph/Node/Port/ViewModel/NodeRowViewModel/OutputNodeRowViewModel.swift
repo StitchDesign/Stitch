@@ -16,8 +16,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
 
     let id: NodeRowViewModelId
     
-    @MainActor var viewCache: NodeLayoutCache?
-    
     
     // MARK: cached ui-data derived from underlying row observer
     

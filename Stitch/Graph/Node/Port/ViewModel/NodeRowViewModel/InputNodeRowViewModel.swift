@@ -7,15 +7,6 @@
 
 import Foundation
 
-
-@Observable
-final class InputPortUIData: Sendable {
-    
-    // the portDragged and portDragEnded methods DO require specific input vs output row view model;
-    // so instead you can pass down the nodeIO and the
-    
-}
-
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
@@ -24,9 +15,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     static let nodeIO: NodeIO = .input
     
     let id: NodeRowViewModelId
-    
-    @MainActor var viewCache: NodeLayoutCache?
-    
+        
     // MARK: cached ui-data derived from underlying row observer
     
     @MainActor var cachedActiveValue: PortValue
