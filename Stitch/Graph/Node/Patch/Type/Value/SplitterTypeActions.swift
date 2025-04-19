@@ -65,13 +65,10 @@ extension GraphState {
             // If we switched away from being an output- or input-splitter,
             // we need to remove some edges.
             if currentType == .output {
-                self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                self.removeConnections(from: outputPort)
             } else if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
-                    inputObserver
-                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
-                                                  node: splitterNode)
+                    inputObserver.removeUpstreamConnection(node: splitterNode)
                 }
             }
 
@@ -79,8 +76,7 @@ extension GraphState {
             // If we switched away from being an output-splitter,
             // then need to remove outgoing edges.
             if currentType == .output {
-                self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                self.removeConnections(from: outputPort)
             }
 
         case .output:
@@ -88,9 +84,7 @@ extension GraphState {
             // then need to remove the incoming edge.
             if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
-                    inputObserver
-                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers),
-                                                  node: splitterNode)
+                    inputObserver.removeUpstreamConnection(node: splitterNode)
                 }
             }
         }
