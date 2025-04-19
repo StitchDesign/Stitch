@@ -33,13 +33,20 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
         
     // Entrypoint for updating an input or output port's color, often when we don't know whether we specifically have an input or an output.
     // Relies on row VM's non-nil canvas id, portViewData, connectedCanvasItems
-    @MainActor func calculatePortColor(canvasItemId: CanvasItemId,
-                                       hasEdge: Bool,
-                                       hasLoop: Bool,
-                                       selectedEdges: Set<PortEdgeUI>,
-                                       selectedCanvasItems: CanvasItemIdSet,
-                                       // output only
-                                       drawingObserver: EdgeDrawingObserver) -> PortColor
+    @MainActor func calculatePortColor(
+        // Restriction on type of row view model (canvas only, never inspector)
+        canvasItemId: CanvasItemId,
+        
+        // Facts from the underlying row observer
+        hasEdge: Bool,
+        hasLoop: Bool,
+        
+        // Facts from the graph
+        selectedEdges: Set<PortEdgeUI>,
+        selectedCanvasItems: CanvasItemIdSet,
+        // output only
+        drawingObserver: EdgeDrawingObserver
+    ) -> PortColor
 
     
     // MARK: delegates, weak references to parents
