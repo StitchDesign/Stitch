@@ -8,27 +8,15 @@
 import SwiftUI
 import StitchSchemaKit
 
-extension InputNodeRowViewModel {
-    @MainActor
-    func portDragged(gesture: DragGesture.Value,
-                     graphState: GraphState) {
-        graphState.inputDragged(gesture: gesture, inputRowViewModel: self)
-    }
-    
-    @MainActor
-    func portDragEnded(graphState: GraphState) {
-        graphState.inputDragEnded()
-    }
-  
-}
 
 extension GraphState {
     // really we're just: retrieving row observer, retrieving node, updating edge-drawing-observer's nearest eligible input, scheduling the node to run for next graph step, encoding the project
     @MainActor
     func inputDragged(gesture: DragGesture.Value,
-                      inputRowViewModel: InputNodeRowViewModel) {
-                
-        guard let inputRowObserver = self.getInputRowObserver(inputRowViewModel.nodeIOCoordinate),
+                      rowId: NodeRowViewModelId) {
+        
+        guard let inputRowViewModel = self.getInputRowViewModel(for: rowId),
+              let inputRowObserver = self.getInputRowObserver(inputRowViewModel.nodeIOCoordinate),
               let node = self.getNode(inputRowViewModel.id.nodeId) else {
             fatalErrorIfDebug()
             return
@@ -94,12 +82,6 @@ extension GraphState {
 }
 
 extension OutputNodeRowViewModel {
-    @MainActor
-    func portDragged(gesture: DragGesture.Value,
-                     graphState: GraphState) {
-        graphState.outputDragged(gesture: gesture, outputRowViewModel: self)
-    }
-
     static func calculateDiffFromCenter(from gesture: DragGesture.Value) -> CGSize {
         let startX = gesture.startLocation.x
         let startY = gesture.startLocation.y
@@ -145,40 +127,35 @@ extension OutputNodeRowViewModel {
 
         return diffFromCenter
     }
-    
-    @MainActor func portDragEnded(graphState: GraphState) {
-        graphState.outputDragEnded()
-    }
 }
 
 extension GraphState {
     @MainActor
     func outputDragged(gesture: DragGesture.Value,
-                       outputRowViewModel: OutputNodeRowViewModel) {
-        
-        let graphState = self
+                       rowId: NodeRowViewModelId) {
                 
-        guard let document = graphState.documentDelegate else {
+        guard let outputRowViewModel = self.getOutputRowViewModel(for: rowId),
+                let document = self.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
 
         // exit edge editing state
-        graphState.edgeEditingState = nil
+        self.edgeEditingState = nil
 
-        graphState.edgeAnimationEnabled = true
+        self.edgeAnimationEnabled = true
         
         // Starting port drag
-        if !graphState.edgeDrawingObserver.drawingGesture.isDefined {
+        if !self.edgeDrawingObserver.drawingGesture.isDefined {
             
-            graphState.outputDragStartedCount += 1
+            self.outputDragStartedCount += 1
 
             let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
 
             // 3 still allows flashing;
             // 10 creates a noticeable lag;
             // 5 is perfect?
-            guard graphState.outputDragStartedCount > 5 else {
+            guard self.outputDragStartedCount > 5 else {
                 // log("OutputDragged: exiting early: state.outputDragStartedCount was: \(state.outputDragStartedCount)")
                 return
             }
@@ -187,15 +164,15 @@ extension GraphState {
                                          dragLocation: gesture.location,
                                          startingDiffFromCenter: diffFromCenter)
 
-            graphState.edgeDrawingObserver.drawingGesture = drag
+            self.edgeDrawingObserver.drawingGesture = drag
 
             // Wipe selected edges, canvas items. etc.
-            graphState.resetAlertAndSelectionState(document: document)
+            self.resetAlertAndSelectionState(document: document)
             
         } else {
-            graphState.outputDragStartedCount = 0
+            self.outputDragStartedCount = 0
 
-            guard let existingDrag = graphState.edgeDrawingObserver.drawingGesture else {
+            guard let existingDrag = self.edgeDrawingObserver.drawingGesture else {
                 // log("OutputDragged: output drag not yet initialized by SwiftUI handler; exiting early")
                 return
             }
@@ -204,7 +181,7 @@ extension GraphState {
             drag = existingDrag
             drag.dragLocation = gesture.location
 
-            graphState.edgeDrawingObserver.drawingGesture = drag
+            self.edgeDrawingObserver.drawingGesture = drag
         }
     }
     
