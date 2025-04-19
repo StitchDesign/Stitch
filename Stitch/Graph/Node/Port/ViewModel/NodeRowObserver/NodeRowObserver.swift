@@ -187,11 +187,14 @@ extension NodeRowObserver {
                     
         // Update visual color data
         self.allRowViewModels.forEach {
-            $0.updatePortColor(hasEdge: self.hasEdge,
-                               hasLoop: self.hasLoopedValues,
-                               selectedEdges: graph.selectedEdges,
-                               selectedCanvasItems: graph.selection.selectedCanvasItems,
-                               drawingObserver: graph.edgeDrawingObserver)
+            if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
+                $0.updatePortColor(canvasItemId: canvasItemId,
+                                   hasEdge: self.hasEdge,
+                                   hasLoop: self.hasLoopedValues,
+                                   selectedEdges: graph.selectedEdges,
+                                   selectedCanvasItems: graph.selection.selectedCanvasItems,
+                                   drawingObserver: graph.edgeDrawingObserver)
+            }
         }
     }
     

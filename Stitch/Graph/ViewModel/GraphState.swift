@@ -704,18 +704,16 @@ extension GraphState {
             .rowDelegate
     }
     
-    @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId,
-                                         nodeId: NodeId) -> InputNodeRowViewModel? {
-        guard let node = self.getNodeViewModel(nodeId) else {
+    @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId) -> InputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(rowId.nodeId) else {
             return nil
         }
         
         return node.getInputRowViewModel(for: rowId)
     }
     
-    @MainActor func getOutputRowViewModel(for rowId: NodeRowViewModelId,
-                                          nodeId: NodeId) -> OutputNodeRowViewModel? {
-        guard let node = self.getNodeViewModel(nodeId) else {
+    @MainActor func getOutputRowViewModel(for rowId: NodeRowViewModelId) -> OutputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(rowId.nodeId) else {
             return nil
         }
         
@@ -784,8 +782,7 @@ extension GraphState {
         
         return self.getInputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
                                                     nodeId: id.node,
-                                                    portId: 0),
-                                         nodeId: id.node)
+                                                    portId: 0))
     }
     
     @MainActor
@@ -796,8 +793,7 @@ extension GraphState {
         
         return self.getOutputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
                                                      nodeId: id.node,
-                                                     portId: 0),
-                                          nodeId: id.node)
+                                                     portId: 0))
     }
     
     @MainActor

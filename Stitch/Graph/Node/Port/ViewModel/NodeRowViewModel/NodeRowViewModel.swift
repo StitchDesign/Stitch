@@ -22,7 +22,6 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor var cachedActiveValue: PortValue { get set }
     @MainActor var cachedFieldValueGroups: [FieldGroup] { get set } // fields
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
     
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
@@ -30,12 +29,12 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     @MainActor var anchorPoint: CGPoint? { get set }
     @MainActor var portColor: PortColor { get set }
     @MainActor var portViewData: PortAddressType? { get set }
-    
-    @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
-    @MainActor func portDragEnded(graphState: GraphState)
-    
-    @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
-    @MainActor func calculatePortColor(hasEdge: Bool,
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
+        
+    // Entrypoint for updating an input or output port's color, often when we don't know whether we specifically have an input or an output.
+    // Relies on row VM's non-nil canvas id, portViewData, connectedCanvasItems
+    @MainActor func calculatePortColor(canvasItemId: CanvasItemId,
+                                       hasEdge: Bool,
                                        hasLoop: Bool,
                                        selectedEdges: Set<PortEdgeUI>,
                                        selectedCanvasItems: CanvasItemIdSet,
@@ -175,18 +174,15 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func updatePortColor(hasEdge: Bool,
+    func updatePortColor(canvasItemId: CanvasItemId,
+                         hasEdge: Bool,
                          hasLoop: Bool,
                          selectedEdges: Set<PortEdgeUI>,
                          selectedCanvasItems: CanvasItemIdSet,
                          drawingObserver: EdgeDrawingObserver) {
-        
-        // We can only update the port color on a row view model on the canvas, never the inspector
-        guard self.id.graphItemType.getCanvasItemId.isDefined else {
-            return
-        }
-        
-        let newColor = self.calculatePortColor(hasEdge: hasEdge,
+                
+        let newColor = self.calculatePortColor(canvasItemId: canvasItemId,
+                                               hasEdge: hasEdge,
                                                hasLoop: hasLoop,
                                                selectedEdges: selectedEdges,
                                                selectedCanvasItems: selectedCanvasItems,
