@@ -23,11 +23,10 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     @MainActor var cachedActiveValue: PortValue
     @MainActor var cachedFieldValueGroups = FieldGroupList()
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
-    
-    
+        
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     
+    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var portViewData: PortAddressType?
@@ -56,29 +55,27 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     }
 }
 
-extension OutputNodeRowViewModel {
+extension OutputNodeRowObserver {
     @MainActor
-    func findConnectedCanvasItems(rowObserver: OutputNodeRowObserver) -> CanvasItemIdSet {
-        rowObserver.getDownstreamCanvasItemsIds()
+    func findConnectedCanvasItems() -> CanvasItemIdSet {
+        self.getDownstreamCanvasItemsIds()
     }
-    
+}
+
+extension OutputNodeRowViewModel {
+
     /// Note: an actively-drawn edge SITS ON TOP OF existing edges. So there is no distinction between port color vs edge color.
     /// An actively-drawn edge's color is determined only by:
     /// 1. "Do we have a loop?" (blue vs theme-color) and
     /// 2. "Do we have an eligible input?" (highlight vs non-highlighted)
     @MainActor
-    func calculatePortColor(hasEdge: Bool,
+    func calculatePortColor(canvasItemId: CanvasItemId,
+                            hasEdge: Bool,
                             hasLoop: Bool,
                             selectedEdges: Set<PortEdgeUI>,
                             selectedCanvasItems: CanvasItemIdSet,
                             drawingObserver: EdgeDrawingObserver) -> PortColor {
-        
-        guard let canvasItemId = self.id.graphItemType.getCanvasItemId else {
-//            let selectedCanvasItems = self.graphDelegate?.selection.selectedCanvasItems else {
-            fatalErrorIfDebug() // called incorrectly
-            return .noEdge
-        }
-        
+                
         if let drawnEdge = drawingObserver.drawingGesture,
            drawnEdge.output.id == self.id {
             let hasEligibleInput = drawingObserver.nearestEligibleInput.isDefined

@@ -25,6 +25,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
     let coordinate: NodeIOPortType
+    let nodeIO: NodeIO
 
     @MainActor
     var portColor: Color {
@@ -53,9 +54,10 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                     .frame(width: 8)
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
             }
-            .overlay(PortEntryExtendedHitBox(rowViewModel: self.rowViewModel,
-                                             graphState: self.graph,
-                                             portIsBeingDragged: self.$portIsBeingDragged))
+            .overlay(PortEntryExtendedHitBox(graph: self.graph,
+                                             portIsBeingDragged: self.$portIsBeingDragged,
+                                             nodeIO: nodeIO,
+                                             rowId: self.rowViewModel.id))
             .animation(.linear(duration: self.animationTime),
                        value: self.portColor)
         
@@ -119,11 +121,13 @@ extension Color {
     static let HITBOX_COLOR = Color.white.opacity(0.001)
 }
 
-struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
-    @Bindable var rowViewModel: RowViewModel
-    @Bindable var graphState: GraphState
+struct PortEntryExtendedHitBox: View {
+    @Bindable var graph: GraphState
     
     @Binding var portIsBeingDragged: Bool
+    
+    let nodeIO: NodeIO // input vs output
+    let rowId: NodeRowViewModelId // how to retrieve the
     
     // NOTE: We want to place the gesture detectors on the .overlay'd view.
     var body: some View {
@@ -143,13 +147,23 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
                             self.portIsBeingDragged = true
-                            rowViewModel.portDragged(gesture: gesture,
-                                                     graphState: graphState)
+                            
+                            switch nodeIO {
+                            case .input:
+                                graph.inputDragged(gesture: gesture, rowId: rowId)
+                            case .output:
+                                graph.outputDragged(gesture: gesture, rowId: rowId)
+                            }
                         } // .onChanged
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
                             self.portIsBeingDragged = false
-                            rowViewModel.portDragEnded(graphState: graphState)
+                            switch nodeIO {
+                            case .input:
+                                graph.inputDragEnded()
+                            case .output:
+                                graph.outputDragEnded()
+                            }
                         }
             )
     }

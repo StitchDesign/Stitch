@@ -20,7 +20,7 @@ extension InputNodeRowObserver {
     @MainActor
     func refreshConnectedCanvasItemsCache() {
         self.allRowViewModels.forEach {
-            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
+            $0.connectedCanvasItems = self.findConnectedCanvasItems()
         }
     }
     
@@ -29,12 +29,18 @@ extension InputNodeRowObserver {
                                                    selectedCanvasItems: CanvasItemIdSet,
                                                    drawingObserver: EdgeDrawingObserver) {
         self.allRowViewModels.forEach {
-            $0.updatePortColor(hasEdge: self.hasEdge,
-                               hasLoop: self.hasLoopedValues,
-                               selectedEdges: selectedEdges,
-                               selectedCanvasItems: selectedCanvasItems,
-                               // Not really applicable for input port color
-                               drawingObserver: drawingObserver)
+            
+            if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
+                $0.updatePortColor(canvasItemId: canvasItemId,
+                                   hasEdge: self.hasEdge,
+                                   hasLoop: self.hasLoopedValues,
+                                   selectedEdges: selectedEdges,
+                                   selectedCanvasItems: selectedCanvasItems,
+                                   // Not really applicable for input port color
+                                   drawingObserver: drawingObserver)
+            }
+            
+            
         }
         
         // Note: previously this was only done when node-tapped
@@ -52,11 +58,14 @@ extension NodeRowObserver {
                                       selectedCanvasItems: CanvasItemIdSet,
                                       drawingObserver: EdgeDrawingObserver) {
         self.allRowViewModels.forEach {
-            $0.updatePortColor(hasEdge: self.hasEdge,
-                               hasLoop: self.hasLoopedValues,
-                               selectedEdges: selectedEdges,
-                               selectedCanvasItems: selectedCanvasItems,
-                               drawingObserver: drawingObserver)
+            if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
+                $0.updatePortColor(canvasItemId: canvasItemId,
+                                   hasEdge: self.hasEdge,
+                                   hasLoop: self.hasLoopedValues,
+                                   selectedEdges: selectedEdges,
+                                   selectedCanvasItems: selectedCanvasItems,
+                                   drawingObserver: drawingObserver)
+            }
         }
     }
 }
@@ -66,7 +75,7 @@ extension OutputNodeRowObserver {
     @MainActor
     func refreshConnectedCanvasItemsCache() {
         self.allRowViewModels.forEach {
-            $0.connectedCanvasItems = $0.findConnectedCanvasItems(rowObserver: self)
+            $0.connectedCanvasItems = self.findConnectedCanvasItems()
         }
     }
     
