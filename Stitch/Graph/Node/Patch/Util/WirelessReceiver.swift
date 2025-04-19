@@ -20,10 +20,10 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
         log("SetBroadcastForWirelessReceiver: broadcasterNodeId: \(broadcasterNodeId?.uuidString ?? "none")")
         log("SetBroadcastForWirelessReceiver: receiverNodeId: \(receiverNodeId)")
         
-        let graphState = state.visibleGraph
+        let graph = state.visibleGraph
         let graphTime = state.graphStepManager.graphTime
 
-        guard let receiverNode = graphState.getPatchNode(id: receiverNodeId),
+        guard let receiverNode = graph.getPatchNode(id: receiverNodeId),
               let receiverNodeInputObserver = receiverNode.getInputRowObserver(0) else {
             log("SetBroadcastForWirelessReceiver: could not find received node \(receiverNodeId)")
             return
@@ -37,18 +37,16 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
             // Note 1: we may not have actually had an edge, e.g. if we were already on a nil broadcaster.
             // Note 2: removeAnyEdges already recalculates the graph from the `to` node of the removed edge.
 
-            receiverNodeInputObserver.removeUpstreamConnection(
-                isVisible: receiverNode.isVisibleInFrame(graphState.visibleCanvasIds, graphState.selectedSidebarLayers),
-                node: receiverNode)
+            receiverNodeInputObserver.removeUpstreamConnection(node: receiverNode)
             
-            graphState.scheduleForNextGraphStep(receiverNodeId)
+            graph.scheduleForNextGraphStep(receiverNodeId)
             
             state.encodeProjectInBackground()
             return
         }
 
         // Find the broadcaster and the receiver.
-        guard let broadcasterNode = graphState.getPatchNode(id: broadcasterNodeId) else {
+        guard let broadcasterNode = graph.getPatchNode(id: broadcasterNodeId) else {
             log("SetBroadcastForWirelessReceiver: could not find node for broadcaster id \(broadcasterNodeId)")
             return
         }
@@ -56,7 +54,7 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
         // wireless nodes only have a single input and output
         let broadcasterOutput = OutputCoordinate(portId: 0, nodeId: broadcasterNodeId)
 
-        graphState.edgeAdded(edge: .init(from: broadcasterOutput,
+        graph.edgeAdded(edge: .init(from: broadcasterOutput,
                                          to: receiverNodeInputObserver.id))
 
         // Need to also change type of the wireless receiver node to be same as broadcaster's:
@@ -64,10 +62,10 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
             newType: broadcasterNode.userVisibleType!,
             currentGraphTime: graphTime,
             activeIndex: state.activeIndex,
-            graph: graphState)
+            graph: graph)
 
         // Then recalculate the graph from the broadcaster onward:
-        graphState.scheduleForNextGraphStep(broadcasterNodeId)
+        graph.scheduleForNextGraphStep(broadcasterNodeId)
 
         state.encodeProjectInBackground()
     }
