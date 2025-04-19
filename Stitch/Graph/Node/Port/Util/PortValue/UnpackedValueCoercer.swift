@@ -74,7 +74,7 @@ extension PortValues {
             
             
         default:
-            log("LayerInputPort: pack")
+            // log("LayerInputPort: pack")
             return nil
         }
     }

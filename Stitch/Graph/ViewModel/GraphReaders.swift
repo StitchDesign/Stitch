@@ -59,6 +59,10 @@ extension GraphState: GraphReader {
     }
 }
 
+
+
+
+// TODO: remove
 extension GraphReader {
     @MainActor
     func updateCanvasItemFields(canvasItemId: CanvasItemId,

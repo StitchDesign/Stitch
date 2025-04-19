@@ -30,9 +30,10 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     @MainActor var anchorPoint: CGPoint? { get set }
     @MainActor var portColor: PortColor { get set }
     @MainActor var portViewData: PortAddressType? { get set }
-    @MainActor var isDragging: Bool { get set }
+    
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     @MainActor func portDragEnded(graphState: GraphState)
+    
     @MainActor func findConnectedCanvasItems(rowObserver: Self.RowObserver) -> CanvasItemIdSet
     @MainActor func calculatePortColor(hasEdge: Bool,
                                        hasLoop: Bool,

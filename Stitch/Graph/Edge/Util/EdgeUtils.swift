@@ -101,15 +101,17 @@ extension GraphState {
         
         if nearestInputs.isEmpty {
             dispatch(EligibleInputReset())
-        } else {
-            nearestInputs.last?.eligibleInputDetected(graphState: self)
+        } else if let nearestInput = nearestInputs.last {
+            // While dragging cursor from an output/input,
+            // we've detected that we're over an eligible input
+            // to which we could create a connection.
+            self.edgeDrawingObserver.nearestEligibleInput = nearestInput
         }
     }
     
     /// Removes edges which root from some output coordinate.
     @MainActor
-    func removeConnections(from outputCoordinate: NodeIOCoordinate,
-                           isNodeVisible: Bool) {
+    func removeConnections(from outputCoordinate: NodeIOCoordinate) {
         guard let connectedInputs = self.connections.get(outputCoordinate) else {
             return
         }
@@ -120,14 +122,7 @@ extension GraphState {
                 return
             }
             
-            inputObserver.removeUpstreamConnection(isVisible: isNodeVisible,
-                                                   node: inputObserverNode)
+            inputObserver.removeUpstreamConnection(node: inputObserverNode)
         }
     }
 }
-
-// struct EdgeDrawingView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        EdgeDrawingView()
-//    }
-// }
