@@ -82,7 +82,7 @@ extension NodeViewModel {
                                                         length: max(loopCount, layerNode.previewLayerViewModels.count))
         
         return self.getLoopedEvalResults(ephemeralObserverType,
-                               minLoopCount: layerNode.previewLayerViewModels.count) { values, ephemeralObserver, loopIndex in
+                                         minLoopCount: layerNode.previewLayerViewModels.count) { values, ephemeralObserver, loopIndex in
             guard let interactiveLayer = lengthenedPreviewLayers[safe: loopIndex]?.interactiveLayer else {
                 log("loopedEval: could not find interactive layer for loopIndex \(loopIndex) in lengthenedPreviewLayers \(lengthenedPreviewLayers)")
                 return .init(from: self.defaultOutputs)
