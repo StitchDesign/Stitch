@@ -15,13 +15,12 @@ typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
 @Observable
-final class FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable {
+final class FieldViewModel: Observable, AnyObject, Identifiable, Sendable {
     
     let id: FieldCoordinate
     @MainActor var fieldValue: FieldValue
     @MainActor var fieldIndex: Int
     @MainActor var fieldLabel: String
-    @MainActor var viewCache: NodeLayoutCache?
     
     @MainActor
     init(fieldValue: FieldValue,
