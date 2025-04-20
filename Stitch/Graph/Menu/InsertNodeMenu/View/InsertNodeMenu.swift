@@ -9,6 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+
+let INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR: Color = Color(uiColor: UIColor(hex: "F3F3F3")!)
+
 // let INSERT_NODE_MENU_WIDTH: CGFloat = 700
 let INSERT_NODE_MENU_WIDTH: CGFloat = 639
 
@@ -111,7 +114,8 @@ struct InsertNodeMenuView: View {
                 let isLoading = document.insertNodeMenuState.isGeneratingAINode
                 
                 HStack(spacing: 8) {
-                    Text(isAIMode ? "Submit Prompt" : "Add Node")
+                    StitchTextView(string: isAIMode ? "Submit Prompt" : "Add Node",
+                                   fontColor: INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     
