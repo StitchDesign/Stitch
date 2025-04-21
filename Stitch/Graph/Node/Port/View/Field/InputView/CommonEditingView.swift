@@ -9,9 +9,12 @@ import SwiftUI
 import StitchSchemaKit
 
 extension Color {
+    // Not completely white in light mode, not completely dark in dark mode
+    static let SIDEBAR_AND_INSPECTOR_BACKGROUND_COLOR = Color(.sheetBackground)
+    
     static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.lightModeBlackDarkModeWhite)
     
-    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Color(.lightModeWhiteDarkModeBlack)
+    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Self.SIDEBAR_AND_INSPECTOR_BACKGROUND_COLOR //Color(.lightModeWhiteDarkModeBlack)
     
     static let INSPECTOR_FIELD_BACKGROUND_COLOR = Color(.inspectorFieldBackground)
     
