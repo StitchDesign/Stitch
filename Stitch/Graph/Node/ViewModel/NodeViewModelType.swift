@@ -80,13 +80,20 @@ extension NodeViewModelType {
                             document: StitchDocumentViewModel) {
         let graph = document.graph
         
+        let activeIndex = document.activeIndex
+        
         switch self {
         case .patch(let patchNodeViewModel):
-            patchNodeViewModel.initializeDelegate(node, graph: graph)
+            patchNodeViewModel.initializeDelegate(node,
+                                                  graph: graph,
+                                                  activeIndex: activeIndex)
         case .layer(let layerNodeViewModel):
-            layerNodeViewModel.initializeDelegate(node, graph: graph, document: document)
+            layerNodeViewModel.initializeDelegate(node,
+                                                  graph: graph,
+                                                  activeIndex: activeIndex)
         case .group(let canvasItemViewModel):
             canvasItemViewModel.initializeDelegate(node,
+                                                   activeIndex: activeIndex,
                                                    // Not relevant
                                                    unpackedPortParentFieldGroupType: nil,
                                                    unpackedPortIndex: nil)

@@ -139,6 +139,7 @@ extension StitchDocumentViewModel {
             outputRowObservers: [])
         
         input.canvasObserver?.initializeDelegate(node,
+                                                 activeIndex: self.activeIndex,
                                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                                  unpackedPortIndex: unpackedPortIndex)
         
@@ -175,6 +176,7 @@ struct LayerOutputAddedToGraph: StitchDocumentEvent {
         
         graph.layerOutputAddedToGraph(node: node,
                                       output: outputPort,
+                                      activeIndex: state.activeIndex,
                                       portId: portId,
                                       groupNodeFocused: state.groupNodeFocused?.groupNodeId,
                                       insertionLocation: state.newCanvasItemInsertionLocation)
@@ -187,6 +189,7 @@ extension GraphState {
     @MainActor
     func layerOutputAddedToGraph(node: NodeViewModel,
                                  output: OutputLayerNodeRowData,
+                                 activeIndex: ActiveIndex,
                                  portId: Int,
                                  groupNodeFocused: NodeId?,
                                  insertionLocation: CGPoint) {
@@ -206,6 +209,7 @@ extension GraphState {
             outputRowObservers: [output.rowObserver])
         
         output.canvasObserver?.initializeDelegate(node,
+                                                  activeIndex: activeIndex,
                                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                                   unpackedPortIndex: unpackedPortIndex)
         

@@ -173,6 +173,7 @@ extension VisibleNodesViewModel {
                 // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
                 // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
                 canvasGroup.initializeDelegate(node,
+                                               activeIndex: activeIndex,
                                                // Layer inputs can never be inputs for group nodes
                                                unpackedPortParentFieldGroupType: nil,
                                                unpackedPortIndex: nil)
