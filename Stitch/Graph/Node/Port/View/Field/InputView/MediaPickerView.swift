@@ -109,10 +109,8 @@ struct MediaFieldLabelView: View {
     @MainActor
     func updateMediaObserver() {
         self.mediaObserver = node.getMediaObserver(portType: inputType,
-                                                   
                                                    // TODO: loop support
                                                    loopIndex: 0,
-                                                   
                                                    // TODO: remove media ID check
                                                    mediaId: nil)
     }

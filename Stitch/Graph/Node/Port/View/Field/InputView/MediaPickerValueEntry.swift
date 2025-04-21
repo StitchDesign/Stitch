@@ -100,6 +100,32 @@ struct MediaPickerValueEntry: View {
             TruncatedTextView(isMultiselectInspectorInputWithHeterogenousValues ? .HETEROGENOUS_VALUES : label,
                               truncateAt: 30,
                               color: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
+            
+            // Note: truncation logic does not quite seem correct; we were truncating at ~5-10 characters, not 30
+            // TODO: better to just set a single width for all media-labels, regardless of length or "None" etc.?
+            .modifier(MediaPickerValueEntryWidth(
+                label: label,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         })
+    }
+}
+
+struct MediaPickerValueEntryWidth: ViewModifier {
+    let label: String
+    let isFieldInsideLayerInspector: Bool
+    
+    func body(content: Content) -> some View {
+        if isFieldInsideLayerInspector {
+            content
+        } else {
+            content
+            .frame(minWidth: self.minimumLabelWidth,
+                   maxWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 2,
+                   alignment: .leading)
+        }
+    }
+    
+    var minimumLabelWidth: CGFloat? {
+        label == "None" ? NODE_INPUT_OR_OUTPUT_WIDTH : (NODE_INPUT_OR_OUTPUT_WIDTH * 1.5)
     }
 }
