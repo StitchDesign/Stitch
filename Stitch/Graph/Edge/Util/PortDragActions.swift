@@ -65,8 +65,8 @@ extension GraphState {
             return
         }
 
-        let to = nearestEligibleInput.portViewData
-        let from = drawingGesture.output.portViewData
+        let to = nearestEligibleInput.portAddress
+        let from = drawingGesture.output.portAddress
         
         self.edgeDrawingObserver.reset()
 
@@ -210,8 +210,8 @@ extension GraphState {
         let sourceNodeId = fromRowObserver.id.nodeId
         
         self.createEdgeFromEligibleInput(
-            from: from.portViewData,
-            to: to.portViewData,
+            from: from.portAddress,
+            to: to.portAddress,
             sourceNodeId: sourceNodeId)
         
         self.encodeProjectInBackground()
