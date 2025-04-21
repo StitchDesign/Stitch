@@ -558,25 +558,6 @@ extension LayerViewModel {
                 }
             }
         }
-        
-        //        // Multi-value key paths (all anchors in reality node)
-        //        else {
-        //            // MARK: no longer used
-        //            fatalErrorIfDebug()
-        ////            // No looping index used for multi-value key path
-        ////            if let values = lengthenedValuesList[safe: portId] {
-        ////                let oldValues = self.getValues(for: inputType)
-        ////
-        ////                // Saves render cycles
-        ////                if oldValues != values {
-        ////                    self.updatePreviewLayerInput(values, inputType: inputType)
-        ////
-        ////                    if inputType.shouldResetGraphPreviews {
-        ////                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
-        ////                    }
-        ////                }
-        ////            }
-        //        }
     }
     
     @MainActor
