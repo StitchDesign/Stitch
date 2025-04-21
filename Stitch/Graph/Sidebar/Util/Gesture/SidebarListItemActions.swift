@@ -39,7 +39,6 @@ struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
         }
         
         // TODO: why do we have to immediately update the preview layers? Why isn't setting `state.shouldResortPreviewLayers = true` enough?
-        state.shouldResortPreviewLayers = true
         state.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
         
         return .persistenceResponse
@@ -71,9 +70,5 @@ extension GraphState {
         for id in descendants {
             self.getLayerNode(id.id)?.hasSidebarVisibility = isShown
         }
-        
-        // TODO: introduce an `Enabled` input on layer node and update `LayerInputPort.shouldResortPreviewLayersIfChanged`
-        // See `LayerInputPort.shouldResortPreviewLayersIfChanged` for which inputs' changes require resorting
-        self.shouldResortPreviewLayers = true
     }
 }

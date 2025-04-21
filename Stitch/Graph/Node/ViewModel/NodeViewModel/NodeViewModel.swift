@@ -43,11 +43,7 @@ final class NodeViewModel: Sendable {
 
     @MainActor
     var nodeType: NodeViewModelType
-    
-    // Cached for perf
-    @MainActor
-    var longestLoopLength: Int = 1
-    
+        
     @MainActor
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
