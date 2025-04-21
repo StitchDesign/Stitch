@@ -405,8 +405,14 @@ extension LayerNodeViewModel: SchemaObserver {
                         nodeId: schema.id)
         }
         
+        guard let document = self.nodeDelegate?.graphDelegate?.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // Process output canvases
-        self.updateOutputData(from: schema.outputCanvasPorts)
+        self.updateOutputData(from: schema.outputCanvasPorts,
+                              activeIndex: document.activeIndex)
         
         // Updates canvas item counts
         self.resetInputCanvasItemsCache()
@@ -421,7 +427,8 @@ extension LayerNodeViewModel: SchemaObserver {
     }
     
     @MainActor
-    func updateOutputData(from canvases: [CanvasNodeEntity?]) {
+    func updateOutputData(from canvases: [CanvasNodeEntity?],
+                          activeIndex: ActiveIndex) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
             guard let outputData = self.outputPorts[safe: portIndex],
                   let node = self.nodeDelegate else {
@@ -444,6 +451,7 @@ extension LayerNodeViewModel: SchemaObserver {
                     
                     outputData.canvasObserver?.initializeDelegate(
                         node,
+                        activeIndex: activeIndex,
                         // Not relevant
                         unpackedPortParentFieldGroupType: nil,
                         unpackedPortIndex: nil)
@@ -493,7 +501,7 @@ extension LayerNodeViewModel {
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
                             graph: GraphState,
-                            document: StitchDocumentViewModel) {
+                            activeIndex: ActiveIndex) {
         self.nodeDelegate = node
         
         // Reset known input canvas items
@@ -501,7 +509,8 @@ extension LayerNodeViewModel {
         
         // Set up outputs
         self.outputPorts.forEach {
-            $0.initializeDelegate(node, graph: graph, document: document)
+            $0.initializeDelegate(node, graph: graph,
+                                  activeIndex: activeIndex)
         }
         
         self.resetInputCanvasItemsCache()

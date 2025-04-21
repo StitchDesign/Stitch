@@ -304,6 +304,7 @@ extension GraphState {
         
         unpackedPort.canvasObserver?.initializeDelegate(
             node,
+            activeIndex: document.activeIndex,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: fieldIndex)
         
