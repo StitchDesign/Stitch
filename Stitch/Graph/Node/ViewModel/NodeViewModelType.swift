@@ -82,9 +82,12 @@ extension NodeViewModelType {
         
         switch self {
         case .patch(let patchNodeViewModel):
-            patchNodeViewModel.initializeDelegate(node, graph: graph)
+            patchNodeViewModel.initializeDelegate(node,
+                                                  graph: graph)
         case .layer(let layerNodeViewModel):
-            layerNodeViewModel.initializeDelegate(node, graph: graph, document: document)
+            layerNodeViewModel.initializeDelegate(node,
+                                                  graph: graph,
+                                                  activeIndex: document.activeIndex)
         case .group(let canvasItemViewModel):
             canvasItemViewModel.initializeDelegate(node,
                                                    // Not relevant

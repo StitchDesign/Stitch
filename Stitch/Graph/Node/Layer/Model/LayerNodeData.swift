@@ -140,7 +140,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
                             graph: GraphState,
-                            document: StitchDocumentViewModel) {
+                            activeIndex: ActiveIndex) {
         self.rowObserver.initializeDelegate(node, graph: graph)
         let rowDelegate = self.rowObserver
         
@@ -151,7 +151,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
                         
         self.inspectorRowViewModel.initializeDelegate(
             node, // for setting NodeViewModel on NodeRowViewModel
-            initialValue: rowDelegate.getActiveValue(activeIndex: document.activeIndex),
+            initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
             // Not relevant for output
             unpackedPortParentFieldGroupType: nil,
             unpackedPortIndex: nil,

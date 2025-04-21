@@ -493,7 +493,7 @@ extension LayerNodeViewModel {
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
                             graph: GraphState,
-                            document: StitchDocumentViewModel) {
+                            activeIndex: ActiveIndex) {
         self.nodeDelegate = node
         
         // Reset known input canvas items
@@ -501,7 +501,8 @@ extension LayerNodeViewModel {
         
         // Set up outputs
         self.outputPorts.forEach {
-            $0.initializeDelegate(node, graph: graph, document: document)
+            $0.initializeDelegate(node, graph: graph,
+                                  activeIndex: activeIndex)
         }
         
         self.resetInputCanvasItemsCache()
