@@ -68,7 +68,7 @@ struct EdgeFromDraggedOutputView: View {
             if let downstreamNode = outputDrag.output.nodeDelegate,
                 let outputAnchorData = EdgeAnchorUpstreamData(from: outputRowViewModel,
                                                               connectedDownstreamNode: downstreamNode),
-               let outputPortViewData = outputRowViewModel.portViewData,
+               let outputPortViewData = outputRowViewModel.portAddress,
                let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
                let pointFrom = outputRowViewModel.anchorPoint {
                 let edge = PortEdgeUI(from: outputPortViewData,

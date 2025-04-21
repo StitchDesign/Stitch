@@ -20,7 +20,7 @@ struct GraphConnectedEdgesView: View {
        let possibleEdge = graph.edgeEditingState?
             .possibleEdges
             .first(where: {
-                $0.edge.to == edgeData.downstreamRowObserver.portViewData
+                $0.edge.to == edgeData.downstreamRowObserver.portAddress
                 && graph.edgeEditingState?.animationInProgressIds.contains($0.id) ?? false
             })
         
@@ -138,8 +138,8 @@ struct ConnectedEdgeView: View {
         let totalOutputs = outputData.totalOutputs
         let lastConnectedUpstreamObserver = outputData.lastConnectedUpstreamRowViewModel
         
-        if let inputPortViewData = inputRowViewModel.portViewData,
-           let outputPortViewData = upstreamOutputRowViewModel.portViewData,
+        if let inputPortViewData = inputRowViewModel.portAddress,
+           let outputPortViewData = upstreamOutputRowViewModel.portAddress,
            let pointTo = inputRowViewModel.anchorPoint,
            let pointFrom = upstreamOutputRowViewModel.anchorPoint,
            let firstFrom = firstUpstreamObserver.anchorPoint,
