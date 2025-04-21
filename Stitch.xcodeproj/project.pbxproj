@@ -902,6 +902,8 @@
 		ECE585762DB6C84F00749ED3 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECE585752DB6C84F00749ED3 /* StitchEngine */; };
 		ECE585792DB6CC8700749ED3 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECE585782DB6CC8700749ED3 /* StitchEngine */; };
 		ECE5857C2DB6D39C00749ED3 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECE5857B2DB6D39C00749ED3 /* StitchEngine */; };
+		ECE5857E2DB6EB5700749ED3 /* InputPortUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE5857D2DB6EB5600749ED3 /* InputPortUIData.swift */; };
+		ECE585802DB6EF2200749ED3 /* OutputPortUIData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE5857F2DB6EF2200749ED3 /* OutputPortUIData.swift */; };
 		ECE639202C489C4F00FB8D5F /* ShadowFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */; };
 		ECE639222C489C6900FB8D5F /* FlyoutUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */; };
 		ECE708642B8D492A009F4525 /* CurveToUnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708632B8D492A009F4525 /* CurveToUnpackNode.swift */; };
@@ -1872,6 +1874,8 @@
 		ECE35EED27CEE93700CB8F5C /* PickerActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerActions.swift; sourceTree = "<group>"; };
 		ECE35EEF27CEE99300CB8F5C /* InputEditedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEditedActions.swift; sourceTree = "<group>"; };
 		ECE35EF127CEE9AE00CB8F5C /* InputCommittedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputCommittedActions.swift; sourceTree = "<group>"; };
+		ECE5857D2DB6EB5600749ED3 /* InputPortUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputPortUIData.swift; sourceTree = "<group>"; };
+		ECE5857F2DB6EF2200749ED3 /* OutputPortUIData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputPortUIData.swift; sourceTree = "<group>"; };
 		ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowFlyoutView.swift; sourceTree = "<group>"; };
 		ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlyoutUtils.swift; sourceTree = "<group>"; };
 		ECE708632B8D492A009F4525 /* CurveToUnpackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveToUnpackNode.swift; sourceTree = "<group>"; };
@@ -4444,7 +4448,9 @@
 			children = (
 				B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */,
 				EC8C1AAA2D7799A90058D969 /* InputNodeRowViewModel.swift */,
+				ECE5857D2DB6EB5600749ED3 /* InputPortUIData.swift */,
 				EC8C1AAC2D7799CA0058D969 /* OutputNodeRowViewModel.swift */,
+				ECE5857F2DB6EF2200749ED3 /* OutputPortUIData.swift */,
 				EC8C1AAE2D779A090058D969 /* GraphItemType.swift */,
 				EC8C1AB02D779A190058D969 /* NodeRowViewModelId.swift */,
 			);
@@ -5589,6 +5595,7 @@
 				EC8DD69C29A594930061FB67 /* PortValuesUtils.swift in Sources */,
 				ECE35EE427CEE7E100CB8F5C /* FieldCoercers.swift in Sources */,
 				EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */,
+				ECE585802DB6EF2200749ED3 /* OutputPortUIData.swift in Sources */,
 				B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */,
 				ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */,
 				205E6DDE25AFCB23001C5C27 /* GraphState.swift in Sources */,
@@ -5688,6 +5695,7 @@
 				EC004DD92B46438900C5DB33 /* TextFieldLayerNode.swift in Sources */,
 				E4100F9E29B83E0C00656871 /* Resnet50.mlmodel in Sources */,
 				EC89F7DF27602BE700C4447A /* SelectionHelpers.swift in Sources */,
+				ECE5857E2DB6EB5700749ED3 /* InputPortUIData.swift in Sources */,
 				B5EFD5BC2D63EC5D006A68FB /* OpenAIStructuredOutputs.swift in Sources */,
 				B555FB412D59CD3E00E1D349 /* StitchAISchema.swift in Sources */,
 				B59602152D56839C007C7AA9 /* StitchAITypeCasting.swift in Sources */,
