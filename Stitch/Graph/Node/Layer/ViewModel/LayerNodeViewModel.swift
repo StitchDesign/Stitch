@@ -25,6 +25,9 @@ final class LayerNodeViewModel {
 
     let layer: Layer
 
+    // Cached for perf
+    @MainActor var cachedLongestLoopLength: Int = 1
+    
     // View models for layers in prototype window
     @MainActor var previewLayerViewModels: [LayerViewModel] = []
  
@@ -564,15 +567,12 @@ extension LayerNodeViewModel {
     
     /// Updates one or more preview layers given some layer node.
     @MainActor
-    func didValuesUpdate(newValuesList: PortValuesList) {
-
-        guard let node = self.nodeDelegate,
-              let graph = node.graphDelegate else {
-            return
-        }
-        
+    func didValuesUpdate(newValuesList: PortValuesList,
+                         node: NodeViewModel,
+                         graph: GraphState) {
+                
         let oldLongestLoopLength = self.previewLayerViewModels.count
-        let newLongestLoopLength = node.longestLoopLength
+        let newLongestLoopLength = self.cachedLongestLoopLength
         let loopIndices = newLongestLoopLength.loopIndices
 
         // Keeps track of original media list for lengthening
@@ -640,12 +640,13 @@ extension LayerNodeViewModel {
     /// Gets/creates layer view model. Takes into consideration values from layer node and if we should (or shouldn't)
     /// create a new layer given some loop (i.e. the Reality layer node flattens anchors).
     @MainActor
-    func updatePreviewLayers(lengthenedValuesList: PortValuesList,
-                             id: NodeId,
-                             loopIndex: Int,
-                             changedPortId: Int,
-                             node: NodeViewModel,
-                             graph: GraphSetter) {
+    private func updatePreviewLayers(lengthenedValuesList: PortValuesList,
+                                     id: NodeId,
+                                     loopIndex: Int,
+                                     changedPortId: Int,
+                                     node: NodeViewModel,
+                                     graph: GraphSetter) {
+        
         let previewCoordinate = PreviewCoordinate(layerNodeId: id.asLayerNodeId,
                                                   loopIndex: loopIndex)
         // Always true except for inputs like Reality node's first input which accepts multiple anchors
@@ -677,9 +678,9 @@ extension LayerNodeViewModel {
         }
 
         if shouldUpdatePreviewLayers {
-            previewViewModel.update(with: lengthenedValuesList,
-                                    changedPortId: changedPortId,
-                                    graph: graph)
+            previewViewModel.updatePreviewLayer(from: lengthenedValuesList,
+                                                changedPortId: changedPortId,
+                                                graph: graph)
         }
     }
 }
@@ -697,9 +698,14 @@ extension Layer {
                                        nodeDelegate: node)
 
         // Plug in values
-        viewModel.updateAllValues(with: lengthenedValuesList,
-                                  graph: graph)
-
+        lengthenedValuesList.indices.forEach { portId in
+            // We ignore the "requires preview layer resort?" value here,
+            // since any creation of the preview layer view models will require a resort.
+            viewModel.updatePreviewLayer(from: lengthenedValuesList,
+                                         changedPortId: portId,
+                                         graph: graph)
+        }
+   
         return viewModel
     }
 }
