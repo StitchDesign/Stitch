@@ -44,7 +44,7 @@ struct ProjectSidebarView: View {
             //#endif
             .zIndex(1)
         }
-//        .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
+        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
         
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
         .edgesIgnoringSafeArea(.bottom)
@@ -60,19 +60,5 @@ struct ProjectSidebarView: View {
         .toolbarBackground(.visible, for: .automatic)
         .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
 #endif
-    }
-}
-
-extension LayersSidebarViewModel {
-    func editModeToggled(to isEditing: Bool) {
-        // Reset selection-state, but preserve inspector's focused layers
-        
-        // Don't actually reset these?
-//        state.sidebarSelectionState.resetEditModeSelections()
-        
-//        self.inspectorFocusedLayers = inspectorFocusedLayers
-        
-        // Do not set until the end; otherwise selection-state resets loses the change.
-//        self.selectionState.isEditMode = isEditing
     }
 }
