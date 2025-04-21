@@ -23,7 +23,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor var cachedFieldValueGroups = FieldGroupList()
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
-    @MainActor var portData: InputPortUIData
+    @MainActor var portUIViewModel: InputPortUIViewModel
     
     // MARK: delegates, weak references to parents
     
@@ -38,7 +38,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          initialValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
-        self.portData = .init(id: InputCoordinate(portId: id.portId,
+        self.portUIViewModel = .init(id: InputCoordinate(portId: id.portId,
                                                   nodeId: id.nodeId))
         self.id = id
         self.cachedActiveValue = initialValue
