@@ -13,35 +13,32 @@ import simd
 extension GraphState {
     @MainActor
     public func updatePortViews() {
-        self.portsToUpdate.forEach { portType in
+        
+        let portsToUpdate = self.portsToUpdate
+        self.portsToUpdate = .init()
+        
+        portsToUpdate.forEach { portType in
             
             switch portType {
                 
             case .input(let inputId):
-                guard let node = self.getNode(id: inputId.nodeId),
-                      let inputObserver = node.getInputRowObserver(for: inputId.portType) else {
-                    return
+                if let node = self.getNode(id: inputId.nodeId),
+                   let inputObserver = node.getInputRowObserver(for: inputId.portType) {
+                    inputObserver.updatePortViewModels(self)
                 }
-                
-                inputObserver.updatePortViewModels(self)
                 
             case .allOutputs(let nodeId):
-                guard let node = self.getNode(id: nodeId) else {
-                    return
-                }
-                
-                node.outputsObservers.forEach { rowObserver in
-                    rowObserver.updatePortViewModels(self)
+                if let node = self.getNode(id: nodeId) {
+                    node.outputsObservers.forEach { $0.updatePortViewModels(self) }
                 }
                 
             @unknown default:
                 return
             } // switch
             
-            self.didPortsUpdate(ports: self.portsToUpdate)
-            
-            self.portsToUpdate = .init()
-        }
+        } // forEach
+        
+        self.updateLayerMultiselectHeterogenousFieldsMap()
     }
 }
 

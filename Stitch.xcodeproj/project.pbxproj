@@ -760,7 +760,6 @@
 		ECB33C6226F15A1C0069885B /* ProjectsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB33C6126F15A1C0069885B /* ProjectsUtils.swift */; };
 		ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */; };
 		ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD52DB14D80006EFB93 /* StitchEngine */; };
-		ECB46CD92DB15E9F006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD82DB15E9F006EFB93 /* StitchEngine */; };
 		ECB46CDB2DB171B5006EFB93 /* LayerInputFieldBlocking.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB46CDA2DB171B5006EFB93 /* LayerInputFieldBlocking.swift */; };
 		ECB5361F26DD7A9600C3BE97 /* StitchFolderUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5361E26DD7A9600C3BE97 /* StitchFolderUtil.swift */; };
 		ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB54D6F288638A200EB75D0 /* RepeatingAnimationNode.swift */; };
@@ -900,6 +899,9 @@
 		ECE35EEE27CEE93700CB8F5C /* PickerActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE35EED27CEE93700CB8F5C /* PickerActions.swift */; };
 		ECE35EF027CEE99300CB8F5C /* InputEditedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE35EEF27CEE99300CB8F5C /* InputEditedActions.swift */; };
 		ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE35EF127CEE9AE00CB8F5C /* InputCommittedActions.swift */; };
+		ECE585762DB6C84F00749ED3 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECE585752DB6C84F00749ED3 /* StitchEngine */; };
+		ECE585792DB6CC8700749ED3 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECE585782DB6CC8700749ED3 /* StitchEngine */; };
+		ECE5857C2DB6D39C00749ED3 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECE5857B2DB6D39C00749ED3 /* StitchEngine */; };
 		ECE639202C489C4F00FB8D5F /* ShadowFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */; };
 		ECE639222C489C6900FB8D5F /* FlyoutUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */; };
 		ECE708642B8D492A009F4525 /* CurveToUnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708632B8D492A009F4525 /* CurveToUnpackNode.swift */; };
@@ -1953,6 +1955,7 @@
 				B56F36252D3C1A2E0051C80E /* StitchEngine in Frameworks */,
 				B58612AF2C68681600C64313 /* StitchEngine in Frameworks */,
 				ECD5438E29A003F8009D0A30 /* DisplayLink in Frameworks */,
+				ECE585792DB6CC8700749ED3 /* StitchEngine in Frameworks */,
 				B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */,
 				EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */,
 				B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */,
@@ -1968,12 +1971,13 @@
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
 				E4A848AB2D32FCFA0029AFDE /* PostgREST in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
+				ECE5857C2DB6D39C00749ED3 /* StitchEngine in Frameworks */,
 				B5BAB04A2CD8019400693EC5 /* StitchEngine in Frameworks */,
 				B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */,
 				EC39E75C26822ACA00674841 /* AudioKit in Frameworks */,
 				E4A848AD2D32FCFA0029AFDE /* Storage in Frameworks */,
 				B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */,
-				ECB46CD92DB15E9F006EFB93 /* StitchEngine in Frameworks */,
+				ECE585762DB6C84F00749ED3 /* StitchEngine in Frameworks */,
 				EC53F3C3287E27250021095B /* Numerics in Frameworks */,
 				ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */,
 				EC15E42A2602A08B006F2E08 /* CloudKit.framework in Frameworks */,
@@ -4719,7 +4723,9 @@
 				B53AA63F2D9B1683008D5C23 /* StitchEngine */,
 				B5E030682D9C5BEF00FDC5A5 /* StitchEngine */,
 				ECB46CD52DB14D80006EFB93 /* StitchEngine */,
-				ECB46CD82DB15E9F006EFB93 /* StitchEngine */,
+				ECE585752DB6C84F00749ED3 /* StitchEngine */,
+				ECE585782DB6CC8700749ED3 /* StitchEngine */,
+				ECE5857B2DB6D39C00749ED3 /* StitchEngine */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4807,7 +4813,7 @@
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				E4A848A92D32FCFA0029AFDE /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E42AAE4A2D4844EE002D187D /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
-				ECB46CD72DB15E9F006EFB93 /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				ECE5857A2DB6D39C00749ED3 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6741,20 +6747,20 @@
 				version = 2.6.3;
 			};
 		};
-		ECB46CD72DB15E9F006EFB93 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
-			requirement = {
-				kind = revision;
-				revision = ffa44cccf7b4cb40a8e00958fd7f14eee664d6c2;
-			};
-		};
 		ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/timdonnelly/DisplayLink.git";
 			requirement = {
 				branch = master;
 				kind = branch;
+			};
+		};
+		ECE5857A2DB6D39C00749ED3 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
+			requirement = {
+				kind = revision;
+				revision = c3ae3a393f78044480fa8a7f3e67b44fcb1aeaca;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -6899,15 +6905,23 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
 		};
-		ECB46CD82DB15E9F006EFB93 /* StitchEngine */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ECB46CD72DB15E9F006EFB93 /* XCRemoteSwiftPackageReference "StitchEngine" */;
-			productName = StitchEngine;
-		};
 		ECD5438D29A003F8009D0A30 /* DisplayLink */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */;
 			productName = DisplayLink;
+		};
+		ECE585752DB6C84F00749ED3 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		ECE585782DB6CC8700749ED3 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		ECE5857B2DB6D39C00749ED3 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECE5857A2DB6D39C00749ED3 /* XCRemoteSwiftPackageReference "StitchEngine" */;
+			productName = StitchEngine;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

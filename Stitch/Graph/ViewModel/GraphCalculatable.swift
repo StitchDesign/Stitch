@@ -15,7 +15,33 @@ extension GraphState: GraphCalculatable {
     }
     
     @MainActor
-    func didPortsUpdate(ports: Set<StitchEngine.NodePortType<NodeViewModel>>) {
+    func getNodesToAlwaysRun() -> Set<UUID> {
+        Array(self.nodes
+                .values
+                .filter { $0.patch?.willAlwaysRunEval ?? false }
+                .map(\.id))
+            .toSet
+    }
+    
+    @MainActor
+    func getAnimationNodes() -> Set<UUID> {
+        Array(self.nodes
+                .values
+                .filter { $0.patch?.isAnimationNode ?? false }
+                .map(\.id))
+            .toSet
+    }
+    
+    @MainActor
+    func getNode(id: UUID) -> NodeViewModel? {
+        self.getNodeViewModel(id)
+    }
+}
+
+// Called only by Stitch; no longer the responsibility of StitchEngine.
+extension GraphState {
+    @MainActor
+    func updateLayerMultiselectHeterogenousFieldsMap() {
         // Update multi-selected layers in sidebar with possible heterogenous values
         if let currentMultiselectionMap = self.propertySidebar.heterogenousFieldsMap {
             
@@ -71,28 +97,5 @@ extension GraphState: GraphCalculatable {
         if self.pinMap != rootPinMap {
             self.pinMap = rootPinMap
         }
-    }
-    
-    @MainActor
-    func getNodesToAlwaysRun() -> Set<UUID> {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.willAlwaysRunEval ?? false }
-                .map(\.id))
-            .toSet
-    }
-    
-    @MainActor
-    func getAnimationNodes() -> Set<UUID> {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.isAnimationNode ?? false }
-                .map(\.id))
-            .toSet
-    }
-    
-    @MainActor
-    func getNode(id: UUID) -> NodeViewModel? {
-        self.getNodeViewModel(id)
     }
 }

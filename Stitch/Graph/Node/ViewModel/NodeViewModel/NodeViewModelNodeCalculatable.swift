@@ -204,15 +204,25 @@ extension NodeViewModel: NodeCalculatable {
         }
     }
     
-    // Called by StitchEngine as paart of NodeCalculatable
+    // Called by StitchEngine as part of NodeCalculatable
+    /// returns `Bool`: "does this layer node update require that we resort the preview layers?"
     @MainActor
-    func inputsWillUpdate(values: PortValuesList) {
-        // update cache for longest loop length
-        self.longestLoopLength = self.kind.determineMaxLoopCount(from: values)
+    func updateLayerViewModels(values: PortValuesList) -> Bool {
+                
+        guard let layerNode = self.layerNode,
+              let graph = self.graphDelegate else {
+            return false
+        }
         
-        // Updates preview layers if layer specified
-        // Must be before runEval check below since most layers don't have eval!
-        self.layerNode?.didValuesUpdate(newValuesList: values)
+        // Update cache for longest loop length
+        layerNode.cachedLongestLoopLength = self.kind.determineMaxLoopCount(from: values)
+        
+        // Must be before runEval check below since most layers don't have eval
+        layerNode.didValuesUpdate(newValuesList: values,
+                                  node: self,
+                                  graph: graph)
+        
+        return graph.shouldResortPreviewLayers
     }
     
     @MainActor
