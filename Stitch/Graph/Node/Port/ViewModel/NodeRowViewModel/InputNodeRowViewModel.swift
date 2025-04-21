@@ -7,15 +7,6 @@
 
 import Foundation
 
-
-@Observable
-final class InputPortUIData: Sendable {
-    
-    // the portDragged and portDragEnded methods DO require specific input vs output row view model;
-    // so instead you can pass down the nodeIO and the
-    
-}
-
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
@@ -24,19 +15,17 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     static let nodeIO: NodeIO = .input
     
     let id: NodeRowViewModelId
-    
-    @MainActor var viewCache: NodeLayoutCache?
-    
+        
     // MARK: cached ui-data derived from underlying row observer
     
     @MainActor var cachedActiveValue: PortValue
     @MainActor var cachedFieldValueGroups = FieldGroupList()
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
-    @MainActor var portViewData: PortAddressType?
+    @MainActor var portAddress: PortAddressType?
+    @MainActor var connectedCanvasItems = CanvasItemIdSet()
     
     
     // MARK: delegates, weak references to parents
@@ -100,7 +89,7 @@ extension InputNodeRowViewModel {
     
     @MainActor
     func hasSelectedEdge(selectedEdges: Set<PortEdgeUI>) -> Bool {
-        guard let portViewData = self.portViewData else {
+        guard let portViewData = self.portAddress else {
             return false
         }
         return selectedEdges.contains { $0.to == portViewData }

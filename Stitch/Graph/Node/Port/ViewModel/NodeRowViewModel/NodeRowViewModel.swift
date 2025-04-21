@@ -9,7 +9,8 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
+protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
+
     associatedtype RowObserver: NodeRowObserver
     // fka `PortViewType`
     associatedtype PortAddressType: PortIdAddress
@@ -28,8 +29,8 @@ protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
     
     @MainActor var anchorPoint: CGPoint? { get set }
     @MainActor var portColor: PortColor { get set }
-    @MainActor var portViewData: PortAddressType? { get set }
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
+    @MainActor var portAddress: PortAddressType? { get set }
+    @MainActor var connectedCanvasItems: CanvasItemIdSet { get set }
         
     // Entrypoint for updating an input or output port's color, often when we don't know whether we specifically have an input or an output.
     // Relies on row VM's non-nil canvas id, portViewData, connectedCanvasItems
@@ -114,8 +115,8 @@ extension NodeRowViewModel {
     
     @MainActor func updatePortViewData() {
         let newPortViewData = self.getPortViewData()
-        if self.portViewData != newPortViewData {
-            self.portViewData = newPortViewData
+        if self.portAddress != newPortViewData {
+            self.portAddress = newPortViewData
         }
     }
     
