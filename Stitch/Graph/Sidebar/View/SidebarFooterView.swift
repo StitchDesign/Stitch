@@ -50,7 +50,10 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
         .animation(.default, value: selections.primary)
         .frame(maxWidth: .infinity)
         .height(self.SIDEBAR_FOOTER_HEIGHT)
-        .background(self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())
+        .background(self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea()
+//            .opacity(0.5)
+            .opacity(0.25)
+        )
     }
 
     var normalFooter: some View {

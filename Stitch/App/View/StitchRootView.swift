@@ -27,6 +27,23 @@ struct StitchRootView: View {
     
     @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
     
+    init(store: StitchStore) {
+        self.store = store
+        
+        let coloredAppearance = UINavigationBarAppearance()
+        coloredAppearance.configureWithOpaqueBackground()
+//        coloredAppearance.backgroundColor = .clear
+        coloredAppearance.backgroundColor = UIColor(Color.white)
+        
+        coloredAppearance.shadowColor = .clear
+        coloredAppearance.shadowImage = UIImage()
+                
+        UINavigationBar.appearance().standardAppearance = coloredAppearance
+        UINavigationBar.appearance().compactAppearance = coloredAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = coloredAppearance
+        UINavigationBar.appearance().compactScrollEdgeAppearance = coloredAppearance
+    }
+    
     @MainActor
     var alertState: ProjectAlertState {
         self.store.alertState
@@ -123,9 +140,7 @@ struct StitchRootView: View {
                 width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
                 height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
         } else {
-#if DEBUG
-            fatalError("StitchRootView: unable to retrieve UIWindowScene")
-#endif
+            fatalErrorIfDebug("StitchRootView: unable to retrieve UIWindowScene")
         }
 #endif
     }
@@ -146,9 +161,9 @@ struct StitchRootView: View {
                 topLevelSidebar
                 
                 // Needed on Catalyst to prevent sidebar button from sliding into traffic light buttons
-#if targetEnvironment(macCatalyst)
-                    .toolbar(.hidden)
-#endif
+//#if targetEnvironment(macCatalyst)
+//                    .toolbar(.hidden)
+//#endif
             },
             // Apple's 'detail view' = the view to the right of the sidebar
             detail: {
@@ -157,6 +172,7 @@ struct StitchRootView: View {
                 // gives us proper back button etc.
                 StitchNavStack(store: store)
                     .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
+//                    .background(Color.cyan.ignoresSafeArea())
             })
         
         
@@ -190,9 +206,6 @@ struct StitchRootView: View {
                 dispatch(HideDrawer())
             }
         }
-        
-        
-//        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
     }
     
     static let STITCH_ROOT_VIEW_COORDINATE_SPACE = "STITCH_ROOT_VIEW_COORDINATE_SPACE"
@@ -203,11 +216,5 @@ struct StitchRootView: View {
     @ViewBuilder
     var topLevelSidebar: some View {
         StitchSidebarView(syncStatus: fileManager.syncStatus)
-    }
-}
-
-struct CatalystProjectsNavView_Previews: PreviewProvider {
-    static var previews: some View {
-        StitchRootView(store: StitchStore())
     }
 }
