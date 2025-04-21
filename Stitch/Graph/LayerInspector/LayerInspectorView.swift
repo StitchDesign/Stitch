@@ -53,21 +53,21 @@ struct LayerInspectorView: View {
     }
     
     var body: some View {
-        
-        if let layerInspectorData = layerInspectorData {
-            selectedLayerView(
-                layerInspectorHeader: layerInspectorData.header,
-                node: layerInspectorData.node,
-                layerInputObserverDict: layerInspectorData.inputs,
-                layerOutputs: layerInspectorData.outputs)
-        } else {
-            // Empty List, so have same background
-            List { }
-                .scrollContentBackground(.hidden)
-//                .background {
-//                    BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE
-//                }
+        Group {
+            if let layerInspectorData = layerInspectorData {
+                selectedLayerView(
+                    layerInspectorHeader: layerInspectorData.header,
+                    node: layerInspectorData.node,
+                    layerInputObserverDict: layerInspectorData.inputs,
+                    layerOutputs: layerInspectorData.outputs)
+            } else {
+                // Empty List, so have same background
+                List { }
+//                EmptyView()
+            }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
     }
     
     @MainActor @ViewBuilder
@@ -124,7 +124,7 @@ struct LayerInspectorView: View {
                 
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
-            .scrollContentBackground(.hidden)
+//            .scrollContentBackground(.hidden)
             
             // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style;
             // And using .plain requires manually adding trailing and leading padding
@@ -241,6 +241,7 @@ struct LayerInspectorInputsSectionView: View {
                 LayerInspectorSectionHeader(string: section.rawValue)
                 
             }
+            .listRowBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
             // Note: list row insets appear to be the only way to control padding on a list's section headers
             .listRowInsets(EdgeInsets(top: 0,
                                       leading: 0,

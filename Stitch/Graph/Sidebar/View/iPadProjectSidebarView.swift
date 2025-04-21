@@ -44,11 +44,7 @@ struct ProjectSidebarView: View {
             //#endif
             .zIndex(1)
         }
-//        .scrollContentBackground(.hidden)
-//        .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
-        .background(Color.white.ignoresSafeArea())
-        .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
-        .toolbarBackgroundVisibility(.hidden, for: .tabBar)
+        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
         
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
         .edgesIgnoringSafeArea(.bottom)

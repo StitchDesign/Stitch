@@ -27,23 +27,6 @@ struct StitchRootView: View {
     
     @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
     
-    init(store: StitchStore) {
-        self.store = store
-        
-        let coloredAppearance = UINavigationBarAppearance()
-        coloredAppearance.configureWithOpaqueBackground()
-//        coloredAppearance.backgroundColor = .clear
-        coloredAppearance.backgroundColor = UIColor(Color.white)
-        
-        coloredAppearance.shadowColor = .clear
-        coloredAppearance.shadowImage = UIImage()
-                
-        UINavigationBar.appearance().standardAppearance = coloredAppearance
-        UINavigationBar.appearance().compactAppearance = coloredAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = coloredAppearance
-        UINavigationBar.appearance().compactScrollEdgeAppearance = coloredAppearance
-    }
-    
     @MainActor
     var alertState: ProjectAlertState {
         self.store.alertState
@@ -172,7 +155,6 @@ struct StitchRootView: View {
                 // gives us proper back button etc.
                 StitchNavStack(store: store)
                     .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
-//                    .background(Color.cyan.ignoresSafeArea())
             })
         
         
