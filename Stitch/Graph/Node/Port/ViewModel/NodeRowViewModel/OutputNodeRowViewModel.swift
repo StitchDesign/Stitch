@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
     typealias PortAddressType = OutputPortIdAddress
@@ -23,12 +22,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor var cachedFieldValueGroups = FieldGroupList()
         
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
-    
-    @MainActor var anchorPoint: CGPoint?
-    @MainActor var portColor: PortColor = .noEdge
-    @MainActor var portAddress: PortAddressType?
-    @MainActor var connectedCanvasItems = CanvasItemIdSet()
-    
+    @MainActor var portData: OutputPortUIData
     
     // MARK: delegates, weak references to parents
     
@@ -45,6 +39,9 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
          initialValue: PortValue,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
+        
+        self.portData = .init(id: OutputCoordinate(portId: id.portId,
+                                                   nodeId: id.nodeId))
         self.id = id
         self.cachedActiveValue = initialValue
         self.nodeDelegate = nodeDelegate

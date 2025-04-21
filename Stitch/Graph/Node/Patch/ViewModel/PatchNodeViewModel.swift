@@ -134,7 +134,9 @@ extension PatchNodeViewModel: SchemaObserver {
 
 extension PatchNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: NodeViewModel, graph: GraphState) {
+    func initializeDelegate(_ node: NodeViewModel,
+                            graph: GraphState,
+                            activeIndex: ActiveIndex) {
         self.delegate = node
         
         self.inputsObservers.forEach {
@@ -148,6 +150,7 @@ extension PatchNodeViewModel {
         // Assign weak for group canvas if group splitter node
         
         self.canvasObserver.initializeDelegate(node,
+                                               activeIndex: activeIndex,
                                                unpackedPortParentFieldGroupType: nil,
                                                unpackedPortIndex: nil)
     }
@@ -160,6 +163,7 @@ extension PatchNodeViewModel {
                                         userVisibleType: UserVisibleType? = nil,
                                         mathExpression: String?,
                                         splitterNode: SplitterNodeEntity?,
+                                        activeIndex: ActiveIndex,
                                         delegate: NodeViewModel,
                                         graph: GraphState) {
         let entity = PatchNodeEntity(id: id,
@@ -170,7 +174,7 @@ extension PatchNodeViewModel {
                                      splitterNode: splitterNode,
                                      mathExpression: mathExpression)
         self.init(from: entity)
-        self.initializeDelegate(delegate, graph: graph)
+        self.initializeDelegate(delegate, graph: graph, activeIndex: activeIndex)
         self.delegate = delegate
         self.splitterNode = splitterNode
     }
@@ -180,6 +184,7 @@ extension PatchNodeViewModel {
                                 inputs: [NodePortInputEntity],
                                 canvasEntity: CanvasNodeEntity,
                                 userVisibleType: UserVisibleType? = nil,
+                                activeIndex: ActiveIndex,
                                 delegate: NodeViewModel,
                                 graph: GraphState) {
         self.init(id: id,
@@ -189,6 +194,7 @@ extension PatchNodeViewModel {
                   userVisibleType: userVisibleType,
                   mathExpression: nil,
                   splitterNode: nil,
+                  activeIndex: activeIndex,
                   delegate: delegate,
                   graph: graph)
     }

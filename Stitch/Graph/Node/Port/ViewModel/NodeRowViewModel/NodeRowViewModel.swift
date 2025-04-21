@@ -109,28 +109,17 @@ extension NodeRowViewModel {
                 initialValue: initialValue,
                 rowObserverLayerInput: layerInput)
         }
-        
-        self.updatePortViewData()
-    }
-    
-    @MainActor func updatePortViewData() {
-        let newPortViewData = self.getPortViewData()
-        if self.portAddress != newPortViewData {
-            self.portAddress = newPortViewData
+                
+        /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
+        if let canvasId = self.canvasItemDelegate?.id {
+            let newPortAddress: PortAddressType = .init(portId: self.id.portId,
+                                                        canvasId: canvasId)
+            if self.portAddress != newPortAddress {
+                self.portAddress = newPortAddress
+            }
         }
     }
-    
-    /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
-    @MainActor
-    func getPortViewData() -> PortAddressType? {
-        guard let canvasId = self.canvasItemDelegate?.id else {
-            return nil
-        }
         
-        return .init(portId: self.id.portId,
-                     canvasId: canvasId)
-    }
-    
     @MainActor
     func initializeValues(unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
@@ -164,14 +153,9 @@ extension NodeRowViewModel {
         let oldViewValue = self.cachedActiveValue // the old cached value
         let newViewValue = PortValue.getActiveValue(allLoopedValues: values,
                                                     activeIndex: activeIndex)
+        
         let didViewValueChange = oldViewValue != newViewValue
         
-        /*
-         Conditions for forcing fields update:
-         1. Is at time of initialization--used for layers, or
-         2. Did values change AND visible in frame, or
-         3. Is this an input for a layer node that is focused in the property sidebar?
-         */
         let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
 
         if shouldUpdate {

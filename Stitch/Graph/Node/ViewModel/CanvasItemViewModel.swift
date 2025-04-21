@@ -209,15 +209,11 @@ extension CanvasItemViewModel {
     
     @MainActor
     func initializeDelegate(_ node: NodeViewModel,
+                            activeIndex: ActiveIndex,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         
         self.nodeDelegate = node
-
-        guard let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex else {
-            fatalErrorIfDebug()
-            return
-        }
         
         self.inputViewModels.forEach {
             // Note: assumes the row view model as already have its underling row observer delegate assigned
