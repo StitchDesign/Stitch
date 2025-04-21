@@ -16,8 +16,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
 
     let id: NodeRowViewModelId
     
-    @MainActor var viewCache: NodeLayoutCache?
-    
     
     // MARK: cached ui-data derived from underlying row observer
     
@@ -26,10 +24,10 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
     @MainActor var anchorPoint: CGPoint?
     @MainActor var portColor: PortColor = .noEdge
-    @MainActor var portViewData: PortAddressType?
+    @MainActor var portAddress: PortAddressType?
+    @MainActor var connectedCanvasItems = CanvasItemIdSet()
     
     
     // MARK: delegates, weak references to parents
@@ -97,7 +95,7 @@ extension OutputNodeRowViewModel {
     
     @MainActor
     func hasSelectedEdge(selectedEdges: Set<PortEdgeUI>) -> Bool {
-        guard let portViewData = self.portViewData else {
+        guard let portViewData = self.portAddress else {
             return false
         }
         return selectedEdges.contains { $0.from == portViewData }
