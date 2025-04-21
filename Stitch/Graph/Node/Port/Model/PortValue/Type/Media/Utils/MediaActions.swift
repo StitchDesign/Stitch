@@ -342,7 +342,8 @@ extension GraphState {
                     upstreamOutputValues: values,
                     mediaList: [media],
                     upstreamOutputChanged: true, // Okay to treat a media change as always some output changing?
-                    outputCoordinate: .init(portId: index, nodeId: node.id))
+                    outputCoordinate: .init(portId: index, nodeId: node.id),
+                    visitedNodes: .init())
                 let downstreamNodes = Set(downstreamInputs.map(\.nodeId)).toSet
                 
                 changedDownstreamNodes = changedDownstreamNodes.union(downstreamNodes)

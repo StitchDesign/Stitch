@@ -111,7 +111,8 @@ extension GraphState {
                                             mediaList: nil,
                                             // True, since we reversed the pulse effect?
                                             upstreamOutputChanged: true,
-                                            outputCoordinate: pulsedOutput)
+                                            outputCoordinate: pulsedOutput,
+                                            visitedNodes: .init())
                 
                 let changedDownstreamNodeIds = Set(changedDownstreamInputIds.map(\.nodeId)).toSet
                 self.scheduleForNextGraphStep(changedDownstreamNodeIds)

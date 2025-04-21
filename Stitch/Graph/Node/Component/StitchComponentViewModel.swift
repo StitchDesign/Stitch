@@ -330,7 +330,8 @@ extension GraphState {
             .getChangedDownstreamInputIds(evalResult: evalResult,
                                           sourceNode: node,
                                           existingOutputsValues: prevOutputs,
-                                          outputCoordinates: node.outputCoordinates)
+                                          outputCoordinates: node.outputCoordinates,
+                                          visitedNodes: .init())
         
         let downstreamNodes = changedDownstreamInputs.map(\.nodeId).toSet
         

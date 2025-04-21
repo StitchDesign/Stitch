@@ -949,7 +949,8 @@ extension GraphState {
                 upstreamOutputValues: outputToUpdate,
                 mediaList: mediaList,
                 upstreamOutputChanged: outputsChanged,
-                outputCoordinate: outputCoordinate)
+                outputCoordinate: outputCoordinate,
+                visitedNodes: .init())
             let changedNodeIds = Set(changedInputIds.map(\.nodeId)).toSet
             
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
