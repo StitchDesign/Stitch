@@ -43,7 +43,7 @@ struct DropDownChoiceView: View {
             // Required to force picker's display to always be large enough to display full option
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
-                   alignment: .leading)
+                   alignment: isFieldInsideLayerInspector ? .trailing : .leading)
         }
         #if targetEnvironment(macCatalyst)
         .menuIndicator(.hidden) // hide caret indicator
