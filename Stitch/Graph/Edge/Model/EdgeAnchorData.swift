@@ -40,42 +40,33 @@ struct EdgeAnchorDownstreamData {
 
 extension EdgeAnchorUpstreamData {
     @MainActor
-//    init?(from upstreamRowObserver: OutputNodeRowViewModel,
-    init?(from upstreamOutputRowViewModel: OutputNodeRowViewModel,
-          connectedDownstreamNode: NodeViewModel) {
+    init?(from upstreamPortUIViewModels: [OutputPortUIViewModel],
+          upstreamNodeId: NodeId,
+          inputRowViewModelsOnDownstreamNode: [InputNodeRowViewModel]) {
         
-        guard let upstreamCanvasItem = upstreamOutputRowViewModel.canvasItemDelegate else {
+        let outputsCount = upstreamPortUIViewModels.count
+        
+        guard let firstUpstreamOutput = upstreamPortUIViewModels.first,
+              let lastUpstreamOutput = upstreamPortUIViewModels.last else {
+            fatalErrorIfDebug()
             return nil
         }
-        
-        let outputsCount = upstreamCanvasItem.outputViewModels.count
-        
-        guard let firstUpstreamOutput = upstreamCanvasItem.outputViewModels.first?.portUIViewModel,
-              let lastUpstreamOutput = upstreamCanvasItem.outputViewModels[safe: outputsCount - 1]?.portUIViewModel else {
-            return nil
-        }
-        
-        let downstreamInputs = connectedDownstreamNode.allInputRowViewModels
-        
+                
         // Find top and bottom-most edges from upstream node connecting to this node
         var firstConnectedUpstreamOutput: OutputPortUIViewModel?
         var lastConnectedUpstreamOutput: OutputPortUIViewModel?
-        downstreamInputs.forEach { downstreamInput in
-            // Do nothing if no connection from this input
-            guard let upstreamToThisInput = downstreamInput.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel
-                else {
-                return
-            }
+        
+        inputRowViewModelsOnDownstreamNode.forEach { downstreamInput in
             
-            let isDownstreamInputConnectedToThisNode = upstreamToThisInput.nodeDelegate?.id == upstreamCanvasItem.id.nodeId
-            if isDownstreamInputConnectedToThisNode {
-                guard firstConnectedUpstreamOutput != nil else {
-                    firstConnectedUpstreamOutput = upstreamToThisInput.portUIViewModel
-                    return
-                }
+            if let upstreamToThisInput = downstreamInput.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel,
+               upstreamToThisInput.nodeDelegate?.id == upstreamNodeId {
                 
-                // If already a highest input found, overwrite lowest input
-                lastConnectedUpstreamOutput = firstConnectedUpstreamOutput
+                if firstConnectedUpstreamOutput != nil {
+                    // If already a highest input found, overwrite lowest input
+                    lastConnectedUpstreamOutput = firstConnectedUpstreamOutput
+                } else {
+                    firstConnectedUpstreamOutput = upstreamToThisInput.portUIViewModel
+                }
             }
         }
               
@@ -94,21 +85,26 @@ extension EdgeAnchorDownstreamData {
           upstreamNodeId: CanvasItemId? = nil) {
         
         guard let canvas = inputRowViewModel.canvasItemDelegate else {
+            fatalErrorIfDebug()
             return nil
         }
         
         let inputsCount = canvas.inputViewModels.count
         
         guard let firstInputObserver = canvas.inputViewModels.first?.portUIViewModel,
-              let lastInputObserver = canvas.inputViewModels[safe: inputsCount - 1]?.portUIViewModel,
+              let lastInputObserver = canvas.inputViewModels.last?.portUIViewModel,
               let upstreamConnectedNodeId = upstreamNodeId ?? inputRowViewModel.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id else {
+            fatalErrorIfDebug()
             return nil
         }
+
+        let allInputs = canvas.inputViewModels
         
         // Iterate through inputs at this node to find other connected edges from same upstream node id
         var firstConnectedInputObserver: InputPortUIViewModel?
         var lastConnectedInputObserver: InputPortUIViewModel?
-        canvas.inputViewModels.forEach { input in
+        
+        allInputs.forEach { input in
             // TODO: this line is crazy... we're checking a row view model's underlying row observer for whether it's actually a canvas item; can we somehow how a row observer / view model for an inspector here? That should be impossible.
             let upstreamCanvasId = input.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id
             if upstreamCanvasId == upstreamConnectedNodeId {
@@ -122,6 +118,7 @@ extension EdgeAnchorDownstreamData {
         }
         
         guard let firstConnectedInputObserver = firstConnectedInputObserver else {
+            fatalErrorIfDebug()
             return nil
         }
         

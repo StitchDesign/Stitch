@@ -34,6 +34,12 @@ final class OutputPortUIViewModel: Identifiable, AnyObject {
     }
 }
 
+extension CanvasItemViewModel {
+    @MainActor
+    var outputPortUIViewModels: [OutputPortUIViewModel] {
+        self.outputViewModels.map(\.portUIViewModel)
+    }
+}
 
 extension OutputNodeRowViewModel {
     @MainActor var anchorPoint: CGPoint? {

@@ -20,7 +20,7 @@ struct GraphConnectedEdgesView: View {
        let possibleEdge = graph.edgeEditingState?
             .possibleEdges
             .first(where: {
-                $0.edge.to == edgeData.downstreamRowObserver.portAddress
+                $0.edge.to == edgeData.downstreamInput.portAddress
                 && graph.edgeEditingState?.animationInProgressIds.contains($0.id) ?? false
             })
         
@@ -109,8 +109,8 @@ struct ConnectedEdgeView: View {
 
     @MainActor init(data: ConnectedEdgeData,
                     edgeAnimationEnabled: Bool) {
-        self.inputPortUIViewModel = data.downstreamRowObserver.portUIViewModel
-        self.upstreamOutputPortUIViewModel = data.upstreamRowObserver.portUIViewModel
+        self.inputPortUIViewModel = data.downstreamInput
+        self.upstreamOutputPortUIViewModel = data.upstreamOutput
         self.downstreamAnchor = data.inputData
         self.upstreamAnchor = data.outputData
         self.zIndex = data.zIndex
