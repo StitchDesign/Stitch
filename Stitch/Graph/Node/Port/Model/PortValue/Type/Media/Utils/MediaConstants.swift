@@ -30,7 +30,8 @@ let VIDEO_INPUT_INDEX_SCRUBTIME = 2
 
 let RESNET50_STRING = "Resnet50"
 
-let CORE_ML_NO_RESULTS = "No Results"
+//let CORE_ML_NO_RESULTS = "No Results"
+let CORE_ML_NO_RESULTS = ""
 
 enum DefaultMediaOption: CaseIterable {
     case model3dToyRobot
