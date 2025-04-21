@@ -123,9 +123,7 @@ struct StitchRootView: View {
                 width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
                 height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
         } else {
-#if DEBUG
-            fatalError("StitchRootView: unable to retrieve UIWindowScene")
-#endif
+            fatalErrorIfDebug("StitchRootView: unable to retrieve UIWindowScene")
         }
 #endif
     }
@@ -146,9 +144,9 @@ struct StitchRootView: View {
                 topLevelSidebar
                 
                 // Needed on Catalyst to prevent sidebar button from sliding into traffic light buttons
-#if targetEnvironment(macCatalyst)
-                    .toolbar(.hidden)
-#endif
+//#if targetEnvironment(macCatalyst)
+//                    .toolbar(.hidden)
+//#endif
             },
             // Apple's 'detail view' = the view to the right of the sidebar
             detail: {
@@ -190,9 +188,6 @@ struct StitchRootView: View {
                 dispatch(HideDrawer())
             }
         }
-        
-        
-//        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
     }
     
     static let STITCH_ROOT_VIEW_COORDINATE_SPACE = "STITCH_ROOT_VIEW_COORDINATE_SPACE"
@@ -203,11 +198,5 @@ struct StitchRootView: View {
     @ViewBuilder
     var topLevelSidebar: some View {
         StitchSidebarView(syncStatus: fileManager.syncStatus)
-    }
-}
-
-struct CatalystProjectsNavView_Previews: PreviewProvider {
-    static var previews: some View {
-        StitchRootView(store: StitchStore())
     }
 }
