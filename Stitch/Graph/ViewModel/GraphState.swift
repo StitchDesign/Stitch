@@ -425,7 +425,7 @@ extension GraphState {
             guard let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
                   let upstreamOutputPortUIViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.portUIViewModel,
                   let upstreamCanvasItem: CanvasItemViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate else {
-                log("no connected edge data for downstreamInput \(downstreamInput.id)")
+                // log("no connected edge data for downstreamInput \(downstreamInput.id)")
                 return nil
             }
             
