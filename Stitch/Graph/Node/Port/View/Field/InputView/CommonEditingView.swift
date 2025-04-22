@@ -115,7 +115,7 @@ struct CommonEditingView: View {
     var showEditingView: Bool {
         // Can never focus the field of property row if that propery is already on the graph
         if isForLayerInspector && isPackedLayerInputAlreadyOnCanvas {
-            log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
+            // log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
             return false
         }
         
