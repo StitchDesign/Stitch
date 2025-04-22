@@ -22,9 +22,9 @@ let defaultTextAlignment = PortValue.textAlignment(DEFAULT_TEXT_ALIGNMENT)
 let defaultTextVerticalAlignment = PortValue.textVerticalAlignment(DEFAULT_TEXT_VERTICAL_ALIGNMENT)
 
 struct PreviewTextLayer: View {
-//    @Bindable var document: StitchDocumentViewModel
-//    @Bindable var graph: GraphState
-//    let layerViewModel: LayerViewModel
+    @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
+    let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let text: String

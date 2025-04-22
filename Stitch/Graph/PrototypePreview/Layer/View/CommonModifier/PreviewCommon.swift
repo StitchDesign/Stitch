@@ -84,37 +84,37 @@ struct PreviewCommonModifier: ViewModifier {
 //                // no clipping for map
 //                cornerRadius: .zero))
 
-//            .modifier(PreviewCommonModifierWithoutFrame(
-////                document: document,
-////                graph: graph,
-////                layerViewModel: layerViewModel,
-//                isPinnedViewRendering: isPinnedViewRendering,
-//                interactiveLayer: interactiveLayer,
-//                position: position,
-//                rotationX: rotationX,
-//                rotationY: rotationY,
-//                rotationZ: rotationZ,
-//                // actual calculated size at which we're displaying the image
-//                size: size,
-//                minimumDragDistance: minimumDragDistance,
-//                scale: scale,
-//                anchoring: anchoring,
-//                blurRadius: blurRadius,
-//                blendMode: blendMode,
-//                brightness: brightness,
-//                colorInvert: colorInvert,
-//                contrast: contrast,
-//                hueRotation: hueRotation,
-//                saturation: saturation,
-//                pivot: pivot,
-//                shadowColor: shadowColor,
-//                shadowOpacity: shadowOpacity,
-//                shadowRadius: shadowRadius,
-//                shadowOffset: shadowOffset,
-//                isForShapeLayer: isForShapeLayer,
-//                parentSize: parentSize,
-//                parentDisablesPosition: parentDisablesPosition,
-//                parentIsScrollableGrid: parentIsScrollableGrid))
+            .modifier(PreviewCommonModifierWithoutFrame(
+//                document: document,
+//                graph: graph,
+//                layerViewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
+                interactiveLayer: interactiveLayer,
+                position: position,
+                rotationX: rotationX,
+                rotationY: rotationY,
+                rotationZ: rotationZ,
+                // actual calculated size at which we're displaying the image
+                size: size,
+                minimumDragDistance: minimumDragDistance,
+                scale: scale,
+                anchoring: anchoring,
+                blurRadius: blurRadius,
+                blendMode: blendMode,
+                brightness: brightness,
+                colorInvert: colorInvert,
+                contrast: contrast,
+                hueRotation: hueRotation,
+                saturation: saturation,
+                pivot: pivot,
+                shadowColor: shadowColor,
+                shadowOpacity: shadowOpacity,
+                shadowRadius: shadowRadius,
+                shadowOffset: shadowOffset,
+                isForShapeLayer: isForShapeLayer,
+                parentSize: parentSize,
+                parentDisablesPosition: parentDisablesPosition,
+                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
 
