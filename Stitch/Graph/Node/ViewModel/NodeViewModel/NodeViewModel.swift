@@ -331,7 +331,7 @@ extension NodeViewModel {
     @MainActor
     func getInputRowViewModel(for id: NodeRowViewModelId) -> InputNodeRowViewModel? {
         switch id.graphItemType {
-        case .node(let canvasId):
+        case .canvas(let canvasId):
             let canvas = self.getCanvasObserver(for: canvasId)
             return canvas?.inputViewModels[safe: id.portId]
             
@@ -356,7 +356,7 @@ extension NodeViewModel {
     @MainActor
     func getOutputRowViewModel(for id: NodeRowViewModelId) -> OutputNodeRowViewModel? {
         switch id.graphItemType {
-        case .node(let canvasId):
+        case .canvas(let canvasId):
             let canvas = self.getCanvasObserver(for: canvasId)
             return canvas?.outputViewModels[safe: id.portId]
             
@@ -642,7 +642,7 @@ extension NodeViewModel {
                                                     id: newInputCoordinate,
                                                     upstreamOutputCoordinate: nil)
         
-        let newRowId = NodeRowViewModelId(graphItemType: .node(patchNode.canvasObserver.id),
+        let newRowId = NodeRowViewModelId(graphItemType: .canvas(patchNode.canvasObserver.id),
                                           nodeId: newInputCoordinate.nodeId,
                                           portId: allInputsObservers.count)
         
