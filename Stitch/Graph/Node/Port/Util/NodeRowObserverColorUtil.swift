@@ -31,17 +31,6 @@ extension PortColor {
     }
 }
 
-extension NodeRowViewModel {
-    // TODO: don't we have an abstract helper here for ANY property?
-    // e.g. `self.portColor.setOnChange(newPortColor)`
-    @MainActor
-    func setPortColorIfChanged(_ newPortColor: PortColor) {
-        if newPortColor != self.portColor {
-            self.portColor = newPortColor
-        }
-    }
-}
-
 struct UpdatePortColorUponNodeSelected: GraphEvent {
     let nodeId: NodeId
     

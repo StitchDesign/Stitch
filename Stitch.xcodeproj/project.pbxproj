@@ -559,6 +559,7 @@
 		EC572B3B26337C5F00C8E49A /* NodeTypeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC572B3A26337C5F00C8E49A /* NodeTypeUtils.swift */; };
 		EC5734312B75BA0E00D93A78 /* ReduxHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5734302B75BA0E00D93A78 /* ReduxHelpers.swift */; };
 		EC5734332B75BAD100D93A78 /* LegacyActionConversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */; };
+		EC57659D2DB7F64200D71CB2 /* PortUIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC57659C2DB7F64200D71CB2 /* PortUIViewModel.swift */; };
 		EC5A2DDF2632020700D8DEE5 /* PreviewImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */; };
 		EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */; };
 		EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */; };
@@ -1538,6 +1539,7 @@
 		EC572B3A26337C5F00C8E49A /* NodeTypeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeUtils.swift; sourceTree = "<group>"; };
 		EC5734302B75BA0E00D93A78 /* ReduxHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduxHelpers.swift; sourceTree = "<group>"; };
 		EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyActionConversionUtils.swift; sourceTree = "<group>"; };
+		EC57659C2DB7F64200D71CB2 /* PortUIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortUIViewModel.swift; sourceTree = "<group>"; };
 		EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImage.swift; sourceTree = "<group>"; };
 		EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMediaLayerNode.swift; sourceTree = "<group>"; };
 		EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCoercionUtils.swift; sourceTree = "<group>"; };
@@ -4123,9 +4125,9 @@
 			isa = PBXGroup;
 			children = (
 				B523698B29F9E5E800240395 /* NodeRowObserver.swift */,
+				EC8C1AA52D7798B70058D969 /* InputNodeRowObserver.swift */,
 				EC8C1AA72D7798E70058D969 /* OutputNodeRowObserver.swift */,
 				ECB6615F2D9B175900E3C90C /* NodeRowObserverPostProcessing.swift */,
-				EC8C1AA52D7798B70058D969 /* InputNodeRowObserver.swift */,
 				EC3A6C482C20C2A400CCBACC /* NodeRowObserverExtensions.swift */,
 				EC3A6C4A2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift */,
 				EC3A6C462C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift */,
@@ -4448,8 +4450,9 @@
 			children = (
 				B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */,
 				EC8C1AAA2D7799A90058D969 /* InputNodeRowViewModel.swift */,
-				ECE5857D2DB6EB5600749ED3 /* InputPortUIViewModel.swift */,
 				EC8C1AAC2D7799CA0058D969 /* OutputNodeRowViewModel.swift */,
+				EC57659C2DB7F64200D71CB2 /* PortUIViewModel.swift */,
+				ECE5857D2DB6EB5600749ED3 /* InputPortUIViewModel.swift */,
 				ECE5857F2DB6EF2200749ED3 /* OutputPortUIViewModel.swift */,
 				EC8C1AAE2D779A090058D969 /* GraphItemType.swift */,
 				EC8C1AB02D779A190058D969 /* NodeRowViewModelId.swift */,
@@ -5048,6 +5051,7 @@
 				EC8605AC269DEBA2007B8ED3 /* ValueForKeyNode.swift in Sources */,
 				203D56BD25B0DAE000EF7AC2 /* LegacyNodeHelpers.swift in Sources */,
 				ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */,
+				EC57659D2DB7F64200D71CB2 /* PortUIViewModel.swift in Sources */,
 				ECFC872F2936CE09004A065A /* StopwatchNode.swift in Sources */,
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,

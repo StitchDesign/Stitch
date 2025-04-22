@@ -89,7 +89,7 @@ extension GraphState {
         
         // Only look at pref-dict inputs' which are on this level
         for inputViewModel in eligibleInputs {
-            guard let inputCenter = inputViewModel.anchorPoint else {
+            guard let inputCenter = inputViewModel.portUIViewModel.anchorPoint else {
                 continue
             }
             

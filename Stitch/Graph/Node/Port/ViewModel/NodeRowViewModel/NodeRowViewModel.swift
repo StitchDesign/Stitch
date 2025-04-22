@@ -11,9 +11,8 @@ import StitchSchemaKit
 
 protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
 
+    associatedtype PortUI: PortUIViewModel
     associatedtype RowObserver: NodeRowObserver
-    // fka `PortViewType`
-    associatedtype PortAddressType: PortIdAddress
     
     var id: NodeRowViewModelId { get }
     
@@ -27,27 +26,8 @@ protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     
-    @MainActor var anchorPoint: CGPoint? { get set }
-    @MainActor var portColor: PortColor { get set }
-    @MainActor var portAddress: PortAddressType? { get set }
-    @MainActor var connectedCanvasItems: CanvasItemIdSet { get set }
-        
-    // Entrypoint for updating an input or output port's color, often when we don't know whether we specifically have an input or an output.
-    // Relies on row VM's non-nil canvas id, portViewData, connectedCanvasItems
-    @MainActor func calculatePortColor(
-        // Restriction on type of row view model (canvas only, never inspector)
-        canvasItemId: CanvasItemId,
-        
-        // Facts from the underlying row observer
-        hasEdge: Bool,
-        hasLoop: Bool,
-        
-        // Facts from the graph
-        selectedEdges: Set<PortEdgeUI>,
-        selectedCanvasItems: CanvasItemIdSet,
-        // output only
-        drawingObserver: EdgeDrawingObserver
-    ) -> PortColor
+    // TODO: make optional, since inspector row view models cannot have port-ui data
+    @MainActor var portUIViewModel: PortUI { get set }
 
     
     // MARK: delegates, weak references to parents
@@ -112,10 +92,10 @@ extension NodeRowViewModel {
                 
         /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
         if let canvasId = self.canvasItemDelegate?.id {
-            let newPortAddress: PortAddressType = .init(portId: self.id.portId,
+            let newPortAddress: PortUI.PortAddressType = .init(portId: self.id.portId,
                                                         canvasId: canvasId)
-            if self.portAddress != newPortAddress {
-                self.portAddress = newPortAddress
+            if self.portUIViewModel.portAddress != newPortAddress {
+                self.portUIViewModel.portAddress = newPortAddress
             }
         }
     }
@@ -164,6 +144,9 @@ extension NodeRowViewModel {
                                     newValue: newViewValue)
         }
     }
+}
+
+extension PortUIViewModel {
     
     @MainActor
     func updatePortColor(canvasItemId: CanvasItemId,
@@ -172,14 +155,18 @@ extension NodeRowViewModel {
                          selectedEdges: Set<PortEdgeUI>,
                          selectedCanvasItems: CanvasItemIdSet,
                          drawingObserver: EdgeDrawingObserver) {
-                
-        let newColor = self.calculatePortColor(canvasItemId: canvasItemId,
-                                               hasEdge: hasEdge,
-                                               hasLoop: hasLoop,
-                                               selectedEdges: selectedEdges,
-                                               selectedCanvasItems: selectedCanvasItems,
-                                               drawingObserver: drawingObserver)
-        self.setPortColorIfChanged(newColor)
+        
+        let newPortColor = self.calculatePortColor(
+            canvasItemId: canvasItemId,
+            hasEdge: hasEdge,
+            hasLoop: hasLoop,
+            selectedEdges: selectedEdges,
+            selectedCanvasItems: selectedCanvasItems,
+            drawingObserver: drawingObserver)
+        
+        if newPortColor != self.portColor {
+            self.portColor = newPortColor
+        }
     }
 }
 

@@ -114,6 +114,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
 }
 
 extension CanvasItemViewModel {
+    
     @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
                            outputRowObservers: [OutputNodeRowObserver],
@@ -190,15 +191,15 @@ extension CanvasItemViewModel {
                               portId: portId)
         }
         
-        self.inputViewModels.forEach {
-            let newAnchorPoint = fn(.input, $0.id.portId)
+        self.inputPortUIViewModels.forEach {
+            let newAnchorPoint = fn(.input, $0.portIdForAnchorPoint)
             if newAnchorPoint != $0.anchorPoint {
                 $0.anchorPoint = newAnchorPoint
             }
         }
         
-        self.outputViewModels.forEach {
-            let newAnchorPoint = fn(.output, $0.id.portId)
+        self.outputPortUIViewModels.forEach {
+            let newAnchorPoint = fn(.output, $0.portIdForAnchorPoint)
             if newAnchorPoint != $0.anchorPoint {
                 $0.anchorPoint = newAnchorPoint
             }

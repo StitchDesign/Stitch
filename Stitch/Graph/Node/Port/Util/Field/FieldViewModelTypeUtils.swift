@@ -22,7 +22,6 @@ extension PortValue {
             if layerInputPort == .size3D {
                 return .size3D
             }
-            
             return .point3D
         case .point4D:
             return .point4D
@@ -38,7 +37,6 @@ extension PortValue {
                     return .shapeCommand(.lineTo)
                 case .curveTo:
                     return .shapeCommand(.curveTo)
-
                 }
             case .output:
                 return .readOnly
@@ -138,7 +136,6 @@ extension PortValue {
             if isLayerInspector {
                 return .transform3D
             }
-            
             // Hide the very large number of ports in patch nodes
             return .readOnly
         case .none,
