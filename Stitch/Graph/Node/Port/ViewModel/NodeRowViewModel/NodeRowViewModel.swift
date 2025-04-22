@@ -23,7 +23,6 @@ protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
     @MainActor var cachedActiveValue: PortValue { get set }
     @MainActor var cachedFieldValueGroups: [FieldGroup] { get set } // fields
     
-    
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     
     // TODO: make optional, since inspector row view models cannot have port-ui data
