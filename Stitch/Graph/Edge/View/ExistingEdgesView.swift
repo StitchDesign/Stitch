@@ -20,7 +20,7 @@ struct GraphConnectedEdgesView: View {
        let possibleEdge = graph.edgeEditingState?
             .possibleEdges
             .first(where: {
-                $0.edge.to == edgeData.downstreamRowObserver.portAddress
+                $0.edge.to == edgeData.downstreamInput.portAddress
                 && graph.edgeEditingState?.animationInProgressIds.contains($0.id) ?? false
             })
         
@@ -105,56 +105,57 @@ struct CandidateEdgesView: View {
     }
 }
 
-extension ConnectedEdgeView {
+struct ConnectedEdgeView: View {
+
     @MainActor init(data: ConnectedEdgeData,
                     edgeAnimationEnabled: Bool) {
-        self.inputRowViewModel = data.downstreamRowObserver
-        self.upstreamOutputRowViewModel = data.upstreamRowObserver
-        self.inputData = data.inputData
-        self.outputData = data.outputData
+        self.inputPortUIViewModel = data.downstreamInput
+        self.upstreamOutputPortUIViewModel = data.upstreamOutput
+        self.downstreamAnchor = data.inputData
+        self.upstreamAnchor = data.outputData
         self.zIndex = data.zIndex
         self.edgeAnimationEnabled = edgeAnimationEnabled
     }
-}
-
-struct ConnectedEdgeView: View {
-
+    
     @Environment(\.appTheme) private var theme
     
-    @Bindable var inputRowViewModel: InputNodeRowViewModel
-    @Bindable var upstreamOutputRowViewModel: OutputNodeRowViewModel
-    let inputData: EdgeAnchorDownstreamData
-    let outputData: EdgeAnchorUpstreamData
+    @Bindable var inputPortUIViewModel: InputPortUIViewModel
+    @Bindable var upstreamOutputPortUIViewModel: OutputPortUIViewModel
+    
+    let downstreamAnchor: EdgeAnchorDownstreamData
+    let upstreamAnchor: EdgeAnchorUpstreamData
+    
     let edgeAnimationEnabled: Bool
+    
     let zIndex: Double
         
     var body: some View {
-        let firstUpstreamObserver = inputData.firstInputRowViewModel
-        let firstInputObserver = inputData.firstInputRowViewModel
-        let lastInputObserver = inputData.lastInputRowViewModel
-        let firstConnectedInputObserver = inputData.firstConnectedInputRowViewModel
-        let lastConnectedInputObserver = inputData.lastConectedInputRowViewModel
-        let lastUpstreamObserver = outputData.lastUpstreamRowViewModel
-        let totalOutputs = outputData.totalOutputs
-        let lastConnectedUpstreamObserver = outputData.lastConnectedUpstreamRowViewModel
+        let firstConnectedInputObserver = downstreamAnchor.firstConnectedInput
         
-        if let inputPortViewData = inputRowViewModel.portAddress,
-           let outputPortViewData = upstreamOutputRowViewModel.portAddress,
-           let pointTo = inputRowViewModel.anchorPoint,
-           let pointFrom = upstreamOutputRowViewModel.anchorPoint,
-           let firstFrom = firstUpstreamObserver.anchorPoint,
-           let firstTo = firstInputObserver.anchorPoint,
-           let lastFrom = lastUpstreamObserver.anchorPoint,
-           let lastTo = lastInputObserver.anchorPoint,
-           let firstFromWithEdge = firstConnectedInputObserver.anchorPoint?.y,
-           let lastFromWithEdge = lastConnectedUpstreamObserver?.anchorPoint?.y,
-           let firstToWithEdge = firstConnectedInputObserver.anchorPoint?.y,
-           let lastToWithEdge = lastConnectedInputObserver.anchorPoint?.y {
+        if let inputPortViewData: InputPortIdAddress = inputPortUIViewModel.portAddress,
+           let outputPortViewData: OutputPortIdAddress = upstreamOutputPortUIViewModel.portAddress,
+           
+            let pointTo: CGPoint = inputPortUIViewModel.anchorPoint,
+           let pointFrom: CGPoint = upstreamOutputPortUIViewModel.anchorPoint,
+           
+            let firstFrom: CGPoint = upstreamAnchor.firstUpstreamOutput.anchorPoint,
+            let firstTo: CGPoint = downstreamAnchor.firstInput.anchorPoint,
+           
+            let lastFrom: CGPoint = upstreamAnchor.lastUpstreamRowOutput.anchorPoint,
+           let lastTo: CGPoint = downstreamAnchor.lastInput.anchorPoint,
+           
+            let firstFromWithEdge: CGFloat = firstConnectedInputObserver.anchorPoint?.y,
+           let lastFromWithEdge: CGFloat = upstreamAnchor.lastConnectedUpstreamOutput?.anchorPoint?.y,
+           
+            let firstToWithEdge: CGFloat = firstConnectedInputObserver.anchorPoint?.y,
+           let lastToWithEdge: CGFloat = downstreamAnchor.lastConectedInput.anchorPoint?.y {
+            
             let edge = PortEdgeUI(from: outputPortViewData,
                                   to: inputPortViewData)
-            let portColor: PortColor = inputRowViewModel.portColor
+            
+            let portColor: PortColor = inputPortUIViewModel.portColor
             let isSelectedEdge = (portColor == .highlightedEdge || portColor == .highlightedLoopEdge)
-           
+            
             let zIndexBoost = isSelectedEdge ? SELECTED_EDGE_Z_INDEX_BOOST : 0
             let newZIndex: ZIndex = self.zIndex + zIndexBoost
             
@@ -171,7 +172,7 @@ struct ConnectedEdgeView: View {
                      lastFromWithEdge: lastFromWithEdge,
                      firstToWithEdge: firstToWithEdge,
                      lastToWithEdge: lastToWithEdge,
-                     totalOutputs: totalOutputs,
+                     totalOutputs: upstreamAnchor.totalOutputs,
                      edgeAnimationEnabled: edgeAnimationEnabled)
             .zIndex(newZIndex)
             

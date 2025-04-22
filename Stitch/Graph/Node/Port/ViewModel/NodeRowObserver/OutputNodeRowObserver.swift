@@ -85,67 +85,15 @@ extension OutputNodeRowObserver {
     }
     
  
+    // Note: this returns quite different results depending on whether the owner-node is e.g. a patch vs a group
     @MainActor var allRowViewModels: [OutputNodeRowViewModel] {
         guard let node = self.nodeDelegate,
               let graph = node.graphDelegate else {
             return []
         }
-                
-        switch node.nodeType {
-            
-        case .patch(let patchNode):
-            guard let portId = self.id.portId,
-                  let patchOutput = patchNode.canvasObserver.outputViewModels[safe: portId] else {
-                fatalErrorIfDebug()
-                return []
-            }
-            
-            var outputs = [patchOutput]
-            
-            // Find row view models for group if applicable
-            if patchNode.splitterNode?.type == .output {
-                // Group id is the only other row view model's canvas's parent ID
-                if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
-                   let groupNode: CanvasItemViewModel = graph.getNode(groupNodeId)?.nodeType.groupNode {
-                    outputs += groupNode.outputViewModels.filter {
-                        $0.rowDelegate?.id == self.id
-                    }
-                }
-            }
-            return outputs
-            
-        case .layer(let layerNode):
-            guard let portId = id.portId,
-                  let port = layerNode.outputPorts[safe: portId] else {
-                fatalErrorIfDebug()
-                return []
-            }
-            var outputs = [port.inspectorRowViewModel]
-            if let canvasOutput = port.canvasObserver?.outputViewModels.first {
-                outputs.append(canvasOutput)
-            }
-            return outputs
-            
-        case .group(let canvas):
-            guard let portId = self.id.portId,
-                  let groupOutput = canvas.outputViewModels[safe: portId] else {
-                fatalErrorIfDebug()
-                return []
-            }
-            return [groupOutput]
-            
-        case .component(let component):
-            let canvas = component.canvas
-            guard let portId = self.id.portId,
-                  let groupOutput = canvas.outputViewModels[safe: portId] else {
-                fatalErrorIfDebug()
-                return []
-            }
-            
-            return [groupOutput]
-        }
+        return getOutputRowViewModels(id: self.id, nodeType: node.nodeType, graph: graph)
     }
-    
+        
     @MainActor
     func getDownstreamCanvasItemsIds() -> Set<CanvasItemId> {
         guard let graph = self.nodeDelegate?.graphDelegate,
@@ -176,5 +124,67 @@ extension OutputNodeRowObserver {
         return graph.connections.get(self.id)?
             .compactMap { graph.getInputRowObserver($0) }
         ?? .init()
+    }
+}
+
+
+// "Pure" form for retrieving output row view models
+@MainActor
+func getOutputRowViewModels(id: OutputCoordinate,
+                            nodeType: NodeViewModelType,
+                            graph: GraphReader) -> [OutputNodeRowViewModel] {
+    
+    switch nodeType {
+        
+    case .patch(let patchNode):
+        guard let portId = id.portId,
+              let patchOutput = patchNode.canvasObserver.outputViewModels[safe: portId] else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        var outputs = [patchOutput]
+        
+        // Find row view models for group if applicable
+        if patchNode.splitterNode?.type == .output {
+            // Group id is the only other row view model's canvas's parent ID
+            if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
+               let groupNode: CanvasItemViewModel = graph.getNode(groupNodeId)?.nodeType.groupNode {
+                outputs += groupNode.outputViewModels.filter {
+                    $0.rowDelegate?.id == id
+                }
+            }
+        }
+        return outputs
+        
+    case .layer(let layerNode):
+        guard let portId = id.portId,
+              let port = layerNode.outputPorts[safe: portId] else {
+            fatalErrorIfDebug()
+            return []
+        }
+        var outputs = [port.inspectorRowViewModel]
+        if let canvasOutput = port.canvasObserver?.outputViewModels.first {
+            outputs.append(canvasOutput)
+        }
+        return outputs
+        
+    case .group(let canvas):
+        guard let portId = id.portId,
+              let groupOutput = canvas.outputViewModels[safe: portId] else {
+            fatalErrorIfDebug()
+            return []
+        }
+        return [groupOutput]
+        
+    case .component(let component):
+        let canvas = component.canvas
+        guard let portId = id.portId,
+              let groupOutput = canvas.outputViewModels[safe: portId] else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        return [groupOutput]
     }
 }

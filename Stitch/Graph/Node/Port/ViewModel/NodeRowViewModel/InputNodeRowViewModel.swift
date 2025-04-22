@@ -23,7 +23,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor var cachedFieldValueGroups = FieldGroupList()
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
-    @MainActor var portData: InputPortUIData
+    @MainActor var portUIViewModel: InputPortUIViewModel
     
     // MARK: delegates, weak references to parents
     
@@ -38,7 +38,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          initialValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
-        self.portData = .init(id: InputCoordinate(portId: id.portId,
+        self.portUIViewModel = .init(id: InputCoordinate(portId: id.portId,
                                                   nodeId: id.nodeId))
         self.id = id
         self.cachedActiveValue = initialValue
@@ -54,7 +54,7 @@ extension InputNodeRowObserver {
     func findConnectedCanvasItems() -> CanvasItemIdSet {
         // Does this input row observer has an upstream connection (i.e. output observer)?
         // If so, return that observer's canvas item id
-        if let upstreamId = self.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id {
+        if let upstreamId = self.upstreamOutputObserver?.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate?.id {
             return .init([upstreamId])
         } else {
             return .init()
