@@ -9,7 +9,7 @@ import Foundation
 
 // May want a common protocol differentiated by `portAddress` type
 @Observable
-final class OutputPortUIData: Identifiable, AnyObject {
+final class OutputPortUIViewModel: Identifiable, AnyObject {
     
     let id: OutputCoordinate // which node id + port id this is for
     
@@ -34,37 +34,43 @@ final class OutputPortUIData: Identifiable, AnyObject {
     }
 }
 
+extension CanvasItemViewModel {
+    @MainActor
+    var outputPortUIViewModels: [OutputPortUIViewModel] {
+        self.outputViewModels.map(\.portUIViewModel)
+    }
+}
 
 extension OutputNodeRowViewModel {
     @MainActor var anchorPoint: CGPoint? {
         get {
-            self.portData.anchorPoint
+            self.portUIViewModel.anchorPoint
         } set(newValue) {
-            self.portData.anchorPoint = newValue
+            self.portUIViewModel.anchorPoint = newValue
         }
     }
     
     @MainActor var portColor: PortColor {
         get {
-            self.portData.portColor
+            self.portUIViewModel.portColor
         } set(newValue) {
-            self.portData.portColor = newValue
+            self.portUIViewModel.portColor = newValue
         }
     }
     
     @MainActor var portAddress: PortAddressType? {
         get {
-            self.portData.portAddress
+            self.portUIViewModel.portAddress
         } set(newValue) {
-            self.portData.portAddress = newValue
+            self.portUIViewModel.portAddress = newValue
         }
     }
     
     @MainActor var connectedCanvasItems: CanvasItemIdSet {
         get {
-            self.portData.connectedCanvasItems
+            self.portUIViewModel.connectedCanvasItems
         } set(newValue) {
-            self.portData.connectedCanvasItems = newValue
+            self.portUIViewModel.connectedCanvasItems = newValue
         }
     }
 }
