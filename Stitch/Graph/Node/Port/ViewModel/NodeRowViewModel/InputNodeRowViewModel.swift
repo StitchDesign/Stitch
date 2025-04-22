@@ -10,20 +10,18 @@ import Foundation
 
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
-    
-    typealias PortAddressType = InputPortIdAddress
-    
+        
     static let nodeIO: NodeIO = .input
     
     let id: NodeRowViewModelId
         
-    // MARK: cached ui-data derived from underlying row observer
-    @MainActor var fieldsUIViewModel: InputRowFieldsUIViewModel
+    // Cached ui-data derived from underlying row observer
+    @MainActor var fieldsUIViewModel: RowFieldsUIViewModel
     
-    // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
+    // Data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     @MainActor var portUIViewModel: InputPortUIViewModel
     
-    // MARK: delegates, weak references to parents
+    // Delegates, weak references to parents
     @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: InputNodeRowObserver?
     

@@ -89,16 +89,16 @@ struct CandidateEdgesView: View {
                    let inputObserver = self
                     .getPossibleEdgeDownstreamObserver(possibleEdge: possibleEdge),
                    let outputsCount = outputObserver.canvasItemDelegate?.outputViewModels.count {
-                    let pointTo = inputObserver.anchorPoint ?? .zero
+                    let pointTo = inputObserver.portUIViewModel.anchorPoint ?? .zero
                     
                     PossibleEdgeView(edgeStyle: edgeStyle,
                                      possibleEdge: possibleEdge,
                                      shownPossibleEdgeIds: shownPossibleEdgeIds,
-                                     from: outputObserver.anchorPoint ?? .zero,
+                                     from: outputObserver.portUIViewModel.anchorPoint ?? .zero,
                                      to: pointTo,
                                      totalOutputs: outputsCount,
                                      // Note: an animated edit-mode edge use its output's color, rather than input's color, since the input will be gray until animation is completed
-                                     color: outputObserver.portColor.color(theme))
+                                     color: outputObserver.portUIViewModel.portColor.color(theme))
                 }
             }
         }
