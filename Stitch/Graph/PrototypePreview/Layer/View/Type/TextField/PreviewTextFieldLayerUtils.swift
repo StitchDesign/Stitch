@@ -23,7 +23,7 @@ extension FocusedUserEditField {
         switch self {
         case .textInput(let fieldCoordinate):
             switch fieldCoordinate.rowId.graphItemType {
-            case .node(let x):
+            case .canvas(let x):
                 // log("canvasFieldId: .textInput: .node: x \(x)")
                 return x
             // TODO: what is a .textInput with a .layerInspector graphItemType?

@@ -106,7 +106,7 @@ extension NodeViewModel {
     @MainActor
     var allNodeInputRowViewModels: [InputNodeRowViewModel] {
         self.allInputRowViewModels
-            .filter { $0.id.isNode }
+            .filter { $0.id.isCanvas }
     }
     
     @MainActor

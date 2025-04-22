@@ -234,7 +234,7 @@ extension NodeRowObserver {
         rowViewModels.first {
             // Is this row view model for the canvas (rather than layer inspector),
             // and at this current traversal level?
-            guard case let .node(canvasItemId) = $0.id.graphItemType,
+            guard case let .canvas(canvasItemId) = $0.id.graphItemType,
                let canvasItem = graph.getCanvasItem(canvasItemId) else {
                 return false
             }
