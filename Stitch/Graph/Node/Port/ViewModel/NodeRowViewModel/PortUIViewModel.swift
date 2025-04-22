@@ -10,8 +10,11 @@ import Foundation
 protocol PortUIViewModel: Observable, Identifiable, AnyObject, Sendable {
     associatedtype PortAddressType: PortIdAddress
     
-    // TODO: add `canvasItemId`, since PortUIViewModel is only for a canvas item
+    // Which
+    var id: NodeIOCoordinate { get }
     
+    // TODO: add `canvasItemId`, since PortUIViewModel is only for a canvas item
+        
     @MainActor var anchorPoint: CGPoint? { get set }
     @MainActor var portColor: PortColor { get set }
     @MainActor var portAddress: PortAddressType? { get set }
@@ -36,6 +39,13 @@ protocol PortUIViewModel: Observable, Identifiable, AnyObject, Sendable {
 }
 
 extension PortUIViewModel {
+    
+    // AnchorPoint logic relies on numbered ports, but layers have keyPaths (names rather than ints).
+    // Since a layer input/field on the canvas is always a single 'row', we can assume portId=0 for AnchorPoint purposes.
+    var portIdForAnchorPoint: Int {
+        self.id.portId ?? 0
+    }
+    
     @MainActor
     func isConnectedToASelectedCanvasItem(_ selectedCanvasItems: CanvasItemIdSet) -> Bool {
         for connectedCanvasItemId in self.connectedCanvasItems {

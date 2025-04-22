@@ -35,6 +35,12 @@ final class InputPortUIViewModel: PortUIViewModel {
     }
 }
 
+extension CanvasItemViewModel {
+    @MainActor
+    var inputPortUIViewModels: [InputPortUIViewModel] {
+        self.inputViewModels.map(\.portUIViewModel)
+    }
+}
 
 extension InputNodeRowViewModel {
     @MainActor var anchorPoint: CGPoint? {

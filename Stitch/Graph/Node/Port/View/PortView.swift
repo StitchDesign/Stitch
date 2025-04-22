@@ -29,7 +29,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
 
     @MainActor
     var portColor: Color {
-        rowViewModel.portColor.color(theme)
+        rowViewModel.portUIViewModel.portColor.color(theme)
     }
     
     @State private var portIsBeingDragged = false

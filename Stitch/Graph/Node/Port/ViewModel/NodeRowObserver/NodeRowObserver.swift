@@ -188,12 +188,13 @@ extension NodeRowObserver {
         // Update visual color data
         self.allRowViewModels.forEach {
             if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
-                $0.updatePortColor(canvasItemId: canvasItemId,
-                                   hasEdge: self.hasEdge,
-                                   hasLoop: self.hasLoopedValues,
-                                   selectedEdges: graph.selectedEdges,
-                                   selectedCanvasItems: graph.selection.selectedCanvasItems,
-                                   drawingObserver: graph.edgeDrawingObserver)
+                $0.portUIViewModel.updatePortColor(
+                    canvasItemId: canvasItemId,
+                    hasEdge: self.hasEdge,
+                    hasLoop: self.hasLoopedValues,
+                    selectedEdges: graph.selectedEdges,
+                    selectedCanvasItems: graph.selection.selectedCanvasItems,
+                    drawingObserver: graph.edgeDrawingObserver)
             }
         }
     }

@@ -29,18 +29,16 @@ extension InputNodeRowObserver {
                                                    selectedCanvasItems: CanvasItemIdSet,
                                                    drawingObserver: EdgeDrawingObserver) {
         self.allRowViewModels.forEach {
-            
             if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
-                $0.updatePortColor(canvasItemId: canvasItemId,
-                                   hasEdge: self.hasEdge,
-                                   hasLoop: self.hasLoopedValues,
-                                   selectedEdges: selectedEdges,
-                                   selectedCanvasItems: selectedCanvasItems,
-                                   // Not really applicable for input port color
-                                   drawingObserver: drawingObserver)
+                $0.portUIViewModel.updatePortColor(
+                    canvasItemId: canvasItemId,
+                    hasEdge: self.hasEdge,
+                    hasLoop: self.hasLoopedValues,
+                    selectedEdges: selectedEdges,
+                    selectedCanvasItems: selectedCanvasItems,
+                    // Not really applicable for input port color
+                    drawingObserver: drawingObserver)
             }
-            
-            
         }
         
         // Note: previously this was only done when node-tapped
@@ -59,12 +57,13 @@ extension NodeRowObserver {
                                       drawingObserver: EdgeDrawingObserver) {
         self.allRowViewModels.forEach {
             if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
-                $0.updatePortColor(canvasItemId: canvasItemId,
-                                   hasEdge: self.hasEdge,
-                                   hasLoop: self.hasLoopedValues,
-                                   selectedEdges: selectedEdges,
-                                   selectedCanvasItems: selectedCanvasItems,
-                                   drawingObserver: drawingObserver)
+                $0.portUIViewModel.updatePortColor(
+                    canvasItemId: canvasItemId,
+                    hasEdge: self.hasEdge,
+                    hasLoop: self.hasLoopedValues,
+                    selectedEdges: selectedEdges,
+                    selectedCanvasItems: selectedCanvasItems,
+                    drawingObserver: drawingObserver)
             }
         }
     }

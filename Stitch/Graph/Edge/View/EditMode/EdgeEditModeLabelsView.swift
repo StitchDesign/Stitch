@@ -20,7 +20,7 @@ struct EdgeInputLabelsView: View {
             ForEach(nearbyCanvas.inputViewModels) { inputRowViewModel in                
                 EdgeEditModeLabelsView(document: document,
                                        portId: inputRowViewModel.id.portId)
-                .position(inputRowViewModel.anchorPoint ?? .zero)
+                .position(inputRowViewModel.portUIViewModel.anchorPoint ?? .zero)
                 .opacity(showLabels ? 1 : 0)
                 .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
                            value: showLabels)
