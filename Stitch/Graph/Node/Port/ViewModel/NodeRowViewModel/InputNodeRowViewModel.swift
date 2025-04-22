@@ -18,15 +18,12 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     let id: NodeRowViewModelId
         
     // MARK: cached ui-data derived from underlying row observer
-    
-    @MainActor var cachedActiveValue: PortValue
-    @MainActor var cachedFieldValueGroups = FieldGroupList()
+    @MainActor var fieldsUIViewModel: InputRowFieldsUIViewModel
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     @MainActor var portUIViewModel: InputPortUIViewModel
     
     // MARK: delegates, weak references to parents
-    
     @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: InputNodeRowObserver?
     
@@ -41,11 +38,16 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         self.portUIViewModel = .init(id: InputCoordinate(portId: id.portId,
                                                   nodeId: id.nodeId))
         self.id = id
-        self.cachedActiveValue = initialValue
-        self.nodeDelegate = nodeDelegate // This is referencing the object itself, already !?
+        self.fieldsUIViewModel = .init(id: id,
+                                       cachedActiveValue: initialValue,
+                                       // TODO: just make fieldValueGroups here?
+                                       cachedFieldValueGroups: .init())
+        
+        // This is referencing the object itself, already ?
+        self.nodeDelegate = nodeDelegate
+        
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
-      
     }
 }
 
