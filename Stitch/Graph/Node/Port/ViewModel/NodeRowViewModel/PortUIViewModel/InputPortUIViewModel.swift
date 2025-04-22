@@ -42,37 +42,10 @@ extension CanvasItemViewModel {
     }
 }
 
-extension InputNodeRowViewModel {
-    @MainActor var anchorPoint: CGPoint? {
-        get {
-            self.portUIViewModel.anchorPoint
-        } set(newValue) {
-            self.portUIViewModel.anchorPoint = newValue
-        }
-    }
-    
-    @MainActor var portColor: PortColor {
-        get {
-            self.portUIViewModel.portColor
-        } set(newValue) {
-            self.portUIViewModel.portColor = newValue
-        }
-    }
-    
-    @MainActor var portAddress: PortAddressType? {
-        get {
-            self.portUIViewModel.portAddress
-        } set(newValue) {
-            self.portUIViewModel.portAddress = newValue
-        }
-    }
-    
-    @MainActor var connectedCanvasItems: CanvasItemIdSet {
-        get {
-            self.portUIViewModel.connectedCanvasItems
-        } set(newValue) {
-            self.portUIViewModel.connectedCanvasItems = newValue
-        }
+extension InputNodeRowObserver {
+    @MainActor
+    var allPortUIViewModels: [InputPortUIViewModel] {
+        self.allRowViewModels.map(\.portUIViewModel)
     }
 }
 

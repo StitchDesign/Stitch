@@ -7,10 +7,57 @@
 
 import Foundation
 
-protocol RowFieldsUIViewModel: Observable, Identifiable, AnyObject, Sendable {
-    // Needs GraphItemType, since could be for canvas or inspector
-    var id: NodeRowViewModelId { get }
+@Observable
+final class RowFieldsUIViewModel {
+    let id: NodeRowViewModelId
     
-    @MainActor var cachedActiveValue: PortValue { get set }
-    @MainActor var cachedFieldValueGroups: [FieldGroup] { get set } // fields
+    @MainActor var cachedActiveValue: PortValue
+    @MainActor var cachedFieldValueGroups: [FieldGroup]
+    
+    @MainActor
+    init(id: NodeRowViewModelId,
+         cachedActiveValue: PortValue,
+         cachedFieldValueGroups: [FieldGroup]) {
+        self.id = id
+        self.cachedActiveValue = cachedActiveValue
+        self.cachedFieldValueGroups = cachedFieldValueGroups
+    }
+}
+
+
+extension InputNodeRowViewModel {
+    @MainActor var cachedActiveValue: PortValue {
+        get {
+            self.fieldsUIViewModel.cachedActiveValue
+        } set(newValue) {
+            self.fieldsUIViewModel.cachedActiveValue = newValue
+        }
+    }
+    
+    @MainActor var cachedFieldValueGroups: [FieldGroup] {
+        get {
+            self.fieldsUIViewModel.cachedFieldValueGroups
+        } set(newValue) {
+            self.fieldsUIViewModel.cachedFieldValueGroups = newValue
+        }
+    }
+}
+
+
+extension OutputNodeRowViewModel {
+    @MainActor var cachedActiveValue: PortValue {
+        get {
+            self.fieldsUIViewModel.cachedActiveValue
+        } set(newValue) {
+            self.fieldsUIViewModel.cachedActiveValue = newValue
+        }
+    }
+    
+    @MainActor var cachedFieldValueGroups: [FieldGroup] {
+        get {
+            self.fieldsUIViewModel.cachedFieldValueGroups
+        } set(newValue) {
+            self.fieldsUIViewModel.cachedFieldValueGroups = newValue
+        }
+    }
 }

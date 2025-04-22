@@ -561,8 +561,6 @@
 		EC5734332B75BAD100D93A78 /* LegacyActionConversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */; };
 		EC57659D2DB7F64200D71CB2 /* PortUIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC57659C2DB7F64200D71CB2 /* PortUIViewModel.swift */; };
 		EC5765A02DB800A000D71CB2 /* RowFieldsUIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC57659F2DB800A000D71CB2 /* RowFieldsUIViewModel.swift */; };
-		EC5765A22DB800AB00D71CB2 /* OutputRowFieldsUIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5765A12DB800AB00D71CB2 /* OutputRowFieldsUIViewModel.swift */; };
-		EC5765A42DB800D500D71CB2 /* InputRowFieldsUIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5765A32DB800D500D71CB2 /* InputRowFieldsUIViewModel.swift */; };
 		EC5A2DDF2632020700D8DEE5 /* PreviewImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */; };
 		EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */; };
 		EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */; };
@@ -1544,8 +1542,6 @@
 		EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyActionConversionUtils.swift; sourceTree = "<group>"; };
 		EC57659C2DB7F64200D71CB2 /* PortUIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortUIViewModel.swift; sourceTree = "<group>"; };
 		EC57659F2DB800A000D71CB2 /* RowFieldsUIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowFieldsUIViewModel.swift; sourceTree = "<group>"; };
-		EC5765A12DB800AB00D71CB2 /* OutputRowFieldsUIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputRowFieldsUIViewModel.swift; sourceTree = "<group>"; };
-		EC5765A32DB800D500D71CB2 /* InputRowFieldsUIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputRowFieldsUIViewModel.swift; sourceTree = "<group>"; };
 		EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImage.swift; sourceTree = "<group>"; };
 		EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMediaLayerNode.swift; sourceTree = "<group>"; };
 		EC5BC3DE2D681331000DF722 /* JSONCoercionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCoercionUtils.swift; sourceTree = "<group>"; };
@@ -4342,8 +4338,6 @@
 			isa = PBXGroup;
 			children = (
 				EC57659F2DB800A000D71CB2 /* RowFieldsUIViewModel.swift */,
-				EC5765A32DB800D500D71CB2 /* InputRowFieldsUIViewModel.swift */,
-				EC5765A12DB800AB00D71CB2 /* OutputRowFieldsUIViewModel.swift */,
 			);
 			path = RowFieldsUIViewModel;
 			sourceTree = "<group>";
@@ -5355,7 +5349,6 @@
 				EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */,
 				EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */,
 				EC5BC3DF2D681331000DF722 /* JSONCoercionUtils.swift in Sources */,
-				EC5765A22DB800AB00D71CB2 /* OutputRowFieldsUIViewModel.swift in Sources */,
 				ECB46CDB2DB171B5006EFB93 /* LayerInputFieldBlocking.swift in Sources */,
 				EC560E15293A944100350046 /* LoopReverseNode.swift in Sources */,
 				B57F3A802946CE4700DFC0AE /* VisibleNodesViewModel.swift in Sources */,
@@ -5523,7 +5516,6 @@
 				EC865B8429E7584F0030FD89 /* TopBarButtonView.swift in Sources */,
 				B55501052C1BC8890081C3F1 /* SidebarSwipeSetting.swift in Sources */,
 				EC3420E22AF9C2EC00EBD896 /* CommentBoxHelpers.swift in Sources */,
-				EC5765A42DB800D500D71CB2 /* InputRowFieldsUIViewModel.swift in Sources */,
 				B5EFD5B32D5E57AD006A68FB /* StitchAINodeUtils.swift in Sources */,
 				EC6E69B42DA9930400C3A017 /* GraphReaders.swift in Sources */,
 				ECDFF6302A0E994700729D2A /* ShapeToCommandsNode.swift in Sources */,

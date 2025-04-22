@@ -13,8 +13,6 @@ final class OutputPortUIViewModel: PortUIViewModel {
     
     let id: OutputCoordinate // which node id + port id this is for
     
-    // the portDragged and portDragEnded methods DO require specific input vs output row view model;
-    // so instead you can pass down the nodeIO and the
     @MainActor var anchorPoint: CGPoint? = nil
     @MainActor var portColor: PortColor = .noEdge
     @MainActor var portAddress: OutputPortIdAddress?
@@ -41,40 +39,12 @@ extension CanvasItemViewModel {
     }
 }
 
-extension OutputNodeRowViewModel {
-    @MainActor var anchorPoint: CGPoint? {
-        get {
-            self.portUIViewModel.anchorPoint
-        } set(newValue) {
-            self.portUIViewModel.anchorPoint = newValue
-        }
-    }
-    
-    @MainActor var portColor: PortColor {
-        get {
-            self.portUIViewModel.portColor
-        } set(newValue) {
-            self.portUIViewModel.portColor = newValue
-        }
-    }
-    
-    @MainActor var portAddress: PortAddressType? {
-        get {
-            self.portUIViewModel.portAddress
-        } set(newValue) {
-            self.portUIViewModel.portAddress = newValue
-        }
-    }
-    
-    @MainActor var connectedCanvasItems: CanvasItemIdSet {
-        get {
-            self.portUIViewModel.connectedCanvasItems
-        } set(newValue) {
-            self.portUIViewModel.connectedCanvasItems = newValue
-        }
+extension OutputNodeRowObserver {
+    @MainActor
+    var allPortUIViewModels: [OutputPortUIViewModel] {
+        self.allRowViewModels.map(\.portUIViewModel)
     }
 }
-
 
 extension OutputPortUIViewModel {
     /// Note: an actively-drawn edge SITS ON TOP OF existing edges. So there is no distinction between port color vs edge color.
