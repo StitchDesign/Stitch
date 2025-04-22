@@ -66,7 +66,8 @@ struct PreviewCommonModifier: ViewModifier {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel, 
                 isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: graph.pinMap,
+//                pinMap: graph.pinMap,
+                pinMap: .init(),
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -77,102 +78,96 @@ struct PreviewCommonModifier: ViewModifier {
                 sizingScenario: layerViewModel.getSizingScenario,
                 frameAlignment: frameAlignment))
         
-            // Only for MapLayer, specifically for thumbnail-creation edge case
-            .modifier(ClippedModifier(
-                isClipped: clipForMapLayerProjetThumbnailCreation,
-                // no clipping for map
-                cornerRadius: .zero))
+//            // Only for MapLayer, specifically for thumbnail-creation edge case
+//            .modifier(ClippedModifier(
+//                isClipped: clipForMapLayerProjetThumbnailCreation,
+//                // no clipping for map
+//                cornerRadius: .zero))
 
-            .modifier(PreviewCommonModifierWithoutFrame(
-                document: document,
-                graph: graph,
-                layerViewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                interactiveLayer: interactiveLayer,
-                position: position,
-                rotationX: rotationX,
-                rotationY: rotationY,
-                rotationZ: rotationZ,
-                // actual calculated size at which we're displaying the image
-                size: size,
-                minimumDragDistance: minimumDragDistance,
-                scale: scale,
-                anchoring: anchoring,
-                blurRadius: blurRadius,
-                blendMode: blendMode,
-                brightness: brightness,
-                colorInvert: colorInvert,
-                contrast: contrast,
-                hueRotation: hueRotation,
-                saturation: saturation,
-                pivot: pivot,
-                shadowColor: shadowColor,
-                shadowOpacity: shadowOpacity,
-                shadowRadius: shadowRadius,
-                shadowOffset: shadowOffset,
-                isForShapeLayer: isForShapeLayer,
-                parentSize: parentSize,
-                parentDisablesPosition: parentDisablesPosition,
-                parentIsScrollableGrid: parentIsScrollableGrid))
+//            .modifier(PreviewCommonModifierWithoutFrame(
+////                document: document,
+////                graph: graph,
+////                layerViewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                interactiveLayer: interactiveLayer,
+//                position: position,
+//                rotationX: rotationX,
+//                rotationY: rotationY,
+//                rotationZ: rotationZ,
+//                // actual calculated size at which we're displaying the image
+//                size: size,
+//                minimumDragDistance: minimumDragDistance,
+//                scale: scale,
+//                anchoring: anchoring,
+//                blurRadius: blurRadius,
+//                blendMode: blendMode,
+//                brightness: brightness,
+//                colorInvert: colorInvert,
+//                contrast: contrast,
+//                hueRotation: hueRotation,
+//                saturation: saturation,
+//                pivot: pivot,
+//                shadowColor: shadowColor,
+//                shadowOpacity: shadowOpacity,
+//                shadowRadius: shadowRadius,
+//                shadowOffset: shadowOffset,
+//                isForShapeLayer: isForShapeLayer,
+//                parentSize: parentSize,
+//                parentDisablesPosition: parentDisablesPosition,
+//                parentIsScrollableGrid: parentIsScrollableGrid))
     }
 }
 
-struct PreviewCommonView_REPL: View {
-
-    let windowSize = CGSize(width: 390, height: 844)
-
-    var scale: CGFloat = 0.4
-
-    //    var anchoring: Anchoring = .topLeft
-    //    var anchoring: Anchoring = .center
-    //    var anchoring: Anchoring = .topRight
-    var anchoring: Anchoring = .bottomCenter
-
-    var size: CGSize {
-        CGSize(width: 800, height: 800)
-    }
-
-    var scaledSize: CGSize {
-        size.scaleBy(scale)
-    }
-
-    //    var position: StitchPosition = .zero
-    //    var position: StitchPosition = .init(width: 0, height: 422)
-    var position: StitchPosition = .init(x: 0, y: -422)
-
-    // 422 * 0.4
-    var scaledPosition: StitchPosition {
-        position.scaleBy(scale)
-    }
-
-    var pos: StitchPosition {
-        adjustPosition(
-            size: scaledSize,
-            position: position,
-            anchor: anchoring,
-            parentSize: windowSize)
-    }
-
-    var body: some View {
-        ZStack { // mock preview window
-            Color.white.zIndex(-1) // mock background
-
-            Rectangle().fill(.blue.opacity(0.5))
-                .frame(width: size.width,
-                       height: size.height,
-                       // ALWAYS CENTER, regardless of anchoring;
-                       alignment: .center)
-                .scaleEffect(CGFloat(scale))
-                .position(x: pos.x, y: pos.y)
-
-        }
-        .frame(windowSize)
-        .border(.red, width: 4)
-    }
-}
-
-struct PreviewCommonView_Previews: PreviewProvider {
-    static var previews: some View {
-        PreviewCommonView_REPL()
-    }
-}
+//struct PreviewCommonView_REPL: View {
+//
+//    let windowSize = CGSize(width: 390, height: 844)
+//
+//    var scale: CGFloat = 0.4
+//
+//    //    var anchoring: Anchoring = .topLeft
+//    //    var anchoring: Anchoring = .center
+//    //    var anchoring: Anchoring = .topRight
+//    var anchoring: Anchoring = .bottomCenter
+//
+//    var size: CGSize {
+//        CGSize(width: 800, height: 800)
+//    }
+//
+//    var scaledSize: CGSize {
+//        size.scaleBy(scale)
+//    }
+//
+//    //    var position: StitchPosition = .zero
+//    //    var position: StitchPosition = .init(width: 0, height: 422)
+//    var position: StitchPosition = .init(x: 0, y: -422)
+//
+//    // 422 * 0.4
+//    var scaledPosition: StitchPosition {
+//        position.scaleBy(scale)
+//    }
+//
+//    var pos: StitchPosition {
+//        adjustPosition(
+//            size: scaledSize,
+//            position: position,
+//            anchor: anchoring,
+//            parentSize: windowSize)
+//    }
+//
+//    var body: some View {
+//        ZStack { // mock preview window
+//            Color.white.zIndex(-1) // mock background
+//
+//            Rectangle().fill(.blue.opacity(0.5))
+//                .frame(width: size.width,
+//                       height: size.height,
+//                       // ALWAYS CENTER, regardless of anchoring;
+//                       alignment: .center)
+//                .scaleEffect(CGFloat(scale))
+//                .position(x: pos.x, y: pos.y)
+//
+//        }
+//        .frame(windowSize)
+//        .border(.red, width: 4)
+//    }
+//}

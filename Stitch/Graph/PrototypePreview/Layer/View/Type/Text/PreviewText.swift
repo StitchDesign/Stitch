@@ -22,9 +22,9 @@ let defaultTextAlignment = PortValue.textAlignment(DEFAULT_TEXT_ALIGNMENT)
 let defaultTextVerticalAlignment = PortValue.textVerticalAlignment(DEFAULT_TEXT_VERTICAL_ALIGNMENT)
 
 struct PreviewTextLayer: View {
-    @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
-    let layerViewModel: LayerViewModel
+//    @Bindable var document: StitchDocumentViewModel
+//    @Bindable var graph: GraphState
+//    let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let text: String
@@ -64,45 +64,46 @@ struct PreviewTextLayer: View {
 
     var body: some View {
 
-        let alignment: Alignment? = getSwiftUIAlignment(textAlignment, verticalAlignment)
-        
-        LayerTextView(value: text,
-                      color: color,
-                      alignment: alignment,
-                      fontSize: fontSize,
-                      textDecoration: textDecoration,
-                      textFont: textFont)
-        .opacity(opacity)
-        .modifier(PreviewCommonModifier(
-            document: document,
-            graph: graph,
-            layerViewModel: layerViewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
-            interactiveLayer: interactiveLayer,
-            position: position,
-            rotationX: rotationX,
-            rotationY: rotationY,
-            rotationZ: rotationZ,
-            size: size,
-            scale: scale,
-            anchoring: anchoring,
-            blurRadius: blurRadius,
-            blendMode: blendMode,
-            brightness: brightness,
-            colorInvert: colorInvert,
-            contrast: contrast,
-            hueRotation: hueRotation,
-            saturation: saturation,
-            pivot: pivot,
-            shadowColor: shadowColor,
-            shadowOpacity: shadowOpacity,
-            shadowRadius: shadowRadius,
-            shadowOffset: shadowOffset,
-            parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition,
-            parentIsScrollableGrid: parentIsScrollableGrid,
-            frameAlignment: alignment ?? .topLeading
-        ))
+//        let alignment: Alignment? = getSwiftUIAlignment(textAlignment, verticalAlignment)
+        Text(text)
+//        LayerTextView(value: text,
+//                      color: color,
+//                      alignment: alignment,
+//                      fontSize: fontSize,
+//                      textDecoration: textDecoration,
+//                      textFont: textFont)
+//        .opacity(opacity)
+//        .modifier(PreviewCommonModifier(
+//            document: document,
+//            graph: graph,
+//            layerViewModel: layerViewModel,
+//            isPinnedViewRendering: isPinnedViewRendering,
+//            interactiveLayer: interactiveLayer,
+//            position: position,
+//            rotationX: rotationX,
+//            rotationY: rotationY,
+//            rotationZ: rotationZ,
+//            size: size,
+//            scale: scale,
+//            anchoring: anchoring,
+//            blurRadius: blurRadius,
+//            blendMode: blendMode,
+//            brightness: brightness,
+//            colorInvert: colorInvert,
+//            contrast: contrast,
+//            hueRotation: hueRotation,
+//            saturation: saturation,
+//            pivot: pivot,
+//            shadowColor: shadowColor,
+//            shadowOpacity: shadowOpacity,
+//            shadowRadius: shadowRadius,
+//            shadowOffset: shadowOffset,
+//            parentSize: parentSize,
+//            parentDisablesPosition: parentDisablesPosition,
+//            parentIsScrollableGrid: parentIsScrollableGrid,
+////            frameAlignment: alignment ?? .topLeading
+//            frameAlignment: .topLeading
+//        ))
     }
 }
 

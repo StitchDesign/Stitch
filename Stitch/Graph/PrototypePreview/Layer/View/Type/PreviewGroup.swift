@@ -217,37 +217,37 @@ struct PreviewGroupLayer: View {
             }
         
         // moved here, so that .rotation affects .shadow
-            .modifier(PreviewLayerRotationModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                rotationX: rotationX,
-                rotationY: rotationY,
-                rotationZ: rotationZ))
+//            .modifier(PreviewLayerRotationModifier(
+////                graph: graph,
+////                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                rotationX: rotationX,
+//                rotationY: rotationY,
+//                rotationZ: rotationZ))
         
             .opacity(opacity) // opacity on group and all its contents
         
             .scaleEffect(CGFloat(scale),
                          anchor: pivot.toPivot)
                 
-            .modifier(PreviewCommonPositionModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition,
-                parentIsScrollableGrid: parentIsScrollableGrid,
-                parentSize: parentSize,
-                pos: pos))
-        
-        // SwiftUI gestures must be applied after .position modifier
-            .modifier(PreviewWindowElementSwiftUIGestures(
-                document: document,
-                graph: graph,
-                interactiveLayer: interactiveLayer,
-                pos: pos,
-                size: size,
-                parentSize: parentSize,
-                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
+//            .modifier(PreviewCommonPositionModifier(
+////                graph: graph,
+//                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                parentDisablesPosition: parentDisablesPosition,
+//                parentIsScrollableGrid: parentIsScrollableGrid,
+//                parentSize: parentSize,
+//                pos: pos))
+//        
+//        // SwiftUI gestures must be applied after .position modifier
+//            .modifier(PreviewWindowElementSwiftUIGestures(
+//                document: document,
+//                graph: graph,
+//                interactiveLayer: interactiveLayer,
+//                pos: pos,
+//                size: size,
+//                parentSize: parentSize,
+//                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }
 
     @ViewBuilder

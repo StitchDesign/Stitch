@@ -74,6 +74,8 @@ struct PreviewContent: View {
                 UIKitWrapper(ignoresKeyCommands: false,
                              inputTextFieldFocused: inputTextFieldFocused,
                              name: .previewWindow) {
+//                    Text("preview content here")
+                    
                     GeneratePreview(document: document)
                         .frame(finalSize)
                         .coordinateSpace(name: Self.prototypeCoordinateSpace)

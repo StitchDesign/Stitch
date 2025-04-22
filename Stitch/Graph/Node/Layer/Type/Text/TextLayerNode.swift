@@ -80,9 +80,9 @@ struct TextLayerNode: LayerNodeDefinition {
                         parentIsScrollableGrid: Bool,
                         realityContent: LayerRealityCameraContent?) -> some View {
         PreviewTextLayer(
-            document: document,
-            graph: graph,
-            layerViewModel: viewModel,
+//            document: document,
+//            graph: graph,
+//            layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             text: viewModel.text.display,

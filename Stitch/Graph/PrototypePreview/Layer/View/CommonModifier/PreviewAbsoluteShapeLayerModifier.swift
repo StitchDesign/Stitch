@@ -55,13 +55,13 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
         //                parentSize: parentSize,
         //                textLayerAlignment: .center))
 
-            .modifier(PreviewLayerRotationModifier(
-                graph: graph,
-                viewModel: viewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                rotationX: rotationX,
-                rotationY: rotationY,
-                rotationZ: rotationZ))
+//            .modifier(PreviewLayerRotationModifier(
+////                graph: graph,
+////                viewModel: viewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                rotationX: rotationX,
+//                rotationY: rotationY,
+//                rotationZ: rotationZ))
 
             .scaleEffect(scale,
                          anchor: pivot.toPivot)
@@ -76,24 +76,24 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
         //                parentSize: parentSize,
         //                parentDisablesPosition: parentDisablesPosition))
 
-            .modifier(PreviewLayerEffectsModifier(
-                blurRadius: blurRadius,
-                blendMode: blendMode,
-                brightness: brightness,
-                colorInvert: colorInvert,
-                contrast: contrast,
-                hueRotation: hueRotation,
-                saturation: saturation))
-        
-            // SwiftUI gestures must come AFTER the .position modifier
-            .modifier(PreviewWindowElementSwiftUIGestures(
-                document: document,
-                graph: graph,
-                interactiveLayer: interactiveLayer,
-                pos: position,
-                // TODO: For handling Press interaction location with Custom Shape layer that uses absolute-coordinate space, what needs to change?
-                size: size.toLayerSize,
-                parentSize: parentSize,
-                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
+//            .modifier(PreviewLayerEffectsModifier(
+//                blurRadius: blurRadius,
+//                blendMode: blendMode,
+//                brightness: brightness,
+//                colorInvert: colorInvert,
+//                contrast: contrast,
+//                hueRotation: hueRotation,
+//                saturation: saturation))
+//        
+//            // SwiftUI gestures must come AFTER the .position modifier
+//            .modifier(PreviewWindowElementSwiftUIGestures(
+//                document: document,
+//                graph: graph,
+//                interactiveLayer: interactiveLayer,
+//                pos: position,
+//                // TODO: For handling Press interaction location with Custom Shape layer that uses absolute-coordinate space, what needs to change?
+//                size: size.toLayerSize,
+//                parentSize: parentSize,
+//                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }
 }

@@ -14,8 +14,8 @@ import StitchSchemaKit
 // Discussion here: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
 struct PreviewLayerRotationModifier: ViewModifier {
     
-    @Bindable var graph: GraphState
-    @Bindable var viewModel: LayerViewModel
+//    @Bindable var graph: GraphState
+//    @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     
     let rotationX: CGFloat
@@ -23,7 +23,8 @@ struct PreviewLayerRotationModifier: ViewModifier {
     let rotationZ: CGFloat
     
     @MainActor var pinReceiver: PinReceiverData? {
-        graph.getPinReceiverData(for: viewModel)
+        nil
+//        graph.getPinReceiverData(for: viewModel)
     }
     
     static let defaultRotationAnchor = 0.5
@@ -31,24 +32,25 @@ struct PreviewLayerRotationModifier: ViewModifier {
     @MainActor var rotationAnchorX: CGFloat {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
-        if viewModel.isPinned.getBool ?? false,
-           isPinnedViewRendering,
-           let pinReceiver = pinReceiver {
-            
-            return getRotationAnchor(lengthA: viewModel.pinnedSize?.width ?? .zero,
-                                     lengthB: pinReceiver.size.width,
-                                     pointA: viewModel.pinnedCenter?.x ?? .zero,
-                                     pointB: pinReceiver.center.x)
-        }
-        
-        // Else, just return default rotation anchor of center
-        else {
+//        if viewModel.isPinned.getBool ?? false,
+//           isPinnedViewRendering,
+//           let pinReceiver = pinReceiver {
+//            
+//            return getRotationAnchor(lengthA: viewModel.pinnedSize?.width ?? .zero,
+//                                     lengthB: pinReceiver.size.width,
+//                                     pointA: viewModel.pinnedCenter?.x ?? .zero,
+//                                     pointB: pinReceiver.center.x)
+//        }
+//        
+//        // Else, just return default rotation anchor of center
+//        else {
             return Self.defaultRotationAnchor
-        }
+//        }
     }
     
     var isPinned: Bool {
-        viewModel.isPinned.getBool ?? false
+        false
+//        viewModel.isPinned.getBool ?? false
     }
     
     var isPinnedView: Bool {
@@ -57,7 +59,8 @@ struct PreviewLayerRotationModifier: ViewModifier {
     
     @MainActor
     var receivesPin: Bool {
-        graph.pinMap.get(viewModel.id.layerNodeId).isDefined
+        false
+//        graph.pinMap.get(viewModel.id.layerNodeId).isDefined
     }
     
     @MainActor
@@ -100,18 +103,18 @@ struct PreviewLayerRotationModifier: ViewModifier {
     var rotationAnchorY: CGFloat {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
-        if isPinnedView,
-           let pinReceiver = pinReceiver {
-            return getRotationAnchor(lengthA: viewModel.pinnedSize?.height ?? .zero,
-                                     lengthB: pinReceiver.size.height,
-                                     pointA: viewModel.pinnedCenter?.y ?? .zero,
-                                     pointB: pinReceiver.center.y)
-        }
-        
-        // Else, just return default rotation anchor of center
-        else {
+//        if isPinnedView,
+//           let pinReceiver = pinReceiver {
+//            return getRotationAnchor(lengthA: viewModel.pinnedSize?.height ?? .zero,
+//                                     lengthB: pinReceiver.size.height,
+//                                     pointA: viewModel.pinnedCenter?.y ?? .zero,
+//                                     pointB: pinReceiver.center.y)
+//        }
+//        
+//        // Else, just return default rotation anchor of center
+//        else {
             return Self.defaultRotationAnchor
-        }
+//        }
     }
     
     @MainActor

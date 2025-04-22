@@ -34,6 +34,6 @@ struct PreviewLayerView: View {
                                      parentDisablesPosition: parentDisablesPosition,
                                      parentIsScrollableGrid: parentIsScrollableGrid,
                                      realityContent: realityContent)
-        .eraseToAnyView()
+        .eraseToAnyView() // Do we need this?
     }
 }

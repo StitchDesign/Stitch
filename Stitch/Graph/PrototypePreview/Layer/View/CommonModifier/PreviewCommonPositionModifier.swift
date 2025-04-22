@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct PreviewCommonPositionModifier: ViewModifier {
     
     // Needed so that Pinned View A can retrieve View B's position, size, center and Ghost View A's
-    @Bindable var graph: GraphState
+//    @Bindable var graph: GraphState
     
     /*
     Need more information for pinning.
@@ -49,32 +49,32 @@ struct PreviewCommonPositionModifier: ViewModifier {
     func body(content: Content) -> some View {
         
         // The PinnedView rendering of a layer relies on information about the layer it is pinned to.
-        if isPinnedView,
-           let pinReceiverData = graph.getPinReceiverData(for: viewModel) {
-            
-             // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
-            
-            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
-                                               pinReceiverData: pinReceiverData)
-            
-            // Ghost view equivalent of pin view passes position info for calculating
-            // final position location
-            let ghostViewPosition = self.viewModel.readMidPosition
-            let pinPositionOffset = pinPos - ghostViewPosition
-            
-            // Input value of pin offset
-            let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
-            
-             // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
-             // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
-            
+//        if isPinnedView,
+//           let pinReceiverData = graph.getPinReceiverData(for: viewModel) {
+//            
+//             // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
+//            
+//            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
+//                                               pinReceiverData: pinReceiverData)
+//            
+//            // Ghost view equivalent of pin view passes position info for calculating
+//            // final position location
+//            let ghostViewPosition = self.viewModel.readMidPosition
+//            let pinPositionOffset = pinPos - ghostViewPosition
+//            
+//            // Input value of pin offset
+//            let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
+//            
+//             // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
+//             // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
+//            
+//            positioningView(content)
+//                .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
+//                .offset(x: pinOffset.width, y: pinOffset.height)
+//            
+//        } else {
             positioningView(content)
-                .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
-                .offset(x: pinOffset.width, y: pinOffset.height)
-            
-        } else {
-            positioningView(content)
-        }
+//        }
     }
     
     @ViewBuilder func positioningView(_ content: Content) -> some View {

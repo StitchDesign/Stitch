@@ -36,28 +36,28 @@ struct GeneratePreview: View {
                           parentGridData: nil,
                           isGhostView: false,
                           realityContent: nil)
-        .background {
-            // Invisible views used for reporting pinning position data
-            PreviewLayersView(document: document,
-                              graph: document.graph,
-                              layers: sortedLayerDataList,
-                              parentSize: document.previewWindowSize,
-                              parentId: nil,
-                              parentOrientation: .none,
-                              parentSpacing: .zero,
-                              parentGroupAlignment: nil,
-                              parentUsesScroll: false,
-                              parentCornerRadius: 0,
-                              parentUsesHug: false,
-                              noFixedSizeForLayerGroup: false,
-                              parentGridData: nil,
-                              isGhostView: true,
-                              realityContent: nil)
-            .hidden()
-            .disabled(true)
-        }        
-        .modifier(HoverGestureModifier(document: document,
-                                       previewWindowSize: document.previewWindowSize))
+//        .background {
+//            // Invisible views used for reporting pinning position data
+//            PreviewLayersView(document: document,
+//                              graph: document.graph,
+//                              layers: sortedLayerDataList,
+//                              parentSize: document.previewWindowSize,
+//                              parentId: nil,
+//                              parentOrientation: .none,
+//                              parentSpacing: .zero,
+//                              parentGroupAlignment: nil,
+//                              parentUsesScroll: false,
+//                              parentCornerRadius: 0,
+//                              parentUsesHug: false,
+//                              noFixedSizeForLayerGroup: false,
+//                              parentGridData: nil,
+//                              isGhostView: true,
+//                              realityContent: nil)
+//            .hidden()
+//            .disabled(true)
+//        }        
+//        .modifier(HoverGestureModifier(document: document,
+//                                       previewWindowSize: document.previewWindowSize))
     }
 }
 
@@ -476,32 +476,32 @@ struct NonGroupPreviewLayersView: View {
                              parentDisablesPosition: parentDisablesPosition,
                              parentIsScrollableGrid: parentIsScrollableGrid,
                              realityContent: realityContent)
-            .onChange(of: mediaValue, initial: true) {
-                guard self.mediaPort != nil else {
-                    assertInDebug(self.mediaValue == nil)
-                    return
-                }
-                
-                guard isPinnedViewRendering,
-                      // Ignore non-import scenarios
-                      layerNode.layer.containsMediaImport else {
-                    return
-                }
-                
-                // Check for nil case
-                guard let mediaValue = self.mediaValue else {
-                    LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
-                    self.layerNode.mediaList = []
-                    self.layerViewModel.mediaViewModel.inputMedia = nil
-                    return
-                }
-                
-                Task(priority: .high) { [weak layerViewModel] in
-                    await layerViewModel?.loadMedia(mediaValue: mediaValue,
-                                                    document: document,
-                                                    mediaRowObserver: layerViewModel?.mediaRowObserver)
-                }
-            }
+//            .onChange(of: mediaValue, initial: true) {
+//                guard self.mediaPort != nil else {
+//                    assertInDebug(self.mediaValue == nil)
+//                    return
+//                }
+//                
+//                guard isPinnedViewRendering,
+//                      // Ignore non-import scenarios
+//                      layerNode.layer.containsMediaImport else {
+//                    return
+//                }
+//                
+//                // Check for nil case
+//                guard let mediaValue = self.mediaValue else {
+//                    LayerViewModel.resetMedia(self.layerViewModel.mediaObject)
+//                    self.layerNode.mediaList = []
+//                    self.layerViewModel.mediaViewModel.inputMedia = nil
+//                    return
+//                }
+//                
+//                Task(priority: .high) { [weak layerViewModel] in
+//                    await layerViewModel?.loadMedia(mediaValue: mediaValue,
+//                                                    document: document,
+//                                                    mediaRowObserver: layerViewModel?.mediaRowObserver)
+//                }
+//            }
 //        } else {
 //            EmptyView()
 //        }

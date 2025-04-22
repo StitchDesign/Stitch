@@ -66,21 +66,8 @@ extension GraphState {
         
         let rootPinMap = getRootPinMap(pinMap: flattenedPinMap)
                 
-        let nonHiddenSidebarLayers: [SidebarLayerData] = self.layersSidebarViewModel
-            .items
-            .recursiveCompactMap { item in
-                item.isHidden(graph: self) ? nil : item.createSchema()
-            } children: { item in
-                item.children
-            } makeWithChildren: { sidebarLayerData, sidebarLayerDataList in
-                var sidebarLayerData = sidebarLayerData
-                // Important: non-nil `children` = "this is a group"
-                if sidebarLayerData.children.isDefined {
-                    sidebarLayerData.children = sidebarLayerDataList
-                }
-                return sidebarLayerData
-            }
-                        
+        let nonHiddenSidebarLayers: [SidebarLayerData] = self.layersSidebarViewModel.getNonHiddenSidebarLayers(graph: self)
+            
         // TODO: can `recursivePreviewLayers` return a LayerTypeList, which we cache instead of a LayerDataList? If the LayerTypeList changes, we produce a new LayerDataList (which is consumed by GeneratePreview)
         let previewLayers: LayerDataList = recursivePreviewLayers(
             layerNodes: layerNodes,
@@ -96,6 +83,26 @@ extension GraphState {
         }
         if self.pinMap != rootPinMap {
             self.pinMap = rootPinMap
+        }
+    }
+}
+
+extension LayersSidebarViewModel {
+    @MainActor
+    func getNonHiddenSidebarLayers(graph: GraphReader) -> [SidebarLayerData] {
+        self.items.recursiveCompactMap { item in
+            item.isHidden(graph: graph) ? nil : item.createSchema()
+        }
+        children: { item in
+            item.children
+        }
+        makeWithChildren: { sidebarLayerData, sidebarLayerDataList in
+            var sidebarLayerData = sidebarLayerData
+            // Important: non-nil `children` = "this is a group"
+            if sidebarLayerData.children.isDefined {
+                sidebarLayerData.children = sidebarLayerDataList
+            }
+            return sidebarLayerData
         }
     }
 }
