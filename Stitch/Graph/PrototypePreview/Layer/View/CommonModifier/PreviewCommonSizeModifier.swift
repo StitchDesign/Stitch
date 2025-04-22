@@ -168,8 +168,10 @@ struct PreviewCommonSizeModifier: ViewModifier {
 //    }
 //    
     func body(content: Content) -> some View {
-        content.frame(width: size.asAlgebraicCGSize.width,
-                      height: size.asAlgebraicCGSize.height)
+//        content.frame(width: size.asAlgebraicCGSize.width,
+//                      height: size.asAlgebraicCGSize.height)
+        content.frame(width: finalWidth,
+                      height: finalHeight)
         
 //        switch sizingScenario {
 //        case .auto:
