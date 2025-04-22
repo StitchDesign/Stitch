@@ -9,7 +9,6 @@ import Foundation
 
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
-    typealias PortAddressType = OutputPortIdAddress
     
     static let nodeIO: NodeIO = .output
 

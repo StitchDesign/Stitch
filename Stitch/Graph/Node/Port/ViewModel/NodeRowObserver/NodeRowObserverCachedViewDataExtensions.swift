@@ -19,7 +19,7 @@ extension InputNodeRowObserver {
     
     @MainActor
     func refreshConnectedCanvasItemsCache() {
-        self.allRowViewModels.forEach {
+        self.allPortUIViewModels.forEach {
             $0.connectedCanvasItems = self.findConnectedCanvasItems()
         }
     }
@@ -73,7 +73,7 @@ extension OutputNodeRowObserver {
     
     @MainActor
     func refreshConnectedCanvasItemsCache() {
-        self.allRowViewModels.forEach {
+        self.allPortUIViewModels.forEach {
             $0.connectedCanvasItems = self.findConnectedCanvasItems()
         }
     }
