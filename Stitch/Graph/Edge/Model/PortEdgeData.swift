@@ -8,15 +8,13 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
+import StitchEngine
 
 typealias Edges = [PortEdgeData]
 typealias EdgeSet = Set<PortEdgeData>
 
 /// Data specific--not tied to the view. Used for cached `Connections` data.
-struct PortEdgeData: Hashable {
-    let from: NodeIOCoordinate
-    let to: NodeIOCoordinate
-}
+typealias PortEdgeData = EdgeData<NodeViewModel>
 
 extension NodeIOCoordinate {
         
