@@ -208,7 +208,7 @@ extension NodeRowObserver {
         }
     }
     
-    /// Finds row view models pertaining to a node, rather than in the layer inspector.
+    /// Finds row view models pertaining to the canvas, rather than in the layer inspector.
     /// Multiple row view models could exist in the event of a group splitter, where a view model exists for both the splitter
     /// and the parent canvas group. We pick the view model that is currently visible (aka inside the currently focused group).
     // fka `nodeRowViewModel`
@@ -232,12 +232,14 @@ extension NodeRowObserver {
                                                                  graph: GraphReader) ->  RowViewModelType? {
         // TODO: why `.first`? Can multiple row view models satisfy this condition?
         rowViewModels.first {
+            
             // Is this row view model for the canvas (rather than layer inspector),
-            // and at this current traversal level?
             guard case let .canvas(canvasItemId) = $0.id.graphItemType,
                let canvasItem = graph.getCanvasItem(canvasItemId) else {
                 return false
             }
+            
+            // and is it at this current traversal level?
             return canvasItem.parentGroupNodeId == focusedGroupNode
         }
     }

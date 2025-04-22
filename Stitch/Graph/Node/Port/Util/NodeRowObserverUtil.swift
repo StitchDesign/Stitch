@@ -27,18 +27,7 @@ extension NodeRowViewModel {
         
         return node.kind
     }
- 
-    @MainActor
-    func isConnectedToASelectedCanvasItem(_ selectedCanvasItems: CanvasItemIdSet) -> Bool {
-        for connectedCanvasItemId in self.connectedCanvasItems {
-            if selectedCanvasItems.contains(connectedCanvasItemId) {
-                // Found connected canvas item that is selected
-                return true
-            }
-        }
-        return false
-    }
-    
+     
     @MainActor
     func getEdgeDrawingObserver() -> EdgeDrawingObserver {
         if let drawing = self.nodeDelegate?.graphDelegate?.edgeDrawingObserver {

@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
 
+    associatedtype PortUI: PortUIViewModel
     associatedtype RowObserver: NodeRowObserver
     // fka `PortViewType`
     associatedtype PortAddressType: PortIdAddress
@@ -27,28 +28,12 @@ protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     
+    @MainActor var portUIViewModel: PortUI { get set }
+    
     @MainActor var anchorPoint: CGPoint? { get set }
     @MainActor var portColor: PortColor { get set }
     @MainActor var portAddress: PortAddressType? { get set }
     @MainActor var connectedCanvasItems: CanvasItemIdSet { get set }
-        
-    // Entrypoint for updating an input or output port's color, often when we don't know whether we specifically have an input or an output.
-    // Relies on row VM's non-nil canvas id, portViewData, connectedCanvasItems
-    @MainActor func calculatePortColor(
-        // Restriction on type of row view model (canvas only, never inspector)
-        canvasItemId: CanvasItemId,
-        
-        // Facts from the underlying row observer
-        hasEdge: Bool,
-        hasLoop: Bool,
-        
-        // Facts from the graph
-        selectedEdges: Set<PortEdgeUI>,
-        selectedCanvasItems: CanvasItemIdSet,
-        // output only
-        drawingObserver: EdgeDrawingObserver
-    ) -> PortColor
-
     
     // MARK: delegates, weak references to parents
     
@@ -172,14 +157,18 @@ extension NodeRowViewModel {
                          selectedEdges: Set<PortEdgeUI>,
                          selectedCanvasItems: CanvasItemIdSet,
                          drawingObserver: EdgeDrawingObserver) {
-                
-        let newColor = self.calculatePortColor(canvasItemId: canvasItemId,
-                                               hasEdge: hasEdge,
-                                               hasLoop: hasLoop,
-                                               selectedEdges: selectedEdges,
-                                               selectedCanvasItems: selectedCanvasItems,
-                                               drawingObserver: drawingObserver)
-        self.setPortColorIfChanged(newColor)
+        
+        let newPortColor = self.portUIViewModel
+            .calculatePortColor(canvasItemId: canvasItemId,
+                                hasEdge: hasEdge,
+                                hasLoop: hasLoop,
+                                selectedEdges: selectedEdges,
+                                selectedCanvasItems: selectedCanvasItems,
+                                drawingObserver: drawingObserver)
+        
+        if newPortColor != self.portColor {
+            self.portColor = newPortColor
+        }
     }
 }
 
