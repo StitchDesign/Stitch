@@ -18,16 +18,16 @@ struct NodeRowViewModelId: Hashable {
 
 extension NodeRowViewModelId {
     /// Determines if some row view model reports to a node, rather than to the layer inspector
-    var isNode: Bool {
+    var isCanvas: Bool {
         switch self.graphItemType {
-        case .node:
+        case .canvas:
             return true
         default:
             return false
         }
     }
         
-    static let empty: Self = .init(graphItemType: .node(.node(.init())),
+    static let empty: Self = .init(graphItemType: .canvas(.node(.init())),
                                    nodeId: .init(),
                                    portId: -1)
     

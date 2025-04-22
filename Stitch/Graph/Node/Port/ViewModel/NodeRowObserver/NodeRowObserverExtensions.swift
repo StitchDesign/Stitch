@@ -105,7 +105,7 @@ extension NodeRowObserver {
                 return true
                 
                 
-            case .node:
+            case .canvas:
                 
                 guard let canvas = rowViewModel.canvasItemDelegate else {
                     log("Had row view model for canvas item but no canvas item delegate")
