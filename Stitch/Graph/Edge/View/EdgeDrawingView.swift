@@ -66,8 +66,11 @@ struct EdgeFromDraggedOutputView: View {
     var body: some View {
         Group {
             if let downstreamNode = outputDrag.output.nodeDelegate,
-                let outputAnchorData = EdgeAnchorUpstreamData(from: outputRowViewModel,
-                                                              connectedDownstreamNode: downstreamNode),
+               let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
+                let outputAnchorData = EdgeAnchorUpstreamData(
+                    from: upstreamCanvasItem.outputPortUIViewModels,
+                    upstreamNodeId: upstreamCanvasItem.id.nodeId,
+                    inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels),
                let outputPortViewData = outputRowViewModel.portAddress,
                let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
                let pointFrom = outputRowViewModel.anchorPoint {
@@ -80,14 +83,14 @@ struct EdgeFromDraggedOutputView: View {
                          pointTo: pointTo,
                          color: self.color.color(theme),
                          isActivelyDragged: true, // always true for actively-dragged edge
-                         firstFrom: outputAnchorData.firstUpstreamRowViewModel.anchorPoint ?? .zero,
-                         firstTo: inputAnchorData?.firstInputRowViewModel.anchorPoint ?? .zero,
-                         lastFrom: outputAnchorData.lastUpstreamRowViewModel.anchorPoint ?? .zero,
-                         lastTo: inputAnchorData?.lastInputRowViewModel.anchorPoint ?? .zero,
-                         firstFromWithEdge: outputAnchorData.firstConnectedUpstreamRowViewModel?.anchorPoint?.y,
-                         lastFromWithEdge: outputAnchorData.lastConnectedUpstreamRowViewModel?.anchorPoint?.y,
-                         firstToWithEdge: inputAnchorData?.firstConnectedInputRowViewModel.anchorPoint?.y,
-                         lastToWithEdge: inputAnchorData?.lastConectedInputRowViewModel.anchorPoint?.y,
+                         firstFrom: outputAnchorData.firstUpstreamOutput.anchorPoint ?? .zero,
+                         firstTo: inputAnchorData?.firstInput.anchorPoint ?? .zero,
+                         lastFrom: outputAnchorData.lastUpstreamRowOutput.anchorPoint ?? .zero,
+                         lastTo: inputAnchorData?.lastInput.anchorPoint ?? .zero,
+                         firstFromWithEdge: outputAnchorData.firstConnectedUpstreamOutput?.anchorPoint?.y,
+                         lastFromWithEdge: outputAnchorData.lastConnectedUpstreamOutput?.anchorPoint?.y,
+                         firstToWithEdge: inputAnchorData?.firstConnectedInput.anchorPoint?.y,
+                         lastToWithEdge: inputAnchorData?.lastConectedInput.anchorPoint?.y,
                          totalOutputs: outputAnchorData.totalOutputs,
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false)

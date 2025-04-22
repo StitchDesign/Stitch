@@ -211,13 +211,35 @@ extension NodeRowObserver {
     /// Finds row view models pertaining to a node, rather than in the layer inspector.
     /// Multiple row view models could exist in the event of a group splitter, where a view model exists for both the splitter
     /// and the parent canvas group. We pick the view model that is currently visible (aka inside the currently focused group).
+    // fka `nodeRowViewModel`
+    // Note: legacy helper; prefer the more referentially transparent version
     @MainActor
-    var nodeRowViewModel: RowViewModelType? {
-        self.allRowViewModels.first {
-            // is for node (rather than layer inspector)
-            $0.id.isNode &&
-            // is currently visible in selected group
-            $0.graphDelegate?.documentDelegate?.groupNodeFocused?.groupNodeId == $0.canvasItemDelegate?.parentGroupNodeId
+    var rowViewModelForCanvasItemAtThisTraversalLevel: RowViewModelType? {
+        guard let graph = self.nodeDelegate?.graphDelegate,
+              let document = graph.documentDelegate else {
+            return nil
+        }
+        
+        return Self.getRowViewModelForCanvasItemAtThisTraversalLevel(
+            rowViewModels: self.allRowViewModels,
+            focusedGroupNode: document.groupNodeFocused?.groupNodeId,
+            graph: graph)
+    }
+    
+    @MainActor
+    static func getRowViewModelForCanvasItemAtThisTraversalLevel(rowViewModels: [RowViewModelType],
+                                                                 focusedGroupNode: NodeId?,
+                                                                 graph: GraphReader) ->  RowViewModelType? {
+        // TODO: why `.first`? Can multiple row view models satisfy this condition?
+        rowViewModels.first {
+            // Is this row view model for the canvas (rather than layer inspector),
+            // and at this current traversal level?
+            guard case let .node(canvasItemId) = $0.id.graphItemType,
+               let canvasItem = graph.getCanvasItem(canvasItemId) else {
+                return false
+            }
+            return canvasItem.parentGroupNodeId == focusedGroupNode
         }
     }
 }
+
