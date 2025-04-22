@@ -63,20 +63,21 @@ struct PreviewCommonModifier: ViewModifier {
     func body(content: Content) -> some View {
 
         content
-            .modifier(PreviewCommonSizeModifier(
-                viewModel: layerViewModel, 
-                isPinnedViewRendering: isPinnedViewRendering,
-//                pinMap: graph.pinMap,
-                pinMap: .init(),
-                aspectRatio: layerViewModel.getAspectRatioData(),
-                size: size,
-                minWidth: layerViewModel.getMinWidth,
-                maxWidth: layerViewModel.getMaxWidth,
-                minHeight: layerViewModel.getMinHeight,
-                maxHeight: layerViewModel.getMaxHeight,
-                parentSize: parentSize,
-                sizingScenario: layerViewModel.getSizingScenario,
-                frameAlignment: frameAlignment))
+//
+//            .modifier(PreviewCommonSizeModifier(
+//                viewModel: layerViewModel, 
+//                isPinnedViewRendering: isPinnedViewRendering,
+////                pinMap: graph.pinMap,
+//                pinMap: .init(),
+//                aspectRatio: layerViewModel.getAspectRatioData(),
+//                size: size,
+//                minWidth: layerViewModel.getMinWidth,
+//                maxWidth: layerViewModel.getMaxWidth,
+//                minHeight: layerViewModel.getMinHeight,
+//                maxHeight: layerViewModel.getMaxHeight,
+//                parentSize: parentSize,
+//                sizingScenario: layerViewModel.getSizingScenario,
+//                frameAlignment: frameAlignment))
         
 //            // Only for MapLayer, specifically for thumbnail-creation edge case
 //            .modifier(ClippedModifier(
