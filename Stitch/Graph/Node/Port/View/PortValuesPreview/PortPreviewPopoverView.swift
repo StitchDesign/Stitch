@@ -41,7 +41,7 @@ struct PortPreviewPopoverWrapperView: View {
                 $0.rowDelegate?.id == openPortPreview.port
             }),
                let inputObserver = rowViewModel.rowDelegate,
-               let anchor = rowViewModel.anchorPoint {
+               let anchor = rowViewModel.portUIViewModel.anchorPoint {
                 
                 PortPreviewPopoverView(
                     rowObserver: inputObserver,
@@ -55,7 +55,7 @@ struct PortPreviewPopoverWrapperView: View {
                 $0.rowDelegate?.id == openPortPreview.port
             }),
                let outputObserver = rowViewModel.rowDelegate,
-               let anchor = rowViewModel.anchorPoint {
+               let anchor = rowViewModel.portUIViewModel.anchorPoint {
                 
                 PortPreviewPopoverView(
                     rowObserver: outputObserver,

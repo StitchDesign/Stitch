@@ -31,12 +31,13 @@ extension NodeRowObserver {
         
         self.allRowViewModels.forEach {
             if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
-                $0.updatePortColor(canvasItemId: canvasItemId,
-                                   hasEdge: self.hasEdge,
-                                   hasLoop: self.hasLoopedValues,
-                                   selectedEdges: selectedEdges,
-                                   selectedCanvasItems: selectedCanvasItems,
-                                   drawingObserver: drawingObserver)
+                $0.portUIViewModel.updatePortColor(
+                    canvasItemId: canvasItemId,
+                    hasEdge: self.hasEdge,
+                    hasLoop: self.hasLoopedValues,
+                    selectedEdges: selectedEdges,
+                    selectedCanvasItems: selectedCanvasItems,
+                    drawingObserver: drawingObserver)
             }
         }
     }
@@ -67,7 +68,8 @@ extension NodeRowObserver {
             return
         }
         
-        let visibleRowViewModels = self.getVisibleRowViewModels(
+        let visibleRowViewModels = Self.getVisibleRowViewModels(
+            allRowViewModels: self.allRowViewModels,
             visibleCanvasIds: graph.visibleCanvasIds,
             isFullScreenMode: document.isFullScreenMode,
             groupNodeFocused: document.groupNodeFocused?.groupNodeId)
@@ -82,16 +84,17 @@ extension NodeRowObserver {
     
     // Just reads GraphState, does not modify it?
     @MainActor
-    func getVisibleRowViewModels(visibleCanvasIds: CanvasItemIdSet,
-                                 isFullScreenMode: Bool,
-                                 groupNodeFocused: NodeId?) -> [Self.RowViewModelType] {
+    static func getVisibleRowViewModels(allRowViewModels: [Self.RowViewModelType],
+                                        visibleCanvasIds: CanvasItemIdSet,
+                                        isFullScreenMode: Bool,
+                                        groupNodeFocused: NodeId?) -> [Self.RowViewModelType] {
         // Make sure we're not in full screen mode
 //        guard !graph.isFullScreenMode else {
         guard !isFullScreenMode else {
             return []
         }
         
-        return self.allRowViewModels.filter { rowViewModel in
+        return allRowViewModels.filter { rowViewModel in
             
             switch rowViewModel.id.graphItemType {
                 
