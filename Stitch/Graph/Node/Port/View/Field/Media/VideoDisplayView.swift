@@ -64,18 +64,18 @@ struct VideoDisplayView: View {
             }
         }
         .opacity(opacity)
-        .modifier(PreviewCommonSizeModifier(
-            viewModel: layerViewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: graph.pinMap,
-            aspectRatio: layerViewModel.getAspectRatioData(),
-            size: size,
-            minWidth: layerViewModel.getMinWidth,
-            maxWidth: layerViewModel.getMaxWidth,
-            minHeight: layerViewModel.getMinHeight,
-            maxHeight: layerViewModel.getMaxHeight,
-            parentSize: parentSize,
-            sizingScenario: layerViewModel.getSizingScenario,
-            frameAlignment: .center))
+//        .modifier(PreviewCommonSizeModifier(
+//            viewModel: layerViewModel,
+//            isPinnedViewRendering: isPinnedViewRendering,
+//            pinMap: graph.pinMap,
+//            aspectRatio: layerViewModel.getAspectRatioData(),
+//            size: size,
+//            minWidth: layerViewModel.getMinWidth,
+//            maxWidth: layerViewModel.getMaxWidth,
+//            minHeight: layerViewModel.getMinHeight,
+//            maxHeight: layerViewModel.getMaxHeight,
+//            parentSize: parentSize,
+//            sizingScenario: layerViewModel.getSizingScenario,
+//            frameAlignment: .center))
     }
 }

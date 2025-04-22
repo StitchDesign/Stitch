@@ -129,18 +129,18 @@ struct PreviewGroupLayer: View {
         
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: graph.pinMap,
-                aspectRatio: layerViewModel.getAspectRatioData(),
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                pinMap: graph.pinMap,
+//                aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
-                minWidth: layerViewModel.getMinWidth,
-                maxWidth: layerViewModel.getMaxWidth,
-                minHeight: layerViewModel.getMinHeight,
-                maxHeight: layerViewModel.getMaxHeight,
+//                minWidth: layerViewModel.getMinWidth,
+//                maxWidth: layerViewModel.getMaxWidth,
+//                minHeight: layerViewModel.getMinHeight,
+//                maxHeight: layerViewModel.getMaxHeight,
                 parentSize: parentSize,
-                sizingScenario: layerViewModel.getSizingScenario,
-                // non-`.center` alignments on `ZStack.frame` creates problems for children placed by .offset
-                frameAlignment: .center //anchoring.toAlignment
+//                sizingScenario: layerViewModel.getSizingScenario,
+//                // non-`.center` alignments on `ZStack.frame` creates problems for children placed by .offset
+//                frameAlignment: .center //anchoring.toAlignment
             ))
         
         // When using `.offset` instead of `.position` modifier to play layers in preview window,

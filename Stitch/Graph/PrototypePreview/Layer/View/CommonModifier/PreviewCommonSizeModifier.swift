@@ -49,22 +49,22 @@ extension LayerDimension {
 struct PreviewCommonSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
-    let isPinnedViewRendering: Bool
-    let pinMap: RootPinMap
-    let aspectRatio: AspectRatioData
+//    let isPinnedViewRendering: Bool
+//    let pinMap: RootPinMap
+//    let aspectRatio: AspectRatioData
     let size: LayerSize
     
     var width: LayerDimension { size.width }
-    let minWidth: LayerDimension?
-    let maxWidth: LayerDimension?
-    
+//    let minWidth: LayerDimension?
+//    let maxWidth: LayerDimension?
+//    
     var height: LayerDimension { size.height }
-    let minHeight: LayerDimension?
-    let maxHeight: LayerDimension?
+//    let minHeight: LayerDimension?
+//    let maxHeight: LayerDimension?
     
     let parentSize: CGSize
 
-    let sizingScenario: SizingScenario
+//    let sizingScenario: SizingScenario
         
     /*
      Only for:
@@ -75,16 +75,16 @@ struct PreviewCommonSizeModifier: ViewModifier {
      */
     
     // `.frame(alignment:)` only matters if there is a size gap between the layer and its frame; can happen for Text, TextField, ProgressIndicator and other native views which do not resize just by .frame
-    let frameAlignment: Alignment
+//    let frameAlignment: Alignment
 
-    var usesParentPercentForWidth: Bool {
-        width.isParentPercentage
-    }
-    
-    var usesParentPercentForHeight: Bool {
-        height.isParentPercentage
-    }
-    
+//    var usesParentPercentForWidth: Bool {
+//        width.isParentPercentage
+//    }
+//    
+//    var usesParentPercentForHeight: Bool {
+//        height.isParentPercentage
+//    }
+//    
     var isStack: Bool {
         viewModel.layer == .group
     }
@@ -93,166 +93,173 @@ struct PreviewCommonSizeModifier: ViewModifier {
         viewModel.layer.hasInherentSwiftUISize
     }
     
-    // Force a minimum
-    var finalMinWidth: CGFloat? {
-        let k = minWidth?.asFrameDimension(parentSize.width,
-                                           isStack: isStack,
-                                           hasInherentSwiftUISize: hasInherentSwiftUISize)
-        // HACK:
-        if viewModel.layer == .group,
-           size.width == .hug,
-           !k.isDefined {
-            return 1
-        }
-        
-        return k
-    }
+//    // Force a minimum
+//    var finalMinWidth: CGFloat? {
+//        let k = minWidth?.asFrameDimension(parentSize.width,
+//                                           isStack: isStack,
+//                                           hasInherentSwiftUISize: hasInherentSwiftUISize)
+//        // HACK:
+//        if viewModel.layer == .group,
+//           size.width == .hug,
+//           !k.isDefined {
+//            return 1
+//        }
+//        
+//        return k
+//    }
+//    
+//    var finalMaxWidth: CGFloat? {
+//        maxWidth?.asFrameDimension(parentSize.width, 
+//                                   isStack: isStack,
+//                                   hasInherentSwiftUISize: hasInherentSwiftUISize)
+//    }
     
-    var finalMaxWidth: CGFloat? {
-        maxWidth?.asFrameDimension(parentSize.width, 
-                                   isStack: isStack,
-                                   hasInherentSwiftUISize: hasInherentSwiftUISize)
-    }
+//    var finalMinHeight: CGFloat? {
+//        let k = minHeight?.asFrameDimension(parentSize.height,
+//                                    isStack: isStack,
+//                                    hasInherentSwiftUISize: hasInherentSwiftUISize)
+//        
+//        // HACK:
+//        if viewModel.layer == .group,
+//           size.height == .hug,
+//           !k.isDefined {
+//            return 1
+//        }
+//        
+//        return k
+//    }
     
-    var finalMinHeight: CGFloat? {
-        let k = minHeight?.asFrameDimension(parentSize.height,
-                                    isStack: isStack,
-                                    hasInherentSwiftUISize: hasInherentSwiftUISize)
-        
-        // HACK:
-        if viewModel.layer == .group,
-           size.height == .hug,
-           !k.isDefined {
-            return 1
-        }
-        
-        return k
-    }
-    
-    var finalMaxHeight: CGFloat? {
-        maxHeight?.asFrameDimension(parentSize.height, 
-                                    isStack: isStack,
-                                    hasInherentSwiftUISize: hasInherentSwiftUISize)
-    }
+//    var finalMaxHeight: CGFloat? {
+//        maxHeight?.asFrameDimension(parentSize.height, 
+//                                    isStack: isStack,
+//                                    hasInherentSwiftUISize: hasInherentSwiftUISize)
+//    }
     
     var finalWidth: CGFloat? {
-        if usesParentPercentForWidth && (finalMinWidth.isDefined || finalMaxWidth.isDefined) {
-            return nil
-        } else {
+//        if usesParentPercentForWidth && (finalMinWidth.isDefined || finalMaxWidth.isDefined) {
+//            return nil
+//        } else {
             return width.asFrameDimension(parentSize.width, 
                                           isStack: isStack,
                                           hasInherentSwiftUISize: hasInherentSwiftUISize)
-        }
+//                                          isStack: false,
+//                                          hasInherentSwiftUISize: false)
+//        }
     }
-    
-    var widthIsFill: Bool {
-        width == .fill
-    }
-    
+//    
+////    var widthIsFill: Bool {
+////        width == .fill
+////    }
+//    
     var finalHeight: CGFloat? {
-        if usesParentPercentForHeight && (finalMinHeight.isDefined || finalMaxHeight.isDefined) {
-            return nil
-        } else {
+//        if usesParentPercentForHeight && (finalMinHeight.isDefined || finalMaxHeight.isDefined) {
+//            return nil
+//        } else {
             return height.asFrameDimension(parentSize.height, 
                                            isStack: isStack,
                                            hasInherentSwiftUISize: hasInherentSwiftUISize)
-        }
+//                                           isStack: false,
+//                                           hasInherentSwiftUISize: false)
+//        }
     }
     
-    var heightIsFill: Bool {
-        height == .fill
-    }
-    
+//    var heightIsFill: Bool {
+//        height == .fill
+//    }
+//    
     func body(content: Content) -> some View {
-        switch sizingScenario {
-        case .auto:
-            // logInView("case .auto")
-            content
-                // padding input must be applied *before* .frame
-                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
-            
-                .modifier(LayerSizeModifier(
-                    viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    alignment: frameAlignment,
-                    usesParentPercentForWidth: usesParentPercentForWidth,
-                    usesParentPercentForHeight: usesParentPercentForHeight,
-                    usesFillForWidth: widthIsFill,
-                    usesFillForHeight: heightIsFill,
-                    width: finalWidth,
-                    height: finalHeight,
-                    minWidth: finalMinWidth,
-                    maxWidth: finalMaxWidth,
-                    minHeight: finalMinHeight,
-                    maxHeight: finalMaxHeight
-                ))
-                .modifier(LayerSizeReader(viewModel: viewModel,
-                                          isPinnedViewRendering: isPinnedViewRendering))
-            
-            // Note: the pinned view ("View A"), the ghost view AND the pin-receiver ("View B") need to read their preview-window-relative size and/or center
-            // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
-                .modifier(PreviewWindowCoordinateSpaceReader(
-                    viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    pinMap: pinMap))
-            
-        case .constrainHeight:
-            // logInView("case .constrainHeight")
-            content
-            // padding input must be applied *before* .frame
-                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
-            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-                .modifier(LayerSizeModifier(
-                    viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    alignment: frameAlignment,
-                    usesParentPercentForWidth: usesParentPercentForWidth,
-                    usesParentPercentForHeight: usesParentPercentForHeight,
-                    usesFillForWidth: widthIsFill,
-                    usesFillForHeight: heightIsFill,
-                    width: finalWidth,
-                    height: nil,
-                    minWidth: finalMinWidth,
-                    maxWidth: finalMaxWidth,
-                    minHeight: nil,
-                    maxHeight: nil
-                ))
-                .modifier(LayerSizeReader(viewModel: viewModel,
-                                          isPinnedViewRendering: isPinnedViewRendering))
-                .modifier(PreviewWindowCoordinateSpaceReader(
-                    viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    pinMap: pinMap))
-                        
-        case .constrainWidth:
-            // logInView("case .constrainWidth")
-            content
-            // padding input must be applied *before* .frame
-                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
-            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-                .modifier(LayerSizeModifier(
-                    viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    alignment: frameAlignment,
-                    usesParentPercentForWidth: usesParentPercentForWidth,
-                    usesParentPercentForHeight: usesParentPercentForHeight,
-                    usesFillForWidth: widthIsFill,
-                    usesFillForHeight: heightIsFill,
-                    width: nil,
-                    height: finalHeight,
-                    minWidth: nil,
-                    maxWidth: nil,
-                    minHeight: finalMinHeight,
-                    maxHeight: finalMaxHeight
-                ))
-                .modifier(LayerSizeReader(viewModel: viewModel,
-                                          isPinnedViewRendering: isPinnedViewRendering))
-                .modifier(PreviewWindowCoordinateSpaceReader(
-                    viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    pinMap: pinMap))
-        }
+        content.frame(width: size.asAlgebraicCGSize.width,
+                      height: size.asAlgebraicCGSize.height)
+        
+//        switch sizingScenario {
+//        case .auto:
+//            // logInView("case .auto")
+//            content
+//                // padding input must be applied *before* .frame
+////                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
+//            
+//                .modifier(LayerSizeModifier(
+////                    viewModel: viewModel,
+////                    isPinnedViewRendering: isPinnedViewRendering,
+////                    alignment: frameAlignment,
+////                    usesParentPercentForWidth: usesParentPercentForWidth,
+////                    usesParentPercentForHeight: usesParentPercentForHeight,
+////                    usesFillForWidth: widthIsFill,
+////                    usesFillForHeight: heightIsFill,
+//                    width: finalWidth,
+//                    height: finalHeight,
+////                    minWidth: finalMinWidth,
+////                    maxWidth: finalMaxWidth,
+////                    minHeight: finalMinHeight,
+////                    maxHeight: finalMaxHeight
+//                ))
+////                .modifier(LayerSizeReader(viewModel: viewModel,
+////                                          isPinnedViewRendering: isPinnedViewRendering))
+////            
+////            // Note: the pinned view ("View A"), the ghost view AND the pin-receiver ("View B") need to read their preview-window-relative size and/or center
+////            // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
+////                .modifier(PreviewWindowCoordinateSpaceReader(
+////                    viewModel: viewModel,
+////                    isPinnedViewRendering: isPinnedViewRendering,
+////                    pinMap: pinMap))
+//            
+//        case .constrainHeight:
+//            // logInView("case .constrainHeight")
+//            content
+////            // padding input must be applied *before* .frame
+////                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
+////            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+////                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+////                .modifier(LayerSizeModifier(
+////                    viewModel: viewModel,
+////                    isPinnedViewRendering: isPinnedViewRendering,
+////                    alignment: frameAlignment,
+////                    usesParentPercentForWidth: usesParentPercentForWidth,
+////                    usesParentPercentForHeight: usesParentPercentForHeight,
+////                    usesFillForWidth: widthIsFill,
+////                    usesFillForHeight: heightIsFill,
+////                    width: finalWidth,
+////                    height: nil,
+////                    minWidth: finalMinWidth,
+////                    maxWidth: finalMaxWidth,
+////                    minHeight: nil,
+////                    maxHeight: nil
+////                ))
+////                .modifier(LayerSizeReader(viewModel: viewModel,
+////                                          isPinnedViewRendering: isPinnedViewRendering))
+////                .modifier(PreviewWindowCoordinateSpaceReader(
+////                    viewModel: viewModel,
+////                    isPinnedViewRendering: isPinnedViewRendering,
+////                    pinMap: pinMap))
+//                        
+//        case .constrainWidth:
+//            // logInView("case .constrainWidth")
+//            content
+////            // padding input must be applied *before* .frame
+////                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
+////            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+////                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+////                .modifier(LayerSizeModifier(
+////                    viewModel: viewModel,
+////                    isPinnedViewRendering: isPinnedViewRendering,
+////                    alignment: frameAlignment,
+////                    usesParentPercentForWidth: usesParentPercentForWidth,
+////                    usesParentPercentForHeight: usesParentPercentForHeight,
+////                    usesFillForWidth: widthIsFill,
+////                    usesFillForHeight: heightIsFill,
+////                    width: nil,
+////                    height: finalHeight,
+////                    minWidth: nil,
+////                    maxWidth: nil,
+////                    minHeight: finalMinHeight,
+////                    maxHeight: finalMaxHeight
+////                ))
+////                .modifier(LayerSizeReader(viewModel: viewModel,
+////                                          isPinnedViewRendering: isPinnedViewRendering))
+////                .modifier(PreviewWindowCoordinateSpaceReader(
+////                    viewModel: viewModel,
+////                    isPinnedViewRendering: isPinnedViewRendering,
+////                    pinMap: pinMap))
+//        }
     }
 }
