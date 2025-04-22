@@ -328,7 +328,9 @@ extension GraphState {
             // We just manually set new outputs on the media node.
             // Now we need to flow those new outputs to any downstream nodes,
             // WITHOUT, however, running the media node's eval again.
-            guard let downstreamNodeIds = graph.shallowDownstreamNodes.get(nodeId) else {
+            guard let downstreamNodeIds = graph.shallowDownstreamInputs
+                .get(nodeId)?
+                .map(\.nodeId) else {
                 fatalErrorIfDebug()
                 return
             }
