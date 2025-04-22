@@ -17,9 +17,10 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     
     // MARK: cached ui-data derived from underlying row observer
+    @MainActor var fieldsUIViewModel: OutputRowFieldsUIViewModel
     
-    @MainActor var cachedActiveValue: PortValue
-    @MainActor var cachedFieldValueGroups = FieldGroupList()
+//    @MainActor var cachedActiveValue: PortValue
+//    @MainActor var cachedFieldValueGroups = FieldGroupList()
         
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     @MainActor var portUIViewModel: OutputPortUIViewModel
@@ -43,7 +44,12 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         self.portUIViewModel = .init(id: OutputCoordinate(portId: id.portId,
                                                    nodeId: id.nodeId))
         self.id = id
-        self.cachedActiveValue = initialValue
+        
+        self.fieldsUIViewModel = .init(id: id,
+                                       cachedActiveValue: initialValue,
+                                       // TODO: just make fieldValueGroups here?
+                                       cachedFieldValueGroups: .init())
+        
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
