@@ -211,11 +211,7 @@ extension CanvasItemViewModel {
         
         let canvas = self
         let incomingIds = newEntities.map { $0.id }.toSet
-        let currentIds = self[keyPath: keyPath].compactMap {
-//            x.
-            $0.rowDelegate?.id
-//            graph.get
-        }.toSet
+        let currentIds = self[keyPath: keyPath].compactMap { $0.rowDelegate?.id }.toSet
         
         let entitiesToRemove = currentIds.subtracting(incomingIds)
 
@@ -240,7 +236,7 @@ extension CanvasItemViewModel {
                 if let entity = currentEntitiesMap.get(newEntity.id) {
                     return entity
                 } else {
-                    let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
+                    let rowId = NodeRowViewModelId(graphItemType: .canvas(canvas.id),
                                                    // Important this is the node ID from canvas for group nodes
                                                    nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                    portId: portIndex)

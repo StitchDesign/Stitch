@@ -789,7 +789,7 @@ extension GraphState {
             return nil
         }
         
-        return self.getInputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
+        return self.getInputRowViewModel(for: .init(graphItemType: .canvas(canvasItem.id),
                                                     nodeId: id.node,
                                                     portId: 0))
     }
@@ -800,7 +800,7 @@ extension GraphState {
             return nil
         }
         
-        return self.getOutputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
+        return self.getOutputRowViewModel(for: .init(graphItemType: .canvas(canvasItem.id),
                                                      nodeId: id.node,
                                                      portId: 0))
     }

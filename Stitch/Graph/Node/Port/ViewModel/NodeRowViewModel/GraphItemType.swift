@@ -8,8 +8,10 @@
 import Foundation
 
 
+// Used to distinguish whether a row view model is for canvas vs inspector
+// TODO: separate row view model
 enum GraphItemType: Hashable {
-    case node(CanvasItemId) // i.e. canvas
+    case canvas(CanvasItemId) // i.e. canvas
     
     // Passing in layer input type ensures uniqueness of IDs in inspector
     case layerInspector(NodeIOPortType) // portId (layer output) or layer-input-type (layer input)
@@ -21,7 +23,7 @@ extension GraphItemType {
     
     var getCanvasItemId: CanvasItemId? {
         switch self {
-        case .node(let x):
+        case .canvas(let x):
             return x
         default:
             return nil
@@ -39,7 +41,7 @@ extension GraphItemType {
     
     var layerInputPort: LayerInputPort? {
         switch self {
-        case .node(let canvasItemId):
+        case .canvas(let canvasItemId):
             return canvasItemId.layerInputCase?.keyPath.layerInput
         case .layerInspector(let nodeIOPortType):
             return nodeIOPortType.keyPath?.layerInput
@@ -48,7 +50,7 @@ extension GraphItemType {
     
     var getLayerInputCoordinateOnGraph: LayerInputCoordinate? {
         switch self {
-        case .node(let x):
+        case .canvas(let x):
             switch x {
             case .layerInput(let x):
                 return x
