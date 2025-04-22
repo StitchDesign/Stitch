@@ -96,8 +96,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
     // Force a minimum
     var finalMinWidth: CGFloat? {
         let k = minWidth?.asFrameDimension(parentSize.width,
-                                   isStack: isStack,
-                                   hasInherentSwiftUISize: hasInherentSwiftUISize)
+                                           isStack: isStack,
+                                           hasInherentSwiftUISize: hasInherentSwiftUISize)
         // HACK:
         if viewModel.layer == .group,
            size.width == .hug,
