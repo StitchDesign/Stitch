@@ -198,7 +198,8 @@ extension InputNodeRowObserver {
     @MainActor
     func coerce(theseValues: [PortValue],
                 toThisType: PortValue,
-                currentGraphTime: TimeInterval) -> [PortValue] {
+                currentGraphTime: TimeInterval,
+                isCycleRedEdge: Bool = false) -> [PortValue] {
         
         guard let node = self.nodeDelegate else {
             fatalErrorIfDebug()
@@ -212,9 +213,21 @@ extension InputNodeRowObserver {
         if canCopyInputValues {
             return theseValues
         } else {
-            return theseValues.coerce(to: toThisType,
-                                      currentGraphTime: currentGraphTime)
+            let coercedValues = theseValues.coerce(to: toThisType,
+                                                   currentGraphTime: currentGraphTime)
+            
+            // Because values were passed along at a previous graph time, we need to increment graph time values. A bit of a hack in that it assumes the pulse fired on the previous graph step however this only gets called on input value changes and is likely to be correct.
+            if isCycleRedEdge {
+                return coercedValues.map { value in
+                    guard value.getPulse.isDefined else {
+                        return value
+                    }
+                    
+                    return .pulse(currentGraphTime)
+                }
+            }
+            
+            return coercedValues
         }
     }
-    
 }

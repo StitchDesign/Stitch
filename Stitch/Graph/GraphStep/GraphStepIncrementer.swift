@@ -192,7 +192,7 @@ extension GraphState {
             node.checkARTransformUpdate(self)
         }
         
-        if nodesToRunOnGraphStep.isEmpty {
+        if nodesToRunOnGraphStep.isEmpty && self.topologicalData.cycleNodesForNextGraphStep.isEmpty {
             /*
              Usually we can return `nil` if there were no must run nodes
              or if we didn't need to recalculate the graph;
@@ -209,6 +209,9 @@ extension GraphState {
         
         // Use this caller directly, since it exposes the API we want
         // without having to pass parameters through a bunch of other `calculateGraph` functions.
+        
+        log("RED EDGE TEST: graph \(self.graphStepManager.graphFrameCount)")
+        
         self.runGraphAndUpdateUI(from: nodesToRunOnGraphStep)
     }
     
