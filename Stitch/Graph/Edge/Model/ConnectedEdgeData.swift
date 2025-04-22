@@ -15,7 +15,7 @@ struct ConnectedEdgeData: Equatable, Identifiable {
         lhs.zIndex == rhs.zIndex
     }
     
-    // TODO: use a better type for identifier? Should only need `InputCoordinate` ?
+    // TODO: use a better type for identifier? Should only need `InputCoordinate` ? NodeRowViewModelId is actually just node-io-coordinate + "canvas vs inspector"
     let id: NodeRowViewModelId
     
     let upstreamOutput: OutputPortUIViewModel
@@ -25,60 +25,26 @@ struct ConnectedEdgeData: Equatable, Identifiable {
     let zIndex: Double
 
     // To create a "connected edge", we MUST have both an upstream canvas item and a downstream canvas item
-    // TODO: can these initializer *really* fail? It must be called with at least one upstream row view model and one downstream row view model
-//    @MainActor
-//    init?(upstreamCanvasItem: CanvasItemViewModel,
-//          upstreamOutputPortUIViewModel: OutputPortUIViewModel,
-//          downstreamInput: InputNodeRowViewModel) {
-//        
-//        guard let downstreamNode = downstreamInput.nodeDelegate,
-//              let inputData = EdgeAnchorDownstreamData(from: downstreamInput,
-//                                                       upstreamNodeId: upstreamCanvasItem.id),
-//              let outputData = EdgeAnchorUpstreamData(from: upstreamCanvasItem.outputPortUIViewModels,
-//                                                      upstreamNodeId: upstreamCanvasItem.id.nodeId,
-//                                                      inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels) else {
-//            return nil
-//        }
-//        
-//        self.id = downstreamInput.id
-//        self.upstreamOutput = upstreamOutputPortUIViewModel
-//        self.downstreamInput = downstreamInput.portUIViewModel
-//        self.inputData = inputData
-//        self.outputData = outputData
-//        self.zIndex = max(upstreamCanvasItem.zIndex, upstreamCanvasItem.zIndex)
-//    }
-    
+    // TODO: can this initializer *really* fail? It must be called with at least one upstream row view model and one downstream row view model
     @MainActor
-    static func create(upstreamCanvasItem: CanvasItemViewModel,
+    init?(upstreamCanvasItem: CanvasItemViewModel,
                        upstreamOutputPortUIViewModel: OutputPortUIViewModel,
-                       downstreamInput: InputNodeRowViewModel) -> Self? {
+                       downstreamInput: InputNodeRowViewModel) {
         
-//        guard let downstreamNode = downstreamInput.nodeDelegate,
-//              let inputData = EdgeAnchorDownstreamData(from: downstreamInput,
-//                                                       upstreamNodeId: upstreamCanvasItem.id),
-//              let outputData = EdgeAnchorUpstreamData(from: upstreamCanvasItem.outputPortUIViewModels,
-//                                                      upstreamNodeId: upstreamCanvasItem.id.nodeId,
-//                                                      inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels) else {
-//            fatalErrorIfDebug()
-//            return nil
-//        }
+        guard let downstreamNode = downstreamInput.nodeDelegate,
+              let inputData = EdgeAnchorDownstreamData(from: downstreamInput,
+                                                       upstreamNodeId: upstreamCanvasItem.id),
+              let outputData = EdgeAnchorUpstreamData(from: upstreamCanvasItem.outputPortUIViewModels,
+                                                      upstreamNodeId: upstreamCanvasItem.id.nodeId,
+                                                      inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels) else {
+            return nil
+        }
         
-        let downstreamNode = downstreamInput.nodeDelegate!
-        
-        let inputData = EdgeAnchorDownstreamData(from: downstreamInput,
-                                                 upstreamNodeId: upstreamCanvasItem.id)!
-        
-        let outputData = EdgeAnchorUpstreamData(from: upstreamCanvasItem.outputPortUIViewModels,
-                                                upstreamNodeId: upstreamCanvasItem.id.nodeId,
-                                                inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels)!
-        
-        
-        
-        return .init(id: downstreamInput.id,
-                     upstreamOutput: upstreamOutputPortUIViewModel,
-                     downstreamInput: downstreamInput.portUIViewModel,
-                     inputData: inputData,
-                     outputData: outputData,
-                     zIndex: max(upstreamCanvasItem.zIndex, upstreamCanvasItem.zIndex))
+        self.id = downstreamInput.id
+        self.upstreamOutput = upstreamOutputPortUIViewModel
+        self.downstreamInput = downstreamInput.portUIViewModel
+        self.inputData = inputData
+        self.outputData = outputData
+        self.zIndex = max(upstreamCanvasItem.zIndex, upstreamCanvasItem.zIndex)
     }
 }

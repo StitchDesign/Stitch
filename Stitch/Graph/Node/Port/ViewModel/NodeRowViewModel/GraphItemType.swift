@@ -9,7 +9,7 @@ import Foundation
 
 
 enum GraphItemType: Hashable {
-    case node(CanvasItemId)
+    case node(CanvasItemId) // i.e. canvas
     
     // Passing in layer input type ensures uniqueness of IDs in inspector
     case layerInspector(NodeIOPortType) // portId (layer output) or layer-input-type (layer input)

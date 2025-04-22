@@ -422,31 +422,16 @@ extension GraphState {
         
         return connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
             
-            guard let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver else {
-                log("no upstream observer for downstreamInput \(downstreamInput.id)")
-                return nil
-            }
-            
-            guard let upstreamOutputPortUIViewModel = upstreamOutputObserver.nodeRowViewModel?.portUIViewModel else {
-                log("no upstreamOutputPortUIViewModel for downstreamInput \(downstreamInput.id)")
-                return nil
-            }
-            
-            guard let upstreamCanvasItem = self.getCanvasItem(outputId: upstreamOutputObserver.id) else {
-                log("no upstream canvas item for downstreamInput \(downstreamInput.id)")
-                return nil
-            }
-            
-            guard let data = ConnectedEdgeData.create(
-                upstreamCanvasItem: upstreamCanvasItem,
-                upstreamOutputPortUIViewModel: upstreamOutputPortUIViewModel,
-                downstreamInput: downstreamInput) else {
-                
+            guard let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
+                  let upstreamOutputPortUIViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.portUIViewModel,
+                  let upstreamCanvasItem: CanvasItemViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate else {
                 log("no connected edge data for downstreamInput \(downstreamInput.id)")
                 return nil
             }
             
-            return data
+            return ConnectedEdgeData(upstreamCanvasItem: upstreamCanvasItem,
+                                     upstreamOutputPortUIViewModel: upstreamOutputPortUIViewModel,
+                                     downstreamInput: downstreamInput)
         }
     }
 }

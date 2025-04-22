@@ -28,7 +28,7 @@ extension GraphState {
         guard var existingDrawingGesture = self.edgeDrawingObserver.drawingGesture else {
             log("InputDragged: started")
             
-            guard let upstreamObserver = inputRowObserver.upstreamOutputObserver?.nodeRowViewModel else {
+            guard let upstreamObserver = inputRowObserver.upstreamOutputObserver?.rowViewModelForCanvasItemAtThisTraversalLevel else {
                 return
             }
             

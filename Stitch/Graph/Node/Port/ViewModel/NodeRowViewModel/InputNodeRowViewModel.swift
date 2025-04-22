@@ -54,7 +54,7 @@ extension InputNodeRowObserver {
     func findConnectedCanvasItems() -> CanvasItemIdSet {
         // Does this input row observer has an upstream connection (i.e. output observer)?
         // If so, return that observer's canvas item id
-        if let upstreamId = self.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id {
+        if let upstreamId = self.upstreamOutputObserver?.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate?.id {
             return .init([upstreamId])
         } else {
             return .init()
