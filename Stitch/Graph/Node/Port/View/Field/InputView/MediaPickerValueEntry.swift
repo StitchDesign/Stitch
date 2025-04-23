@@ -120,13 +120,14 @@ struct MediaPickerValueEntryWidth: ViewModifier {
             content
         } else {
             content
-            .frame(minWidth: self.minimumLabelWidth,
+            .frame(minWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 1.5,
                    maxWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 2,
                    alignment: .leading)
         }
     }
     
-    var minimumLabelWidth: CGFloat? {
-        label == "None" ? NODE_INPUT_OR_OUTPUT_WIDTH : (NODE_INPUT_OR_OUTPUT_WIDTH * 1.5)
-    }
+    // Causes width change when switching between None vs import etc.
+//    var minimumLabelWidth: CGFloat? {
+//        label == "None" ? NODE_INPUT_OR_OUTPUT_WIDTH : (NODE_INPUT_OR_OUTPUT_WIDTH * 1.5)
+//    }
 }
