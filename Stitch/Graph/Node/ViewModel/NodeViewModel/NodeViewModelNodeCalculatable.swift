@@ -129,7 +129,23 @@ extension NodeViewModel: NodeCalculatable {
                 }
                 
             case .coreMLDetection:
-                log("hey")
+                guard let coreMLObservers = self.ephemeralObservers as? [VisionOpObserver] else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                // Core ML port
+                if inputCoordinate.portId == 0 {
+                    self.defaultZipInputMedia(mediaList: mediaList)
+                }
+                
+                // Image input
+                else if inputCoordinate.portId == 1 {
+                    let images = mediaList.map(\.?.mediaObject.image)
+                    zip(images, coreMLObservers).forEach { image, coreMLObserver in
+                        coreMLObserver.imageInput = image
+                    }
+                }
                 
             default:
                 self.defaultZipInputMedia(mediaList: mediaList)
