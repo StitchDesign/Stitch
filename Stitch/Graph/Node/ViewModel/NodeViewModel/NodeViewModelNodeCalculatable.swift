@@ -110,18 +110,29 @@ extension NodeViewModel: NodeCalculatable {
                 }
                 
             case .coreMLClassify:
-                log("hey")
+                guard let coreMLObservers = self.ephemeralObservers as? [ImageClassifierOpObserver] else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                // Core ML port
+                if inputCoordinate.portId == 0 {
+                    self.defaultZipInputMedia(mediaList: mediaList)
+                }
+                
+                // Image input
+                else if inputCoordinate.portId == 1 {
+                    let images = mediaList.map(\.?.mediaObject.image)
+                    zip(images, coreMLObservers).forEach { image, coreMLObserver in
+                        coreMLObserver.imageInput = image
+                    }
+                }
                 
             case .coreMLDetection:
                 log("hey")
                 
             default:
-                guard let mediaObservers = self.ephemeralObservers as? [MediaEvalOpObserver] else {
-                    return
-                }
-                
-                Self.zipInputMediaIntoObservers(mediaList: mediaList,
-                                                mediaObservers: mediaObservers.map(\.mediaViewModel))
+                self.defaultZipInputMedia(mediaList: mediaList)
             }
             
         case .layer(let layerNode):
@@ -131,6 +142,16 @@ extension NodeViewModel: NodeCalculatable {
         default:
             return
         }
+    }
+    
+    @MainActor
+    func defaultZipInputMedia(mediaList: [GraphMediaValue?]) {
+        guard let mediaObservers = self.ephemeralObservers as? [MediaEvalOpObserver] else {
+            return
+        }
+        
+        Self.zipInputMediaIntoObservers(mediaList: mediaList,
+                                        mediaObservers: mediaObservers.map(\.mediaViewModel))
     }
     
     /// Updates computed media ephemeral objects after eval completes.

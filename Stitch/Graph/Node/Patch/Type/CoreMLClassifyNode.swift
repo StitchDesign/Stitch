@@ -72,9 +72,7 @@ func coreMLClassifyEval(node: PatchNode) -> EvalResult {
                                              values: values,
                                              loopIndex: loopIndex,
                                              defaultOutputs: defaultOutputs) { media -> PortValues in
-            guard let image = node.getInputMedia(portIndex: 1,
-                                                 loopIndex: loopIndex,
-                                                 mediaId: media.id)?.image else {
+            guard let image = mediaObserver.imageInput else {
                 return defaultOutputs
             }
             

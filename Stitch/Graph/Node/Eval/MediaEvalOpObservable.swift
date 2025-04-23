@@ -65,6 +65,8 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = ImageClassifierActor()
     
+    @MainActor var imageInput: UIImage?
+    
     @MainActor init() {
         self.mediaViewModel = .init()
     }
