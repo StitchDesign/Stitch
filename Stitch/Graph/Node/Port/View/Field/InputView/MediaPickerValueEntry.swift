@@ -13,6 +13,7 @@ struct MediaPickerValueEntry: View {
     @Environment(\.appTheme) var theme
     
     let rowObserver: InputNodeRowObserver
+    let node: NodeViewModel
     let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
     let label: String
@@ -35,6 +36,7 @@ struct MediaPickerValueEntry: View {
                    contentCatalyst: {
             // Import button and any default media
             MediaPickerButtons(rowObserver: rowObserver,
+                               node: node,
                                mediaType: mediaType,
                                choices: [.importButton],
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -45,6 +47,7 @@ struct MediaPickerValueEntry: View {
             // Only show the incoming value as an option if there's an incoming edge
             if isUpstreamValue {
                 MediaPickerButtons(rowObserver: rowObserver,
+                                   node: node,
                                    mediaType: mediaType,
                                    choices: [],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -57,6 +60,7 @@ struct MediaPickerValueEntry: View {
             // If empty value is selected, don't show duplicate label for it
             else if mediaValue != .none {
                 MediaPickerButtons(rowObserver: rowObserver,
+                                   node: node,
                                    mediaType: mediaType,
                                    choices: [mediaValue],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -67,6 +71,7 @@ struct MediaPickerValueEntry: View {
             
             Divider()
             MediaPickerButtons(rowObserver: rowObserver,
+                               node: node,
                                mediaType: mediaType,
                                choices: defaultOptions,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -78,6 +83,7 @@ struct MediaPickerValueEntry: View {
                    contentIPad: {
             Picker("", selection: createBinding(mediaValue, {
                 $0.handleSelection(rowObserver: rowObserver,
+                                   node: node,
                                    mediaType: mediaType,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    activeIndex: activeIndex,
