@@ -209,9 +209,6 @@ extension GraphState {
         
         // Use this caller directly, since it exposes the API we want
         // without having to pass parameters through a bunch of other `calculateGraph` functions.
-        
-        log("RED EDGE TEST: graph \(self.graphStepManager.graphFrameCount)")
-        
         self.runGraphAndUpdateUI(from: nodesToRunOnGraphStep)
     }
     
