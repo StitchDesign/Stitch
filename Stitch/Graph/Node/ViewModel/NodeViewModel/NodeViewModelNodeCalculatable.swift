@@ -110,11 +110,6 @@ extension NodeViewModel: NodeCalculatable {
                 }
                 
             case .coreMLClassify:
-                guard let coreMLObservers = self.ephemeralObservers as? [ImageClassifierOpObserver] else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
                 // Core ML port
                 if inputCoordinate.portId == 0 {
                     self.defaultZipInputMedia(mediaList: mediaList)
@@ -122,18 +117,13 @@ extension NodeViewModel: NodeCalculatable {
                 
                 // Image input
                 else if inputCoordinate.portId == 1 {
-                    let images = mediaList.map(\.?.mediaObject.image)
-                    zip(images, coreMLObservers).forEach { image, coreMLObserver in
-                        coreMLObserver.imageInput = image
+                    self.zipInputMedia(mediaList: mediaList,
+                                       observerType: ImageClassifierOpObserver.self) { mediaObserver, mediaObject in
+                        mediaObserver.imageInput = mediaObject?.mediaObject.image
                     }
                 }
                 
             case .coreMLDetection:
-                guard let coreMLObservers = self.ephemeralObservers as? [VisionOpObserver] else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
                 // Core ML port
                 if inputCoordinate.portId == 0 {
                     self.defaultZipInputMedia(mediaList: mediaList)
@@ -141,9 +131,9 @@ extension NodeViewModel: NodeCalculatable {
                 
                 // Image input
                 else if inputCoordinate.portId == 1 {
-                    let images = mediaList.map(\.?.mediaObject.image)
-                    zip(images, coreMLObservers).forEach { image, coreMLObserver in
-                        coreMLObserver.imageInput = image
+                    self.zipInputMedia(mediaList: mediaList,
+                                       observerType: VisionOpObserver.self) { mediaObserver, mediaObject in
+                        mediaObserver.imageInput = mediaObject?.mediaObject.image
                     }
                 }
                 
@@ -161,13 +151,22 @@ extension NodeViewModel: NodeCalculatable {
     }
     
     @MainActor
-    func defaultZipInputMedia(mediaList: [GraphMediaValue?]) {
-        guard let mediaObservers = self.ephemeralObservers as? [MediaEvalOpObserver] else {
-            return
-        }
+    func zipInputMedia<EphemeralObserver>(mediaList: [GraphMediaValue?],
+                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self,
+                                                 callback: (EphemeralObserver, GraphMediaValue?) -> Void) where EphemeralObserver: MediaEvalOpObservable {
+        let mediaObservers = self.createEphemeralObserverLoop(EphemeralObserver.self,
+                                                              count: mediaList.count)
         
-        Self.zipInputMediaIntoObservers(mediaList: mediaList,
-                                        mediaObservers: mediaObservers.map(\.mediaViewModel))
+        zip(mediaObservers, mediaList).forEach(callback)
+    }
+    
+    @MainActor
+    func defaultZipInputMedia<EphemeralObserver>(mediaList: [GraphMediaValue?],
+                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self) where EphemeralObserver: MediaEvalOpObservable {
+        self.zipInputMedia(mediaList: mediaList,
+                           observerType: observerType) { mediaObserver, mediaObject in
+            mediaObserver.inputMedia = mediaObject
+        }
     }
     
     /// Updates computed media ephemeral objects after eval completes.
@@ -187,16 +186,6 @@ extension NodeViewModel: NodeCalculatable {
             // Default case: loop of observables for one port index
             Self.zipComputedMediaIntoObservers(mediaList: mediaList,
                                                mediaObservers: mediaObservers)
-        }
-    }
-    
-    @MainActor
-    private static func zipInputMediaIntoObservers(mediaList: [GraphMediaValue?],
-                                                      mediaObservers: [MediaViewModel]) {
-        for (media, ephemeralObserver) in zip(mediaList, mediaObservers) {
-            if ephemeralObserver.inputMedia != media {
-                ephemeralObserver.inputMedia = media
-            }
         }
     }
     
