@@ -136,10 +136,26 @@ extension NodeViewModel: NodeCalculatable {
                         mediaObserver.imageInput = mediaObject?.mediaObject.image
                     }
                 }
+                
+            case .arAnchor:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: ARAnchorObserver.self)
+                
+            case .cameraFeed, .location:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: SingletonMediaNodeCoordinator.self)
 
+            case .delay:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: NodeTimerEphemeralObserver.self)
+                
             default:
-                if let _ = self.createEphemeralObserver() as? MediaEvalOpObserver {
-                    self.defaultZipInputMedia(mediaList: mediaList)                    
+                if let _ = self.createEphemeralObserver() as? MediaEvalOpViewable {
+                    self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                              mediaList: mediaList)
                 }
             }
             
@@ -155,7 +171,7 @@ extension NodeViewModel: NodeCalculatable {
     @MainActor
     func zipInputMedia<EphemeralObserver>(mediaList: [GraphMediaValue?],
                                           observerType: EphemeralObserver.Type = MediaEvalOpObserver.self,
-                                          callback: (EphemeralObserver, GraphMediaValue?) -> Void) where EphemeralObserver: MediaEvalOpObservable {
+                                          callback: (EphemeralObserver, GraphMediaValue?) -> Void) where EphemeralObserver: MediaEvalOpViewable {
         let mediaObservers = self.createEphemeralObserverLoop(EphemeralObserver.self,
                                                               count: mediaList.count)
         
@@ -163,8 +179,13 @@ extension NodeViewModel: NodeCalculatable {
     }
     
     @MainActor
-    func defaultZipInputMedia<EphemeralObserver>(mediaList: [GraphMediaValue?],
-                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self) where EphemeralObserver: MediaEvalOpObservable {
+    func defaultZipInputMedia<EphemeralObserver>(inputCoordinate: NodeIOCoordinate,
+                                                 mediaList: [GraphMediaValue?],
+                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self) where EphemeralObserver: MediaEvalOpViewable {
+        guard inputCoordinate.portId == 0 else {
+            return
+        }
+        
         self.zipInputMedia(mediaList: mediaList,
                            observerType: observerType) { mediaObserver, mediaObject in
             mediaObserver.inputMedia = mediaObject

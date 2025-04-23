@@ -69,9 +69,9 @@ class EvalTests: XCTestCase {
                                                          nodeId: node.id),
                                   mediaList: defaultEmptyMediaList)
             
-            if let ephemeralObservers = node.getAllMediaObservers() {
+            if let ephemeralObservers = node.getAllMediaObservers() as? [MediaEvalOpViewable] {
                 let mediaObjects = ephemeralObservers.map(\.inputMedia)
-                XCTAssertEqual(mediaObjects, defaultEmptyMediaList)
+                XCTAssertEqual(mediaObjects, defaultEmptyMediaList, "Media objects unequal for kind \(node.kind.description)")
             }
             
             guard node.evaluate().isDefined else {
