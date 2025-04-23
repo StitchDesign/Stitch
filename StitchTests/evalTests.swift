@@ -61,6 +61,19 @@ class EvalTests: XCTestCase {
         Patch.allCases.forEach { patch in
             let node = patch.createDefaultTestNode(graph: graphState)
             log("testRunAllEvals: testing \(patch)")
+            
+            let defaultEmptyMediaList: [GraphMediaValue?] = [nil, nil]
+            
+            // Test media input assignments--fatalErrors will call if there are ephemeral observer type mismatches
+            node.updateInputMedia(inputCoordinate: .init(portId: 0,
+                                                         nodeId: node.id),
+                                  mediaList: defaultEmptyMediaList)
+            
+            if let ephemeralObservers = node.getAllMediaObservers() as? [MediaEvalOpViewable] {
+                let mediaObjects = ephemeralObservers.map(\.inputMedia)
+                XCTAssertEqual(mediaObjects, defaultEmptyMediaList, "Media objects unequal for kind \(node.kind.description)")
+            }
+            
             guard node.evaluate().isDefined else {
                 XCTFail("testRunAllEvals error: no result found for patch \(patch)")
 
@@ -71,7 +84,6 @@ class EvalTests: XCTestCase {
             if expectsOutputs && node.outputs.isEmpty {
                 XCTFail("testRunAllEvals error: had empty outputs for patch \(patch)")
             }
-
         }
 
         Layer.allCases.forEach { layer in
