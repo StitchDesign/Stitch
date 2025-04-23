@@ -128,8 +128,6 @@ struct GraphBaseView: View {
                     
                     LayerInspectorView(graph: graph,
                                        document: document)
-                    
-                    // TODO: setting an inspector width DOES move over the graph view content
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                 }
         } // ZStack
