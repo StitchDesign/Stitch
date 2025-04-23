@@ -410,7 +410,7 @@ extension Patch {
 
     func supportedMediaType(portId: Int) -> NodeMediaSupport? {
         switch self {
-        case .imageImport:
+        case .imageImport, .grayscale:
             return .single(.image)
         case .videoImport:
             return .single(.video)
