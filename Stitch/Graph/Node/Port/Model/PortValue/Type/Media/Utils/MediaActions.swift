@@ -265,7 +265,8 @@ extension GraphState {
         }
         
         guard let mediaObserver = node.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpObservable else {
-            fatalErrorIfDebug()
+            // Valid failure if loop builder removes input
+//            fatalErrorIfDebug()
             return
         }
         
