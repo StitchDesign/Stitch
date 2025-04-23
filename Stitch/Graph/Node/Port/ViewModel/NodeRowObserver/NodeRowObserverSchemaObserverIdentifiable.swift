@@ -88,8 +88,15 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
 extension OutputNodeRowObserver {
     @MainActor
     func onPrototypeRestart(document: StitchDocumentViewModel) {
+//        self.nodeDelegate?.kind.usesMedia
+        
+        // TODO: better way of handling media
+        
+        
         // Set outputs to be empty
         // MARK: no longer seems necessary, removing for fixing flashing media on restart
-//        self.allLoopedValues = []
+        self.allLoopedValues = []
+        
+        
     }
 }

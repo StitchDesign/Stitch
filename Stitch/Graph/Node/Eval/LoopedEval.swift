@@ -293,10 +293,8 @@ func loopedEval<EvalOpResult>(inputsValues: PortValuesList,
 @MainActor
 func loopedEval<EvalOpResult>(node: PatchNode,
                               evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
-    #if DEBUG
     // Wrong eval helper if node has ephemeral state
-    assert(node.kind.graphNode?.createEphemeralObserver() == nil)
-    #endif
+    assertInDebug(node.kind.graphNode?.createEphemeralObserver() == nil)
     
     // MARK: we no longer lengthen outputs due to empty values at initialization, conditional existence needs to be handled at eval
     let longestLoopLength = getLongestLoopLength(node.inputs)

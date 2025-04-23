@@ -95,7 +95,7 @@ enum ArithmeticNodeType: PatchNodeTypeSet {
         case .point3D: return .point3D
         case .color: return .color
         default:
-            log("ArithmeticNodeType: unsupported nodeType: \(nodeType)")
+            // log("ArithmeticNodeType: unsupported nodeType: \(nodeType)")
             return .number
         }
     }

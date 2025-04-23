@@ -201,6 +201,7 @@ func layerInfoEval(node: PatchNode,
         
         sizeLoop.append(  // Size: read from GeometryReader
             .size(.init(layerViewModel.readSize)))
+//            .size(.init(layerViewModel.size.getSize?.asAlgebraicCGSize ?? .zero)))
         
         scaleLoop.append( // Scale
             .number(layerViewModel.scale.getNumber ?? .defaultScale))

@@ -163,7 +163,8 @@ struct LayerRotationModifier: ViewModifier {
     let shouldBeIgnoredByLayout: Bool
     
     func body(content: Content) -> some View {
-        if shouldBeIgnoredByLayout {
+//        if shouldBeIgnoredByLayout {
+        if true {
             content
                 .modifier(_Rotation3DEffect(angle: Angle(degrees: degrees),
                                             axis: (x: isForXAxis ? 1 : 0,

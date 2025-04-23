@@ -294,7 +294,8 @@ extension GraphState {
         let outputValues = outputValues
         var nodeIdsToRecalculate = NodeIdSet()
         
-        guard let node = graph.getNode(nodeId) else {
+        guard let node = graph.getNode(nodeId)
+        else {
             log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
             return
         }
