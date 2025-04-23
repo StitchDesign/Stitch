@@ -58,7 +58,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     var pos: StitchPosition {
         adjustPosition(
 //            size: layerViewModel.readSize, // Already includes size-changes from scaling
-            size: size.asCGSize(parentSize),
+//            size: size.asCGSize(parentSize),
+            size: .init(width: 45, height: 45),
 
             // SEE NOTE IN `asCGSizeForLayer`
 //            size: size.asCGSizeForLayer(parentSize: parentSize,
