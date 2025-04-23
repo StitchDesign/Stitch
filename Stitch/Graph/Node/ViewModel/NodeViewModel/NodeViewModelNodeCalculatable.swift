@@ -98,13 +98,30 @@ extension NodeViewModel: NodeCalculatable {
     @MainActor func updateInputMedia(inputCoordinate: NodeIOCoordinate,
                                      mediaList: [GraphMediaValue?]) {
         switch self.nodeType {
-        case .patch(let patchNode) where patchNode.patch == .loopBuilder:
-            if let mediaObservers = self.getMediaObservers(port: inputCoordinate) {
-                for (media, mediaObserver) in zip(mediaList, mediaObservers) {
-                    if mediaObserver.inputMedia != media {
-                        mediaObserver.inputMedia = media
+        case .patch(let patchNode):
+            switch patchNode.patch {
+            case .loopBuilder:
+                if let mediaObservers = self.getMediaObservers(port: inputCoordinate) {
+                    for (media, mediaObserver) in zip(mediaList, mediaObservers) {
+                        if mediaObserver.inputMedia != media {
+                            mediaObserver.inputMedia = media
+                        }
                     }
                 }
+                
+            case .coreMLClassify:
+                log("hey")
+                
+            case .coreMLDetection:
+                log("hey")
+                
+            default:
+                guard let mediaObservers = self.ephemeralObservers as? [MediaEvalOpObserver] else {
+                    return
+                }
+                
+                Self.zipInputMediaIntoObservers(mediaList: mediaList,
+                                                mediaObservers: mediaObservers.map(\.mediaViewModel))
             }
             
         case .layer(let layerNode):
@@ -126,19 +143,29 @@ extension NodeViewModel: NodeCalculatable {
         case .patch(let patch) where patch == .loopBuilder:
             // Edge case: one observable for each port index, so we lengthen media list to match ports
             let lengthenedMediaList = mediaList.lengthenArray(mediaObservers.count)
-            Self.zipMediaIntoObservers(mediaList: lengthenedMediaList,
-                                       mediaObservers: mediaObservers)
+            Self.zipComputedMediaIntoObservers(mediaList: lengthenedMediaList,
+                                               mediaObservers: mediaObservers)
             
         default:
             // Default case: loop of observables for one port index
-            Self.zipMediaIntoObservers(mediaList: mediaList,
-                                       mediaObservers: mediaObservers)
+            Self.zipComputedMediaIntoObservers(mediaList: mediaList,
+                                               mediaObservers: mediaObservers)
         }
     }
     
     @MainActor
-    private static func zipMediaIntoObservers(mediaList: [GraphMediaValue?],
-                                              mediaObservers: [MediaViewModel]) {
+    private static func zipInputMediaIntoObservers(mediaList: [GraphMediaValue?],
+                                                      mediaObservers: [MediaViewModel]) {
+        for (media, ephemeralObserver) in zip(mediaList, mediaObservers) {
+            if ephemeralObserver.inputMedia != media {
+                ephemeralObserver.inputMedia = media
+            }
+        }
+    }
+    
+    @MainActor
+    private static func zipComputedMediaIntoObservers(mediaList: [GraphMediaValue?],
+                                                      mediaObservers: [MediaViewModel]) {
         for (media, ephemeralObserver) in zip(mediaList, mediaObservers) {
             if ephemeralObserver.computedMedia != media {
                 ephemeralObserver.computedMedia = media
