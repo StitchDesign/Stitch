@@ -155,6 +155,20 @@ extension NodeViewModel {
         let inputsValues = inputsValuesList ?? self.inputs
         let longestLoopLength = max(getLongestLoopLength(inputsValues), minLoopCount)
         
+        let castedEphemeralObservers = self.createEphemeralObserverLoop(ephemeralObserverType,
+                                                                        count: longestLoopLength)
+        
+        assertInDebug(longestLoopLength == castedEphemeralObservers.count)
+        
+        return self.getLoopedEvalResults(inputsValues: inputsValues,
+                                         minLoopCount: minLoopCount) { values, loopIndex in
+            let ephemeralObserver = castedEphemeralObservers[loopIndex]
+            return evalOp(values, ephemeralObserver, loopIndex)
+        }
+    }
+    
+    @MainActor func createEphemeralObserverLoop<EphemeralObserver>(_ type: EphemeralObserver.Type,
+                                                                   count: Int) -> [EphemeralObserver] where EphemeralObserver: NodeEphemeralObservable {
         guard let ephemeralObservers = self.ephemeralObservers,
               var castedEphemeralObservers = ephemeralObservers as? [EphemeralObserver] else {
             fatalErrorIfDebug()
@@ -162,7 +176,7 @@ extension NodeViewModel {
         }
         
         // Match ephemeral observers count to longest loop length
-        castedEphemeralObservers.adjustArrayLength(to: longestLoopLength) {
+        castedEphemeralObservers.adjustArrayLength(to: count) {
             guard let observer = self.createEphemeralObserver() as? EphemeralObserver else {
                 fatalErrorIfDebug()
                 return nil
@@ -172,14 +186,7 @@ extension NodeViewModel {
         }
         
         self.ephemeralObservers = castedEphemeralObservers
-        
-        assertInDebug(longestLoopLength == castedEphemeralObservers.count)
-        
-        return self.getLoopedEvalResults(inputsValues: inputsValues,
-                                         minLoopCount: minLoopCount) { values, loopIndex in
-            let ephemeralObserver = castedEphemeralObservers[loopIndex]
-            return evalOp(values, ephemeralObserver, loopIndex)
-        }
+        return castedEphemeralObservers
     }
 
     @MainActor
