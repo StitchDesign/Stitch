@@ -67,9 +67,11 @@ extension DefaultMediaOption {
     }
     
     static func getDefaultOptions(for nodeKind: NodeKind,
+                                  coordinate: InputCoordinate,
                                   isMediaCurrentlySelected: Bool) -> [FieldValueMedia] {
         
-        switch nodeKind.mediaType {
+        switch nodeKind.mediaType(coordinate: coordinate) {
+            
         case .single(let mediaType):
             switch mediaType {
             case .coreML:

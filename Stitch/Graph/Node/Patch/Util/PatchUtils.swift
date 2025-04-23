@@ -408,7 +408,7 @@ extension Patch {
         }
     }
 
-    var supportedMediaType: NodeMediaSupport? {
+    func supportedMediaType(portId: Int) -> NodeMediaSupport? {
         switch self {
         case .imageImport:
             return .single(.image)
@@ -416,10 +416,14 @@ extension Patch {
             return .single(.video)
         case .soundImport, .speaker:
             return .single(.audio)
-        case .coreMLClassify:
-            return .single(.coreML)
-        case .coreMLDetection:
-            return .single(.coreML)
+        case .coreMLClassify, .coreMLDetection:
+            if portId == 0 {
+                return .single(.coreML)
+            } else if portId == 1 {
+                return .single(.image)
+            } else {
+                return .single(.coreML)
+            }
         case .loopBuilder, .splitter:
             return .all
         default:

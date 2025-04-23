@@ -430,7 +430,7 @@ struct InputFieldValueView: View {
                 
                 
             case .media(let media):
-                if let mediaType = self.nodeKind.mediaType {
+                if let mediaType = self.nodeKind.mediaType(coordinate: rowObserver.id) {
                     MediaInputFieldValueView(
                         viewModel: viewModel,
                         rowObserver: rowObserver,

@@ -19,10 +19,11 @@ enum NodeMediaSupport {
 
 extension NodeKind {
 
-    var mediaType: NodeMediaSupport? {
+    func mediaType(coordinate: InputCoordinate) -> NodeMediaSupport? {
         switch self {
         case .patch(let patch):
-            return patch.supportedMediaType
+            assertInDebug(coordinate.portId.isDefined) // called incorrectly
+            return patch.supportedMediaType(portId: coordinate.portId ?? 0)
         case .layer(let layer):
             guard let type = layer.supportedMediaType else { return nil }
             return .single(type)
