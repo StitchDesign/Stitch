@@ -121,17 +121,17 @@ struct GraphBaseView: View {
             Stitch.APP_BACKGROUND_COLOR
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
                 
-            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
-            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
-                .frame(width: 1, height: 1)
-                .inspector(isPresented: $store.showsLayerInspector) {
-                    
-                    LayerInspectorView(graph: graph,
-                                       document: document)
-                    
-                    // TODO: setting an inspector width DOES move over the graph view content
-                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                }
+//            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
+//            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
+//                .frame(width: 1, height: 1)
+//                .inspector(isPresented: $store.showsLayerInspector) {
+//                    
+//                    LayerInspectorView(graph: graph,
+//                                       document: document)
+//                    
+//                    // TODO: setting an inspector width DOES move over the graph view content
+//                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+//                }
         } // ZStack
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
