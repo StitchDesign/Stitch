@@ -27,6 +27,7 @@ struct MediaPickerValueEntry: View {
     var body: some View {
         let defaultOptions = DefaultMediaOption
             .getDefaultOptions(for: nodeKind,
+                               coordinate: rowObserver.id,
                                isMediaCurrentlySelected: mediaValue.hasMediaSelected)
                 
         StitchMenu(id: rowObserver.id.nodeId,
