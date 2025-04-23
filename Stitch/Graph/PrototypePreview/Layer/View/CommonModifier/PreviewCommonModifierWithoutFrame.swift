@@ -58,11 +58,11 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     var pos: StitchPosition {
         adjustPosition(
 //            size: layerViewModel.readSize, // Already includes size-changes from scaling
-//            size: size.asCGSize(parentSize),
+            size: size.asCGSize(parentSize),
 
             // SEE NOTE IN `asCGSizeForLayer`
-            size: size.asCGSizeForLayer(parentSize: parentSize,
-                                        readSize: layerViewModel.readSize),
+//            size: size.asCGSizeForLayer(parentSize: parentSize,
+//                                        readSize: layerViewModel.readSize),
             position: position,
             anchor: anchoring,
             parentSize: parentSize)
@@ -72,40 +72,40 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
         return content
         
-        // Margin input comes *after* `.frame`
-        // Should be applied before layer-effects, rotation etc.?
-            .modifier(LayerPaddingModifier(padding: layerViewModel.layerMargin.getPadding ?? .defaultPadding))
+//        // Margin input comes *after* `.frame`
+//        // Should be applied before layer-effects, rotation etc.?
+//            .modifier(LayerPaddingModifier(padding: layerViewModel.layerMargin.getPadding ?? .defaultPadding))
+//        
+//        // TODO: How do layer-padding and layer-margin inputs affect stroke ?
+//            .modifier(ApplyStroke(
+//                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                stroke: stroke,
+//                cornerRadius: layerViewModel.cornerRadius.getNumber ?? .zero))
+//        
+//            .modifier(PreviewLayerEffectsModifier(
+//                blurRadius: blurRadius,
+//                blendMode: blendMode,
+//                brightness: brightness,
+//                colorInvert: colorInvert,
+//                contrast: contrast,
+//                hueRotation: hueRotation,
+//                saturation: saturation))
         
-        // TODO: How do layer-padding and layer-margin inputs affect stroke ?
-            .modifier(ApplyStroke(
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                stroke: stroke,
-                cornerRadius: layerViewModel.cornerRadius.getNumber ?? .zero))
-        
-            .modifier(PreviewLayerEffectsModifier(
-                blurRadius: blurRadius,
-                blendMode: blendMode,
-                brightness: brightness,
-                colorInvert: colorInvert,
-                contrast: contrast,
-                hueRotation: hueRotation,
-                saturation: saturation))
-        
-        // Doesn't matter whether SwiftUI .shadow modifier comes before or after .scaleEffect, .position, etc. ?
-            .modifier(PreviewShadowModifier(
-                shadowColor: shadowColor,
-                shadowOpacity: shadowOpacity,
-                shadowRadius: shadowRadius,
-                shadowOffset: shadowOffset))
-        
-        // should be BEFORE .scale, .position, .offset and .rotation, so that border can be affected by those changes; but AFTER layer-effects, so that e.g. masking or blur does
-            .modifier(PreviewSidebarHighlightModifier(
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                nodeId: interactiveLayer.id.layerNodeId.asNodeId,
-                highlightedSidebarLayers: graph.layersSidebarViewModel.highlightedSidebarLayers,
-                scale: scale))
+//        // Doesn't matter whether SwiftUI .shadow modifier comes before or after .scaleEffect, .position, etc. ?
+//            .modifier(PreviewShadowModifier(
+//                shadowColor: shadowColor,
+//                shadowOpacity: shadowOpacity,
+//                shadowRadius: shadowRadius,
+//                shadowOffset: shadowOffset))
+//        
+//        // should be BEFORE .scale, .position, .offset and .rotation, so that border can be affected by those changes; but AFTER layer-effects, so that e.g. masking or blur does
+//            .modifier(PreviewSidebarHighlightModifier(
+//                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                nodeId: interactiveLayer.id.layerNodeId.asNodeId,
+//                highlightedSidebarLayers: graph.layersSidebarViewModel.highlightedSidebarLayers,
+//                scale: scale))
         
             .modifier(PreviewLayerRotationModifier(
                 graph: graph,
@@ -127,14 +127,14 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 parentSize: parentSize,
                 pos: pos))
                 
-        //  SwiftUI gestures must come AFTER the .position modifier
-            .modifier(PreviewWindowElementSwiftUIGestures(
-                document: document,
-                graph: graph,
-                interactiveLayer: interactiveLayer,
-                pos: pos,
-                size: size,
-                parentSize: parentSize,
-                minimumDragDistance: minimumDragDistance))
+//        //  SwiftUI gestures must come AFTER the .position modifier
+//            .modifier(PreviewWindowElementSwiftUIGestures(
+//                document: document,
+//                graph: graph,
+//                interactiveLayer: interactiveLayer,
+//                pos: pos,
+//                size: size,
+//                parentSize: parentSize,
+//                minimumDragDistance: minimumDragDistance))
     }
 }

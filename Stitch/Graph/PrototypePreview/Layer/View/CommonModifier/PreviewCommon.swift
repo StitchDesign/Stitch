@@ -77,11 +77,11 @@ struct PreviewCommonModifier: ViewModifier {
                 sizingScenario: layerViewModel.getSizingScenario,
                 frameAlignment: frameAlignment))
         
-            // Only for MapLayer, specifically for thumbnail-creation edge case
-            .modifier(ClippedModifier(
-                isClipped: clipForMapLayerProjetThumbnailCreation,
-                // no clipping for map
-                cornerRadius: .zero))
+//            // Only for MapLayer, specifically for thumbnail-creation edge case
+//            .modifier(ClippedModifier(
+//                isClipped: clipForMapLayerProjetThumbnailCreation,
+//                // no clipping for map
+//                cornerRadius: .zero))
 
             .modifier(PreviewCommonModifierWithoutFrame(
                 document: document,
@@ -93,7 +93,6 @@ struct PreviewCommonModifier: ViewModifier {
                 rotationX: rotationX,
                 rotationY: rotationY,
                 rotationZ: rotationZ,
-                // actual calculated size at which we're displaying the image
                 size: size,
                 minimumDragDistance: minimumDragDistance,
                 scale: scale,
@@ -171,8 +170,8 @@ struct PreviewCommonView_REPL: View {
     }
 }
 
-struct PreviewCommonView_Previews: PreviewProvider {
-    static var previews: some View {
-        PreviewCommonView_REPL()
-    }
-}
+//struct PreviewCommonView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        PreviewCommonView_REPL()
+//    }
+//}

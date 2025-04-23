@@ -42,53 +42,53 @@ struct PreviewCommonPositionModifier: ViewModifier {
     
     var pos: StitchPosition
     
-    var isPinnedView: Bool {
-        viewModel.isPinnedView && isPinnedViewRendering
-    }
+//    var isPinnedView: Bool {
+//        viewModel.isPinnedView && isPinnedViewRendering
+//    }
 
     func body(content: Content) -> some View {
-        
-        // The PinnedView rendering of a layer relies on information about the layer it is pinned to.
-        if isPinnedView,
-           let pinReceiverData = graph.getPinReceiverData(for: viewModel) {
-            
-             // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
-            
-            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
-                                               pinReceiverData: pinReceiverData)
-            
-            // Ghost view equivalent of pin view passes position info for calculating
-            // final position location
-            let ghostViewPosition = self.viewModel.readMidPosition
-            let pinPositionOffset = pinPos - ghostViewPosition
-            
-            // Input value of pin offset
-            let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
-            
-             // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
-             // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
-            
+//        
+//        // The PinnedView rendering of a layer relies on information about the layer it is pinned to.
+//        if isPinnedView,
+//           let pinReceiverData = graph.getPinReceiverData(for: viewModel) {
+//            
+//             // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
+//            
+//            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
+//                                               pinReceiverData: pinReceiverData)
+//            
+//            // Ghost view equivalent of pin view passes position info for calculating
+//            // final position location
+//            let ghostViewPosition = self.viewModel.readMidPosition
+//            let pinPositionOffset = pinPos - ghostViewPosition
+//            
+//            // Input value of pin offset
+//            let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
+//            
+//             // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
+//             // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
+//            
+//            positioningView(content)
+//                .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
+//                .offset(x: pinOffset.width, y: pinOffset.height)
+//            
+//        } else {
             positioningView(content)
-                .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
-                .offset(x: pinOffset.width, y: pinOffset.height)
-            
-        } else {
-            positioningView(content)
-        }
+//        }
     }
     
     @ViewBuilder func positioningView(_ content: Content) -> some View {
         // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
-        if parentIsScrollableGrid {
-            content
-        } else if parentDisablesPosition {
-           let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
-            content
-               .offset(x: offset.width, y: offset.height)
-        } else {
+//        if parentIsScrollableGrid {
+//            content
+//        } else if parentDisablesPosition {
+//           let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
+//            content
+//               .offset(x: offset.width, y: offset.height)
+//        } else {
             content
 //                .position(x: pos.x, y: pos.y)
                 .offset(x: pos.x, y: pos.y)
-        }
+//        }
     }
 }

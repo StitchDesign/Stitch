@@ -38,7 +38,7 @@ struct LayerSizeReader: ViewModifier {
                         }
                         
                         // TODO: handle NaN ?
-                        let newOrigin = newFrameData.origin
+                        let newOrigin = newFrameData.origin.handleNaN()
                         if viewModel.readFrame.origin != newOrigin {
                             viewModel.readFrame.origin = newOrigin
                         }
@@ -60,5 +60,18 @@ extension CGSize {
             size.height = .zero
         }
         return size
+    }
+}
+
+extension CGPoint {
+    func handleNaN() -> Self {
+        var point = self
+        if point.x.isNaN {
+            point.x = .zero
+        }
+        if point.y.isNaN {
+            point.y = .zero
+        }
+        return point
     }
 }

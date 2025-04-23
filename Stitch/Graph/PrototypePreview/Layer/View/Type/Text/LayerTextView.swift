@@ -28,26 +28,36 @@ struct LayerTextView: View {
     }
     
     var body: some View {
-        if alignment.isDefined {
-            Text(value)
-                .modifier(StitchFontModifier(fontSize: fontSize,
-                                             fontDesign: fontDesign,
-                                             fontWeight: fontWeight))
-                .foregroundColor(color)
-                .underline(textDecoration.isUnderline, pattern: .solid)
-                .strikethrough(textDecoration.isStrikethrough, pattern: .solid)
-        } else {
-            // TODO: do we still need this, or does SwiftUI now support text-justification?
-            // UITextView's do not respect SwiftUI alignments
-            JustifiedLayerTextView(
-                text: value,
-                color: color,
-                font: UIFont.systemFont(ofSize: fontSize.asNumber))
-                .fontDesign(fontDesign)
-                .fontWeight(fontWeight)
-                .underline(textDecoration.isUnderline, pattern: .solid)
-                .strikethrough(textDecoration.isStrikethrough, pattern: .solid)
-        }
+//        if alignment.isDefined {
+        Text(value)
+            .fontWeight(fontWeight)
+            .fontDesign(fontDesign)
+            .font(.system(size: fontSize.asNumber))
+////            .font(.s)
+//        
+////            .font(.system(size: fontSize.asNumber,
+////                          weight: fontWeight,
+////                          design: fontDesign))
+//        
+////            .modifier(StitchFontModifier(fontSize: fontSize,
+////                                         fontDesign: fontDesign,
+////                                         fontWeight: fontWeight))
+//            .foregroundColor(color)
+//            .underline(textDecoration.isUnderline, pattern: .solid)
+//            .strikethrough(textDecoration.isStrikethrough, pattern: .solid)
+//        } else {
+//            // TODO: do we still need this, or does SwiftUI now support text-justification?
+//            // UITextView's do not respect SwiftUI alignments
+            
+//        JustifiedLayerTextView(text: value,
+//                               color: color,
+////                               font: UIFont.systemFont(ofSize: fontSize.asNumber))
+//                               font: UIFont.systemFont(ofSize: 69))
+//        .fontDesign(fontDesign)
+//        .fontWeight(fontWeight)
+//        .underline(textDecoration.isUnderline, pattern: .solid)
+//        .strikethrough(textDecoration.isStrikethrough, pattern: .solid)
+//        }
 
     }
 }
@@ -62,16 +72,16 @@ struct StitchFontModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        if resizeFontByFrame {
-            content
-                .modifier(FitSystemFont(fontDesign: fontDesign, 
-                                        fontWeight: fontWeight))
-        } else {
+//        if resizeFontByFrame {
+//            content
+//                .modifier(FitSystemFont(fontDesign: fontDesign, 
+//                                        fontWeight: fontWeight))
+//        } else {
             content
                 .font(.system(size: fontSize.asNumber,
                               weight: fontWeight,
                               design: fontDesign))
-        }
+//        }
     }
 }
 
@@ -86,20 +96,21 @@ struct FitSystemFont: ViewModifier {
     var percentage: CGFloat = 1.0
     
     func body(content: Content) -> some View {
-        GeometryReader { geometry in
-            content
-                .font(
-                    .system(size: min(geometry.size.width, geometry.size.height) * percentage,
-                            weight: fontWeight,
-                            design: fontDesign))
-            
-            // Not used?
-//                .lineLimit(self.lineLimit)
-            
-                .minimumScaleFactor(self.minimumScaleFactor)
-            // position within GeometryReader, not Preview Winodw
-                .position(x: geometry.frame(in: .local).midX,
-                          y: geometry.frame(in: .local).midY)
-        }
+        return content
+//        GeometryReader { geometry in
+//            content
+//                .font(
+//                    .system(size: min(geometry.size.width, geometry.size.height) * percentage,
+//                            weight: fontWeight,
+//                            design: fontDesign))
+//            
+//            // Not used?
+////                .lineLimit(self.lineLimit)
+//            
+//                .minimumScaleFactor(self.minimumScaleFactor)
+//            // position within GeometryReader, not Preview Winodw
+//                .position(x: geometry.frame(in: .local).midX,
+//                          y: geometry.frame(in: .local).midY)
+//        }
     }
 }
