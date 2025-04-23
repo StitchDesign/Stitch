@@ -23,8 +23,9 @@ extension GraphMediaValue {
         self.mediaObject = mediaObject
     }
     
-    init(computedMedia: StitchMediaObject) {
-        self.id = .init()
+    init(computedMedia: StitchMediaObject,
+         id: UUID) {
+        self.id = id
         self.dataType = .computed
         self.mediaObject = computedMedia
     }

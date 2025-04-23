@@ -946,13 +946,16 @@ extension GraphState {
             
             outputsToUpdate[portId] = outputToUpdate
             
-            let mediaList: [GraphMediaValue?]? = media == nil ? nil : [media]
+            var outputMediaList = node.getAllMediaObservers()?.map(\.computedMedia) ?? []
+            if outputMediaList.count > loopIndex {
+                outputMediaList[loopIndex] = media
+            }
             
             // Update downstream node's inputs
             let changedInputIds = self.updateDownstreamInputs(
                 sourceNode: node,
                 upstreamOutputValues: outputToUpdate,
-                mediaList: mediaList,
+                mediaList: outputMediaList,
                 upstreamOutputChanged: outputsChanged,
                 outputCoordinate: outputCoordinate)
             let changedNodeIds = Set(changedInputIds.map(\.nodeId)).toSet
