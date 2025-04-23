@@ -64,7 +64,8 @@ func microphoneEval(node: PatchNode) -> EvalResult {
             let newMic = StitchMic(isEnabled: isEnabled)
             let newSoundPlayer = StitchSoundPlayer(delegate: newMic, willPlay: true)
             
-            mediaObserver.computedMedia = .init(computedMedia: .mic(newSoundPlayer))
+            mediaObserver.computedMedia = .init(computedMedia: .mic(newSoundPlayer),
+                                                id: .init())
             
             return MediaEvalOpResult(values: node.defaultOutputs,
                                      media: mediaObserver.computedMedia)
