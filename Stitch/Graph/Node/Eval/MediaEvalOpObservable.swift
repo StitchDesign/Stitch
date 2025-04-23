@@ -50,6 +50,8 @@ final class VisionOpObserver: MediaEvalOpObservable {
     weak var nodeDelegate: NodeViewModel?
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = VisionOpActor()
+    
+    @MainActor var imageInput: UIImage?
         
     @MainActor init() {
         self.mediaViewModel = .init()
@@ -64,6 +66,8 @@ final class ImageClassifierOpObserver: MediaEvalOpObservable {
     weak var nodeDelegate: NodeViewModel?
     internal let mediaActor = MediaEvalOpCoordinator()
     let coreMlActor = ImageClassifierActor()
+    
+    @MainActor var imageInput: UIImage?
     
     @MainActor init() {
         self.mediaViewModel = .init()
