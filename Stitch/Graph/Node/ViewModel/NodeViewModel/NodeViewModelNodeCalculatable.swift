@@ -110,35 +110,37 @@ extension NodeViewModel: NodeCalculatable {
                 }
                 
             case .coreMLClassify:
-                // Core ML port
-                if inputCoordinate.portId == 0 {
-                    self.defaultZipInputMedia(mediaList: mediaList)
-                }
-                
-                // Image input
-                else if inputCoordinate.portId == 1 {
-                    self.zipInputMedia(mediaList: mediaList,
-                                       observerType: ImageClassifierOpObserver.self) { mediaObserver, mediaObject in
+                self.zipInputMedia(mediaList: mediaList,
+                                   observerType: ImageClassifierOpObserver.self) { mediaObserver, mediaObject in
+                    // Core ML port
+                    if inputCoordinate.portId == 0 {
+                        mediaObserver.inputMedia = mediaObject
+                    }
+                    
+                    // Image input
+                    else if inputCoordinate.portId == 1 {
                         mediaObserver.imageInput = mediaObject?.mediaObject.image
                     }
                 }
                 
             case .coreMLDetection:
-                // Core ML port
-                if inputCoordinate.portId == 0 {
-                    self.defaultZipInputMedia(mediaList: mediaList)
-                }
-                
-                // Image input
-                else if inputCoordinate.portId == 1 {
-                    self.zipInputMedia(mediaList: mediaList,
-                                       observerType: VisionOpObserver.self) { mediaObserver, mediaObject in
+                self.zipInputMedia(mediaList: mediaList,
+                                   observerType: VisionOpObserver.self) { mediaObserver, mediaObject in
+                    // Core ML port
+                    if inputCoordinate.portId == 0 {
+                        mediaObserver.inputMedia = mediaObject
+                    }
+                    
+                    // Image input
+                    else if inputCoordinate.portId == 1 {
                         mediaObserver.imageInput = mediaObject?.mediaObject.image
                     }
                 }
-                
+
             default:
-                self.defaultZipInputMedia(mediaList: mediaList)
+                if let _ = self.createEphemeralObserver() as? MediaEvalOpObserver {
+                    self.defaultZipInputMedia(mediaList: mediaList)                    
+                }
             }
             
         case .layer(let layerNode):
@@ -152,8 +154,8 @@ extension NodeViewModel: NodeCalculatable {
     
     @MainActor
     func zipInputMedia<EphemeralObserver>(mediaList: [GraphMediaValue?],
-                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self,
-                                                 callback: (EphemeralObserver, GraphMediaValue?) -> Void) where EphemeralObserver: MediaEvalOpObservable {
+                                          observerType: EphemeralObserver.Type = MediaEvalOpObserver.self,
+                                          callback: (EphemeralObserver, GraphMediaValue?) -> Void) where EphemeralObserver: MediaEvalOpObservable {
         let mediaObservers = self.createEphemeralObserverLoop(EphemeralObserver.self,
                                                               count: mediaList.count)
         
