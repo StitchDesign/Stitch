@@ -56,7 +56,8 @@ func mediaAwareIdentityEvaluation(node: PatchNode) -> EvalResult {
                                               loopIndex: loopIndex,
                                               mediaId: nil) {
                 return MediaEvalOpResult(values: [value],
-                                         media: .init(computedMedia: media))
+                                         media: .init(computedMedia: media,
+                                                      id: value.asyncMedia?.id ?? .init()))
             }
             
             return MediaEvalOpResult(values: [value],

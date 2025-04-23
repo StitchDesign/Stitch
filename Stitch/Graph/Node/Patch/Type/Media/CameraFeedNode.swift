@@ -180,7 +180,8 @@ func cameraFeedEval(node: PatchNode,
                                             label: "Camera")),
                 .size(currentCameraImage.layerSize)
             ],
-            media: .init(computedMedia: .image(currentCameraImage))
+            media: .init(computedMedia: .image(currentCameraImage),
+                         id: newId)
         )
     }
 }
