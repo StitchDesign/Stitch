@@ -61,9 +61,10 @@ func base64StringToImageEval(node: PatchNode) -> EvalResult {
                                               node: node) {
             switch await convertBase64StringToImage(inputBase64String) {
             case .success(let image):
-                let mediaValue = GraphMediaValue(computedMedia: .image(image))
+                let mediaValue = GraphMediaValue(computedMedia: .image(image),
+                                                 id: .init())
                 
-                return .init(values: [.asyncMedia(AsyncMediaValue(id: .init(),
+                return .init(values: [.asyncMedia(AsyncMediaValue(id: mediaValue.id,
                                                     dataType: .computed,
                                                     label: "Image"))],
                              media: mediaValue)
