@@ -152,6 +152,11 @@ extension NodeViewModel: NodeCalculatable {
                                           mediaList: mediaList,
                                           observerType: NodeTimerEphemeralObserver.self)
                 
+            case .loopSelect, .loopShuffle, .loopRemove:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: MediaReferenceObserver.self)
+                
             default:
                 if let _ = self.createEphemeralObserver() as? MediaEvalOpViewable {
                     self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
