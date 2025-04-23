@@ -375,6 +375,7 @@ extension GraphState {
     
     @MainActor
     func mediaPickerNoneChanged(rowObserver: InputNodeRowObserver,
+                                node: NodeViewModel,
                                 activeIndex: ActiveIndex,
                                 isFieldInsideLayerInspector: Bool) {
         let emptyPortValue = PortValue.asyncMedia(nil)
@@ -382,7 +383,11 @@ extension GraphState {
                                       value: emptyPortValue,
                                       activeIndex: activeIndex,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-            
+        
+        // Empty media in input
+        node.updateInputMedia(inputCoordinate: rowObserver.id,
+                              mediaList: [nil])
+        
         self.encodeProjectInBackground()
     }
 }

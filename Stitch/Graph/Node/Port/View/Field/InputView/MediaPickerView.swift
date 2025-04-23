@@ -66,6 +66,7 @@ struct MediaInputFieldValueView: View {
         
         HStack {
             MediaPickerValueEntry(rowObserver: rowObserver,
+                                  node: node,
                                   isUpstreamValue: isUpstreamValue,
                                   mediaValue: media,
                                   label: mediaName,
