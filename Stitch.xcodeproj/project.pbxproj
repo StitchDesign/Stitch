@@ -414,6 +414,7 @@
 		EC1E7A6F287D228D00144D05 /* BoolCheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */; };
 		EC211A482698A6F10068A0F0 /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC211A472698A6F10068A0F0 /* JSONUtils.swift */; };
 		EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = EC211A4A2698A8B70068A0F0 /* SwiftyJSON */; };
+		EC211E222DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC211E212DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift */; };
 		EC2256292D407E9500BB7292 /* SpecialPickerFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2256282D407E9500BB7292 /* SpecialPickerFieldValueView.swift */; };
 		EC22562B2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC22562A2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift */; };
 		EC226C672BD881D400411EB7 /* SFSymbolLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC226C662BD881D400411EB7 /* SFSymbolLayerNode.swift */; };
@@ -1398,6 +1399,7 @@
 		EC1E7A6C287CFA9600144D05 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
 		EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolCheckboxView.swift; sourceTree = "<group>"; };
 		EC211A472698A6F10068A0F0 /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
+		EC211E212DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemInputChangeHandleView.swift; sourceTree = "<group>"; };
 		EC2256282D407E9500BB7292 /* SpecialPickerFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialPickerFieldValueView.swift; sourceTree = "<group>"; };
 		EC22562A2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroupAlignmentChoicesView.swift; sourceTree = "<group>"; };
 		EC226C662BD881D400411EB7 /* SFSymbolLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFSymbolLayerNode.swift; sourceTree = "<group>"; };
@@ -2691,6 +2693,7 @@
 				EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
 				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
+				EC211E212DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift */,
 				B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */,
 			);
 			path = View;
@@ -5400,6 +5403,7 @@
 				ECC2BCE52B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift in Sources */,
 				EC17549328B9753800968D65 /* UIDeviceUtils.swift in Sources */,
 				EC49149C2935965000D74344 /* TextLengthNode.swift in Sources */,
+				EC211E222DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift in Sources */,
 				ECE708682B8D4ADA009F4525 /* LineToPackNode.swift in Sources */,
 				B541060028694AD7000688CA /* MediaUtil.swift in Sources */,
 				EC6EDC2D27FF907300843E62 /* SidebarListItemSelectionActions.swift in Sources */,

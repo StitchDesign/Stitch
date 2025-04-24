@@ -101,13 +101,22 @@ struct NodeView: View {
                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                     }
                 }
+                .modifier(CanvasItemInputChangeHandleViewModier(
+                    scale: document.graphMovement.zoomData,
+                    nodeId: self.nodeId,
+                    canAddInput: canAddInput,
+                    nodeBodyHovered: $nodeBodyHovered))
+                
         }
                    .canvasItemPositionHandler(document: document,
                                               graph: graph,
                                               node: node,
                                               zIndex: zIndex)
     }
-
+    
+    @State private var nodeBodyHovered: Bool = false
+    
+    
     @MainActor
     var nodeBody: some View {
         VStack(alignment: .leading, spacing: .zero) {
@@ -140,6 +149,9 @@ struct NodeView: View {
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
+        .onHover { isHovering in
+            self.nodeBodyHovered = isHovering
+        }
     }
 
     var nodeTitle: some View {
