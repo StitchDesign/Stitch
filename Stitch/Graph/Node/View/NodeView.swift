@@ -102,6 +102,7 @@ struct NodeView: View {
                     }
                 }
                 .modifier(CanvasItemInputChangeHandleViewModier(
+                    scale: document.graphMovement.zoomData,
                     nodeId: self.nodeId,
                     canAddInput: canAddInput,
                     nodeBodyHovered: $nodeBodyHovered))
