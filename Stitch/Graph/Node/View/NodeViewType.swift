@@ -135,34 +135,27 @@ struct DefaultNodeOutputsView: View {
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
-    
-    // Most splitters do NOT show their outputs;
-    // however, a group node's output-splitters seen from the same level as the group node (i.e. not inside the group node itself, but where)
+
     @MainActor
     var showOutputFields: Bool {
-        
-        if self.node.kind == .patch(.splitter) {
-            
-            // A regular (= inline) splitter NEVER shows its output
-            let isRegularSplitter = node.patchNodeViewModel?.splitterType == .inline
-            if isRegularSplitter {
-                return false
-            }
-            
-            // If this is a group output splitter, AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
-            // then show the output splitter's fields.
-            let isOutputSplitter = node.patchNodeViewModel?.splitterType == .output
-            if isOutputSplitter {
-                // See `NodeRowObserver.label()` for similar logic for *inputs*
-                let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
-                let currentTraversalLevel = document.groupNodeFocused?.groupNodeId
-                return parentGroupNode != currentTraversalLevel
-            }
-            
-            return false
+
+        // Most patches (except for splitters nodes, under certain conditions) have/show outputs.
+        guard let patchNode = node.patchNode,
+              let splitterType = patchNode.splitterType else {
+            return true
         }
         
-        return true
+        // If this is a group output splitter,
+        // AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
+        // then show the output splitter's fields.
+        if splitterType == .output {
+            // See `NodeRowObserver.label()` for similar logic for *inputs*
+            let parentGroupNode = patchNode.parentGroupNodeId
+            let currentTraversalLevel = document.groupNodeFocused?.groupNodeId
+            return parentGroupNode != currentTraversalLevel
+        } else {
+            return false
+        }
     }
     
     var body: some View {

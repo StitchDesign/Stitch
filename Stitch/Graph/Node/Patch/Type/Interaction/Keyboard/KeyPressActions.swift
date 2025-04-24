@@ -155,7 +155,8 @@ extension StitchStore {
         document.keypressState.characters.insert(char)
 
         if graph.edgeEditingState.isDefined {
-            document.keyCharPressedDuringEdgeEditingMode(char: char)
+            graph.keyCharPressedDuringEdgeEditingMode(char: char,
+                                                      activeIndex: document.activeIndex)
         }
 
         // Not in edge-edit-mode, so recalc the keyboard patch nodes
