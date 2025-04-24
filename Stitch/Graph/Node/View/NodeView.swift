@@ -101,49 +101,11 @@ struct NodeView: View {
                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                     }
                 }
-                .overlay(alignment: .bottom) {
-                    if canAddInput, self.nodeBodyHovered {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(.gray)
-                            .frame(width: 80, height: 8)
-                            .offset(y: -2)
-                            .onHover(perform: { isHovering in
-                                self.nodeBodyHovered = isHovering
-                            })
-                        
-                            .gesture(DragGesture(coordinateSpace: .global).onChanged({ amount in
-                                let currentTranslationY = amount.translation.height
-                                
-                                guard let previousTranslationY = self.previousTranslationY else {
-                                    self.previousTranslationY = currentTranslationY
-                                    return
-                                }
-                                
-                                let isDraggingUp = currentTranslationY < previousTranslationY
-                                let isDraggingDown = currentTranslationY > previousTranslationY
-                                
-                                let translationDiff = previousTranslationY.magnitude - currentTranslationY.magnitude
-                                
-                                let changeInputCount = translationDiff.magnitude > 18
-                                
-                                print("dragged: currentTranslationY: \(currentTranslationY)")
-                                print("dragged: previousTranslationY: \(previousTranslationY)")
-                                print("dragged: change: translationDiff \(translationDiff)")
-                                
-                                if changeInputCount {
-                                    self.previousTranslationY = currentTranslationY
-                                    if isDraggingUp {
-                                        // If we stop being able to remove inputs, then reset translation?
-                                        dispatch(InputRemovedAction(nodeId: self.nodeId))
-                                    } else if isDraggingDown {
-                                        dispatch(InputAddedAction(nodeId: self.nodeId))
-                                    }
-                                }
-                            }).onEnded({ _ in
-                                self.previousTranslationY = nil
-                            }))
-                    }
-                }
+                .modifier(CanvasItemInputChangeHandleViewModier(
+                    nodeId: self.nodeId,
+                    canAddInput: canAddInput,
+                    nodeBodyHovered: $nodeBodyHovered))
+                
         }
                    .canvasItemPositionHandler(document: document,
                                               graph: graph,
@@ -152,7 +114,7 @@ struct NodeView: View {
     }
     
     @State private var nodeBodyHovered: Bool = false
-    @State private var previousTranslationY: CGFloat? = nil
+    
     
     @MainActor
     var nodeBody: some View {
