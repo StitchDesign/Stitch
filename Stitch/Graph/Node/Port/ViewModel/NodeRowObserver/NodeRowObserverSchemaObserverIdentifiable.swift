@@ -90,6 +90,6 @@ extension OutputNodeRowObserver {
     func onPrototypeRestart(document: StitchDocumentViewModel) {
         // Set outputs to be empty
         // MARK: no longer seems necessary, removing for fixing flashing media on restart
-        self.allLoopedValues = []
+//        self.allLoopedValues = []
     }
 }
