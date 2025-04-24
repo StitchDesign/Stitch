@@ -297,10 +297,11 @@ extension VisibleNodesViewModel {
     }
 }
 
-extension StitchDocumentViewModel {
+extension GraphState {
     @MainActor
-    func keyCharPressedDuringEdgeEditingMode(char: Character) {
-        let graph = self.visibleGraph
+    func keyCharPressedDuringEdgeEditingMode(char: Character, activeIndex: ActiveIndex) {
+        
+        let graph = self
         
         guard let labelPresssed = EdgeEditingModeInputLabel.fromKeyCharacter(char) else {
             log("keyCharPressedDuringEdgeEditingMode: char pressed \(char) did not map to any supported edge-edit-mode input label")
@@ -315,15 +316,21 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let nearbyNode = graph.getCanvasItem(edgeEditingState.nearbyCanvasItem) else {
+        guard let nearbyCanvasItem = graph.getCanvasItem(edgeEditingState.nearbyCanvasItem) else {
             log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyCanvasItem)")
             return
+        }
+        
+        if let patch = graph.getPatchNode(id: nearbyCanvasItem.id.nodeId)?.patch,
+           patch.inputsDisabled {
+            log("keyCharPressedDuringEdgeEditingMode: cannot create an edge to a disabled input")
+           return
         }
         
         let labelAsPortId = labelPresssed.toPortId // i.e. port index
         // log("keyCharPressedDuringEdgeEditingMode: labelAsPortId: \(labelAsPortId)")
         
-        let destinationInput = InputPortIdAddress(portId: labelAsPortId, canvasId: nearbyNode.id)
+        let destinationInput = InputPortIdAddress(portId: labelAsPortId, canvasId: nearbyCanvasItem.id)
         
         //    let destinationInput = nearbyNode.groupNode?.splitterInputs[safe: labelAsPortId]?.rowObserver?.id ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
         
@@ -384,7 +391,7 @@ extension StitchDocumentViewModel {
                 dispatch(PossibleEdgeDecommitmentCompleted(
                     possibleEdgeId: thisPossibleEdge.id,
                     edge: edge,
-                    activeIndex: self.activeIndex))
+                    activeIndex: activeIndex))
             }
         }
         
@@ -418,6 +425,6 @@ extension StitchDocumentViewModel {
             }
         } // else
         
-        return self.visibleGraph.removeEdgeAt(input: edge.to)
+        self.removeEdgeAt(input: edge.to)
     }
 }
