@@ -61,7 +61,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     }
     
     @MainActor
-    var shouldBeIgnoredByLayout: Bool {
+    var shouldBeIgnoredByLayoutBecauseOfPinning: Bool {
         isPinned || receivesPin
     }
     
@@ -119,13 +119,27 @@ struct PreviewLayerRotationModifier: ViewModifier {
                           isForXAxis: Bool = false,
                           isForYAxis: Bool = false,
                           isForZAxis: Bool = false) -> LayerRotationModifier {
-        LayerRotationModifier(degrees: degrees,
-                              isForXAxis: isForXAxis,
-                              isForYAxis: isForYAxis,
-                              isForZAxis: isForZAxis,
-                              rotationAnchorX: self.rotationAnchorX,
-                              rotationAnchorY: self.rotationAnchorY,
-                              shouldBeIgnoredByLayout: shouldBeIgnoredByLayout)
+        LayerRotationModifier(
+            degrees: degrees,
+            isForXAxis: isForXAxis,
+            isForYAxis: isForYAxis,
+            isForZAxis: isForZAxis,
+            rotationAnchorX: self.rotationAnchorX,
+            rotationAnchorY: self.rotationAnchorY,
+            
+            /*
+             Note: Rotations for pinning are ALWAYS ignored by layout.
+             
+             Rotations in SwiftUI undesirably change the non-.local size of a layer, thus messing up a layer's `readSize`.
+             Details: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
+             
+             To avoid this, we can have the rotation "ignored by layout".
+             However, rotations ignored by layout move the layer but not e.g. its hit areas.
+             
+             Since z-rotations are commonly used with circular-style interactions,
+             we respect (i.e. do NOT ignore) layout for z-rotations.
+             */
+            shouldBeIgnoredByLayout: shouldBeIgnoredByLayoutBecauseOfPinning || !isForZAxis)
     }
     
     func body(content: Content) -> some View {
