@@ -47,6 +47,7 @@ extension LayerNodeReader {
         self.allLayerInputObservers.forEach { input in
             input.maybeBlockFields(isPinned: fn(.isPinned).getBool ?? false,
                                    parentGroupOrientation: parentGroupOrientation,
+                                   groupOrientation: fn(.orientation).getOrientation,
                                    scrollXEnabled: fn(.scrollXEnabled).getBool ?? false,
                                    scrollYEnabled: fn(.scrollYEnabled).getBool ?? false,
                                    size: fn(.size).getSize ?? .zero,
@@ -56,17 +57,13 @@ extension LayerNodeReader {
 }
 
 extension LayerInputObserver {
-    // For this `self: LayerInputPort` (i.e. layer input),
-    // and given these conditions (`BlockingContext`),
-    // block or unblock certain
-    
+
     /// For a given layer input (`LayerInputObserver`), should the whole input or certain individual fields be blocked?
-    /// Depeneds on a variety of conditions, represented by `LayerInputBlockingContext`
     @MainActor
-//    func maybeBlockFields(context: LayerInputBlockingContext) {
     func maybeBlockFields(
         isPinned: Bool,
-        parentGroupOrientation: StitchOrientation?,
+        parentGroupOrientation: StitchOrientation?, // orientation of this layer's *parent*; nil if not the child of a group
+        groupOrientation: StitchOrientation?, // the orientation of *this* layer; nil if not a group
         scrollXEnabled: Bool,
         scrollYEnabled: Bool,
         size: LayerSize,
@@ -95,10 +92,14 @@ extension LayerInputObserver {
         let isPinned = isPinned
         
         let hasParent = parentGroupOrientation.isDefined
-
+        
         let hasZStackParent = hasParent && parentGroupOrientation == StitchOrientation.none
         let hasNonZStackParent = hasParent && parentGroupOrientation != StitchOrientation.none
-        let hasGridParent = hasParent && parentGroupOrientation != StitchOrientation.grid
+        let hasGridParent = hasParent && parentGroupOrientation == StitchOrientation.grid
+        
+        let isHStack = groupOrientation == .horizontal
+        let isVStack = groupOrientation == .vertical
+        let isGrid = groupOrientation == .grid
         
         let scrollEnabled = scrollXEnabled || scrollYEnabled
         
@@ -125,28 +126,28 @@ extension LayerInputObserver {
                 blockFullInput()
             }
         
-        // Offset-in-group is only for HStack/VStack/Grid
+        // Offset-in-group is only for children in an HStack/VStack/Grid
         case .offsetInGroup:
             // Blocked if the layer either has no parent, or has a z-stack parent, or has a scrollable grid parent
             if !hasParent || hasZStackParent || (hasGridParent && scrollEnabled) {
                 blockFullInput()
             }
             
-        // Only for layers in HStack/VStack (and NOT Grid?)
+        // Only for the HStack/VStack itself (and NOT Grid?)
         case .spacing:
-            if !hasParent || hasZStackParent || hasGridParent  {
+            if !(isHStack || isVStack) {
                 blockFullInput()
             }
         
-        // Grid-specific inputs; only for children of a grid
+        // Grid-specific inputs; only for the Grid itself
         case .spacingBetweenGridRows, .spacingBetweenGridColumns, .itemAlignmentWithinGridCell:
-            if !hasGridParent {
+            if !isGrid {
                 blockFullInput()
             }
             
-        // For layers in HStack/VStack
+        // Only for the HStack/VStack itself
         case .layerGroupAlignment:
-            if !hasParent || hasZStackParent || hasGridParent {
+            if !(isHStack || isVStack) {
                 blockFullInput()
             }
         
