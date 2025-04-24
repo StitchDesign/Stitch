@@ -73,9 +73,6 @@ func counterOpClosure(values: PortValues,
     // old output
     let prevValue: Double = computedState.previousValue?.getNumber ?? .zero
     
-    // update new previous value, default to 0 if there wasn't a previous value
-    //        computedState.previousValue = isNewState ? .number(0) : values[safe: 5]
-    
     //        log("counterOpClosure: graphTime: \(graphTime)")
     //        log("counterOpClosure: incPulse: \(incPulse)")
     //        log("counterOpClosure: values[0].getPulse: \(values[0].getPulse!)")
