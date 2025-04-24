@@ -72,11 +72,6 @@ struct NodeTagMenuButtonsView: View {
         !moreThanOneNodeSelected && isGroupNode
     }
 
-    var hasNodeTypeCarousel: Bool {
-        nodeType.isDefined
-            && !nodeTypeChoices.isEmpty
-    }
-
     // only show loop-indices when more than just 1 index
     @MainActor
     var hasLoopIndexCarousel: Bool {
@@ -159,8 +154,6 @@ struct NodeTagMenuButtonsView: View {
             deleteButton
             duplicateButton
             
-            addOrRemoveInputButons
-
             if let splitterType = splitterType,
                let nodeId = canvasItemId.nodeCase,
                hasSplitterTypeCarousel {
@@ -180,14 +173,6 @@ struct NodeTagMenuButtonsView: View {
                 loopIndexSubmenu(activeIndex: activeIndex,
                                  _loopIndices)
             }
-
-//            if isWirelessReceiver {
-//                let choice = node.currentBroadcastChoice
-//                NodeWirelessBroadcastSubmenuView(graph: graph,
-//                                                 currentBroadcastChoice: choice ?? nilBroadcastChoice,
-//                                                 assignedBroadcaster: choice,
-//                                                 nodeId: node.id)
-//            }
             
             jumpToAssignedBroadcasterButton
             
@@ -197,17 +182,6 @@ struct NodeTagMenuButtonsView: View {
             
             hideLayerButton
             
-        }
-    }
-    
-    @ViewBuilder
-    var addOrRemoveInputButons: some View {
-        if canAddInput {
-            addInputButton
-        }
-        
-        if canRemoveInput {
-            removeInputButton
         }
     }
     
@@ -424,24 +398,6 @@ struct NodeTagMenuButtonsView: View {
         nodeTagMenuButton(label: "Ungroup") {
             if let nodeId = canvasItemId.nodeCase {
                 dispatch(GroupNodeUncreated(groupId: GroupNodeId(nodeId)))
-            }
-        }
-    }
-
-    @MainActor
-    var removeInputButton: some View {
-        nodeTagMenuButton(label: "Remove Input") {
-            if let nodeId = canvasItemId.nodeCase {
-                dispatch(InputRemovedAction(nodeId: nodeId))
-            }
-        }
-    }
-
-    @MainActor
-    var addInputButton: some View {
-        nodeTagMenuButton(label: "Add Input") {
-            if let nodeId = canvasItemId.nodeCase {
-                dispatch(InputAddedAction(nodeId: nodeId))
             }
         }
     }
