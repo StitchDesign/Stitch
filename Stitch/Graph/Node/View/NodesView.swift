@@ -94,8 +94,12 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 EdgeDrawingView(graph: graph,
                                 edgeDrawingObserver: graph.edgeDrawingObserver)
                 
-                EdgeInputLabelsView(document: document,
-                                    graph: graph)
+                if let edgeEditingState = graph.edgeEditingState {
+                    EdgeInputLabelsView(document: document,
+                                        graph: graph,
+                                        edgeEditingState: edgeEditingState)
+                }
+                
 
                 if let openPortPreview = document.openPortPreview,
                    let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
