@@ -88,7 +88,7 @@ func repeatingAnimationEvalOpNumber(values: PortValues,
             // the last time we pulsed
           let reset: TimeInterval = values[safe: 4]?.getPulse,
           !duration.isZero && enabled else {
-        log("repeatingAnimationEvalOpNumber: default result")
+        // log("repeatingAnimationEvalOpNumber: default result")
         return defaultResult
     }
 
