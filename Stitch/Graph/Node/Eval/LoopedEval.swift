@@ -259,6 +259,20 @@ extension NodeViewModel {
             
         return results
     }
+    
+    /// Saves previous values in `ComputedNodeState`.
+    @MainActor
+    func loopedEvalOutputsPersistence(graphTime: TimeInterval,
+                                      callback: @escaping (PortValues, TimeInterval, ComputedNodeState) -> PortValue) -> EvalResult {
+        self.loopedEval(ComputedNodeState.self) { values, computedState, _ in
+            let newValue = callback(values,
+                                    graphTime,
+                                    computedState)
+            computedState.previousValue = newValue
+            
+            return [newValue]
+        }
+    }
 }
 
 @MainActor
