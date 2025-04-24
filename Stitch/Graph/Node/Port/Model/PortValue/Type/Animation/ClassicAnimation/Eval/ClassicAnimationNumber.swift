@@ -50,12 +50,17 @@ func classicAnimationEvalOpNumber(values: PortValues,
     
     let duration: Double = values[safe: 1]?.getNumber ?? .zero
        
+    // When duration is 0, we immediately jump to the toValue
+    if duration.isZero {
+        return .init(outputs: [.number(toValue)],
+                     willRunAgain: false)
+    }
+    
     // When project first opens, the output should be the toValue, like when we reset the graph.
-    if areEquivalent(n: currentOutput, n2: toValue) || duration.isZero {
+    if areEquivalent(n: currentOutput, n2: toValue) {
         // log("classicAnimationEvalOpNumber: already at destination: classicAnimationState")
         // TODO: any reason to return `currentOutput` as opposed to the destination (`toValue`) ?
         return .init(outputs: [.number(currentOutput)],
-//        return .init(outputs: [.number(toValue)],
                      willRunAgain: false)
     }
     
