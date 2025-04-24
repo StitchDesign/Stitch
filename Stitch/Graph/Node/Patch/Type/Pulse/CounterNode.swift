@@ -53,61 +53,51 @@ struct CounterPatchNode: PatchNodeDefinition {
 @MainActor
 func counterEval(node: PatchNode,
                  graphStep: GraphStepState) -> ImpureEvalResult {
-
-    let inputsValues = node.inputs
-    let outputsValues = node.outputs
+    
     let graphTime: TimeInterval = graphStep.graphTime
-
-    let previousOutput: PortValues = outputsValues.first ?? [.number(.zero)]
-
-    let op = counterOpClosure(graphTime: graphTime)
-
-    return pulseEvalUpdate(
-        inputsValues,
-        [previousOutput],
-        op)
+    
+    return node.loopedEvalOutputsPersistence(graphTime: graphTime,
+                                             callback: counterOpClosure)
 }
 
-func counterOpClosure(graphTime: TimeInterval) -> PulseOperationT {
-
-    return { (values: PortValues) -> PulseOpResultT in
-
-        let incPulsed = values[0].getPulse?.shouldPulse(graphTime) ?? false
-        let decPulsed = values[1].getPulse?.shouldPulse(graphTime) ?? false
-        let jumpPulsed = values[2].getPulse?.shouldPulse(graphTime) ?? false
-
-        let jumpNumber = values[3].getNumber ?? .zero
-        let maxNumber = values[4].getNumber ?? .zero
-
-        // old output
-        let prevValue: Double = values[safe: 5]?.getNumber ?? .zero
-
-        //        log("counterOpClosure: graphTime: \(graphTime)")
-        //        log("counterOpClosure: incPulse: \(incPulse)")
-        //        log("counterOpClosure: values[0].getPulse: \(values[0].getPulse!)")
-        //        log("counterOpClosure: values[5].getNumber: \(values[5].getNumber!)")
-
-        // Jump has priority if we received multiple pulses
-        if jumpPulsed {
-            return PulseOpResultT(.number(jumpNumber))
+func counterOpClosure(values: PortValues,
+                      graphTime: TimeInterval,
+                      computedState: ComputedNodeState) -> PortValue {
+    let incPulsed = values[0].getPulse?.shouldPulse(graphTime) ?? false
+    let decPulsed = values[1].getPulse?.shouldPulse(graphTime) ?? false
+    let jumpPulsed = values[2].getPulse?.shouldPulse(graphTime) ?? false
+    
+    let jumpNumber = values[3].getNumber ?? .zero
+    let maxNumber = values[4].getNumber ?? .zero
+    
+    // old output
+    let prevValue: Double = computedState.previousValue?.getNumber ?? .zero
+    
+    //        log("counterOpClosure: graphTime: \(graphTime)")
+    //        log("counterOpClosure: incPulse: \(incPulse)")
+    //        log("counterOpClosure: values[0].getPulse: \(values[0].getPulse!)")
+    //        log("counterOpClosure: values[5].getNumber: \(values[5].getNumber!)")
+    
+    // Jump has priority if we received multiple pulses
+    if jumpPulsed {
+        return .number(jumpNumber)
+    }
+    // Inc and Dec cancel each other out.
+    else if incPulsed && decPulsed {
+        //            log("counterOpClosure: no change")
+        return .number(prevValue)
+    } else if incPulsed {
+        //            log("counterOpClosure: incPulsed")
+        var n = prevValue + 1
+        if (maxNumber > 0) && n >= maxNumber {
+            n = 0
         }
-        // Inc and Dec cancel each other out.
-        else if incPulsed && decPulsed {
-            //            log("counterOpClosure: no change")
-            return PulseOpResultT(.number(prevValue))
-        } else if incPulsed {
-            //            log("counterOpClosure: incPulsed")
-            var n = prevValue + 1
-            if (maxNumber > 0) && n >= maxNumber {
-                n = 0
-            }
-            return PulseOpResultT(.number(n))
-        } else if decPulsed {
-            //            log("counterOpClosure: decPulsed")
-            return PulseOpResultT(.number(prevValue - 1))
-        } else {
-            //            log("counterOpClosure: no change")
-            return PulseOpResultT(.number(prevValue))
-        }
+        return .number(n)
+    } else if decPulsed {
+        //            log("counterOpClosure: decPulsed")
+        return .number(prevValue - 1)
+    } else {
+        //            log("counterOpClosure: no change")
+        return .number(prevValue)
     }
 }

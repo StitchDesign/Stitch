@@ -9,42 +9,54 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func loopOptionSwitchNode(id: NodeId,
-                          position: CGPoint = .zero,
-                          zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values: (nil, [pulseDefaultFalse])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: ("Option", [.number(0)])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .loopOptionSwitch,
-        inputs: inputs,
-        outputs: outputs)
+struct LoopOptionSwitchNode: PatchNodeDefinition {
+    static let patch = Patch.loopOptionSwitch
+    
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(inputs: [
+            .init(defaultType: .pulse,
+                 isTypeStatic: true)
+        ],
+              outputs: [
+                .init(label: "Option",
+                      value: .number(.zero))
+              ])
+    }
+    
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        ComputedNodeState()
+    }
 }
 
 // TODO: revisit how this works with indices
 @MainActor
 func loopOptionSwitchEval(node: PatchNode,
-                          graphStep: GraphStepState) -> ImpureEvalResult {
+                          graphStep: GraphStepState) -> EvalResult {
+    guard let computedState = node.ephemeralObservers?.first as? ComputedNodeState else {
+        fatalErrorIfDebug()
+        return .init(outputsValues: node.defaultOutputsList)
+    }
+    
+    let newValue = loopOptionSwitchEvalOp(node: node,
+                                          graphTime: graphStep.graphTime,
+                                          computedState: computedState)
+    computedState.previousValue = newValue
+    return .init(outputsValues: [[newValue]])
+}
+
+@MainActor
+func loopOptionSwitchEvalOp(node: PatchNode,
+                            graphTime: TimeInterval,
+                            computedState: ComputedNodeState) -> PortValue {
 
     let inputsValues = node.inputs
-    let graphTime = graphStep.graphTime
 
-    let inputLoop = inputsValues.first!
+    guard let inputLoop = inputsValues.first else {
+        fatalErrorIfDebug()
+        return .number(.zero)
+    }
     
-    let previousValue: Double = node.outputs.first?.first?.getNumber ?? .zero
+    let previousValue: Double = computedState.previousValue?.getNumber ?? .zero
 
     // log("loopOptionSwitchEval: inputLoop: \(inputLoop)")
     // log("loopOptionSwitchEval: graphTime: \(graphTime)")
@@ -77,15 +89,11 @@ func loopOptionSwitchEval(node: PatchNode,
         // so the "which index pulsed?" output must be 0.
         let finalIndex: Int = lastPulsedIndex ?? 0
 
-        let pulsedIndexOutput: PortValues = [.number(finalIndex.toDouble)]
+        let pulsedIndexOutput = PortValue.number(finalIndex.toDouble)
 
-        return ImpureEvalResult(
-            outputsValues: [pulsedIndexOutput])
+        return pulsedIndexOutput
     } else {
         // log("loopOptionSwitchNodeEval: no pulse...")
-        return ImpureEvalResult(outputsValues: [[.number(previousValue)]])
-//        return .noChange(node,
-//                         // only one possible node type
-//                         defaultOutputsValues: [[.number(0)]])
+        return .number(previousValue)
     }
 }

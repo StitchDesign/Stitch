@@ -61,7 +61,9 @@ final class LoopingEphemeralObserver: NodeEphemeralObservable {
 }
 
 extension LoopingEphemeralObserver {
-    func onPrototypeRestart(document: StitchDocumentViewModel) { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
+        self.previousValues = []
+    }
 }
 
 extension PortValues {

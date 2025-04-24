@@ -182,8 +182,6 @@ extension Patch {
             node = loopCountNode(id: id, position: position, zIndex: zIndex)
         case .loopDedupe:
             node = loopDedupeNode(id: id, position: position, zIndex: zIndex)
-        case .loopOptionSwitch:
-            node = loopOptionSwitchNode(id: id, position: position, zIndex: zIndex)
         case .loopReverse:
             node = loopReverseNode(id: id, position: position, zIndex: zIndex)
         case .loopSum:

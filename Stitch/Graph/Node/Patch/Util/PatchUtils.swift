@@ -424,7 +424,7 @@ extension Patch {
             } else {
                 return .single(.coreML)
             }
-        case .loopBuilder, .splitter:
+        case .loopBuilder, .splitter, .loopInsert, .loopRemove:
             return .all
         default:
             return nil
