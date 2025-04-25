@@ -31,7 +31,6 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 
     // TODO: do we really need `[PortPreviewData]`? Can we access some already existing data?
     var tableRows: [PortPreviewData] {
-        
         let loopedValues: PortValues = rowObserver.allLoopedValues
         
         // TODO: handle ShapeCommand port-preview ?
@@ -79,7 +78,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
         .cornerRadius(8)
     }
     
-    @State var hoveredIndex: Int? = nil
+    @State var focusedIndex: Int? = nil
     
     var activeIndexForThisObserver: Int {
         self.activeIndex.adjustedIndex(self.rowObserver.allLoopedValues.count)
@@ -95,16 +94,16 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
                     // Loop index
                     StitchTextView(string: "\(data.loopIndex)",
                                    fontColor: STITCH_FONT_GRAY_COLOR)
-                        .monospaced()
-                        // 34 = enough for 3 monospaced digits
-                        .frame(minWidth: 34, maxWidth: 48)
+                    .monospaced()
+                    // 34 = enough for 3 monospaced digits
+                    .frame(minWidth: 34, maxWidth: 48)
                     
                     ForEach(data.fields, id: \.0) { field in
                         let label = field.fieldLabel
                         HStack {
                             if !label.isEmpty {
                                 StitchTextView(string: "\(label)",
-                                           truncationMode: .tail)
+                                               truncationMode: .tail)
                                 .monospaced()
                                 // 24 = enough for 1 monospaced letter
                                 .frame(minWidth: 24)
@@ -117,23 +116,27 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
                 } // HStack
                 .padding([.top, .bottom], 4)
                 .background {
-                    if self.hoveredIndex == data.loopIndex {
+                    if self.focusedIndex == data.loopIndex {
                         RoundedRectangle(cornerRadius: 8).fill(theme.fontColor)
                     } else if self.activeIndexForThisObserver == data.loopIndex {
                         RoundedRectangle(cornerRadius: 8).fill(.gray)
                     }
                 }
                 .onTapGesture {
+#if targetEnvironment(macCatalyst)
                     dispatch(ClosePortPreview())
+#else
+                    // iPad without trackpad does not support hover, so we use tap to change active index
+                    self.focusedIndex = data.loopIndex
+                    dispatch(ActiveIndexChangedAction(index: .init(data.loopIndex)))
+#endif
                 }
                 .onHover { hovering in
                     if hovering {
-//                        log("hovered data.loopIndex \(data.loopIndex)")
-                        self.hoveredIndex = data.loopIndex
+                        self.focusedIndex = data.loopIndex
                         dispatch(ActiveIndexChangedAction(index: .init(data.loopIndex)))
                     }
                 }
-                
                 .padding(.top, 2)
             } // ForEach
         }
