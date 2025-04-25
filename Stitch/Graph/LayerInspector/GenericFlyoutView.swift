@@ -356,7 +356,7 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             
             layerMultiselectInput.multiselectObservers(graph).forEach { observer in
-                addLayerField(observer.packedRowObserver.id.nodeId)
+                addLayerField(observer.nodeId)
             }
         } else {
             addLayerField(nodeId)

@@ -40,6 +40,8 @@ final class LayerInputObserver: Identifiable {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
 
+    let nodeId: NodeId
+    
     let layer: Layer
     
     // TODO: use `private` to prevent access?
@@ -60,12 +62,13 @@ final class LayerInputObserver: Identifiable {
      // just the width field on the minSize input blocked:
      self.blockedFields.contains(.unpacked(.port0))
      */
-    @MainActor var blockedFields: Set<LayerInputKeyPathType> // = .init()
+    @MainActor var blockedFields: Set<LayerInputKeyPathType>
     
     @MainActor
     init(from schema: LayerNodeEntity,
          port: LayerInputPort) {
         let nodeId = schema.id
+        self.nodeId = nodeId
         self.layer = schema.layer
         self.port = port
                     
@@ -398,21 +401,21 @@ extension LayerInputObserver {
     }
     
     @MainActor
-    var fieldsRowLabel: String? {
-        if self.port == .transform3D {
-            if self.mode == .unpacked,
-               let fieldGroupLabel = self.packedRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
-                
-                return self.port.label() + " " + fieldGroupLabel
-            } else {
-                // Show '3D Transform' label on packed 3D Transform input-on-canvas
-                return self.port.label()
-            }
-        }
-        
-        return nil
+    var packedRowObserverOnlyIfPacked: InputNodeRowObserver? {
+        self.mode == .packed ? self._packedData.rowObserver : nil
     }
     
+    // All row observers for this input; for working with row observer(s) regardless of pack vs unpack
+    @MainActor
+    var allRowObservers: [InputNodeRowObserver] {
+        switch self.mode {
+        case .packed:
+            return [self._packedData.rowObserver]
+        case .unpacked:
+            return self._unpackedData.allPorts.map(\.rowObserver)
+        }
+    }
+            
     @MainActor
     func useIndividualFieldLabel(activeIndex: ActiveIndex) -> Bool {
         // Do not use labels on the fields of a padding-type input

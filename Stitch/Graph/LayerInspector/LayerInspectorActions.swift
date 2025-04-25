@@ -62,8 +62,8 @@ extension StitchDocumentViewModel {
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             layerMultiselectInput.multiselectObservers(self.visibleGraph).forEach { observer in
                 // Note: we cannot add "whole input" to canvas if one field is already on canvas
-                if observer.mode == .packed {
-                    addLayerInput(observer.packedRowObserver.id.nodeId)
+                if let packedRow = observer.packedRowObserverOnlyIfPacked {
+                    addLayerInput(packedRow.id.nodeId)
                 }
             }
         } else {
@@ -110,6 +110,11 @@ extension StitchDocumentViewModel {
         
         guard let layerNode = self.visibleGraph.getLayerNode(nodeId) else {
             fatalErrorIfDebug()
+            return
+        }
+        
+        guard layerNode[keyPath: layerInput.layerNodeKeyPath].mode == .packed else {
+            log("Tried to add whole layer input to canvas when layer input was in unpack mode")
             return
         }
         
