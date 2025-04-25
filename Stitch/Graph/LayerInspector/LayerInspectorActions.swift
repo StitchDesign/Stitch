@@ -37,43 +37,34 @@ struct LayerInputAddedToGraph: StitchDocumentEvent {
     // just pass in LayerInspectorRowId and switch on that;
     // don't need two actions
     let nodeId: NodeId
-    let coordinate: LayerInputType
+    
+//    let coordinate: LayerInputType
+    let layerInput: LayerInputPort
     
     func handle(state: StitchDocumentViewModel) {
-        
-        // log("LayerInputAddedToGraph: nodeId: \(nodeId)")
-        // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
-        
-        guard let node = state.visibleGraph.getNodeViewModel(nodeId),
-              let _ = node.layerNode else {
-            log("LayerInputAddedToGraph: could not add Layer Input to graph")
-            fatalErrorIfDebug()
-            return
-        }
-        
         state.handleLayerInputAdded(nodeId: nodeId,
-                                    coordinate: coordinate)
-        
+                                    layerInput: layerInput)
         state.encodeProjectInBackground()
     }
 }
 
 extension StitchDocumentViewModel {
+    
     @MainActor
     func handleLayerInputAdded(nodeId: NodeId,
-                               coordinate: LayerInputType) {
-        
-        let layerInput: LayerInputPort = coordinate.layerInput
+                               layerInput: LayerInputPort) {
         
         let addLayerInput = { (nodeId: NodeId) in
-            self.addLayerInputToGraph(nodeId: nodeId,
-                                      coordinate: coordinate)
+            self.addLayerInputToGraph(nodeId: nodeId, layerInput: layerInput)
         }
         
         if let multiselectInputs = self.visibleGraph.propertySidebar.inputsCommonToSelectedLayers,
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             layerMultiselectInput.multiselectObservers(self.visibleGraph).forEach { observer in
-                addLayerInput(observer.packedRowObserver.id.nodeId)
+                // Note: we cannot add "whole input" to canvas if one field is already on canvas
+                if observer.mode == .packed {
+                    addLayerInput(observer.packedRowObserver.id.nodeId)
+                }
             }
         } else {
             addLayerInput(nodeId)
@@ -83,20 +74,15 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func addLayerInputToGraph(nodeId: NodeId,
-                              coordinate: LayerInputType) {
+                              layerInput: LayerInputPort) {
         
-        guard let node = self.visibleGraph.getNodeViewModel(nodeId),
-              let layerNode = node.layerNode else {
+        guard let node = self.visibleGraph.getNodeViewModel(nodeId) else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
             return
         }
         
-        let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
-        
-        self.layerInputAddedToGraph(node: node,
-                                    input: layerInputData,
-                                    coordinate: coordinate)
+        self.layerInputAddedToGraph(node: node, layerInput: layerInput)
     }
 }
 
@@ -117,31 +103,41 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func layerInputAddedToGraph(node: NodeViewModel,
-                                input: InputLayerNodeRowData,
-                                coordinate: LayerInputType,
+                                layerInput: LayerInputPort,
                                 position: CGPoint? = nil) {
                 
         let nodeId = node.id
         
+        guard let layerNode = self.visibleGraph.getLayerNode(nodeId) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let input: InputLayerNodeRowData = layerNode[keyPath: layerInput.packedLayerInputKeyPath]
+                
         // When adding an entire input to the graph, we don't worry about unpacked state etc.
         let unpackedPortParentFieldGroupType: FieldGroupType? = nil
         let unpackedPortIndex: Int? = nil
         
-        input.canvasObserver = CanvasItemViewModel(
-            id: .layerInput(.init(
-                node: nodeId,
-                keyPath: coordinate)),
+        let canvasItemId: CanvasItemId = .layerInput(LayerInputCoordinate(
+            node: nodeId,
+            keyPath: .init(layerInput: layerInput, portType: .packed)))
+        
+        let canvasItem = CanvasItemViewModel(
+            id: canvasItemId,
             position: position ?? self.newCanvasItemInsertionLocation,
             zIndex: self.visibleGraph.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused?.asNodeId,
             inputRowObservers: [input.rowObserver],
             outputRowObservers: [])
+                
+        canvasItem.initializeDelegate(node,
+                                      activeIndex: self.activeIndex,
+                                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                      unpackedPortIndex: unpackedPortIndex)
         
-        input.canvasObserver?.initializeDelegate(node,
-                                                 activeIndex: self.activeIndex,
-                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                 unpackedPortIndex: unpackedPortIndex)
+        input.canvasObserver = canvasItem
         
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver

@@ -91,14 +91,18 @@ struct LayerInspectorRowButton: View {
             // Else we're adding an input (whole or field) or an output to the canvas
             else if let layerInput = coordinate.keyPath {
                 
-                if let fieldIndex = fieldIndex {
+                if let fieldIndex = fieldIndex,
+                   // Only for unpacked
+                   layerInput.portType != .packed {
                     dispatch(LayerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
                                                          nodeId: nodeId,
                                                          fieldIndex: fieldIndex))
-                } else {
+                    
+                } else if layerInput.portType == .packed {
+                    // Only for packed
                     dispatch(LayerInputAddedToGraph(
                         nodeId: nodeId,
-                        coordinate: layerInput))
+                        layerInput: layerInput.layerInput))
                 }
                 
             } else if let portId = coordinate.portId {
