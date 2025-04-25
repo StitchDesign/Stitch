@@ -1426,7 +1426,8 @@ extension PortValue {
 
 extension LayerInputType {
     /// Key paths for parent layer view model
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+//    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+    var layerNodeKeyPath: KeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
         let portKeyPath = self.layerInput.layerNodeKeyPath
         
         switch self.portType {
