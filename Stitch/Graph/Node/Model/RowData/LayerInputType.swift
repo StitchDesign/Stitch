@@ -1067,7 +1067,8 @@ extension LayerViewModel {
 }
 
 extension LayerInputPort {
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserver> {
+//    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserver> {
+    var layerNodeKeyPath: KeyPath<LayerNodeViewModel, LayerInputObserver> {
         switch self {
         case .position:
             return \.positionPort
@@ -1424,15 +1425,23 @@ extension PortValue {
     }
 }
 
+extension LayerInputPort {
+    // For contexts where we MUST be accessing the packed data (e.g. input, not field, added to the graph)
+    var packedLayerInputKeyPath: KeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+        self.layerNodeKeyPath.appending(path: \._packedData)
+    }
+}
+
 extension LayerInputType {
+    
     /// Key paths for parent layer view model
-//    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+    // var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
     var layerNodeKeyPath: KeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
         let portKeyPath = self.layerInput.layerNodeKeyPath
         
         switch self.portType {
         case .packed:
-            return portKeyPath.appending(path: \._packedData)
+            return self.layerInput.packedLayerInputKeyPath
         case .unpacked(let unpackedType):
             switch unpackedType {
             case .port0:

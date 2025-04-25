@@ -66,7 +66,7 @@ struct GenericFlyoutView: View {
     }
     
     @State var selectedFlyoutRow: Int? = nil
-        
+    
     // TODO: just use `NodeInputView` here ? Or keep this view separate and compose views ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
@@ -255,16 +255,19 @@ struct FlyoutBackgroundColorModifier: ViewModifier {
 }
 
 
-extension GraphState {
+//extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func addLayerFieldToGraph(layerInput: LayerInputPort,
                               nodeId: NodeId,
                               fieldIndex: Int,
                               groupNodeFocused: NodeId?) {
         
-        guard let node = self.getNode(nodeId),
-              let layerNode = node.layerNode,
-              let document = self.documentDelegate else {
+        let document = self
+        let graph = document.visibleGraph
+        
+        guard let node = graph.getNode(nodeId),
+              let layerNode = node.layerNode else {
             log("LayerInputFieldAddedToGraph: no node, layer node and/or document")
             fatalErrorIfDebug()
             return
@@ -278,42 +281,50 @@ extension GraphState {
             fatalErrorIfDebug("LayerInputFieldAddedToGraph: no unpacked port for fieldIndex \(fieldIndex)")
             return
         }
-                
-        var unpackSchema = unpackedPort.createSchema()
-        unpackSchema.canvasItem = .init(position: document.newCanvasItemInsertionLocation,
-                                        zIndex: self.highestZIndex + 1,
-                                        parentGroupNodeId: groupNodeFocused)
         
-        // MARK: first group type grabbed since layers don't have differing groups within one input
+        
+        // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
+        
+        // First field-group grabbed since layers don't have differing groups within one input
         guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
             .getDefaultValue(for: layerNode.layer)
-            .getNodeRowType(nodeIO: .input,
-                            layerInputPort: layerInput,
-                            isLayerInspector: true)
-                .fieldGroupTypes
+            .getNodeRowType(nodeIO: .input, layerInputPort: layerInput, isLayerInspector: true)
+            .fieldGroupTypes
             .first else {
-            
             fatalErrorIfDebug()
             return
         }
         
-        unpackedPort.update(from: unpackSchema,
-                            layerInputType: unpackedPort.id,
-                            layerNode: layerNode,
-                            nodeId: nodeId)
+        let canvasObserver = CanvasItemViewModel(
+            id: CanvasItemId.layerInput(LayerInputCoordinate(node: nodeId,
+                                                             keyPath: unpackedPort.id)),
+            position: document.newCanvasItemInsertionLocation,
+            zIndex: graph.highestZIndex + 1,
+            parentGroupNodeId: groupNodeFocused,
+            inputRowObservers: [unpackedPort.rowObserver],
+            outputRowObservers: [])
         
-        unpackedPort.canvasObserver?.initializeDelegate(
+        canvasObserver.initializeDelegate(
             node,
             activeIndex: document.activeIndex,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: fieldIndex)
+        
+        unpackedPort.canvasObserver = canvasObserver
+        
+        
+
+        // MARK: Change the pack mode
         
         let newPackMode = portObserver.mode
         if previousPackMode != newPackMode {
             portObserver.wasPackModeToggled(document: document)
         }
         
-        self.resetLayerInputsCache(layerNode: layerNode)
+        
+        // MARK: RESET CACHE
+        
+        graph.resetLayerInputsCache(layerNode: layerNode) // Why?
     }
 }
 
@@ -325,15 +336,11 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
     
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        
-        //        log("LayerInputFieldAddedToGraph: layerInput: \(layerInput)")
-        //        log("LayerInputFieldAddedToGraph: nodeId: \(nodeId)")
-        //        log("LayerInputFieldAddedToGraph: fieldIndex: \(fieldIndex)")
-        
+                
         let graph = state.visibleGraph
         
         let addLayerField = { (nodeId: NodeId) in
-            graph.addLayerFieldToGraph(layerInput: layerInput,
+            state.addLayerFieldToGraph(layerInput: layerInput,
                                        nodeId: nodeId,
                                        fieldIndex: fieldIndex,
                                        groupNodeFocused: state.groupNodeFocused?.groupNodeId)

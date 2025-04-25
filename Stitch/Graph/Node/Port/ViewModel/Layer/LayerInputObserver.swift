@@ -279,12 +279,6 @@ extension LayerInputObserver {
     }
     
     @MainActor
-    var graphDelegate: GraphState? {
-        // Hacky solution, just get row observer delegate from packed data
-        self._packedData.rowObserver.nodeDelegate?.graphDelegate
-    }
-    
-    @MainActor
     func getActiveValue(activeIndex: ActiveIndex) -> PortValue {
         let values = self.values
         
