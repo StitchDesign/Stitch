@@ -11,12 +11,17 @@ import StitchSchemaKit
 
 extension PortValue {
     /// Coercion logic from port value to fields. Contains a 2D list of field values given a 1-many mapping between a field group type and its field values.
+//    @MainActor
+//    func createFieldValuesList<RowViewModel>(nodeIO: NodeIO,
+//                                             layerInputPort: LayerInputPort?,
+//                                             isLayerInspector: Bool) -> [FieldValues] where RowViewModel: NodeRowViewModel {
     @MainActor
-    func createFieldValuesList<RowViewModel>(nodeIO: NodeIO,
-                                             rowViewModel: RowViewModel) -> [FieldValues] where RowViewModel: NodeRowViewModel {
+    func createFieldValuesList(nodeIO: NodeIO,
+                               layerInputPort: LayerInputPort?,
+                               isLayerInspector: Bool) -> [FieldValues] {
         
-        let layerInputPort = rowViewModel.id.layerInputPort
-        let isLayerInspector = rowViewModel.isLayerInspector
+//        let layerInputPort = rowViewModel.id.layerInputPort
+//        let isLayerInspector = rowViewModel.isLayerInspector
         
         switch self.getNodeRowType(nodeIO: nodeIO,
                                    layerInputPort: layerInputPort,

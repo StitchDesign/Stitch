@@ -155,8 +155,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
             initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
             // Not relevant for output
             unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
-            layerInput: nil)
+            unpackedPortIndex: nil)
     }
 }
 
@@ -179,8 +178,7 @@ extension LayerNodeRowData {
             node,
             initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex,
-            layerInput: rowDelegate.id.layerInput?.layerInput)
+            unpackedPortIndex: unpackedPortIndex)
     }
     
     @MainActor

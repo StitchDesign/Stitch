@@ -157,14 +157,17 @@ struct GenericFlyoutRowView: View {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
-    var rowObserver: InputNodeRowObserver {
+    var rowObserver: InputNodeRowObserver? {
         switch self.layerInputObserver.observerMode {
+        
         case .packed(let inputLayerNodeRowData):
             return inputLayerNodeRowData.rowObserver
+        
         case .unpacked(let layerInputUnpackedPortObserver):
+            
             guard let unpackedObserver = layerInputUnpackedPortObserver.allPorts[safe: fieldIndex] else {
                 fatalErrorIfDebug()
-                return self.layerInputObserver._packedData.rowObserver
+                return nil
             }
             
             return unpackedObserver.rowObserver
@@ -190,23 +193,26 @@ struct GenericFlyoutRowView: View {
                                         fieldIndex: fieldIndex)
             }
                                     
-            InputValueEntry(graph: graph,
-                            document: document,
-                            viewModel: viewModel,
-                            node: node,
-                            rowViewModel: rowViewModel,
-                            canvasItem: nil,
-                            // For input editing, however, we need the proper packed vs unpacked state
-                            rowObserver: rowObserver,
-                            isCanvasItemSelected: false, // Always false
-                            hasIncomingEdge: false,
-                            isForLayerInspector: true,
-                            isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
-                            isFieldInMultifieldInput: isMultifield,
-                            isForFlyout: true,
-                            // Always false for flyout row
-                            isSelectedInspectorRow: isPropertyRowSelected,
-                            useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+            if let rowObserver = self.rowObserver {
+                InputValueEntry(graph: graph,
+                                document: document,
+                                viewModel: viewModel,
+                                node: node,
+                                rowViewModel: rowViewModel,
+                                canvasItem: nil,
+                                // For input editing, however, we need the proper packed vs unpacked state
+                                rowObserver: rowObserver,
+                                isCanvasItemSelected: false, // Always false
+                                hasIncomingEdge: false,
+                                isForLayerInspector: true,
+                                isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
+                                isFieldInMultifieldInput: isMultifield,
+                                isForFlyout: true,
+                                // Always false for flyout row
+                                isSelectedInspectorRow: isPropertyRowSelected,
+                                useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex:  document.activeIndex))
+            }
+            
         } // HStack
         .contentShape(Rectangle())
         .onHover(perform: { hovering in
@@ -350,7 +356,7 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             
             layerMultiselectInput.multiselectObservers(graph).forEach { observer in
-                addLayerField(observer.packedRowObserver.id.nodeId)
+                addLayerField(observer.nodeId)
             }
         } else {
             addLayerField(nodeId)
