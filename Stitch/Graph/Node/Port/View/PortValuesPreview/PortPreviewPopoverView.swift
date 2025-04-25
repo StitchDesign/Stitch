@@ -118,7 +118,10 @@ struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
                     Color.clear
                     // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
                         .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
-                            self.width = newFrameData.size.width
+                            let newWidth = newFrameData.size.width
+                            if newWidth != self.width {
+                                self.width = newWidth
+                            }
                         }
                 }
             }
