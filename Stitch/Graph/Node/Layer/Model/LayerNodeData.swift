@@ -254,27 +254,6 @@ extension InputLayerNodeRowData {
 }
 
 extension LayerInputObserver {
-    @MainActor
-    var packedObserver: InputLayerNodeRowData? {
-        switch self.mode {
-        case .packed:
-            // TODO: infinite loop? What was this method supposed to be?
-//            return self.packedObserver
-            return self._packedData
-        case .unpacked:
-            return nil
-        }
-    }
-    
-    @MainActor
-    var unpackedObserver: LayerInputUnpackedPortObserver? {
-        switch self.mode {
-        case .unpacked:
-            return self._unpackedData
-        default:
-            return nil
-        }
-    }
     
     @MainActor
     func update(from schema: LayerInputEntity,
