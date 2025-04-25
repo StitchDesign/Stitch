@@ -120,7 +120,8 @@ struct LayerInspectorView: View {
                 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
                 #endif
-                .padding(.bottom)
+                
+                bottomPadding
                 
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
@@ -130,6 +131,15 @@ struct LayerInspectorView: View {
             // And using .plain requires manually adding trailing and leading padding
             .listStyle(.plain)
         } // VStack
+    }
+    
+    // Lists are a little strange with their bottom padding
+    var bottomPadding: some View {
+        Rectangle()
+            .fill(.clear)
+            .frame(height: 24)
+            .listRowBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0,  trailing: 0))
     }
 }
 
