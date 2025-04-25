@@ -199,7 +199,9 @@ struct LayerInputFieldsView: View {
     @ViewBuilder
     func valueEntryView(_ portViewModel: InputFieldViewModel,
                         _ isMultifield: Bool) -> some View {
+        
         switch layerInputFieldType {
+        
         case .inspector:
             let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
                                                 portType: .packed)
@@ -214,7 +216,7 @@ struct LayerInputFieldsView: View {
                             node: node,
                             rowViewModel: layerInputData.inspectorRowViewModel,
                             canvasItem: nil,
-                            rowObserver: layerInputData.rowObserver,
+                            rowObserver: layerInputObserver.packedRowObserver,
                             isCanvasItemSelected: false,
                             hasIncomingEdge: false,
                             isForLayerInspector: true,

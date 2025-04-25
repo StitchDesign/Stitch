@@ -416,14 +416,17 @@ extension LayerViewModel {
             .getNodeViewModel(self.id.layerNodeId.asNodeId)?.layerNode else {
             return nil
         }
-        
+                
         switch layerNode.layer {
         case .image:
-            return layerNode.imagePort._packedData.rowObserver
+            assertInDebug(layerNode.imagePort.mode == .packed)
+            return layerNode.imagePort.packedRowObserverOnlyIfPacked
         case .video:
-            return layerNode.videoPort._packedData.rowObserver
+            assertInDebug(layerNode.videoPort.mode == .packed)
+            return layerNode.videoPort.packedRowObserverOnlyIfPacked
         case .model3D:
-            return layerNode.model3DPort._packedData.rowObserver
+            assertInDebug(layerNode.model3DPort.mode == .packed)
+            return layerNode.model3DPort.packedRowObserverOnlyIfPacked
         default:
             fatalErrorIfDebug()
             return nil
