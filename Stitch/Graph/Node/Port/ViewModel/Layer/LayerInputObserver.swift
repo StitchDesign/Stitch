@@ -48,7 +48,7 @@ final class LayerInputObserver: Identifiable {
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
-    @MainActor var port: LayerInputPort
+    @MainActor let port: LayerInputPort
 
     /*
      Only fields on a layer input (not a patch input or layer output) can be blocked,
@@ -231,7 +231,7 @@ extension LayerInputObserver {
     @MainActor
     func updatePortValues(_ values: PortValues) {
         // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
-        self._packedData.rowObserver.updateValuesInInput(values)
+        self.packedRowObserver.updateValuesInInput(values)
     }
     
     /// All-up values for this port
@@ -271,9 +271,9 @@ extension LayerInputObserver {
     
     @MainActor
     var values: PortValues {
-        switch self.mode {
-        case .packed:
-            return self._packedData.rowObserver.values
+        switch self.observerMode {
+        case .packed(let packed):
+            return packed.allLoopedValues
         case .unpacked:
             return self._unpackedData.getParentPortValuesList()
         }
@@ -361,10 +361,14 @@ extension LayerInputObserver {
             return
         }
         
-        switch self.mode {
+        // The mode we toggled to
+        let newMode = self.mode
+        
+        switch newMode {
+        
         case .unpacked:
             // Get values from previous packed mode
-            let values = self._packedData.allLoopedValues
+            let values = self.packedRowObserver.allLoopedValues
             
             // Note: why do we do this?
             
@@ -373,21 +377,19 @@ extension LayerInputObserver {
             
             // Update values of new unpacked row observers
             self._unpackedData.updateUnpackedObserverValues(from: values,
-                                            layerNode: layerNode)
+                                                            layerNode: layerNode)
             
         case .packed:
             // Get values from previous unpacked mode
-            let values = self._unpackedData.getParentPortValuesList()
+            let values: PortValues = self._unpackedData.getParentPortValuesList()
             
             // Reset unpacked state
             self._unpackedData.allPorts.forEach {
                 $0.resetOnPackModeToggle()
             }
             
-            // NOTE: use `setValuesInInput` so that packed row observer's field observers are updated/synced as well
             // Update values to packed observer
-//            self._packedData.rowObserver.updateValues(values)
-            self._packedData.rowObserver.setValuesInInput(values)
+            self.packedRowObserver.setValuesInInput(values)
         }
         
         // TODO: why do we need to do this? Is it updating the UI?
@@ -410,7 +412,7 @@ extension LayerInputObserver {
     var allRowObservers: [InputNodeRowObserver] {
         switch self.mode {
         case .packed:
-            return [self._packedData.rowObserver]
+            return [self.packedRowObserver]
         case .unpacked:
             return self._unpackedData.allPorts.map(\.rowObserver)
         }
