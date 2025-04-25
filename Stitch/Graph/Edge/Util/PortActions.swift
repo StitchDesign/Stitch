@@ -112,41 +112,47 @@ extension GraphState {
                                    to: InputCoordinate) {
         self.addEdgeWithoutGraphRecalc(edge: .init(from: from, to: to))
     }
-
+    
     /*
      1. Adds edge.from's upstream-output to edge.to's downstream-input
      2. Recalcs topologicalData
      3. "Selects" edge if edge is to a selected node
+     4. Schedules the origin-node ("from" node) to be calculated ned
      */
     @MainActor
     func addEdgeWithoutGraphRecalc(edge: PortEdgeData) {
-
-        guard let downstreamNode = self.getNodeViewModel(edge.to.nodeId),
+        guard let downstreamNode = self.getNode(edge.to.nodeId),
               let downstreamInputObserver = downstreamNode.getInputRowObserver(for: edge.to.portType) else {
             log("addEdgeWithoutGraphRecalc: could not find input \(edge.to)")
             return
         }
 
-        guard self.getNodeViewModel(edge.from.nodeId).isDefined else {
+        guard let upstreamNode = self.getNode(edge.from.nodeId),
+              let upstreamOutputObserver = upstreamNode.getOutputRowObserver(for: edge.from.portType) else {
             log("addEdgeWithoutGraphRecalc: could not find output \(edge.from)")
             return
         }
 
-        // Runs logic to disconnect existing media conntected by edge
+        // TODO: are we sure we want to do this?
+        // Runs logic to disconnect existing media connected by edge
         if downstreamInputObserver.upstreamOutputCoordinate != nil,
-           // TODO: just reuse the `downstreamNode`?
            let downstreamInputObserverNode = self.getNode(downstreamInputObserver.id.nodeId) {
-            downstreamInputObserver.removeUpstreamConnection(
-                node: downstreamInputObserverNode)
+            downstreamInputObserver.removeUpstreamConnection(node: downstreamInputObserverNode)
         }
         
         // Sets edge
         downstreamInputObserver.upstreamOutputCoordinate = edge.from
 
+        // If the downstream observer is a pulse-type, we must manually flow the values down when edge first created,
+        // since pulse inputs are skipped whenever the upstream output's values "did not change"
+        // (the skipping is how we avoid e.g. the down output on a Press node from constantly triggering a downstream pulse).
+        if downstreamInputObserver.allLoopedValues.first?.getPulse.isDefined ?? false {
+            downstreamInputObserver.setValuesInInput(upstreamOutputObserver.allLoopedValues)
+        }
+        
         self.updateTopologicalData()
     }
 
-    // `addEdgeWithoutGraphRecalc` + graph recalc
     @MainActor
     func edgeAdded(edge: PortEdgeData) {
 
