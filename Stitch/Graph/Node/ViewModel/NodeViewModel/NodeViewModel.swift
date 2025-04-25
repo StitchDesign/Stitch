@@ -662,8 +662,7 @@ extension NodeViewModel {
             initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
             // Only relevant for layer nodes, which cannot have an input added or removed
             unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
-            layerInput: nil)
+            unpackedPortIndex: nil)
     }
 
     @MainActor
