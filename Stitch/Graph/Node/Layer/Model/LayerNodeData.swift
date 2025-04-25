@@ -199,8 +199,10 @@ extension LayerNodeViewModel {
     @MainActor
     func preinitializeSupportedPort(layerInputPort: LayerInputPort,
                                     portType: LayerInputKeyPathType) {
+        
         let layerId = LayerInputType(layerInput: layerInputPort,
                                      portType: portType)
+        
         let coordinateId = NodeIOCoordinate(portType: .keyPath(layerId), nodeId: self.id)
         
         let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
@@ -223,58 +225,37 @@ extension LayerNodeViewModel {
 }
 
 extension InputLayerNodeRowData {
+    // This is more like `InputLayerNodeRowData`'s canvas obsever
+    // If this InputLayerNodeRowData's associated schema has no canvas entity, then we remove the canvas observer; else we update the canvas observer; else we create a new canvas observer
     @MainActor
-    func update(from schema: LayerInputDataEntity,
-                layerInputType: LayerInputType,
-                layerNode: LayerNodeViewModel,
-                nodeId: NodeId) {
+    func updateCanvasObserver(from schema: LayerInputDataEntity,
+                              layerInputType: LayerInputType, // Can't we just use `self.id` ?
+                              nodeId: NodeId) {
         assertInDebug(self.rowObserver.id.nodeId == nodeId)
-                    
-        if let canvas = schema.canvasItem {
-            if let canvasObserver = self.canvasObserver {
-                canvasObserver.update(from: canvas)
-                
-            } else {
-                // Make new canvas observer since none yet created
-                let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
-                                                             keyPath: layerInputType))
-                
-                self.canvasObserver = .init(from: canvas,
-                                            id: canvasId,
-                                            inputRowObservers: [self.rowObserver],
-                                            outputRowObservers: [])
-
-                // NOTE: DO NOT SET A CANVAS ITEM DELEGATE ON AN INSPECTOR ROW VIEW MODEL
-//                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
-            }
-        } else {
+        
+        guard let canvasEntity: CanvasNodeEntity = schema.canvasItem else {
             self.canvasObserver = nil
+            return
+        }
+
+        if let canvasObserver = self.canvasObserver {
+            canvasObserver.update(from: canvasEntity)
+        } else {
+            // Make new canvas observer since none yet created
+            self.canvasObserver = CanvasItemViewModel(
+                from: canvasEntity,
+                id: CanvasItemId.layerInput(LayerInputCoordinate(node: nodeId,
+                                                                 keyPath: layerInputType)),
+                inputRowObservers: [self.rowObserver],
+                outputRowObservers: [])
+     
+            // NOTE: DO NOT SET A CANVAS ITEM DELEGATE ON AN INSPECTOR ROW VIEW MODEL
+            //                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
         }
     }
 }
 
 extension LayerInputObserver {
-    @MainActor
-    var packedObserver: InputLayerNodeRowData? {
-        switch self.mode {
-        case .packed:
-            // TODO: infinite loop? What was this method supposed to be?
-//            return self.packedObserver
-            return self._packedData
-        case .unpacked:
-            return nil
-        }
-    }
-    
-    @MainActor
-    var unpackedObserver: LayerInputUnpackedPortObserver? {
-        switch self.mode {
-        case .unpacked:
-            return self._unpackedData
-        default:
-            return nil
-        }
-    }
     
     @MainActor
     func update(from schema: LayerInputEntity,
@@ -287,10 +268,9 @@ extension LayerInputObserver {
         self.port = layerInputType
         
         // Updated packed data
-        portObserver._packedData.update(from: schema.packedData,
+        portObserver._packedData.updateCanvasObserver(from: schema.packedData,
                                         layerInputType: .init(layerInput: layerInputType,
                                                               portType: .packed),
-                                        layerNode: layerNode,
                                         nodeId: nodeId)
         
         
@@ -312,10 +292,9 @@ extension LayerInputObserver {
                 .fieldGroupTypes
             
             unpackedPortParentFieldGroupTypes.forEach { unpackedPortParentFieldGroupType in
-                unpackedObserver.update(from: unpackedSchema,
+                unpackedObserver.updateCanvasObserver(from: unpackedSchema,
                                         layerInputType: .init(layerInput: layerInputType,
                                                               portType: .unpacked(unpackedPortType)),
-                                        layerNode: layerNode,
                                         nodeId: nodeId)
             }
         }
