@@ -262,8 +262,6 @@ extension LayerInputObserver {
                 nodeId: NodeId) {        
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
-
-        self.port = layerInputType
         
         // Updated packed data
         portObserver._packedData.updateCanvasObserver(from: schema.packedData,
