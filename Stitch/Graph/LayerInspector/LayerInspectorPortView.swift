@@ -20,67 +20,69 @@ struct LayerInspectorInputPortView: View {
     }
     
     var body: some View {
+        // TODO: APRIL 25
+        Text("Fix me")
         
-        let observerMode = layerInputObserver.observerMode
-        
-        // TODO: is this really correct, to always treat the layer's input as packed ?
-        let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
-                                            // Always `.packed` at the inspector-row level
-                                            portType: .packed)
-        
-        let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
-        
-        // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
-        // But now, what `AddLayerPropertyToGraphButton` needs is more like `RowCoordinate = LayerPortCoordinate || OutputCoordinate`
-        
-        // but canvas item view model needs to know "packed vs unpacked" for its id;
-        // so we do need to pass the packed-vs-unpacked information
-        
-        let coordinate: NodeIOCoordinate = .init(
-            portType: .keyPath(layerInputType),
-            nodeId: node.id)
-        
-        // Does this inspector-row (the entire input) have a canvas item?
-        let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
-        
-        LayerInspectorPortView(layerInputObserver: layerInputObserver,
-                               layerInspectorRowId: layerInspectorRowId,
-                               coordinate: coordinate,
-                               graph: graph,
-                               document: document,
-                               canvasItemId: canvasItemId) { isPropertyRowSelected in
-                    HStack {
-                        if isShadowLayerInputRow {
-                            ShadowInputInspectorRow(nodeId: node.id,
-                                                    isPropertyRowSelected: isPropertyRowSelected)
-                        }
-                        
-                        // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
-                        // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
-                        else if layerInputObserver.port == .transform3D {
-                            LayerInspector3DTransformInputView(document: document,
-                                                               graph: graph,
-                                                               nodeId: node.id,
-                                                               layerInputObserver: layerInputObserver,
-                                                               isPropertyRowSelected: isPropertyRowSelected)
-                        } else if layerInputObserver.usesGridMultifieldArrangement() {
-                            // Multifields in the inspector are always "read-only" and "tap to open flyout"
-                            LayerInspectorGridInputView(document: document,
-                                                        graph: graph,
-                                                        node: node,
-                                                        layerInputObserver: layerInputObserver,
-                                                        isPropertyRowSelected: isPropertyRowSelected)
-                        } else {
-                            // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
-                            InspectorLayerInputView(
-                                document: document,
-                                graph: graph,
-                                node: node,
-                                layerInputObserver: layerInputObserver,
-                                forFlyout: false)
-                        }
-                    }
-            }
+//        let observerMode = layerInputObserver.observerMode
+//        
+//        // TODO: is this really correct, to always treat the layer's input as packed ?
+//        let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
+//                                            // Always `.packed` at the inspector-row level
+//                                            portType: .packed)
+//        
+//        let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
+//        
+//        // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
+//        // But now, what `AddLayerPropertyToGraphButton` needs is more like `RowCoordinate = LayerPortCoordinate || OutputCoordinate`
+//        
+//        // but canvas item view model needs to know "packed vs unpacked" for its id;
+//        // so we do need to pass the packed-vs-unpacked information
+//        
+//        let coordinate: NodeIOCoordinate = .init(
+//            portType: .keyPath(layerInputType),
+//            nodeId: node.id)
+//        
+//        // Does this inspector-row (the entire input) have a canvas item?
+//        let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
+//        
+//        LayerInspectorPortView(layerInputObserver: layerInputObserver,
+//                               layerInspectorRowId: layerInspectorRowId,
+//                               coordinate: coordinate,
+//                               graph: graph,
+//                               document: document,
+//                               canvasItemId: canvasItemId) { isPropertyRowSelected in
+//                    HStack {
+//                        if isShadowLayerInputRow {
+//                            ShadowInputInspectorRow(nodeId: node.id,
+//                                                    isPropertyRowSelected: isPropertyRowSelected)
+//                        }
+//                        
+//                        // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
+//                        // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
+//                        else if layerInputObserver.port == .transform3D {
+//                            LayerInspector3DTransformInputView(document: document,
+//                                                               graph: graph,
+//                                                               nodeId: node.id,
+//                                                               layerInputObserver: layerInputObserver,
+//                                                               isPropertyRowSelected: isPropertyRowSelected)
+//                        } else if layerInputObserver.usesGridMultifieldArrangement() {
+//                            // Multifields in the inspector are always "read-only" and "tap to open flyout"
+//                            LayerInspectorGridInputView(document: document,
+//                                                        graph: graph,
+//                                                        node: node,
+//                                                        layerInputObserver: layerInputObserver,
+//                                                        isPropertyRowSelected: isPropertyRowSelected)
+//                        } else {
+//                            // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
+//                            InspectorLayerInputView(
+//                                document: document,
+//                                graph: graph,
+//                                node: node,
+//                                layerInputObserver: layerInputObserver,
+//                                forFlyout: false)
+//                        }
+//                    }
+//            }
         
         // NOTE: this fires unexpectedly, so we rely on canvas item deletion and `layer input field added to canvas` to handle changes in pack vs unpacked mode.
 //            .onChange(of: layerInputObserver.mode) { oldValue, newValue in

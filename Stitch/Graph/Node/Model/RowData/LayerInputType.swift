@@ -1426,7 +1426,40 @@ extension PortValue {
 
 extension LayerInputType {
     /// Key paths for parent layer view model
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+//    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+    var layerNodeKeyPath: KeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+        let portKeyPath = self.layerInput.layerNodeKeyPath
+        
+        switch self.portType {
+        case .packed:
+            return portKeyPath.appending(path: \._packedData)
+        case .unpacked(let unpackedType):
+            switch unpackedType {
+            case .port0:
+                return portKeyPath.appending(path: \._unpackedData.port0)
+            case .port1:
+                return portKeyPath.appending(path: \._unpackedData.port1)
+            case .port2:
+                return portKeyPath.appending(path: \._unpackedData.port2)
+            case .port3:
+                return portKeyPath.appending(path: \._unpackedData.port3)
+            case .port4:
+                return portKeyPath.appending(path: \._unpackedData.port4)
+            case .port5:
+                return portKeyPath.appending(path: \._unpackedData.port5)
+            case .port6:
+                return portKeyPath.appending(path: \._unpackedData.port6)
+            case .port7:
+                return portKeyPath.appending(path: \._unpackedData.port7)
+            case .port8:
+                return portKeyPath.appending(path: \._unpackedData.port8)
+            }
+        }
+    }
+    
+    
+    /// Key paths for parent layer view model
+    var _layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
         let portKeyPath = self.layerInput.layerNodeKeyPath
         
         switch self.portType {

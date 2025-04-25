@@ -56,31 +56,34 @@ struct GenericFlyoutView: View {
     }
         
     var body: some View {
-        VStack(alignment: .leading) {
-            FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
-            flyoutRows
-        }
-        .modifier(FlyoutBackgroundColorModifier(
-            width: Self.DEFAULT_FLYOUT_WIDTH,
-            height: self.$height))
+        // TODO: APRIL 25
+        Text("FIX ME")
+        
+//        VStack(alignment: .leading) {
+//            FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
+//            flyoutRows
+//        }
+//        .modifier(FlyoutBackgroundColorModifier(
+//            width: Self.DEFAULT_FLYOUT_WIDTH,
+//            height: self.$height))
     }
     
     @State var selectedFlyoutRow: Int? = nil
-        
-    // TODO: just use `NodeInputView` here ? Or keep this view separate and compose views ?
-    @ViewBuilder @MainActor
-    var flyoutRows: some View {
-        // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
-        LayerInputFieldsView(layerInputFieldType: .flyout,
-                             document: document,
-                             graph: graph,
-                             node: node,
-                             rowObserver: layerInputObserver.packedRowObserver,
-                             rowViewModel: rowViewModel,
-                             fieldValueTypes: fieldValueTypes,
-                             layerInputObserver: layerInputObserver,
-                             isNodeSelected: false)
-    }
+//        
+//    // TODO: just use `NodeInputView` here ? Or keep this view separate and compose views ?
+//    @ViewBuilder @MainActor
+//    var flyoutRows: some View {
+//        // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
+//        LayerInputFieldsView(layerInputFieldType: .flyout,
+//                             document: document,
+//                             graph: graph,
+//                             node: node,
+//                             rowObserver: layerInputObserver.packedRowObserver,
+//                             rowViewModel: rowViewModel,
+//                             fieldValueTypes: fieldValueTypes,
+//                             layerInputObserver: layerInputObserver,
+//                             isNodeSelected: false)
+//    }
 }
 
 extension Int {
