@@ -75,8 +75,7 @@ extension NodeRowViewModel {
     func initializeDelegate(_ node: NodeViewModel,
                             initialValue: PortValue,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?,
-                            layerInput: LayerInputPort?) {
+                            unpackedPortIndex: Int?) {
         
         // Why must we set the delegate
         self.nodeDelegate = node
@@ -85,8 +84,7 @@ extension NodeRowViewModel {
             self.initializeValues(
                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                 unpackedPortIndex: unpackedPortIndex,
-                initialValue: initialValue,
-                rowObserverLayerInput: layerInput)
+                initialValue: initialValue)
         }
                 
         /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
@@ -102,8 +100,7 @@ extension NodeRowViewModel {
     @MainActor
     func initializeValues(unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
-                          initialValue: PortValue,
-                          rowObserverLayerInput: LayerInputPort?) {
+                          initialValue: PortValue) {
         if initialValue != self.cachedActiveValue {
             self.cachedActiveValue = initialValue
         }
@@ -112,8 +109,7 @@ extension NodeRowViewModel {
             initialValue: initialValue,
             nodeIO: Self.nodeIO,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: unpackedPortIndex,
-            layerInput: rowObserverLayerInput)
+            unpackedPortIndex: unpackedPortIndex)
         
         let didFieldsChange = !zip(self.cachedFieldValueGroups, fields).allSatisfy { $0.id == $1.id }
         

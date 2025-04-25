@@ -24,9 +24,7 @@ struct LayerInspectorGridInputView: View {
         HStack(alignment: .firstTextBaseline) {
             
             // Label
-            LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true,
-                                                                        node: node,
-                                                                        graph: graph),
+            LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
                              isSelectedInspectorRow: false)

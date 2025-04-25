@@ -148,21 +148,13 @@ extension LayerInputObserver {
     // Currently, spacing
     @MainActor
     func usesGridMultifieldArrangement() -> Bool {
-        self._packedData.inspectorRowViewModel.cachedActiveValue.getPadding.isDefined
+        self.port.getDefaultValue(for: self.layer).getPadding.isDefined
     }
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
     @MainActor
-    func overallPortLabel(usesShortLabel: Bool,
-                          node: NodeViewModel,
-                          graph: GraphState) -> String {
-        let rowObserver = self._packedData.rowObserver
-        
-        return rowObserver
-            .label(useShortLabel: usesShortLabel,
-                   node: node,
-                   coordinate: .input(rowObserver.id),
-                   graph: graph)
+    func overallPortLabel(usesShortLabel: Bool) -> String {
+        self.port.label(useShortLabel: usesShortLabel)
     }
     
     // Returns all fields, regardless of packed vs unpacked
@@ -175,6 +167,7 @@ extension LayerInputObserver {
         switch self.mode {
         case .packed:
             return allFields
+            
         case .unpacked:
             guard let groupings = self.port.labelGroupings else {
                 return allFields
@@ -182,6 +175,11 @@ extension LayerInputObserver {
             
             // Groupings are gone in unpacked mode so we just need the fields
             let flattenedFields = allFields.flatMap { $0.fieldObservers }
+            
+            // TODO: APRIL 25: what is this?
+//            
+//            let _fieldGroup: FieldGroup = createFieldValueTypes(initialValue: <#T##PortValue#>, nodeIO: <#T##NodeIO#>, unpackedPortParentFieldGroupType: <#T##FieldGroupType?#>, unpackedPortIndex: <#T##Int?#>, layerInput: <#T##LayerInputPort?#>)
+            
             let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.cachedFieldValueGroups
             
             // Create nested array for label groupings (used for 3D model)

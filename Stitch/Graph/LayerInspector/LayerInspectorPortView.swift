@@ -105,10 +105,7 @@ struct InspectorLayerInputView: View {
     let forFlyout: Bool
     
     var label: String {
-        layerInputObserver
-            .overallPortLabel(usesShortLabel: true,
-                              node: node,
-                              graph: graph)
+        layerInputObserver.overallPortLabel(usesShortLabel: true)
     }
         
     var layerInput: LayerInputPort {

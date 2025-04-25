@@ -50,7 +50,8 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             // TODO: handle ShapeCommand port-preview ?
             guard let fieldValues = value.createFieldValuesList(
                 nodeIO: nodeIO,
-                rowViewModel: rowViewModel).first else {
+                layerInputPort: rowViewModel.id.layerInputPort,
+                isLayerInspector: false).first else {
                 
                 fatalErrorIfDebug()
                 return nil

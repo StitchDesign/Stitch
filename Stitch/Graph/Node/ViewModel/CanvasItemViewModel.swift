@@ -223,8 +223,7 @@ extension CanvasItemViewModel {
                     node,
                     initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                    unpackedPortIndex: unpackedPortIndex,
-                    layerInput: rowObserver.id.layerInput?.layerInput)
+                    unpackedPortIndex: unpackedPortIndex)
             }
         }
         
@@ -235,8 +234,7 @@ extension CanvasItemViewModel {
                     initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                     // Not relevant for output row view models
                     unpackedPortParentFieldGroupType: nil,
-                    unpackedPortIndex: nil,
-                    layerInput: nil)
+                    unpackedPortIndex: nil)
             }
         }
         
