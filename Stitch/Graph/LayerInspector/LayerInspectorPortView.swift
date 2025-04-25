@@ -20,7 +20,6 @@ struct LayerInspectorInputPortView: View {
     }
     
     var body: some View {
-        
         let observerMode = layerInputObserver.observerMode
         
         // TODO: is this really correct, to always treat the layer's input as packed ?

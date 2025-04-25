@@ -277,9 +277,8 @@ struct StepActionConnectionAdded: StepActionable {
         
         // Create canvas node if destination is layer
         if let fromNodeLocation = document.visibleGraph.getNodeViewModel(self.fromNodeId)?.patchCanvasItem?.position,
-           let destinationNode = document.visibleGraph.getNodeViewModel(self.toNodeId),
-           let layerNode = destinationNode.layerNode {
-            guard let keyPath = self.port.keyPath else {
+           let destinationNode = document.visibleGraph.getNodeViewModel(self.toNodeId) {
+            guard let layerInput = self.port.keyPath?.layerInput else {
                 // fatalErrorIfDebug()
                 throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
             }
@@ -287,10 +286,8 @@ struct StepActionConnectionAdded: StepActionable {
             var position = fromNodeLocation
             position.x += 200
             
-            let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
             document.layerInputAddedToGraph(node: destinationNode,
-                                            input: inputData,
-                                            coordinate: keyPath,
+                                            layerInput: layerInput,
                                             position: position)
         }
     }
