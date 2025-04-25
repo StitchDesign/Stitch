@@ -39,6 +39,8 @@ struct LayerInspectorInputPortView: View {
             portType: .keyPath(layerInputType),
             nodeId: node.id)
         
+        let isPropertyRowSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        
         // Does this inspector-row (the entire input) have a canvas item?
         //
         let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
@@ -48,44 +50,39 @@ struct LayerInspectorInputPortView: View {
                                coordinate: coordinate,
                                graph: graph,
                                document: document,
-                               canvasItemId: canvasItemId) { isPropertyRowSelected in
-                    HStack {
-                        if isShadowLayerInputRow {
-                            ShadowInputInspectorRow(nodeId: node.id,
-                                                    isPropertyRowSelected: isPropertyRowSelected)
-                        }
-                        
-                        // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
-                        // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
-                        else if layerInputObserver.port == .transform3D {
-                            LayerInspector3DTransformInputView(document: document,
-                                                               graph: graph,
-                                                               nodeId: node.id,
-                                                               layerInputObserver: layerInputObserver,
-                                                               isPropertyRowSelected: isPropertyRowSelected)
-                        } else if layerInputObserver.usesGridMultifieldArrangement() {
-                            // Multifields in the inspector are always "read-only" and "tap to open flyout"
-                            LayerInspectorGridInputView(document: document,
-                                                        graph: graph,
-                                                        node: node,
-                                                        layerInputObserver: layerInputObserver,
-                                                        isPropertyRowSelected: isPropertyRowSelected)
-                        } else {
-                            // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
-                            InspectorLayerInputView(
-                                document: document,
-                                graph: graph,
-                                node: node,
-                                layerInputObserver: layerInputObserver,
-                                forFlyout: false)
-                        }
-                    }
+                               canvasItemId: canvasItemId) {
+            HStack {
+                if isShadowLayerInputRow {
+                    ShadowInputInspectorRow(nodeId: node.id,
+                                            isPropertyRowSelected: isPropertyRowSelected)
+                }
+                
+                // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
+                // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
+                else if layerInputObserver.port == .transform3D {
+                    LayerInspector3DTransformInputView(document: document,
+                                                       graph: graph,
+                                                       nodeId: node.id,
+                                                       layerInputObserver: layerInputObserver,
+                                                       isPropertyRowSelected: isPropertyRowSelected)
+                } else if layerInputObserver.usesGridMultifieldArrangement() {
+                    // Multifields in the inspector are always "read-only" and "tap to open flyout"
+                    LayerInspectorGridInputView(document: document,
+                                                graph: graph,
+                                                node: node,
+                                                layerInputObserver: layerInputObserver,
+                                                isPropertyRowSelected: isPropertyRowSelected)
+                } else {
+                    // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
+                    InspectorLayerInputView(
+                        document: document,
+                        graph: graph,
+                        node: node,
+                        layerInputObserver: layerInputObserver,
+                        forFlyout: false)
+                }
             }
-        
-        // NOTE: this fires unexpectedly, so we rely on canvas item deletion and `layer input field added to canvas` to handle changes in pack vs unpacked mode.
-//            .onChange(of: layerInputObserver.mode) { oldValue, newValue in
-//                self.layerInputObserver.wasPackModeToggled()
-//            }
+        }
     }
 }
 
@@ -337,8 +334,12 @@ struct LayerInspectorOutputPortView: View {
         self.canvasItem != nil
     }
     
+    var layerInspectorRowId: LayerInspectorRowId {
+        .layerOutput(outputPortId)
+    }
+    
     var propertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == .layerOutput(outputPortId)
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
 
     var label: String {
@@ -368,19 +369,17 @@ struct LayerInspectorOutputPortView: View {
     }
     
     var body: some View {
-        
-        let portId = rowViewModel.id.portId
-        
+                
         let coordinate: NodeIOCoordinate = .init(
-            portType: .portIndex(portId),
+            portType: .portIndex(outputPortId),
             nodeId: rowViewModel.id.nodeId)
         
         LayerInspectorPortView(layerInputObserver: nil,
-                               layerInspectorRowId: .layerOutput(portId),
+                               layerInspectorRowId: layerInspectorRowId,
                                coordinate: coordinate,
                                graph: graph,
                                document: document,
-                               canvasItemId: canvasItem?.id) { propertyRowIsSelected in
+                               canvasItemId: canvasItem?.id) {
             HStack(alignment: .firstTextBaseline) {
                 // Property sidebar always shows labels on left side, never right
                 LabelDisplayView(label: label,
@@ -455,22 +454,11 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
     let canvasItemId: CanvasItemId?
-    
-    // Arguments: 1. is row selected
-    @ViewBuilder var rowView: (Bool) -> RowView
+        
+    @ViewBuilder var rowView: () -> RowView
     
     @State private var isHovered: Bool = false
-    
-    // Is this property-row selected?
-    @MainActor
-    var propertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
-    }
-    
-    var isOnGraphAlready: Bool {
-        canvasItemId.isDefined
-    }
-    
+
     var isPaddingPortValueTypeRow: Bool {
         layerInputObserver?.port == .layerMargin || layerInputObserver?.port == .layerPadding
     }
@@ -501,7 +489,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             // Do not show this button if this is the row for the shadow proxy
             .opacity(isShadowProxyRow ? 0 : 1)
                         
-            rowView(propertyRowIsSelected)
+            rowView()
         }
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
