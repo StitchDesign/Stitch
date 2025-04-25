@@ -20,9 +20,7 @@ struct CanvasLayerInputView: View {
     
     var body: some View {
         HStack {
-            LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: false,
-                                                                        node: node,
-                                                                        graph: graph),
+            LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: false),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
                              isSelectedInspectorRow: false)

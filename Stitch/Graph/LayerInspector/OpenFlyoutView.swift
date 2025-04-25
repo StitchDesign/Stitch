@@ -75,14 +75,15 @@ struct OpenFlyoutView: View, KeyboardReadable {
                                         layerNode: layerNode,
                                         graph: graph,
                                         document: document)
-                    } else if flyoutInput.usesColor {
+                    } else if flyoutInput.usesColor,
+                              let packedRow =  portObserver.packedRowObserverOnlyIfPacked {
                         ColorFlyoutView(graph: graph,
-                                        rowObserver: portObserver.packedRowObserver,
+                                        rowObserver: packedRow,
                                         layerInputObserver: portObserver,
                                         activeIndex: document.activeIndex)
                     }
                     // One multifield input presented in separate rows in the flyout
-                    else {                        
+                    else {
                         // The Flyout takes the whole input,
                         // and displays each field
                         GenericFlyoutView(graph: graph,

@@ -98,8 +98,7 @@ extension NodeRowViewModel {
                 nodeIO: nodeIO,
                 // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
                 unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil,
-                layerInput: nil)
+                unpackedPortIndex: nil)
             return
         }
         
@@ -112,7 +111,10 @@ extension NodeRowViewModel {
         
         let nodeIO = Self.RowObserver.nodeIOType
                 
-        let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO, rowViewModel: self)
+        let newFieldsByGroup = newValue.createFieldValuesList(
+            nodeIO: nodeIO,
+            layerInputPort: self.id.layerInputPort,
+            isLayerInspector: self.isLayerInspector)
         
         // Assert equal array counts
         guard newFieldsByGroup.count == self.cachedFieldValueGroups.count else {
@@ -138,8 +140,7 @@ extension NodeRowViewModel {
                     // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
                     // Not relevant?
                     unpackedPortParentFieldGroupType: nil,
-                    unpackedPortIndex:  nil,
-                    layerInput: nil)
+                    unpackedPortIndex:  nil)
                 return
             }
             

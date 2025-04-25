@@ -40,6 +40,7 @@ struct LayerInspectorInputPortView: View {
             nodeId: node.id)
         
         // Does this inspector-row (the entire input) have a canvas item?
+        //
         let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
         
         LayerInspectorPortView(layerInputObserver: layerInputObserver,
@@ -105,10 +106,7 @@ struct InspectorLayerInputView: View {
     let forFlyout: Bool
     
     var label: String {
-        layerInputObserver
-            .overallPortLabel(usesShortLabel: true,
-                              node: node,
-                              graph: graph)
+        layerInputObserver.overallPortLabel(usesShortLabel: true)
     }
         
     var layerInput: LayerInputPort {
@@ -151,6 +149,7 @@ struct InspectorLayerInputView: View {
                                  document: document,
                                  graph: graph,
                                  node: node,
+                                 // TODO: we always want to show all input fields in the inspector, but cannot assume data is in a packed state
                                  rowObserver: layerInputObserver.packedRowObserver,
                                  rowViewModel: layerInputObserver._packedData.inspectorRowViewModel,
                                  fieldValueTypes: fieldValueTypes,

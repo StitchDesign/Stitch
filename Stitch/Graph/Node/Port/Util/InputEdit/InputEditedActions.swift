@@ -38,11 +38,6 @@ extension GraphState {
 extension LayerInputObserver {
     
     @MainActor
-    var nodeId: NodeId {
-        self.packedRowObserver.id.nodeId
-    }
-    
-    @MainActor
     func getInputNodeRowObserver(for fieldIndex: Int, _ graph: GraphState) -> InputNodeRowObserver? {
         
         guard let layerNode = graph.getNode(self.nodeId)?.layerNode else {
