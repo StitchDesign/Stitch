@@ -285,12 +285,12 @@ struct InputFieldValueView: View {
                                    graph: graph,
                                    stitchFont: stitchFont,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                   propertyIsSelected: isSelectedInspectorRow,
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
                                    hasHeterogenousValues: hasHeterogenousValues,
                                    activeIndex: document.activeIndex)
                 // need enough width for font design + font weight name
                 .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
-                       alignment: .leading)
+                       alignment: isFieldInsideLayerInspector ? .trailing : .leading)
                 
             case .layerDropdown(let layerId):
                 LayerNamesDropDownChoiceView(
