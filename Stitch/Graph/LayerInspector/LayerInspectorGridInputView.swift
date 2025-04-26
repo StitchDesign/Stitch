@@ -15,7 +15,7 @@ struct LayerInspectorGridInputView: View {
     let isPropertyRowSelected: Bool
     
     var allFieldObservers: [FieldViewModel] {
-        layerInputObserver.fieldGroups.flatMap(\.fieldObservers)
+        layerInputObserver.fieldGroupsFromInspectorRowViewModels.flatMap(\.fieldObservers)
     }
     
     var body: some View {

@@ -1744,7 +1744,7 @@ extension LayerInputPort {
     }
     
     /// Creates visual groupings of labels, used for 3D transform input.
-    var labelGroupings: [GroupedLayerInputData]? {
+    var transform3DLabelGroupings: [GroupedLayerInputData]? {
         switch self {
         case .transform3D:
             return [
