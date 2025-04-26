@@ -142,9 +142,9 @@ extension LayerInputObserver {
     var usesMultifields: Bool {
         switch self.mode {
         case .packed:
-            return (self.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+            return (self.fieldGroups.first?.fieldObservers.count ?? 0) > 1
         case .unpacked:
-            return self.fieldValueTypes.count > 1
+            return self.fieldGroups.count > 1
         }
     }
     
@@ -162,7 +162,7 @@ extension LayerInputObserver {
     
     // Returns all fields, regardless of packed vs unpacked
     @MainActor
-    var fieldValueTypes: [FieldGroup] {
+    var fieldGroups: [FieldGroup] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
             portData.inspectorRowViewModel.cachedFieldValueGroups
         }

@@ -12,24 +12,6 @@ extension Color {
     static let SWIFTUI_LIST_BACKGROUND_COLOR = Color(uiColor: .secondarySystemBackground)
 }
 
-struct FlyoutHeader: View {
-    
-    let flyoutTitle: String
-    
-    var body: some View {
-        HStack {
-            StitchTextView(string: flyoutTitle).font(.title3)
-            Spacer()
-            Image(systemName: "xmark.circle.fill")
-                .onTapGesture {
-                    withAnimation {
-                        dispatch(FlyoutClosed())
-                    }
-                }
-        }
-    }
-}
-
 struct GenericFlyoutView: View {
     
     static let DEFAULT_FLYOUT_WIDTH: CGFloat = 256.0 // Per Figma
@@ -51,8 +33,9 @@ struct GenericFlyoutView: View {
     var hasIncomingEdge: Bool = false
     let layerInput: LayerInputPort
     
-    var fieldValueTypes: [FieldGroup] {
-        layerInputObserver.fieldValueTypes
+    // Abstracts over packed vs unpacked
+    var fieldGroups: [FieldGroup] {
+        layerInputObserver.fieldGroups
     }
         
     var body: some View {
@@ -67,19 +50,27 @@ struct GenericFlyoutView: View {
     
     @State var selectedFlyoutRow: Int? = nil
     
-    // TODO: just use `NodeInputView` here ? Or keep this view separate and compose views ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
-        LayerInputFieldsView(layerInputFieldType: .flyout,
-                             document: document,
-                             graph: graph,
-                             node: node,
-                             rowObserver: layerInputObserver.packedRowObserver,
-                             rowViewModel: rowViewModel,
-                             fieldValueTypes: fieldValueTypes,
-                             layerInputObserver: layerInputObserver,
-                             isNodeSelected: false)
+        ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
+            VStack { // flyout fields always stacked vertically
+                PotentiallyBlockedFieldsView(
+                    fieldGroupViewModel: fieldGroup,
+                    isMultifield: true, // generic flyout always multifield
+                    blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
+                        GenericFlyoutRowView(
+                            graph: graph,
+                            document: document,
+                            viewModel: inputFieldViewModel,
+                            rowViewModel: rowViewModel,
+                            node: node,
+                            layerInputObserver: layerInputObserver,
+                            isMultifield: isMultifield)
+                    }
+            }
+            
+        }
     }
 }
 
@@ -158,6 +149,7 @@ struct GenericFlyoutRowView: View {
     }
     
     var rowObserver: InputNodeRowObserver? {
+        
         switch self.layerInputObserver.observerMode {
         
         case .packed(let inputLayerNodeRowData):

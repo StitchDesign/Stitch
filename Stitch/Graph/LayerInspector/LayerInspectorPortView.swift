@@ -122,7 +122,7 @@ struct InspectorLayerInputView: View {
     }
     
     var fieldValueTypes: [FieldGroup] {
-        self.layerInputObserver.fieldValueTypes
+        self.layerInputObserver.fieldGroups
     }
     
     // iPad-only?
@@ -179,7 +179,7 @@ struct LayerInputFieldsView: View {
         layerInputObserver.usesMultifields || fieldValueTypes.count > 1
     }
     
-    var blockedFields: LayerPortTypeSet? {
+    var blockedFields: LayerPortTypeSet {
         layerInputObserver.blockedFields
     }
     
@@ -194,7 +194,7 @@ struct LayerInputFieldsView: View {
     }
     
     @ViewBuilder
-    func valueEntryView(_ portViewModel: InputFieldViewModel,
+    func valueEntryView(_ inputFieldViewModel: InputFieldViewModel,
                         _ isMultifield: Bool) -> some View {
         
         switch layerInputFieldType {
@@ -209,7 +209,7 @@ struct LayerInputFieldsView: View {
             // InspectorLayerInputView
             InputValueEntry(graph: graph,
                             document: document,
-                            viewModel: portViewModel,
+                            viewModel: inputFieldViewModel,
                             node: node,
                             rowViewModel: layerInputData.inspectorRowViewModel,
                             canvasItem: nil,
@@ -227,7 +227,7 @@ struct LayerInputFieldsView: View {
             // CanvasLayerInputView
             InputValueEntry(graph: graph,
                             document: document,
-                            viewModel: portViewModel,
+                            viewModel: inputFieldViewModel,
                             node: node,
                             rowViewModel: rowViewModel,
                             canvasItem: canvasNode,
@@ -246,7 +246,7 @@ struct LayerInputFieldsView: View {
             GenericFlyoutRowView(
                 graph: graph,
                 document: document,
-                viewModel: portViewModel,
+                viewModel: inputFieldViewModel,
                 rowViewModel: rowViewModel,
                 node: node,
                 layerInputObserver: layerInputObserver,
@@ -262,9 +262,9 @@ struct LayerInputFieldsView: View {
             // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
             let _isMultifield = isMultifield || multipleFieldsPerGroup
             
-            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+            if !self.areAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
                 // Only non-nil for 3D transform
-                // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treat as Number fields, which are not created with a `groupLabel`
+                // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treated as Number fields, which are not created with a `groupLabel`
                 // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
                 if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
                     HStack {
@@ -296,7 +296,7 @@ struct LayerInputFieldsView: View {
     func fieldsView(fieldGroupViewModel: FieldGroup,
                     isMultifield: Bool) -> some View {
         ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
+            let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
             if !isBlocked {
                 self.valueEntryView(fieldViewModel,
                                     isMultifield)
@@ -304,13 +304,32 @@ struct LayerInputFieldsView: View {
         }
     }
     
-    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroup) -> Bool {
-        if let blockedFields = blockedFields {
-            return fieldGroupViewModel.fieldObservers.allSatisfy {
-                $0.isBlocked(blockedFields)
+    func areAllFieldsBlockedOut(fieldGroupViewModel: FieldGroup) -> Bool {
+        fieldGroupViewModel.fieldObservers.allSatisfy {
+            $0.isBlocked(blockedFields)
+        }
+    }
+}
+
+// ^^ want to decompose this even smaller into a view you can use in just the flyout, just the
+
+
+// Only layer input fields can be blocked (in whole or part);
+// patch inputs can NEVER be blocked
+struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
+    let fieldGroupViewModel: FieldGroup
+    let isMultifield: Bool
+    let blockedFields: LayerPortTypeSet
+    @ViewBuilder var valueEntryView: (InputFieldViewModel, Bool) -> ValueView
+    
+    var body: some View {
+        ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+            let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
+            if !isBlocked {
+                self.valueEntryView(fieldViewModel,
+                                    isMultifield)
             }
         }
-        return false
     }
 }
 
