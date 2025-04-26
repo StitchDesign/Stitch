@@ -42,15 +42,15 @@ struct LayerInspectorInputPortView: View {
         let isPropertyRowSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
         
         // Does this inspector-row (the entire input) have a canvas item?
-        //
-        let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
+        let packedInputCanvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
         
+
         LayerInspectorPortView(layerInputObserver: layerInputObserver,
                                layerInspectorRowId: layerInspectorRowId,
                                coordinate: coordinate,
                                graph: graph,
                                document: document,
-                               canvasItemId: canvasItemId) {
+                               packedInputCanvasItemId: packedInputCanvasItemId) {
             HStack {
                 if isShadowLayerInputRow {
                     ShadowInputInspectorRow(nodeId: node.id,
@@ -342,7 +342,9 @@ struct LayerInspectorOutputPortView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     
+    // Outputs can never be "packed vs unpacked"
     let canvasItem: CanvasItemViewModel?
+    
     let forFlyout: Bool
 
     var isCanvasItemSelected: Bool {
@@ -380,7 +382,6 @@ struct LayerInspectorOutputPortView: View {
                          node: node,
                          canvasItem: canvasItem,
                          isMultiField: isMultiField,
-                         isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: true,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                          isFieldInMultifieldInput: isMultiField,
@@ -398,7 +399,7 @@ struct LayerInspectorOutputPortView: View {
                                coordinate: coordinate,
                                graph: graph,
                                document: document,
-                               canvasItemId: canvasItem?.id) {
+                               packedInputCanvasItemId: canvasItem?.id) {
             HStack(alignment: .firstTextBaseline) {
                 // Property sidebar always shows labels on left side, never right
                 LabelDisplayView(label: label,
@@ -472,7 +473,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
-    let canvasItemId: CanvasItemId?
+    let packedInputCanvasItemId: CanvasItemId?
         
     @ViewBuilder var rowView: () -> RowView
     
@@ -498,7 +499,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
-                                    canvasItemId: canvasItemId,
+                                    packedInputCanvasItemId: packedInputCanvasItemId,
                                     isHovered: isHovered)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align
@@ -525,7 +526,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                                     document: document,
                                                     isAutoLayoutRow: layerInputObserver?.port == .orientation,
                                                     layerInspectorRowId: layerInspectorRowId,
-                                                    canvasItemId: canvasItemId))
+                                                    packedInputCanvasItemId: packedInputCanvasItemId))
     }
 }
 
@@ -536,7 +537,7 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     let isAutoLayoutRow: Bool
     let layerInspectorRowId: LayerInspectorRowId
-    let canvasItemId: CanvasItemId?
+    let packedInputCanvasItemId: CanvasItemId?
         
     var isCatalyst: Bool {
 #if targetEnvironment(macCatalyst)
@@ -549,14 +550,14 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
     func body(content: Content) -> some View {
         // HACK: If this is the LayerGroup's autolayout row (on Catalyst) and the row is not already on the canvas,
         // then do not add a 'jump to canvas item' handler that interferes with Segmented Picker.
-        if isAutoLayoutRow, isCatalyst, canvasItemId == nil {
+        if isAutoLayoutRow, isCatalyst, packedInputCanvasItemId == nil {
             content
         } else {
             content.gesture(TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
                 document.onLayerPortRowTapped(
                     layerInspectorRowId: layerInspectorRowId,
-                    canvasItemId: canvasItemId,
+                    canvasItemId: packedInputCanvasItemId,
                     graph: graph)
             }))
         }

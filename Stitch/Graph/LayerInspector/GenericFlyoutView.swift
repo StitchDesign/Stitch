@@ -180,7 +180,7 @@ struct GenericFlyoutRowView: View {
                                         // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
                                         coordinate: InputCoordinate(portType: .keyPath(layerInputType),
                                                                     nodeId: node.id),
-                                        canvasItemId: canvasItemId,
+                                         packedInputCanvasItemId: canvasItemId,
                                         isHovered: isHovered,
                                         fieldIndex: fieldIndex)
             }

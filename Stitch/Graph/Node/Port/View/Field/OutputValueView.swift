@@ -19,7 +19,6 @@ struct OutputValueEntry: View {
     let node: NodeViewModel
     let canvasItem: CanvasItemViewModel?
     let isMultiField: Bool
-    let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -49,7 +48,6 @@ struct OutputValueEntry: View {
                         node: node,
                         canvasItem: canvasItem,
                         isMultiField: isMultiField,
-                        isCanvasItemSelected: isCanvasItemSelected,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                         isFieldInMultifieldInput: isFieldInMultifieldInput,
@@ -82,7 +80,6 @@ struct OutputValueView: View {
     let node: NodeViewModel
     let canvasItem: CanvasItemViewModel?
     let isMultiField: Bool
-    let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -150,7 +147,6 @@ struct OutputValueView: View {
                                 coordinate: rowObserver.id,
                                 isInput: false,
                                 fieldIndex: fieldIndex,
-                                isNodeSelected: isCanvasItemSelected,
                                 isMultiselectInspectorInputWithHeterogenousValues: false)
             
         case .color(let color):

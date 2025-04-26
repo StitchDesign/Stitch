@@ -308,6 +308,7 @@ struct LayerInspectorOutputsSectionView: View {
                             rowObserver: output.rowObserver,
                             graph: graph,
                             document: document,
+                            // Outputs can never be "packed vs unpacked"
                             canvasItem: output.canvasObserver,
                             forFlyout: false)
                     } else {
