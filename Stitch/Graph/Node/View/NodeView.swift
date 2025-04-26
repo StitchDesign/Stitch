@@ -181,9 +181,8 @@ struct NodeView: View {
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.stitch.patch == .wirelessReceiver {
-                WirelessPortView(isOutput: false,
-                                 id: stitch.id)
-                .padding(.trailing, NODE_BODY_SPACING)
+                WirelessPortView(isOutput: false, id: stitch.id)
+                    .padding(.trailing, NODE_BODY_SPACING)
             } else if let layerNode: LayerNodeViewModel = self.stitch.layerNode,
                       let layerInputCoordinate: LayerInputCoordinate = self.node.id.layerInputCase {
                 // Layer input or field
@@ -218,8 +217,7 @@ struct NodeView: View {
                 DefaultNodeOutputsView(graph: graph,
                                        document: document,
                                        node: stitch,
-                                       canvas: node,
-                                       isNodeSelected: isSelected)
+                                       canvas: node)
             }
         }
     }

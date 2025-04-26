@@ -39,7 +39,6 @@ struct MediaInputFieldValueView: View {
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
-    let isNodeSelected: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
@@ -86,7 +85,6 @@ struct MediaInputFieldValueView: View {
                                 coordinate: rowObserver.id,
                                 isInput: isInput,
                                 fieldIndex: fieldIndex,
-                                isNodeSelected: isNodeSelected,
                                 isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
         }
     }
@@ -104,7 +102,6 @@ struct MediaFieldLabelView: View {
     let coordinate: InputCoordinate
     let isInput: Bool
     let fieldIndex: Int
-    let isNodeSelected: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     @MainActor
