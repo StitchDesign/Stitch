@@ -54,6 +54,9 @@ struct GenericFlyoutView: View {
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
         ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
+            
+            FieldGroupLabelView(fieldGroup: fieldGroup)
+            
             VStack { // flyout fields always stacked vertically
                 PotentiallyBlockedFieldsView(
                     fieldGroupViewModel: fieldGroup,
@@ -69,7 +72,23 @@ struct GenericFlyoutView: View {
                             isMultifield: isMultifield)
                     }
             }
-            
+        }
+    }
+}
+
+// Only actually for packed 3D Transform layer inputs?
+struct FieldGroupLabelView: View {
+    let fieldGroup: FieldGroup
+    
+    var body: some View {
+        if let fieldGroupLabel = fieldGroup.groupLabel {
+            HStack {
+                LabelDisplayView(label: fieldGroupLabel,
+                                 isLeftAligned: false,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 isSelectedInspectorRow: false)
+                Spacer()
+            }
         }
     }
 }

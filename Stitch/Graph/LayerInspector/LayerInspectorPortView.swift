@@ -42,8 +42,7 @@ struct LayerInspectorInputPortView: View {
         let isPropertyRowSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
         
         // Does this inspector-row (the entire input) have a canvas item?
-        let packedInputCanvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
-        
+        let packedInputCanvasItemId: CanvasItemId? = layerInputObserver.packedCanvasObserverOnlyIfPacked?.id
 
         LayerInspectorPortView(layerInputObserver: layerInputObserver,
                                layerInspectorRowId: layerInspectorRowId,
@@ -142,7 +141,7 @@ struct InspectorLayerInputView: View {
                                  isSelectedInspectorRow: packedPropertyRowIsSelected)
             }
             Spacer()
-            LayerInputFieldsView(layerInputFieldType: forFlyout ? .flyout : .inspector,
+            LayerInputFieldsView(layerInputFieldType: .inspector,
                                  document: document,
                                  graph: graph,
                                  node: node,
@@ -159,7 +158,6 @@ struct InspectorLayerInputView: View {
 enum LayerInputFieldType {
     case inspector
     case canvas(CanvasItemViewModel)
-    case flyout
 }
 
 // fka `LayerInputFieldsView`
@@ -182,17 +180,7 @@ struct LayerInputFieldsView: View {
     var blockedFields: LayerPortTypeSet {
         layerInputObserver.blockedFields
     }
-    
-    var forFlyout: Bool {
-        switch self.layerInputFieldType {
-        case .flyout:
-            return true
-            
-        default:
-            return false
-        }
-    }
-    
+        
     @ViewBuilder
     func valueEntryView(_ inputFieldViewModel: InputFieldViewModel,
                         _ isMultifield: Bool) -> some View {
@@ -240,17 +228,6 @@ struct LayerInputFieldsView: View {
                             isForFlyout: false,
                             isSelectedInspectorRow: false, // Always false for canvas layer input
                             useIndividualFieldLabel: true)
-            
-        case .flyout:
-            // GenericFlyoutView
-            GenericFlyoutRowView(
-                graph: graph,
-                document: document,
-                viewModel: inputFieldViewModel,
-                rowViewModel: rowViewModel,
-                node: node,
-                layerInputObserver: layerInputObserver,
-                isMultifield: isMultifield)
         }
     }
     
@@ -262,57 +239,29 @@ struct LayerInputFieldsView: View {
             // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
             let _isMultifield = isMultifield || multipleFieldsPerGroup
             
+            // "all fields blocked out, so don't show anything" -- can happen for inspector or canvas, but not really flyout ?
             if !self.areAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
                 // Only non-nil for 3D transform
                 // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treated as Number fields, which are not created with a `groupLabel`
                 // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
-                if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
-                    HStack {
-                        LabelDisplayView(label: fieldGroupLabel,
-                                         isLeftAligned: false,
-                                         fontColor: STITCH_FONT_GRAY_COLOR,
-                                         isSelectedInspectorRow: false)
-                        Spacer()
-                    }
-                }
+                FieldGroupLabelView(fieldGroup: fieldGroupViewModel)
                 
-                // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-                if forFlyout {
-                    VStack {
-                        fieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                   isMultifield: _isMultifield)
-                    }
-                } else {
-                    HStack {
-                        fieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                   isMultifield: _isMultifield)
-                    }
+                HStack {
+                    PotentiallyBlockedFieldsView(fieldGroupViewModel: fieldGroupViewModel,
+                                                 isMultifield: _isMultifield,
+                                                 blockedFields: self.blockedFields,
+                                                 valueEntryView: self.valueEntryView)
                 }
             } // if ...
         } // ForEach(fieldValueTypes) { ...
     }
-    
-    @ViewBuilder
-    func fieldsView(fieldGroupViewModel: FieldGroup,
-                    isMultifield: Bool) -> some View {
-        ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-            let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
-            if !isBlocked {
-                self.valueEntryView(fieldViewModel,
-                                    isMultifield)
-            }
-        }
-    }
-    
+
     func areAllFieldsBlockedOut(fieldGroupViewModel: FieldGroup) -> Bool {
         fieldGroupViewModel.fieldObservers.allSatisfy {
             $0.isBlocked(blockedFields)
         }
     }
 }
-
-// ^^ want to decompose this even smaller into a view you can use in just the flyout, just the
-
 
 // Only layer input fields can be blocked (in whole or part);
 // patch inputs can NEVER be blocked
