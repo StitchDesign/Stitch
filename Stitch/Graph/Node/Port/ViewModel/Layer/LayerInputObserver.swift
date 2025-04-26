@@ -34,6 +34,11 @@ extension LayerInputPort {
     }
 }
 
+// TODO: use Set<BlockedFieldIndex> instead of Set<LayerInputKeyPathType>, to avoid complications of LayerInputType etc.; full input blocked = Set([.first, .second])
+enum BlockedFieldIndex: Codable, Equatable, Hashable {
+    case first, second
+}
+
 // Must be a class for coordinate keypaths, which expect a reference type on the other end.
 @Observable
 final class LayerInputObserver: Identifiable {
@@ -196,6 +201,13 @@ extension LayerInputObserver {
     @MainActor
     func overallPortLabel(usesShortLabel: Bool) -> String {
         self.port.label(useShortLabel: usesShortLabel)
+    }
+    
+    @MainActor
+    func areAllFieldsBlocked() -> Bool {
+        self.fieldGroupsFromInspectorRowViewModels.allSatisfy { (fieldGroup: FieldGroup) in
+            fieldGroup.areAllFieldsBlocked(blockedFields: self.blockedFields)
+        }
     }
     
     // Returns all field groups, regardless of packed vs unpacked; draws them from the inspector row view models (guaranteed to be present)
