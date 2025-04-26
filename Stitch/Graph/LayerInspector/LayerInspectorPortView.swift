@@ -20,13 +20,14 @@ struct LayerInspectorInputPortView: View {
     }
     
     var body: some View {
-        let observerMode = layerInputObserver.observerMode
         
         // TODO: is this really correct, to always treat the layer's input as packed ?
         let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
                                             // Always `.packed` at the inspector-row level
                                             portType: .packed)
         
+        // TODO: use just layerInputPort, i.e. `LayerInspectorRowId.layerInput(layerInputPort)` ?
+        // Always for "packed"
         let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
         
         // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
@@ -98,7 +99,7 @@ struct InspectorLayerInputView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    let layerInputObserver: LayerInputObserver
+    @Bindable var layerInputObserver: LayerInputObserver
     let forFlyout: Bool
     
     var label: String {
@@ -141,9 +142,7 @@ struct InspectorLayerInputView: View {
     }
     
     var body: some View {
-        // Note: ShadowFlyout's .shadowOffset row uses a VStack for it's x vs y fields
-        // TODO: let .shadowOffset fields appear side-by-side?
-        HStack(alignment: layerInput == .shadowOffset ? .firstTextBaseline : .center) {
+        HStack {
             if willShowLabel {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
@@ -151,9 +150,9 @@ struct InspectorLayerInputView: View {
                                  isSelectedInspectorRow: packedPropertyRowIsSelected)
             }
             Spacer()
-                        
+            
             ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
-                
+               
                 if !fieldGroup.areAllFieldsBlocked(blockedFields: self.blockedFields) {
                     FieldGroupLabelView(fieldGroup: fieldGroup)
                     
@@ -169,13 +168,14 @@ struct InspectorLayerInputView: View {
                              Suppose a PACKED size input: then ONE inspector row view model
                              Suppose an UNPACKED size input: then TWO inspector row view models
                              
-                              Using the rowId from the flattened field view models to retrieve the row view model and row observer
-                              TODO: perf of this? ... should be constant time look up on a node to grab the row VM and row observer
+                             Using the rowId from the flattened field view models to retrieve the row view model and row observer
+                             TODO: perf of this? ... should be constant time look up on a node to grab the row VM and row observer
                              
-                              Alternatively: we could iterate through not just `[FieldGroup]`, but `[{FieldGroup, RowViewModel, RowObserver}]`
+                             Alternatively: we could iterate through not just `[FieldGroup]`, but `[{FieldGroup, RowViewModel, RowObserver}]`
                              */
                             
                             let fieldId: FieldCoordinate = inputFieldViewModel.id
+                                                        
                             if let inputRowViewModel = node.getInputRowViewModel(for: fieldId.rowId),
                                let inputRowObserver = node.getInputRowObserver(for: fieldId.rowId.portType) {
                                 
@@ -300,8 +300,7 @@ struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
         ForEach(fieldGroup.fieldObservers) { fieldViewModel in
             let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
             if !isBlocked {
-                self.valueEntryView(fieldViewModel,
-                                    isMultifield)
+                self.valueEntryView(fieldViewModel, isMultifield)
             }
         }
     }

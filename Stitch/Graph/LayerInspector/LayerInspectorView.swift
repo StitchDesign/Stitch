@@ -179,15 +179,12 @@ struct LayerInspectorInputView: View {
         self.portObserver.port
     }
     
+    var areAllFieldsBlocked: Bool {
+        portObserver.areAllFieldsBlocked()
+    }
+    
     var body: some View {
-        let blockedFields = portObserver.blockedFields
-        
-        let allFieldsBlockedOut = portObserver
-            .fieldGroupsFromInspectorRowViewModels.first?
-            .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
-        ?? false
-                
-        if !allFieldsBlockedOut {
+        if !areAllFieldsBlocked {
             LayerInspectorInputPortView(layerInputObserver: portObserver,
                                         graph: graph,
                                         document: document,
