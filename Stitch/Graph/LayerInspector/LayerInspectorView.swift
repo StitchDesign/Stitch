@@ -183,7 +183,7 @@ struct LayerInspectorInputView: View {
         let blockedFields = portObserver.blockedFields
         
         let allFieldsBlockedOut = portObserver
-            .fieldValueTypes.first?
+            .fieldGroups.first?
             .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
         ?? false
                 
@@ -308,6 +308,7 @@ struct LayerInspectorOutputsSectionView: View {
                             rowObserver: output.rowObserver,
                             graph: graph,
                             document: document,
+                            // Outputs can never be "packed vs unpacked"
                             canvasItem: output.canvasObserver,
                             forFlyout: false)
                     } else {

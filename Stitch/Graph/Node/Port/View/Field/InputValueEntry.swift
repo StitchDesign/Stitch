@@ -441,7 +441,6 @@ struct InputFieldValueView: View {
                         nodeKind: nodeKind,
                         isInput: true,
                         fieldIndex: fieldIndex,
-                        isNodeSelected: isCanvasItemSelected,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         isSelectedInspectorRow: isSelectedInspectorRow,
                         isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
