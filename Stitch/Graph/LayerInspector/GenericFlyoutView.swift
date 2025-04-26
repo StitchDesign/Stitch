@@ -35,7 +35,7 @@ struct GenericFlyoutView: View {
     
     // Abstracts over packed vs unpacked
     var fieldGroups: [FieldGroup] {
-        layerInputObserver.fieldGroups
+        layerInputObserver.fieldGroupsFromInspectorRowViewModels
     }
         
     var body: some View {
@@ -59,7 +59,7 @@ struct GenericFlyoutView: View {
             
             VStack { // flyout fields always stacked vertically
                 PotentiallyBlockedFieldsView(
-                    fieldGroupViewModel: fieldGroup,
+                    fieldGroup: fieldGroup,
                     isMultifield: true, // generic flyout always multifield
                     blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
                         GenericFlyoutRowView(
@@ -93,42 +93,6 @@ struct FieldGroupLabelView: View {
     }
 }
 
-extension Int {
-    var asUnpackedPortType: UnpackedPortType {
-        switch self {
-        case 0:
-            return .port0
-        case 1:
-            return .port1
-        case 2:
-            return .port2
-        case 3:
-            return .port3
-        case 4:
-            return .port4
-        case 5:
-            return .port5
-        case 6:
-            return .port6
-        case 7:
-            return .port7
-        case 8:
-            return .port8
-        default:
-            fatalErrorIfDebug()
-            return .port0
-        }
-    }
-}
-
-extension LayerInputObserver {
-    // Used with a specific flyout-row, to add the field of the canvas
-    @MainActor
-    func layerInputTypeForFieldIndex(_ fieldIndex: Int) -> LayerInputType {
-        .init(layerInput: self.port,
-                     portType: .unpacked(fieldIndex.asUnpackedPortType))
-    }
-}
 
 struct GenericFlyoutRowView: View {
     

@@ -63,7 +63,7 @@ final class LayerInputUnpackedPortObserver {
 extension LayerInputUnpackedPortObserver {
     // NOT USED?
     var groupings: [GroupedLayerInputData]? {
-        self.layerPort.labelGroupings
+        self.layerPort.transform3DLabelGroupings
     }
     
     @MainActor

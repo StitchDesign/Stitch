@@ -134,6 +134,44 @@ extension LayerInputType {
     }
 }
 
+extension Int {
+    var asUnpackedPortType: UnpackedPortType {
+        switch self {
+        case 0:
+            return .port0
+        case 1:
+            return .port1
+        case 2:
+            return .port2
+        case 3:
+            return .port3
+        case 4:
+            return .port4
+        case 5:
+            return .port5
+        case 6:
+            return .port6
+        case 7:
+            return .port7
+        case 8:
+            return .port8
+        default:
+            fatalErrorIfDebug()
+            return .port0
+        }
+    }
+}
+
+extension LayerInputObserver {
+    // Used with a specific flyout-row, to add the field of the canvas
+    @MainActor
+    func layerInputTypeForFieldIndex(_ fieldIndex: Int) -> LayerInputType {
+        .init(layerInput: self.port,
+                     portType: .unpacked(fieldIndex.asUnpackedPortType))
+    }
+}
+
+
 extension LayerInputObserver {
     
     // "Does this layer input use multifield fields?"
@@ -142,9 +180,9 @@ extension LayerInputObserver {
     var usesMultifields: Bool {
         switch self.mode {
         case .packed:
-            return (self.fieldGroups.first?.fieldObservers.count ?? 0) > 1
+            return (self.fieldGroupsFromInspectorRowViewModels.first?.fieldObservers.count ?? 0) > 1
         case .unpacked:
-            return self.fieldGroups.count > 1
+            return self.fieldGroupsFromInspectorRowViewModels.count > 1
         }
     }
     
@@ -160,9 +198,10 @@ extension LayerInputObserver {
         self.port.label(useShortLabel: usesShortLabel)
     }
     
-    // Returns all fields, regardless of packed vs unpacked
+    // Returns all field groups, regardless of packed vs unpacked; draws them from the inspector row view models (guaranteed to be present)
+    // TODO: are a layer input's canvas and inspector row view models always updated in sync?
     @MainActor
-    var fieldGroups: [FieldGroup] {
+    var fieldGroupsFromInspectorRowViewModels: [FieldGroup] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
             portData.inspectorRowViewModel.cachedFieldValueGroups
         }
@@ -172,16 +211,14 @@ extension LayerInputObserver {
             return allFields
             
         case .unpacked:
-            guard let groupings = self.port.labelGroupings else {
+            // Vast majority of unpacked cases simply directly return inspector row view models
+            // Note:
+            guard let groupings = self.port.transform3DLabelGroupings else {
                 return allFields
             }
             
             // Groupings are gone in unpacked mode so we just need the fields
             let flattenedFields = allFields.flatMap { $0.fieldObservers }
-            
-            // TODO: APRIL 25: what is this?
-//            
-//            let _fieldGroup: FieldGroup = createFieldValueTypes(initialValue: <#T##PortValue#>, nodeIO: <#T##NodeIO#>, unpackedPortParentFieldGroupType: <#T##FieldGroupType?#>, unpackedPortIndex: <#T##Int?#>, layerInput: <#T##LayerInputPort?#>)
             
             let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.cachedFieldValueGroups
             
@@ -426,9 +463,7 @@ extension LayerInputObserver {
     @MainActor
     func useIndividualFieldLabel(activeIndex: ActiveIndex) -> Bool {
         // Do not use labels on the fields of a padding-type input
-        !self
-            .getActiveValue(activeIndex: activeIndex)
-            .getPadding.isDefined
+        !self.getActiveValue(activeIndex: activeIndex).getPadding.isDefined
     }
 }
 
