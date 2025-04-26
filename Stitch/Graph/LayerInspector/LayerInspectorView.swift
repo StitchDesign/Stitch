@@ -183,7 +183,7 @@ struct LayerInspectorInputView: View {
         let blockedFields = portObserver.blockedFields
         
         let allFieldsBlockedOut = portObserver
-            .fieldGroups.first?
+            .fieldGroupsFromInspectorRowViewModels.first?
             .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
         ?? false
                 

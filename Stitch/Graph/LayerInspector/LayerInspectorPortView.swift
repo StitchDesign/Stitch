@@ -120,14 +120,24 @@ struct InspectorLayerInputView: View {
         return layerInput.showsLabelForInspector
     }
     
-    var fieldValueTypes: [FieldGroup] {
-        self.layerInputObserver.fieldGroups
+    var fieldGroups: [FieldGroup] {
+        self.layerInputObserver.fieldGroupsFromInspectorRowViewModels
     }
     
     // iPad-only?
     var packedPropertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == .layerInput(LayerInputType.init(layerInput: layerInputObserver.port,
-                                                                                  portType: .packed))
+        graph.propertySidebar.selectedProperty == .layerInput(
+            LayerInputType(layerInput: layerInputObserver.port,
+                           portType: .packed))
+    }
+    
+    var blockedFields: LayerPortTypeSet {
+        layerInputObserver.blockedFields
+    }
+    
+    // LayerInput is source of truth for "is multifield"
+    var usesMultifields: Bool {
+        layerInputObserver.usesMultifields
     }
     
     var body: some View {
@@ -141,27 +151,65 @@ struct InspectorLayerInputView: View {
                                  isSelectedInspectorRow: packedPropertyRowIsSelected)
             }
             Spacer()
-            LayerInputFieldsView(layerInputFieldType: .inspector,
-                                 document: document,
-                                 graph: graph,
-                                 node: node,
-                                 // TODO: we always want to show all input fields in the inspector, but cannot assume data is in a packed state
-                                 rowObserver: layerInputObserver.packedRowObserver,
-                                 rowViewModel: layerInputObserver._packedData.inspectorRowViewModel,
-                                 fieldValueTypes: fieldValueTypes,
-                                 layerInputObserver: layerInputObserver,
-                                 isNodeSelected: false)
-        }
+                        
+            ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
+                
+                if !fieldGroup.areAllFieldsBlocked(blockedFields: self.blockedFields) {
+                    FieldGroupLabelView(fieldGroup: fieldGroup)
+                    
+                    HStack {
+                        PotentiallyBlockedFieldsView(fieldGroup: fieldGroup,
+                                                     isMultifield: self.usesMultifields,
+                                                     blockedFields: self.blockedFields) { (inputFieldViewModel: InputFieldViewModel,
+                                                                                           isMultifield: Bool) in
+                            /*
+                             Overall, we are iterating through [[FieldGroup]], which abstracts over packed vs unpacked;
+                             However, we need to retrieve the inspector row view model and the row observer for a given field view model.
+                             
+                             Suppose a PACKED size input: then ONE inspector row view model
+                             Suppose an UNPACKED size input: then TWO inspector row view models
+                             
+                              Using the rowId from the flattened field view models to retrieve the row view model and row observer
+                              TODO: perf of this? ... should be constant time look up on a node to grab the row VM and row observer
+                             
+                              Alternatively: we could iterate through not just `[FieldGroup]`, but `[{FieldGroup, RowViewModel, RowObserver}]`
+                             */
+                            
+                            let fieldId: FieldCoordinate = inputFieldViewModel.id
+                            if let inputRowViewModel = node.getInputRowViewModel(for: fieldId.rowId),
+                               let inputRowObserver = node.getInputRowObserver(for: fieldId.rowId.portType) {
+                                
+                                InputValueEntry(
+                                    graph: graph,
+                                    document: document,
+                                    viewModel: inputFieldViewModel,
+                                    node: node,
+                                    rowViewModel: inputRowViewModel,
+                                    canvasItem: nil,
+                                    rowObserver: inputRowObserver,
+                                    isCanvasItemSelected: false,
+                                    hasIncomingEdge: false,
+                                    isForLayerInspector: true,
+                                    isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
+                                    isFieldInMultifieldInput: self.usesMultifields,
+                                    isForFlyout: false,
+                                    isSelectedInspectorRow: packedPropertyRowIsSelected,
+                                    useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+                            } // if let
+                        }
+                    } // HStack { ...
+                }
+            } // ForEach(fieldGroups) { ...
+        } // HStack(alignment:) { ...
     }
 }
 
 enum LayerInputFieldType {
-    case inspector
     case canvas(CanvasItemViewModel)
 }
 
 // fka `LayerInputFieldsView`
-// Used by InspectorLayerInputView, most flyouts and CanvasLayerInputView
+// Now only used by layer inputs or fields on the canvas (not the flyout or inspector)
 struct LayerInputFieldsView: View {
     let layerInputFieldType: LayerInputFieldType
     @Bindable var document: StitchDocumentViewModel
@@ -186,33 +234,8 @@ struct LayerInputFieldsView: View {
                         _ isMultifield: Bool) -> some View {
         
         switch layerInputFieldType {
-        
-        case .inspector:
-            let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
-                                                portType: .packed)
-            let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
-            let layerInputData: InputLayerNodeRowData = layerInputObserver._packedData
-            let propertyRowIsSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
-            
-            // InspectorLayerInputView
-            InputValueEntry(graph: graph,
-                            document: document,
-                            viewModel: inputFieldViewModel,
-                            node: node,
-                            rowViewModel: layerInputData.inspectorRowViewModel,
-                            canvasItem: nil,
-                            rowObserver: layerInputObserver.packedRowObserver,
-                            isCanvasItemSelected: false,
-                            hasIncomingEdge: false,
-                            isForLayerInspector: true,
-                            isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-                            isFieldInMultifieldInput: layerInputObserver.usesMultifields,
-                            isForFlyout: false,
-                            isSelectedInspectorRow: propertyRowIsSelected,
-                            useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
-            
+                    
         case .canvas(let canvasNode):
-            // CanvasLayerInputView
             InputValueEntry(graph: graph,
                             document: document,
                             viewModel: inputFieldViewModel,
@@ -232,32 +255,33 @@ struct LayerInputFieldsView: View {
     }
     
     var body: some View {
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroup) in
+        ForEach(fieldValueTypes) { (fieldGroup: FieldGroup) in
             
-            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
-            
-            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-            let _isMultifield = isMultifield || multipleFieldsPerGroup
-            
+            let multipleFieldsPerGroup = fieldGroup.fieldObservers.count > 1
+                        
             // "all fields blocked out, so don't show anything" -- can happen for inspector or canvas, but not really flyout ?
-            if !self.areAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+            if !fieldGroup.areAllFieldsBlocked(blockedFields: self.blockedFields) {
                 // Only non-nil for 3D transform
                 // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treated as Number fields, which are not created with a `groupLabel`
                 // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
-                FieldGroupLabelView(fieldGroup: fieldGroupViewModel)
+                FieldGroupLabelView(fieldGroup: fieldGroup)
                 
                 HStack {
-                    PotentiallyBlockedFieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                                 isMultifield: _isMultifield,
+                    PotentiallyBlockedFieldsView(fieldGroup: fieldGroup,
+                                                 // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
+                                                 isMultifield: isMultifield || multipleFieldsPerGroup,
                                                  blockedFields: self.blockedFields,
                                                  valueEntryView: self.valueEntryView)
                 }
             } // if ...
         } // ForEach(fieldValueTypes) { ...
     }
+}
 
-    func areAllFieldsBlockedOut(fieldGroupViewModel: FieldGroup) -> Bool {
-        fieldGroupViewModel.fieldObservers.allSatisfy {
+extension FieldGroup {
+    @MainActor
+    func areAllFieldsBlocked(blockedFields: LayerPortTypeSet) -> Bool {
+        self.fieldObservers.allSatisfy {
             $0.isBlocked(blockedFields)
         }
     }
@@ -266,13 +290,14 @@ struct LayerInputFieldsView: View {
 // Only layer input fields can be blocked (in whole or part);
 // patch inputs can NEVER be blocked
 struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
-    let fieldGroupViewModel: FieldGroup
+    let fieldGroup: FieldGroup
     let isMultifield: Bool
     let blockedFields: LayerPortTypeSet
+    
     @ViewBuilder var valueEntryView: (InputFieldViewModel, Bool) -> ValueView
     
     var body: some View {
-        ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+        ForEach(fieldGroup.fieldObservers) { fieldViewModel in
             let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
             if !isBlocked {
                 self.valueEntryView(fieldViewModel,
