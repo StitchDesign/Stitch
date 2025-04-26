@@ -14,7 +14,7 @@ struct StitchFontDropdown: View {
     let graph: GraphState
     let stitchFont: StitchFont
     let isFieldInsideLayerInspector: Bool
-    let propertyIsSelected: Bool
+    let isSelectedInspectorRow: Bool
     let hasHeterogenousValues: Bool
     let activeIndex: ActiveIndex
     
@@ -41,13 +41,16 @@ struct StitchFontDropdown: View {
         } label: {
             Button { } label: {
                 StitchTextView(string: finalChoiceDisplay,
-                               fontColor: propertyIsSelected ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
+                               fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
             }
         }
         .menuIndicator(.hidden) // hide caret indicator
         .menuStyle(.button)
         .buttonStyle(.plain)
         .foregroundColor(STITCH_TITLE_FONT_COLOR) // avoids Catalyst accent color
+//        #if targetEnvironment(macCatalyst)
+//        .pickerStyle(.inline) // avoids unnecessary middle label
+//        #endif
     }
 
     @MainActor
