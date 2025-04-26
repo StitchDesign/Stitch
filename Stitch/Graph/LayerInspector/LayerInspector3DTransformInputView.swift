@@ -18,7 +18,7 @@ struct LayerInspector3DTransformInputView: View {
     
     var body: some View {
         VStack {
-            ForEach(layerInputObserver.fieldGroups) { fieldGrouping in
+            ForEach(layerInputObserver.fieldGroupsFromInspectorRowViewModels) { fieldGrouping in
                 VStack {
                     if let fieldGroupLabel = fieldGrouping.groupLabel {
                         HStack {
