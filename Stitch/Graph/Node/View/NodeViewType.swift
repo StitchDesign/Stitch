@@ -134,7 +134,6 @@ struct DefaultNodeOutputsView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
-    let isNodeSelected: Bool
 
     @MainActor
     var showOutputFields: Bool {
@@ -180,7 +179,6 @@ struct DefaultNodeOutputsView: View {
                                                  node: node,
                                                  canvasItem: canvas,
                                                  isMultiField: isMultiField,
-                                                 isCanvasItemSelected: isNodeSelected,
                                                  forPropertySidebar: false,
                                                  propertyIsAlreadyOnGraph: false,
                                                  isFieldInMultifieldInput: isMultiField,

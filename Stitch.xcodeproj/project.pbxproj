@@ -749,6 +749,7 @@
 		ECAB9FF82A588E800036EBEA /* AnchorPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB9FF72A588E800036EBEA /* AnchorPopoverView.swift */; };
 		ECABB55F269C9E5A00AC9931 /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECABB55E269C9E5A00AC9931 /* NetworkRequest.swift */; };
 		ECABB561269CE23100AC9931 /* NetworkRequestNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */; };
+		ECAC6EF72DBC5FE0003D34C4 /* FlyoutHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAC6EF62DBC5FE0003D34C4 /* FlyoutHeader.swift */; };
 		ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */; };
 		ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */; };
 		ECAFD08E2D4878CC00101226 /* LLMActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */; };
@@ -1730,6 +1731,7 @@
 		ECAB9FF72A588E800036EBEA /* AnchorPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnchorPopoverView.swift; sourceTree = "<group>"; };
 		ECABB55E269C9E5A00AC9931 /* NetworkRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequest.swift; sourceTree = "<group>"; };
 		ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestNode.swift; sourceTree = "<group>"; };
+		ECAC6EF62DBC5FE0003D34C4 /* FlyoutHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlyoutHeader.swift; sourceTree = "<group>"; };
 		ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionEqualsNode.swift; sourceTree = "<group>"; };
 		ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensionUtils.swift; sourceTree = "<group>"; };
 		ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionHelpers.swift; sourceTree = "<group>"; };
@@ -2130,6 +2132,7 @@
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 				ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */,
+				ECAC6EF62DBC5FE0003D34C4 /* FlyoutHeader.swift */,
 				EC2C8C982C654D5300D067B8 /* OpenFlyoutView.swift */,
 				EC49069E2CCACF0100165554 /* ColorFlyoutView.swift */,
 				ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */,
@@ -5065,6 +5068,7 @@
 				E40B2F552CB86F2B005F5479 /* OpenAIResponseStructs.swift in Sources */,
 				EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */,
 				ECA92A24260A6A2300281B52 /* LoopNode.swift in Sources */,
+				ECAC6EF72DBC5FE0003D34C4 /* FlyoutHeader.swift in Sources */,
 				B5E5FFAE2749804500C5FE92 /* GroupNodeUtils.swift in Sources */,
 				EC08D5552898873C00FEE846 /* MathUtils.swift in Sources */,
 				EC0093E026D6F648000EAE08 /* ProgressNode.swift in Sources */,

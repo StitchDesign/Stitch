@@ -98,7 +98,7 @@ struct ShadowFlyoutRowView: View {
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
-                                    canvasItemId: canvasItemId,
+                                    packedInputCanvasItemId: canvasItemId,
                                     isHovered: isHovered)
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
             
