@@ -41,7 +41,9 @@ struct DropDownChoiceView: View {
             StitchTextView(string: finalChoiceDisplay,
                            fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
             // Required to force picker's display to always be large enough to display full option
-            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+            // 2x our normal input width seems good enough for most dropdown options;
+            // dropdowns never appear in multifield inputs, so this is relatively safe in terms of the final width of the node or the input in the inspector
+            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH * 2,
                    height: NODE_ROW_HEIGHT,
                    alignment: isFieldInsideLayerInspector ? .trailing : .leading)
         }
