@@ -99,6 +99,7 @@ struct AdjustmentBarPopoverView: View {
                 graph.inputEditedFromUI(
                     fieldValue: .layerDimension(.auto),
                     fieldIndex: fieldCoordinate.fieldIndex,
+                    rowId: fieldCoordinate.rowId,
                     activeIndex: activeIndex,
                     rowObserver: rowObserver,
                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
