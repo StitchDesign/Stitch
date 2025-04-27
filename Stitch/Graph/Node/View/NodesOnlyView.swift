@@ -75,10 +75,15 @@ struct NodesOnlyView: View {
                 }
             }
         }
+        // TODO: why can't we do this logic from `ActiveIndexChangedAction` ?
         .onChange(of: self.activeIndex) {
+            
             // Update values when active index changes
-            graph.nodes.values.forEach { node in
-                node.activeIndexChanged(activeIndex: self.activeIndex)
+            // Perf optimization: only update nodes that are on-screen and at this traversal level
+            graph.getNodesAtThisTraversalLevel(groupNodeFocused: self.focusedGroup?.groupNodeId).forEach { node in
+                if node.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers) {
+                    node.activeIndexChanged(activeIndex: self.activeIndex)
+                }
             }
         }
         // Also do this on `initial: true` ?
