@@ -117,6 +117,10 @@ extension GraphState {
         
         guard valueChange else {
             log("GraphState.inputEditCommitted: value did not change, so returning early")
+            
+            // See note in `inputEdited`
+            input.immediatelyUpdateFieldObserversAfterInputEdit(value)
+            
             return
         }
         

@@ -378,6 +378,7 @@ struct CommonEditingView: View {
         self.graph.inputEditedFromUI(
             fieldValue: .string(.init(newEdit)),
             fieldIndex: fieldIndex,
+            rowId: rowViewModel.id,
             activeIndex: document.activeIndex,
             rowObserver: rowObserver,
             isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
