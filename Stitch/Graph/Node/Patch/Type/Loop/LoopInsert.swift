@@ -56,11 +56,22 @@ struct LoopInsertNode: PatchNodeDefinition {
     }
 }
 
-final class LoopingEphemeralObserver: NodeEphemeralObservable {
-    var previousValues: PortValues = []
+final class LoopingEphemeralObserver: MediaEvalOpObservable {
+    @MainActor var previousValues: PortValues = []
+    @MainActor var currentLoadingMediaId: UUID?
+    let mediaActor: MediaEvalOpCoordinator = .init()
+    @MainActor let mediaViewModel: MediaViewModel = .init()
+    
+    // Holds media object if new value is media
+    @MainActor var mediaListToBeInserted: [GraphMediaValue?] = []
+    
+    weak var nodeDelegate: NodeViewModel?
+    
+    @MainActor init() { }
 }
 
 extension LoopingEphemeralObserver {
+    @MainActor
     func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.previousValues = []
     }
@@ -85,9 +96,10 @@ extension PortValues {
 // TODO: revisit how this works with indices
 @MainActor
 func loopInsertEval(node: PatchNode,
-                    graphStep: GraphStepState) -> ImpureEvalResult {
+                    graphStep: GraphStepState) -> EvalResult {
     
-    guard let computedState = node.ephemeralObservers?.first as? LoopingEphemeralObserver else {
+    guard let computedStates = node.ephemeralObservers as? [LoopingEphemeralObserver],
+          let computedState = computedStates.first else {
         fatalErrorIfDebug()
         return .init(outputsValues: node.defaultOutputsList)
     }
@@ -99,6 +111,8 @@ func loopInsertEval(node: PatchNode,
     //to match origimai
     
     let inputsValues: PortValuesList = node.inputs
+    var existingMediaList = computedStates.map(\.inputMedia)
+    let newMediaListToInsert = computedState.mediaListToBeInserted
     var outputsValues: PortValuesList = node.outputs
     
     let firstOutput: PortValues? = outputsValues.first
@@ -136,7 +150,8 @@ func loopInsertEval(node: PatchNode,
             currentInput,
             buildIndicesLoop(loop: currentInput)
         ]
-        return .init(outputsValues: newOutputsValues)
+        return .init(outputsValues: newOutputsValues,
+                     mediaList: existingMediaList)
     } else if shouldEval {
         //        log("loopInsertEval: will insert")
 
@@ -159,27 +174,35 @@ func loopInsertEval(node: PatchNode,
             .asLoopInsertFriendlyIndices(loop.count).first ?? .zero
 
         // TODO: mod the index-to-insert-at by; but an index > loop
-        valueToInsert.forEach { (value: PortValue) in
+        valueToInsert.enumerated().forEach { (index: Int, value: PortValue) in
+            let media = newMediaListToInsert[safe: index] ?? nil
+            
             if (indexToInsertAt < 0) || (indexToInsertAt > (loop.count - 1)) {
                 // .insert doesn't support negative numbers
                 //                log("loopInsertEval: will add value to back: \(value)")
                 loop.append(value)
+                existingMediaList.append(media)
+                
             } else {
                 // replaces the value?
                 //                log("loopInsertEval: will add value: \(value) at \(indexToInsertAt)")
                 loop.insert(value, at: indexToInsertAt)
+                existingMediaList.insert(media, at: index)
             }
         }
         let newOutputsValues: PortValuesList = [loop, buildIndicesLoop(loop: loop)]
 
-        return .init(outputsValues: newOutputsValues)
+        return .init(outputsValues: newOutputsValues,
+                     mediaList: existingMediaList)
     } else {
         //        log("loopInsertEval: will not insert")
         let _values = outputsValues.first ?? [.number(.zero)]
+        let existingOutputMedia = computedStates.map(\.computedMedia)
         let newOutputsValues: PortValuesList = [
             _values,
             buildIndicesLoop(loop: _values)
         ]
-        return .init(outputsValues: newOutputsValues)
+        return .init(outputsValues: newOutputsValues,
+                     mediaList: existingOutputMedia)
     }
 }

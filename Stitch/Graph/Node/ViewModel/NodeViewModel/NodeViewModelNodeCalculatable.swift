@@ -109,6 +109,28 @@ extension NodeViewModel: NodeCalculatable {
                     }
                 }
                 
+            case  .loopInsert:
+                // Only special logic needed here is to save the media object for the desired item to insert
+                guard inputCoordinate.portId == 1 else {
+                    // Normal media list for 0th index
+                    if inputCoordinate.portId == 0 {
+                        self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                                  mediaList: mediaList,
+                                                  observerType: LoopingEphemeralObserver.self)
+                    }
+                    
+                    return
+                }
+                
+                guard let observers = self.ephemeralObservers as? [LoopingEphemeralObserver] else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                // Arbitrarily use the first observer for saving media
+                let observer = observers.first
+                observer?.mediaListToBeInserted = mediaList
+                
             case .coreMLClassify:
                 self.zipInputMedia(mediaList: mediaList,
                                    observerType: ImageClassifierOpObserver.self) { mediaObserver, mediaObject in
