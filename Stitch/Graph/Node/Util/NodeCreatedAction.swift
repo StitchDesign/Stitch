@@ -39,7 +39,7 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    private var adjustmentFromOpenLayerInspector: CGFloat {
+    var adjustmentFromOpenLayerInspector: CGFloat {
         guard self.storeDelegate?.showsLayerInspector ?? false else {
             return 0
         }
