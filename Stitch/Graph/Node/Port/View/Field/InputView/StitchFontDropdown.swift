@@ -10,13 +10,11 @@ import SwiftUI
 
 struct StitchFontDropdown: View {
 
-    let rowObserver: InputNodeRowObserver
-    let graph: GraphState
+    let rowObserverId: InputCoordinate
     let stitchFont: StitchFont
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     let hasHeterogenousValues: Bool
-    let activeIndex: ActiveIndex
     
     @MainActor
     var finalChoiceDisplay: String {
@@ -64,10 +62,9 @@ struct StitchFontDropdown: View {
             let newStitchFont = StitchFont(fontChoice: fontChoice,
                                            fontWeight: $0)
 
-            graph.pickerOptionSelected(rowObserver: rowObserver,
-                                       choice: PortValue.textFont(newStitchFont),
-                                       activeIndex: activeIndex,
-                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            dispatch(PickerOptionSelected(id: rowObserverId,
+                                          choice: PortValue.textFont(newStitchFont),
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
     }
 }

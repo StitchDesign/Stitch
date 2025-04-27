@@ -68,13 +68,11 @@ extension PortValue {
 struct SpecialPickerFieldValueView: View {
     @State var currentChoice: PortValue
     
-    let rowObserver: InputNodeRowObserver
-    let graph: GraphState
+    let rowObserverId: InputCoordinate
     let value: PortValue
     let choices: PortValues
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
-    let activeIndex: ActiveIndex
     
     var body: some View {
         Picker("", selection: $currentChoice) {
@@ -86,11 +84,9 @@ struct SpecialPickerFieldValueView: View {
         .scaledToFit()
         .frame(width: 148, height: NODE_ROW_HEIGHT * 2, alignment: .trailing)
         .onChange(of: self.currentChoice) { oldValue, newValue in
-            graph.pickerOptionSelected(
-                rowObserver: rowObserver,
-                choice: newValue,
-                activeIndex: activeIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            dispatch(PickerOptionSelected(id: rowObserverId,
+                                          choice: newValue,
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
         .onAppear {
             self.currentChoice = value

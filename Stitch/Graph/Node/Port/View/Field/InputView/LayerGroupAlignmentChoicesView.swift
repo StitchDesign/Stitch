@@ -129,12 +129,10 @@ enum VerticalAlignmentChoices: Equatable, Hashable, CaseIterable {
 struct LayerGroupHorizontalAlignmentPickerFieldValueView: View {
     @State var currentChoice: HorizontalAlignmentChoices = .center
     
-    let rowObserver: InputNodeRowObserver
-    let graph: GraphState
+    let rowObserverId: InputCoordinate
     let value: Anchoring
     let isFieldInsideLayerInspector: Bool
     let hasHeterogenousValues: Bool
-    let activeIndex: ActiveIndex
     
     var body: some View {
         Picker("", selection: $currentChoice) {
@@ -146,11 +144,9 @@ struct LayerGroupHorizontalAlignmentPickerFieldValueView: View {
         .scaledToFit()
         .frame(width: 148, height: NODE_ROW_HEIGHT * 2, alignment: .trailing)
         .onChange(of: self.currentChoice) { oldValue, newValue in
-            graph.pickerOptionSelected(
-                rowObserver: rowObserver,
-                choice: .anchoring(newValue.asAnchoring),
-                activeIndex: activeIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            dispatch(PickerOptionSelected(id: rowObserverId,
+                                          choice: .anchoring(newValue.asAnchoring),
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
         .onAppear {
             self.currentChoice = .fromAnchoring(value)
@@ -161,8 +157,7 @@ struct LayerGroupHorizontalAlignmentPickerFieldValueView: View {
 struct LayerGroupVerticalAlignmentPickerFieldValueView: View {
     @State var currentChoice: VerticalAlignmentChoices = .center
     
-    let rowObserver: InputNodeRowObserver
-    let graph: GraphState
+    let rowObserverId: InputCoordinate
     let activeIndex: ActiveIndex
     let value: Anchoring
     let isFieldInsideLayerInspector: Bool
@@ -178,11 +173,7 @@ struct LayerGroupVerticalAlignmentPickerFieldValueView: View {
         .scaledToFit()
         .frame(width: 148, height: NODE_ROW_HEIGHT * 2, alignment: .trailing)
         .onChange(of: self.currentChoice) { oldValue, newValue in
-            graph.pickerOptionSelected(
-                rowObserver: rowObserver,
-                choice: .anchoring(newValue.asAnchoring),
-                activeIndex: activeIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            dispatch(PickerOptionSelected(id: rowObserverId, choice: .anchoring(newValue.asAnchoring), isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
         .onAppear {
             self.currentChoice = .fromAnchoring(value)

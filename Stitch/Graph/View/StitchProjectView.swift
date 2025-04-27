@@ -23,10 +23,6 @@ struct StitchProjectView: View {
         self.document.graph
     }
 
-    var activeIndex: ActiveIndex {
-        document.activeIndex
-    }
-
     var body: some View {
         ContentView(store: store,
                     document: document,

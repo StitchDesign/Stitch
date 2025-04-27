@@ -127,14 +127,13 @@ struct LayerNamesDropDownChoiceView: View {
     @Bindable var graph: GraphState
     @Bindable var visibleNodes: VisibleNodesViewModel
     
-    let rowObserver: InputNodeRowObserver
+    let rowObserverId: InputCoordinate
     let value: PortValue
     let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
     let isSelectedInspectorRow: Bool
     let choices: LayerDropdownChoices
     let hasHeterogenousValues: Bool
-    let activeIndex: ActiveIndex
     
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
@@ -143,11 +142,9 @@ struct LayerNamesDropDownChoiceView: View {
         ? .pinTo(choice.asPinToId)
         : .assignedLayer(UUID(uuidString: choice.id)?.asLayerNodeId)
         
-        graph.pickerOptionSelected(
-            rowObserver: rowObserver,
-            choice: value,
-            activeIndex: activeIndex,
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        dispatch(PickerOptionSelected(id: rowObserverId,
+                                      choice: value,
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector))
     }
         
     @MainActor

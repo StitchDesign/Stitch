@@ -14,11 +14,10 @@ struct ColorOrbValueButtonView: View {
 
     let fieldViewModel: InputFieldViewModel
     let rowViewModel: InputNodeRowViewModel
-    let rowObserver: InputNodeRowObserver
+    let rowObserverId: InputCoordinate
     let isForFlyout: Bool
     let currentColor: Color // the current color, from input
     let hasIncomingEdge: Bool
-    let graph: GraphState
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     let activeIndex: ActiveIndex
     
@@ -37,25 +36,22 @@ struct ColorOrbValueButtonView: View {
 
             // Must compare the strings
             if currentColor.asHexDisplay != self.colorState.asHexDisplay {
-                graph.pickerOptionSelected(
-                    rowObserver: rowObserver,
-                    choice: .color(newColor),
-                    activeIndex: activeIndex,
-                    isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
-                    // Lots of small changes so don't persist everything
-                    isPersistence: false)
+                dispatch(PickerOptionSelected(id: rowObserverId,
+                                              choice: .color(newColor),
+                                              isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
+                                              // Lots of small changes so don't persist everything
+                                              isPersistence: false))
             }
         }
 
         StitchColorPickerView(rowViewModelId: rowViewModel.id,
-                              rowObserver: rowObserver,
+                              rowObserverId: rowObserver,
                               fieldCoordinate: fieldViewModel.id,
                               isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
                               isForFlyout: isForFlyout,
                               isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
                               activeIndex: activeIndex,
-                              chosenColor: binding,
-                              graph: graph)
+                              chosenColor: binding)
         .onAppear {
             self.colorState = currentColor
         }

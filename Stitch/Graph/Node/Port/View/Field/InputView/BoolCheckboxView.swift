@@ -13,9 +13,7 @@ struct BoolCheckboxView: View {
     
     @Environment(\.appTheme) var theme
     
-    let rowObserver: InputNodeRowObserver? // nil = used in output
-    let graph: GraphState
-    let document: StitchDocumentViewModel
+    let rowObserverId: InputCoordinate? // nil = used in output
     let value: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
@@ -53,13 +51,11 @@ struct BoolCheckboxView: View {
 //                }
 //            }
             .onTapGesture {
-                if let rowObserver = rowObserver {
+                if let rowObserverId = rowObserverId {
                     let toggled = toggleBool(value)
-                    graph.pickerOptionSelected(
-                        rowObserver: rowObserver,
-                        choice: .bool(toggled),
-                        activeIndex: document.activeIndex,
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                    dispatch(PickerOptionSelected(id: rowObserverId,
+                                                  choice: .bool(toggled),
+                                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector))
                 }
             }
     }

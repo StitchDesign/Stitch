@@ -75,12 +75,12 @@ struct NodesOnlyView: View {
                 }
             }
         }
-        .onChange(of: self.activeIndex) {
-            // Update values when active index changes
-            graph.nodes.values.forEach { node in
-                node.activeIndexChanged(activeIndex: self.activeIndex)
-            }
-        }
+//        .onChange(of: self.activeIndex) {
+//            // Update values when active index changes
+//            graph.nodes.values.forEach { node in
+//                node.activeIndexChanged(activeIndex: self.activeIndex)
+//            }
+//        }
         // Also do this on `initial: true` ?
         .onChange(of: self.focusedGroup) {
             // Update node locations

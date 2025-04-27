@@ -60,7 +60,7 @@ struct StitchColorPickerView: View {
     @State private var show: Bool = false
 
     let rowViewModelId: NodeRowViewModelId
-    let rowObserver: InputNodeRowObserver?
+    let rowObserverId: InputCoordinate?
     let fieldCoordinate: FieldCoordinate
     let isFieldInsideLayerInspector: Bool
     let isForFlyout: Bool
@@ -72,7 +72,6 @@ struct StitchColorPickerView: View {
     //    @State var currentColor: Color = .clear
     //    @State var chosenColor: Color = .red
     @Binding var chosenColor: Color
-    let graph: GraphState
         
 #if targetEnvironment(macCatalyst)
     let isCatalyst: Bool = true
@@ -90,7 +89,7 @@ struct StitchColorPickerView: View {
                                  isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
                 .popover(isPresented: $show, content: {
                     StitchCustomColorPickerView(
-                        rowObserver: rowObserver,
+                        rowObserverId: rowObserverId,
                         fieldCoordinate: fieldCoordinate,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         isForPreviewWindowBackgroundPicker: isForPreviewWindowBackgroundPicker,
@@ -110,7 +109,7 @@ struct StitchColorPickerView: View {
                        !isForPreviewWindowBackgroundPicker,
                        !isForIPhone,
                        let layerPort = rowViewModelId.layerInputPort,
-                       let nodeId = rowObserver?.id.nodeId {
+                       let nodeId = rowObserverId?.nodeId {
                         // iPad
                         dispatch(FlyoutToggled(flyoutInput: layerPort,
                                                flyoutNodeId: nodeId,

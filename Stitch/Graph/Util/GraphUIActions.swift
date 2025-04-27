@@ -336,16 +336,29 @@ struct ActiveIndexChangedAction: StitchDocumentEvent {
     let index: ActiveIndex
 
     func handle(state: StitchDocumentViewModel) {
-        let graph = state.visibleGraph
+//        let graph = state.visibleGraph
         
         state.activeIndex = index
         
         // Note: previously this logic was handled in the view (`NodeInputOutputView`);
         // the advantage was that only actively-rendered
-        graph.getNodesAtThisTraversalLevel(groupNodeFocused: state.groupNodeFocused?.groupNodeId)
-            .forEach { node in
-            node.updatePortViewModels(graph)
-        }
+        
+        // at most, look at the currently on-screen nodes
+        
+//        graph.nodes.values.forEach { node in
+//            if node.isVisibleInFrame(graph.visibleCanvasIds,
+//                                     graph.selectedSidebarLayers) {
+//                node.updatePortViewModels(graph)
+//            }
+//        }
+        
+//        graph.getNodesAtThisTraversalLevel(groupNodeFocused: state.groupNodeFocused?.groupNodeId)
+//            .forEach { node in
+//                if node.isVisibleInFrame(graph.visibleCanvasIds,
+//                                         graph.selectedSidebarLayers) {
+//                    node.updatePortViewModels(graph)
+//                }
+//        }
     }
 }
 

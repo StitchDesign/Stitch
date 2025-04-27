@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
+
 // Note: used by number inputs etc. but not by JSON etc.
 extension GraphState {
     // Called from CommonEditingView, AdjustmentBar etc.

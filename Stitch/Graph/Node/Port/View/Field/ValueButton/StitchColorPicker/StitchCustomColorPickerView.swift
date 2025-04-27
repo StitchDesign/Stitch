@@ -172,6 +172,7 @@ struct StitchCustomColorPickerView: View {
                 // we should persist that change.
                 if let rowObserver = rowObserver,
                    self.chosenColor.asHexDisplay != color.asHexDisplay {
+                    dispatch(PickerOptionSelected(id: <#T##InputCoordinate#>, choice: <#T##PortValue#>, isFieldInsideLayerInspector: <#T##Bool#>))
                     graph.pickerOptionSelected(
                         rowObserver: rowObserver,
                         choice: .color(color),

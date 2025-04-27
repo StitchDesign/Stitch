@@ -167,9 +167,8 @@ struct OutputValueView: View {
                           isPressed: $isButtonPressed)
             
         case .anchorPopover(let anchor):
-            AnchorPopoverView(rowObserver: rowObserver,
-                              graph: graph,
-                              document: document,
+            AnchorPopoverView(rowObserverId: rowObserver.id,
+                              isInput: false,
                               selection: anchor,
                               isFieldInsideLayerInspector: false,
                               isSelectedInspectorRow: isSelectedInspectorRow,

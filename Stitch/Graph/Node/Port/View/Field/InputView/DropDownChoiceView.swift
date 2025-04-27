@@ -13,16 +13,13 @@ struct DropDownChoiceView: View {
 
     @Environment(\.appTheme) var theme
     
-    let rowObserver: InputNodeRowObserver
-    
-    @Bindable var graph: GraphState
-    
+    let rowObserverId: InputCoordinate
+        
     let choiceDisplay: String
     let choices: PortValues
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     let hasHeterogenousValues: Bool
-    let activeIndex: ActiveIndex
 
     @MainActor
     var finalChoiceDisplay: String {
@@ -31,12 +28,10 @@ struct DropDownChoiceView: View {
     
     var body: some View {
         Menu {
-            StitchPickerView(input: rowObserver,
-                             graph: graph,
+            StitchPickerView(input: rowObserverId,
                              choices: choices,
                              choiceDisplay: finalChoiceDisplay,
-                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                             activeIndex: activeIndex)
+                             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } label: {
             StitchTextView(string: finalChoiceDisplay,
                            fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
@@ -63,12 +58,10 @@ struct DropDownChoiceView: View {
 // see https://github.com/vpl-codesign/stitch/issues/5294
 struct StitchPickerView: View {
 
-    let input: InputNodeRowObserver
-    let graph: GraphState
+    let input: InputCoordinate
     let choices: PortValues
     let choiceDisplay: String // current choice
     let isFieldInsideLayerInspector: Bool
-    let activeIndex: ActiveIndex
 
     var pickerLabel: String {
         // slightly different Picker label logic for Catalyst vs iPad
@@ -89,10 +82,9 @@ struct StitchPickerView: View {
         let _selection = choices.first(where: { $0.display == selection })
         
         if let _selection = _selection {
-            graph.pickerOptionSelected(rowObserver: input,
-                                       choice: _selection,
-                                       activeIndex: activeIndex,
-                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            dispatch(PickerOptionSelected(id: input,
+                                          choice: _selection,
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         } else {
             log("StitchPickerView: could not create PortValue from string: \(selection) ... in choices: \(choices)")
         }
