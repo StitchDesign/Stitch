@@ -701,7 +701,7 @@
 		EC9AB64528DFE99B002810BC /* ScrollFreeInteractionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9AB64428DFE99B002810BC /* ScrollFreeInteractionHelpers.swift */; };
 		EC9AB64728DFEA23002810BC /* ScrollPagingInteractionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9AB64628DFEA23002810BC /* ScrollPagingInteractionHelpers.swift */; };
 		EC9C498E268E29F4004150F8 /* SoundHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C498D268E29F4004150F8 /* SoundHelpers.swift */; };
-		EC9C6F9B298C45EE00E05523 /* NodeTagMenuButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C6F9A298C45EE00E05523 /* NodeTagMenuButtonsView.swift */; };
+		EC9C6F9B298C45EE00E05523 /* CanvasItemMenuButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C6F9A298C45EE00E05523 /* CanvasItemMenuButtonsView.swift */; };
 		EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16DF2808D89000684978 /* CanvasItemTitleView.swift */; };
 		EC9D16E22808D97A00684978 /* InputValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16E12808D97A00684978 /* InputValueEntry.swift */; };
 		EC9DB346280F1F710061EC3C /* EdgeDrawingObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */; };
@@ -1683,7 +1683,7 @@
 		EC9AB64428DFE99B002810BC /* ScrollFreeInteractionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollFreeInteractionHelpers.swift; sourceTree = "<group>"; };
 		EC9AB64628DFEA23002810BC /* ScrollPagingInteractionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollPagingInteractionHelpers.swift; sourceTree = "<group>"; };
 		EC9C498D268E29F4004150F8 /* SoundHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundHelpers.swift; sourceTree = "<group>"; };
-		EC9C6F9A298C45EE00E05523 /* NodeTagMenuButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTagMenuButtonsView.swift; sourceTree = "<group>"; };
+		EC9C6F9A298C45EE00E05523 /* CanvasItemMenuButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemMenuButtonsView.swift; sourceTree = "<group>"; };
 		EC9D16DF2808D89000684978 /* CanvasItemTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemTitleView.swift; sourceTree = "<group>"; };
 		EC9D16E12808D97A00684978 /* InputValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputValueEntry.swift; sourceTree = "<group>"; };
 		EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingObserver.swift; sourceTree = "<group>"; };
@@ -4366,7 +4366,7 @@
 		EC6205C328A1B19A00AEF7BA /* NodeTag */ = {
 			isa = PBXGroup;
 			children = (
-				EC9C6F9A298C45EE00E05523 /* NodeTagMenuButtonsView.swift */,
+				EC9C6F9A298C45EE00E05523 /* CanvasItemMenuButtonsView.swift */,
 				EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */,
 				ECEEA5012AFD9EC800C7CE86 /* TagMenuHelperViews.swift */,
 			);
@@ -5464,7 +5464,7 @@
 				ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */,
 				ECB1B7B426FB9DFF006D9C95 /* MediaLibrary.swift in Sources */,
 				B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */,
-				EC9C6F9B298C45EE00E05523 /* NodeTagMenuButtonsView.swift in Sources */,
+				EC9C6F9B298C45EE00E05523 /* CanvasItemMenuButtonsView.swift in Sources */,
 				ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */,
 				ECDE943428089FCE00005401 /* NodesView.swift in Sources */,
 				B55500CA2C1BA37D0081C3F1 /* PortIdAddress.swift in Sources */,
