@@ -116,8 +116,7 @@ extension StitchStore {
                       let documentViewModel = documentViewModel else {
                     return
                 }
-                
-                
+                                
                 projectLoader.documentViewModel = documentViewModel
                 self?.navPath = [projectLoader]
                 loadedCallback()
