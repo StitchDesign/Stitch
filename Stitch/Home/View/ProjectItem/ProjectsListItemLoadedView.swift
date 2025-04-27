@@ -116,6 +116,8 @@ extension StitchStore {
                       let documentViewModel = documentViewModel else {
                     return
                 }
+                
+                documentViewModel.graph.initializeGraphComputation()
                                 
                 projectLoader.documentViewModel = documentViewModel
                 self?.navPath = [projectLoader]

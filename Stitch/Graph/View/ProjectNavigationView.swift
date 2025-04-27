@@ -35,6 +35,8 @@ struct ProjectNavigationView: View {
         .onChange(of: document.graphUpdaterId) {
             // log("ProjectNavigationView: .onChange(of: document.visibleGraph.graphUpdaterId)")
             document.visibleGraph.updateGraphData(document)
+            
+            document.graph.initializeGraphComputation()
         }
         .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
             if !isCameraEnabled {
