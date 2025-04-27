@@ -150,6 +150,7 @@ struct WideAdjustmentBarView: View {
                                 graph.inputEditedFromUI(
                                     fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
                                     fieldIndex: self.fieldCoordinate.fieldIndex,
+                                    rowId: self.fieldCoordinate.rowId,
                                     activeIndex: activeIndex,
                                     rowObserver: rowObserver,
                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -375,6 +376,7 @@ struct WideAdjustmentBarView: View {
                     graph?.inputEditedFromUI(
                         fieldValue: fieldValue,
                         fieldIndex: pref.field.fieldIndex,
+                        rowId: pref.field.rowId,
                         activeIndex: activeIndex,
                         rowObserver: rowObserver,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
