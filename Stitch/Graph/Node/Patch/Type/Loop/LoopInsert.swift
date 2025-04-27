@@ -97,13 +97,20 @@ extension PortValues {
 @MainActor
 func loopInsertEval(node: PatchNode,
                     graphStep: GraphStepState) -> EvalResult {
-    
+    loopModificationNodeEval(node: node,
+                             graphStep: graphStep)
+}
+
+@MainActor
+func loopModificationNodeEval(node: PatchNode,
+                              graphStep: GraphStepState) -> EvalResult {
     guard let computedStates = node.ephemeralObservers as? [LoopingEphemeralObserver],
           let computedState = computedStates.first else {
         fatalErrorIfDebug()
         return .init(outputsValues: node.defaultOutputsList)
     }
 
+    let isInsert = node.kind.getPatch == .loopInsert
     let defaultFirstInputs: PortValues = [.color(.red), .color(.yellow), .color(.blue), .color(.green)]
 
     //if the outputs are empty (when we reset/open a graph); just provide the inputs instead
@@ -124,7 +131,7 @@ func loopInsertEval(node: PatchNode,
     let graphTime = graphStep.graphTime
 
     // Apparently: If ANY indices pulsed, then we insert.
-    let shouldPulse: Bool = (inputsValues[safe: 3] ?? []).contains { value in
+    let shouldPulse: Bool = (inputsValues[safe: isInsert ? 3 : 2] ?? []).contains { value in
         value.getPulse?.shouldPulse(graphTime) ?? false
     }
 
@@ -169,25 +176,51 @@ func loopInsertEval(node: PatchNode,
          1. negative indices must be turned to loop-insert-friendly ones
          2. apparently, if index input is loop, we default to index 0
          */
-        let indexToInsertAt: Int = [inputsValues[safe: 2]?.first?.getNumber?
-                                        .toInt ?? .zero]
+        let modificationIndex = isInsert ? 2 : 1
+        let indexToModify: Int = [inputsValues[safe: modificationIndex]?.first?.getNumber?
+            .toInt ?? .zero]
             .asLoopInsertFriendlyIndices(loop.count).first ?? .zero
 
         // TODO: mod the index-to-insert-at by; but an index > loop
         valueToInsert.enumerated().forEach { (index: Int, value: PortValue) in
-            let media = newMediaListToInsert[safe: index] ?? nil
-            
-            if (indexToInsertAt < 0) || (indexToInsertAt > (loop.count - 1)) {
-                // .insert doesn't support negative numbers
-                //                log("loopInsertEval: will add value to back: \(value)")
-                loop.append(value)
-                existingMediaList.append(media)
+            switch node.kind.getPatch {
+            case .loopInsert:
+                let media = newMediaListToInsert[safe: index] ?? nil
                 
-            } else {
-                // replaces the value?
-                //                log("loopInsertEval: will add value: \(value) at \(indexToInsertAt)")
-                loop.insert(value, at: indexToInsertAt)
-                existingMediaList.insert(media, at: index)
+                if (indexToModify < 0) || (indexToModify > (loop.count - 1)) {
+                    // .insert doesn't support negative numbers
+                    //                log("loopInsertEval: will add value to back: \(value)")
+                    loop.append(value)
+                    
+                    // Add media and a new ephemeral observer
+                    existingMediaList.append(media)
+                    guard let newObserver = node.createEphemeralObserver() else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    node.ephemeralObservers?.append(newObserver)
+                    
+                } else {
+                    // replaces the value?
+                    //                log("loopInsertEval: will add value: \(value) at \(indexToInsertAt)")
+                    loop.insert(value, at: indexToModify)
+                    
+                    // Add media and a new ephemeral observer
+                    existingMediaList.insert(media, at: index)
+                    guard let newObserver = node.createEphemeralObserver() else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    node.ephemeralObservers?.insert(newObserver, at: index)
+                }
+                
+            case .loopRemove:
+                loop.remove(at: indexToModify)
+                node.ephemeralObservers?.remove(at: indexToModify)
+                existingMediaList.remove(at: indexToModify)
+                
+            default:
+                fatalErrorIfDebug()
             }
         }
         let newOutputsValues: PortValuesList = [loop, buildIndicesLoop(loop: loop)]
@@ -197,7 +230,9 @@ func loopInsertEval(node: PatchNode,
     } else {
         //        log("loopInsertEval: will not insert")
         let _values = outputsValues.first ?? [.number(.zero)]
+        
         let existingOutputMedia = computedStates.map(\.computedMedia)
+        
         let newOutputsValues: PortValuesList = [
             _values,
             buildIndicesLoop(loop: _values)

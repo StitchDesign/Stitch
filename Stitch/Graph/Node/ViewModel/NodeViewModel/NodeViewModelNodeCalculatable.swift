@@ -112,11 +112,21 @@ extension NodeViewModel: NodeCalculatable {
             case  .loopInsert:
                 // Only special logic needed here is to save the media object for the desired item to insert
                 guard inputCoordinate.portId == 1 else {
+                    guard let computedStates = self.ephemeralObservers as? [LoopingEphemeralObserver] else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    
+                    let didMediaChange = mediaList != computedStates.map(\.inputMedia)
+                    
                     // Normal media list for 0th index
-                    if inputCoordinate.portId == 0 {
-                        self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
-                                                  mediaList: mediaList,
-                                                  observerType: LoopingEphemeralObserver.self)
+                    if inputCoordinate.portId == 0 &&
+                        didMediaChange {
+                        self.zipInputMedia(mediaList: mediaList,
+                                           observerType: LoopingEphemeralObserver.self) { mediaObserver, mediaObject in
+//                                           count: max((self.ephemeralObservers?.count ?? 0), mediaList.count)) { mediaObserver, mediaObject in
+                            mediaObserver.inputMedia = mediaObject
+                        }
                     }
                     
                     return
@@ -130,6 +140,9 @@ extension NodeViewModel: NodeCalculatable {
                 // Arbitrarily use the first observer for saving media
                 let observer = observers.first
                 observer?.mediaListToBeInserted = mediaList
+                
+            case .loopRemove:
+                fatalError()
                 
             case .coreMLClassify:
                 self.zipInputMedia(mediaList: mediaList,
@@ -198,9 +211,11 @@ extension NodeViewModel: NodeCalculatable {
     @MainActor
     func zipInputMedia<EphemeralObserver>(mediaList: [GraphMediaValue?],
                                           observerType: EphemeralObserver.Type = MediaEvalOpObserver.self,
+                                          count: Int? = nil,
                                           callback: (EphemeralObserver, GraphMediaValue?) -> Void) where EphemeralObserver: MediaEvalOpViewable {
+        let count = count ?? mediaList.count
         let mediaObservers = self.createEphemeralObserverLoop(EphemeralObserver.self,
-                                                              count: mediaList.count)
+                                                              count: count)
         
         zip(mediaObservers, mediaList).forEach(callback)
     }
@@ -208,13 +223,15 @@ extension NodeViewModel: NodeCalculatable {
     @MainActor
     func defaultZipInputMedia<EphemeralObserver>(inputCoordinate: NodeIOCoordinate,
                                                  mediaList: [GraphMediaValue?],
-                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self) where EphemeralObserver: MediaEvalOpViewable {
+                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self,
+                                                 count: Int? = nil) where EphemeralObserver: MediaEvalOpViewable {
         guard inputCoordinate.portId == 0 else {
             return
         }
         
         self.zipInputMedia(mediaList: mediaList,
-                           observerType: observerType) { mediaObserver, mediaObject in
+                           observerType: observerType,
+                           count: count) { mediaObserver, mediaObject in
             mediaObserver.inputMedia = mediaObject
         }
     }
