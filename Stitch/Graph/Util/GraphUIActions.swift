@@ -340,12 +340,14 @@ struct ActiveIndexChangedAction: StitchDocumentEvent {
         
         state.activeIndex = index
         
-        // Note: previously this logic was handled in the view (`NodeInputOutputView`);
-        // the advantage was that only actively-rendered
-        graph.getNodesAtThisTraversalLevel(groupNodeFocused: state.groupNodeFocused?.groupNodeId)
-            .forEach { node in
-            node.updatePortViewModels(graph)
-        }
+        // TODO: See `NodesOnlyView`'s `.onChange`
+        // TODO: why does this not trigger updates of the input and output views ?
+        //        graph.getNodesAtThisTraversalLevel(groupNodeFocused: state.groupNodeFocused?.groupNodeId)
+        //            .forEach { node in
+        //                if node.isVisibleInFrame(graph.selectedCanvasItems, graph.selectedSidebarLayers) {
+        //                    node.activeIndexChanged(activeIndex: state.activeIndex)
+        //                }
+        //        }
     }
 }
 
