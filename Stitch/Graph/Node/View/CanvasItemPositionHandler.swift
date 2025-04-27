@@ -26,19 +26,6 @@ struct CanvasItemPositionHandler: ViewModifier {
     }
 }
 
-extension View {
-    /// Handles node position, drag gestures, and option+select for duplicating node.
-    func canvasItemPositionHandler(document: StitchDocumentViewModel,
-                                   graph: GraphState,
-                                   node: CanvasItemViewModel,
-                                   zIndex: ZIndex) -> some View {
-        self.modifier(CanvasItemPositionHandler(document: document,
-                                                graph: graph,
-                                                node: node,
-                                                zIndex: zIndex))
-    }
-}
-
 /*
  Our key-press listening logic sometimes does not detect when the Option key is let up.
  

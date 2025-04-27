@@ -63,9 +63,9 @@ struct NodeView: View {
                 dispatch(UpdatePortColorUponNodeSelected(nodeId: nodeId))
             }
 #if targetEnvironment(macCatalyst)
-            // Catalyst right-click to open node tag menu
+            // Catalyst right-click to open canvas item menu
                 .contextMenu {
-                    NodeTagMenuButtonsView(graph: graph,
+                    CanvasItemMenuButtonsView(graph: graph,
                                            document: document,
                                            node: stitch,
                                            canvasItemId: node.id,
@@ -106,16 +106,14 @@ struct NodeView: View {
                     nodeId: self.nodeId,
                     canAddInput: canAddInput,
                     nodeBodyHovered: $nodeBodyHovered))
-                
         }
-                   .canvasItemPositionHandler(document: document,
-                                              graph: graph,
-                                              node: node,
-                                              zIndex: zIndex)
+                   .modifier(CanvasItemPositionHandler(document: document,
+                                                       graph: graph,
+                                                       node: node,
+                                                       zIndex: zIndex))
     }
     
     @State private var nodeBodyHovered: Bool = false
-    
     
     @MainActor
     var nodeBody: some View {
@@ -282,8 +280,9 @@ struct CanvasItemTag: View {
     let canRemoveInput: Bool
     let atleastOneCommentBoxSelected: Bool
     
-    @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
-        NodeTagMenuButtonsView(graph: graph,
+    // fka `nodeTagMenu`
+    @ViewBuilder var canvasItemMenu: CanvasItemMenuButtonsView {
+        CanvasItemMenuButtonsView(graph: graph,
                                document: document,
                                node: stitch,
                                canvasItemId: node.id,
@@ -307,7 +306,7 @@ struct CanvasItemTag: View {
     var body: some View {
         
             Menu {
-                nodeTagMenu
+                canvasItemMenu
             } label: {
                 let iconName = "ellipsis.rectangle"
                 Image(systemName: iconName)
