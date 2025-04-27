@@ -41,6 +41,9 @@ struct GenericFlyoutView: View {
     var body: some View {
         VStack(alignment: .leading) {
             FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
+            // TODO: move to FlyoutHeader itself? individual fields need it but not full inputs like in ShadowFlyout ?
+                .padding(.bottom)
+            
             flyoutRows
         }
         .modifier(FlyoutBackgroundColorModifier(

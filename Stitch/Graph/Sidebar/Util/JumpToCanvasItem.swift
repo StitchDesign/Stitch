@@ -90,13 +90,14 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let jumpPosition = graph.visibleNodesViewModel.getNodeGraphPanLocation(
-            id: id,
-            documentZoomData: self.graphMovement.zoomData,
-            documentFrame: self.frame) else {
-            // log("panGraphToNodeLocation: could not retrieve jump location")
+        guard let cachedBounds = self.graph.visibleNodesViewModel.infiniteCanvasCache.get(id) else {
+            log("panGraphToNodeLocation: could not retrieve cached bounds for id \(id)")
             return
         }
+        
+        let jumpPosition = Self.getNodeGraphPanLocation(cachedBounds: cachedBounds,
+                                                        scale: self.graphMovement.zoomData,
+                                                        documentFrame: self.frame)
         
         graph.canvasJumpLocation = jumpPosition
         
@@ -113,26 +114,24 @@ extension StitchDocumentViewModel {
                 .append(.groupNode(canvasItemTraversalLevel))
         }
     }
-}
-
-extension VisibleNodesViewModel {
-    // nil could not be be found
+    
     @MainActor
-    func getNodeGraphPanLocation(id: CanvasItemId,
-                                 documentZoomData: CGFloat,
-                                 documentFrame: CGRect) -> CGPoint? {
-                
-        guard let cachedBounds = self.infiniteCanvasCache.get(id) else {
-            // Can be `nil` when called for a canvas item that has never yet been on-screen
-            return nil
-        }
+    private static func getNodeGraphPanLocation(cachedBounds: CGRect,
+                                                scale: CGFloat,
+                                                documentFrame: CGRect) -> CGPoint {
         
-        let scale: CGFloat = documentZoomData
+        let scale: CGFloat = scale
         
-        return CGPoint(
+        var location = CGPoint(
             // TODO: why do we have to SUBTRACT rather than add?
             x: (cachedBounds.origin.x * scale) - documentFrame.size.width/2,
             y: (cachedBounds.origin.y * scale) - documentFrame.size.height/2
         )
+
+        // TODO: why do we have to Add? Why don't we need to scale?
+        location.x += LayerInspectorView.LAYER_INSPECTOR_WIDTH/2
+        
+        return location
     }
 }
+
