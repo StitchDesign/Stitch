@@ -15,6 +15,7 @@ extension GraphState {
     func inputEditedFromUI(fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
+                           rowId: NodeRowViewModelId,
                            activeIndex: ActiveIndex,
                            rowObserver: InputNodeRowObserver,
                            isFieldInsideLayerInspector: Bool,
@@ -29,6 +30,7 @@ extension GraphState {
         rowObserver.handleInputEdited(graph: self,
                                       fieldValue: fieldValue,
                                       fieldIndex: fieldIndex,
+                                      rowId: rowId,
                                       activeIndex: activeIndex,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       isCommitting: isCommitting)
@@ -55,10 +57,11 @@ extension InputNodeRowObserver {
                      fieldValue: FieldValue,
                      // Single-fields always 0, multi-fields are like size or position inputs
                      fieldIndex: Int,
+                     rowId: NodeRowViewModelId, // debug assert onlu
                      activeIndex: ActiveIndex,
                      isCommitting: Bool = true) {
         
-        guard let node = graph.getNodeViewModel(self.id.nodeId) else {
+        guard let node = graph.getNode(self.id.nodeId) else {
             fatalErrorIfDebug()
             return
         }
@@ -102,8 +105,33 @@ extension InputNodeRowObserver {
              
             
             self.setValuesInInput([newValue])
-            self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
+            
+            // self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
         }
+        
+#if DEBUG || DEV_DEBUG
+        let expectedFieldsUI: [FieldValues] = newValue.createFieldValuesList(
+            nodeIO: .input,
+            layerInputPort: rowId.portType.keyPath?.layerInput, // assume canvas
+            // "Flyout with one field blocked" case is a little different (`[FieldValues].count` did not change); can dig deeper there if necessary, but for now can just isolate canvas incidents
+            isLayerInspector: false)
+        
+        if let currentFieldsUI: [FieldValues] = graph.getInputRowViewModel(for: rowId)?.fieldsUIViewModel.cachedActiveValue
+            .createFieldValuesList(nodeIO: .input,
+                                   layerInputPort: rowId.portType.keyPath?.layerInput,
+                                   isLayerInspector: false) {
+            
+            // If the underlying pre- and edit-values are the same, then the fields-UI ought to match
+            if newValue == parentPortValue,
+               !rowId.graphItemType.isLayerInspector {
+                assertInDebug(expectedFieldsUI == currentFieldsUI)
+            }
+        }
+#endif
+            
+        // Note: ALWAYS update the field observers; this handles a rare case where the row observer's value had changed but the cached-field-UI had not. We already handle cases like "When a canvas item comes on-screen again, update fields UI."
+        // TODO: track down exactly how underlying row observer and cached/derived-fields-UI get out of sync. For now, this solution here (and in `inputEditCommitted`) work because they are true:
+        self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
         
         node.scheduleForNextGraphStep()
     }
@@ -113,6 +141,7 @@ extension InputNodeRowObserver {
                            fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
+                           rowId: NodeRowViewModelId, // debug assert only
                            activeIndex: ActiveIndex,
                            isFieldInsideLayerInspector: Bool,
                            isCommitting: Bool = true) {
@@ -128,6 +157,7 @@ extension InputNodeRowObserver {
                     rowObserver.inputEdited(graph: graph,
                                             fieldValue: fieldValue,
                                             fieldIndex: fieldIndex,
+                                            rowId: rowId,
                                             activeIndex: activeIndex,
                                             isCommitting: isCommitting)
                     
@@ -141,6 +171,7 @@ extension InputNodeRowObserver {
             self.inputEdited(graph: graph,
                              fieldValue: fieldValue,
                              fieldIndex: fieldIndex,
+                             rowId: rowId,
                              activeIndex: activeIndex,
                              isCommitting: isCommitting)
         }

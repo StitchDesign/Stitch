@@ -111,7 +111,9 @@ extension NodeRowViewModel {
         
         let nodeIO = Self.RowObserver.nodeIOType
                 
-        let newFieldsByGroup = newValue.createFieldValuesList(
+        // TODO: what is perf cost of recreating the FieldValues every time? Can we separate (1) "simple updates, where underlying row observer's PortValue type did not change" from (2) "complex update, where observer's PortValue type may have changed"?
+        // TODO: check `oldValue.asNodeType == newValue.asNodeType` ? If the PortValue type did not change, then the field count etc. could not have changed.
+        let newFieldsByGroup: [FieldValues] = newValue.createFieldValuesList(
             nodeIO: nodeIO,
             layerInputPort: self.id.layerInputPort,
             isLayerInspector: self.isLayerInspector)
@@ -146,12 +148,12 @@ extension NodeRowViewModel {
             
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
         } // zip
-        
+
         
         // Whenever we update ui-fields' values, we need to potentially block or unblock the same/other fields.
         if let node = self.nodeDelegate,
-           let graph = node.graphDelegate,
            let layerNode = node.layerNodeReader,
+           let graph = node.graphDelegate,
            let activeIndex = graph.documentDelegate?.activeIndex {
             
             layerNode.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)
