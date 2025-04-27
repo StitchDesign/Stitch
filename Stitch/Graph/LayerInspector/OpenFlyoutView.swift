@@ -75,7 +75,10 @@ struct OpenFlyoutView: View, KeyboardReadable {
                                         layerNode: layerNode,
                                         graph: graph,
                                         document: document)
-                    } else if flyoutInput.usesColor,
+                    }
+                    // TODO: remove this? all color inputs always use the .popover
+                    // https://github.com/StitchDesign/Stitch--Old/issues/7192
+                    else if flyoutInput.usesColor,
                               let packedRow =  portObserver.packedRowObserverOnlyIfPacked {
                         ColorFlyoutView(graph: graph,
                                         rowObserver: packedRow,
