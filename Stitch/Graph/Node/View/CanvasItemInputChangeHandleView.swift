@@ -52,12 +52,12 @@ struct CanvasItemInputChangeHandleViewModier: ViewModifier {
     var handleBox: some View {
         RoundedRectangle(cornerRadius: 8)
             .fill(.gray)
-            .frame(width: 80, height: 8)
+            .frame(width: 60, height: 8)
             .offset(y: -3)
             // larger hit area, especially for when zoomed out
             .overlay {
                 Rectangle().fill(.white.opacity(0.001))
-                    .frame(width: 120, height: 30)
+                    .frame(width: 100, height: 30)
             }
     }
     

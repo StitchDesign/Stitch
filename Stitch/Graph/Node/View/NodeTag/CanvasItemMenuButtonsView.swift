@@ -11,7 +11,7 @@ import StitchSchemaKit
 // The buttons for a node tag menu;
 // what we provide to SwifUI Menu or SwiftUI .contextMenu
 
-struct NodeTagMenuButtonsView: View {
+struct CanvasItemMenuButtonsView: View {
     @Environment(StitchStore.self) private var store
     
     @Bindable var graph: GraphState
@@ -154,6 +154,8 @@ struct NodeTagMenuButtonsView: View {
             deleteButton
             duplicateButton
             
+            addOrRemoveInputButons
+            
             if let splitterType = splitterType,
                let nodeId = canvasItemId.nodeCase,
                hasSplitterTypeCarousel {
@@ -222,6 +224,35 @@ struct NodeTagMenuButtonsView: View {
 //        }
 //    }
 
+    @ViewBuilder
+    var addOrRemoveInputButons: some View {
+        if canAddInput {
+            addInputButton
+        }
+        
+        if canRemoveInput {
+            removeInputButton
+        }
+    }
+    
+    @MainActor
+    var removeInputButton: some View {
+        nodeTagMenuButton(label: "Remove Input") {
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(InputRemovedAction(nodeId: nodeId))
+            }
+        }
+    }
+    
+    @MainActor
+    var addInputButton: some View {
+        nodeTagMenuButton(label: "Add Input") {
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(InputAddedAction(nodeId: nodeId))
+            }
+        }
+    }
+    
     @MainActor
     func splitterTypeSubmenu(nodeId: NodeId,
                              _ currentSplitterType: SplitterType) -> some View {
