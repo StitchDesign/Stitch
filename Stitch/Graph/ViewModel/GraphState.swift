@@ -121,6 +121,9 @@ final class GraphState: Sendable {
     // Visual edge data
     @MainActor var connectedEdges = [ConnectedEdgeData]()
     
+    // Flag that's read to recalculate graph once elements have initialized
+    @MainActor var shouldRecalculateGraph: Bool = true
+    
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
     @MainActor weak var documentEncoderDelegate: (any DocumentEncodable)?
@@ -278,6 +281,10 @@ extension GraphState {
         if !document.isDebugMode {
             self.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
 
+            // Recalcualte graph only if specified
+            if self.shouldRecalculateGraph {
+                self.initializeGraphComputation()
+            }
         } else {
             // Update all fields since calculation is skipped
             self.updatePortViews()
