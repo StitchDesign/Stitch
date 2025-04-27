@@ -117,6 +117,8 @@ extension StitchStore {
                     return
                 }
                 
+                documentViewModel.graph.initializeGraphComputation()
+                
                 projectLoader.documentViewModel = documentViewModel
                 self?.navPath = [projectLoader]
                 loadedCallback()

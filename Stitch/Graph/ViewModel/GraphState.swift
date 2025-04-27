@@ -277,9 +277,7 @@ extension GraphState {
         
         if !document.isDebugMode {
             self.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
-            
-            // Calculate graph
-            self.initializeGraphComputation()
+
         } else {
             // Update all fields since calculation is skipped
             self.updatePortViews()
