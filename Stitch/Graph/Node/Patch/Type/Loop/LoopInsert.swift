@@ -194,12 +194,7 @@ func loopModificationNodeEval(node: PatchNode,
                     
                     // Add media and a new ephemeral observer
                     existingMediaList.append(media)
-                    guard let newObserver = node.createEphemeralObserver() else {
-                        fatalErrorIfDebug()
-                        return
-                    }
-                    node.ephemeralObservers?.append(newObserver)
-                    
+
                 } else {
                     // replaces the value?
                     //                log("loopInsertEval: will add value: \(value) at \(indexToInsertAt)")
@@ -207,16 +202,10 @@ func loopModificationNodeEval(node: PatchNode,
                     
                     // Add media and a new ephemeral observer
                     existingMediaList.insert(media, at: index)
-                    guard let newObserver = node.createEphemeralObserver() else {
-                        fatalErrorIfDebug()
-                        return
-                    }
-                    node.ephemeralObservers?.insert(newObserver, at: index)
                 }
                 
             case .loopRemove:
                 loop.remove(at: indexToModify)
-                node.ephemeralObservers?.remove(at: indexToModify)
                 existingMediaList.remove(at: indexToModify)
                 
             default:
