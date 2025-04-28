@@ -55,25 +55,65 @@ struct StitchRootView: View {
 
          return document.insertNodeMenuState.show
      }
-    
+            
+//    @State var rootViewFrame: CGRect? = nil
+        
     var body: some View {
-        RecordingView()
-    }
-    
-    var _body: some View {
-        ZStack {
+        
+        // MARK: HStack still distorts ReplayKit; VStack doesn't but messes up top bar
+//        HStack(spacing: 0) { // distorts ReplayKit
+        VStack(spacing: 0) { // no ReplayKit distortion, but top bar buttons mess up
+//        ZStack { // distorts ReplayKit
+            
             if Stitch.isPhoneDevice {
                 iPhoneBody
             } else {
                 splitView
-//#if targetEnvironment(macCatalyst)
                     .overlay(alignment: .center) {
                         if let document = store.currentDocument, showMenu {
                             InsertNodeMenuWrapper(document: document)
                         } // if let document
                     } // .overlay
+                
+//                    .background {
+//                        RecordingView(shouldRecord: store.shouldRecord)
+//                    }
             }
-        }    
+     
+            
+            // Can't .overlay this, nor use ZStack, nor HStack
+//            RecordingView(recorder: store.recorder)
+//            RecordingView()
+//            Rectangle().fill(.clear).frame(width: 1, height: 1)
+            
+        } // ZStack
+        
+        // MARK: attempting to use .background to place the ReplayKit without  avoid avoids distortion in ReplayKit video, but messes up top bar buttons
+        
+//        .overlay(alignment: .center) {
+//            Button("Toggle Recording") {
+//                store.shouldRecord.toggle()
+//            }
+//        }
+//        .background {
+//            RecordingView(shouldRecord: store.shouldRecord)
+//        }
+        
+        // MARK: reading StitchRootView window size
+        
+//        .background {
+//            GeometryReader { geometry in
+//                Color.clear.onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
+//                    log("StitchRootView: oldValue.size: \(oldValue.size)")
+//                    log("StitchRootView: oldValue.origin: \(oldValue.origin)")
+//                    log("StitchRootView: newValue.size: \(newValue.size)")
+//                    log("StitchRootView: newValue.origin: \(newValue.origin)")
+//                    self.rootViewFrame = newValue
+//                    self.frameSizeId = .init()
+//                }
+//            }
+//        }
+
         .modifier(StitchRootModifier())
         .onAppear {
             // TODO: move this to the start of StitchStore instead?
@@ -104,7 +144,6 @@ struct StitchRootView: View {
             }
         }
         .onChange(of: self.store.currentDocument?.leftSidebarOpen ?? false) { oldValue, newValue in
-//            dispatch(LeftSidebarSet(open: true))
             if newValue {
                 self.columnVisibility = .doubleColumn
             } else {
@@ -116,7 +155,6 @@ struct StitchRootView: View {
         .environment(\.edgeStyle, edgeStyle)
     }
     
-    // TODO: why doesn't `mySwiftUIScene.windowStyle(.hidden)` compile even when behind `#if targetEnvironment(macCatalyst)` flag ?
     @MainActor
     func hideTitleAndSetMinimumWindowSize() {
 #if targetEnvironment(macCatalyst)
@@ -124,14 +162,8 @@ struct StitchRootView: View {
             windowScene.titlebar?.titleVisibility = .hidden
             windowScene.titlebar?.toolbarStyle = .unified
             
-//            if let windowScene = scene as? UIWindowScene {
-//                if let window = windowScene.windows.first {
-            
-            // THIS WORKED!!
-//            windowScene.windows.first?.rootViewController?.view.bounds.size = CGSize(width: 800, height: 600)
-            windowScene.windows.first?.rootViewController?.view.bounds.size = CGSize(width: 800, height: 600)
-//                }
-//            }
+            // MARK: avoids distortion in ReplayKit video, but messes up top bar buttons
+//            windowScene.windows.first?.rootViewController?.view.bounds.size = CGSize(width: 1024, height: 768)
             
 //            windowScene.sizeRestrictions?.minimumSize = .init(
 //                width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
@@ -149,6 +181,15 @@ struct StitchRootView: View {
         // we don't need to use `NavigationSplitView`.
         StitchNavStack(store: store)
     }
+
+    // MARK: reading document's frame
+//    var frameSize: CGSize? {
+//        if let doc = store.currentDocument {
+//            return doc.frame.size
+//        } else {
+//            return nil
+//        }
+//    }
     
     @MainActor
     var splitView: some View {
@@ -157,8 +198,13 @@ struct StitchRootView: View {
             sidebar: {
                 topLevelSidebar
                 
+                // MARK: attempting to place the recording view; ReplayKit video still gets distorted
+//                RecordingView()
+                
                 // Needed on Catalyst to prevent sidebar button from sliding into traffic light buttons
-//#if targetEnvironment(macCatalyst)
+                
+                // MARK: what we do on `development`, but removed for testing purposes here; ReplayKit video still gets distorted
+//#if targetEnvironment(macCatalysYt)
 //                    .toolbar(.hidden)
 //#endif
             },
@@ -168,12 +214,39 @@ struct StitchRootView: View {
                 // Projects Home View <-> some Loaded Project;
                 // gives us proper back button etc.
                 StitchNavStack(store: store)
-                    // .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
+                     .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
             })
         
         
-        // NOT NEEDED ANYMORE ?
+        // MARK: avoids distortion in ReplayKit video, but messes up top bar buttons
+//        .frame(minWidth: 1024, idealWidth: 1024, maxWidth: 1024, minHeight: 768, idealHeight: 768, maxHeight: 768)
         
+        // MARK: reading StitchRootView's GeometryReader size; causes error with ReplayKit's startRecording
+//        .frame(minWidth: store.recorder.isRecording ? 1024 : nil,
+//               idealWidth: store.recorder.isRecording ? 1024 : nil,
+//               maxWidth: store.recorder.isRecording ? 1024 : nil,
+//               minHeight: store.recorder.isRecording ? 768 : nil,
+//               idealHeight: store.recorder.isRecording ? 768 : nil,
+//               maxHeight: store.recorder.isRecording ? 768 : nil)
+
+        // MARK: reading StitchRootView's GeometryReader size; causes error with ReplayKit's startRecording
+//        .frame(minWidth: self.rootViewFrame?.size.width,
+//               idealWidth: self.rootViewFrame?.size.width,
+//               maxWidth: self.rootViewFrame?.size.width,
+//               minHeight: self.rootViewFrame?.size.height,
+//               idealHeight: self.rootViewFrame?.size.height,
+//               maxHeight: self.rootViewFrame?.size.height)
+//
+        // MARK: reading frame from current document
+//        .frame(minWidth: self.frameSize?.width,
+//               idealWidth: self.frameSize?.width,
+//               maxWidth: self.frameSize?.width,
+//               minHeight: self.frameSize?.height,
+//               idealHeight: self.frameSize?.height,
+//               maxHeight: self.frameSize?.height)
+        
+        
+                
         // On iPad's graph view, we use a custom top bar, and so do not have the native bar's sidebar-icon for opening or closing sidebar;
         // instead we listen to redux state.
 #if !targetEnvironment(macCatalyst)
@@ -215,67 +288,18 @@ struct StitchRootView: View {
     }
 }
 
-import Foundation
-import ReplayKit
-
-//@Observable
-//final class ReplayKitRecorder: NSObject, RPPreviewViewControllerDelegate {
-//    private let recorder = RPScreenRecorder.shared()
-//    
-//    var isRecording = false
-//    
-//    func startRecording() {
-//        guard !recorder.isRecording else {
-//            return
-//        }
-//        
-//        recorder.startRecording { [weak self] error in
-//            DispatchQueue.main.async { [weak self] in
-//                if let error = error {
-//                    print("Failed to start recording: \(error.localizedDescription)")
-//                } else {
-//                    print("Started recording")
-//                    self?.isRecording = true
-//                }
-//            }
-//        }
-//    }
-//    
-//    func stopRecording() {
-//        guard recorder.isRecording else { return }
-//        
-//        recorder.stopRecording { [weak self] previewVC, error in
-//            DispatchQueue.main.async {
-//                if let error = error {
-//                    print("Failed to stop recording: \(error.localizedDescription)")
-//                } else {
-//                    print("Stopped recording")
-//                    self?.isRecording = false
-//                    
-//                    // Show the preview if available
-//                    if let previewVC = previewVC {
-//                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//                           let rootVC = windowScene.windows.first?.rootViewController {
-//                            previewVC.modalPresentationStyle = .fullScreen
-//                            rootVC.present(previewVC, animated: true, completion: nil)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
 
 import Foundation
 import ReplayKit
 import UIKit
 
-@MainActor
-class ReplayKitRecorder: NSObject, ObservableObject {
+@MainActor @Observable
+class ReplayKitRecorder: NSObject {
     private let recorder = RPScreenRecorder.shared()
     
-    @Published var isRecording = false
+    var isRecording = false
     
+    @MainActor
     func startRecording() {
         guard !recorder.isRecording else { return }
         
@@ -289,6 +313,7 @@ class ReplayKitRecorder: NSObject, ObservableObject {
         }
     }
     
+    @MainActor
     func stopRecording() {
         guard recorder.isRecording else { return }
         
@@ -335,11 +360,21 @@ extension ReplayKitRecorder: RPPreviewViewControllerDelegate {
 
 struct RecordingView: View {
     @State var recorder = ReplayKitRecorder()
+//    @Bindable var recorder: ReplayKitRecorder // can also pass down from StitchStore
+    
+    var shouldRecord: Bool = false
     
     var body: some View {
         HStack {
-            previews
+//            previews
             buttonStack
+        }
+        .onChange(of: self.shouldRecord, initial: true) { oldValue, newValue in
+            if newValue {
+                self.recorder.startRecording()
+            } else {
+                self.recorder.stopRecording()
+            }
         }
     }
     
@@ -369,12 +404,23 @@ struct RecordingView: View {
             Text(recorder.isRecording ? "Recording..." : "Not Recording")
                 .font(.title)
                 .padding()
+                .frame(width: 200, height: 50)
             
             Button(action: {
                 if recorder.isRecording {
+                    //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     recorder.stopRecording()
+                    //                    }
+                    
                 } else {
+                    //                    if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
+                    //                        windowScene.windows.first?.rootViewController?.view.bounds.size = CGSize(width: 1024, height: 768)
+                    //                    }
+                    
+                    //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     recorder.startRecording()
+                    //                    }
+                    
                 }
             }) {
                 Text(recorder.isRecording ? "Stop Recording" : "Start Recording")
@@ -383,8 +429,6 @@ struct RecordingView: View {
                     .cornerRadius(10)
             }
         }
-//        .frame(width: 400, height: 300)
-//        .frame(width: 400, height: 300)
         .padding()
     }
 }

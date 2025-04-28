@@ -13,6 +13,10 @@ import StitchSchemaKit
 @Observable
 final class StitchStore: Sendable {
     
+    @MainActor var shouldRecord: Bool = false
+    
+//    @MainActor var recorder = ReplayKitRecorder()
+    
     // For now, just for debug purposes
     @MainActor var homescreenProjectSelectionState = HomescreenProjectSelectionState()
     
