@@ -111,7 +111,7 @@ func loopBuilderEval(node: PatchNode,
                                     .asyncMedia(nil)])
             }
             
-            let asyncMedia = AsyncMediaValue(id: .init(),
+            let asyncMedia = AsyncMediaValue(id: mediaObject.id,
                                              dataType: .computed,
                                              label: inputMediaValue.label)
             return .init(values: [indexPortValue,
