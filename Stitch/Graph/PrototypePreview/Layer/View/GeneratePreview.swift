@@ -503,7 +503,11 @@ struct NonGroupPreviewLayersView: View {
                     return
                 }
                 
-                Task(priority: .high) { [weak layerViewModel] in
+                Task(priority: .high) { [weak layerViewModel, weak document] in
+                    guard let document = document else {
+                        return
+                    }
+                    
                     await layerViewModel?.loadMedia(mediaValue: mediaValue,
                                                     document: document,
                                                     mediaRowObserver: layerViewModel?.mediaRowObserver)
