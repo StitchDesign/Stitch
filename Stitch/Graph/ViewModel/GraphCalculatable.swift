@@ -88,7 +88,9 @@ extension GraphState {
             pinMap: rootPinMap,
             activeIndex: activeIndex)
                 
-        if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
+        if !LayerDataList.equals(self.cachedOrderedPreviewLayers,
+                                 previewLayers,
+                                 graph: self) {
             self.cachedOrderedPreviewLayers = previewLayers
         }
         if self.flattenedPinMap != flattenedPinMap {
