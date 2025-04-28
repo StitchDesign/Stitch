@@ -161,6 +161,9 @@ final class StitchDocumentViewModel: Sendable {
         
         self.initializeDelegate(store: store,
                                 isInitialization: true)
+        
+        // Set graph updater ID so that first persistence doesn't falsely detect a graph change
+        self.refreshGraphUpdaterId()
     }
     
     @MainActor
@@ -287,7 +290,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
                 }
                 
                 let value = $0.getActiveValue(activeIndex: self.activeIndex)
-                if let pulse = value.getPulse {
+                if value.getPulse.isDefined {
                     // Default to zero as we don't want pulse changes to trigger graph updates
                     return .pulse(.zero)
                 }
