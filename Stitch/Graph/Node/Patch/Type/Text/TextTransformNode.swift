@@ -56,8 +56,8 @@ func textTransformEval(inputs: PortValuesList,
                        outputs: PortValuesList) -> PortValuesList {
 
     let op: Operation = { (values: PortValues) -> PortValue in
-        let text: String = (values[safe: 0]?.getString?.string ?? .empty)
-        let transform: TextTransform = (values[1].getTextTransform ?? .defaultTransform)
+        let text: String = (values.first?.getString?.string ?? .empty)
+        let transform: TextTransform = (values[safe: 1]?.getTextTransform ?? .defaultTransform)
 
         switch transform {
         case .uppercase:

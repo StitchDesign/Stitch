@@ -45,10 +45,10 @@ struct PulseNode: PatchNodeDefinition {
 @MainActor
 func pulseNodeEval(node: PatchNode,
                    // only needs graphTime
-                   state: GraphStepState) -> ImpureEvalResult {
+                   state: GraphStepState) -> EvalResult {
     let graphTime = state.graphTime
     
-    return node.loopedEval(ComputedNodeState.self) { values, computedState, _ in
+    return node.loopedEval(ComputedNodeState.self) { values, computedState, _ -> PortValues in
         let newVal = values.first?.getBool ?? false
         let computedStates = node.computedStates
         
@@ -63,33 +63,26 @@ func pulseNodeEval(node: PatchNode,
         
         if newVal && !prevVal {
             //            log("pulseNodeClosure: false -> true")
-            return .init(outputs:
-                [
-                    .pulse(graphTime),
-                    output2
-                ]
-            )
+            return [
+                .pulse(graphTime),
+                output2
+            ]
         }
         // ie turned off: was true, is now false
         else if !newVal && prevVal {
             //            log("pulseNodeClosure: true -> false")
-            return .init(outputs:
-                [
-                    output,
-                    .pulse(graphTime)
-                ]
-            )
+            return [
+                output,
+                .pulse(graphTime)
+            ]
         }
         // no change
         else {
             //            log("pulseNodeClosure: no change")
-            return .init(outputs:
-                [
-                    output,
-                    output2
-                ]
-            )
+            return [
+                output,
+                output2
+            ]
         }
     }
-    .toImpureEvalResult()//defaultOutputs: PulseNode.defaultOutputs)
 }

@@ -16,7 +16,7 @@ struct LayerInspectorRowButton: View {
     let layerInputObserver: LayerInputObserver?
     let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
-    let canvasItemId: CanvasItemId?
+    let packedInputCanvasItemId: CanvasItemId?
     let isHovered: Bool
     
     // non-nil = this inspector row button is for a field, not a
@@ -59,7 +59,7 @@ struct LayerInspectorRowButton: View {
     
     @MainActor
     var showButton: Bool {
-        if canvasItemId.isDefined || isWholeInputWithAtleastOneFieldAlreadyOnCanvas ||  isHovered || (canBeAddedToCanvas && isPortSelected) {
+        if packedInputCanvasItemId.isDefined || isWholeInputWithAtleastOneFieldAlreadyOnCanvas ||  isHovered || (canBeAddedToCanvas && isPortSelected) {
             return true
         } else {
             return false
@@ -68,7 +68,7 @@ struct LayerInspectorRowButton: View {
     
     @MainActor
     var imageString: String {
-        if canvasItemId.isDefined {
+        if packedInputCanvasItemId.isDefined {
             return "scope"
         } else if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
             return "circle.fill"
@@ -84,22 +84,25 @@ struct LayerInspectorRowButton: View {
             let nodeId = coordinate.nodeId
             
             // If we're already on the canvas, jump to that canvas item
-            if let canvasItemId = canvasItemId {
-                graph.jumpToCanvasItem(id: canvasItemId,
-                                       document: document)
+            if let canvasItemId = packedInputCanvasItemId {
+                dispatch(JumpToCanvasItem(id: canvasItemId))
             }
             
             // Else we're adding an input (whole or field) or an output to the canvas
             else if let layerInput = coordinate.keyPath {
                 
-                if let fieldIndex = fieldIndex {
+                if let fieldIndex = fieldIndex,
+                   // Only for unpacked
+                   layerInput.portType != .packed {
                     dispatch(LayerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
                                                          nodeId: nodeId,
                                                          fieldIndex: fieldIndex))
-                } else {
+                    
+                } else if layerInput.portType == .packed {
+                    // Only for packed
                     dispatch(LayerInputAddedToGraph(
                         nodeId: nodeId,
-                        coordinate: layerInput))
+                        layerInput: layerInput.layerInput))
                 }
                 
             } else if let portId = coordinate.portId {

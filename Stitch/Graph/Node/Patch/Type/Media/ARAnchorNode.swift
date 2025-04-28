@@ -46,7 +46,7 @@ final class ARAnchorObserver: MediaEvalOpObservable {
     
     let mediaActor = MediaEvalOpCoordinator()
 
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     
     @MainActor init() {
         self.mediaViewModel = .init()
@@ -54,7 +54,7 @@ final class ARAnchorObserver: MediaEvalOpObservable {
 }
 
 extension ARAnchorObserver {
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 @MainActor

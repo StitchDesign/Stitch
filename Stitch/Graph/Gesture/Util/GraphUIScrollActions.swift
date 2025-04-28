@@ -154,22 +154,27 @@ extension GraphState {
 //            self.graphMovement.graphIsDragged = true
 //        }
 
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // If we don't have an active first gesture,
         // and node isn't already dragging,
         // then set graph-drag as active first gesture
-        if self.graphMovement.firstActive == .none {
-            if !self.graphMovement.canvasItemIsDragged {
+        if graphMovement.firstActive == .none {
+            if !graphMovement.canvasItemIsDragged {
                 log("graphDrag onChanged: will set .graph as active first gesture")
-                self.graphMovement.firstActive = .graph
+                graphMovement.firstActive = .graph
             }
         }
 
-        self.graphMovement.runningGraphTranslation = translation
+        graphMovement.runningGraphTranslation = translation
 
         // If we're simultaneously dragging the node,
         // add inverse graph translation to node's position,
         // so that node stays under our finger:
-        if self.graphMovement.canvasItemIsDragged {
+        if graphMovement.canvasItemIsDragged {
 
             self.getSelectedCanvasItems(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
                 .forEach { node in
@@ -177,14 +182,14 @@ extension GraphState {
                 node.updateNodeOnGraphDragged(
                     translation,
                     self.highestZIndex + 1,
-                    zoom: self.graphMovement.zoomData,
-                    state: self.graphMovement)
+                    zoom: graphMovement.zoomData,
+                    state: graphMovement)
             }
 
             //    log("handleGraphScrolled: state.graphMovement.localPosition is now: \(state.graphMovement.localPosition)")
         }
         
-        self.graphMovement.wasTrackpadScroll = wasTrackpadScroll
+        graphMovement.wasTrackpadScroll = wasTrackpadScroll
     }
 
     // `handleGraphScrolled` is kept relatively pure and separate;
@@ -279,8 +284,11 @@ extension GraphState {
 
         //    log("handleTrackpadGraphDragEnded called")
 
-        let graphMovement = self.graphMovement
-
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // DO NOT reset selected nodes themselves
         self.selection.expansionBox = nil
         self.selection.isSelecting = false
@@ -303,9 +311,10 @@ extension GraphState {
                         wasScreenDrag: Bool,
                         frame: CGRect) {
 
-        let graphMovement = self.graphMovement
-
-        let doNotStartMomentum = wasScreenDrag && self.selection.isSelecting
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
 
         // always set start and current location of drag gesture
         self.selection.dragStartLocation = nil

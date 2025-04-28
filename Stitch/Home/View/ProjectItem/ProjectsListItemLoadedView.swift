@@ -52,9 +52,10 @@ struct ProjectThumbnailTextField: View {
             // Manually update the project's name in the state that other views (e.g. ProjectsListItemView) listen to.
             if let project: ProjectLoader = store.allProjectUrls.first(where: { $0.loadedDocument?.0.id == document.id }),
                let index = store.allProjectUrls.firstIndex(where: { $0.id == project.id }),
-               var (loadedDocument, loadedImage) = project.loadedDocument {
+               let (loadedDocument, loadedImage) = project.loadedDocument {
                 
                 // Update the project's name
+                var loadedDocument = loadedDocument
                 loadedDocument.graph.name = projectName
                 project.loadingDocument = .loaded(loadedDocument, loadedImage)
                 
@@ -98,7 +99,6 @@ extension StitchStore {
     @MainActor
     func handleProjectTapped(projectLoader: ProjectLoader,
                              document: StitchDocument,
-                             isPhoneDevice: Bool,
                              isDebugMode: Bool,
                              loadedCallback: @MainActor @Sendable @escaping () -> ()) {
         Task { [weak projectLoader] in
@@ -106,7 +106,6 @@ extension StitchStore {
             
             let documentViewModel = await StitchDocumentViewModel(
                 from: document,
-                isPhoneDevice: isPhoneDevice,
                 projectLoader: projectLoader,
                 store: self,
                 isDebugMode: isDebugMode

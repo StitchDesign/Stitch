@@ -39,10 +39,10 @@ struct MediaInputFieldValueView: View {
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
-    let isNodeSelected: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
+    let mediaType: NodeMediaSupport
     
     @Bindable var graph: GraphState
     let document: StitchDocumentViewModel
@@ -65,6 +65,7 @@ struct MediaInputFieldValueView: View {
         
         HStack {
             MediaPickerValueEntry(rowObserver: rowObserver,
+                                  node: node,
                                   isUpstreamValue: isUpstreamValue,
                                   mediaValue: media,
                                   label: mediaName,
@@ -73,10 +74,8 @@ struct MediaInputFieldValueView: View {
                                   graph: graph,
                                   isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
                                   isSelectedInspectorRow: isSelectedInspectorRow,
-                                  activeIndex: document.activeIndex)
-            .onChange(of: mediaName, initial: true) {
-                // log("media name in inner value view: \(mediaName)")
-            }
+                                  activeIndex: document.activeIndex,
+                                  mediaType: mediaType)
             
             MediaFieldLabelView(viewModel: viewModel,
                                 inputType: viewModel.id.rowId.portType,
@@ -86,7 +85,6 @@ struct MediaInputFieldValueView: View {
                                 coordinate: rowObserver.id,
                                 isInput: isInput,
                                 fieldIndex: fieldIndex,
-                                isNodeSelected: isNodeSelected,
                                 isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
         }
     }
@@ -104,16 +102,13 @@ struct MediaFieldLabelView: View {
     let coordinate: InputCoordinate
     let isInput: Bool
     let fieldIndex: Int
-    let isNodeSelected: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     @MainActor
     func updateMediaObserver() {
         self.mediaObserver = node.getMediaObserver(portType: inputType,
-                                                   
                                                    // TODO: loop support
                                                    loopIndex: 0,
-                                                   
                                                    // TODO: remove media ID check
                                                    mediaId: nil)
     }

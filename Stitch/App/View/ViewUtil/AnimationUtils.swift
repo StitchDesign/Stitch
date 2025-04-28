@@ -147,9 +147,9 @@ struct StitchAnimated: ViewModifier {
             .onAppear {
                 willAnimateBinding = willAnimateState
             }
-            .onChange(of: willAnimateState) { willAnimate in
+            .onChange(of: willAnimateState) { oldValue, newValue in
                 withAnimation(animation) {
-                    willAnimateBinding = willAnimate
+                    willAnimateBinding = newValue
                 }
             }
     }

@@ -19,7 +19,6 @@ struct OutputValueEntry: View {
     let node: NodeViewModel
     let canvasItem: CanvasItemViewModel?
     let isMultiField: Bool
-    let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -49,7 +48,6 @@ struct OutputValueEntry: View {
                         node: node,
                         canvasItem: canvasItem,
                         isMultiField: isMultiField,
-                        isCanvasItemSelected: isCanvasItemSelected,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                         isFieldInMultifieldInput: isFieldInMultifieldInput,
@@ -82,7 +80,6 @@ struct OutputValueView: View {
     let node: NodeViewModel
     let canvasItem: CanvasItemViewModel?
     let isMultiField: Bool
-    let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -121,27 +118,27 @@ struct OutputValueView: View {
 
     var body: some View {
         switch fieldValue {
-            case .bool(let bool):
-                BoolCheckboxView(rowObserver: nil,
-                                 graph: graph,
-                                 document: document,
-                                 value: bool,
-                                 isFieldInsideLayerInspector: false,
-                                 isSelectedInspectorRow: isSelectedInspectorRow,
-                                 isMultiselectInspectorInputWithHeterogenousValues: false)
-                
-            case .dropdown(let choiceDisplay, _):
-                // Values that use dropdowns for their inputs use instead a display-only view for their outputs
-                readOnlyView(choiceDisplay)
-                
-            case .anchorEntity(let anchorEntityId):
-                let displayName = graph.getNodeViewModel(anchorEntityId ?? .init())?.getDisplayTitle() ?? AnchorDropdownChoice.noneDisplayName
-                readOnlyView(displayName)
-                
-            case .layerGroupAlignment(_):
-                EmptyView() // Can't really happen
-                
-            case .media(let media):
+        case .bool(let bool):
+            BoolCheckboxView(rowObserver: nil,
+                             graph: graph,
+                             document: document,
+                             value: bool,
+                             isFieldInsideLayerInspector: false,
+                             isSelectedInspectorRow: isSelectedInspectorRow,
+                             isMultiselectInspectorInputWithHeterogenousValues: false)
+            
+        case .dropdown(let choiceDisplay, _):
+            // Values that use dropdowns for their inputs use instead a display-only view for their outputs
+            readOnlyView(choiceDisplay)
+            
+        case .anchorEntity(let anchorEntityId):
+            let displayName = graph.getNodeViewModel(anchorEntityId ?? .init())?.getDisplayTitle() ?? AnchorDropdownChoice.noneDisplayName
+            readOnlyView(displayName)
+            
+        case .layerGroupAlignment:
+            EmptyView() // Can't really happen
+            
+        case .media:
             MediaFieldLabelView(viewModel: viewModel,
                                 inputType: viewModel.id.rowId.portType,
                                 node: node,
@@ -150,28 +147,52 @@ struct OutputValueView: View {
                                 coordinate: rowObserver.id,
                                 isInput: false,
                                 fieldIndex: fieldIndex,
-                                isNodeSelected: isCanvasItemSelected,
                                 isMultiselectInspectorInputWithHeterogenousValues: false)
-                
-            case .color(let color):
-                StitchColorPickerOrb(chosenColor: color,
-                                     isMultiselectInspectorInputWithHeterogenousValues: false)
-                
-            case .pulse(let pulseTime):
-                PulseValueButtonView(graph: graph,
-                                     rowObserver: nil,
-                                     canvasItem: canvasItem,
-                                     pulseTime: pulseTime,
-                                     hasIncomingEdge: false)
-                
-            case .json(let json):
-                ValueJSONView(coordinate: rowViewModel.id.asNodeIOCoordinate,
-                              json: isButtonPressed ? json : nil,
+            
+        case .color(let color):
+            StitchColorPickerOrb(chosenColor: color,
+                                 isMultiselectInspectorInputWithHeterogenousValues: false)
+            
+        case .pulse(let pulseTime):
+            PulseValueButtonView(graph: graph,
+                                 rowObserver: nil,
+                                 canvasItem: canvasItem,
+                                 pulseTime: pulseTime,
+                                 hasIncomingEdge: false)
+            
+        case .json(let json):
+            ValueJSONView(coordinate: rowViewModel.id.asNodeIOCoordinate,
+                          json: isButtonPressed ? json : nil,
+                          isSelectedInspectorRow: isSelectedInspectorRow,
+                          isPressed: $isButtonPressed)
+            
+        case .anchorPopover(let anchor):
+            AnchorPopoverView(rowObserver: rowObserver,
+                              graph: graph,
+                              document: document,
+                              selection: anchor,
+                              isFieldInsideLayerInspector: false,
                               isSelectedInspectorRow: isSelectedInspectorRow,
-                              isPressed: $isButtonPressed)
-                
-            default:
-                readOnlyView(self.fieldValue.stringValue)
+                              hasHeterogenousValues: false)
+            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+                   height: NODE_ROW_HEIGHT,
+                   // Note: why are these reversed? Because we scaled the view down?
+                   alignment: .leading)
+            .offset(x: -4)
+            .disabled(true)
+            
+        case .layerDropdown(let layerNodeId):
+            // Cannot use default readOnly logic due to logic needed to fetch selected node
+            if let layerNodeId = layerNodeId,
+               let name = self.graph.getNodeViewModel(layerNodeId.asNodeId)?
+                .getDisplayTitle() {
+                readOnlyView(name)
+            } else {
+                readOnlyView("None")
+            }
+            
+        default:
+            readOnlyView(self.fieldValue.stringValue)
         }
     }
 

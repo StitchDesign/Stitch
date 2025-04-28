@@ -41,37 +41,22 @@ func trimTextEval(inputs: PortValuesList,
 
     let op: Operation = { (values: PortValues) -> PortValue in
         let text: String = values[safe: 0]?.getString?.string ?? .empty
-        let position: Int = Int(values[safe: 1]?.getNumber ?? .zero)
+        var position: Int = Int(values[safe: 1]?.getNumber ?? .zero)
         let length: Int = Int(values[safe: 2]?.getNumber ?? .zero)
-
+        
         if position > (text.count - 1) {
-            // log("trimTextEval: position too far")
             return .string(.init(""))
-        } else if length > text.count {
-            // log("trimTextEval: length too large for text")
-            return .string(.init(text))
         } else {
-
-            // if length is too far for the position-started string,
-            // then return
-            let newSub = text.substring(from: position)
-
-            if length > newSub.count {
-                // log("trimTextEval: length too large for substring")
-                let s = newSub[newSub.startIndex...newSub.endIndex]
-                // log("trimTextEval: length too large for substring: s: \(s)")
-                return .string(.init(String(s)))
+            // Treat negative position as 0th index
+            if position < 0 {
+                position = 0
             }
-
-            // the part of the string starting at position, to the end
-            let endPosition = position + length
-            let sub = text.substring(
-                with: position..<endPosition)
-
-            // log("trimTextEval: position: \(position)")
-            // log("trimTextEval: endPosition: \(endPosition)")
-            // log("trimTextEval: sub: \(sub)")
-            return .string(.init(sub))
+            
+            let newSub = text
+                .substring(from: position)
+                .prefix(length)
+            
+            return .string(StitchStringValue(String(newSub)))
         }
     }
 

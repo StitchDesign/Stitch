@@ -12,17 +12,19 @@ import StitchSchemaKit
 // DELETING OR UNGROUPING A NODE UI GROUPING
 
 // Group node deletion needs to remove the group node state plus all nodes inside the group
-struct GroupNodeDeletedAction: ProjectEnvironmentEvent {
+struct GroupNodeDeletedAction: StitchDocumentEvent {
     let groupNodeId: GroupNodeId
 
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         log("GroupNodeDeletedAction called: groupNodeId: \(groupNodeId)")
-
-//        graphState.deleteNode(id: groupNodeId.asNodeId)
-        graphState.deleteCanvasItem(.node(groupNodeId.asNodeId))
-        graphState.updateGraphData()
-        return .persistenceResponse
+        let graph = state.visibleGraph
+        graph.deleteCanvasItem(.node(groupNodeId.asNodeId),
+                               document: state)
+        
+        // TODO: APRIL 11: should not be necessary anymore? since causes a persistence change
+         graph.updateGraphData(state)
+        
+        state.encodeProjectInBackground()
     }
 }
 
@@ -36,8 +38,8 @@ struct GroupNodeUncreated: StitchDocumentEvent {
         log("GroupNodeUncreated called for groupId: \(groupId)")
         state.visibleGraph
             .handleGroupNodeUncreated(groupId.asNodeId,
-                                      groupNodeFocused: state.groupNodeFocused?.groupNodeId)
-        
+                                      groupNodeFocused: state.groupNodeFocused?.groupNodeId,
+                                      document: state)
         state.encodeProjectInBackground()
     }
 }
@@ -52,7 +54,8 @@ struct SelectedGroupNodesUncreated: StitchDocumentEvent {
             if (canvasItem.nodeDelegate?.isGroupNode ?? false),
                case let .node(nodeId) = canvasItem.id {
                 graph.handleGroupNodeUncreated(nodeId,
-                                               groupNodeFocused: state.groupNodeFocused?.groupNodeId)
+                                               groupNodeFocused: state.groupNodeFocused?.groupNodeId,
+                                               document: state)
             }
         }
         
@@ -66,7 +69,8 @@ extension GraphState {
     // to compensate for the destruction of the GroupNode's input and output splitter nodes.
     @MainActor
     func handleGroupNodeUncreated(_ uncreatedGroupNodeId: NodeId,
-                                  groupNodeFocused: NodeId?) {
+                                  groupNodeFocused: NodeId?,
+                                  document: StitchDocumentViewModel) {
         let newGroupId = groupNodeFocused
         
         // Deselect
@@ -86,7 +90,7 @@ extension GraphState {
                     
                     // Delete splitter input/output nodes here
                     // Can ignore undo effects since that's only for media nodes
-                    let _ = self.deleteNode(id: node.id)
+                    let _ = self.deleteNode(id: node.id, document: document)
                     return
                 }
                 
@@ -102,8 +106,13 @@ extension GraphState {
         // NOTE: CANNOT USE `GraphState.deleteNode` because that deletes the group node's children as well
         self.visibleNodesViewModel.nodes.removeValue(forKey: uncreatedGroupNodeId)
         
-        self.updateGraphData()
-
+        // TODO: APRIL 11: should not be necessary anymore? since causes a persistence change
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.updateGraphData(document)
+        
         // Process and encode changes
         self.encodeProjectInBackground()
     }

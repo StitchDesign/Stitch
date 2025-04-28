@@ -50,8 +50,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     @MainActor weak var parentDelegate: SidebarItemGestureViewModel? {
         didSet {
             dispatch(AssignedLayerUpdated(changedLayerNode: self.id.asLayerNodeId))
-            dispatch(LayerGroupIdChanged(layerNodeId: self.id.asLayerNodeId,
-                                         activeIndex: sidebarDelegate?.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
+            dispatch(LayerGroupIdChanged(nodeId: self.id))
         }
     }
 
@@ -107,8 +106,8 @@ extension SidebarItemGestureViewModel {
         self.graphDelegate?.getNode(self.id)?.kind.getDisplayTitle(customName: "") ?? ""
     }
     
-    @MainActor var isVisible: Bool {
-        guard let node = self.graphDelegate?.getLayerNode(id: self.id)?.layerNode else {
+    @MainActor func isVisible(graph: GraphReader) -> Bool {
+        guard let node = graph.getLayerNode(self.id) else {
 //            fatalErrorIfDebug()
             return true
         }
@@ -137,12 +136,12 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func didDeleteItem() {
-        self.graphDelegate?.sidebarItemDeleted(itemId: self.id)
+        self.graphDelegate?.documentDelegate?.sidebarItemDeleted(itemId: self.id)
     }
     
     @MainActor
     func didToggleVisibility() {
-        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.id))
+        dispatch(SelectedLayersVisiblityUpdated(selectedLayers: .init([self.id])))
     }
     
     @MainActor
@@ -156,14 +155,13 @@ extension SidebarItemGestureViewModel {
     }
     
     @MainActor
-    var isHidden: Bool {
-        self.graphDelegate?.getVisibilityStatus(for: self.id) != .visible
+    func isHidden(graph: GraphReader) -> Bool {
+        graph.getVisibilityStatus(for: self.id) != .visible
     }
     
     // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
     @MainActor
-    var masks: Bool {
-        guard let graph = self.graphDelegate else { return false }
+    func isMasking(graph: GraphReader) -> Bool {
         
         // TODO: why is this not animated? and why does it jitter?
 //        // index of this layer
@@ -177,9 +175,9 @@ extension SidebarItemGestureViewModel {
 //            return withAnimation { false }
 //        }
 //
-        let atleastOneIndexMasks = graph
-            .getLayerNode(id: self.id)?
-            .layerNode?.masksPort.allLoopedValues
+        let atleastOneIndexMasks = graph.getLayerNode(self.id)?
+            .masksPort
+            .allLoopedValues
             .contains(where: { $0.getBool ?? false })
         ?? false
         
@@ -190,6 +188,6 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func sidebarItemDeleted(itemId: SidebarListItemId) {
-        self.graphDelegate?.sidebarItemDeleted(itemId: itemId)
+        self.graphDelegate?.documentDelegate?.sidebarItemDeleted(itemId: itemId)
     }
 }

@@ -43,7 +43,7 @@ We’re a group of passionate engineers and designers who share a love for Apple
 * [Adam](https://adammenges.com)
 * [Josh](https://x.com/joshuapekera)
 
-Want to help? Either open up a PR, Issue, or Email us (bricksZZZ.ZZZmuzzle_0t@icloud.com (remove the capital Z's)). We're looking for both engineering and design help.
+Want to help? Either open up a PR, Issue, or Email us (helloZZZZ@stitchdesign.app (remove the capital Z's)). We're looking for both engineering and design help.
 
 Join in and help us, we’ll be keeping this list up to date.
 

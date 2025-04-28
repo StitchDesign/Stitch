@@ -29,7 +29,8 @@ struct DeleteShortcutKeyPressed: StitchDocumentEvent {
 
             // delete nodes
             graph.selectedGraphNodesDeleted(
-                selectedNodes: graph.selectedCanvasItems)
+                selectedNodes: graph.selectedCanvasItems,
+                document: state)
         }
                 
         state.encodeProjectInBackground()
@@ -50,7 +51,8 @@ struct SelectedGraphNodesDeleted: StitchDocumentEvent {
         }
 
         graph.selectedGraphNodesDeleted(
-            selectedNodes: graph.selectedCanvasItems)
+            selectedNodes: graph.selectedCanvasItems,
+            document: state)
 
         state.encodeProjectInBackground()
     }
@@ -60,10 +62,13 @@ struct SelectedGraphNodesDeleted: StitchDocumentEvent {
 extension GraphState {
     // Preferred way to delete node(s); deletes each individual node and intelligently handles batch operations
     @MainActor
-    func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet) {
+    func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet,
+                                   document: StitchDocumentViewModel) {
 
+        let graphMovement = document.graphMovement
+        
         selectedNodes.forEach { canvasItemId in
-            self.deleteCanvasItem(canvasItemId)
+            self.deleteCanvasItem(canvasItemId, document: document)
         }
             
         // reset node-ui highlight/selection state
@@ -74,18 +79,19 @@ extension GraphState {
         // and so deleting the selected nodes means de-selecting those associated edges)
         self.selectedEdges = .init()
 
-        self.graphMovement.draggedCanvasItem = nil
-        
-        self.updateGraphData()
+        graphMovement.draggedCanvasItem = nil
+
+        self.updateGraphData(document)
     }
     
     // Varies by node vs LayerInputOnGraph vs comment box
     @MainActor
-    func deleteCanvasItem(_ id: CanvasItemId) {
+    func deleteCanvasItem(_ id: CanvasItemId,
+                          document: StitchDocumentViewModel) {
         switch id {
             
         case .node(let x):
-            self.deleteNode(id: x)
+            self.deleteNode(id: x, document: document)
         
         case .layerInput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
@@ -105,7 +111,7 @@ extension GraphState {
             // Check if packed mode changed
             let newPackMode = inputPort.mode
             if prevPackMode != newPackMode {
-                inputPort.wasPackModeToggled()
+                inputPort.wasPackModeToggled(document: document)
             }
             
         case .layerOutput(let x):
@@ -115,18 +121,10 @@ extension GraphState {
                 fatalErrorIfDebug()
                 return
             }
-            
-            // Find this output's downstream connected nodes,
-            // look at each node's inputs,
-            // and remove the upstreamOutputCoordinate reference if it was for this deleted layer canvas output.
-            outputData.rowObserver.getConnectedDownstreamNodes().forEach { (downstreamCanvasItem: CanvasItemViewModel) in
-                downstreamCanvasItem.inputViewModels.forEach { (inputRow: InputNodeRowViewModel) in
-                    if let upstreamCoordinate = inputRow.rowDelegate?.upstreamOutputCoordinate,
-                       upstreamCoordinate.nodeId == x.node,
-                       upstreamCoordinate.portId == x.portId {
-                        inputRow.rowDelegate?.upstreamOutputCoordinate = nil
-                    }
-                }
+
+            // Find this output coord's downstream input coord's; set each input coord's row observer's upstream-output nil
+            self.connections.get(outputData.rowObserver.id)?.forEach { (inputCoordinate: InputCoordinate) in
+                self.getInputRowObserver(inputCoordinate)?.upstreamOutputCoordinate = nil
             }
             
             outputData.canvasObserver = nil
@@ -135,6 +133,7 @@ extension GraphState {
     
     @MainActor
     func deleteNode(id: NodeId,
+                    document: StitchDocumentViewModel,
                     willDeleteLayerGroupChildren: Bool = true) {
 
         //    log("deleteNode called, will delete node \(id)")
@@ -156,7 +155,7 @@ extension GraphState {
                 if willDeleteLayerGroupChildren {
                     let layerChildren = self.getLayerChildren(for: id)
                     layerChildren.forEach {
-                        self.deleteNode(id: $0)
+                        self.deleteNode(id: $0, document: document)
                     }
                 }
             }
@@ -183,8 +182,7 @@ extension GraphState {
         case .group:
             let groupChildren = self.getGroupNodeChildren(for: id)
             groupChildren.forEach {
-//                self.deleteNode(id: $0)
-                self.deleteCanvasItem($0)
+                self.deleteCanvasItem($0, document: document)
             }
             
         case .patch(let patch) where patch == .splitter:

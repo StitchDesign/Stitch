@@ -54,7 +54,6 @@ func smoothValueEval(node: PatchNode,
             nodeId: node.id,
             graphTime: state.graphTime)
     }
-    .toImpureEvalResult()//defaultOutputs: [[numberDefaultFalse]])
 }
 
 // TODO: Remove SmoothValueAnimationState

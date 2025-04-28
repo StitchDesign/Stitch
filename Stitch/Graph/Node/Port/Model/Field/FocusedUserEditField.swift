@@ -64,10 +64,9 @@ enum FocusedUserEditField: Equatable, Hashable {
         // Determine whether the focused-field has a number (numeric or percentage);
         // if not, then up and down arrow keys should be passed down like normal.
         let rowId = focusedField.rowId
-        let nodeId = rowId.nodeId
         
-        if let rowViewModel = graph.getInputRowViewModel(for: rowId, nodeId: nodeId),
-           let fieldObserver = rowViewModel.fieldValueTypes.first?.fieldObservers[safeIndex: focusedField.fieldIndex] {
+        if let rowViewModel = graph.getInputRowViewModel(for: rowId),
+           let fieldObserver = rowViewModel.cachedFieldValueGroups.first?.fieldObservers[safeIndex: focusedField.fieldIndex] {
             return fieldObserver.fieldValue.isNumberForArrowKeyIncrementAndDecrement
         }
         return false

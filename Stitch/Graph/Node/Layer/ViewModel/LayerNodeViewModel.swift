@@ -11,8 +11,9 @@ import SwiftUI
 import StitchSchemaKit
 import StitchEngine
 
-typealias LayerNode = NodeViewModel
+typealias LayerNode = LayerNodeViewModel
 typealias LayerNodes = [LayerNode]
+typealias LayerNodesDict = [NodeId: LayerNode]
 
 // primary = hidden via direct click from user
 // secondary = hidden because was a child of a group that was primary-hidden
@@ -24,6 +25,9 @@ final class LayerNodeViewModel {
 
     let layer: Layer
 
+    // Cached for perf
+    @MainActor var cachedLongestLoopLength: Int = 1
+    
     // View models for layers in prototype window
     @MainActor var previewLayerViewModels: [LayerViewModel] = []
  
@@ -167,7 +171,7 @@ final class LayerNodeViewModel {
     var height3DPort: LayerInputObserver
     var isMetallicPort: LayerInputObserver
     
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
 
     // Sidebar visibility setting
     @MainActor var hasSidebarVisibility = true {
@@ -211,7 +215,8 @@ final class LayerNodeViewModel {
         
         self.outputPorts = rowDefinitions
             .createEmptyOutputLayerPorts(schema: schema,
-                                    valuesList: rowDefinitions.outputs.defaultList)
+                                         activeIndex: .defaultActiveIndex,
+                                         valuesList: rowDefinitions.outputs.defaultList)
         
         self.positionPort = .init(from: schema, port: .position)
         self.sizePort = .init(from: schema, port: .size)
@@ -400,8 +405,14 @@ extension LayerNodeViewModel: SchemaObserver {
                         nodeId: schema.id)
         }
         
+        guard let document = self.nodeDelegate?.graphDelegate?.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // Process output canvases
-        self.updateOutputData(from: schema.outputCanvasPorts)
+        self.updateOutputData(from: schema.outputCanvasPorts,
+                              activeIndex: document.activeIndex)
         
         // Updates canvas item counts
         self.resetInputCanvasItemsCache()
@@ -410,14 +421,14 @@ extension LayerNodeViewModel: SchemaObserver {
     /// Helper which discovers a layer node's inputs and passes its port into a callback.
     @MainActor
     func forEachInput(_ callback: @escaping ((LayerInputObserver) -> ())) {
-        self.layer.layerGraphNode.inputDefinitions.forEach {
-            let port = self[keyPath: $0.layerNodeKeyPath]
-            callback(port)
+        self.allLayerInputObservers.forEach {
+            callback($0)
         }
     }
     
     @MainActor
-    func updateOutputData(from canvases: [CanvasNodeEntity?]) {
+    func updateOutputData(from canvases: [CanvasNodeEntity?],
+                          activeIndex: ActiveIndex) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
             guard let outputData = self.outputPorts[safe: portIndex],
                   let node = self.nodeDelegate else {
@@ -436,15 +447,14 @@ extension LayerNodeViewModel: SchemaObserver {
                         from: canvasEntity,
                         id: .layerOutput(coordinate),
                         inputRowObservers: [],
-                        outputRowObservers: [outputData.rowObserver],
+                        outputRowObservers: [outputData.rowObserver])
+                    
+                    outputData.canvasObserver?.initializeDelegate(
+                        node,
+                        activeIndex: activeIndex,
                         // Not relevant
                         unpackedPortParentFieldGroupType: nil,
                         unpackedPortIndex: nil)
-                    
-                    outputData.canvasObserver?.initializeDelegate(node,
-                                                                  // Not relevant
-                                                                  unpackedPortParentFieldGroupType: nil,
-                                                                  unpackedPortIndex: nil)
                 }
                 return
             }
@@ -480,16 +490,18 @@ extension LayerNodeViewModel: SchemaObserver {
         return schema
     }
     
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.previewLayerViewModels.forEach {
-            $0.onPrototypeRestart()
+            $0.onPrototypeRestart(document: document)
         }
     }
 }
 
 extension LayerNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
+    func initializeDelegate(_ node: NodeViewModel,
+                            graph: GraphState,
+                            activeIndex: ActiveIndex) {
         self.nodeDelegate = node
         
         // Reset known input canvas items
@@ -497,7 +509,8 @@ extension LayerNodeViewModel {
         
         // Set up outputs
         self.outputPorts.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node, graph: graph,
+                                  activeIndex: activeIndex)
         }
         
         self.resetInputCanvasItemsCache()
@@ -505,7 +518,9 @@ extension LayerNodeViewModel {
     
     @MainActor
     func resetInputCanvasItemsCache() {
-        guard let node = self.nodeDelegate else {
+        guard let node = self.nodeDelegate,
+              let graph = node.graphDelegate,
+              let activeIndex = graph.documentDelegate?.activeIndex else {
             fatalErrorIfDebug()
             return
         }
@@ -519,20 +534,15 @@ extension LayerNodeViewModel {
             self._inputCanvasIds = self._inputCanvasIds.union(inputCanvasItems)
             
             layerInput.initializeDelegate(node,
-                                          layer: self.layer)
+                                          layer: self.layer,
+                                          activeIndex: activeIndex,
+                                          graph: graph)
         }
         
-        let activeIndex = node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
-        
-        // Set blocked fields after all fields have been initialized
-        self.forEachInput { layerInput in
-            self.blockOrUnblockFields(
-                newValue: layerInput.getActiveValue(activeIndex: activeIndex),
-                layerInput: layerInput.port,
-                activeIndex: activeIndex)
-        }
+        // TODO: why is this necessary?
+        self.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)
     }
-    
+        
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
         // Use cache for inputs for perf
@@ -566,10 +576,12 @@ extension LayerNodeViewModel {
     
     /// Updates one or more preview layers given some layer node.
     @MainActor
-    func didValuesUpdate(newValuesList: PortValuesList) {
-
+    func didValuesUpdate(newValuesList: PortValuesList,
+                         node: NodeViewModel,
+                         graph: GraphState) {
+                
         let oldLongestLoopLength = self.previewLayerViewModels.count
-        let newLongestLoopLength = self.nodeDelegate?.longestLoopLength ?? 1
+        let newLongestLoopLength = self.cachedLongestLoopLength
         let loopIndices = newLongestLoopLength.loopIndices
 
         // Keeps track of original media list for lengthening
@@ -590,7 +602,7 @@ extension LayerNodeViewModel {
             self.previewLayerViewModels = Array(self.previewLayerViewModels[0..<newLongestLoopLength])
             
             // Re-sort preview layers when looping changes
-            self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+            graph.shouldResortPreviewLayers = true
         }
 
         // Get preview layer view model given values loop index
@@ -601,7 +613,9 @@ extension LayerNodeViewModel {
                 self.updatePreviewLayers(lengthenedValuesList: lengthenedValuesList,
                                          id: id,
                                          loopIndex: loopIndex,
-                                         changedPortId: portId)
+                                         changedPortId: portId,
+                                         node: node,
+                                         graph: graph)
             }
         }
         
@@ -618,8 +632,7 @@ extension LayerNodeViewModel {
         #endif
         
         // Loop changed conditions
-        if loopLengthChanged,
-           let graph = self.nodeDelegate?.graphDelegate {
+        if loopLengthChanged {
             // If the length of the loop in the layer node's input changed,
             // we should evaluate the graph from the layer's associated interaction patch nodes.
             // https://github.com/StitchDesign/Stitch--Old/issues/6923
@@ -636,10 +649,13 @@ extension LayerNodeViewModel {
     /// Gets/creates layer view model. Takes into consideration values from layer node and if we should (or shouldn't)
     /// create a new layer given some loop (i.e. the Reality layer node flattens anchors).
     @MainActor
-    func updatePreviewLayers(lengthenedValuesList: PortValuesList,
-                             id: NodeId,
-                             loopIndex: Int,
-                             changedPortId: Int) {
+    private func updatePreviewLayers(lengthenedValuesList: PortValuesList,
+                                     id: NodeId,
+                                     loopIndex: Int,
+                                     changedPortId: Int,
+                                     node: NodeViewModel,
+                                     graph: GraphSetter) {
+        
         let previewCoordinate = PreviewCoordinate(layerNodeId: id.asLayerNodeId,
                                                   loopIndex: loopIndex)
         // Always true except for inputs like Reality node's first input which accepts multiple anchors
@@ -659,18 +675,21 @@ extension LayerNodeViewModel {
                     .createPreviewLayerViewModel(id: previewCoordinate,
                                                  layer: self.layer,
                                                  lengthenedValuesList: lengthenedValuesList,
-                                                 nodeDelegate: self.nodeDelegate)
+                                                 node: node,
+                                                 graph: graph)
                 self.previewLayerViewModels.append(newPreviewLayer)
                 
                 // Re-sort preview layers when looping changes
-                self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+                var graph = graph
+                graph.shouldResortPreviewLayers = true
             }
             return
         }
 
         if shouldUpdatePreviewLayers {
-            previewViewModel.update(with: lengthenedValuesList,
-                                    changedPortId: changedPortId)
+            previewViewModel.updatePreviewLayer(from: lengthenedValuesList,
+                                                changedPortId: changedPortId,
+                                                graph: graph)
         }
     }
 }
@@ -681,14 +700,21 @@ extension Layer {
     func createPreviewLayerViewModel(id: PreviewCoordinate,
                                      layer: Layer,
                                      lengthenedValuesList: PortValuesList,
-                                     nodeDelegate: NodeDelegate?) -> LayerViewModel {
+                                     node: NodeViewModel,
+                                     graph: GraphSetter) -> LayerViewModel {
         let viewModel = LayerViewModel(id: id,
                                        layer: layer,
-                                       nodeDelegate: nodeDelegate)
+                                       nodeDelegate: node)
 
         // Plug in values
-        viewModel.updateAllValues(with: lengthenedValuesList)
-
+        lengthenedValuesList.indices.forEach { portId in
+            // We ignore the "requires preview layer resort?" value here,
+            // since any creation of the preview layer view models will require a resort.
+            viewModel.updatePreviewLayer(from: lengthenedValuesList,
+                                         changedPortId: portId,
+                                         graph: graph)
+        }
+   
         return viewModel
     }
 }

@@ -9,194 +9,159 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
 
-protocol NodeRowViewModel: StitchLayoutCachable, Observable, Identifiable {
+    associatedtype PortUI: PortUIViewModel
     associatedtype RowObserver: NodeRowObserver
-    associatedtype PortViewType: PortViewData
     
     var id: NodeRowViewModelId { get }
     
-    // View-specific value that only updates when visible
-    // separate propety for perf reasons:
-    @MainActor var activeValue: PortValue { get set }
-    
-    // Holds view models for fields
-    @MainActor var fieldValueTypes: [FieldGroupTypeData] { get set }
-    
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> { get set }
-    
-    @MainActor var anchorPoint: CGPoint? { get set }
-    
-    @MainActor var portColor: PortColor { get set }
-    
-    @MainActor var portViewData: PortViewType? { get set }
-    
-    @MainActor var isDragging: Bool { get set }
-    
-    @MainActor var nodeDelegate: NodeDelegate? { get set }
-    
-    @MainActor var rowDelegate: RowObserver? { get set }
-    
-    @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
-    
     static var nodeIO: NodeIO { get }
     
-    @MainActor func calculatePortColor() -> PortColor
+    // MARK: cached ui-data derived from underlying row observer
     
-    @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
+    @MainActor var cachedActiveValue: PortValue { get set }
+    @MainActor var cachedFieldValueGroups: [FieldGroup] { get set } // fields
     
-    @MainActor func portDragEnded(graphState: GraphState)
+    // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     
-    @MainActor func hasSelectedEdge() -> Bool
+    // TODO: make optional, since inspector row view models cannot have port-ui data
+    @MainActor var portUIViewModel: PortUI { get set }
+
     
-    @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
+    // MARK: delegates, weak references to parents
+    
+    @MainActor var nodeDelegate: NodeViewModel? { get set }
+    @MainActor var rowDelegate: RowObserver? { get set }
+    @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
     
     @MainActor
     init(id: NodeRowViewModelId,
+         initialValue: PortValue,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
 
-extension NodeRowViewModel {
-    @MainActor
-    func updateAnchorPoint() {
-        guard let canvas = self.canvasItemDelegate,
-              let node = canvas.nodeDelegate,
-              let size = canvas.sizeByLocalBounds else {
-            return
-        }
-        
-        let ioAdjustment: CGFloat = 10
-        let standardHeightAdjustment: CGFloat = 69
-        let ioConstraint: CGFloat = Self.nodeIO == .input ? ioAdjustment : -ioAdjustment
-        let titleHeightOffset: CGFloat = node.hasLargeCanvasTitleSpace ? 23 : 0
-        
-        // Offsets needed because node position uses its center location
-        let offsetX: CGFloat = canvas.position.x + ioConstraint - size.width / 2
-        let offsetY: CGFloat = canvas.position.y - size.height / 2 + standardHeightAdjustment + titleHeightOffset
-        
-        let anchorY = offsetY + CGFloat(self.id.portId) * 28
-        
-        switch Self.nodeIO {
-        case .input:
-            let newAnchorPoint = CGPoint(x: offsetX, y: anchorY)
-            if self.anchorPoint != newAnchorPoint {
-                self.anchorPoint = newAnchorPoint
-            }
-        case .output:
-            let newAnchorPoint = CGPoint(x: offsetX + size.width, y: anchorY)
-            if self.anchorPoint != newAnchorPoint {
-                self.anchorPoint = newAnchorPoint
-            }
-        }
-    }
+
+@MainActor
+func getNewAnchorPoint(canvasPosition: CGPoint,
+                       canvasSize: CGSize,
+                       hasLargeCanvasTitle: Bool,
+                       nodeIO: NodeIO,
+                       portId: Int) -> CGPoint {
     
-    /// Ignores group nodes to ensure computation logic still works.
-    @MainActor
-    var computationNode: NodeDelegate? {
-        self.rowDelegate?.nodeDelegate
+    let ioAdjustment: CGFloat = 10
+    let standardHeightAdjustment: CGFloat = 69
+    let ioConstraint: CGFloat = nodeIO == .input ? ioAdjustment : -ioAdjustment
+    let titleHeightOffset: CGFloat = hasLargeCanvasTitle ? 23 : 0
+    
+    // Offsets needed because node position uses its center location
+    let offsetX: CGFloat = canvasPosition.x + ioConstraint - canvasSize.width / 2
+    let offsetY: CGFloat = canvasPosition.y - canvasSize.height / 2 + standardHeightAdjustment + titleHeightOffset
+    
+    let anchorY = offsetY + CGFloat(portId) * 28
+    
+    switch nodeIO {
+    case .input:
+        return CGPoint(x: offsetX, y: anchorY)
+    case .output:
+        return CGPoint(x: offsetX + canvasSize.width, y: anchorY)
     }
-     
+}
+
+extension NodeRowViewModel {
+
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
+                            initialValue: PortValue,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
-        guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
         
+        // Why must we set the delegate
         self.nodeDelegate = node
         
-        if self.fieldValueTypes.isEmpty {
-            self.initializeValues(rowDelegate: rowDelegate,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex,
-                                  initialValue: rowDelegate.getActiveValue(activeIndex: node.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)))
+        if self.cachedFieldValueGroups.isEmpty {
+            self.initializeValues(
+                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                unpackedPortIndex: unpackedPortIndex,
+                initialValue: initialValue)
         }
-        
-        let newPortViewData = self.getPortViewData()
-        if self.portViewData != newPortViewData {
-            self.portViewData = newPortViewData
+                
+        /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
+        if let canvasId = self.canvasItemDelegate?.id {
+            let newPortAddress: PortUI.PortAddressType = .init(portId: self.id.portId,
+                                                        canvasId: canvasId)
+            if self.portUIViewModel.portAddress != newPortAddress {
+                self.portUIViewModel.portAddress = newPortAddress
+            }
         }
     }
-    
-    /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
-    @MainActor
-    func getPortViewData() -> PortViewType? {
-        guard let canvasId = self.canvasItemDelegate?.id else {
-            return nil
-        }
         
-        return .init(portId: self.id.portId,
-                     canvasId: canvasId)
-    }
-    
     @MainActor
-    func initializeValues(rowDelegate: Self.RowObserver,
-                          unpackedPortParentFieldGroupType: FieldGroupType?,
+    func initializeValues(unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
                           initialValue: PortValue) {
-        if initialValue != self.activeValue {
-            self.activeValue = initialValue
+        if initialValue != self.cachedActiveValue {
+            self.cachedActiveValue = initialValue
         }
         
-        let fields = self.createFieldValueTypes(initialValue: initialValue,
-                                                nodeIO: Self.nodeIO,
-                                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex)
+        let fields = self.createFieldValueTypes(
+            initialValue: initialValue,
+            nodeIO: Self.nodeIO,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex)
         
-        let didFieldsChange = !zip(self.fieldValueTypes, fields).allSatisfy { $0.id == $1.id }
+        let didFieldsChange = !zip(self.cachedFieldValueGroups, fields).allSatisfy { $0.id == $1.id }
         
-        if self.fieldValueTypes.isEmpty || didFieldsChange {
-            self.fieldValueTypes = fields
+        if self.cachedFieldValueGroups.isEmpty || didFieldsChange {
+            self.cachedFieldValueGroups = fields
         }
     }
     
     @MainActor
-    func didPortValuesUpdate(values: PortValues) {
-        guard let rowDelegate = self.rowDelegate else {
-            return
-        }
+    func didPortValuesUpdate(values: PortValues,
+                             layerFocusedInPropertyInspector: NodeId?,
+                             activeIndex: ActiveIndex) {
+                
+        let isLayerFocusedInPropertySidebar = layerFocusedInPropertyInspector == self.id.nodeId
         
-        let activeIndex = rowDelegate.nodeDelegate?.graphDelegate?.documentDelegate?.activeIndex ?? .init(.zero)
-        let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
-        
-        let oldViewValue = self.activeValue // the old cached
+        let oldViewValue = self.cachedActiveValue // the old cached value
         let newViewValue = PortValue.getActiveValue(allLoopedValues: values,
-                                                          activeIndex: activeIndex)
+                                                    activeIndex: activeIndex)
+        
         let didViewValueChange = oldViewValue != newViewValue
         
-        /*
-         Conditions for forcing fields update:
-         1. Is at time of initialization--used for layers, or
-         2. Did values change AND visible in frame, or
-         3. Is this an input for a layer node that is focused in the property sidebar?
-         */
         let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
 
         if shouldUpdate {
-            self.activeValue = newViewValue
-
+            self.cachedActiveValue = newViewValue
             self.activeValueChanged(oldValue: oldViewValue,
                                     newValue: newViewValue)
         }
     }
+}
+
+extension PortUIViewModel {
     
     @MainActor
-    func updatePortColor() {
-        let newColor = self.calculatePortColor()
-        self.setPortColorIfChanged(newColor)
-    }
-    
-    @MainActor
-    var hasEdge: Bool {
-        rowDelegate?.hasEdge ?? false
-    }
-    
-    @MainActor
-    var hasLoop: Bool {
-        rowDelegate?.hasLoopedValues ?? false
+    func updatePortColor(canvasItemId: CanvasItemId,
+                         hasEdge: Bool,
+                         hasLoop: Bool,
+                         selectedEdges: Set<PortEdgeUI>,
+                         selectedCanvasItems: CanvasItemIdSet,
+                         drawingObserver: EdgeDrawingObserver) {
+        
+        let newPortColor = self.calculatePortColor(
+            canvasItemId: canvasItemId,
+            hasEdge: hasEdge,
+            hasLoop: hasLoop,
+            selectedEdges: selectedEdges,
+            selectedCanvasItems: selectedCanvasItems,
+            drawingObserver: drawingObserver)
+        
+        if newPortColor != self.portColor {
+            self.portColor = newPortColor
+        }
     }
 }
 
@@ -224,12 +189,12 @@ extension CanvasItemViewModel {
     @MainActor
     func syncRowViewModels<RowViewModel>(with newEntities: [RowViewModel.RowObserver],
                                          keyPath: ReferenceWritableKeyPath<CanvasItemViewModel, [RowViewModel]>,
-                                         unpackedPortParentFieldGroupType: FieldGroupType?,
-                                         unpackedPortIndex: Int?) where RowViewModel: NodeRowViewModel {
+                                         activeIndex: ActiveIndex) where RowViewModel: NodeRowViewModel {
         
         let canvas = self
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self[keyPath: keyPath].compactMap { $0.rowDelegate?.id }.toSet
+        
         let entitiesToRemove = currentIds.subtracting(incomingIds)
 
         let currentEntitiesMap = self[keyPath: keyPath].reduce(into: [:]) { result, currentEntity in
@@ -253,12 +218,13 @@ extension CanvasItemViewModel {
                 if let entity = currentEntitiesMap.get(newEntity.id) {
                     return entity
                 } else {
-                    let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
+                    let rowId = NodeRowViewModelId(graphItemType: .canvas(canvas.id),
                                                    // Important this is the node ID from canvas for group nodes
                                                    nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                    portId: portIndex)
                     
                     let rowViewModel = RowViewModel(id: rowId,
+                                                    initialValue: newEntity.getActiveValue(activeIndex: activeIndex),
                                                     rowDelegate: newEntity,
                                                     canvasItemDelegate: canvas)
                     

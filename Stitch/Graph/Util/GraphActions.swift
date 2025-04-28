@@ -34,27 +34,12 @@ struct CloseGraph: StitchStoreEvent {
     }
 }
 
-extension GraphState: DocumentEncodableDelegate {
+extension GraphState {
     @MainActor
     func updateOnUndo(schema: GraphEntity) {
         self.update(from: schema)
     }
-    
-    func willEncodeProject(schema: GraphEntity) {
         
-        // Updates thumbnail
-         if let document = self.documentDelegate {
-             // Updates graph data when changed
-             document.refreshGraphUpdaterId()
-             
-             document.encodeProjectInBackground(willUpdateUndoHistory: false)
-         }
-    }
-    
-    func createSchema(from graph: GraphState?) -> GraphEntity {
-        self.createSchema()
-    }
-    
     @MainActor
     func syncMediaFiles(_ mediaFiles: [URL]) {
         // Add default media and imported URLs

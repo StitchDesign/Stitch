@@ -114,7 +114,21 @@ extension NodeViewModel {
     
     @MainActor
     var currentBroadcastChoiceId: NodeId? {
-        self.getInputRowObserver(0)?.currentBroadcastChoiceId
+        
+        guard self.kind == .patch(.wirelessReceiver) else {
+            return nil
+        }
+              
+        guard let firstInput = self.getInputRowObserver(0) else {
+            fatalErrorIfDebug()
+            return nil
+        }
+    
+        // the id of the connected wireless broadcast node
+        // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
+        let wirelessBroadcastId = firstInput.upstreamOutputCoordinate?.nodeId
+        // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
+        return wirelessBroadcastId
     }
 
     @MainActor
@@ -163,10 +177,25 @@ extension NodeViewModel {
         }
     }
     
-    @MainActor
-    func updateAllConnectedNodes() {
-        self.allInputViewModels.forEach { $0.updateConnectedCanvasItems() }
-        self.allOutputViewModels.forEach { $0.updateConnectedCanvasItems() }
+    @MainActor func updateObserversPortColorsAndConnectedItemsPortColors(selectedEdges: Set<PortEdgeUI>,
+                                                                         selectedCanvasItems: CanvasItemIdSet,
+                                                                         drawingObserver: EdgeDrawingObserver) {
+        self.inputsObservers.forEach {
+            $0.updatePortColorAndUpstreamOutputPortColor(selectedEdges: selectedEdges,
+                                                         selectedCanvasItems: selectedCanvasItems,
+                                                         drawingObserver: drawingObserver)
+        }
+        self.outputsObservers.forEach {
+            $0.updatePortColorAndDownstreamInputsPortColors(selectedEdges: selectedEdges,
+                                                            selectedCanvasItems: selectedCanvasItems,
+                                                            drawingObserver: drawingObserver)
+        }
+    }
+    
+    // important for determining port color; see `calculatePortColor`
+    @MainActor func updateObserversConnectedItemsCache() {
+        self.inputsObservers.forEach { $0.refreshConnectedCanvasItemsCache() }
+        self.outputsObservers.forEach { $0.refreshConnectedCanvasItemsCache() }
     }
     
     // MARK: heavy perf cost due to human readable strings.**

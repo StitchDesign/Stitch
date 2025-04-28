@@ -55,13 +55,15 @@ extension FieldValueMedia {
 
     @MainActor
     func handleSelection(rowObserver: InputNodeRowObserver,
-                         mediaType: SupportedMediaFormat,
+                         node: NodeViewModel,
+                         mediaType: NodeMediaSupport,
                          isFieldInsideLayerInspector: Bool,
                          activeIndex: ActiveIndex,
                          graph: GraphState) {
         switch self {
         case .none:
             graph.mediaPickerNoneChanged(rowObserver: rowObserver,
+                                         node: node,
                                          activeIndex: activeIndex,
                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
@@ -76,7 +78,7 @@ extension FieldValueMedia {
             
                 destinationInputs = multiselectInput.multiselectObservers(graph).map({ (observer: LayerInputObserver) in
                     InputCoordinate(portType: .keyPath(layerInput),
-                                    nodeId: observer.packedRowObserver.id.nodeId)
+                                    nodeId: observer.nodeId)
                 })
             }
             

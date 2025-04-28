@@ -8,7 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
-enum LayerInspectorSection: String, CaseIterable, Identifiable {
+enum LayerInspectorSection: String, CaseIterable, Identifiable, Hashable {
     case media = "Media"
     case geometry3D = "3D Geometry"
     case realityTransformation = "3D Transformation"

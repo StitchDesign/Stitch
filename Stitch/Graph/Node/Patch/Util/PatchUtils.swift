@@ -408,20 +408,26 @@ extension Patch {
         }
     }
 
-    var supportedMediaType: SupportedMediaFormat {
+    func supportedMediaType(portId: Int) -> NodeMediaSupport? {
         switch self {
-        case .imageImport:
-            return .image
+        case .imageImport, .grayscale:
+            return .single(.image)
         case .videoImport:
-            return .video
-        case .soundImport:
-            return .audio
-        case .coreMLClassify:
-            return .coreML
-        case .coreMLDetection:
-            return .coreML
+            return .single(.video)
+        case .soundImport, .speaker:
+            return .single(.audio)
+        case .coreMLClassify, .coreMLDetection:
+            if portId == 0 {
+                return .single(.coreML)
+            } else if portId == 1 {
+                return .single(.image)
+            } else {
+                return .single(.coreML)
+            }
+        case .loopBuilder, .splitter, .loopInsert, .loopRemove:
+            return .all
         default:
-            return .unknown
+            return nil
         }
     }
     

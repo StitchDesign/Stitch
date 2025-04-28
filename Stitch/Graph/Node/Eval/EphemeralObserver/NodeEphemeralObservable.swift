@@ -21,7 +21,7 @@ protocol NodeEphemeralObservable: AnyObject {
                          newType: UserVisibleType,
                          kind: NodeKind)
     
-    @MainActor func onPrototypeRestart()
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel)
 }
 
 extension NodeEphemeralObservable {
@@ -57,7 +57,7 @@ final class ComputedNodeState: NodeEphemeralObservable {
 }
 
 extension ComputedNodeState {
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.previousValue = nil
         self.preservedValues = .init()
         self.stopwatchIsRunning = false
@@ -75,8 +75,6 @@ extension ComputedNodeState {
         switch kind {
         case .patch(.classicAnimation):
             self.resetClassicAnimationStates(newType: newType)
-        case .patch(.popAnimation), .patch(.springAnimation):
-            self.resetSpringAnimationStates(newType: newType)
         default:
             return
         }

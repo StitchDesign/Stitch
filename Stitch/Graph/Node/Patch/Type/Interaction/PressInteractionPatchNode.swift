@@ -70,7 +70,7 @@ final class PressInteractionNodeObserver: NodeEphemeralObservable, Sendable {
 
 extension PressInteractionNodeObserver {
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.prevTapTime = nil
     }
 }
@@ -115,7 +115,6 @@ func pressInteractionEval(node: NodeViewModel,
             interactiveLayer: interactiveLayer,
             graph: graph)
     }
-    .toImpureEvalResult()
 }
 
 @MainActor

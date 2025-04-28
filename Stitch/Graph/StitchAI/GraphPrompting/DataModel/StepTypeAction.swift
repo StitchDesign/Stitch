@@ -110,7 +110,7 @@ extension Array where Element == any StepActionable {
         }
     }
     
-    func calculateAINodesAdjacency() -> (depthMap: [UUID: Int]?,
+    func calculateAINodesAdjacency() -> (depthMap: DepthMap?,
                                          hasCycle: Bool) {
         let adjacency = AdjacencyCalculator()
         self.forEach {
@@ -137,6 +137,7 @@ extension Array where Element == any StepActionable {
     }
 }
 
+typealias DepthMap = [UUID: Int]
 
 
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
@@ -154,10 +155,10 @@ protocol StepActionable: Hashable, Codable {
     var toStep: Step { get }
     
     @MainActor
-    func applyAction(graph: GraphState) throws
+    func applyAction(document: StitchDocumentViewModel) throws
     
     @MainActor
-    func removeAction(graph: GraphState)
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel)
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws
 }
@@ -193,15 +194,18 @@ struct StepActionAddNode: StepActionable {
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
     
-    func applyAction(graph: GraphState) throws {
-        guard let _ = graph.documentDelegate?.nodeInserted(choice: self.nodeName.asNodeKind,
-                                                          nodeId: self.nodeId) else {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
+        guard let _ = document.nodeInserted(choice: self.nodeName.asNodeKind,
+                                            nodeId: self.nodeId) else {
             throw StitchAIManagerError.actionValidationError("Could not create node \(self.nodeId.debugFriendlyId) \(self.nodeName)")
         }
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState,
+                      document: StitchDocumentViewModel) {
         graph.deleteNode(id: self.nodeId,
+                         document: document,
                          willDeleteLayerGroupChildren: true)
     }
     
@@ -263,18 +267,18 @@ struct StepActionConnectionAdded: StepActionable {
         .init(portType: self.port, nodeId: self.toNodeId)
     }
     
-    func applyAction(graph: GraphState) throws {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
         let edge: PortEdgeData = PortEdgeData(
             from: .init(portType: .portIndex(self.fromPort), nodeId: self.fromNodeId),
             to: self.inputPort)
         
-        let _ = graph.edgeAdded(edge: edge)
+        let _ = document.visibleGraph.edgeAdded(edge: edge)
         
         // Create canvas node if destination is layer
-        if let fromNodeLocation = graph.getNodeViewModel(self.fromNodeId)?.patchCanvasItem?.position,
-           let destinationNode = graph.getNodeViewModel(self.toNodeId),
-           let layerNode = destinationNode.layerNode {
-            guard let keyPath = self.port.keyPath else {
+        if let fromNodeLocation = document.visibleGraph.getNodeViewModel(self.fromNodeId)?.patchCanvasItem?.position,
+           let destinationNode = document.visibleGraph.getNodeViewModel(self.toNodeId) {
+            guard let layerInput = self.port.keyPath?.layerInput else {
                 // fatalErrorIfDebug()
                 throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
             }
@@ -282,15 +286,13 @@ struct StepActionConnectionAdded: StepActionable {
             var position = fromNodeLocation
             position.x += 200
             
-            let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
-            graph.layerInputAddedToGraph(node: destinationNode,
-                                         input: inputData,
-                                         coordinate: keyPath,
-                                         position: position)
+            document.layerInputAddedToGraph(node: destinationNode,
+                                            layerInput: layerInput,
+                                            position: position)
         }
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
         graph.removeEdgeAt(input: self.inputPort)
     }
     
@@ -347,14 +349,15 @@ struct StepActionChangeValueType: StepActionable {
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
     
-    func applyAction(graph: GraphState) throws {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
         // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
-        let _ = graph.nodeTypeChanged(nodeId: self.nodeId,
-                                      newNodeType: self.valueType,
-                                      activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
+        let _ = document.visibleGraph.nodeTypeChanged(nodeId: self.nodeId,
+                                                      newNodeType: self.valueType,
+                                                      activeIndex: document.activeIndex)
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
         // Do nothing, assume node will be removed
     }
     
@@ -420,7 +423,9 @@ struct StepActionSetInput: StepActionable {
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
     
-    func applyAction(graph: GraphState) throws {
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
+        let graph = document.visibleGraph
         let inputCoordinate = InputCoordinate(portType: self.port,
                                               nodeId: self.nodeId)
         guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
@@ -432,10 +437,10 @@ struct StepActionSetInput: StepActionable {
         // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
         graph.inputEditCommitted(input: input,
                                  value: self.value,
-                                 activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
+                                 activeIndex: document.activeIndex)
     }
     
-    func removeAction(graph: GraphState) {
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
         // Do nothing, assume node will be removed
     }
     

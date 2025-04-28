@@ -22,19 +22,22 @@ struct NodeInfo: Encodable {
 extension NodeInfo {
     @MainActor
     static func printAllNodeInfo() throws -> String {
+        
+        let graph = GraphState()
+        
         let patchNodeInfo = Patch.allCases.map { patch in
             let node = patch.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
-                                         graphDelegate: nil)!
-            var supportedTypes = Set<UserVisibleType>()
-            switch patch {
-            // These nodes have phased out `availableNodeTypes` for auto detetcing in coercion
-            case .greaterOrEqual, .lessThanOrEqual, .equals, .greaterThan, .lessThan:
-                supportedTypes = .init([.bool, .number, .string, .layerDimension])
-            default:
-                supportedTypes = patch.availableNodeTypes
-            }
+                                         graphDelegate: graph)!
+            //            var supportedTypes = Set<UserVisibleType>()
+            //            switch patch {
+            //            // These nodes have phased out `availableNodeTypes` for auto detetcing in coercion
+            //            case .greaterOrEqual, .lessThanOrEqual, .equals, .greaterThan, .lessThan:
+            //                supportedTypes = .init([.bool, .number, .string, .layerDimension])
+            //            default:
+            //                supportedTypes = patch.availableNodeTypes
+            //            }
 
             return NodeInfo(name: node.displayTitle,
                             inputs: NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType).inputs,
@@ -48,7 +51,7 @@ extension NodeInfo {
             let node = layer.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
-                                         graphDelegate: nil)!
+                                         graphDelegate: graph)!
 
             return NodeInfo(name: node.displayTitle,
                             inputs: NodeKind.layer(layer).rowDefinitions(for: node.userVisibleType).inputs,

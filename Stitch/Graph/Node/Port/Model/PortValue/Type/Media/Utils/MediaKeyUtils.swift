@@ -16,7 +16,7 @@ extension MediaKey {
         filename + "." + fileExtension
     }
     
-    func getMediaType() -> SupportedMediaFormat {
+    func getMediaType() -> SupportedMediaFormat? {
         SupportedMediaFormat.findType(by: self.fileExtension)
     }
 }

@@ -9,9 +9,17 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SpringAnimationValues: Equatable, Hashable {
+final class SpringAnimationState: NodeEphemeralObservable {
     // nil = not initialized; animation not running
-    var springValues: SpringValues?
+    var springStates: [SpringValueState?] = []
+
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
+        self.reset()
+    }
+    
+    func reset() {
+        self.springStates = []
+    }
 }
 
 // When spring's velocity is <= this epsilon,
@@ -28,7 +36,7 @@ let SPRING_ANIMATION_STEP_SIZE = SPRING_ANIMATION_60_FPS_STEP_SIZE
 let SPRING_ANIMATION_STEP_SIZE = SPRING_ANIMATION_60_FPS_STEP_SIZE
 #endif
 
-struct SpringValues: Equatable, Hashable {
+struct SpringValueState {
     // Must be remade whenever Mass, Friction (Damping) or Tension (Stiffness) change
     var spring: Spring
 
@@ -45,31 +53,3 @@ struct SpringValues: Equatable, Hashable {
     // animation stops when currentVelocity is less than some epsilon
     var currentVelocity: Double = .zero
 }
-
-// single field animation
-// e.g. Number
-struct OneFieldSpringAnimation: Equatable, Hashable {
-    var values = SpringAnimationValues()
-}
-
-// e.g. Position
-struct TwoFieldSpringAnimation: Equatable, Hashable {
-    var valuesX = SpringAnimationValues()
-    var valuesY = SpringAnimationValues()
-}
-
-enum SpringAnimationState: Equatable, Hashable {
-    case one(OneFieldSpringAnimation),
-         two(TwoFieldSpringAnimation)
-
-    // is this the proper way to reset a spring animation's progress?
-    var resetSpringAnimation: SpringAnimationState {
-        switch self {
-        case .one:
-            return .one(.init())
-        case .two:
-            return .two(.init())
-        }
-    }
-}
-

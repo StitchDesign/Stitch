@@ -19,7 +19,7 @@ extension StitchStore {
     /// Source: https://www.hackingwithswift.com/forums/swiftui/looking-for-help-how-to-select-and-open-an-existing-data-file-with-a-document-browser/3953
     @MainActor
     func mediaFilesImportedToNewNode(selectedFiles: [URL],
-                                     centerPostion: CGPoint) async {
+                                     centerPostion: CGPoint) {
         // Toggle alert state
         self.alertState.fileImportModalState = .notImporting
 
@@ -34,18 +34,18 @@ extension StitchStore {
 
         for fileURL in selectedFiles {
             // Show error if media type is unknown
-            if fileURL.getMediaType() == .unknown {
+            if fileURL.getMediaType() == nil {
                 self.alertState.stitchFileError = .mediaFileUnsupported(fileURL.pathExtension)
             }
 
-            await graphState.documentEncoderDelegate?
+            graphState.documentEncoderDelegate?
                 .importFileToNewNode(fileURL: fileURL, droppedLocation: droppedLocation)
         }
     }
 
     @MainActor
     func mediaFilesImportedToExistingNode(selectedFiles: [URL],
-                                          nodeImportPayload: NodeMediaImportPayload) async {
+                                          nodeImportPayload: NodeMediaImportPayload) {
         //        log("MediaFilesImportedToExistingNode called: selectedFiles: \(selectedFiles)")
         //        log("MediaFilesImportedToExistingNode called: nodeImportPayload: \(nodeImportPayload)")
         //        log("MediaFilesImportedToExistingNode called: nodeImportPayload.mediaFormat: \(nodeImportPayload.mediaFormat)")
@@ -67,7 +67,7 @@ extension StitchStore {
                 return
             }
 
-            await graphState.documentEncoderDelegate?
+            graphState.documentEncoderDelegate?
                 .importFileToExistingNode(fileURL: fileURL, nodeImportPayload: nodeImportPayload)
         }
     }
@@ -75,27 +75,26 @@ extension StitchStore {
 
 /// Called when a media import from the top bar file picker or drag-and-drop event happens.
 extension DocumentEncodable {
-    func importFileToNewNode(fileURL: URL, droppedLocation: CGPoint) async {
+    @MainActor
+    func importFileToNewNode(fileURL: URL, droppedLocation: CGPoint) {
         let copyResult = self.copyToMediaDirectory(
             originalURL: fileURL,
             forRecentlyDeleted: false)
         
-        await MainActor.run {
-            switch copyResult {
-            case .success(let newURL):
-                dispatch(MediaCopiedToNewNode(url: newURL, location: droppedLocation))
-                
-            case .failure(let error):
-                dispatch(DisplayError(error: error))
-            }
+        switch copyResult {
+        case .success(let newURL):
+            dispatch(MediaCopiedToNewNode(url: newURL, location: droppedLocation))
+            
+        case .failure(let error):
+            dispatch(DisplayError(error: error))
         }
     }
     
     /// Called when media is imported from a patch node's file picker.
     @MainActor
-    func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) async {
-        let copyResult = await self.copyToMediaDirectory(originalURL: fileURL,
-                                                         forRecentlyDeleted: false)
+    func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) {
+        let copyResult = self.copyToMediaDirectory(originalURL: fileURL,
+                                                   forRecentlyDeleted: false)
         switch copyResult {
         case .success(let newURL):
             dispatch(MediaCopiedToExistingNode(url: newURL,
@@ -125,13 +124,21 @@ extension GraphState {
     func mediaCopiedToNewNode(newURL: URL,
                               nodeLocation: CGPoint,
                               store: StitchStore) {
-        guard let document = store.currentDocument else { return }
+        guard let document = store.currentDocument else {
+            return
+        }
         
-        var droppedLocation = nodeLocation
-        let localPosition = self.localPosition
-        let graphScale = self.graphMovement.zoomData
+        // Ensure media is supported
+        guard let mediaType = newURL.getMediaType() else {
+            store.alertState.stitchFileError = .mediaFileUnsupported(newURL.pathExtension)
+            return
+        }
 
-        let originalNodeLocation = nodeLocation.toCGSize
+        let droppedLocation = nodeLocation
+        //        let localPosition = self.localPosition
+        //        let graphScale = document.graphMovement.zoomData
+        //
+        //        let originalNodeLocation = nodeLocation.toCGSize
 
         // Add media key to computed node state
         self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
@@ -144,7 +151,6 @@ extension GraphState {
 //            graphScale: graphScale,
 //            deviceScreen: self.frame)
 
-        let mediaType = newURL.getMediaType()
 
         // Create the node if no destination input specified
         let newNodeId = NodeId()
@@ -199,11 +205,14 @@ extension GraphState {
                 return
             }
 
-            existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
-                // If existing node already contains imported media, then we need to delete the old media
-                if mediaLibrary.get(mediaKey) != newURL {
-                    self.checkToDeleteMedia(mediaKey, from: existingNode.id)
-                }
+            // If existing node already contains imported media, then we need to delete the old media
+            // EXCEPT if it's a loop builder node which can hold multiple media
+            if existingNode.kind != .patch(.loopBuilder) {
+                existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
+                    if mediaLibrary.get(mediaKey) != newURL {
+                        self.checkToDeleteMedia(mediaKey, from: existingNode.id)
+                    }
+                }                
             }
 
             let newMedia = AsyncMediaValue(mediaKey: mediaKey)
@@ -256,7 +265,8 @@ extension GraphState {
         }
         
         guard let mediaObserver = node.ephemeralObservers?[safe: loopIndex] as? MediaEvalOpObservable else {
-            fatalErrorIfDebug()
+            // Valid failure if loop builder removes input
+//            fatalErrorIfDebug()
             return
         }
         
@@ -284,7 +294,7 @@ extension GraphState {
         let outputValues = outputValues
         var nodeIdsToRecalculate = NodeIdSet()
         
-        guard let node = graph.getNodeViewModel(nodeId) else {
+        guard let node = graph.getNode(nodeId) else {
             log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
             return
         }
@@ -314,7 +324,7 @@ extension GraphState {
             
             // portValuesList is the full outputs etc.;
             // set new outputs in node
-            node.updateOutputsObservers(newValuesList: portValuesList)
+            node.updateOutputsObservers(newValuesList: portValuesList, graph: graph)
             
             // We just manually set new outputs on the media node.
             // Now we need to flow those new outputs to any downstream nodes,
@@ -350,7 +360,7 @@ extension GraphState {
     
     @MainActor
     func mediaPickerChanged(selectedValue: PortValue,
-                            mediaType: SupportedMediaFormat,
+                            mediaType: NodeMediaSupport,
                             rowObserver: InputNodeRowObserver,
                             activeIndex: ActiveIndex,
                             isFieldInsideLayerInspector: Bool) {
@@ -365,14 +375,19 @@ extension GraphState {
     
     @MainActor
     func mediaPickerNoneChanged(rowObserver: InputNodeRowObserver,
+                                node: NodeViewModel,
                                 activeIndex: ActiveIndex,
                                 isFieldInsideLayerInspector: Bool) {
-            let emptyPortValue = PortValue.asyncMedia(nil)
+        let emptyPortValue = PortValue.asyncMedia(nil)
         self.handleInputEditCommitted(input: rowObserver,
                                       value: emptyPortValue,
                                       activeIndex: activeIndex,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-            
+        
+        // Empty media in input
+        node.updateInputMedia(inputCoordinate: rowObserver.id,
+                              mediaList: [nil])
+        
         self.encodeProjectInBackground()
     }
 }
@@ -393,10 +408,10 @@ func createPatchNode(from importedMediaURL: URL,
         dataType: .source(importedMediaURL.mediaKey),
         label: importedMediaURL.filename)
 
-    guard let node = mediaType.nodeKind?.graphNode?.createViewModel(id: nodeId,
-                                                                    position: position.toCGPoint,
-                                                                    zIndex: zIndex,
-                                                                    graphDelegate: graphDelegate) else {
+    guard let node = mediaType.nodeKind.graphNode?.createViewModel(id: nodeId,
+                                                                   position: position.toCGPoint,
+                                                                   zIndex: zIndex,
+                                                                   graphDelegate: graphDelegate) else {
         log("createPatchNode: unknown file encountered with extension \(importedMediaURL.pathExtension)")
         return .failure(.mediaFileUnsupported(importedMediaURL.pathExtension))
     }

@@ -33,7 +33,7 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable, MediaEvalOpViewabl
 }
 
 extension SingletonMediaNodeCoordinator {
-    nonisolated func onPrototypeRestart() { }
+    nonisolated func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 /// Used for nodes like location and camera.
@@ -50,7 +50,7 @@ func asyncSingletonMediaEval(node: PatchNode,
         return []
     }
 
-    return node.loopedEval { values, loopIndex in
+    return node.getLoopedEvalResults { values, loopIndex in
         // Return synchronously if media object already exists
         if let singletonMedia = document[keyPath: mediaManagerKeyPath]?.loadedInstance {
             return mediaOp(values, singletonMedia, loopIndex)

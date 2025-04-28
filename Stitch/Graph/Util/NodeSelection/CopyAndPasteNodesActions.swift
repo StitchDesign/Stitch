@@ -33,11 +33,15 @@ struct SelectedGraphItemsCut: StitchDocumentEvent {
 
         // Delete selected nodes
         graph.selectedCanvasItems.forEach {
-            graph.deleteCanvasItem($0)
+            graph.deleteCanvasItem($0, document: state)
         }
 
-        graph.updateGraphData()
+        // TODO: APRIL 11: should not be necessary anymore? since causes a persistence change
+         graph.updateGraphData(state)
+        
         state.encodeProjectInBackground()
+        
+        
     }
 }
 

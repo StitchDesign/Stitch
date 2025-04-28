@@ -11,7 +11,7 @@ import StitchSchemaKit
 // The buttons for a node tag menu;
 // what we provide to SwifUI Menu or SwiftUI .contextMenu
 
-struct NodeTagMenuButtonsView: View {
+struct CanvasItemMenuButtonsView: View {
     @Environment(StitchStore.self) private var store
     
     @Bindable var graph: GraphState
@@ -70,11 +70,6 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var singleGroupNodeSelected: Bool {
         !moreThanOneNodeSelected && isGroupNode
-    }
-
-    var hasNodeTypeCarousel: Bool {
-        nodeType.isDefined
-            && !nodeTypeChoices.isEmpty
     }
 
     // only show loop-indices when more than just 1 index
@@ -160,7 +155,7 @@ struct NodeTagMenuButtonsView: View {
             duplicateButton
             
             addOrRemoveInputButons
-
+            
             if let splitterType = splitterType,
                let nodeId = canvasItemId.nodeCase,
                hasSplitterTypeCarousel {
@@ -180,14 +175,6 @@ struct NodeTagMenuButtonsView: View {
                 loopIndexSubmenu(activeIndex: activeIndex,
                                  _loopIndices)
             }
-
-//            if isWirelessReceiver {
-//                let choice = node.currentBroadcastChoice
-//                NodeWirelessBroadcastSubmenuView(graph: graph,
-//                                                 currentBroadcastChoice: choice ?? nilBroadcastChoice,
-//                                                 assignedBroadcaster: choice,
-//                                                 nodeId: node.id)
-//            }
             
             jumpToAssignedBroadcasterButton
             
@@ -201,23 +188,11 @@ struct NodeTagMenuButtonsView: View {
     }
     
     @ViewBuilder
-    var addOrRemoveInputButons: some View {
-        if canAddInput {
-            addInputButton
-        }
-        
-        if canRemoveInput {
-            removeInputButton
-        }
-    }
-    
-    @ViewBuilder
     var jumpToAssignedBroadcasterButton: some View {
         if isWirelessReceiver,
            let assignedBroadcaster = node.currentBroadcastChoiceId {
             nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
-                graph.jumpToCanvasItem(id: .node(assignedBroadcaster),
-                                       document: document)
+                dispatch(JumpToCanvasItem(id: .node(assignedBroadcaster)))
             }
         }
     }
@@ -226,7 +201,7 @@ struct NodeTagMenuButtonsView: View {
     var hideLayerButton: some View {
         if let layerNode = node.layerNode {
             Button {
-                dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNode.id))
+                dispatch(SelectedLayersVisiblityUpdated(selectedLayers: .init([layerNode.id])))
             } label: {
                 Text(layerNode.hasSidebarVisibility ? "Hide Layer" : "Unhide Layer")
             }
@@ -249,6 +224,35 @@ struct NodeTagMenuButtonsView: View {
 //        }
 //    }
 
+    @ViewBuilder
+    var addOrRemoveInputButons: some View {
+        if canAddInput {
+            addInputButton
+        }
+        
+        if canRemoveInput {
+            removeInputButton
+        }
+    }
+    
+    @MainActor
+    var removeInputButton: some View {
+        nodeTagMenuButton(label: "Remove Input") {
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(InputRemovedAction(nodeId: nodeId))
+            }
+        }
+    }
+    
+    @MainActor
+    var addInputButton: some View {
+        nodeTagMenuButton(label: "Add Input") {
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(InputAddedAction(nodeId: nodeId))
+            }
+        }
+    }
+    
     @MainActor
     func splitterTypeSubmenu(nodeId: NodeId,
                              _ currentSplitterType: SplitterType) -> some View {
@@ -283,7 +287,7 @@ struct NodeTagMenuButtonsView: View {
 
         return Picker("Change Node Type", selection: binding) {
             ForEach(nodeTypeChoices, id: \.self) { choice in
-                StitchTextView(string: choice.display)
+                StitchTextView(string: choice.displayForNodeMenu)
 
                 // Alternatively, we can use our own icon:
                 //                Label {
@@ -370,7 +374,7 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     func componentLinkingButton(component: StitchMasterComponent) -> some View {
         // Check if button is already linked
-        if let linkedSystem = self.store.systems.findSystem(forComponent: component.id) {
+        if let _ = self.store.systems.findSystem(forComponent: component.id) {
             return nodeTagMenuButton(label: "Unlink Component") {
                 do {
                     try self.document.unlinkComponent(localComponent: component)
@@ -425,24 +429,6 @@ struct NodeTagMenuButtonsView: View {
         nodeTagMenuButton(label: "Ungroup") {
             if let nodeId = canvasItemId.nodeCase {
                 dispatch(GroupNodeUncreated(groupId: GroupNodeId(nodeId)))
-            }
-        }
-    }
-
-    @MainActor
-    var removeInputButton: some View {
-        nodeTagMenuButton(label: "Remove Input") {
-            if let nodeId = canvasItemId.nodeCase {
-                dispatch(InputRemovedAction(nodeId: nodeId))
-            }
-        }
-    }
-
-    @MainActor
-    var addInputButton: some View {
-        nodeTagMenuButton(label: "Add Input") {
-            if let nodeId = canvasItemId.nodeCase {
-                dispatch(InputAddedAction(nodeId: nodeId))
             }
         }
     }

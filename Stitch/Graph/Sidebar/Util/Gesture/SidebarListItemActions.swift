@@ -20,28 +20,27 @@ import StitchSchemaKit
  - un-hides item's secondarily-hidden descendants
  (DOES NOT un-hide primarily-hidden descendants)
  */
-struct SidebarItemHiddenStatusToggled: GraphEventWithResponse {
-
-    let clickedId: NodeId
-
-    @MainActor
-    func handle(state: GraphState) -> GraphResponse {
-        state.layerHiddenStatusToggled(clickedId)
-        return .persistenceResponse
-    }
-}
-
 struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
 
     let selectedLayers: NodeIdSet
-    let newVisibilityStatus: Bool
+    var newVisibilityStatus: Bool? = nil // nil = toggled
     
     @MainActor
     func handle(state: GraphState) -> GraphResponse {
+        
+        guard let document = state.documentDelegate else {
+            fatalErrorIfDebug()
+            return .noChange
+        }
+        
         for selectedLayer in selectedLayers {
             state.layerHiddenStatusToggled(selectedLayer,
                                            newVisibilityStatus: newVisibilityStatus)
         }
+        
+        // TODO: why do we have to immediately update the preview layers? Why isn't setting `state.shouldResortPreviewLayers = true` enough?
+        state.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
+        
         return .persistenceResponse
     }
 }
@@ -52,8 +51,8 @@ extension GraphState {
                                   // If provided, then we are explicitly setting true/false (for multiple layers) as opposed to just toggling an individual layer
                                   newVisibilityStatus: Bool? = nil) {
 
-        guard let layerNode = self.getLayerNode(id: clickedId)?.layerNode else {
-            log("SidebarItemHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
+        guard let layerNode = self.getLayerNode(clickedId) else {
+            log("layerHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
             fatalErrorIfDebug() // Is this bad?
             return
         }
@@ -69,7 +68,7 @@ extension GraphState {
         let isShown = layerNode.hasSidebarVisibility
         
         for id in descendants {
-            self.getLayerNode(id: id.id)?.layerNode?.hasSidebarVisibility = isShown
+            self.getLayerNode(id.id)?.hasSidebarVisibility = isShown
         }
     }
 }

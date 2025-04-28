@@ -234,10 +234,11 @@ extension GraphState {
             destinationGraphInfo: isCopyPaste ?
                 .init(destinationGraphOffset: self.localPosition,
                       destinationGraphFrame: document.frame,
-                      destinationGraphScale: self.graphMovement.zoomData,
+                      destinationGraphScale: document.graphMovement.zoomData,
                       destinationGraphTraversalLevel: document.groupNodeFocused?.groupNodeId) : nil
         )
         
+        // TODO: what does this mean -- we received a `document` parameter but then we also check for a documentDelegate on the GraphState?
         guard let document = self.documentDelegate else {
             return
         }

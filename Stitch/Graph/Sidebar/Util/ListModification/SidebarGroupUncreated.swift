@@ -17,7 +17,8 @@ extension ProjectSidebarObservable {
     func sidebarGroupUncreated() {
         let primarilySelectedGroups = self.selectionState.primary
         
-        guard let group = primarilySelectedGroups.first,
+        guard let graph = self.graphDelegate,
+              let group = primarilySelectedGroups.first,
               let item = self.items.get(group) else {
             // Expected group here
             fatalErrorIfDebug()
@@ -36,7 +37,7 @@ extension ProjectSidebarObservable {
         self.sidebarGroupUncreatedViaEditMode(groupId: group,
                                               children: children.map(\.id))
 
-        self.graphDelegate?.encodeProjectInBackground()
+        graph.encodeProjectInBackground()
     }
 }
 
@@ -46,16 +47,24 @@ extension LayersSidebarViewModel {
     func sidebarGroupUncreatedViaEditMode(groupId: NodeId, children: [NodeId]) {
         log("_SidebarGroupUncreated called")
 
-        guard let graph = self.graphDelegate else {
+        guard let graph = self.graphDelegate,
+              let document = graph.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
 
         // Delete layer group node itself (but not its children)
         // Note: the uncreated-group's children's new parent (nil or the next closest ancestor) is handled automatically?
-        graph.deleteNode(id: groupId, willDeleteLayerGroupChildren: false)
+        graph.deleteNode(id: groupId,
+                         document: document,
+                         willDeleteLayerGroupChildren: false)
 
         // update legacy sidebar data
-        graph.updateGraphData()
+        // TODO: APRIL 11: should not be necessary anymore? since causes a persistence change
+        guard let document = graph.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        graph.updateGraphData(document)
     }
 }

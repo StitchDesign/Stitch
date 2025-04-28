@@ -23,7 +23,8 @@ struct MediaPickerButtons: View {
     @Environment(\.appTheme) var theme
     
     let rowObserver: InputNodeRowObserver
-    let mediaType: SupportedMediaFormat
+    let node: NodeViewModel
+    let mediaType: NodeMediaSupport
     let choices: [FieldValueMedia]
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState
@@ -35,6 +36,7 @@ struct MediaPickerButtons: View {
             StitchButton {
                 // Update binding which later gets processed by view model
                 choice.handleSelection(rowObserver: rowObserver,
+                                       node: node,
                                        mediaType: mediaType,
                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                        activeIndex: activeIndex,

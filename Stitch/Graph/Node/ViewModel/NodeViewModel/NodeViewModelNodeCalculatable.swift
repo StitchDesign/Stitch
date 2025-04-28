@@ -98,12 +98,69 @@ extension NodeViewModel: NodeCalculatable {
     @MainActor func updateInputMedia(inputCoordinate: NodeIOCoordinate,
                                      mediaList: [GraphMediaValue?]) {
         switch self.nodeType {
-        case .patch(let patchNode) where patchNode.patch == .loopBuilder:
-            if let mediaObservers = self.getMediaObservers(port: inputCoordinate) {
-                for (media, mediaObserver) in zip(mediaList, mediaObservers) {
-                    if mediaObserver.inputMedia != media {
-                        mediaObserver.inputMedia = media
+        case .patch(let patchNode):
+            switch patchNode.patch {
+            case .loopBuilder:
+                if let mediaObservers = self.getMediaObservers(port: inputCoordinate) {
+                    for (media, mediaObserver) in zip(mediaList, mediaObservers) {
+                        if mediaObserver.inputMedia != media {
+                            mediaObserver.inputMedia = media
+                        }
                     }
+                }
+                
+            case .coreMLClassify:
+                self.zipInputMedia(mediaList: mediaList,
+                                   observerType: ImageClassifierOpObserver.self) { mediaObserver, mediaObject in
+                    // Core ML port
+                    if inputCoordinate.portId == 0 {
+                        mediaObserver.inputMedia = mediaObject
+                    }
+                    
+                    // Image input
+                    else if inputCoordinate.portId == 1 {
+                        mediaObserver.imageInput = mediaObject?.mediaObject.image
+                    }
+                }
+                
+            case .coreMLDetection:
+                self.zipInputMedia(mediaList: mediaList,
+                                   observerType: VisionOpObserver.self) { mediaObserver, mediaObject in
+                    // Core ML port
+                    if inputCoordinate.portId == 0 {
+                        mediaObserver.inputMedia = mediaObject
+                    }
+                    
+                    // Image input
+                    else if inputCoordinate.portId == 1 {
+                        mediaObserver.imageInput = mediaObject?.mediaObject.image
+                    }
+                }
+                
+            case .arAnchor:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: ARAnchorObserver.self)
+                
+            case .cameraFeed, .location:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: SingletonMediaNodeCoordinator.self)
+
+            case .delay:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: NodeTimerEphemeralObserver.self)
+                
+            case .loopSelect, .loopShuffle, .loopRemove:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: MediaReferenceObserver.self)
+                
+            default:
+                if let _ = self.createEphemeralObserver() as? MediaEvalOpViewable {
+                    self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                              mediaList: mediaList)
                 }
             }
             
@@ -113,6 +170,30 @@ extension NodeViewModel: NodeCalculatable {
             
         default:
             return
+        }
+    }
+    
+    @MainActor
+    func zipInputMedia<EphemeralObserver>(mediaList: [GraphMediaValue?],
+                                          observerType: EphemeralObserver.Type = MediaEvalOpObserver.self,
+                                          callback: (EphemeralObserver, GraphMediaValue?) -> Void) where EphemeralObserver: MediaEvalOpViewable {
+        let mediaObservers = self.createEphemeralObserverLoop(EphemeralObserver.self,
+                                                              count: mediaList.count)
+        
+        zip(mediaObservers, mediaList).forEach(callback)
+    }
+    
+    @MainActor
+    func defaultZipInputMedia<EphemeralObserver>(inputCoordinate: NodeIOCoordinate,
+                                                 mediaList: [GraphMediaValue?],
+                                                 observerType: EphemeralObserver.Type = MediaEvalOpObserver.self) where EphemeralObserver: MediaEvalOpViewable {
+        guard inputCoordinate.portId == 0 else {
+            return
+        }
+        
+        self.zipInputMedia(mediaList: mediaList,
+                           observerType: observerType) { mediaObserver, mediaObject in
+            mediaObserver.inputMedia = mediaObject
         }
     }
     
@@ -126,19 +207,19 @@ extension NodeViewModel: NodeCalculatable {
         case .patch(let patch) where patch == .loopBuilder:
             // Edge case: one observable for each port index, so we lengthen media list to match ports
             let lengthenedMediaList = mediaList.lengthenArray(mediaObservers.count)
-            Self.zipMediaIntoObservers(mediaList: lengthenedMediaList,
-                                       mediaObservers: mediaObservers)
+            Self.zipComputedMediaIntoObservers(mediaList: lengthenedMediaList,
+                                               mediaObservers: mediaObservers)
             
         default:
             // Default case: loop of observables for one port index
-            Self.zipMediaIntoObservers(mediaList: mediaList,
-                                       mediaObservers: mediaObservers)
+            Self.zipComputedMediaIntoObservers(mediaList: mediaList,
+                                               mediaObservers: mediaObservers)
         }
     }
     
     @MainActor
-    private static func zipMediaIntoObservers(mediaList: [GraphMediaValue?],
-                                              mediaObservers: [MediaViewModel]) {
+    private static func zipComputedMediaIntoObservers(mediaList: [GraphMediaValue?],
+                                                      mediaObservers: [MediaViewModel]) {
         for (media, ephemeralObserver) in zip(mediaList, mediaObservers) {
             if ephemeralObserver.computedMedia != media {
                 ephemeralObserver.computedMedia = media
@@ -204,14 +285,25 @@ extension NodeViewModel: NodeCalculatable {
         }
     }
     
+    // Called by StitchEngine as part of NodeCalculatable
+    /// returns `Bool`: "does this layer node update require that we resort the preview layers?"
     @MainActor
-    func inputsWillUpdate(values: PortValuesList) {
-        // update cache for longest loop length
-        self.longestLoopLength = self.kind.determineMaxLoopCount(from: values)
+    func updateLayerViewModels(values: PortValuesList) -> Bool {
+                
+        guard let layerNode = self.layerNode,
+              let graph = self.graphDelegate else {
+            return false
+        }
         
-        // Updates preview layers if layer specified
-        // Must be before runEval check below since most layers don't have eval!
-        self.layerNode?.didValuesUpdate(newValuesList: values)
+        // Update cache for longest loop length
+        layerNode.cachedLongestLoopLength = self.kind.determineMaxLoopCount(from: values)
+        
+        // Must be before runEval check below since most layers don't have eval
+        layerNode.didValuesUpdate(newValuesList: values,
+                                  node: self,
+                                  graph: graph)
+        
+        return graph.shouldResortPreviewLayers
     }
     
     @MainActor

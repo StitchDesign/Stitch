@@ -12,24 +12,6 @@ extension Color {
     static let SWIFTUI_LIST_BACKGROUND_COLOR = Color(uiColor: .secondarySystemBackground)
 }
 
-struct FlyoutHeader: View {
-    
-    let flyoutTitle: String
-    
-    var body: some View {
-        HStack {
-            StitchTextView(string: flyoutTitle).font(.title3)
-            Spacer()
-            Image(systemName: "xmark.circle.fill")
-                .onTapGesture {
-                    withAnimation {
-                        dispatch(FlyoutClosed())
-                    }
-                }
-        }
-    }
-}
-
 struct GenericFlyoutView: View {
     
     static let DEFAULT_FLYOUT_WIDTH: CGFloat = 256.0 // Per Figma
@@ -51,13 +33,17 @@ struct GenericFlyoutView: View {
     var hasIncomingEdge: Bool = false
     let layerInput: LayerInputPort
     
-    var fieldValueTypes: [FieldGroupTypeData] {
-        layerInputObserver.fieldValueTypes
+    // Abstracts over packed vs unpacked
+    var fieldGroups: [FieldGroup] {
+        layerInputObserver.fieldGroupsFromInspectorRowViewModels
     }
         
     var body: some View {
         VStack(alignment: .leading) {
             FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
+            // TODO: move to FlyoutHeader itself? individual fields need it but not full inputs like in ShadowFlyout ?
+                .padding(.bottom)
+            
             flyoutRows
         }
         .modifier(FlyoutBackgroundColorModifier(
@@ -66,59 +52,50 @@ struct GenericFlyoutView: View {
     }
     
     @State var selectedFlyoutRow: Int? = nil
-        
-    // TODO: just use `NodeInputView` here ? Or keep this view separate and compose views ?
+    
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
-        LayerInputFieldsView(layerInputFieldType: .flyout,
-                             document: document,
-                             graph: graph,
-                             node: node,
-                             rowObserver: layerInputObserver.packedRowObserver,
-                             rowViewModel: rowViewModel,
-                             fieldValueTypes: fieldValueTypes,
-                             layerInputObserver: layerInputObserver,
-                             isNodeSelected: false)
-    }
-}
-
-extension Int {
-    var asUnpackedPortType: UnpackedPortType {
-        switch self {
-        case 0:
-            return .port0
-        case 1:
-            return .port1
-        case 2:
-            return .port2
-        case 3:
-            return .port3
-        case 4:
-            return .port4
-        case 5:
-            return .port5
-        case 6:
-            return .port6
-        case 7:
-            return .port7
-        case 8:
-            return .port8
-        default:
-            fatalErrorIfDebug()
-            return .port0
+        ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
+            
+            FieldGroupLabelView(fieldGroup: fieldGroup)
+            
+            VStack { // flyout fields always stacked vertically
+                PotentiallyBlockedFieldsView(
+                    fieldGroup: fieldGroup,
+                    isMultifield: true, // generic flyout always multifield
+                    blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
+                        GenericFlyoutRowView(
+                            graph: graph,
+                            document: document,
+                            viewModel: inputFieldViewModel,
+                            rowViewModel: rowViewModel,
+                            node: node,
+                            layerInputObserver: layerInputObserver,
+                            isMultifield: isMultifield)
+                    }
+            }
         }
     }
 }
 
-extension LayerInputObserver {
-    // Used with a specific flyout-row, to add the field of the canvas
-    @MainActor
-    func layerInputTypeForFieldIndex(_ fieldIndex: Int) -> LayerInputType {
-        .init(layerInput: self.port,
-                     portType: .unpacked(fieldIndex.asUnpackedPortType))
+// Only actually for packed 3D Transform layer inputs?
+struct FieldGroupLabelView: View {
+    let fieldGroup: FieldGroup
+    
+    var body: some View {
+        if let fieldGroupLabel = fieldGroup.groupLabel {
+            HStack {
+                LabelDisplayView(label: fieldGroupLabel,
+                                 isLeftAligned: false,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 isSelectedInspectorRow: false)
+                Spacer()
+            }
+        }
     }
 }
+
 
 struct GenericFlyoutRowView: View {
     
@@ -157,14 +134,18 @@ struct GenericFlyoutRowView: View {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
-    var rowObserver: InputNodeRowObserver {
+    var rowObserver: InputNodeRowObserver? {
+        
         switch self.layerInputObserver.observerMode {
+        
         case .packed(let inputLayerNodeRowData):
             return inputLayerNodeRowData.rowObserver
+        
         case .unpacked(let layerInputUnpackedPortObserver):
+            
             guard let unpackedObserver = layerInputUnpackedPortObserver.allPorts[safe: fieldIndex] else {
                 fatalErrorIfDebug()
-                return self.layerInputObserver._packedData.rowObserver
+                return nil
             }
             
             return unpackedObserver.rowObserver
@@ -185,28 +166,31 @@ struct GenericFlyoutRowView: View {
                                         // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
                                         coordinate: InputCoordinate(portType: .keyPath(layerInputType),
                                                                     nodeId: node.id),
-                                        canvasItemId: canvasItemId,
+                                         packedInputCanvasItemId: canvasItemId,
                                         isHovered: isHovered,
                                         fieldIndex: fieldIndex)
             }
                                     
-            InputValueEntry(graph: graph,
-                            document: document,
-                            viewModel: viewModel,
-                            node: node,
-                            rowViewModel: rowViewModel,
-                            canvasItem: nil,
-                            // For input editing, however, we need the proper packed vs unpacked state
-                            rowObserver: rowObserver,
-                            isCanvasItemSelected: false, // Always false
-                            hasIncomingEdge: false,
-                            isForLayerInspector: true,
-                            isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
-                            isFieldInMultifieldInput: isMultifield,
-                            isForFlyout: true,
-                            // Always false for flyout row
-                            isSelectedInspectorRow: isPropertyRowSelected,
-                            useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+            if let rowObserver = self.rowObserver {
+                InputValueEntry(graph: graph,
+                                document: document,
+                                viewModel: viewModel,
+                                node: node,
+                                rowViewModel: rowViewModel,
+                                canvasItem: nil,
+                                // For input editing, however, we need the proper packed vs unpacked state
+                                rowObserver: rowObserver,
+                                isCanvasItemSelected: false, // Always false
+                                hasIncomingEdge: false,
+                                isForLayerInspector: true,
+                                isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
+                                isFieldInMultifieldInput: isMultifield,
+                                isForFlyout: true,
+                                // Always false for flyout row
+                                isSelectedInspectorRow: isPropertyRowSelected,
+                                useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex:  document.activeIndex))
+            }
+            
         } // HStack
         .contentShape(Rectangle())
         .onHover(perform: { hovering in
@@ -255,16 +239,19 @@ struct FlyoutBackgroundColorModifier: ViewModifier {
 }
 
 
-extension GraphState {
+//extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func addLayerFieldToGraph(layerInput: LayerInputPort,
                               nodeId: NodeId,
                               fieldIndex: Int,
                               groupNodeFocused: NodeId?) {
         
-        guard let node = self.getNode(nodeId),
-              let layerNode = node.layerNode,
-              let document = self.documentDelegate else {
+        let document = self
+        let graph = document.visibleGraph
+        
+        guard let node = graph.getNode(nodeId),
+              let layerNode = node.layerNode else {
             log("LayerInputFieldAddedToGraph: no node, layer node and/or document")
             fatalErrorIfDebug()
             return
@@ -278,43 +265,50 @@ extension GraphState {
             fatalErrorIfDebug("LayerInputFieldAddedToGraph: no unpacked port for fieldIndex \(fieldIndex)")
             return
         }
-                
-        var unpackSchema = unpackedPort.createSchema()
-        unpackSchema.canvasItem = .init(position: document.newCanvasItemInsertionLocation,
-                                        zIndex: self.highestZIndex + 1,
-                                        parentGroupNodeId: groupNodeFocused)
         
-        // MARK: first group type grabbed since layers don't have differing groups within one input
+        
+        // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
+        
+        // First field-group grabbed since layers don't have differing groups within one input
         guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
             .getDefaultValue(for: layerNode.layer)
-            .getNodeRowType(nodeIO: .input,
-                            layerInputPort: layerInput,
-                            isLayerInspector: true)
-                .fieldGroupTypes
+            .getNodeRowType(nodeIO: .input, layerInputPort: layerInput, isLayerInspector: true)
+            .fieldGroupTypes
             .first else {
-            
             fatalErrorIfDebug()
             return
         }
         
-        unpackedPort.update(from: unpackSchema,
-                            layerInputType: unpackedPort.id,
-                            layerNode: layerNode,
-                            nodeId: nodeId,
-                            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                            unpackedPortIndex: fieldIndex)
+        let canvasObserver = CanvasItemViewModel(
+            id: CanvasItemId.layerInput(LayerInputCoordinate(node: nodeId,
+                                                             keyPath: unpackedPort.id)),
+            position: document.newCanvasItemInsertionLocation,
+            zIndex: graph.highestZIndex + 1,
+            parentGroupNodeId: groupNodeFocused,
+            inputRowObservers: [unpackedPort.rowObserver],
+            outputRowObservers: [])
         
-        unpackedPort.canvasObserver?.initializeDelegate(
+        canvasObserver.initializeDelegate(
             node,
+            activeIndex: document.activeIndex,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: fieldIndex)
         
+        unpackedPort.canvasObserver = canvasObserver
+        
+        
+
+        // MARK: Change the pack mode
+        
         let newPackMode = portObserver.mode
         if previousPackMode != newPackMode {
-            portObserver.wasPackModeToggled()
+            portObserver.wasPackModeToggled(document: document)
         }
         
-        self.resetLayerInputsCache(layerNode: layerNode)
+        
+        // MARK: RESET CACHE
+        
+        graph.resetLayerInputsCache(layerNode: layerNode) // Why?
     }
 }
 
@@ -326,15 +320,11 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
     
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        
-        //        log("LayerInputFieldAddedToGraph: layerInput: \(layerInput)")
-        //        log("LayerInputFieldAddedToGraph: nodeId: \(nodeId)")
-        //        log("LayerInputFieldAddedToGraph: fieldIndex: \(fieldIndex)")
-        
+                
         let graph = state.visibleGraph
         
         let addLayerField = { (nodeId: NodeId) in
-            graph.addLayerFieldToGraph(layerInput: layerInput,
+            state.addLayerFieldToGraph(layerInput: layerInput,
                                        nodeId: nodeId,
                                        fieldIndex: fieldIndex,
                                        groupNodeFocused: state.groupNodeFocused?.groupNodeId)
@@ -344,7 +334,7 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
            let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
             
             layerMultiselectInput.multiselectObservers(graph).forEach { observer in
-                addLayerField(observer.packedRowObserver.id.nodeId)
+                addLayerField(observer.nodeId)
             }
         } else {
             addLayerField(nodeId)

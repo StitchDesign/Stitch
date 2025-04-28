@@ -23,8 +23,7 @@ extension GraphState {
                       translation: CGSize,
                       velocity: CGSize,
                       parentSize: CGSize,
-                      childSize: CGSize,
-                      childPosition: CGPoint) {
+                      childSize: CGSize) {
                 
         guard let previewWindowSize = self.documentDelegate?.previewWindowSize else {
             fatalErrorIfDebug("layerDragEnded: Must have preview window size")

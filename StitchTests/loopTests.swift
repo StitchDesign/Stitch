@@ -11,6 +11,8 @@ import SwiftyJSON
 
 final class loopTests: XCTestCase {
 
+    @MainActor var store = StitchStore()
+    
     func testLoopInsertFriendlyIndices() throws {
 
         // for e.g. a loop like `[a, b, c]`
@@ -39,7 +41,8 @@ final class loopTests: XCTestCase {
          Old bug: JSONArray was adding its output to the list of inputs to turn into an array.
          Not caught by existing JSONArrayFromValues test because the bug came from `nodeViewModel.loopedEval` helper.
          */
-        if let node = StitchDocumentViewModel.createEmpty().nodeInserted(choice: .patch(.jsonArray)) {
+        let document = StitchDocumentViewModel.createTestFriendlyDocument(store)
+        if let node = document.nodeInserted(choice: .patch(.jsonArray)) {
             
             // How many inputs does the JSONArray node have?
             let inputCount = node.inputs.count

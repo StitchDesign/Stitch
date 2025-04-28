@@ -143,7 +143,7 @@ extension VisibleNodesViewModel {
     
     // traditionally called in `updateNodesPagingDict`, after `updateNodeRowObserversUpstreamAndDownstreamReferences`
     @MainActor
-    func syncRowViewModels(document: StitchDocumentViewModel) {
+    func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
         // Sync port view models for applicable nodes
         self.nodes.values.forEach { node in
             switch node.nodeType {
@@ -151,19 +151,16 @@ extension VisibleNodesViewModel {
                 // Syncs ports if nodes had inputs added/removed
                 patchNode.canvasObserver.syncRowViewModels(inputRowObservers: patchNode.inputsObservers,
                                                            outputRowObservers: patchNode.outputsObservers,
-                                                           // Not relevant
-                                                           unpackedPortParentFieldGroupType: nil,
-                                                           unpackedPortIndex: nil)
+                                                           activeIndex: activeIndex)
                 
             case .group(let canvasGroup):
                 // Create port view models for group nodes once row observers have been established
                 let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
                 let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
+                // Note: What is `syncRowViewModels` vs `NodeRowViewModel.initialize`?
                 canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
                                               outputRowObservers: outputRowObservers,
-                                              // Not relevant
-                                              unpackedPortParentFieldGroupType: nil,
-                                              unpackedPortIndex: nil)
+                                              activeIndex: activeIndex)
                 
                 // Initializes view models for canvas
                 guard let node = canvasGroup.nodeDelegate else {
@@ -173,25 +170,24 @@ extension VisibleNodesViewModel {
                 
                 assertInDebug(node.kind == .group)
                 
+                // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
+                // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
                 canvasGroup.initializeDelegate(node,
+                                               activeIndex: activeIndex,
+                                               // Layer inputs can never be inputs for group nodes
                                                unpackedPortParentFieldGroupType: nil,
                                                unpackedPortIndex: nil)
-                
+                                
             case .component(let componentViewModel):
                 // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
                 componentViewModel.canvas.syncRowViewModels(inputRowObservers: componentViewModel.inputsObservers,
                                                             outputRowObservers: componentViewModel.outputsObservers,
-                                                            unpackedPortParentFieldGroupType: nil,
-                                                            unpackedPortIndex: nil)
+                                                            activeIndex: activeIndex)
 
             case .layer(let layerNode):
-                // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
-                if layerNode.layer == .group {
-                    layerNode.blockOrUnblockFields(
-                        newValue: layerNode.orientationPort.getActiveValue(activeIndex: document.activeIndex),
-                        layerInput: .orientation,
-                        activeIndex: document.activeIndex)
-                }
+                // We must refresh all the blocked layer inputs
+                layerNode.refreshBlockedInputs(graph: graph,
+                                               activeIndex: activeIndex)
             }
         }
     }
@@ -216,7 +212,7 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func getNodesAtThisTraversalLevel(at focusedGroup: NodeId?) -> [NodeDelegate] {
+    func getNodesAtThisTraversalLevel(at focusedGroup: NodeId?) -> [NodeViewModel] {
         self.getCanvasItemsAtTraversalLevel(at: focusedGroup)
             .filter { $0.parentGroupNodeId ==  focusedGroup }
             .compactMap { $0.nodeDelegate }
@@ -360,18 +356,9 @@ extension VisibleNodesViewModel {
             $0.value.kind == .group
         }
     }
-
-    /// Updates cached data inside row observers.
+   
     @MainActor
-    func updateAllNodeViewData() {        
-        // Connected nodes data relies on port view data so we call this later
-        self.nodes.values.forEach { node in
-            node.updateAllConnectedNodes()
-        }
-    }
-    
-    @MainActor
-    func setAllNodesVisible() {
+    func setAllCanvasItemsVisible() {
         let newIds = self.allViewModels.map(\.id).toSet
         if self.visibleCanvasIds != newIds {
             self.visibleCanvasIds = newIds
@@ -380,16 +367,16 @@ extension VisibleNodesViewModel {
     
     @MainActor
     /// Updates node visibility data.
-    func resetCache() {
+    func resetVisibleCanvasItemsCache() {
         if !self.needsInfiniteCanvasCacheReset {
             self.needsInfiniteCanvasCacheReset = true
         }
-        self.setAllNodesVisible()
+        self.setAllCanvasItemsVisible()
         
         // Fixes issues where new rows don't have port locations
         for node in self.nodes.values {
             // NOTE: what about layer canvas inputs' ?
-            node.patchCanvasItem?.updatePortLocations()
+            node.patchCanvasItem?.updateAnchorPoints()
         }
     }
 }

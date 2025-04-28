@@ -15,6 +15,7 @@ extension GraphState {
     func inputEditedFromUI(fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
+                           rowId: NodeRowViewModelId,
                            activeIndex: ActiveIndex,
                            rowObserver: InputNodeRowObserver,
                            isFieldInsideLayerInspector: Bool,
@@ -29,6 +30,7 @@ extension GraphState {
         rowObserver.handleInputEdited(graph: self,
                                       fieldValue: fieldValue,
                                       fieldIndex: fieldIndex,
+                                      rowId: rowId,
                                       activeIndex: activeIndex,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       isCommitting: isCommitting)
@@ -36,11 +38,6 @@ extension GraphState {
 }
 
 extension LayerInputObserver {
-    
-    @MainActor
-    var nodeId: NodeId {
-        self.packedRowObserver.id.nodeId
-    }
     
     @MainActor
     func getInputNodeRowObserver(for fieldIndex: Int, _ graph: GraphState) -> InputNodeRowObserver? {
@@ -60,10 +57,11 @@ extension InputNodeRowObserver {
                      fieldValue: FieldValue,
                      // Single-fields always 0, multi-fields are like size or position inputs
                      fieldIndex: Int,
+                     rowId: NodeRowViewModelId, // debug assert onlu
                      activeIndex: ActiveIndex,
                      isCommitting: Bool = true) {
         
-        guard let node = graph.getNodeViewModel(self.id.nodeId) else {
+        guard let node = graph.getNode(self.id.nodeId) else {
             fatalErrorIfDebug()
             return
         }
@@ -98,23 +96,44 @@ extension InputNodeRowObserver {
             // graph.connectedEdges = graph.getVisualEdgeData(groupNodeFocused: graph.documentDelegate?.groupNodeFocused?.groupNodeId)
             
             // Note: need to do full update, since upstream output's port-color needs to change as well
-            graph.updateGraphData()
-            
+            // TODO: APRIL 11: do we really need to do this?!
+            guard let document = graph.documentDelegate else {
+                fatalErrorIfDebug()
+                return
+            }
+            graph.updateGraphData(document)
+             
             
             self.setValuesInInput([newValue])
-            self.immediatelyUpdateFieldObservers(activeIndex)
+            
+            // self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
         }
         
-        // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.
-        if let newSize = newValue.getSize,
-           // Only look at size (not min/max size) changes
-           self.id.keyPath?.layerInput == .size,
-           let layerNode = node.layerNode {
+#if DEBUG || DEV_DEBUG
+        let expectedFieldsUI: [FieldValues] = newValue.createFieldValuesList(
+            nodeIO: .input,
+            layerInputPort: rowId.portType.keyPath?.layerInput, // assume canvas
+            // "Flyout with one field blocked" case is a little different (`[FieldValues].count` did not change); can dig deeper there if necessary, but for now can just isolate canvas incidents
+            isLayerInspector: false)
+        
+        if let currentFieldsUI: [FieldValues] = graph.getInputRowViewModel(for: rowId)?.fieldsUIViewModel.cachedActiveValue
+            .createFieldValuesList(nodeIO: .input,
+                                   layerInputPort: rowId.portType.keyPath?.layerInput,
+                                   isLayerInspector: false) {
             
-            layerNode.layerSizeUpdated(newValue: newSize)
+            // If the underlying pre- and edit-values are the same, then the fields-UI ought to match
+            if newValue == parentPortValue,
+               !rowId.graphItemType.isLayerInspector {
+                assertInDebug(expectedFieldsUI == currentFieldsUI)
+            }
         }
-
-        node.calculate()
+#endif
+            
+        // Note: ALWAYS update the field observers; this handles a rare case where the row observer's value had changed but the cached-field-UI had not. We already handle cases like "When a canvas item comes on-screen again, update fields UI."
+        // TODO: track down exactly how underlying row observer and cached/derived-fields-UI get out of sync. For now, this solution here (and in `inputEditCommitted`) work because they are true:
+        self.immediatelyUpdateFieldObserversAfterInputEdit(newValue)
+        
+        node.scheduleForNextGraphStep()
     }
     
     @MainActor
@@ -122,6 +141,7 @@ extension InputNodeRowObserver {
                            fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
+                           rowId: NodeRowViewModelId, // debug assert only
                            activeIndex: ActiveIndex,
                            isFieldInsideLayerInspector: Bool,
                            isCommitting: Bool = true) {
@@ -137,10 +157,11 @@ extension InputNodeRowObserver {
                     rowObserver.inputEdited(graph: graph,
                                             fieldValue: fieldValue,
                                             fieldIndex: fieldIndex,
+                                            rowId: rowId,
                                             activeIndex: activeIndex,
                                             isCommitting: isCommitting)
                     
-                    let newActiveValue = rowObserver.getActiveValue(activeIndex: graph.documentDelegate?.activeIndex ?? .init(0))
+                    let _ = rowObserver.getActiveValue(activeIndex: activeIndex)
                 }
             }
         }
@@ -150,6 +171,7 @@ extension InputNodeRowObserver {
             self.inputEdited(graph: graph,
                              fieldValue: fieldValue,
                              fieldIndex: fieldIndex,
+                             rowId: rowId,
                              activeIndex: activeIndex,
                              isCommitting: isCommitting)
         }

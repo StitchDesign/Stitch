@@ -15,13 +15,12 @@ typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
 @Observable
-final class FieldViewModel: StitchLayoutCachable, Observable, AnyObject, Identifiable {
+final class FieldViewModel: Observable, AnyObject, Identifiable, Sendable {
     
     let id: FieldCoordinate
     @MainActor var fieldValue: FieldValue
     @MainActor var fieldIndex: Int
     @MainActor var fieldLabel: String
-    @MainActor var viewCache: NodeLayoutCache?
     
     @MainActor
     init(fieldValue: FieldValue,
@@ -102,7 +101,7 @@ extension [FieldViewModel] {
     
     private static func getIndexForLabel(index: Int,
                                          layerInput: LayerInputPort?) -> Int {
-        guard let labelGropuings = layerInput?.labelGroupings else {
+        guard let labelGropuings = layerInput?.transform3DLabelGroupings else {
             // Almsot all cases (non 3D transform)
             return index
         }

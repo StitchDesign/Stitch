@@ -74,8 +74,9 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     
     @MainActor
     init(rowObserver: InputNodeRowObserver,
+         activeIndex: ActiveIndex,
          canvasObserver: CanvasItemViewModel? = nil,
-         nodeDelegate: NodeDelegate? = nil) {
+         nodeDelegate: NodeViewModel? = nil) {
         let keyPath = rowObserver.id.keyPath
         assertInDebug(keyPath.isDefined)
         
@@ -96,6 +97,7 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
                                                      nodeId: rowObserver.id.nodeId,
                                                      // Why portId=0 ?
                                                      portId: 0),
+                                           initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
@@ -111,6 +113,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
     
     @MainActor
     init(rowObserver: OutputNodeRowObserver,
+         activeIndex: ActiveIndex,
          canvasObserver: CanvasItemViewModel? = nil) {
         self.id = rowObserver.id
         self.rowObserver = rowObserver
@@ -127,37 +130,55 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
+                                           initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
     }
     
+    // initialization of inspector row view model needs active index and row obseerver
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
-        self.rowObserver.initializeDelegate(node)
+    func initializeDelegate(_ node: NodeViewModel,
+                            graph: GraphState,
+                            activeIndex: ActiveIndex) {
+        self.rowObserver.initializeDelegate(node, graph: graph)
+        let rowDelegate = self.rowObserver
+        
         self.canvasObserver?.initializeDelegate(node,
-                                                // Not relevant
+                                                activeIndex: activeIndex,
+                                                // Not relevant for output
                                                 unpackedPortParentFieldGroupType: nil,
                                                 unpackedPortIndex: nil)
-        self.inspectorRowViewModel.initializeDelegate(node,
-                                                      // Not relevant
-                                                      unpackedPortParentFieldGroupType: nil,
-                                                      unpackedPortIndex: nil)
+                        
+        self.inspectorRowViewModel.initializeDelegate(
+            node, // for setting NodeViewModel on NodeRowViewModel
+            initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
+            // Not relevant for output
+            unpackedPortParentFieldGroupType: nil,
+            unpackedPortIndex: nil)
     }
 }
 
 extension LayerNodeRowData {
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?) {
-        self.rowObserver.initializeDelegate(node)
+                            unpackedPortIndex: Int?,
+                            activeIndex: ActiveIndex,
+                            graph: GraphState) {
+        self.rowObserver.initializeDelegate(node, graph: graph)
         self.canvasObserver?.initializeDelegate(node,
+                                                activeIndex: activeIndex,
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                                 unpackedPortIndex: unpackedPortIndex)
-        self.inspectorRowViewModel.initializeDelegate(node,
-                                                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                      unpackedPortIndex: unpackedPortIndex)
+        
+        let rowDelegate = self.rowObserver
+        
+        self.inspectorRowViewModel.initializeDelegate(
+            node,
+            initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex)
     }
     
     @MainActor
@@ -176,8 +197,10 @@ extension LayerNodeViewModel {
     @MainActor
     func preinitializeSupportedPort(layerInputPort: LayerInputPort,
                                     portType: LayerInputKeyPathType) {
+        
         let layerId = LayerInputType(layerInput: layerInputPort,
                                      portType: portType)
+        
         let coordinateId = NodeIOCoordinate(portType: .keyPath(layerId), nodeId: self.id)
         
         let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
@@ -200,62 +223,37 @@ extension LayerNodeViewModel {
 }
 
 extension InputLayerNodeRowData {
+    // This is more like `InputLayerNodeRowData`'s canvas obsever
+    // If this InputLayerNodeRowData's associated schema has no canvas entity, then we remove the canvas observer; else we update the canvas observer; else we create a new canvas observer
     @MainActor
-    func update(from schema: LayerInputDataEntity,
-                layerInputType: LayerInputType,
-                layerNode: LayerNodeViewModel,
-                nodeId: NodeId,
-                unpackedPortParentFieldGroupType: FieldGroupType?,
-                unpackedPortIndex: Int?) {
+    func updateCanvasObserver(from schema: LayerInputDataEntity,
+                              layerInputType: LayerInputType, // Can't we just use `self.id` ?
+                              nodeId: NodeId) {
         assertInDebug(self.rowObserver.id.nodeId == nodeId)
-                    
-        if let canvas = schema.canvasItem {
-            if let canvasObserver = self.canvasObserver {
-                canvasObserver.update(from: canvas)
-                
-            } else {
-                // Make new canvas observer since none yet created
-                let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
-                                                             keyPath: layerInputType))
-                
-                self.canvasObserver = .init(from: canvas,
-                                            id: canvasId,
-                                            inputRowObservers: [self.rowObserver],
-                                            outputRowObservers: [],
-                                            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                            unpackedPortIndex: unpackedPortIndex)
-
-                // NOTE: DO NOT SET A CANVAS ITEM DELEGATE ON AN INSPECTOR ROW VIEW MODEL
-//                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
-            }
-        } else {
+        
+        guard let canvasEntity: CanvasNodeEntity = schema.canvasItem else {
             self.canvasObserver = nil
+            return
+        }
+
+        if let canvasObserver = self.canvasObserver {
+            canvasObserver.update(from: canvasEntity)
+        } else {
+            // Make new canvas observer since none yet created
+            self.canvasObserver = CanvasItemViewModel(
+                from: canvasEntity,
+                id: CanvasItemId.layerInput(LayerInputCoordinate(node: nodeId,
+                                                                 keyPath: layerInputType)),
+                inputRowObservers: [self.rowObserver],
+                outputRowObservers: [])
+     
+            // NOTE: DO NOT SET A CANVAS ITEM DELEGATE ON AN INSPECTOR ROW VIEW MODEL
+            //                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
         }
     }
 }
 
 extension LayerInputObserver {
-    @MainActor
-    var packedObserver: InputLayerNodeRowData? {
-        switch self.mode {
-        case .packed:
-            // TODO: infinite loop? What was this method supposed to be?
-//            return self.packedObserver
-            return self._packedData
-        case .unpacked:
-            return nil
-        }
-    }
-    
-    @MainActor
-    var unpackedObserver: LayerInputUnpackedPortObserver? {
-        switch self.mode {
-        case .unpacked:
-            return self._unpackedData
-        default:
-            return nil
-        }
-    }
     
     @MainActor
     func update(from schema: LayerInputEntity,
@@ -264,18 +262,12 @@ extension LayerInputObserver {
                 nodeId: NodeId) {        
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
-
-        self.port = layerInputType
         
         // Updated packed data
-        portObserver._packedData.update(from: schema.packedData,
+        portObserver._packedData.updateCanvasObserver(from: schema.packedData,
                                         layerInputType: .init(layerInput: layerInputType,
                                                               portType: .packed),
-                                        layerNode: layerNode,
-                                        nodeId: nodeId,
-                                        // Not relevant
-                                        unpackedPortParentFieldGroupType: nil,
-                                        unpackedPortIndex: nil)
+                                        nodeId: nodeId)
         
         
         // Update unpacked data
@@ -296,13 +288,10 @@ extension LayerInputObserver {
                 .fieldGroupTypes
             
             unpackedPortParentFieldGroupTypes.forEach { unpackedPortParentFieldGroupType in
-                unpackedObserver.update(from: unpackedSchema,
+                unpackedObserver.updateCanvasObserver(from: unpackedSchema,
                                         layerInputType: .init(layerInput: layerInputType,
                                                               portType: .unpacked(unpackedPortType)),
-                                        layerNode: layerNode,
-                                        nodeId: nodeId,
-                                        unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                        unpackedPortIndex: portId)
+                                        nodeId: nodeId)
             }
         }
         

@@ -53,7 +53,7 @@ extension InteractiveLayer {
     }
     
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.firstPressEnded = nil
         self.secondPressEnded = nil
         self.lastTappedLocation = nil

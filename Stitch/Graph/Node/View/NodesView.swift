@@ -100,14 +100,17 @@ struct CanvasEdgesViewModifier: ViewModifier {
                                 edgeDrawingObserver: graph.edgeDrawingObserver)
                 .zIndex(999999)
                 
-                EdgeInputLabelsView(document: document,
-                                    graph: graph)
-                .zIndex(9999999)
+                if let edgeEditingState = graph.edgeEditingState {
+                    EdgeInputLabelsView(document: document,
+                                        graph: graph,
+                                        edgeEditingState: edgeEditingState)
+                }
                 
                 if let openPortPreview = document.openPortPreview,
                    let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
                     PortPreviewPopoverWrapperView(
                         openPortPreview: openPortPreview,
+                        activeIndex: document.activeIndex,
                         canvas: canvas)
                     .zIndex(99999999)
                 }

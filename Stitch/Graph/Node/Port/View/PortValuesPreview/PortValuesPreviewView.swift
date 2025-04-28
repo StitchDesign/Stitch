@@ -27,10 +27,10 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
         
     let nodeIO: NodeIO
+    let activeIndex: ActiveIndex
 
     // TODO: do we really need `[PortPreviewData]`? Can we access some already existing data?
     var tableRows: [PortPreviewData] {
-        
         let loopedValues: PortValues = rowObserver.allLoopedValues
         
         // TODO: handle ShapeCommand port-preview ?
@@ -50,7 +50,8 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             // TODO: handle ShapeCommand port-preview ?
             guard let fieldValues = value.createFieldValuesList(
                 nodeIO: nodeIO,
-                rowViewModel: rowViewModel).first else {
+                layerInputPort: rowViewModel.id.layerInputPort,
+                isLayerInspector: false).first else {
                 
                 fatalErrorIfDebug()
                 return nil
@@ -78,7 +79,11 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
         .cornerRadius(8)
     }
     
-    @State var hoveredIndex: Int? = nil
+    @State var focusedIndex: Int? = nil
+    
+    var activeIndexForThisObserver: Int {
+        self.activeIndex.adjustedIndex(self.rowObserver.allLoopedValues.count)
+    }
     
     var valueGrid: some View {
         VStack(alignment: .leading) {
@@ -86,18 +91,20 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             ForEach(tableRows, id: \.id) { (data: PortPreviewData) in
                 
                 HStack(alignment: .center) {
+                    
+                    // Loop index
                     StitchTextView(string: "\(data.loopIndex)",
                                    fontColor: STITCH_FONT_GRAY_COLOR)
-                        .monospaced()
-                        // 34 = enough for 3 monospaced digits
-                        .frame(minWidth: 34, maxWidth: 48)
+                    .monospaced()
+                    // 34 = enough for 3 monospaced digits
+                    .frame(minWidth: 34, maxWidth: 48)
                     
                     ForEach(data.fields, id: \.0) { field in
                         let label = field.fieldLabel
                         HStack {
                             if !label.isEmpty {
                                 StitchTextView(string: "\(label)",
-                                           truncationMode: .tail)
+                                               truncationMode: .tail)
                                 .monospaced()
                                 // 24 = enough for 1 monospaced letter
                                 .frame(minWidth: 24)
@@ -108,23 +115,38 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
                     } // ForEach(date.fields)
                     
                 } // HStack
-                .padding(4)
+                .padding([.top, .bottom], 4)
                 .background {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(self.hoveredIndex == data.loopIndex ? theme.fontColor : .clear)
+                    if self.focusedIndex == data.loopIndex {
+                        RoundedRectangle(cornerRadius: 8).fill(theme.fontColor)
+                    } else if self.activeIndexForThisObserver == data.loopIndex {
+                        RoundedRectangle(cornerRadius: 8).fill(.gray)
+                    }
                 }
-                
+                .onTapGesture {
+#if targetEnvironment(macCatalyst)
+                    dispatch(ClosePortPreview())
+#else
+                    // iPad without trackpad does not support hover, so we use tap to change active index
+                    self.focusedIndex = data.loopIndex
+                    dispatch(ActiveIndexChangedAction(index: .init(data.loopIndex)))
+#endif
+                }
                 .onHover { hovering in
                     if hovering {
-//                        log("hovered data.loopIndex \(data.loopIndex)")
-                        self.hoveredIndex = data.loopIndex
+                        self.focusedIndex = data.loopIndex
                         dispatch(ActiveIndexChangedAction(index: .init(data.loopIndex)))
                     }
                 }
-                
                 .padding(.top, 2)
             } // ForEach
         }
+    }
+}
+
+struct ClosePortPreview: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        state.openPortPreview = nil
     }
 }
 
@@ -155,12 +177,8 @@ struct PortValuesPreviewValueView: View {
                            lineLimit: 1,
                            truncationMode: .tail)
                 .monospaced()
-                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH, alignment: .leading) // necessary to prevent overflow scenarios
+                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+                       alignment: .leading) // necessary to prevent overflow scenarios
         }
     }
 }
-
-// TODO: easier way to build up a node / row observer with large loop
-//#Preview {
-//    PortValuesPreviewView(init(rowObserver: <#T##_#>, rowViewModel: <#T##_.RowViewModelType#>, nodeIO: <#T##NodeIO#>))
-//}

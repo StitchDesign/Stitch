@@ -12,15 +12,8 @@ import CoreData
 import RealityKit
 import SwiftUI
 
-// Legacy
 typealias PatchNode = NodeViewModel
 typealias NodeViewModels = [NodeViewModel]
-
-protocol PatchNodeViewModelDelegate: NodeDelegate {
-    @MainActor
-    func userVisibleTypeChanged(oldType: UserVisibleType,
-                                newType: UserVisibleType)
-}
 
 @Observable
 final class PatchNodeViewModel: Sendable {
@@ -51,7 +44,7 @@ final class PatchNodeViewModel: Sendable {
     // Splitter types are for group input, output, or inline nodes
     @MainActor var splitterNode: SplitterNodeEntity?
     
-    @MainActor weak var delegate: PatchNodeViewModelDelegate?
+    @MainActor weak var delegate: NodeViewModel?
     
     @MainActor
     init(from schema: PatchNodeEntity) {
@@ -79,9 +72,7 @@ final class PatchNodeViewModel: Sendable {
         self.canvasObserver = .init(from: schema.canvasEntity,
                                     id: .node(schema.id),
                                     inputRowObservers: inputsObservers,
-                                    outputRowObservers: outputsObservers,
-                                    unpackedPortParentFieldGroupType: nil,
-                                    unpackedPortIndex: nil)
+                                    outputRowObservers: outputsObservers)
         
         self.inputsObservers = inputsObservers
         self.outputsObservers = outputsObservers
@@ -138,38 +129,43 @@ extension PatchNodeViewModel: SchemaObserver {
                         mathExpression: self.mathExpression)
     }
     
-    func onPrototypeRestart() { }
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
 }
 
 extension PatchNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: PatchNodeViewModelDelegate) {
+    func initializeDelegate(_ node: NodeViewModel,
+                            graph: GraphState,
+                            activeIndex: ActiveIndex) {
         self.delegate = node
         
         self.inputsObservers.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node, graph: graph)
         }
         
         self.outputsObservers.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node, graph: graph)
         }
         
         // Assign weak for group canvas if group splitter node
         
         self.canvasObserver.initializeDelegate(node,
+                                               activeIndex: activeIndex,
                                                unpackedPortParentFieldGroupType: nil,
                                                unpackedPortIndex: nil)
     }
     
     // Other inits better for public accesss
     @MainActor private convenience init(id: NodeId,
-                             patch: Patch,
-                             inputs: [NodePortInputEntity],
-                             canvasEntity: CanvasNodeEntity,
-                             userVisibleType: UserVisibleType? = nil,
-                             mathExpression: String?,
-                             splitterNode: SplitterNodeEntity?,
-                             delegate: PatchNodeViewModelDelegate) {
+                                        patch: Patch,
+                                        inputs: [NodePortInputEntity],
+                                        canvasEntity: CanvasNodeEntity,
+                                        userVisibleType: UserVisibleType? = nil,
+                                        mathExpression: String?,
+                                        splitterNode: SplitterNodeEntity?,
+                                        activeIndex: ActiveIndex,
+                                        delegate: NodeViewModel,
+                                        graph: GraphState) {
         let entity = PatchNodeEntity(id: id,
                                      patch: patch,
                                      inputs: inputs,
@@ -178,17 +174,19 @@ extension PatchNodeViewModel {
                                      splitterNode: splitterNode,
                                      mathExpression: mathExpression)
         self.init(from: entity)
-        self.initializeDelegate(delegate)
+        self.initializeDelegate(delegate, graph: graph, activeIndex: activeIndex)
         self.delegate = delegate
         self.splitterNode = splitterNode
     }
 
     @MainActor convenience init(id: NodeId,
-                     patch: Patch,
-                     inputs: [NodePortInputEntity],
-                     canvasEntity: CanvasNodeEntity,
-                     userVisibleType: UserVisibleType? = nil,
-                     delegate: PatchNodeViewModelDelegate) {
+                                patch: Patch,
+                                inputs: [NodePortInputEntity],
+                                canvasEntity: CanvasNodeEntity,
+                                userVisibleType: UserVisibleType? = nil,
+                                activeIndex: ActiveIndex,
+                                delegate: NodeViewModel,
+                                graph: GraphState) {
         self.init(id: id,
                   patch: patch,
                   inputs: inputs,
@@ -196,7 +194,9 @@ extension PatchNodeViewModel {
                   userVisibleType: userVisibleType,
                   mathExpression: nil,
                   splitterNode: nil,
-                  delegate: delegate)
+                  activeIndex: activeIndex,
+                  delegate: delegate,
+                  graph: graph)
     }
 
     @MainActor
@@ -239,7 +239,8 @@ extension PatchNodeViewModel {
     
     @MainActor
     func updateMathExpressionNodeInputs(newExpression: String,
-                                        node: NodeDelegate) {
+                                        node: NodeViewModel,
+                                        activeIndex: ActiveIndex) {
         // Always set math-expr on node for its eval and (default) title
         if self.mathExpression != newExpression {
             self.mathExpression = newExpression            
@@ -284,9 +285,7 @@ extension PatchNodeViewModel {
         self.canvasObserver
             .syncRowViewModels(with: self._inputsObservers,
                                keyPath: \.inputViewModels,
-                               // Not relevant
-                               unpackedPortParentFieldGroupType: nil,
-                               unpackedPortIndex: nil)
+                               activeIndex: activeIndex)
     }
 }
 

@@ -9,16 +9,26 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+enum NodeMediaSupport {
+    // almost all media nodes
+    case single(SupportedMediaFormat)
+    
+    // just loop builder, which supports all types
+    case all
+}
+
 extension NodeKind {
 
-    var mediaType: SupportedMediaFormat {
+    func mediaType(coordinate: InputCoordinate) -> NodeMediaSupport? {
         switch self {
         case .patch(let patch):
-            return patch.supportedMediaType
+            assertInDebug(coordinate.portId.isDefined) // called incorrectly
+            return patch.supportedMediaType(portId: coordinate.portId ?? 0)
         case .layer(let layer):
-            return layer.supportedMediaType
+            guard let type = layer.supportedMediaType else { return nil }
+            return .single(type)
         case .group:
-            return .unknown
+            return nil
         }
     }
 
@@ -167,7 +177,7 @@ extension NodeKind {
     @MainActor
     func createDefaultNode(id: NodeId,
                            activeIndex: ActiveIndex,
-                           graphDelegate: GraphState?) -> NodeViewModel? {
+                           graphDelegate: GraphState) -> NodeViewModel? {
         switch self {
         case .patch(let patch):
             return patch.defaultNode(id: id,
@@ -178,7 +188,7 @@ extension NodeKind {
             return layer.defaultNode(id: id,
                                      position: .zero,
                                      zIndex: .zero,
-                                     graphDelegate: nil)
+                                     graphDelegate: graphDelegate)
         case .group:
             // Not intended here
             fatalError()
@@ -197,17 +207,6 @@ extension NodeKind {
             }
         default:
             return valuesList.longestLoopLength
-        }
-    }
-    
-    var supportedMediaType: SupportedMediaFormat? {
-        switch self {
-        case .patch(let patch):
-            return patch.supportedMediaType
-        case .layer(let layer):
-            return layer.supportedMediaType
-        default:
-            return nil
         }
     }
     

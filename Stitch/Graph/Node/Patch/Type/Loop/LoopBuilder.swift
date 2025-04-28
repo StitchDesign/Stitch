@@ -77,8 +77,8 @@ func loopBuilderEval(node: PatchNode,
         return valueForIndex
     }
     
-    let result = node.loopedEval(MediaEvalOpObserver.self,
-                           inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
+    let result = node.getLoopedEvalResults(MediaEvalOpObserver.self,
+                                           inputsValuesList: [flattenedInputs]) { (values, mediaObserver, index) -> MediaEvalOpResult in
         assertInDebug(values.first != nil)
         
         // index of our loop
@@ -89,12 +89,24 @@ func loopBuilderEval(node: PatchNode,
         
         switch node.userVisibleType {
         case .media:
-            guard let inputMediaValue = values.first?.asyncMedia,
-//                  // MARK: loop and port index are flipped
-//                  let mediaObject = node.getInputMediaValue(portIndex: 0,
-//                                                            loopIndex: index,
-//                                                            mediaId: inputMediaValue.id) else {
-                    let mediaObject = mediaObserver.inputMedia else {
+            guard let inputMediaValue = values.first?.asyncMedia else {
+                return .init(from: [indexPortValue,
+                                    .asyncMedia(nil)])
+            }
+            
+            guard let mediaObject = mediaObserver.inputMedia,
+                  mediaObject.id == inputMediaValue.id else {
+                // If media value exists but no object then likely a scenario where media was directly imported here--this requires an async step to load media
+                Task(priority: .high) { [weak mediaObserver, weak node] in
+                    if await mediaObserver?
+                        .getUniqueMedia(inputMediaValue: inputMediaValue,
+                                        inputPortIndex: index,
+                                        loopIndex: 0) != nil {
+                        // Recalculate this node on next graph step
+                        node?.scheduleForNextGraphStep()
+                    }
+                }
+                
                 return .init(from: [indexPortValue,
                                     .asyncMedia(nil)])
             }
@@ -114,5 +126,3 @@ func loopBuilderEval(node: PatchNode,
     
     return result
 }
-
-

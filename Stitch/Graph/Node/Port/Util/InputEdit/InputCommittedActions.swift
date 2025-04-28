@@ -101,7 +101,7 @@ extension GraphState {
         let nodeId = input.id.nodeId
         
         // TODO: debug: why was input.nodeDelegate `nil` for e.g. the padding layer-input but not the size layer-input, and only in the context of generating an LLM action?
-        guard let nodeViewModel = self.getNodeViewModel(nodeId),
+        guard let node = self.getNode(nodeId),
               var value = value else {
             log("GraphState.inputEditCommitted error: could not find node data.")
             return
@@ -117,18 +117,18 @@ extension GraphState {
         
         guard valueChange else {
             log("GraphState.inputEditCommitted: value did not change, so returning early")
+            
+            // See note in `inputEdited`
+            input.immediatelyUpdateFieldObserversAfterInputEdit(value)
+            
             return
         }
         
-        nodeViewModel.removeIncomingEdge(at: input.id,
-                                         graph: self)
+        node.removeIncomingEdge(at: input.id, graph: self)
         
         // Block or unblock certain layer inputs
-        if let layerInputType: LayerInputType = input.id.keyPath,
-           let layerNode: LayerNodeViewModel = nodeViewModel.layerNode {
-            layerNode.blockOrUnblockFields(newValue: value,
-                                           layerInput: layerInputType.layerInput,
-                                           activeIndex: activeIndex)
+        if let layerNode = node.layerNode {
+            layerNode.refreshBlockedInputs(graph: self, activeIndex: activeIndex)
         }
         
         let newCommandType = value.shapeCommandType
@@ -145,7 +145,7 @@ extension GraphState {
         
         // Only change the input if valued actually changed.
         input.setValuesInInput([value])
-        input.immediatelyUpdateFieldObservers(activeIndex)
+        input.immediatelyUpdateFieldObserversAfterInputEdit(value)
         
         self.scheduleForNextGraphStep(nodeId)
     }
@@ -177,7 +177,7 @@ extension InputNodeRowObserver {
     // Immediately update the field observers; do not wait until graph-step-based UI field updater runs.
     // Useful when e.g. user enters input faster than our UI update FPS
     @MainActor
-    func immediatelyUpdateFieldObservers(_ activeIndex: ActiveIndex) {
-        self.allRowViewModels.updateAllFields(activeIndex)
+    func immediatelyUpdateFieldObserversAfterInputEdit(_ value: PortValue) {
+        self.allRowViewModels.forEach { $0.updateFields(value) }
     }
 }

@@ -39,7 +39,7 @@ struct SplitterTypeChanged: StitchDocumentEvent {
             activeIndex: state.activeIndex)
         
         // Forces group port view models to update
-        graph.updateGraphData()
+        graph.updateGraphData(state)
 
         // Recalculate the graph, since we may have flattened an input on a splitter node and so that output should be flat as well (happens via node eval).
         graph.calculateFullGraph()
@@ -65,12 +65,10 @@ extension GraphState {
             // If we switched away from being an output- or input-splitter,
             // we need to remove some edges.
             if currentType == .output {
-                self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                self.removeConnections(from: outputPort)
             } else if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
-                    inputObserver
-                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                    inputObserver.removeUpstreamConnection(node: splitterNode)
                 }
             }
 
@@ -78,8 +76,7 @@ extension GraphState {
             // If we switched away from being an output-splitter,
             // then need to remove outgoing edges.
             if currentType == .output {
-                self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                self.removeConnections(from: outputPort)
             }
 
         case .output:
@@ -87,8 +84,7 @@ extension GraphState {
             // then need to remove the incoming edge.
             if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
-                    inputObserver
-                        .removeUpstreamConnection(isVisible: splitterNode.isVisibleInFrame(self.visibleCanvasIds, self.selectedSidebarLayers))
+                    inputObserver.removeUpstreamConnection(node: splitterNode)
                 }
             }
         }

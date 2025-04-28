@@ -94,7 +94,6 @@ struct LoopSelectNode: PatchNodeDefinition {
                                           outputLoopIndex: loopIndex,
                                           node: node)
         }
-                               .createPureEvalResult(node: node)
     }
     
     @MainActor
@@ -175,7 +174,7 @@ struct LoopSelect_REPL_View: View {
         //        let loopInsertFriendlyIndices = getLoopInsertFriendlyIndices([-6], 3) // 2
         //        let loopInsertFriendlyIndices = getLoopInsertFriendlyIndices([-7], 3) // 1
 
-        var xs = ["a", "b", "c"]
+        let xs = ["a", "b", "c"]
         //        let _ = xs.insert("x", at: 0) // insert at front
         //        let _ = xs.insert("x", at: 1) // insert after first item
         //        let _ = xs.insert("x", at: 2) // insert before last element

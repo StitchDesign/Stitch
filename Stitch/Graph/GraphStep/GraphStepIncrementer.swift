@@ -10,7 +10,41 @@ import StitchSchemaKit
 import StitchEngine
 import simd
 
+extension GraphState {
+    @MainActor
+    public func updatePortViews() {
+        
+        let portsToUpdate = self.portsToUpdate
+        self.portsToUpdate = .init()
+        
+        portsToUpdate.forEach { portType in
+            
+            switch portType {
+                
+            case .input(let inputId):
+                if let node = self.getNode(id: inputId.nodeId),
+                   let inputObserver = node.getInputRowObserver(for: inputId.portType) {
+                    inputObserver.updatePortViewModels(self)
+                }
+                
+            case .allOutputs(let nodeId):
+                if let node = self.getNode(id: nodeId) {
+                    node.outputsObservers.forEach { $0.updatePortViewModels(self) }
+                }
+                
+            @unknown default:
+                return
+            } // switch
+            
+        } // forEach
+        
+        self.updateLayerMultiselectHeterogenousFieldsMap()
+    }
+}
+
 extension StitchDocumentViewModel: GraphStepManagerDelegate {
+    
+    @MainActor
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
                               frameCount: Int,
                               currentEstimatedFPS: StitchFPS) {
@@ -24,7 +58,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
         
         // Evaluate the graph
         self.graph.calculateOnGraphStep()
-                
+        
         // Update fields every 30 frames
         if !self.visibleGraph.portsToUpdate.isEmpty &&
             frameCount % Self.fieldsFrequency(from: self.graphMovement.zoomData) == 0 {
@@ -104,7 +138,7 @@ extension Array where Element: NodeRowViewModel {
     @MainActor
     func allFieldObserverValues() -> FieldValues {
         self.flatMap {
-            $0.fieldValueTypes.flatMap {
+            $0.cachedFieldValueGroups.flatMap {
                 $0.fieldObservers.map {
                     $0.fieldValue
                 }
@@ -134,7 +168,7 @@ extension GraphState {
                 }
             }
             
-//            nodesToRunOnGraphStep = nodesToRunOnGraphStep.union(mouseNodeIds)
+            //            nodesToRunOnGraphStep = nodesToRunOnGraphStep.union(mouseNodeIds)
             
             // Add components containing mouse nodes
             nodesToRunOnGraphStep = components.reduce(into: nodesToRunOnGraphStep) { nodesSet, component in
@@ -152,7 +186,7 @@ extension GraphState {
                 nodesSet.insert(nodeId)
             }
         }
-
+        
         self.nodes.values.forEach { node in
             // Checks for transform updates each graph step--needed due to lack of transform publishers
             node.checkARTransformUpdate(self)
@@ -172,10 +206,30 @@ extension GraphState {
         //        #if DEV_DEBUG
         //        log("graphStepIncremented: calculating \(nodesToRunOnGraphStep)")
         //        #endif
-                        
+        
         // Use this caller directly, since it exposes the API we want
         // without having to pass parameters through a bunch of other `calculateGraph` functions.
-        self.calculate(from: nodesToRunOnGraphStep)
+        self.runGraphAndUpdateUI(from: nodesToRunOnGraphStep)
+    }
+    
+    // TODO: better name?
+    @MainActor
+    func runGraphAndUpdateUI(from nodeIds: NodeIdSet) {
+        
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let (portsToUpdate,
+             shouldResortPreviewLayers) = self.calculate(from: nodeIds)
+        
+        self.portsToUpdate = self.portsToUpdate.union(portsToUpdate)
+        
+        if shouldResortPreviewLayers {
+            self.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
+            self.shouldResortPreviewLayers = false
+        }
     }
 }
 
@@ -214,20 +268,8 @@ extension NodeViewModel {
             let newValues = layerNode.previewLayerViewModels
                 .map { $0.transform3D }
             layerNode.transform3DPort.updatePortValues(newValues)
-            layerNode.transform3DPort.updateAllRowObserversPortViewModels(graph)
-        }
-    }
-}
-
-extension LayerInputObserver {
-    @MainActor
-    func updateAllRowObserversPortViewModels(_ graph: GraphState) {
-        switch self.mode {
-        case .packed:
-            self._packedData.rowObserver.updatePortViewModels(graph)
-        case .unpacked:
-            self._unpackedData.allPorts.forEach {
-                $0.rowObserver.updatePortViewModels(graph)
+            layerNode.transform3DPort.allRowObservers.forEach {
+                $0.updatePortViewModels(graph)
             }
         }
     }

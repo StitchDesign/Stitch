@@ -86,9 +86,13 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             
             gestureViewModel.isHovered = hovering
             if hovering {
-                self.sidebarViewModel.highlightedSidebarLayers.insert(gestureViewModel.id)
+                if !self.sidebarViewModel.highlightedSidebarLayers.contains(gestureViewModel.id) {
+                    self.sidebarViewModel.highlightedSidebarLayers.insert(gestureViewModel.id)
+                }
             } else {
-                self.sidebarViewModel.highlightedSidebarLayers.remove(gestureViewModel.id)
+                if self.sidebarViewModel.highlightedSidebarLayers.contains(gestureViewModel.id) {
+                    self.sidebarViewModel.highlightedSidebarLayers.remove(gestureViewModel.id)
+                }
             }
         }
         

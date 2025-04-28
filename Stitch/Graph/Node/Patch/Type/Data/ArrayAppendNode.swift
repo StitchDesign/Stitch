@@ -30,7 +30,7 @@ struct ArrayAppendNode: PatchNodeDefinition {
 @MainActor
 func arrayAppendEval(node: NodeViewModel) -> EvalResult {
 
-    node.loopedEval(shouldAddOutputs: false) { values, loopIndex in
+    node.loopedEval(shouldAddOutputs: false) { (values, loopIndex) -> PortValues in
 
         guard let jsonArray: StitchJSON = values.first?.getStitchJSON,
               let item = values[safe: 1]?.getStitchJSON else {
@@ -51,5 +51,4 @@ func arrayAppendEval(node: NodeViewModel) -> EvalResult {
             return [.json(jsonArray)]
         }
     }
-    .createPureEvalResult()
 }

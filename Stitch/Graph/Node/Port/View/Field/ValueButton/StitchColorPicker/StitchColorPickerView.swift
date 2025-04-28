@@ -14,10 +14,15 @@ struct ColorOrbWrapperModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .padding(2)
             .background {
-//                Circle().fill(.white) // original
-                Circle().fill(COLOR_ORB_WRAPPING_COLOR)
+                Image(uiImage: IMAGE_EMPTY)
+                    .resizable()
+                    .clipShape(Circle())
+            }
+            .padding(2)
+            .overlay {
+                Circle()
+                    .strokeBorder(COLOR_ORB_WRAPPING_COLOR, lineWidth: 2)
             }
     }
 }

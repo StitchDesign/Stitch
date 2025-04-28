@@ -13,6 +13,7 @@ struct MediaPickerValueEntry: View {
     @Environment(\.appTheme) var theme
     
     let rowObserver: InputNodeRowObserver
+    let node: NodeViewModel
     let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
     let label: String
@@ -22,14 +23,12 @@ struct MediaPickerValueEntry: View {
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     let isSelectedInspectorRow: Bool
     let activeIndex: ActiveIndex
-    
-    var mediaType: SupportedMediaFormat {
-        nodeKind.mediaType
-    }
+    let mediaType: NodeMediaSupport
     
     var body: some View {
         let defaultOptions = DefaultMediaOption
             .getDefaultOptions(for: nodeKind,
+                               coordinate: rowObserver.id,
                                isMediaCurrentlySelected: mediaValue.hasMediaSelected)
                 
         StitchMenu(id: rowObserver.id.nodeId,
@@ -37,6 +36,7 @@ struct MediaPickerValueEntry: View {
                    contentCatalyst: {
             // Import button and any default media
             MediaPickerButtons(rowObserver: rowObserver,
+                               node: node,
                                mediaType: mediaType,
                                choices: [.importButton],
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -47,6 +47,7 @@ struct MediaPickerValueEntry: View {
             // Only show the incoming value as an option if there's an incoming edge
             if isUpstreamValue {
                 MediaPickerButtons(rowObserver: rowObserver,
+                                   node: node,
                                    mediaType: mediaType,
                                    choices: [],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -59,6 +60,7 @@ struct MediaPickerValueEntry: View {
             // If empty value is selected, don't show duplicate label for it
             else if mediaValue != .none {
                 MediaPickerButtons(rowObserver: rowObserver,
+                                   node: node,
                                    mediaType: mediaType,
                                    choices: [mediaValue],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -69,6 +71,7 @@ struct MediaPickerValueEntry: View {
             
             Divider()
             MediaPickerButtons(rowObserver: rowObserver,
+                               node: node,
                                mediaType: mediaType,
                                choices: defaultOptions,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -80,6 +83,7 @@ struct MediaPickerValueEntry: View {
                    contentIPad: {
             Picker("", selection: createBinding(mediaValue, {
                 $0.handleSelection(rowObserver: rowObserver,
+                                   node: node,
                                    mediaType: mediaType,
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    activeIndex: activeIndex,
@@ -103,6 +107,33 @@ struct MediaPickerValueEntry: View {
             TruncatedTextView(isMultiselectInspectorInputWithHeterogenousValues ? .HETEROGENOUS_VALUES : label,
                               truncateAt: 30,
                               color: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
+            
+            // Note: truncation logic does not quite seem correct; we were truncating at ~5-10 characters, not 30
+            // TODO: better to just set a single width for all media-labels, regardless of length or "None" etc.?
+            .modifier(MediaPickerValueEntryWidth(
+                label: label,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         })
     }
+}
+
+struct MediaPickerValueEntryWidth: ViewModifier {
+    let label: String
+    let isFieldInsideLayerInspector: Bool
+    
+    func body(content: Content) -> some View {
+        if isFieldInsideLayerInspector {
+            content
+        } else {
+            content
+            .frame(minWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 1.5,
+                   maxWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 2,
+                   alignment: .leading)
+        }
+    }
+    
+    // Causes width change when switching between None vs import etc.
+//    var minimumLabelWidth: CGFloat? {
+//        label == "None" ? NODE_INPUT_OR_OUTPUT_WIDTH : (NODE_INPUT_OR_OUTPUT_WIDTH * 1.5)
+//    }
 }

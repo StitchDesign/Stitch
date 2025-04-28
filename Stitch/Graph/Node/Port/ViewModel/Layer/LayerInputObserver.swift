@@ -8,19 +8,52 @@
 import Foundation
 import StitchSchemaKit
 
+extension LayerNodeViewModel {
+    @MainActor
+    func getLayerInputObserver(_ layerInput: LayerInputPort) -> LayerInputObserver {
+        self[keyPath: layerInput.layerNodeKeyPath]
+    }
+}
+
+extension LayerInputPort {
+    
+    var asFullInput: LayerInputType {
+        .init(layerInput: self,
+              portType: .packed)
+    }
+    
+    var asFirstField: LayerInputType {
+        .init(layerInput: self,
+              portType: .unpacked(.port0))
+    }
+    
+    // Note: we currently don't block any fields in inputs with 3 or more fields
+    var asSecondField: LayerInputType {
+        .init(layerInput: self,
+              portType: .unpacked(.port1))
+    }
+}
+
+// TODO: use Set<BlockedFieldIndex> instead of Set<LayerInputKeyPathType>, to avoid complications of LayerInputType etc.; full input blocked = Set([.first, .second])
+enum BlockedFieldIndex: Codable, Equatable, Hashable {
+    case first, second
+}
+
 // Must be a class for coordinate keypaths, which expect a reference type on the other end.
 @Observable
 final class LayerInputObserver: Identifiable {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
 
+    let nodeId: NodeId
+    
     let layer: Layer
     
     // TODO: use `private` to prevent access?
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
-    @MainActor var port: LayerInputPort
+    @MainActor let port: LayerInputPort
 
     /*
      Only fields on a layer input (not a patch input or layer output) can be blocked,
@@ -34,12 +67,13 @@ final class LayerInputObserver: Identifiable {
      // just the width field on the minSize input blocked:
      self.blockedFields.contains(.unpacked(.port0))
      */
-    @MainActor var blockedFields: Set<LayerInputKeyPathType> // = .init()
+    @MainActor var blockedFields: Set<LayerInputKeyPathType>
     
     @MainActor
     init(from schema: LayerNodeEntity,
          port: LayerInputPort) {
         let nodeId = schema.id
+        self.nodeId = nodeId
         self.layer = schema.layer
         self.port = port
                     
@@ -105,6 +139,44 @@ extension LayerInputType {
     }
 }
 
+extension Int {
+    var asUnpackedPortType: UnpackedPortType {
+        switch self {
+        case 0:
+            return .port0
+        case 1:
+            return .port1
+        case 2:
+            return .port2
+        case 3:
+            return .port3
+        case 4:
+            return .port4
+        case 5:
+            return .port5
+        case 6:
+            return .port6
+        case 7:
+            return .port7
+        case 8:
+            return .port8
+        default:
+            fatalErrorIfDebug()
+            return .port0
+        }
+    }
+}
+
+extension LayerInputObserver {
+    // Used with a specific flyout-row, to add the field of the canvas
+    @MainActor
+    func layerInputTypeForFieldIndex(_ fieldIndex: Int) -> LayerInputType {
+        .init(layerInput: self.port,
+                     portType: .unpacked(fieldIndex.asUnpackedPortType))
+    }
+}
+
+
 extension LayerInputObserver {
     
     // "Does this layer input use multifield fields?"
@@ -113,50 +185,54 @@ extension LayerInputObserver {
     var usesMultifields: Bool {
         switch self.mode {
         case .packed:
-            return (self.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+            return (self.fieldGroupsFromInspectorRowViewModels.first?.fieldObservers.count ?? 0) > 1
         case .unpacked:
-            return self.fieldValueTypes.count > 1
+            return self.fieldGroupsFromInspectorRowViewModels.count > 1
         }
     }
     
     // Currently, spacing
     @MainActor
     func usesGridMultifieldArrangement() -> Bool {
-        self._packedData.inspectorRowViewModel.activeValue.getPadding.isDefined
+        self.port.getDefaultValue(for: self.layer).getPadding.isDefined
     }
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
     @MainActor
-    func overallPortLabel(usesShortLabel: Bool,
-                          node: NodeViewModel,
-                          graph: GraphState) -> String {
-        let rowObserver = self._packedData.rowObserver
-        
-        return rowObserver
-            .label(useShortLabel: usesShortLabel,
-                   node: node,
-                   coordinate: .input(rowObserver.id),
-                   graph: graph)
+    func overallPortLabel(usesShortLabel: Bool) -> String {
+        self.port.label(useShortLabel: usesShortLabel)
     }
     
-    // Returns all fields, regardless of packed vs unpacked
     @MainActor
-    var fieldValueTypes: [FieldGroupTypeData] {
+    func areAllFieldsBlocked() -> Bool {
+        self.fieldGroupsFromInspectorRowViewModels.allSatisfy { (fieldGroup: FieldGroup) in
+            fieldGroup.areAllFieldsBlocked(blockedFields: self.blockedFields)
+        }
+    }
+    
+    // Returns all field groups, regardless of packed vs unpacked; draws them from the inspector row view models (guaranteed to be present)
+    // TODO: are a layer input's canvas and inspector row view models always updated in sync?
+    @MainActor
+    var fieldGroupsFromInspectorRowViewModels: [FieldGroup] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
-            portData.inspectorRowViewModel.fieldValueTypes
+            portData.inspectorRowViewModel.cachedFieldValueGroups
         }
         
         switch self.mode {
         case .packed:
             return allFields
+            
         case .unpacked:
-            guard let groupings = self.port.labelGroupings else {
+            // Vast majority of unpacked cases simply directly return inspector row view models
+            // Note:
+            guard let groupings = self.port.transform3DLabelGroupings else {
                 return allFields
             }
             
             // Groupings are gone in unpacked mode so we just need the fields
             let flattenedFields = allFields.flatMap { $0.fieldObservers }
-            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.fieldValueTypes
+            
+            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.cachedFieldValueGroups
             
             // Create nested array for label groupings (used for 3D model)
             return groupings.enumerated().map { fieldGroupIndex, labelData in
@@ -204,7 +280,7 @@ extension LayerInputObserver {
     @MainActor
     func updatePortValues(_ values: PortValues) {
         // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
-        self._packedData.rowObserver.updateValuesInInput(values)
+        self.packedRowObserver.updateValuesInInput(values)
     }
     
     /// All-up values for this port
@@ -244,18 +320,12 @@ extension LayerInputObserver {
     
     @MainActor
     var values: PortValues {
-        switch self.mode {
-        case .packed:
-            return self._packedData.rowObserver.values
+        switch self.observerMode {
+        case .packed(let packed):
+            return packed.allLoopedValues
         case .unpacked:
             return self._unpackedData.getParentPortValuesList()
         }
-    }
-    
-    @MainActor
-    var graphDelegate: GraphState? {
-        // Hacky solution, just get row observer delegate from packed data
-        self._packedData.rowObserver.nodeDelegate?.graphDelegate
     }
     
     @MainActor
@@ -281,13 +351,17 @@ extension LayerInputObserver {
     }
      
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
-                            layer: Layer) {
+    func initializeDelegate(_ node: NodeViewModel,
+                            layer: Layer,
+                            activeIndex: ActiveIndex,
+                            graph: GraphState) {
                 
         self._packedData.initializeDelegate(node,
                                             // Not relevant for packed data
                                             unpackedPortParentFieldGroupType: nil,
-                                            unpackedPortIndex: nil)
+                                            unpackedPortIndex: nil,
+                                            activeIndex: activeIndex,
+                                            graph: graph)
                 
         let layerInput: LayerInputPort = self.port
                 
@@ -303,7 +377,9 @@ extension LayerInputObserver {
         self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
             port.initializeDelegate(node,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: fieldIndex)
+                                    unpackedPortIndex: fieldIndex,
+                                    activeIndex: activeIndex,
+                                    graph: graph)
         }
     }
     
@@ -324,12 +400,9 @@ extension LayerInputObserver {
     
     /// Called after the pack mode changes for some port.
     @MainActor 
-    func wasPackModeToggled() {
+    func wasPackModeToggled(document: StitchDocumentViewModel) {
                 
-        guard let graph = self.graphDelegate else {
-            fatalErrorIfDebug("wasPackModeToggled: did not have graph delegate")
-            return
-        }
+        let graph = document.visibleGraph
         
         guard let node = graph.getNodeViewModel(self.nodeId),
               let layerNode = node.layerNode else {
@@ -337,10 +410,14 @@ extension LayerInputObserver {
             return
         }
         
-        switch self.mode {
+        // The mode we toggled to
+        let newMode = self.mode
+        
+        switch newMode {
+        
         case .unpacked:
             // Get values from previous packed mode
-            let values = self._packedData.allLoopedValues
+            let values = self.packedRowObserver.allLoopedValues
             
             // Note: why do we do this?
             
@@ -349,24 +426,23 @@ extension LayerInputObserver {
             
             // Update values of new unpacked row observers
             self._unpackedData.updateUnpackedObserverValues(from: values,
-                                            layerNode: layerNode)
+                                                            layerNode: layerNode)
             
         case .packed:
             // Get values from previous unpacked mode
-            let values = self._unpackedData.getParentPortValuesList()
+            let values: PortValues = self._unpackedData.getParentPortValuesList()
             
             // Reset unpacked state
             self._unpackedData.allPorts.forEach {
                 $0.resetOnPackModeToggle()
             }
             
-            // NOTE: use `setValuesInInput` so that packed row observer's field observers are updated/synced as well
             // Update values to packed observer
-//            self._packedData.rowObserver.updateValues(values)
-            self._packedData.rowObserver.setValuesInInput(values)
+            self.packedRowObserver.setValuesInInput(values)
         }
         
-        graph.updateGraphData()
+        // TODO: why do we need to do this? Is it updating the UI?
+        graph.updateGraphData(document)
     }
     
     /// Helper only intended for use with ports that don't support unpacked mode.
@@ -376,27 +452,30 @@ extension LayerInputObserver {
     }
     
     @MainActor
-    var fieldsRowLabel: String? {
-        if self.port == .transform3D {
-            if self.mode == .unpacked,
-               let fieldGroupLabel = self.packedRowObserver.id.keyPath?.getUnpackedPortType?.fieldGroupLabelForUnpacked3DTransformInput {
-                
-                return self.port.label() + " " + fieldGroupLabel
-            } else {
-                // Show '3D Transform' label on packed 3D Transform input-on-canvas
-                return self.port.label()
-            }
-        }
-        
-        return nil
+    var packedRowObserverOnlyIfPacked: InputNodeRowObserver? {
+        self.mode == .packed ? self._packedData.rowObserver : nil
     }
     
     @MainActor
+    var packedCanvasObserverOnlyIfPacked: CanvasItemViewModel? {
+        self.mode == .packed ? self._packedData.canvasObserver : nil
+    }
+    
+    // All row observers for this input; for working with row observer(s) regardless of pack vs unpack
+    @MainActor
+    var allRowObservers: [InputNodeRowObserver] {
+        switch self.mode {
+        case .packed:
+            return [self.packedRowObserver]
+        case .unpacked:
+            return self._unpackedData.allPorts.map(\.rowObserver)
+        }
+    }
+            
+    @MainActor
     func useIndividualFieldLabel(activeIndex: ActiveIndex) -> Bool {
         // Do not use labels on the fields of a padding-type input
-        !self
-            .getActiveValue(activeIndex: activeIndex)
-            .getPadding.isDefined
+        !self.getActiveValue(activeIndex: activeIndex).getPadding.isDefined
     }
 }
 

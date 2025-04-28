@@ -172,7 +172,7 @@ extension GraphState {
             return
         }
         
-        let components =  decodedFiles.components.createComponentsDict(parentGraph: nil)
+        let components = decodedFiles.components.createComponentsDict(parentGraph: nil)
         
         var nodes = NodesViewModelDict()
         for nodeEntity in schema.nodes {
@@ -196,7 +196,6 @@ extension GraphState {
         
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
-        let focusedGroupNode = self.documentDelegate?.groupNodeFocused?.groupNodeId
         
         self.layersSidebarViewModel.initializeDelegate(graph: self)
         
@@ -239,13 +238,22 @@ extension GraphState {
             documentFrame: document.frame)
         
         self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
-        self.visibleNodesViewModel.syncRowViewModels(document: document)
+        self.visibleNodesViewModel.syncRowViewModels(activeIndex: document.activeIndex, graph: self)
         
-        // Update connected port data
-        self.visibleNodesViewModel.updateAllNodeViewData()
+        /// Updates port colors and port colors' cached data (connected-canvas-items)
+        self.visibleNodesViewModel.nodes.values.forEach { node in
+            // Update cache first:
+            node.updateObserversConnectedItemsCache()
+            // Then calculate port colors:
+            node.updateObserversPortColorsAndConnectedItemsPortColors(
+                selectedEdges: self.selectedEdges,
+                selectedCanvasItems: self.selection.selectedCanvasItems,
+                drawingObserver: self.edgeDrawingObserver)
+        }
+        
         
         // Update edges after everything else
-        let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
 
         // HOT FIX: when we reapply llm-actions, the old and new connected edges are equal per ConnectedEdge's == implementation,
         // so we don't re-render GraphConnectedEdgesView even though the input row view model's port color changed.
@@ -268,7 +276,7 @@ extension GraphState {
         self.visibleCanvasNodes = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
         
         if !document.isDebugMode {
-            self.updateOrderedPreviewLayers()
+            self.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
             
             // Calculate graph
             self.initializeGraphComputation()
@@ -279,7 +287,7 @@ extension GraphState {
     }
     
     @MainActor
-    var storeDelegate: StoreDelegate? {
+    var storeDelegate: StitchStore? {
         self.documentDelegate?.storeDelegate
     }
     
@@ -347,19 +355,32 @@ extension GraphState {
         self.documentDelegate?.allComponents.first { $0.id == nodeId }?.graph ?? nil
     }
     
+    @MainActor
+    func updateGraphData(_ document: StitchDocumentViewModel) {
+        // TODO: What's the difference between a document's documentEncoder and a graph's documentEncoderDelegate?
+        guard let documentEncoder = self.documentEncoderDelegate else {
+            // TODO: `createTestFriendlyDocument` sets an encoder on both document and graph, but by the time the test runs it gets wiped some how? For now we use
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self._updateGraphData(document, documentEncoder: documentEncoder)
+    }
+    
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
-    func updateGraphData() {
+    private func _updateGraphData(_ document: StitchDocumentViewModel,
+                                  documentEncoder: any DocumentEncodable) {
         // Update parent graphs first if this graph is a component
         // Order here needed so parent components know if there are input/output changes
         if let parentGraph = self.parentGraph {
-            parentGraph.updateGraphData()
+            // Note: parent and child graphs always belong to same document
+            parentGraph._updateGraphData(document,
+                                         documentEncoder: documentEncoder)
         }
-        
-        let focusedGroupNode = self.documentDelegate?.groupNodeFocused
-        
+                
         // Update position data in case focused group node changed
-        if let nodePageData = self.visibleNodesViewModel.nodePageDataAtCurrentTraversalLevel(focusedGroupNode?.groupNodeId) {
+        if let nodePageData = self.visibleNodesViewModel.nodePageDataAtThisTraversalLevel(document.groupNodeFocused?.groupNodeId) {
             
             if self.canvasPageOffsetChanged != nodePageData.localPosition {
                 self.canvasPageOffsetChanged = nodePageData.localPosition
@@ -370,19 +391,18 @@ extension GraphState {
             }
         }
                 
-        self.updateVisibleNodes()
+        // TODO: really, this only makes sense to do for the current visible-graph; how do we know we aren't calling `updateGraphData` from within a nested graph (non-visible) component?
+        document.updateVisibleCanvasItems()
         
-        if let document = self.documentDelegate,
-           let encoderDelegate = self.documentEncoderDelegate {
-            self.initializeDelegate(document: document,
-                                    documentEncoderDelegate: encoderDelegate)
-        }
+        self.initializeDelegate(document: document,
+                                documentEncoderDelegate: documentEncoder)
         
+        // TODO: `document.updateVisibleCanvasItems()` updates the cache of "which canvas items are visible in the view port?", so why do we then immediately reset that cache down here? Do we need it for the portLocation updates?
         // Updates node visibility data
         // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
-        self.visibleNodesViewModel.resetCache()
+        self.visibleNodesViewModel.resetVisibleCanvasItemsCache()
     }
-    
+        
     @MainActor
     func getVisualEdgeData(groupNodeFocused: NodeId?) -> [ConnectedEdgeData] {
         let canvasItemsAtThisTraversalLevel = self
@@ -393,16 +413,25 @@ extension GraphState {
                 canvasItem.inputViewModels
             }
         
-        
-        let connectedInputs = newInputs.filter { input in
+        let connectedInputs: [InputNodeRowViewModel] = newInputs.filter { input in
             guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
                 return false
             }
             return input.rowDelegate?.containsUpstreamConnection ?? false
         }
         
-        return connectedInputs.compactMap { connection in
-            ConnectedEdgeData(downstreamRowObserver: connection)
+        return connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
+            
+            guard let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
+                  let upstreamOutputPortUIViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.portUIViewModel,
+                  let upstreamCanvasItem: CanvasItemViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate else {
+                // log("no connected edge data for downstreamInput \(downstreamInput.id)")
+                return nil
+            }
+            
+            return ConnectedEdgeData(upstreamCanvasItem: upstreamCanvasItem,
+                                     upstreamOutputPortUIViewModel: upstreamOutputPortUIViewModel,
+                                     downstreamInput: downstreamInput)
         }
     }
 }
@@ -412,7 +441,12 @@ extension GraphState {
         self.layersSidebarViewModel.selectionState
     }
     
-    @MainActor func createSchema() -> GraphEntity {
+    @MainActor func createSchema(from graph: GraphState) -> GraphEntity {
+        self.createSchema()
+    }
+    
+    @MainActor
+    func createSchema() -> GraphEntity {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
@@ -506,8 +540,8 @@ extension GraphState {
                     rootUrl: self.documentEncoderDelegate?.rootUrl)
     }
     
-    @MainActor func onPrototypeRestart() {
-        self.nodes.values.forEach { $0.onPrototypeRestart() }
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
+        self.nodes.values.forEach { $0.onPrototypeRestart(document: document) }
         self.initializeGraphComputation()
     }
     
@@ -527,6 +561,11 @@ extension GraphState {
     }
     
     @MainActor
+    func getOutputRowObserver(_ id: NodeIOCoordinate) -> OutputNodeRowObserver? {
+        self.getNodeViewModel(id.nodeId)?.getOutputRowObserver(for: id.portType)
+    }
+    
+    @MainActor
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
 //            fatalErrorIfDebug()
@@ -538,7 +577,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getBroadcasterNodesAtThisTraversalLevel(document: StitchDocumentViewModel) -> [NodeDelegate] {
+    func getBroadcasterNodesAtThisTraversalLevel(document: StitchDocumentViewModel) -> [NodeViewModel] {
         self.visibleNodesViewModel.getNodesAtThisTraversalLevel(at: document.groupNodeFocused?.groupNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
@@ -583,9 +622,17 @@ extension GraphState {
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
-                                                                temporaryUrl: temporaryURL,
-                                                                willUpdateUndoHistory: willUpdateUndoHistory)
+        guard let store = self.storeDelegate,
+              let documentEncoder = self.documentEncoderDelegate else {
+            // fatalErrorIfDebug()
+            log("encodeProjectInBackground: missing store and/or decoder delegates")
+            return
+        }
+        
+        documentEncoder.encodeProjectInBackground(from: self,
+                                                  temporaryUrl: temporaryURL,
+                                                  willUpdateUndoHistory: willUpdateUndoHistory,
+                                                  store: store)
         
         // If debug mode, make sure fields are updated as we aren't using calculate
         // to update them
@@ -599,10 +646,17 @@ extension GraphState {
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    undoEvents: [Action],
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
-                                                                undoEvents: undoEvents,
-                                                                temporaryUrl: temporaryURL,
-                                                                willUpdateUndoHistory: willUpdateUndoHistory)
+        guard let store = self.storeDelegate,
+              let documentEncoder = self.documentEncoderDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        documentEncoder.encodeProjectInBackground(from: self,
+                                                  undoEvents: undoEvents,
+                                                  temporaryUrl: temporaryURL,
+                                                  willUpdateUndoHistory: willUpdateUndoHistory,
+                                                  store: store)
     }
     
     @MainActor
@@ -615,10 +669,6 @@ extension GraphState {
         self.visibleNodesViewModel.patchNodes
     }
     
-    @MainActor
-    var layerNodes: NodesViewModelDict {
-        self.visibleNodesViewModel.layerNodes
-    }
     
     @MainActor
     var groupNodes: NodesViewModelDict {
@@ -656,25 +706,23 @@ extension GraphState {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)
     }
-    
-    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver? {
+        
+    @MainActor func getOutputObserver(coordinate: OutputPortIdAddress) -> OutputNodeRowObserver? {
         self.getCanvasItem(coordinate.canvasId)?
             .outputViewModels[safe: coordinate.portId]?
             .rowDelegate
     }
     
-    @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId,
-                                         nodeId: NodeId) -> InputNodeRowViewModel? {
-        guard let node = self.getNodeViewModel(nodeId) else {
+    @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId) -> InputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(rowId.nodeId) else {
             return nil
         }
         
         return node.getInputRowViewModel(for: rowId)
     }
     
-    @MainActor func getOutputRowViewModel(for rowId: NodeRowViewModelId,
-                                          nodeId: NodeId) -> OutputNodeRowViewModel? {
-        guard let node = self.getNodeViewModel(nodeId) else {
+    @MainActor func getOutputRowViewModel(for rowId: NodeRowViewModelId) -> OutputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(rowId.nodeId) else {
             return nil
         }
         
@@ -741,10 +789,9 @@ extension GraphState {
             return nil
         }
         
-        return self.getInputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
+        return self.getInputRowViewModel(for: .init(graphItemType: .canvas(canvasItem.id),
                                                     nodeId: id.node,
-                                                    portId: 0),
-                                         nodeId: id.node)
+                                                    portId: 0))
     }
     
     @MainActor
@@ -753,10 +800,9 @@ extension GraphState {
             return nil
         }
         
-        return self.getOutputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
+        return self.getOutputRowViewModel(for: .init(graphItemType: .canvas(canvasItem.id),
                                                      nodeId: id.node,
-                                                     portId: 0),
-                                          nodeId: id.node)
+                                                     portId: 0))
     }
     
     @MainActor
@@ -783,14 +829,9 @@ extension GraphState {
             return [component.canvas]
         }
     }
-    
+        
     @MainActor
-    func getLayerNode(id: NodeId) -> NodeViewModel? {
-        self.getNodeViewModel(id)
-    }
-    
-    @MainActor
-    func getNodesAtThisTraversalLevel(groupNodeFocused: NodeId?) -> [NodeDelegate] {
+    func getNodesAtThisTraversalLevel(groupNodeFocused: NodeId?) -> [NodeViewModel] {
         self.visibleNodesViewModel
             .getNodesAtThisTraversalLevel(at: groupNodeFocused)
     }
@@ -836,7 +877,7 @@ extension GraphState {
     
    
     @MainActor
-    func getInputCoordinate(from viewData: InputPortViewData) -> NodeIOCoordinate? {
+    func getInputCoordinate(from viewData: InputPortIdAddress) -> NodeIOCoordinate? {
         guard let node = self.getCanvasItem(viewData.canvasId),
               let inputRow = node.inputViewModels[safe: viewData.portId]?.rowDelegate else {
             return nil
@@ -846,7 +887,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getOutputCoordinate(from viewData: OutputPortViewData) -> NodeIOCoordinate? {
+    func getOutputCoordinate(from viewData: OutputPortIdAddress) -> NodeIOCoordinate? {
         guard let node = self.getCanvasItem(viewData.canvasId),
               let outputRow = node.outputViewModels[safe: viewData.portId]?.rowDelegate else {
             return nil
@@ -905,13 +946,16 @@ extension GraphState {
             
             outputsToUpdate[portId] = outputToUpdate
             
-            let mediaList: [GraphMediaValue?]? = media == nil ? nil : [media]
+            var outputMediaList = node.getAllMediaObservers()?.map(\.computedMedia) ?? []
+            if outputMediaList.count > loopIndex {
+                outputMediaList[loopIndex] = media
+            }
             
             // Update downstream node's inputs
             let changedInputIds = self.updateDownstreamInputs(
                 sourceNode: node,
                 upstreamOutputValues: outputToUpdate,
-                mediaList: mediaList,
+                mediaList: outputMediaList,
                 upstreamOutputChanged: outputsChanged,
                 outputCoordinate: outputCoordinate)
             let changedNodeIds = Set(changedInputIds.map(\.nodeId)).toSet
@@ -919,7 +963,7 @@ extension GraphState {
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
         } // (portId, newOutputValue) in portValues.enumerated()
      
-        node.updateOutputsObservers(newValuesList: outputsToUpdate)
+        node.updateOutputsObservers(newValuesList: outputsToUpdate, graph: self)
         
         // Recalculate graph
         self.scheduleForNextGraphStep(nodeIdsToRecalculate)

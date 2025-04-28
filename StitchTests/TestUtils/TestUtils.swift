@@ -12,7 +12,7 @@ import SwiftUI
 
 extension Patch {
     @MainActor
-    func createDefaultTestNode(graph: GraphState? = nil) -> NodeViewModel {
+    func createDefaultTestNode(graph: GraphState) -> NodeViewModel {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
@@ -22,7 +22,7 @@ extension Patch {
 
 extension Layer {
     @MainActor
-    func createDefaultTestNode(graph: GraphState? = nil) -> NodeViewModel {
+    func createDefaultTestNode(graph: GraphState) -> NodeViewModel {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,

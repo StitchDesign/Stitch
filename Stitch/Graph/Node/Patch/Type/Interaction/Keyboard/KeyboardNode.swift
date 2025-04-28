@@ -33,14 +33,12 @@ func keyboardEval(node: PatchNode,
     // We should always have a document delegate
     assertInDebug(graph.documentDelegate.isDefined)
     
-    let graphTime = graph.graphStepState.graphTime
     let keypressState = graph.documentDelegate?.keypressState ?? .init()
 
     return node.loopedEval { values, _ in
         let character = values.first?.getString?.string ?? ""
         // log("keyboardEval: op: character: \(character)")
         // log("keyboardEval: op: keypressState.characters: \(keypressState.characters)")
-        return [.bool(keypressState.characters.contains(character))]
+        return PortValues([.bool(keypressState.characters.contains(character))])
     }
-    .createPureEvalResult()
 }

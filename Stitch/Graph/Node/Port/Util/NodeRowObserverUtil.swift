@@ -27,49 +27,7 @@ extension NodeRowViewModel {
         
         return node.kind
     }
-    
-    @MainActor
-    var isCanvasItemSelected: Bool {
-        guard let graph = self.graphDelegate,
-              let canvasId = self.canvasItemDelegate?.id else { return false }
-        
-        return graph.selection.selectedCanvasItems.contains(canvasId)
-    }
-    
-    /// If this is row is for a splitter node in a group node, and the group node is selected, then consider this splitter selected as well.
-    // MARK: this is only for port/edge-color purposes; do not use this for e.g. node movement etc.
-    // TODO: we only care about splitterType = .input or .output; add `splitterType` to `NodeDelegate`.
-    @MainActor
-    var isCanvasItemSelectedDeep: Bool {
-        if self.nodeKind == .patch(.splitter),
-           let parentId = self.canvasItemDelegate?.parentGroupNodeId,
-           let graph = self.graphDelegate,
-           let parentCanvas = graph.getNodeViewModel(parentId)?.patchCanvasItem,
-           graph.selection.selectedCanvasItems.contains(parentCanvas.id) {
-            return true
-        } else {
-            return self.isCanvasItemSelected
-        }
-    }
-    
-    // for a single input observer, we call this.
-    // 
-    @MainActor
-    var isConnectedToASelectedCanvasItem: Bool {
-        guard let graph = self.graphDelegate else {
-            return false
-        }
-        
-        for connectedCanvasItemId in self.connectedCanvasItems {
-            guard graph.selection.selectedCanvasItems.contains(connectedCanvasItemId) else {
-                continue
-            }
-            // Found connected canvas item that is selected
-            return true
-        }
-        return false
-    }
-    
+     
     @MainActor
     func getEdgeDrawingObserver() -> EdgeDrawingObserver {
         if let drawing = self.nodeDelegate?.graphDelegate?.edgeDrawingObserver {
@@ -80,4 +38,3 @@ extension NodeRowViewModel {
         }
     }
 }
-

@@ -44,15 +44,15 @@ final class ProjectAlertState: Sendable {
 
 /// A boolean wrapper which reflects the visibile state of the import file sheet. Provides an optional "destination" input
 /// coordiante if import will overwrite an existing node's input.
-enum FileImportState: Codable, Equatable {
+enum FileImportState {
     case importing(NodeMediaImportPayload? = nil)
     case notImporting
 }
 
 /// Payload used for import scenarios where imported media is added to an existing node
-struct NodeMediaImportPayload: Codable, Equatable {
+struct NodeMediaImportPayload {
     let destinationInputs: [InputCoordinate] // more than 1 if edited from layer inspector via multiselect
-    let mediaFormat: SupportedMediaFormat
+    let mediaFormat: NodeMediaSupport
 }
 
 extension FileImportState {

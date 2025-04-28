@@ -23,13 +23,6 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     }
 }
 
-extension GraphState {
-    @MainActor
-    func nodeCreated(choice: NodeKind) -> NodeViewModel? {
-        self.documentDelegate?.nodeInserted(choice: choice)
-    }
-}
-
 extension StitchDocumentViewModel {
     
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
@@ -46,7 +39,7 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    private var adjustmentFromOpenLayerInspector: CGFloat {
+    var adjustmentFromOpenLayerInspector: CGFloat {
         guard self.storeDelegate?.showsLayerInspector ?? false else {
             return 0
         }
@@ -125,11 +118,15 @@ extension StitchDocumentViewModel {
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
+        // TODO: if we calculate the graph BEFORE we "initialize the delegate", would graph eval "fail"?
         node.initializeDelegate(graph: self.visibleGraph,
                                 document: self)
         
         self.visibleGraph.calculateFullGraph()
-
+        
+        // Reset nodes layout cache
+        self.visibleGraph.visibleNodesViewModel.resetVisibleCanvasItemsCache()
+        
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?
 
@@ -137,9 +134,6 @@ extension StitchDocumentViewModel {
         //    self.doubleTapLocation = nil
 
         self.graphMovement.draggedCanvasItem = nil
-        
-        // Reset nodes layout cache
-        self.visibleGraph.visibleNodesViewModel.resetCache()
     }
 }
 

@@ -16,7 +16,10 @@ extension NodeRowObserver {
     // Called by both `updateValuesInInput` and `updateValuesInOutput`;
     // handles logic common to both
     @MainActor
-    func setValuesInRowObserver(_ newValues: PortValues) {
+    func setValuesInRowObserver(_ newValues: PortValues,
+                                selectedEdges: Set<PortEdgeUI>,
+                                selectedCanvasItems: CanvasItemIdSet,
+                                drawingObserver: EdgeDrawingObserver) {
         
         self.allLoopedValues = newValues
         
@@ -27,15 +30,19 @@ extension NodeRowObserver {
         }
         
         self.allRowViewModels.forEach {
-            $0.updatePortColor()
+            if let canvasItemId = $0.id.graphItemType.getCanvasItemId {
+                $0.portUIViewModel.updatePortColor(
+                    canvasItemId: canvasItemId,
+                    hasEdge: self.hasEdge,
+                    hasLoop: self.hasLoopedValues,
+                    selectedEdges: selectedEdges,
+                    selectedCanvasItems: selectedCanvasItems,
+                    drawingObserver: drawingObserver)
+            }
         }
     }
     
-    @MainActor
-    var userVisibleType: UserVisibleType? {
-        self.nodeDelegate?.userVisibleType
-    }
-    
+    // TODO: this is currently invoked by StitchEngine, but does this overlap with `portsToUpdate`? `portsToUpdate` is for field-UI
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     @MainActor
@@ -48,7 +55,7 @@ extension NodeRowObserver {
             return
         }
         
-        guard let node: NodeViewModel = self.nodeDelegate else {
+        guard let node: NodeViewModel = graph.getNode(self.id.nodeId) else {
             // Should this be a fatalError?
 //            fatalErrorIfDebug("updatePortViewModels: no node delegate")
             log("updatePortViewModels: no node delegate")
@@ -61,28 +68,33 @@ extension NodeRowObserver {
             return
         }
         
-        let visibleRowViewModels = self.getVisibleRowViewModels(
+        let visibleRowViewModels = Self.getVisibleRowViewModels(
+            allRowViewModels: self.allRowViewModels,
             visibleCanvasIds: graph.visibleCanvasIds,
             isFullScreenMode: document.isFullScreenMode,
             groupNodeFocused: document.groupNodeFocused?.groupNodeId)
         
         visibleRowViewModels.forEach { rowViewModel in
-            rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
+            rowViewModel.didPortValuesUpdate(
+                values: self.allLoopedValues,
+                layerFocusedInPropertyInspector: graph.layerFocusedInPropertyInspector,
+                activeIndex: document.activeIndex)
         }
     }
     
     // Just reads GraphState, does not modify it?
     @MainActor
-    func getVisibleRowViewModels(visibleCanvasIds: CanvasItemIdSet,
-                                 isFullScreenMode: Bool,
-                                 groupNodeFocused: NodeId?) -> [Self.RowViewModelType] {
+    static func getVisibleRowViewModels(allRowViewModels: [Self.RowViewModelType],
+                                        visibleCanvasIds: CanvasItemIdSet,
+                                        isFullScreenMode: Bool,
+                                        groupNodeFocused: NodeId?) -> [Self.RowViewModelType] {
         // Make sure we're not in full screen mode
 //        guard !graph.isFullScreenMode else {
         guard !isFullScreenMode else {
             return []
         }
         
-        return self.allRowViewModels.filter { rowViewModel in
+        return allRowViewModels.filter { rowViewModel in
             
             switch rowViewModel.id.graphItemType {
                 
@@ -96,7 +108,7 @@ extension NodeRowObserver {
                 return true
                 
                 
-            case .node:
+            case .canvas:
                 
                 guard let canvas = rowViewModel.canvasItemDelegate else {
                     log("Had row view model for canvas item but no canvas item delegate")
@@ -119,62 +131,79 @@ extension NodeRowObserver {
         self.allLoopedValues[safe: activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
             
-    @MainActor
-    func getComputedMediaObjects() -> [StitchMediaObject] {
-        self.nodeDelegate?.ephemeralObservers?.compactMap {
-            ($0 as? MediaEvalOpObservable)?.computedMedia?.mediaObject
-        } ?? []
-    }
-    
     // MARK: change args here if working
     @MainActor
     func label(useShortLabel: Bool = false,
                node: NodeViewModel,
                coordinate: Coordinate,
-               graph: GraphState) -> String {     
-        /*
-         Two scenarios re: a Group Node and its splitters:
-         
-         1. We are looking at the Group Node itself; so we want to use its underlying group node input- and output-splitters' titles as labels for the group node's rows
-         
-         2. We are INSIDE THE GROUP NODE, looking at its input- and output-splitters at that traversal level; so we do not use the splitters' titles as labels
-         */        
-        if node.kind == .group {
-            // Cached values which get underlying splitter node's title
-            guard let labelFromSplitter = graph.groupPortLabels.get(coordinate) else {
-                // Could be loading initially
-//                fatalErrorIfDebug()
-                return ""
-            }
+               graph: GraphState) -> String {
+        
+        getLabelForRowObserver(useShortLabel: useShortLabel,
+                               node: node,
+                               coordinate: coordinate,
+                               graph: graph)
+    }
+}
 
-            // Don't show label on group node's input/output row unless it is custom
-            if labelFromSplitter == Patch.splitter.defaultDisplayTitle() {
-                return ""
-            }
-                        
-            return labelFromSplitter
+@MainActor
+func getLabelForRowObserver(useShortLabel: Bool = false,
+                            node: NodeViewModel,
+                            coordinate: Coordinate,
+                            graph: GraphState) -> String {
+    /*
+     Two scenarios re: a Group Node and its splitters:
+     
+     1. We are looking at the Group Node itself; so we want to use its underlying group node input- and output-splitters' titles as labels for the group node's rows
+     
+     2. We are INSIDE THE GROUP NODE, looking at its input- and output-splitters at that traversal level; so we do not use the splitters' titles as labels
+     */
+    if node.kind == .group {
+        // Cached values which get underlying splitter node's title
+        guard let labelFromSplitter = graph.groupPortLabels.get(coordinate) else {
+            // Could be loading initially
+//                fatalErrorIfDebug()
+            return ""
+        }
+
+        // Don't show label on group node's input/output row unless it is custom
+        if labelFromSplitter == Patch.splitter.defaultDisplayTitle() {
+            return ""
+        }
+                    
+        return labelFromSplitter
+    }
+    
+    let rowDefinitions = node.kind.graphNode?.rowDefinitions(for: node.userVisibleType) ?? node.kind.rowDefinitions(for: node.userVisibleType)
+    
+    switch coordinate {
+        
+    case .output(let outputCoordinate):
+        
+        switch outputCoordinate.portType {
+            
+        case .portIndex(let portId):
+            return rowDefinitions.outputs[safe: portId]?.label ?? ""
+            
+        case .keyPath:
+            fatalErrorIfDebug()
+            return ""
         }
         
-        switch self.id.portType {
+    case .input(let inputCoordinate):
+        
+        switch inputCoordinate.portType {
+            
         case .portIndex(let portId):
-            if Self.nodeIOType == .input,
-               let mathExpr = node.getMathExpression?.getSoulverVariables(),
+            if let mathExpr = node.getMathExpression?.getSoulverVariables(),
                let variableChar = mathExpr[safe: portId] {
                 return String(variableChar)
             }
-            
-            let rowDefinitions = node.kind.graphNode?.rowDefinitions(for: userVisibleType) ?? node.kind.rowDefinitions(for: userVisibleType)
-            
-            // Note: when an input is added (e.g. adding an input to an Add node),
-            // the newly-added input will not be found in the rowDefinitions,
-            // so we can use an empty string as its label.
-            return Self.nodeIOType == .input
-            ? rowDefinitions.inputs[safe: portId]?.label ?? ""
-            : rowDefinitions.outputs[safe: portId]?.label ?? ""
+            return rowDefinitions.inputs[safe: portId]?.label ?? ""
             
         case .keyPath(let keyPath):
             return keyPath.layerInput.label(useShortLabel: useShortLabel)
         }
+        
     }
 }
 

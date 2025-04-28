@@ -57,12 +57,15 @@ struct NodeView: View {
                 self.node.updateVisibilityStatus(with: false, graph: graph)
             }
             .onChange(of: self.isSelected) {
-                self.stitch.updatePortColorDataUponNodeSelection()
+            // // TODO: if I rely on e.g. graph.selectedEdges in this closure, would that force a render-cycle vs dispatching the action?
+            // node.updateObserversPortColorsAndConnectedCanvasItemsCache(selectedEdges: graph.selectedEdges, drawingObserver: graph.edgeDrawingObserver)
+                
+                dispatch(UpdatePortColorUponNodeSelected(nodeId: nodeId))
             }
 #if targetEnvironment(macCatalyst)
-            // Catalyst right-click to open node tag menu
+            // Catalyst right-click to open canvas item menu
                 .contextMenu {
-                    NodeTagMenuButtonsView(graph: graph,
+                    CanvasItemMenuButtonsView(graph: graph,
                                            document: document,
                                            node: stitch,
                                            canvasItemId: node.id,
@@ -98,13 +101,20 @@ struct NodeView: View {
                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                     }
                 }
+                .modifier(CanvasItemInputChangeHandleViewModier(
+                    scale: document.graphMovement.zoomData,
+                    nodeId: self.nodeId,
+                    canAddInput: canAddInput,
+                    nodeBodyHovered: $nodeBodyHovered))
         }
-                   .canvasItemPositionHandler(document: document,
-                                              graph: graph,
-                                              node: node,
-                                              zIndex: zIndex)
+                   .modifier(CanvasItemPositionHandler(document: document,
+                                                       graph: graph,
+                                                       node: node,
+                                                       zIndex: zIndex))
     }
-
+    
+    @State private var nodeBodyHovered: Bool = false
+    
     @MainActor
     var nodeBody: some View {
         VStack(alignment: .leading, spacing: .zero) {
@@ -117,7 +127,7 @@ struct NodeView: View {
         }
         .onChange(of: self.node.sizeByLocalBounds) {
             // also a useful hack for updating node layout after type changes
-            self.node.updatePortLocations()
+            self.node.updateAnchorPoints()
         }
         .overlay {
             let isLayerInvisible = !(stitch.layerNode?.hasSidebarVisibility ?? true)
@@ -137,6 +147,9 @@ struct NodeView: View {
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
         
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
+        .onHover { isHovering in
+            self.nodeBodyHovered = isHovering
+        }
     }
 
     var nodeTitle: some View {
@@ -166,11 +179,8 @@ struct NodeView: View {
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.stitch.patch == .wirelessReceiver {
-                WirelessPortView(graph: graph,
-                                 document: document,
-                                 isOutput: false,
-                                 id: stitch.id)
-                .padding(.trailing, NODE_BODY_SPACING)
+                WirelessPortView(isOutput: false, id: stitch.id)
+                    .padding(.trailing, NODE_BODY_SPACING)
             } else if let layerNode: LayerNodeViewModel = self.stitch.layerNode,
                       let layerInputCoordinate: LayerInputCoordinate = self.node.id.layerInputCase {
                 // Layer input or field
@@ -198,17 +208,13 @@ struct NodeView: View {
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             
             if self.stitch.patch == .wirelessBroadcaster {
-                WirelessPortView(graph: graph,
-                                 document: document,
-                                 isOutput: true,
-                                 id: stitch.id)
-                .padding(.leading, NODE_BODY_SPACING)
+                WirelessPortView(isOutput: true, id: stitch.id)
+                    .padding(.leading, NODE_BODY_SPACING)
             } else {
                 DefaultNodeOutputsView(graph: graph,
                                        document: document,
                                        node: stitch,
-                                       canvas: node,
-                                       isNodeSelected: isSelected)
+                                       canvas: node)
             }
         }
     }
@@ -274,8 +280,9 @@ struct CanvasItemTag: View {
     let canRemoveInput: Bool
     let atleastOneCommentBoxSelected: Bool
     
-    @ViewBuilder var nodeTagMenu: NodeTagMenuButtonsView {
-        NodeTagMenuButtonsView(graph: graph,
+    // fka `nodeTagMenu`
+    @ViewBuilder var canvasItemMenu: CanvasItemMenuButtonsView {
+        CanvasItemMenuButtonsView(graph: graph,
                                document: document,
                                node: stitch,
                                canvasItemId: node.id,
@@ -299,7 +306,7 @@ struct CanvasItemTag: View {
     var body: some View {
         
             Menu {
-                nodeTagMenu
+                canvasItemMenu
             } label: {
                 let iconName = "ellipsis.rectangle"
                 Image(systemName: iconName)

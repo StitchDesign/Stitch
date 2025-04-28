@@ -131,9 +131,8 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
-         isPhoneDevice: Bool,
          projectLoader: ProjectLoader,
-         store: StoreDelegate?,
+         store: StitchStore,
          isDebugMode: Bool) {
         self.rootId = schema.id
         self.documentEncoder = projectLoader.encoder
@@ -160,14 +159,12 @@ final class StitchDocumentViewModel: Sendable {
 
         self.lastEncodedDocument = schema
         
-        if let store = store {
-            self.initializeDelegate(store: store,
-                                    isInitialization: true)
-        }
+        self.initializeDelegate(store: store,
+                                isInitialization: true)
     }
     
     @MainActor
-    func initializeDelegate(store: StoreDelegate,
+    func initializeDelegate(store: StitchStore,
                             isInitialization: Bool = false) {
         self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
@@ -175,7 +172,7 @@ final class StitchDocumentViewModel: Sendable {
         self.storeDelegate = store
         
         guard let documentEncoder = self.documentEncoder else {
-//            fatalErrorIfDebug()
+            // fatalErrorIfDebug()
             return
         }
         
@@ -192,15 +189,14 @@ final class StitchDocumentViewModel: Sendable {
         if isInitialization {
             // Need all nodes to render initially
             let visibleGraph = self.visibleGraph
-            visibleGraph.visibleNodesViewModel.setAllNodesVisible()
+            visibleGraph.visibleNodesViewModel.setAllCanvasItemsVisible()
         }
     }
     
     @MainActor
     convenience init?(from schema: StitchDocument,
-                      isPhoneDevice: Bool,
                       projectLoader: ProjectLoader,
-                      store: StoreDelegate?,
+                      store: StitchStore,
                       isDebugMode: Bool) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
@@ -211,7 +207,6 @@ final class StitchDocumentViewModel: Sendable {
                 
         self.init(from: schema,
                   graph: graph,
-                  isPhoneDevice: isPhoneDevice,
                   projectLoader: projectLoader,
                   store: store,
                   isDebugMode: isDebugMode)
@@ -358,12 +353,7 @@ extension StitchDocumentViewModel {
     var id: GraphId {
         self.graph.id
     }
-    
-    @MainActor
-    var projectId: GraphId {
-        self.id
-    }
-    
+        
     @MainActor
     var projectName: String {
         self.graph.name
@@ -407,9 +397,17 @@ extension StitchDocumentViewModel {
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    willUpdateUndoHistory: Bool = true) {
-        self.documentEncoder?.encodeProjectInBackground(from: self.graph,
-                                                        temporaryUrl: temporaryURL,
-                                                        willUpdateUndoHistory: willUpdateUndoHistory)
+        guard let store = self.storeDelegate,
+              let documentEncoder = self.documentEncoder else {
+            log("encodeProjectInBackground: missing store and/or decoder delegates")
+            // fatalErrorIfDebug()
+            return
+        }
+        
+        documentEncoder.encodeProjectInBackground(from: self.graph,
+                                                  temporaryUrl: temporaryURL,
+                                                  willUpdateUndoHistory: willUpdateUndoHistory,
+                                                  store: store)
     }
     
     /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera
@@ -441,70 +439,6 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension GraphState: GraphCalculatable {    
-    @MainActor
-    var currentGraphTime: TimeInterval {
-        self.graphStepManager.graphTime
-    }
-    
-    @MainActor
-    func didPortsUpdate(ports: Set<StitchEngine.NodePortType<NodeViewModel>>) {
-        // Update multi-selected layers in sidebar with possible heterogenous values
-        if let currentMultiselectionMap = self.propertySidebar.heterogenousFieldsMap {
-            let newMultiselectionMap = Set(currentMultiselectionMap.keys)
-                .getHeterogenousFieldsMap(graph: self)
-            
-            if currentMultiselectionMap != newMultiselectionMap {
-                self.propertySidebar.heterogenousFieldsMap = newMultiselectionMap
-            }
-        }
-    }
-    
-    
-    @MainActor
-    func updateOrderedPreviewLayers() {
-        let flattenedPinMap = self.getFlattenedPinMap()
-        let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
-        
-        let previewLayers: LayerDataList = self.recursivePreviewLayers(
-            sidebarLayersGlobal: self.layersSidebarViewModel.createdOrderedEncodedData(),
-            pinMap: rootPinMap,
-            activeIndex: self.documentDelegate?.activeIndex ?? .init(.zero))
-        
-        if !LayerDataList.equals(self.cachedOrderedPreviewLayers, previewLayers) {
-            self.cachedOrderedPreviewLayers = previewLayers
-        }
-        if self.flattenedPinMap != flattenedPinMap {
-            self.flattenedPinMap = flattenedPinMap
-        }
-        if self.pinMap != rootPinMap {
-            self.pinMap = rootPinMap
-        }
-    }
-    
-    @MainActor
-    func getNodesToAlwaysRun() -> Set<UUID> {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.willAlwaysRunEval ?? false }
-                .map(\.id))
-            .toSet
-    }
-    
-    @MainActor
-    func getAnimationNodes() -> Set<UUID> {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.isAnimationNode ?? false }
-                .map(\.id))
-            .toSet
-    }
-    
-    @MainActor
-    func getNodeViewModel(id: UUID) -> NodeViewModel? {
-        self.getNodeViewModel(id)
-    }
-}
 
 extension StitchDocumentViewModel {
     @MainActor func createSchema() -> StitchDocument {
@@ -519,14 +453,14 @@ extension StitchDocumentViewModel {
                        cameraSettings: self.cameraSettings)
     }
     
-    @MainActor func createSchema(from graph: GraphState?) -> StitchDocument {
+    @MainActor func createSchema(from graph: GraphState) -> StitchDocument {
         self.createSchema()
     }
     
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.graphStepManager.resetGraphStepState()
         
-        self.graph.onPrototypeRestart()
+        self.graph.onPrototypeRestart(document: document)
         
         // Defocus the preview window's TextField layer
         if self.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
@@ -539,14 +473,14 @@ extension StitchDocumentViewModel {
     
     // TODO: this still doesn't quite have the correct projectLoader/encoderDelegate needed for all uses in the app
     @MainActor
-    static func createTestFriendlyDocument() async -> StitchDocumentViewModel {
-        let store = StitchStore()
-        await store.createNewProject(isProjectImport: false,
-                                     isPhoneDevice: false)
-        guard let projectLoader = store.navPath.first,
-              let documentViewModel = projectLoader.documentViewModel else {
-            fatalError()
-        }
+    static func createTestFriendlyDocument(_ store: StitchStore) -> StitchDocumentViewModel {
+//        let store = StitchStore()
+        let (projectLoader, documentViewModel) = try! createNewEmptyProject(store: store)
+        store.navPath = [projectLoader]
+                
+        assert(documentViewModel.documentEncoder.isDefined)
+        assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
+        
         return documentViewModel
     }
     
@@ -557,7 +491,6 @@ extension StitchDocumentViewModel {
         
         return .init(from: doc,
                      graph: .init(),
-                     isPhoneDevice: false,
                      projectLoader: loader,
                      store: store,
                      isDebugMode: false)

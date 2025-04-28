@@ -16,7 +16,7 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     let document: StitchDocumentViewModel
-    let outputCoordinate: OutputPortViewData
+    let outputCoordinate: OutputPortIdAddress
     
     var isDraggingOutput: Bool {
         graph.edgeDrawingObserver.drawingGesture.isDefined
@@ -52,9 +52,14 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
             }
 
             .onHover { isHovering in
+                guard let graphMovement = graph.documentDelegate?.graphMovement else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
                 // Make sure the graph isn't in movement
-                guard !graph.graphMovement.graphIsDragged,
-                      !graph.graphMovement.canvasItemIsDragged else {
+                guard !graphMovement.graphIsDragged,
+                      !graphMovement.canvasItemIsDragged else {
                     log("EdgeEditModeOutputHoverViewModifier: graph is in movement; doing nothing")
                     return
                 }

@@ -30,7 +30,8 @@ let VIDEO_INPUT_INDEX_SCRUBTIME = 2
 
 let RESNET50_STRING = "Resnet50"
 
-let CORE_ML_NO_RESULTS = "No Results"
+//let CORE_ML_NO_RESULTS = "No Results"
+let CORE_ML_NO_RESULTS = ""
 
 enum DefaultMediaOption: CaseIterable {
     case model3dToyRobot
@@ -66,30 +67,38 @@ extension DefaultMediaOption {
     }
     
     static func getDefaultOptions(for nodeKind: NodeKind,
+                                  coordinate: InputCoordinate,
                                   isMediaCurrentlySelected: Bool) -> [FieldValueMedia] {
         
-        switch nodeKind.mediaType {
+        switch nodeKind.mediaType(coordinate: coordinate) {
             
-        case .coreML:
-            guard let patch = nodeKind.getPatch else {
-                // Only patch nodes have default media options for coreML media-type
+        case .single(let mediaType):
+            switch mediaType {
+            case .coreML:
+                guard let patch = nodeKind.getPatch else {
+                    // Only patch nodes have default media options for coreML media-type
+                    return [.none]
+                }
+                
+                switch patch {
+                case .coreMLClassify:
+                    return [isMediaCurrentlySelected ? .none : .defaultMedia(.imageClassifierResnet)]
+                case .coreMLDetection:
+                    return [isMediaCurrentlySelected ? .none : .defaultMedia(.objectDetectionYolo)]
+                default:
+                    return []
+                }
+                
+            case .model3D:
+                return [isMediaCurrentlySelected ? .none : .defaultMedia(.model3dToyRobot)]
+                
+            default:
                 return [.none]
             }
             
-            switch patch {
-            case .coreMLClassify:
-                return [isMediaCurrentlySelected ? .none : .defaultMedia(.imageClassifierResnet)]
-            case .coreMLDetection:
-                return [isMediaCurrentlySelected ? .none : .defaultMedia(.objectDetectionYolo)]
-            default:
-                return []
-            }
-            
-        case .model3D:
-            return [isMediaCurrentlySelected ? .none : .defaultMedia(.model3dToyRobot)]
-            
+        // default empty for loop builder scenario
         default:
-            return [.none]
+            return []
         }
     }
     

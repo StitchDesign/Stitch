@@ -126,7 +126,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
                 // AV capture session must run on background thread;
                 // nothing to do here for ARView
                 Task.detached(priority: .high) { [weak session] in
-                    log(session?.cameraSession.isRunning)
+                    log("createSession: session?.cameraSession.isRunning: \(String(describing: session?.cameraSession.isRunning))")
                     session?.cameraSession.startRunning()
                 }
             }

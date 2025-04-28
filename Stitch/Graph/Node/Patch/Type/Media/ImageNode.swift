@@ -50,7 +50,7 @@ func imageImportEval(node: PatchNode) -> EvalResult {
                 return .init(from: [.asyncMedia(nil), .size(.zero)])
             }
             
-            let computedMediaValue = AsyncMediaValue(id: .init(),
+            let computedMediaValue = AsyncMediaValue(id: media.id,
                                                      dataType: .computed,
                                                      label: mediaValue.label)
             return .init(values: [

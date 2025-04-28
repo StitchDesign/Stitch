@@ -28,6 +28,7 @@ struct PortPreviewOpened: StitchDocumentEvent {
 
 struct PortPreviewPopoverWrapperView: View {
     let openPortPreview: OpenedPortPreview
+    let activeIndex: ActiveIndex
     @Bindable var canvas: CanvasItemViewModel
     
     var body: some View {
@@ -40,12 +41,13 @@ struct PortPreviewPopoverWrapperView: View {
                 $0.rowDelegate?.id == openPortPreview.port
             }),
                let inputObserver = rowViewModel.rowDelegate,
-               let anchor = rowViewModel.anchorPoint {
+               let anchor = rowViewModel.portUIViewModel.anchorPoint {
                 
                 PortPreviewPopoverView(
                     rowObserver: inputObserver,
                     rowViewModel: rowViewModel,
-                    anchor: anchor)
+                    anchor: anchor,
+                    activeIndex: activeIndex)
             }
 
         case .output:
@@ -53,12 +55,13 @@ struct PortPreviewPopoverWrapperView: View {
                 $0.rowDelegate?.id == openPortPreview.port
             }),
                let outputObserver = rowViewModel.rowDelegate,
-               let anchor = rowViewModel.anchorPoint {
+               let anchor = rowViewModel.portUIViewModel.anchorPoint {
                 
                 PortPreviewPopoverView(
                     rowObserver: outputObserver,
                     rowViewModel: rowViewModel,
-                    anchor: anchor)
+                    anchor: anchor,
+                    activeIndex: activeIndex)
             }
         }
     }
@@ -70,6 +73,7 @@ struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
     let rowObserver: NodeRowObserverType
     let rowViewModel: NodeRowObserverType.RowViewModelType
     let anchor: CGPoint
+    let activeIndex: ActiveIndex
     
     @State private var width: CGFloat = .zero
     
@@ -107,14 +111,17 @@ struct PortPreviewPopoverView<NodeRowObserverType: NodeRowObserver>: View {
             PortValuesPreviewView(
                 rowObserver: rowObserver,
                 rowViewModel: rowViewModel,
-                nodeIO: nodeIO)
-            
+                nodeIO: nodeIO,
+                activeIndex: activeIndex)
             .background {
                 GeometryReader { proxy in
                     Color.clear
                     // IMPORTANT: use .local frame, since .global is affected by zooming and creates infinite loop
                         .onChange(of: proxy.frame(in: .local), initial: true) { _, newFrameData in
-                            self.width = newFrameData.size.width
+                            let newWidth = newFrameData.size.width
+                            if newWidth != self.width {
+                                self.width = newWidth
+                            }
                         }
                 }
             }

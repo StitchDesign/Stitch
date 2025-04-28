@@ -46,18 +46,14 @@ extension GraphId: StitchDocumentIdentifiable {
 
 extension GraphState {
     @MainActor
-    func children(of parent: NodeId) -> NodeViewModels {
-        self.layerNodes.values.filter { layerNode in
-            layerNode.layerNode?.layerGroupId == parent
-        }
-    }
-    
-    // TODO: use a specific GraphId
-    @MainActor
     var projectId: GraphId { self.id }
-                
-    // TODO: remove
-    @MainActor var graphMovement: GraphMovementObserver {
-        self.documentDelegate?.graphMovement ?? .init()
+}
+
+extension GraphReader {
+    @MainActor
+    func children(of parent: NodeId) -> LayerNodes {
+        self.layerNodes().filter { layerNode in
+            layerNode.layerGroupId == parent
+        }
     }
 }

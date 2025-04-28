@@ -21,13 +21,13 @@ struct LayerInspectorInputPortView: View {
     
     var body: some View {
         
-        let observerMode = layerInputObserver.observerMode
-        
         // TODO: is this really correct, to always treat the layer's input as packed ?
         let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
                                             // Always `.packed` at the inspector-row level
                                             portType: .packed)
         
+        // TODO: use just layerInputPort, i.e. `LayerInspectorRowId.layerInput(layerInputPort)` ?
+        // Always for "packed"
         let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
         
         // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
@@ -40,52 +40,49 @@ struct LayerInspectorInputPortView: View {
             portType: .keyPath(layerInputType),
             nodeId: node.id)
         
-        // Does this inspector-row (the entire input) have a canvas item?
-        let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
+        let isPropertyRowSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
         
+        // Does this inspector-row (the entire input) have a canvas item?
+        let packedInputCanvasItemId: CanvasItemId? = layerInputObserver.packedCanvasObserverOnlyIfPacked?.id
+
         LayerInspectorPortView(layerInputObserver: layerInputObserver,
                                layerInspectorRowId: layerInspectorRowId,
                                coordinate: coordinate,
                                graph: graph,
                                document: document,
-                               canvasItemId: canvasItemId) { isPropertyRowSelected in
-                    HStack {
-                        if isShadowLayerInputRow {
-                            ShadowInputInspectorRow(nodeId: node.id,
-                                                    isPropertyRowSelected: isPropertyRowSelected)
-                        }
-                        
-                        // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
-                        // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
-                        else if layerInputObserver.port == .transform3D {
-                            LayerInspector3DTransformInputView(document: document,
-                                                               graph: graph,
-                                                               nodeId: node.id,
-                                                               layerInputObserver: layerInputObserver,
-                                                               isPropertyRowSelected: isPropertyRowSelected)
-                        } else if layerInputObserver.usesGridMultifieldArrangement() {
-                            // Multifields in the inspector are always "read-only" and "tap to open flyout"
-                            LayerInspectorGridInputView(document: document,
-                                                        graph: graph,
-                                                        node: node,
-                                                        layerInputObserver: layerInputObserver,
-                                                        isPropertyRowSelected: isPropertyRowSelected)
-                        } else {
-                            // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
-                            InspectorLayerInputView(
-                                document: document,
-                                graph: graph,
-                                node: node,
-                                layerInputObserver: layerInputObserver,
-                                forFlyout: false)
-                        }
-                    }
+                               packedInputCanvasItemId: packedInputCanvasItemId) {
+            HStack {
+                if isShadowLayerInputRow {
+                    ShadowInputInspectorRow(nodeId: node.id,
+                                            isPropertyRowSelected: isPropertyRowSelected)
+                }
+                
+                // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
+                // So we handle them here, rather than in `fields` views used in flyouts and on canvas.
+                else if layerInputObserver.port == .transform3D {
+                    LayerInspector3DTransformInputView(document: document,
+                                                       graph: graph,
+                                                       nodeId: node.id,
+                                                       layerInputObserver: layerInputObserver,
+                                                       isPropertyRowSelected: isPropertyRowSelected)
+                } else if layerInputObserver.usesGridMultifieldArrangement() {
+                    // Multifields in the inspector are always "read-only" and "tap to open flyout"
+                    LayerInspectorGridInputView(document: document,
+                                                graph: graph,
+                                                node: node,
+                                                layerInputObserver: layerInputObserver,
+                                                isPropertyRowSelected: isPropertyRowSelected)
+                } else {
+                    // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
+                    InspectorLayerInputView(
+                        document: document,
+                        graph: graph,
+                        node: node,
+                        layerInputObserver: layerInputObserver,
+                        forFlyout: false)
+                }
             }
-        
-        // NOTE: this fires unexpectedly, so we rely on canvas item deletion and `layer input field added to canvas` to handle changes in pack vs unpacked mode.
-//            .onChange(of: layerInputObserver.mode) { oldValue, newValue in
-//                self.layerInputObserver.wasPackModeToggled()
-//            }
+        }
     }
 }
 
@@ -102,14 +99,11 @@ struct InspectorLayerInputView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    let layerInputObserver: LayerInputObserver
+    @Bindable var layerInputObserver: LayerInputObserver
     let forFlyout: Bool
     
     var label: String {
-        layerInputObserver
-            .overallPortLabel(usesShortLabel: true,
-                              node: node,
-                              graph: graph)
+        layerInputObserver.overallPortLabel(usesShortLabel: true)
     }
         
     var layerInput: LayerInputPort {
@@ -127,20 +121,28 @@ struct InspectorLayerInputView: View {
         return layerInput.showsLabelForInspector
     }
     
-    var fieldValueTypes: [FieldGroupTypeData] {
-        self.layerInputObserver.fieldValueTypes
+    var fieldGroups: [FieldGroup] {
+        self.layerInputObserver.fieldGroupsFromInspectorRowViewModels
     }
     
     // iPad-only?
     var packedPropertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == .layerInput(LayerInputType.init(layerInput: layerInputObserver.port,
-                                                                                  portType: .packed))
+        graph.propertySidebar.selectedProperty == .layerInput(
+            LayerInputType(layerInput: layerInputObserver.port,
+                           portType: .packed))
+    }
+    
+    var blockedFields: LayerPortTypeSet {
+        layerInputObserver.blockedFields
+    }
+    
+    // LayerInput is source of truth for "is multifield"
+    var usesMultifields: Bool {
+        layerInputObserver.usesMultifields
     }
     
     var body: some View {
-        // Note: ShadowFlyout's .shadowOffset row uses a VStack for it's x vs y fields
-        // TODO: let .shadowOffset fields appear side-by-side?
-        HStack(alignment: layerInput == .shadowOffset ? .firstTextBaseline : .center) {
+        HStack {
             if willShowLabel {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
@@ -148,27 +150,66 @@ struct InspectorLayerInputView: View {
                                  isSelectedInspectorRow: packedPropertyRowIsSelected)
             }
             Spacer()
-            LayerInputFieldsView(layerInputFieldType: forFlyout ? .flyout : .inspector,
-                                 document: document,
-                                 graph: graph,
-                                 node: node,
-                                 rowObserver: layerInputObserver.packedRowObserver,
-                                 rowViewModel: layerInputObserver._packedData.inspectorRowViewModel,
-                                 fieldValueTypes: fieldValueTypes,
-                                 layerInputObserver: layerInputObserver,
-                                 isNodeSelected: false)
-        }
+            
+            ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
+               
+                if !fieldGroup.areAllFieldsBlocked(blockedFields: self.blockedFields) {
+                    FieldGroupLabelView(fieldGroup: fieldGroup)
+                    
+                    HStack {
+                        PotentiallyBlockedFieldsView(fieldGroup: fieldGroup,
+                                                     isMultifield: self.usesMultifields,
+                                                     blockedFields: self.blockedFields) { (inputFieldViewModel: InputFieldViewModel,
+                                                                                           isMultifield: Bool) in
+                            /*
+                             Overall, we are iterating through [[FieldGroup]], which abstracts over packed vs unpacked;
+                             However, we need to retrieve the inspector row view model and the row observer for a given field view model.
+                             
+                             Suppose a PACKED size input: then ONE inspector row view model
+                             Suppose an UNPACKED size input: then TWO inspector row view models
+                             
+                             Using the rowId from the flattened field view models to retrieve the row view model and row observer
+                             TODO: perf of this? ... should be constant time look up on a node to grab the row VM and row observer
+                             
+                             Alternatively: we could iterate through not just `[FieldGroup]`, but `[{FieldGroup, RowViewModel, RowObserver}]`
+                             */
+                            
+                            let fieldId: FieldCoordinate = inputFieldViewModel.id
+                                                        
+                            if let inputRowViewModel = node.getInputRowViewModel(for: fieldId.rowId),
+                               let inputRowObserver = node.getInputRowObserver(for: fieldId.rowId.portType) {
+                                
+                                InputValueEntry(
+                                    graph: graph,
+                                    document: document,
+                                    viewModel: inputFieldViewModel,
+                                    node: node,
+                                    rowViewModel: inputRowViewModel,
+                                    canvasItem: nil,
+                                    rowObserver: inputRowObserver,
+                                    isCanvasItemSelected: false,
+                                    hasIncomingEdge: false,
+                                    isForLayerInspector: true,
+                                    isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
+                                    isFieldInMultifieldInput: self.usesMultifields,
+                                    isForFlyout: false,
+                                    isSelectedInspectorRow: packedPropertyRowIsSelected,
+                                    useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+                            } // if let
+                        }
+                    } // HStack { ...
+                }
+            } // ForEach(fieldGroups) { ...
+        } // HStack(alignment:) { ...
     }
 }
 
 enum LayerInputFieldType {
-    case inspector
     case canvas(CanvasItemViewModel)
-    case flyout
 }
 
 // fka `LayerInputFieldsView`
-// Used by InspectorLayerInputView, most flyouts and CanvasLayerInputView
+// Now only used by layer inputs or fields on the canvas (not the flyout or inspector)
 struct LayerInputFieldsView: View {
     let layerInputFieldType: LayerInputFieldType
     @Bindable var document: StitchDocumentViewModel
@@ -176,7 +217,7 @@ struct LayerInputFieldsView: View {
     @Bindable var node: NodeViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowViewModel: InputNodeRowViewModel
-    let fieldValueTypes: [FieldGroupTypeData]
+    let fieldValueTypes: [FieldGroup]
     let layerInputObserver: LayerInputObserver
     let isNodeSelected: Bool
         
@@ -184,53 +225,20 @@ struct LayerInputFieldsView: View {
         layerInputObserver.usesMultifields || fieldValueTypes.count > 1
     }
     
-    var blockedFields: LayerPortTypeSet? {
+    var blockedFields: LayerPortTypeSet {
         layerInputObserver.blockedFields
     }
-    
-    var forFlyout: Bool {
-        switch self.layerInputFieldType {
-        case .flyout:
-            return true
-            
-        default:
-            return false
-        }
-    }
-    
+        
     @ViewBuilder
-    func valueEntryView(_ portViewModel: InputFieldViewModel,
+    func valueEntryView(_ inputFieldViewModel: InputFieldViewModel,
                         _ isMultifield: Bool) -> some View {
+        
         switch layerInputFieldType {
-        case .inspector:
-            let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
-                                                portType: .packed)
-            let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
-            let layerInputData: InputLayerNodeRowData = layerInputObserver._packedData
-            let propertyRowIsSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
-            
-            // InspectorLayerInputView
-            InputValueEntry(graph: graph,
-                            document: document,
-                            viewModel: portViewModel,
-                            node: node,
-                            rowViewModel: layerInputData.inspectorRowViewModel,
-                            canvasItem: nil,
-                            rowObserver: layerInputData.rowObserver,
-                            isCanvasItemSelected: false,
-                            hasIncomingEdge: false,
-                            isForLayerInspector: true,
-                            isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
-                            isFieldInMultifieldInput: layerInputObserver.usesMultifields,
-                            isForFlyout: false,
-                            isSelectedInspectorRow: propertyRowIsSelected,
-                            useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
-            
+                    
         case .canvas(let canvasNode):
-            // CanvasLayerInputView
             InputValueEntry(graph: graph,
                             document: document,
-                            viewModel: portViewModel,
+                            viewModel: inputFieldViewModel,
                             node: node,
                             rowViewModel: rowViewModel,
                             canvasItem: canvasNode,
@@ -243,77 +251,58 @@ struct LayerInputFieldsView: View {
                             isForFlyout: false,
                             isSelectedInspectorRow: false, // Always false for canvas layer input
                             useIndividualFieldLabel: true)
-            
-        case .flyout:
-            // GenericFlyoutView
-            GenericFlyoutRowView(
-                graph: graph,
-                document: document,
-                viewModel: portViewModel,
-                rowViewModel: rowViewModel,
-                node: node,
-                layerInputObserver: layerInputObserver,
-                isMultifield: isMultifield)
         }
     }
     
     var body: some View {
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData) in
+        ForEach(fieldValueTypes) { (fieldGroup: FieldGroup) in
             
-            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
-            
-            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
-            let _isMultifield = isMultifield || multipleFieldsPerGroup
-            
-            if !self.isAllFieldsBlockedOut(fieldGroupViewModel: fieldGroupViewModel) {
+            let multipleFieldsPerGroup = fieldGroup.fieldObservers.count > 1
+                        
+            // "all fields blocked out, so don't show anything" -- can happen for inspector or canvas, but not really flyout ?
+            if !fieldGroup.areAllFieldsBlocked(blockedFields: self.blockedFields) {
                 // Only non-nil for 3D transform
-                // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treat as Number fields, which are not created with a `groupLabel`
+                // NOTE: this only shows up for PACKED 3D Transform; unpacked 3D Transform fields are treated as Number fields, which are not created with a `groupLabel`
                 // Alternatively we could create Number fieldGroups with their proper parent label if they are for an unpacked multifeld layer input?
-                if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
-                    HStack {
-                        LabelDisplayView(label: fieldGroupLabel,
-                                         isLeftAligned: false,
-                                         fontColor: STITCH_FONT_GRAY_COLOR,
-                                         isSelectedInspectorRow: false)
-                        Spacer()
-                    }
-                }
+                FieldGroupLabelView(fieldGroup: fieldGroup)
                 
-                // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
-                if forFlyout {
-                    VStack {
-                        fieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                   isMultifield: _isMultifield)
-                    }
-                } else {
-                    HStack {
-                        fieldsView(fieldGroupViewModel: fieldGroupViewModel,
-                                   isMultifield: _isMultifield)
-                    }
+                HStack {
+                    PotentiallyBlockedFieldsView(fieldGroup: fieldGroup,
+                                                 // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
+                                                 isMultifield: isMultifield || multipleFieldsPerGroup,
+                                                 blockedFields: self.blockedFields,
+                                                 valueEntryView: self.valueEntryView)
                 }
             } // if ...
         } // ForEach(fieldValueTypes) { ...
     }
-    
-    @ViewBuilder
-    func fieldsView(fieldGroupViewModel: FieldGroupTypeData,
-                    isMultifield: Bool) -> some View {
-        ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-            let isBlocked = self.blockedFields.map { fieldViewModel.isBlocked($0) } ?? false
-            if !isBlocked {
-                self.valueEntryView(fieldViewModel,
-                                    isMultifield)
-            }
+}
+
+extension FieldGroup {
+    @MainActor
+    func areAllFieldsBlocked(blockedFields: LayerPortTypeSet) -> Bool {
+        self.fieldObservers.allSatisfy {
+            $0.isBlocked(blockedFields)
         }
     }
+}
+
+// Only layer input fields can be blocked (in whole or part);
+// patch inputs can NEVER be blocked
+struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
+    let fieldGroup: FieldGroup
+    let isMultifield: Bool
+    let blockedFields: LayerPortTypeSet
     
-    func isAllFieldsBlockedOut(fieldGroupViewModel: FieldGroupTypeData) -> Bool {
-        if let blockedFields = blockedFields {
-            return fieldGroupViewModel.fieldObservers.allSatisfy {
-                $0.isBlocked(blockedFields)
+    @ViewBuilder var valueEntryView: (InputFieldViewModel, Bool) -> ValueView
+    
+    var body: some View {
+        ForEach(fieldGroup.fieldObservers) { fieldViewModel in
+            let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
+            if !isBlocked {
+                self.valueEntryView(fieldViewModel, isMultifield)
             }
         }
-        return false
     }
 }
 
@@ -326,7 +315,9 @@ struct LayerInspectorOutputPortView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     
+    // Outputs can never be "packed vs unpacked"
     let canvasItem: CanvasItemViewModel?
+    
     let forFlyout: Bool
 
     var isCanvasItemSelected: Bool {
@@ -337,8 +328,12 @@ struct LayerInspectorOutputPortView: View {
         self.canvasItem != nil
     }
     
+    var layerInspectorRowId: LayerInspectorRowId {
+        .layerOutput(outputPortId)
+    }
+    
     var propertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == .layerOutput(outputPortId)
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
 
     var label: String {
@@ -360,7 +355,6 @@ struct LayerInspectorOutputPortView: View {
                          node: node,
                          canvasItem: canvasItem,
                          isMultiField: isMultiField,
-                         isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: true,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                          isFieldInMultifieldInput: isMultiField,
@@ -368,19 +362,17 @@ struct LayerInspectorOutputPortView: View {
     }
     
     var body: some View {
-        
-        let portId = rowViewModel.id.portId
-        
+                
         let coordinate: NodeIOCoordinate = .init(
-            portType: .portIndex(portId),
+            portType: .portIndex(outputPortId),
             nodeId: rowViewModel.id.nodeId)
         
         LayerInspectorPortView(layerInputObserver: nil,
-                               layerInspectorRowId: .layerOutput(portId),
+                               layerInspectorRowId: layerInspectorRowId,
                                coordinate: coordinate,
                                graph: graph,
                                document: document,
-                               canvasItemId: canvasItem?.id) { propertyRowIsSelected in
+                               packedInputCanvasItemId: canvasItem?.id) {
             HStack(alignment: .firstTextBaseline) {
                 // Property sidebar always shows labels on left side, never right
                 LabelDisplayView(label: label,
@@ -389,7 +381,7 @@ struct LayerInspectorOutputPortView: View {
                                  isSelectedInspectorRow: propertyRowIsSelected)
                 Spacer()
                 
-                LayerOutputFieldsView(fieldValueTypes: rowViewModel.fieldValueTypes,
+                LayerOutputFieldsView(fieldValueTypes: rowViewModel.cachedFieldValueGroups,
                                       valueEntryView: valueEntryView)
             } // HStack
         }
@@ -405,11 +397,11 @@ struct LayerInspectorOutputPortView: View {
 struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
     typealias ValueEntryViewBuilder = (OutputFieldViewModel, Bool) -> ValueEntry
     
-    let fieldValueTypes: [FieldGroupTypeData]
+    let fieldValueTypes: [FieldGroup]
     @ViewBuilder var valueEntryView: ValueEntryViewBuilder
 
     var body: some View {
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeData) in
+        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroup) in
             let isMultifield = fieldGroupViewModel.fieldObservers.count > 1
             
             if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
@@ -454,23 +446,12 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
-    let canvasItemId: CanvasItemId?
-    
-    // Arguments: 1. is row selected
-    @ViewBuilder var rowView: (Bool) -> RowView
+    let packedInputCanvasItemId: CanvasItemId?
+        
+    @ViewBuilder var rowView: () -> RowView
     
     @State private var isHovered: Bool = false
-    
-    // Is this property-row selected?
-    @MainActor
-    var propertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
-    }
-    
-    var isOnGraphAlready: Bool {
-        canvasItemId.isDefined
-    }
-    
+
     var isPaddingPortValueTypeRow: Bool {
         layerInputObserver?.port == .layerMargin || layerInputObserver?.port == .layerPadding
     }
@@ -491,7 +472,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
-                                    canvasItemId: canvasItemId,
+                                    packedInputCanvasItemId: packedInputCanvasItemId,
                                     isHovered: isHovered)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align
@@ -501,7 +482,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             // Do not show this button if this is the row for the shadow proxy
             .opacity(isShadowProxyRow ? 0 : 1)
                         
-            rowView(propertyRowIsSelected)
+            rowView()
         }
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
@@ -518,7 +499,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                                     document: document,
                                                     isAutoLayoutRow: layerInputObserver?.port == .orientation,
                                                     layerInspectorRowId: layerInspectorRowId,
-                                                    canvasItemId: canvasItemId))
+                                                    packedInputCanvasItemId: packedInputCanvasItemId))
     }
 }
 
@@ -529,7 +510,7 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
     let isAutoLayoutRow: Bool
     let layerInspectorRowId: LayerInspectorRowId
-    let canvasItemId: CanvasItemId?
+    let packedInputCanvasItemId: CanvasItemId?
         
     var isCatalyst: Bool {
 #if targetEnvironment(macCatalyst)
@@ -542,14 +523,14 @@ struct LayerInspectorPortViewTapModifier: ViewModifier {
     func body(content: Content) -> some View {
         // HACK: If this is the LayerGroup's autolayout row (on Catalyst) and the row is not already on the canvas,
         // then do not add a 'jump to canvas item' handler that interferes with Segmented Picker.
-        if isAutoLayoutRow, isCatalyst, canvasItemId == nil {
+        if isAutoLayoutRow, isCatalyst, packedInputCanvasItemId == nil {
             content
         } else {
             content.gesture(TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
                 document.onLayerPortRowTapped(
                     layerInspectorRowId: layerInspectorRowId,
-                    canvasItemId: canvasItemId,
+                    canvasItemId: packedInputCanvasItemId,
                     graph: graph)
             }))
         }
@@ -563,8 +544,7 @@ extension StitchDocumentViewModel {
                               graph: GraphState) {
         // Defined canvas item id = we're already on the canvas
         if let canvasItemId = canvasItemId {
-            graph.jumpToCanvasItem(id: canvasItemId,
-                                   document: self)
+            dispatch(JumpToCanvasItem(id: canvasItemId))
         }
         
         // Else select/de-select the property

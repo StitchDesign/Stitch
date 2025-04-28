@@ -19,9 +19,14 @@ struct OutputHoveredLongEnough: GraphEvent {
 extension GraphState {
 
     @MainActor
-    func outputHovered(outputCoordinate: OutputPortViewData,
+    func outputHovered(outputCoordinate: OutputPortIdAddress,
                        groupNodeFocused: NodeId?) {
         // log("outputHovered fired")
+        
+        guard let graphMovement = self.documentDelegate?.graphMovement else {
+            fatalErrorIfDebug()
+            return
+        }
         
         if self.edgeDrawingObserver.drawingGesture != nil {
             // log("OutputHovered called during edge drawing gesture; exiting")
@@ -30,7 +35,7 @@ extension GraphState {
             return
         }
         
-        if self.graphMovement.canvasItemIsDragged || self.nodeIsMoving {
+        if graphMovement.canvasItemIsDragged || self.nodeIsMoving {
             // log("OutputHovered called during node drag; exiting")
             self.edgeAnimationEnabled = false
             self.edgeEditingState = nil
@@ -77,7 +82,7 @@ extension GraphState {
     
     @MainActor
     func getShownAndPossibleEdges(nearbyNode: CanvasItemViewModel,
-                                  outputCoordinate: OutputPortViewData,
+                                  outputCoordinate: OutputPortIdAddress,
                                   groupNodeFocused: NodeId?) -> (shownEdges: Set<PossibleEdgeId>,
                                             possibleEdges: PossibleEdgeSet) {
         var alreadyShownEdges = Set<PossibleEdgeId>()
@@ -133,12 +138,12 @@ extension CanvasItemViewModel {
     // or the input-splitter coords for a group node.
     @MainActor
     func edgeFriendlyInputCoordinates(from nodes: VisibleNodesViewModel,
-                                      focusedGroupId: NodeId?) -> [InputPortViewData] {
+                                      focusedGroupId: NodeId?) -> [InputPortIdAddress] {
         
         // this looks at ALL nodes' inputs -- need to look only at
         
         nodes.getCanvasItemsAtTraversalLevel(at: focusedGroupId)
-            .flatMap { canvasItem -> [InputPortViewData] in
+            .flatMap { canvasItem -> [InputPortIdAddress] in
                 
                 guard let nodeId = self.nodeDelegate?.id,
                       let canvasItemNodeId = canvasItem.nodeDelegate?.id,
@@ -149,7 +154,7 @@ extension CanvasItemViewModel {
                 
                 let inputsCount = canvasItem.inputViewModels.count
                 return (0..<inputsCount).map {
-                    InputPortViewData(portId: $0, canvasId: canvasItem.id)
+                    InputPortIdAddress(portId: $0, canvasId: canvasItem.id)
                 }
             }
     }
@@ -218,8 +223,7 @@ extension GraphState {
     func getNodesToTheEastFromClosestToFarthest(eastOf originOutputNodeId: CanvasItemId,
                                                 groupNodeFocused: NodeId?) -> EligibleEasternNodes? {
         
-        guard let originOutputNode = self.getCanvasItem(originOutputNodeId),
-              let originOutputNodeSize = originOutputNode.sizeByLocalBounds else {
+        guard let originOutputNode = self.getCanvasItem(originOutputNodeId) else {
             log("getNodesToTheEastFromClosestToFarthest: node not found: \(originOutputNodeId)")
             return nil
         }
@@ -288,15 +292,16 @@ extension CGPoint {
 
 extension VisibleNodesViewModel {
     @MainActor
-    func nodePageDataAtCurrentTraversalLevel(_ focusedGroup: NodeId?) -> NodePageData? {
+    func nodePageDataAtThisTraversalLevel(_ focusedGroup: NodeId?) -> NodePageData? {
         self.nodesByPage.get(focusedGroup.map(NodePageType.group) ?? NodePageType.root)
     }
 }
 
-extension StitchDocumentViewModel {
+extension GraphState {
     @MainActor
-    func keyCharPressedDuringEdgeEditingMode(char: Character) {
-        let graph = self.visibleGraph
+    func keyCharPressedDuringEdgeEditingMode(char: Character, activeIndex: ActiveIndex) {
+        
+        let graph = self
         
         guard let labelPresssed = EdgeEditingModeInputLabel.fromKeyCharacter(char) else {
             log("keyCharPressedDuringEdgeEditingMode: char pressed \(char) did not map to any supported edge-edit-mode input label")
@@ -311,15 +316,21 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let nearbyNode = graph.getCanvasItem(edgeEditingState.nearbyCanvasItem) else {
+        guard let nearbyCanvasItem = graph.getCanvasItem(edgeEditingState.nearbyCanvasItem) else {
             log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyCanvasItem)")
             return
+        }
+        
+        if let patch = graph.getPatchNode(id: nearbyCanvasItem.id.nodeId)?.patch,
+           patch.inputsDisabled {
+            log("keyCharPressedDuringEdgeEditingMode: cannot create an edge to a disabled input")
+           return
         }
         
         let labelAsPortId = labelPresssed.toPortId // i.e. port index
         // log("keyCharPressedDuringEdgeEditingMode: labelAsPortId: \(labelAsPortId)")
         
-        let destinationInput = InputPortViewData(portId: labelAsPortId, canvasId: nearbyNode.id)
+        let destinationInput = InputPortIdAddress(portId: labelAsPortId, canvasId: nearbyCanvasItem.id)
         
         //    let destinationInput = nearbyNode.groupNode?.splitterInputs[safe: labelAsPortId]?.rowObserver?.id ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
         
@@ -380,7 +391,7 @@ extension StitchDocumentViewModel {
                 dispatch(PossibleEdgeDecommitmentCompleted(
                     possibleEdgeId: thisPossibleEdge.id,
                     edge: edge,
-                    activeIndex: self.activeIndex))
+                    activeIndex: activeIndex))
             }
         }
         
@@ -414,6 +425,6 @@ extension StitchDocumentViewModel {
             }
         } // else
         
-        return self.visibleGraph.removeEdgeAt(input: edge.to)
+        self.removeEdgeAt(input: edge.to)
     }
 }

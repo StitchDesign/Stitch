@@ -11,9 +11,11 @@ import StitchSchemaKit
 
 final class nodeTypeTests: XCTestCase {
 
+    @MainActor var store = StitchStore()
+    
     @MainActor
-    func testNodeTypeChange() async throws {
-        let document = await StitchDocumentViewModel.createTestFriendlyDocument()
+    func testNodeTypeChange() throws {
+        let document = StitchDocumentViewModel.createTestFriendlyDocument(store)
         let node = try XCTUnwrap(document.nodeInserted(choice: .patch(.add)))
         
         let numberInputs = node.inputsObservers.allSatisfy { (input: InputNodeRowObserver) in
@@ -40,8 +42,9 @@ final class nodeTypeTests: XCTestCase {
     @MainActor
     func testPatchNodeUserVisibleType() throws {
 
+        let graph = GraphState()
         Patch.allCases.forEach { patch in
-            let node = patch.createDefaultTestNode()
+            let node = patch.createDefaultTestNode(graph: graph)
 
             // If the patch has non-empty lists of available node types,
             // ... but the created node has no node type,

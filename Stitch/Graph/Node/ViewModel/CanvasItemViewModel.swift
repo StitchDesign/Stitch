@@ -88,7 +88,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
         
     // Reference back to the parent node entity
     @MainActor
-    weak var nodeDelegate: NodeDelegate?
+    weak var nodeDelegate: NodeViewModel?
     
     @MainActor
     init(id: CanvasItemId,
@@ -97,9 +97,7 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
          parentGroupNodeId: NodeId?,
          inputRowObservers: [InputNodeRowObserver],
          outputRowObservers: [OutputNodeRowObserver],
-         unpackedPortParentFieldGroupType: FieldGroupType?,
-         unpackedPortIndex: Int?,
-         nodeDelegate: NodeDelegate? = nil) {
+         nodeDelegate: NodeViewModel? = nil) {
         self.id = id
         self.position = position
         self.previousPosition = position
@@ -110,44 +108,38 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
                                outputRowObservers: outputRowObservers,
-                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                               unpackedPortIndex: unpackedPortIndex)
+                               // Assume .zero when initially creating the row view model value?
+                               activeIndex: .defaultActiveIndex)
     }
 }
 
 extension CanvasItemViewModel {
+    
     @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
                            outputRowObservers: [OutputNodeRowObserver],
-                           unpackedPortParentFieldGroupType: FieldGroupType?,
-                           unpackedPortIndex: Int?) {
+                           activeIndex: ActiveIndex) {
         
         self.syncRowViewModels(with: inputRowObservers,
                                keyPath: \.inputViewModels,
-                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                               unpackedPortIndex: unpackedPortIndex)
+                               activeIndex: activeIndex)
         
         self.syncRowViewModels(with: outputRowObservers,
                                keyPath: \.outputViewModels,
-                               unpackedPortParentFieldGroupType: nil,
-                               unpackedPortIndex: nil)
+                               activeIndex: activeIndex)
     }
     
     @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
-                     outputRowObservers: [OutputNodeRowObserver],
-                     unpackedPortParentFieldGroupType: FieldGroupType?,
-                     unpackedPortIndex: Int?) {
+                     outputRowObservers: [OutputNodeRowObserver]) {
         self.init(id: id,
                   position: canvasEntity.position,
                   zIndex: canvasEntity.zIndex,
                   parentGroupNodeId: canvasEntity.parentGroupNodeId,
                   inputRowObservers: inputRowObservers,
-                  outputRowObservers: outputRowObservers,
-                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                  unpackedPortIndex: unpackedPortIndex)
+                  outputRowObservers: outputRowObservers)
     }
     
     @MainActor
@@ -177,34 +169,73 @@ extension CanvasItemViewModel {
         
         // Hack to fix issues where undo/redo sometimes doesn't refresh edges.
         // Not perfect as it leads to a bit of a stutter when it works.
-        self.inputViewModels.forEach {
-            $0.updateAnchorPoint()
+        self.updateAnchorPoints()
+    }
+    
+    /// Updates location of anchor points.
+    // fka `updatePortLocations`
+    // Note: only a canvas item's row view models can have anchor points, so it's better to define this update function on the canvas item rather than the row view model per se
+    @MainActor
+    func updateAnchorPoints() {
+        
+        guard let canvasSize = self.sizeByLocalBounds else {
+            // Nothing to do if no size for canvas item yet
+            return
         }
         
-        self.outputViewModels.forEach {
-            $0.updateAnchorPoint()
+        let fn = { (nodeIO: NodeIO, portId: Int) -> CGPoint in
+            getNewAnchorPoint(canvasPosition: self.position,
+                              canvasSize: canvasSize,
+                              hasLargeCanvasTitle: self.nodeDelegate?.hasLargeCanvasTitleSpace ?? false,
+                              nodeIO: nodeIO,
+                              portId: portId)
+        }
+        
+        self.inputPortUIViewModels.forEach {
+            let newAnchorPoint = fn(.input, $0.portIdForAnchorPoint)
+            if newAnchorPoint != $0.anchorPoint {
+                $0.anchorPoint = newAnchorPoint
+            }
+        }
+        
+        self.outputPortUIViewModels.forEach {
+            let newAnchorPoint = fn(.output, $0.portIdForAnchorPoint)
+            if newAnchorPoint != $0.anchorPoint {
+                $0.anchorPoint = newAnchorPoint
+            }
         }
     }
     
-    func onPrototypeRestart() { }
-}
-
-extension CanvasItemViewModel {
+    func onPrototypeRestart(document: StitchDocumentViewModel) { }
+    
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
+                            activeIndex: ActiveIndex,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
+        
         self.nodeDelegate = node
+        
         self.inputViewModels.forEach {
-            $0.initializeDelegate(node,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex)
+            // Note: assumes the row view model as already have its underling row observer delegate assigned
+            if let rowObserver = $0.rowDelegate {
+                $0.initializeDelegate(
+                    node,
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
+                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                    unpackedPortIndex: unpackedPortIndex)
+            }
         }
         
         self.outputViewModels.forEach {
-            $0.initializeDelegate(node,
-                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                  unpackedPortIndex: unpackedPortIndex)
+            if let rowObserver = $0.rowDelegate {
+                $0.initializeDelegate(
+                    node,
+                    initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
+                    // Not relevant for output row view models
+                    unpackedPortParentFieldGroupType: nil,
+                    unpackedPortIndex: nil)
+            }
         }
         
         // Reset cache data--fixes scenarios like undo
@@ -247,7 +278,7 @@ extension CanvasItemViewModel {
     @MainActor
     func updateVisibilityStatus(with newValue: Bool, graph: GraphState) {
         if newValue {
-            self.updatePortLocations()
+            self.updateAnchorPoints()
             self.nodeDelegate?.updatePortViewModels(graph)
         }
         
@@ -273,16 +304,6 @@ extension CanvasItemViewModel {
         self.previousPosition = self.position
     }
     
-    /// Updates location of anchor points.
-    @MainActor
-    func updatePortLocations() {
-        self.inputViewModels.forEach {
-            $0.updateAnchorPoint()
-        }
-        self.outputViewModels.forEach {
-            $0.updateAnchorPoint()
-        }
-    }
     
     @MainActor
     func resetViewSizingCache() {
@@ -295,12 +316,13 @@ extension InputLayerNodeRowData {
     static func empty(_ layerInputType: LayerInputType,
                       nodeId: UUID,
                       layer: Layer) -> Self {
-        // Take the data from the schema!! 
+        // Take the data from the schema!!
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                id: .init(portType: .keyPath(layerInputType),
                                                          nodeId: nodeId),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
+                     activeIndex: .defaultActiveIndex, // b/c empty i.e. fake
                      canvasObserver: nil)
     }
 }

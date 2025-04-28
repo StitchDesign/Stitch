@@ -20,7 +20,7 @@ final class ScrollInteractionState: NodeEphemeralObservable {
 }
 
 extension ScrollInteractionState {
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.lastDragStartingPoint = nil
         self.reset()
     }

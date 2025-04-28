@@ -1,5 +1,5 @@
 //
-//  NodeDelegate.swift
+//  NodeViewModel.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 5/9/24.
@@ -8,9 +8,8 @@
 import Foundation
 import StitchSchemaKit
 
-typealias NodeDelegate = NodeViewModel
 
-extension NodeDelegate {
+extension NodeViewModel {
     @MainActor
     var defaultOutputs: PortValues {
         guard let values = self.kind.graphNode?.rowDefinitions(for: self.userVisibleType).outputs
@@ -107,7 +106,7 @@ extension NodeDelegate {
     @MainActor
     var allNodeInputRowViewModels: [InputNodeRowViewModel] {
         self.allInputRowViewModels
-            .filter { $0.id.isNode }
+            .filter { $0.id.isCanvas }
     }
     
     @MainActor
@@ -127,6 +126,16 @@ extension NodeDelegate {
     
     @MainActor
     var layerNodeViewModel: LayerNodeViewModel? {
+        switch self.nodeType {
+        case .layer(let layerNode):
+            return layerNode
+        default:
+            return nil
+        }
+    }
+    
+    @MainActor
+    var layerNodeReader: LayerNodeReader? {
         switch self.nodeType {
         case .layer(let layerNode):
             return layerNode

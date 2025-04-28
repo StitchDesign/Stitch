@@ -175,7 +175,8 @@ extension NetworkRequestNode {
             value = .asyncMedia(AsyncMediaValue(id: id,
                                                 dataType: .computed,
                                                 label: "Network Request Image"))
-            media = .init(computedMedia: mediaObjectLoaded)
+            media = .init(computedMedia: mediaObjectLoaded,
+                          id: id)
             
         case (RequestedResource.json(let x)):
             value = .init(x)

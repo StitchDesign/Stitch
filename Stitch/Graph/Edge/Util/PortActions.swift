@@ -9,21 +9,31 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension NodeViewModel {
+    @MainActor
+    func getComputedMediaObjects() -> [StitchMediaObject] {
+        self.ephemeralObservers?.compactMap {
+            ($0 as? MediaEvalOpObservable)?.computedMedia?.mediaObject
+        } ?? []
+    }
+}
+
 extension InputNodeRowObserver {
     /// Removes edges to some observer and conducts the following steps;
     /// 1. Removes connection by deleting reference to upstream output observer.
     /// 2. Flattens values.
     /// 3. Returns side effects for media which needs to be cleared.
     @MainActor
-    func removeUpstreamConnection(isVisible: Bool? = nil) {
+    func removeUpstreamConnection(node: NodeViewModel) {
         
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
             log("InputNodeRowObserver: removeUpstreamConnection: could not find upstream output observer")
             return
         }
         
-        let downstreamStitches = upstreamOutputObserver.getConnectedDownstreamNodes()
-            .map { $0.nodeDelegate?.id }
+        // Here we care about nodes, not canvas items
+        let downstreamStitches = upstreamOutputObserver.getDownstreamCanvasItemsIds()
+            .map(\.nodeId)
             .toSet
         
         let willUpstreamBeDisconnected = downstreamStitches == Set([self.id.nodeId])
@@ -34,12 +44,12 @@ extension InputNodeRowObserver {
 
         // Remove videos for disconnected visual media layers.
         // Check if the input coordinate of the removed edge came from an image or video layer.
-        if self.nodeKind.isVisualMediaLayerNode,
+        if node.kind.isVisualMediaLayerNode,
            // Only look at this input if it is the media input
            self.id.isMediaSelectorLocation {
             if willUpstreamBeDisconnected,
-               let upstreamOutputObserver = self.upstreamOutputObserver {
-                upstreamOutputObserver.getComputedMediaObjects().forEach {
+               let _ = self.upstreamOutputObserver {
+                node.getComputedMediaObjects().forEach {
                     if let video = $0.video {
                         video.muteSound()
                     }
@@ -51,7 +61,7 @@ extension InputNodeRowObserver {
         }
 
         // Remove audio from disconnected speaker nodes.
-        else if self.nodeKind.isSpeakerNode,
+        else if node.kind.isSpeakerNode,
                 // Only look at this input if it is the media input
                 self.id.isMediaSelectorLocation,
                 let upstreamObserverNode = upstreamOutputObserver.nodeDelegate {
@@ -77,7 +87,7 @@ extension GraphState {
     // Note: this removes ANY incoming edge to the `edge.to` input; whereas in some use-cases e.g. group node creation, we had expected only to remove the specific passed-in edge if it existed.
     // Hence the rename from `edgeRemoved` to `removesEdgeAt`
     @MainActor
-    func removeEdgeAt(input: InputPortViewData) {
+    func removeEdgeAt(input: InputPortIdAddress) {
         guard let inputCoordinate = self.getInputCoordinate(from: input) else {
             log("GraphState: removeEdgeAt: could not find input \(input.portId), \(input.canvasId)")
             return
@@ -102,38 +112,47 @@ extension GraphState {
                                    to: InputCoordinate) {
         self.addEdgeWithoutGraphRecalc(edge: .init(from: from, to: to))
     }
-
+    
     /*
      1. Adds edge.from's upstream-output to edge.to's downstream-input
      2. Recalcs topologicalData
      3. "Selects" edge if edge is to a selected node
+     4. Schedules the origin-node ("from" node) to be calculated ned
      */
     @MainActor
     func addEdgeWithoutGraphRecalc(edge: PortEdgeData) {
-
-        guard let downstreamNode = self.getNodeViewModel(edge.to.nodeId),
+        guard let downstreamNode = self.getNode(edge.to.nodeId),
               let downstreamInputObserver = downstreamNode.getInputRowObserver(for: edge.to.portType) else {
             log("addEdgeWithoutGraphRecalc: could not find input \(edge.to)")
             return
         }
 
-        guard self.getNodeViewModel(edge.from.nodeId).isDefined else {
+        guard let upstreamNode = self.getNode(edge.from.nodeId),
+              let upstreamOutputObserver = upstreamNode.getOutputRowObserver(for: edge.from.portType) else {
             log("addEdgeWithoutGraphRecalc: could not find output \(edge.from)")
             return
         }
 
-        // Runs logic to disconnect existing media conntected by edge
-        if downstreamInputObserver.upstreamOutputCoordinate != nil {
-            downstreamInputObserver.removeUpstreamConnection()
+        // TODO: are we sure we want to do this?
+        // Runs logic to disconnect existing media connected by edge
+        if downstreamInputObserver.upstreamOutputCoordinate != nil,
+           let downstreamInputObserverNode = self.getNode(downstreamInputObserver.id.nodeId) {
+            downstreamInputObserver.removeUpstreamConnection(node: downstreamInputObserverNode)
         }
         
         // Sets edge
         downstreamInputObserver.upstreamOutputCoordinate = edge.from
 
+        // If the downstream observer is a pulse-type, we must manually flow the values down when edge first created,
+        // since pulse inputs are skipped whenever the upstream output's values "did not change"
+        // (the skipping is how we avoid e.g. the down output on a Press node from constantly triggering a downstream pulse).
+        if downstreamInputObserver.allLoopedValues.first?.getPulse.isDefined ?? false {
+            downstreamInputObserver.setValuesInInput(upstreamOutputObserver.allLoopedValues)
+        }
+        
         self.updateTopologicalData()
     }
 
-    // `addEdgeWithoutGraphRecalc` + graph recalc
     @MainActor
     func edgeAdded(edge: PortEdgeData) {
 
@@ -160,12 +179,13 @@ extension NodeViewModel {
     @MainActor
     func removeIncomingEdge(at coordinate: NodeIOCoordinate,
                             graph: GraphState) {
-        guard let inputObserver = self.getInputRowObserver(for: coordinate.portType) else {
+        guard let inputObserver = self.getInputRowObserver(for: coordinate.portType),
+              let node = graph.getNode(coordinate.nodeId) else {
             log("NodeViewModel: removeIncomingEdge: could not find observer for input \(coordinate)")
             return
         }
         
-        inputObserver.removeUpstreamConnection(isVisible: self.isVisibleInFrame(graph.visibleCanvasIds, graph.selectedSidebarLayers))
+        inputObserver.removeUpstreamConnection(node: node)
     }
 }
 

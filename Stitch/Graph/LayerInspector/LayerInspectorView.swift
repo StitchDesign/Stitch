@@ -53,21 +53,21 @@ struct LayerInspectorView: View {
     }
     
     var body: some View {
-        
-        if let layerInspectorData = layerInspectorData {
-            selectedLayerView(
-                layerInspectorHeader: layerInspectorData.header,
-                node: layerInspectorData.node,
-                layerInputObserverDict: layerInspectorData.inputs,
-                layerOutputs: layerInspectorData.outputs)
-        } else {
-            // Empty List, so have same background
-            List { }
-                .scrollContentBackground(.hidden)
-//                .background {
-//                    BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE
-//                }
+        Group {
+            if let layerInspectorData = layerInspectorData {
+                selectedLayerView(
+                    layerInspectorHeader: layerInspectorData.header,
+                    node: layerInspectorData.node,
+                    layerInputObserverDict: layerInspectorData.inputs,
+                    layerOutputs: layerInspectorData.outputs)
+            } else {
+                // Empty List, so have same background
+                List { }
+//                EmptyView()
+            }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
     }
     
     @MainActor @ViewBuilder
@@ -120,16 +120,26 @@ struct LayerInspectorView: View {
                 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
                 #endif
-                .padding(.bottom)
+                
+                bottomPadding
                 
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
-            .scrollContentBackground(.hidden)
+//            .scrollContentBackground(.hidden)
             
             // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style;
             // And using .plain requires manually adding trailing and leading padding
             .listStyle(.plain)
         } // VStack
+    }
+    
+    // Lists are a little strange with their bottom padding
+    var bottomPadding: some View {
+        Rectangle()
+            .fill(.clear)
+            .frame(height: 24)
+            .listRowBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0,  trailing: 0))
     }
 }
 
@@ -157,19 +167,6 @@ struct LayerPropertyRowOriginReader: ViewModifier {
     }
 }
 
-struct LayerInspectorSectionToggled: GraphEvent {
-    let section: LayerInspectorSection
-    
-    func handle(state: GraphState) {
-        let alreadyClosed = state.propertySidebar.collapsedSections.contains(section)
-        if alreadyClosed {
-            state.propertySidebar.collapsedSections.remove(section)
-        } else {
-            state.propertySidebar.collapsedSections.insert(section)
-        }
-    }
-}
-
 struct LayerInspectorInputView: View {
     
     // `@Bindable var` (vs. `let`) seems to improve a strange issue where toggling scroll-enabled input on iPad would update the LayerInputObserver's blockedFields set but not re-render the view.
@@ -182,15 +179,12 @@ struct LayerInspectorInputView: View {
         self.portObserver.port
     }
     
+    var areAllFieldsBlocked: Bool {
+        portObserver.areAllFieldsBlocked()
+    }
+    
     var body: some View {
-        let blockedFields = portObserver.blockedFields
-        
-        let allFieldsBlockedOut = portObserver
-            .fieldValueTypes.first?
-            .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
-        ?? false
-                
-        if !allFieldsBlockedOut {
+        if !areAllFieldsBlocked {
             LayerInspectorInputPortView(layerInputObserver: portObserver,
                                         graph: graph,
                                         document: document,
@@ -226,7 +220,7 @@ struct LayerInspectorInputsSectionView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     let node: NodeViewModel
-    
+        
     @State private var expanded = true
     @State private var isHovered = false
       
@@ -254,6 +248,7 @@ struct LayerInspectorInputsSectionView: View {
                 LayerInspectorSectionHeader(string: section.rawValue)
                 
             }
+            .listRowBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
             // Note: list row insets appear to be the only way to control padding on a list's section headers
             .listRowInsets(EdgeInsets(top: 0,
                                       leading: 0,
@@ -263,10 +258,19 @@ struct LayerInspectorInputsSectionView: View {
             .onHover {
                 self.isHovered = $0
             }
+            .onChange(of: self.graph.propertySidebar.collapsedSections, initial: true, { oldValue, newValue in
+                self.expanded = newValue.contains(self.section) ? false : true
+            })
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
-                    dispatch(LayerInspectorSectionToggled(section: section))
+
+                    let alreadyClosed = self.graph.propertySidebar.collapsedSections.contains(self.section)
+                    if alreadyClosed {
+                        self.graph.propertySidebar.collapsedSections.remove(self.section)
+                    } else {
+                        self.graph.propertySidebar.collapsedSections.insert(self.section)
+                    }
                     
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.propertySidebar.selectedProperty,
@@ -301,6 +305,7 @@ struct LayerInspectorOutputsSectionView: View {
                             rowObserver: output.rowObserver,
                             graph: graph,
                             document: document,
+                            // Outputs can never be "packed vs unpacked"
                             canvasItem: output.canvasObserver,
                             forFlyout: false)
                     } else {
@@ -342,18 +347,10 @@ extension GraphState {
             return nil
         }
 
-        var inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
+        let inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
         
         // log("getLayerInspectorData: inspectorFocusedLayers: \(inspectorFocusedLayers)")
-        
-        #if DEV_DEBUG
-        // For debug
-        if inspectorFocusedLayers.isEmpty,
-           let layer = self.layerNodes.keys.first {
-            inspectorFocusedLayers = .init([layer])
-        }
-        #endif
-        
+                
         // multiselect
         if inspectorFocusedLayers.count > 1 {
             guard let firstLayerId = inspectorFocusedLayers.first,

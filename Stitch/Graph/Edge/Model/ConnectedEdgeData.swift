@@ -8,46 +8,43 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct ConnectedEdgeData: Equatable {
+struct ConnectedEdgeData: Equatable, Identifiable {
     static func == (lhs: ConnectedEdgeData, rhs: ConnectedEdgeData) -> Bool {
-        lhs.upstreamRowObserver.id == rhs.upstreamRowObserver.id &&
-        lhs.downstreamRowObserver.id == rhs.downstreamRowObserver.id &&
+        lhs.upstreamOutput.id == rhs.upstreamOutput.id &&
+        lhs.downstreamInput.id == rhs.downstreamInput.id &&
         lhs.zIndex == rhs.zIndex
     }
     
-    let upstreamRowObserver: OutputNodeRowViewModel
-    let downstreamRowObserver: InputNodeRowViewModel
+    // TODO: use a better type for identifier? Should only need `InputCoordinate` ? NodeRowViewModelId is actually just node-io-coordinate + "canvas vs inspector"
+    let id: NodeRowViewModelId
+    
+    let upstreamOutput: OutputPortUIViewModel
+    let downstreamInput: InputPortUIViewModel
     let inputData: EdgeAnchorDownstreamData
     let outputData: EdgeAnchorUpstreamData
     let zIndex: Double
-    
+
+    // To create a "connected edge", we MUST have both an upstream canvas item and a downstream canvas item
+    // TODO: can this initializer *really* fail? It must be called with at least one upstream row view model and one downstream row view model
     @MainActor
-    init?(downstreamRowObserver: InputNodeRowViewModel) {
-        guard let downstreamNode = downstreamRowObserver.nodeDelegate,
-              let upstreamRowObserver = downstreamRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel,
-              let inputData = EdgeAnchorDownstreamData(
-                from: downstreamRowObserver,
-                upstreamNodeId: upstreamRowObserver.canvasItemDelegate?.id),
-              let outputData = EdgeAnchorUpstreamData(
-                from: upstreamRowObserver,
-                connectedDownstreamNode: downstreamNode) else {
+    init?(upstreamCanvasItem: CanvasItemViewModel,
+                       upstreamOutputPortUIViewModel: OutputPortUIViewModel,
+                       downstreamInput: InputNodeRowViewModel) {
+        
+        guard let downstreamNode = downstreamInput.nodeDelegate,
+              let inputData = EdgeAnchorDownstreamData(from: downstreamInput,
+                                                       upstreamNodeId: upstreamCanvasItem.id),
+              let outputData = EdgeAnchorUpstreamData(from: upstreamCanvasItem.outputPortUIViewModels,
+                                                      upstreamNodeId: upstreamCanvasItem.id.nodeId,
+                                                      inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels) else {
             return nil
         }
         
-        self.upstreamRowObserver = upstreamRowObserver
-        self.downstreamRowObserver = downstreamRowObserver
+        self.id = downstreamInput.id
+        self.upstreamOutput = upstreamOutputPortUIViewModel
+        self.downstreamInput = downstreamInput.portUIViewModel
         self.inputData = inputData
         self.outputData = outputData
-        
-        let upstreamRowObserverZIndex = upstreamRowObserver.canvasItemDelegate?.zIndex ?? 0
-        let defaultInputNodeIndex = downstreamRowObserver.canvasItemDelegate?.zIndex ?? 0
-        let zIndexOfInputNode = downstreamRowObserver.canvasItemDelegate?.zIndex ?? defaultInputNodeIndex
-        self.zIndex = max(upstreamRowObserverZIndex, zIndexOfInputNode)
-    }
-}
-
-extension ConnectedEdgeData: Identifiable {
-    var id: NodeRowViewModelId {
-        self.downstreamRowObserver.id
+        self.zIndex = max(upstreamCanvasItem.zIndex, upstreamCanvasItem.zIndex)
     }
 }

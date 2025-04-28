@@ -42,5 +42,4 @@ func jsonObjectEval(node: NodeViewModel) -> EvalResult {
         //        log("jsonObjectEval: j: \(j)")
         return [.json(j.toStitchJSON)]
     }
-    .createPureEvalResult()
 }

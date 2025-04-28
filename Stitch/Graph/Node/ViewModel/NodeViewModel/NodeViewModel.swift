@@ -43,11 +43,7 @@ final class NodeViewModel: Sendable {
 
     @MainActor
     var nodeType: NodeViewModelType
-    
-    // Cached for perf
-    @MainActor
-    var longestLoopLength: Int = 1
-    
+        
     @MainActor
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
@@ -101,7 +97,8 @@ final class NodeViewModel: Sendable {
 }
 
 
-extension NodeViewModel: PatchNodeViewModelDelegate {
+extension NodeViewModel {
+    @MainActor
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType) {
         self.ephemeralObservers?.forEach {
@@ -131,10 +128,7 @@ extension NodeViewModel {
                                          zIndex: .zero,
                                          parentGroupNodeId: nil,
                                          inputRowObservers: [],
-                                         outputRowObservers: [],
-                                         unpackedPortParentFieldGroupType: nil,
-                                         unpackedPortIndex: nil))
-                  )
+                                         outputRowObservers: [])))
     }
     
     @MainActor
@@ -261,7 +255,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateOutputsObservers(newValuesList: PortValuesList? = nil) {
+    func updateOutputsObservers(newValuesList: PortValuesList? = nil, graph: GraphState) {
         let outputsObservers = self.getAllOutputsObservers()
         
         if let newValuesList = newValuesList {
@@ -270,7 +264,7 @@ extension NodeViewModel {
         }
 
         zip(outputsObservers, newValuesList ?? self.outputs).forEach { rowObserver, values in
-            rowObserver.updateValuesInOutput(values)
+            rowObserver.updateValuesInOutput(values, graph: graph)
         }
     }
 
@@ -337,7 +331,7 @@ extension NodeViewModel {
     @MainActor
     func getInputRowViewModel(for id: NodeRowViewModelId) -> InputNodeRowViewModel? {
         switch id.graphItemType {
-        case .node(let canvasId):
+        case .canvas(let canvasId):
             let canvas = self.getCanvasObserver(for: canvasId)
             return canvas?.inputViewModels[safe: id.portId]
             
@@ -362,7 +356,7 @@ extension NodeViewModel {
     @MainActor
     func getOutputRowViewModel(for id: NodeRowViewModelId) -> OutputNodeRowViewModel? {
         switch id.graphItemType {
-        case .node(let canvasId):
+        case .canvas(let canvasId):
             let canvas = self.getCanvasObserver(for: canvasId)
             return canvas?.outputViewModels[safe: id.portId]
             
@@ -497,9 +491,11 @@ extension NodeViewModel {
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
     func update(from schema: NodeEntity,
-                components: [UUID : StitchMasterComponent]) async {
+                components: [UUID : StitchMasterComponent],
+                activeIndex: ActiveIndex) async {
         await self.nodeType.update(from: schema.nodeTypeEntity,
-                                   components: components)
+                                   components: components,
+                                   activeIndex: activeIndex)
         
         self.updateTitle(newTitle: schema.title)
     }
@@ -527,19 +523,19 @@ extension NodeViewModel {
                    title: self.title)
     }
     
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
         // Reset ephemeral observers
         self.ephemeralObservers?.forEach {
-            $0.onPrototypeRestart()
+            $0.onPrototypeRestart(document: document)
         }
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
-        self.getAllInputsObservers().onPrototypeRestart()
-        self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
+        self.getAllInputsObservers().onPrototypeRestart(document: document)
+        self.getAllOutputsObservers().forEach { $0.onPrototypeRestart(document: document) }
         
         // Reset properties specific to the node's actual type (patch vs layer vs component vs group)
-        self.nodeType.onPrototypeRestart()
+        self.nodeType.onPrototypeRestart(document: document)
     }
 }
 
@@ -602,7 +598,12 @@ extension NodeViewModel {
             return
         }
 
-        self.getAllOutputsObservers()[safe: portId]?.updateValuesInOutput(values)
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self.getAllOutputsObservers()[safe: portId]?.updateValuesInOutput(values, graph: graph)
     }
     
     // don't worry about making the input a loop or not --
@@ -610,6 +611,13 @@ extension NodeViewModel {
     @MainActor
     func inputAdded() {
         guard let patchNode = self.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        
+        guard let graph = self.graphDelegate,
+              let document = graph.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
@@ -634,21 +642,27 @@ extension NodeViewModel {
                                                     id: newInputCoordinate,
                                                     upstreamOutputCoordinate: nil)
         
-        let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
-                                                                nodeId: newInputCoordinate.nodeId,
-                                                                portId: allInputsObservers.count),
-                                                      rowDelegate: newInputObserver,
-                                                      canvasItemDelegate: patchNode.canvasObserver)
+        let newRowId = NodeRowViewModelId(graphItemType: .canvas(patchNode.canvasObserver.id),
+                                          nodeId: newInputCoordinate.nodeId,
+                                          portId: allInputsObservers.count)
+        
+        let newInputViewModel = InputNodeRowViewModel(
+            id: newRowId,
+            initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
+            rowDelegate: newInputObserver,
+            canvasItemDelegate: patchNode.canvasObserver)
         
         patchNode.inputsObservers.append(newInputObserver)
         patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
         
         // Assign delegates once view models are assigned to node
-        newInputObserver.initializeDelegate(self)
-        newInputViewModel.initializeDelegate(self,
-                                             // Only relevant for layer nodes, which cannot have an input added or removed
-                                             unpackedPortParentFieldGroupType: nil,
-                                             unpackedPortIndex: nil)
+        newInputObserver.initializeDelegate(self, graph: graph)
+        newInputViewModel.initializeDelegate(
+            self,
+            initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
+            // Only relevant for layer nodes, which cannot have an input added or removed
+            unpackedPortParentFieldGroupType: nil,
+            unpackedPortIndex: nil)
     }
 
     @MainActor

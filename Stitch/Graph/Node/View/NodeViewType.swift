@@ -95,7 +95,7 @@ struct DefaultNodeInputsView: View {
                        nodeIO: .input) { rowViewModel in
             if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
                 
-                let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1
                 
                 HStack(alignment: .center) {
                     NodeRowPortView(graph: graph,
@@ -112,7 +112,7 @@ struct DefaultNodeInputsView: View {
                                          fontColor: STITCH_FONT_GRAY_COLOR,
                                          isSelectedInspectorRow: false)
                         
-                        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel,
@@ -134,35 +134,27 @@ struct DefaultNodeOutputsView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var canvas: CanvasItemViewModel
-    let isNodeSelected: Bool
-    
-    // Most splitters do NOT show their outputs;
-    // however, a group node's output-splitters seen from the same level as the group node (i.e. not inside the group node itself, but where)
+
     @MainActor
     var showOutputFields: Bool {
-        
-        if self.node.kind == .patch(.splitter) {
-            
-            // A regular (= inline) splitter NEVER shows its output
-            let isRegularSplitter = node.patchNodeViewModel?.splitterType == .inline
-            if isRegularSplitter {
-                return false
-            }
-            
-            // If this is a group output splitter, AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
-            // then show the output splitter's fields.
-            let isOutputSplitter = node.patchNodeViewModel?.splitterType == .output
-            if isOutputSplitter {
-                // See `NodeRowObserver.label()` for similar logic for *inputs*
-                let parentGroupNode = node.patchNodeViewModel?.parentGroupNodeId
-                let currentTraversalLevel = document.groupNodeFocused?.groupNodeId
-                return parentGroupNode != currentTraversalLevel
-            }
-            
-            return false
+
+        // Most patches (except for splitters nodes, under certain conditions) have/show outputs.
+        guard let patchNode = node.patchNode,
+              let splitterType = patchNode.splitterType else {
+            return true
         }
         
-        return true
+        // If this is a group output splitter,
+        // AND we are looking at the group node itself (i.e. NOT inside of the group node but "above" it),
+        // then show the output splitter's fields.
+        if splitterType == .output {
+            // See `NodeRowObserver.label()` for similar logic for *inputs*
+            let parentGroupNode = patchNode.parentGroupNodeId
+            let currentTraversalLevel = document.groupNodeFocused?.groupNodeId
+            return parentGroupNode != currentTraversalLevel
+        } else {
+            return false
+        }
     }
     
     var body: some View {
@@ -173,11 +165,11 @@ struct DefaultNodeOutputsView: View {
                        nodeIO: .output) { rowViewModel in
             if let portId = rowViewModel.id.portType.portId,
                let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
-                let isMultiField = (rowViewModel.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+                let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1
                 
                 HStack {
                     if showOutputFields {
-                        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
                                 OutputValueEntry(graph: graph,
                                                  document: document,
@@ -187,7 +179,6 @@ struct DefaultNodeOutputsView: View {
                                                  node: node,
                                                  canvasItem: canvas,
                                                  isMultiField: isMultiField,
-                                                 isCanvasItemSelected: isNodeSelected,
                                                  forPropertySidebar: false,
                                                  propertyIsAlreadyOnGraph: false,
                                                  isFieldInMultifieldInput: isMultiField,
@@ -279,7 +270,7 @@ struct DefaultNodeRowsView<RowViewModel, RowView>: View where RowViewModel: Node
                     self.rowView(rowViewModel)
                     // fixes issue where ports could have inconsistent height with no label
                         .modifier(CanvasPortHeightModifier())
-                        .onChange(of: rowViewModel.fieldValueTypes.first?.type) {
+                        .onChange(of: rowViewModel.cachedFieldValueGroups.first?.type) {
                             // Resets node sizing data when either node or portvalue types change
                             canvas.resetViewSizingCache()
                             

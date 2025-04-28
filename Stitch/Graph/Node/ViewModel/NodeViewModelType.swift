@@ -32,10 +32,7 @@ extension NodeViewModelType {
                                 id: .node(nodeId),
                                 // Initialize as empty since splitter row observers might not have yet been created
                                 inputRowObservers: [],
-                                outputRowObservers: [],
-                                // Irrelevant
-                                unpackedPortParentFieldGroupType: nil,
-                                unpackedPortIndex: nil))
+                                outputRowObservers: []))
         case .component(let component):
             self = .component(.init(nodeId: nodeId,
                                     componentEntity: component,
@@ -78,21 +75,25 @@ extension NodeViewModelType {
     }
     
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
+    func initializeDelegate(_ node: NodeViewModel,
                             components: [UUID: StitchMasterComponent],
                             document: StitchDocumentViewModel) {
+        let graph = document.graph
+        
+        let activeIndex = document.activeIndex
+        
         switch self {
         case .patch(let patchNodeViewModel):
-            guard let patchDelegate = node as? PatchNodeViewModelDelegate else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            patchNodeViewModel.initializeDelegate(patchDelegate)
+            patchNodeViewModel.initializeDelegate(node,
+                                                  graph: graph,
+                                                  activeIndex: activeIndex)
         case .layer(let layerNodeViewModel):
-            layerNodeViewModel.initializeDelegate(node)
+            layerNodeViewModel.initializeDelegate(node,
+                                                  graph: graph,
+                                                  activeIndex: activeIndex)
         case .group(let canvasItemViewModel):
             canvasItemViewModel.initializeDelegate(node,
+                                                   activeIndex: activeIndex,
                                                    // Not relevant
                                                    unpackedPortParentFieldGroupType: nil,
                                                    unpackedPortIndex: nil)
@@ -123,11 +124,13 @@ extension NodeViewModelType {
     
     @MainActor
     func update(from schema: NodeTypeEntity,
-                components: [UUID: StitchMasterComponent]) async {
+                components: [UUID: StitchMasterComponent],
+                activeIndex: ActiveIndex) async {
         switch (self, schema) {
         case (.component(let componentViewModel), .component(let component)):
             await componentViewModel.update(from: component,
-                                            components: components)
+                                            components: components,
+                                            activeIndex: activeIndex)
         default:
             self.update(from: schema)
         }
@@ -146,7 +149,7 @@ extension NodeViewModelType {
         }
     }
     
-    @MainActor func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart(document: StitchDocumentViewModel) {
         switch self {
         case .patch(let patchNode):
             // Flatten interaction nodes' outputs when graph reset
@@ -155,10 +158,10 @@ extension NodeViewModelType {
             }
             
         case .layer(let layerNode):
-            layerNode.onPrototypeRestart()
+            layerNode.onPrototypeRestart(document: document)
             
         case .component(let component):
-            component.graph.onPrototypeRestart()
+            component.graph.onPrototypeRestart(document: document)
             
         case .group:
             return

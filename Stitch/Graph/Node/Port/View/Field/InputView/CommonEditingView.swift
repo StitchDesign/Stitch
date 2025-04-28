@@ -9,9 +9,12 @@ import SwiftUI
 import StitchSchemaKit
 
 extension Color {
+    // Not completely white in light mode, not completely dark in dark mode
+    static let SIDEBAR_AND_INSPECTOR_BACKGROUND_COLOR = Color(.sheetBackground)
+    
     static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.lightModeBlackDarkModeWhite)
     
-    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Color(.lightModeWhiteDarkModeBlack)
+    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Self.SIDEBAR_AND_INSPECTOR_BACKGROUND_COLOR //Color(.lightModeWhiteDarkModeBlack)
     
     static let INSPECTOR_FIELD_BACKGROUND_COLOR = Color(.inspectorFieldBackground)
     
@@ -112,7 +115,7 @@ struct CommonEditingView: View {
     var showEditingView: Bool {
         // Can never focus the field of property row if that propery is already on the graph
         if isForLayerInspector && isPackedLayerInputAlreadyOnCanvas {
-            log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
+            // log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
             return false
         }
         
@@ -312,7 +315,7 @@ struct CommonEditingView: View {
 #if targetEnvironment(macCatalyst)
         .offset(y: -0.5) // slight adjustment required
 #endif
-        .modifier(InputViewBackground(
+        .modifier(InputFieldBackground(
             show: true, // always show background for a focused input
             hasDropdown: self.hasPicker,
             forPropertySidebar: isForLayerInspector,
@@ -375,6 +378,7 @@ struct CommonEditingView: View {
         self.graph.inputEditedFromUI(
             fieldValue: .string(.init(newEdit)),
             fieldIndex: fieldIndex,
+            rowId: rowViewModel.id,
             activeIndex: document.activeIndex,
             rowObserver: rowObserver,
             isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
@@ -383,7 +387,7 @@ struct CommonEditingView: View {
 }
 
 // TODO: per Elliot, this is actually a perf-expensive view?
-struct InputViewBackground: ViewModifier {
+struct InputFieldBackground: ViewModifier {
     
     @Environment(\.appTheme) var theme
     
@@ -431,5 +435,3 @@ struct InputViewBackground: ViewModifier {
             .contentShape(Rectangle())
     }
 }
-
-

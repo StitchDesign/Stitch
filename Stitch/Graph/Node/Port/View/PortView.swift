@@ -25,14 +25,17 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
     let coordinate: NodeIOPortType
+    let nodeIO: NodeIO
 
     @MainActor
     var portColor: Color {
-        rowViewModel.portColor.color(theme)
+        rowViewModel.portUIViewModel.portColor.color(theme)
     }
     
-    var body: some View {        
-        Rectangle().fill(portColor)
+    @State private var portIsBeingDragged = false
+    
+    var body: some View {
+        Rectangle().fill(self.portColor)
         //            Rectangle().fill(portBodyColor)
         //                .overlay {
         //                    if !hasEdge {
@@ -47,52 +50,85 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
             .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
             .background {
                 Rectangle()
-                    .fill(portColor)
+                    .fill(self.portColor)
                     .frame(width: 8)
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
             }
-            .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
-                                             graphState: graph))
+            .overlay(PortEntryExtendedHitBox(graph: self.graph,
+                                             portIsBeingDragged: self.$portIsBeingDragged,
+                                             nodeIO: nodeIO,
+                                             rowId: self.rowViewModel.id))
             .animation(.linear(duration: self.animationTime),
-                       value: portColor)
+                       value: self.portColor)
         
         // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
         
         // Update port color on selected edges change
-        // Note: Should this ALSO update upstream and downstream ports? If not, why not?
             .onChange(of: graph.selectedEdges) {
-                self.rowViewModel.updatePortColor()
+                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { oldValue, newValue in
-                self.rowViewModel.updatePortColor()
+                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { oldValue, newValue in
-                self.rowViewModel.updatePortColor()
+                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
+                                              nodeIO: NodeRowViewModelType.nodeIO))
             }
-        // ^^ should also update port color eligible
     }
-    
-    @MainActor
-    var isDraggingFromThisOutput: Bool {
-        NodeRowViewModelType.nodeIO == .output &&
-        self.rowViewModel.isDragging
-    }
-    
+        
     // Only animate port colors if we're dragging from this output
-    @MainActor
+//    @MainActor
     var animationTime: Double {
-        isDraggingFromThisOutput ? DrawnEdge.animationDuration : .zero
+        self.portIsBeingDragged ? DrawnEdge.animationDuration : .zero
     }
 }
+
+/*
+ Whenever graph's selectedEdges or drawing gesture (or drawing gesture's nearest eligible input) changes,
+ we may need to update the port color on the row view model for this port-entry view.
+
+ When updating that color, we will still need to know whether we have an edge and/or a loop, facts which are provided by the row observer.
+ Previously we were accessing this via row view model's row observer delegate, which in any case caused an additional render cycle.
+ 
+ Note: trying an action because:
+ - we can look up the row observer in state, to avoid a delegate-access which triggers a render-cycle
+ - passing the node row observer to the PortEntryView was giving me complaints about generics
+ */
+struct MaybeUpdatePortColor: GraphEvent {
+    let rowId: NodeRowViewModelId
+    let nodeIO: NodeIO
+    
+    func handle(state: GraphState) {
+        switch nodeIO {
+        case .input:
+            state.getInputRowObserver(rowId.asNodeIOCoordinate)?
+                .updatePortColorAndUpstreamOutputPortColor(selectedEdges: state.selectedEdges,
+                                                           selectedCanvasItems: state.selection.selectedCanvasItems,
+                                                           drawingObserver: state.edgeDrawingObserver)
+        case .output:
+            state.getOutputRowObserver(rowId.asNodeIOCoordinate)?
+                .updatePortColorAndDownstreamInputsPortColors(selectedEdges: state.selectedEdges,
+                                                              selectedCanvasItems: state.selection.selectedCanvasItems,
+                                                              drawingObserver: state.edgeDrawingObserver)
+        }
+    }
+}
+
 
 extension Color {
     static let HITBOX_COLOR = Color.white.opacity(0.001)
 }
 
-struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
-    @Bindable var rowViewModel: RowViewModel
-    @Bindable var graphState: GraphState
-
+struct PortEntryExtendedHitBox: View {
+    @Bindable var graph: GraphState
+    
+    @Binding var portIsBeingDragged: Bool
+    
+    let nodeIO: NodeIO // input vs output
+    let rowId: NodeRowViewModelId // how to retrieve the
+    
     // NOTE: We want to place the gesture detectors on the .overlay'd view.
     var body: some View {
         Color.HITBOX_COLOR
@@ -110,14 +146,24 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
-                            rowViewModel.isDragging = true
-                            rowViewModel.portDragged(gesture: gesture,
-                                                     graphState: graphState)
+                            self.portIsBeingDragged = true
+                            
+                            switch nodeIO {
+                            case .input:
+                                graph.inputDragged(gesture: gesture, rowId: rowId)
+                            case .output:
+                                graph.outputDragged(gesture: gesture, rowId: rowId)
+                            }
                         } // .onChanged
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
-                            rowViewModel.isDragging = false
-                            rowViewModel.portDragEnded(graphState: graphState)
+                            self.portIsBeingDragged = false
+                            switch nodeIO {
+                            case .input:
+                                graph.inputDragEnded()
+                            case .output:
+                                graph.outputDragEnded()
+                            }
                         }
             )
     }

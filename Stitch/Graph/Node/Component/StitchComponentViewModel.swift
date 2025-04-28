@@ -19,14 +19,14 @@ final class StitchComponentViewModel: Sendable {
     let canvas: CanvasItemViewModel
     let graph: GraphState
     
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var componentDelegate: StitchMasterComponent?
     
     @MainActor
     init(nodeId: UUID,
          componentEntity: ComponentEntity,
          graph: GraphState,
-         nodeDelegate: NodeDelegate? = nil,
+         nodeDelegate: NodeViewModel? = nil,
          componentDelegate: StitchMasterComponent? = nil) {
         self.componentId = componentEntity.componentId
         self.graph = graph
@@ -44,24 +44,22 @@ final class StitchComponentViewModel: Sendable {
         self.canvas = .init(from: componentEntity.canvasEntity,
                             id: .node(nodeId),
                             inputRowObservers: inputsObservers,
-                            outputRowObservers: outputsObservers,
-                            unpackedPortParentFieldGroupType: nil,
-                            unpackedPortIndex: nil)
+                            outputRowObservers: outputsObservers)
             
         self.inputsObservers = inputsObservers
         self.outputsObservers = outputsObservers
     }
     
     @MainActor
-    func refreshPorts(schemaInputs: [NodeConnectionType]? = nil) {
+    func refreshPorts(schemaInputs: [NodeConnectionType]? = nil,
+                      activeIndex: ActiveIndex) {
         let schemaInputs = schemaInputs ?? self.createSchema().inputs
         
         self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
         self.outputsObservers = self.refreshOutputs()
         self.canvas.syncRowViewModels(inputRowObservers: inputsObservers,
                                       outputRowObservers: outputsObservers,
-                                      unpackedPortParentFieldGroupType: nil,
-                                      unpackedPortIndex: nil)
+                                      activeIndex: activeIndex)
     }
     
     @MainActor
@@ -130,7 +128,7 @@ final class StitchComponentViewModel: Sendable {
         let splitterOutputs = Self.getOutputSplitters(graph: graph)
         let outputsObservers = splitterOutputs.enumerated().map { index, splitterOutput in
             if let existingOutput = existingOutputsObservers[safe: index] {
-                existingOutput.updateValuesInOutput(splitterOutput.values)
+                existingOutput.updateValuesInOutput(splitterOutput.values, graph: graph)
                 return existingOutput
             }
             
@@ -171,7 +169,7 @@ extension StitchComponentViewModel {
     }
     
     @MainActor
-    func initializeDelegate(node: NodeDelegate,
+    func initializeDelegate(node: NodeViewModel,
                             components: [UUID: StitchMasterComponent],
                             document: StitchDocumentViewModel) {
         self.nodeDelegate = node
@@ -183,17 +181,18 @@ extension StitchComponentViewModel {
         
         self.componentDelegate = masterComponent
         self.canvas.initializeDelegate(node,
+                                       activeIndex: document.activeIndex,
                                        unpackedPortParentFieldGroupType: nil,
                                        unpackedPortIndex: nil)
         self.graph.initializeDelegate(document: document,
                                       documentEncoderDelegate: masterComponent.encoder)
         
         // Updates inputs and outputs
-        self.inputsObservers.forEach { $0.initializeDelegate(node) }
-        self.outputsObservers.forEach { $0.initializeDelegate(node) }
+        self.inputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
+        self.outputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
         
         // Refresh port data
-        self.refreshPorts()
+        self.refreshPorts(activeIndex: document.activeIndex)
     }
     
     @MainActor func createSchema() -> ComponentEntity {
@@ -206,7 +205,8 @@ extension StitchComponentViewModel {
     }
     
     @MainActor func update(from schema: ComponentEntity,
-                           components: [UUID : StitchMasterComponent]) {
+                           components: [UUID : StitchMasterComponent],
+                           activeIndex: ActiveIndex) {
         self.componentId = schema.componentId
         
         guard let masterComponent = components.get(self.componentId) else {
@@ -218,18 +218,19 @@ extension StitchComponentViewModel {
         
         // Refresh after graph update
         self.canvas.update(from: schema.canvasEntity)
-        self.refreshPorts(schemaInputs: schema.inputs)
+        self.refreshPorts(schemaInputs: schema.inputs,
+                          activeIndex: activeIndex)
     }
     
-    @MainActor func syncPorts(schemaInputs: [NodeConnectionType]? = nil) {
+    @MainActor func syncPorts(schemaInputs: [NodeConnectionType]? = nil,
+                              activeIndex: ActiveIndex) {
         let schemaInputs = schemaInputs ?? self.createSchema().inputs
         
         self.inputsObservers = self.refreshInputs(schemaInputs: schemaInputs)
         self.outputsObservers = self.refreshOutputs()
         self.canvas.syncRowViewModels(inputRowObservers: self.inputsObservers,
                                       outputRowObservers: self.outputsObservers,
-                                      unpackedPortParentFieldGroupType: nil,
-                                      unpackedPortIndex: nil)
+                                      activeIndex: activeIndex)
     }
     
     @MainActor
@@ -265,7 +266,7 @@ extension StitchComponentViewModel {
             splitter.updateValuesInInput(input.allLoopedValues)
         }
         
-        self.graph.calculate(from: self.graph.allNodesToCalculate)
+        self.graph.runGraphAndUpdateUI(from: self.graph.allNodesToCalculate)
         
         return self.evaluateOutputSplitters()
     }
@@ -278,7 +279,7 @@ extension StitchComponentViewModel {
         
         // Update outputs here after graph calculation
         zip(splitterOutputs, self.outputsObservers).forEach { splitter, output in
-            output.updateValuesInOutput(splitter.allLoopedValues)
+            output.updateValuesInOutput(splitter.allLoopedValues, graph: self.graph)
         }
         
         return .init(outputsValues: self.outputsObservers.map(\.allLoopedValues))
@@ -335,6 +336,6 @@ extension GraphState {
         let downstreamNodes = changedDownstreamInputs.map(\.nodeId).toSet
         
         // Calculate connections from component outputs
-        parentGraph.calculate(from: downstreamNodes)
+        parentGraph.runGraphAndUpdateUI(from: downstreamNodes)
     }
 }

@@ -17,7 +17,7 @@ struct ImpureEvalOpResult {
     var willRunAgain: Bool = false
 }
 
-extension ImpureEvalOpResult: NodeEvalOpResult {
+extension ImpureEvalOpResult: NodeEvalOpResultable {
     init(from values: PortValues) {
         self.outputs = values
     }

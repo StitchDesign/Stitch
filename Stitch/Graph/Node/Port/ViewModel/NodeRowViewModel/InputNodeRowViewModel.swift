@@ -8,74 +8,56 @@
 import Foundation
 
 
-// UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
-    typealias PortViewType = InputPortViewData
-    
+        
     static let nodeIO: NodeIO = .input
     
     let id: NodeRowViewModelId
-    @MainActor var viewCache: NodeLayoutCache?
-    @MainActor var activeValue: PortValue = .number(.zero)
-    @MainActor var fieldValueTypes = FieldGroupTypeDataList()
-    @MainActor var connectedCanvasItems: Set<CanvasItemId> = .init()
-    @MainActor var anchorPoint: CGPoint?
-    @MainActor var portColor: PortColor = .noEdge
-    @MainActor var isDragging = false
-    @MainActor var portViewData: PortViewType?
-    @MainActor weak var nodeDelegate: NodeDelegate?
+        
+    // Cached ui-data derived from underlying row observer
+    @MainActor var fieldsUIViewModel: RowFieldsUIViewModel
+    
+    // Data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
+    @MainActor var portUIViewModel: InputPortUIViewModel
+    
+    // Delegates, weak references to parents
+    @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: InputNodeRowObserver?
     
     // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
     @MainActor weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
-    // TODO: temporary property for old-style layer nodes
-    @MainActor var layerPortId: Int?
-    
     @MainActor
     init(id: NodeRowViewModelId,
+         initialValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
+        self.portUIViewModel = .init(id: InputCoordinate(portId: id.portId,
+                                                  nodeId: id.nodeId))
         self.id = id
+        self.fieldsUIViewModel = .init(id: id,
+                                       cachedActiveValue: initialValue,
+                                       // TODO: just make fieldValueGroups here?
+                                       cachedFieldValueGroups: .init())
+        
+        // This is referencing the object itself, already ?
         self.nodeDelegate = nodeDelegate
+        
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
     }
 }
 
-extension InputNodeRowViewModel {
+extension InputNodeRowObserver {
     @MainActor
     func findConnectedCanvasItems() -> CanvasItemIdSet {
-        guard let upstreamOutputObserver = self.rowDelegate?.upstreamOutputObserver,
-              let upstreamNodeRowViewModel = upstreamOutputObserver.nodeRowViewModel,
-              let upstreamId = upstreamNodeRowViewModel.canvasItemDelegate?.id else {
+        // Does this input row observer has an upstream connection (i.e. output observer)?
+        // If so, return that observer's canvas item id
+        if let upstreamId = self.upstreamOutputObserver?.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate?.id {
+            return .init([upstreamId])
+        } else {
             return .init()
         }
-        
-        return Set([upstreamId])
-    }
-    
-    @MainActor
-    func calculatePortColor() -> PortColor {
-        let isEdgeSelected = self.hasSelectedEdge()
-        
-        // Note: inputs always ignore actively-drawn or animated (edge-edit-mode) edges etc.
-        let isSelected = self.isCanvasItemSelected ||
-            self.isConnectedToASelectedCanvasItem ||
-            isEdgeSelected
-        return .init(isSelected: isSelected,
-                     hasEdge: hasEdge,
-                     hasLoop: hasLoop)
-    }
-    
-    @MainActor
-    func hasSelectedEdge() -> Bool {
-        guard let portViewData = portViewData,
-              let graphDelegate = graphDelegate else {
-            return false
-        }
-        
-        return graphDelegate.selectedEdges.contains { $0.to == portViewData }
     }
 }

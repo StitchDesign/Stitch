@@ -11,57 +11,6 @@ import RealityKit
 import StitchSchemaKit
 import StitchEngine
 
-extension PinToId {
-    static let defaultPinToId = Self.root
-
-    var display: String {
-        switch self {
-        case .root:
-            return LayerDropdownChoice.RootLayerDropDownChoice.name
-        case .parent:
-            return LayerDropdownChoice.ParentLayerDropDownChoice.name
-        case .layer(let x):
-            return x.id.description
-        }
-    }
-    
-    static func fromString(_ s: String) -> Self? {
-        if let id = UUID(uuidString: s) {
-            return .layer(.init(id))
-        } else if s.lowercased() == LayerDropdownChoice.RootLayerDropDownChoice.name.lowercased() {
-            return .root
-        } else if s.lowercased() == LayerDropdownChoice.ParentLayerDropDownChoice.name.lowercased() {
-            return .parent
-        } else {
-            return nil
-        }
-        
-    }
-}
-
-struct PinReceiverSizeData: Equatable, Hashable, Codable {
-    // for anchoring
-    var size: CGSize
-    var origin: CGPoint // always 0,0 for
-}
-
-/// the data for "View B", which receives the pinned View A
-struct PinReceiverData: Equatable {
-
-    // for anchoring
-    var size: CGSize
-    var origin: CGPoint // always 0,0 for
-
-    // for rotation
-    // Note: not applicable for PinTo.root, since PreviewWindow cannot be rotated
-    var center: CGPoint
-
-    // Note: for PinTo.root, will always be 0
-    var rotationX: CGFloat
-    var rotationY: CGFloat
-    var rotationZ: CGFloat
-}
-
 @Observable
 final class LayerViewModel: Sendable {
     private let mediaImportCoordinator = MediaLayerImportCoordinator()
@@ -70,7 +19,7 @@ final class LayerViewModel: Sendable {
     let layer: Layer
     let interactiveLayer: InteractiveLayer
     
-    @MainActor weak var nodeDelegate: NodeDelegate?
+    @MainActor weak var nodeDelegate: NodeViewModel?
     
     // PINNING: "View A is pinned to View B"
 
@@ -301,7 +250,7 @@ final class LayerViewModel: Sendable {
          layer: Layer,
          zIndex: PortValue = defaultNumber,
          position: PortValue = .position(.zero),
-         nodeDelegate: NodeDelegate?) {
+         nodeDelegate: NodeViewModel?) {
         
         self.id = id
         self.layer = layer
@@ -447,7 +396,7 @@ final class LayerViewModel: Sendable {
     convenience init(layerId: LayerNodeId,
                      loopIndex: Int,
                      layer: Layer,
-                     nodeDelegate: NodeDelegate?) {
+                     nodeDelegate: NodeViewModel?) {
         let id = PreviewCoordinate(layerNodeId: layerId, loopIndex: loopIndex)
         self.init(id: id,
                   layer: layer,
@@ -467,14 +416,17 @@ extension LayerViewModel {
             .getNodeViewModel(self.id.layerNodeId.asNodeId)?.layerNode else {
             return nil
         }
-        
+                
         switch layerNode.layer {
         case .image:
-            return layerNode.imagePort._packedData.rowObserver
+            assertInDebug(layerNode.imagePort.mode == .packed)
+            return layerNode.imagePort.packedRowObserverOnlyIfPacked
         case .video:
-            return layerNode.videoPort._packedData.rowObserver
+            assertInDebug(layerNode.videoPort.mode == .packed)
+            return layerNode.videoPort.packedRowObserverOnlyIfPacked
         case .model3D:
-            return layerNode.model3DPort._packedData.rowObserver
+            assertInDebug(layerNode.model3DPort.mode == .packed)
+            return layerNode.model3DPort.packedRowObserverOnlyIfPacked
         default:
             fatalErrorIfDebug()
             return nil
@@ -523,9 +475,9 @@ extension LayerViewModel {
     }
     
     @MainActor
-    func onPrototypeRestart() {
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
         // Rest interaction state values
-        self.interactiveLayer.onPrototypeRestart()
+        self.interactiveLayer.onPrototypeRestart(document: document)
         
         if let model3D = self.mediaObject?.model3DEntity,
            let transform = model3D.transform {
@@ -561,7 +513,8 @@ extension LayerViewModel {
     
     @MainActor
     func updatePreviewLayer(from lengthenedValuesList: PortValuesList,
-                            changedPortId: Int) {
+                            changedPortId: Int,
+                            graph: GraphSetter) {
         guard let inputType = self.layer.layerGraphNode
             .inputDefinitions[safe: changedPortId] else {
             fatalErrorIfDebug()
@@ -570,31 +523,29 @@ extension LayerViewModel {
         
         self.updatePreviewLayer(lengthenedValuesList: lengthenedValuesList,
                                 portId: changedPortId,
-                                inputType: inputType)
+                                inputType: inputType,
+                                graph: graph)
     }
     
     /// Update preview layer from layer node.
     @MainActor
     private func updatePreviewLayer(lengthenedValuesList: PortValuesList,
                                     portId: Int,
-                                    inputType: LayerInputPort) {
+                                    inputType: LayerInputPort,
+                                    graph: GraphSetter) {
         let loopIndex = self.id.loopIndex
         let inputSupportsLoopedValues = inputType.supportsLoopedTypes
         
         if !inputSupportsLoopedValues {
             // Lengthen array for this loop to ensure there's a looped value
             guard let lengthenedValues = lengthenedValuesList[safe: portId] else {
-#if DEV_DEBUG
-                //                log("LayerViewModel.createSortedInputs: unable to lengthen values for: \(valuesList)")
-                //                    log("LayerViewModel.createSortedInputs: layer with id: \(layer) \(self.id.layerNodeId)")
-#endif
+                // log("LayerViewModel.createSortedInputs: unable to lengthen values for: \(valuesList)")
+                // log("LayerViewModel.createSortedInputs: layer with id: \(layer) \(self.id.layerNodeId)")
                 return
             }
             
             guard let value = lengthenedValues[safe: loopIndex] else {
-#if DEV_DEBUG
-                log("LayerViewModel.createSortedInputs: unable to get looped value for lengthened values: \(lengthenedValues)\t loop index: \(loopIndex)")
-#endif
+                // log("LayerViewModel.createSortedInputs: unable to get looped value for lengthened values: \(lengthenedValues)\t loop index: \(loopIndex)")
                 return
             }
             
@@ -604,46 +555,32 @@ extension LayerViewModel {
             if oldValue != value {
                 self.updatePreviewLayerInput(value, inputType: inputType)
                 
-                if inputType.shouldResetGraphPreviews {
-                    self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
+                if inputType.shouldResortPreviewLayersIfChanged {
+                    var graph = graph
+                    graph.shouldResortPreviewLayers = true
                 }
             }
-        }
-        
-        // Multi-value key paths (all anchors in reality node)
-        else {
-            // MARK: no longer used
-            fatalErrorIfDebug()
-//            // No looping index used for multi-value key path
-//            if let values = lengthenedValuesList[safe: portId] {
-//                let oldValues = self.getValues(for: inputType)
-//                
-//                // Saves render cycles
-//                if oldValues != values {
-//                    self.updatePreviewLayerInput(values, inputType: inputType)
-//                    
-//                    if inputType.shouldResetGraphPreviews {
-//                        self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
-//                    }
-//                }
-//            }
         }
     }
     
     @MainActor
-    func updateAllValues(with lengthenedValuesList: PortValuesList) {
+    func updateAllValues(with lengthenedValuesList: PortValuesList,
+                         graph: GraphSetter) {
         let portIds = lengthenedValuesList.indices
         portIds.forEach {
             let portId = $0
             self.update(with: lengthenedValuesList,
-                        changedPortId: portId)
+                        changedPortId: portId,
+                        graph: graph)
         }
     }
 
     @MainActor
     func update(with lengthenedValuesList: PortValuesList,
-                changedPortId: Int) {
+                changedPortId: Int,
+                graph: GraphSetter) {
         self.updatePreviewLayer(from: lengthenedValuesList,
-                                changedPortId: changedPortId)
+                                changedPortId: changedPortId,
+                                graph: graph)
     }
 }

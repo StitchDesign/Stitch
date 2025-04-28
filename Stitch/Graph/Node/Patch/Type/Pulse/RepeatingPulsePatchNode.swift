@@ -61,5 +61,4 @@ func repeatingPulseEval(node: PatchNode,
             return ImpureEvalOpResult(outputs: [.pulse(pulseAt)])
         }
     }
-    .toImpureEvalResult()    
 }
