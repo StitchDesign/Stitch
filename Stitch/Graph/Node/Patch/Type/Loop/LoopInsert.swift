@@ -212,13 +212,19 @@ func loopModificationNodeEval(node: PatchNode,
                 }
                 
             case .loopRemove:
-                if loop.count > indexToModify {
-                    loop.remove(at: indexToModify)
+                // Loop count can't go below 1
+                if loop.count == 1 {
+                    loop = [node.userVisibleType?.defaultPortValue ?? LoopRemoveNode._defaultUserVisibleType.defaultPortValue]
+                } else {
+                    if loop.count > indexToModify {
+                        loop.remove(at: indexToModify)
+                    }
+                    
+                    if (existingMediaList?.count ?? -1) > indexToModify {
+                        existingMediaList?.remove(at: indexToModify)
+                    }
                 }
                 
-                if (existingMediaList?.count ?? -1) > indexToModify {
-                    existingMediaList?.remove(at: indexToModify)
-                }
                 
             default:
                 fatalErrorIfDebug()
