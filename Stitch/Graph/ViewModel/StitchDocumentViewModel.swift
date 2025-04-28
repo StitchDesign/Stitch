@@ -283,20 +283,6 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
             .compactMap { $0.upstreamOutputCoordinate }
         
         // Tracks manual edits
-        let manualEdits: [PortValue] = allInputsObservers
-            .compactMap {
-                guard $0.upstreamOutputCoordinate == nil else {
-                    return nil
-                }
-                
-                let value = $0.getActiveValue(activeIndex: self.activeIndex)
-                if value.getPulse.isDefined {
-                    // Default to zero as we don't want pulse changes to trigger graph updates
-                    return .pulse(.zero)
-                }
-                
-                return value
-            }
         
         // Track group node ID, which fixes edges when traversing
         let groupNodeIdFocused = self.groupNodeFocused
@@ -310,7 +296,6 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)
         hasher.combine(upstreamConnections)
-        hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
         hasher.combine(aiActions)
         hasher.combine(splitterLabels)
