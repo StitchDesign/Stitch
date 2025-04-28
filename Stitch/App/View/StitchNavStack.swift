@@ -59,6 +59,8 @@ struct StitchNavStack: View {
             
         } // NavigationStack
         
+//        .ignoresSafeArea()
+        
         // Does this event fire when Toolbar freaks out?
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name(rawValue: "renewToolbar")),
                    perform: { notification in

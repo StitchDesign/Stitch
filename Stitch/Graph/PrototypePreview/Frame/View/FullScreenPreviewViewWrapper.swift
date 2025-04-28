@@ -18,7 +18,7 @@ let cancelString = "Cancel"
 struct FullScreenPreviewViewWrapper: View {
     @Bindable var document: StitchDocumentViewModel
     @State private var showDeleteAlert: Bool = false
-
+    
     let previewWindowSizing: PreviewWindowSizing
     
     let showFullScreenPreviewSheet: Bool
@@ -67,12 +67,15 @@ struct FullScreenPreviewViewWrapper: View {
         }
 
         FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
-//            HStack {
-//                previewView
-//                RecordingView()
-//                
-//            }
-             previewView
+            HStack {
+                previewView
+                RecordingView()
+                if let store = document.storeDelegate {
+                    RecordingView(recorder: store.recorder)
+                }
+                
+            }
+//             previewView
         }
         .matchedGeometryEffect(id: document.id, in: routerNamespace)
         .matchedGeometryEffect(id: document.id, in: graphNamespace)
