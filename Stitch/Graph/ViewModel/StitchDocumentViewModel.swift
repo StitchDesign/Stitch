@@ -286,7 +286,13 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
                     return nil
                 }
                 
-                return $0.getActiveValue(activeIndex: self.activeIndex)
+                let value = $0.getActiveValue(activeIndex: self.activeIndex)
+                if let pulse = value.getPulse {
+                    // Default to zero as we don't want pulse changes to trigger graph updates
+                    return .pulse(.zero)
+                }
+                
+                return value
             }
         
         // Track group node ID, which fixes edges when traversing
