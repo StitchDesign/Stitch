@@ -57,6 +57,10 @@ struct StitchRootView: View {
      }
     
     var body: some View {
+        RecordingView()
+    }
+    
+    var _body: some View {
         ZStack {
             if Stitch.isPhoneDevice {
                 iPhoneBody
@@ -214,52 +218,117 @@ struct StitchRootView: View {
 import Foundation
 import ReplayKit
 
-@Observable
-final class ReplayKitRecorder: NSObject {
+//@Observable
+//final class ReplayKitRecorder: NSObject, RPPreviewViewControllerDelegate {
+//    private let recorder = RPScreenRecorder.shared()
+//    
+//    var isRecording = false
+//    
+//    func startRecording() {
+//        guard !recorder.isRecording else {
+//            return
+//        }
+//        
+//        recorder.startRecording { [weak self] error in
+//            DispatchQueue.main.async { [weak self] in
+//                if let error = error {
+//                    print("Failed to start recording: \(error.localizedDescription)")
+//                } else {
+//                    print("Started recording")
+//                    self?.isRecording = true
+//                }
+//            }
+//        }
+//    }
+//    
+//    func stopRecording() {
+//        guard recorder.isRecording else { return }
+//        
+//        recorder.stopRecording { [weak self] previewVC, error in
+//            DispatchQueue.main.async {
+//                if let error = error {
+//                    print("Failed to stop recording: \(error.localizedDescription)")
+//                } else {
+//                    print("Stopped recording")
+//                    self?.isRecording = false
+//                    
+//                    // Show the preview if available
+//                    if let previewVC = previewVC {
+//                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                           let rootVC = windowScene.windows.first?.rootViewController {
+//                            previewVC.modalPresentationStyle = .fullScreen
+//                            rootVC.present(previewVC, animated: true, completion: nil)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
+import Foundation
+import ReplayKit
+import UIKit
+
+@MainActor
+class ReplayKitRecorder: NSObject, ObservableObject {
     private let recorder = RPScreenRecorder.shared()
     
-    var isRecording = false
+    @Published var isRecording = false
     
-    @MainActor
     func startRecording() {
-        guard !recorder.isRecording else {
-            return
-        }
+        guard !recorder.isRecording else { return }
         
         recorder.startRecording { [weak self] error in
-            DispatchQueue.main.async { [weak self] in
+            if let error = error {
+                print("Error starting recording: \(error.localizedDescription)")
+            } else {
+                print("Started recording.")
+                self?.isRecording = true
+            }
+        }
+    }
+    
+    func stopRecording() {
+        guard recorder.isRecording else { return }
+        
+        recorder.stopRecording { [weak self] (previewVC, error) in
+            Task { @MainActor in
                 if let error = error {
-                    print("Failed to start recording: \(error.localizedDescription)")
+                    print("Error stopping recording: \(error.localizedDescription)")
+                    self?.isRecording = false
+                } else if let previewVC = previewVC {
+                    print("Stopped recording, showing preview.")
+                    self?.isRecording = false
+                    self?.presentPreview(previewVC)
                 } else {
-                    print("Started recording")
-                    self?.isRecording = true
+                    print("Stopped recording, no preview available.")
+                    self?.isRecording = false
                 }
             }
         }
     }
     
-    @MainActor
-    func stopRecording() {
-        guard recorder.isRecording else { return }
+    private func presentPreview(_ previewVC: RPPreviewViewController) {
+        previewVC.previewControllerDelegate = self
         
-        recorder.stopRecording { [weak self] previewVC, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("Failed to stop recording: \(error.localizedDescription)")
-                } else {
-                    print("Stopped recording")
-                    self?.isRecording = false
-                    
-                    // Show the preview if available
-                    if let previewVC = previewVC {
-                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                           let rootVC = windowScene.windows.first?.rootViewController {
-                            previewVC.modalPresentationStyle = .fullScreen
-                            rootVC.present(previewVC, animated: true, completion: nil)
-                        }
-                    }
-                }
-            }
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = scene.windows.first,
+           let rootVC = window.rootViewController {
+            
+            // 🛠 Fix: force a form sheet presentation on iPad to avoid crash
+            previewVC.modalPresentationStyle = .formSheet
+            
+            rootVC.present(previewVC, animated: true, completion: nil)
+        }
+    }
+}
+
+// MARK: - RPPreviewViewControllerDelegate
+extension ReplayKitRecorder: RPPreviewViewControllerDelegate {
+    nonisolated func previewControllerDidFinish(_ previewController: RPPreviewViewController) {
+        Task { @MainActor in
+            previewController.dismiss(animated: true, completion: nil)
         }
     }
 }
@@ -269,7 +338,7 @@ struct RecordingView: View {
     
     var body: some View {
         HStack {
-//            previews
+            previews
             buttonStack
         }
     }
@@ -294,6 +363,7 @@ struct RecordingView: View {
         }
     }
     
+    @MainActor
     var buttonStack: some View {
         VStack(spacing: 8) {
             Text(recorder.isRecording ? "Recording..." : "Not Recording")
