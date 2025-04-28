@@ -174,16 +174,7 @@ func getLayerDataFromLayerType(_ layerType: LayerType,
         
         // we call `getLayerDataFromLayerType` recursively, and
     case .nongroup(let data, let isPinned): // LayerData
-        
-        guard let layerNode = layerNodes.get(data.id.layerNodeId.id),
-              let previewLayer: LayerViewModel = layerNode
-                // these layer view models are ALREADY CREATED on the layer node
-            .previewLayerViewModels[safe: data.id.loopIndex] else {
-            return nil
-        }
-        
-        return .nongroup(layerNode: layerNode,
-                         layerViewModel: previewLayer,
+        return .nongroup(id: data.id,
                          isPinned: isPinned)
         
     case .group(let layerGroupData, let isPinned): // LayerGroupData
@@ -208,8 +199,7 @@ func getLayerDataFromLayerType(_ layerType: LayerType,
             isInGroupOrientation: isInGroupOrientation,
             activeIndex: activeIndex)
         
-        return .group(layerNode: layerNode,
-                      layerViewModel: previewLayer,
+        return .group(id: layerGroupData.id,
                       children: childrenData,
                       isPinned: isPinned)
     }
