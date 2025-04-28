@@ -119,9 +119,19 @@ struct StitchRootView: View {
         if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
             windowScene.titlebar?.titleVisibility = .hidden
             windowScene.titlebar?.toolbarStyle = .unified
-            windowScene.sizeRestrictions?.minimumSize = .init(
-                width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
-                height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
+            
+//            if let windowScene = scene as? UIWindowScene {
+//                if let window = windowScene.windows.first {
+            
+            // THIS WORKED!!
+//            windowScene.windows.first?.rootViewController?.view.bounds.size = CGSize(width: 800, height: 600)
+            windowScene.windows.first?.rootViewController?.view.bounds.size = CGSize(width: 800, height: 600)
+//                }
+//            }
+            
+//            windowScene.sizeRestrictions?.minimumSize = .init(
+//                width: .STITCH_APP_WINDOW_MINIMUM_WIDTH,
+//                height: .STITCH_APP_WINDOW_MINIMUM_HEIGHT)
         } else {
             fatalErrorIfDebug("StitchRootView: unable to retrieve UIWindowScene")
         }
@@ -154,7 +164,7 @@ struct StitchRootView: View {
                 // Projects Home View <-> some Loaded Project;
                 // gives us proper back button etc.
                 StitchNavStack(store: store)
-                    .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
+                    // .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
             })
         
         
@@ -198,5 +208,113 @@ struct StitchRootView: View {
     @ViewBuilder
     var topLevelSidebar: some View {
         StitchSidebarView(syncStatus: fileManager.syncStatus)
+    }
+}
+
+import Foundation
+import ReplayKit
+
+@Observable
+final class ReplayKitRecorder: NSObject {
+    private let recorder = RPScreenRecorder.shared()
+    
+    var isRecording = false
+    
+    @MainActor
+    func startRecording() {
+        guard !recorder.isRecording else {
+            return
+        }
+        
+        recorder.startRecording { [weak self] error in
+            DispatchQueue.main.async { [weak self] in
+                if let error = error {
+                    print("Failed to start recording: \(error.localizedDescription)")
+                } else {
+                    print("Started recording")
+                    self?.isRecording = true
+                }
+            }
+        }
+    }
+    
+    @MainActor
+    func stopRecording() {
+        guard recorder.isRecording else { return }
+        
+        recorder.stopRecording { [weak self] previewVC, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Failed to stop recording: \(error.localizedDescription)")
+                } else {
+                    print("Stopped recording")
+                    self?.isRecording = false
+                    
+                    // Show the preview if available
+                    if let previewVC = previewVC {
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                           let rootVC = windowScene.windows.first?.rootViewController {
+                            previewVC.modalPresentationStyle = .fullScreen
+                            rootVC.present(previewVC, animated: true, completion: nil)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct RecordingView: View {
+    @State var recorder = ReplayKitRecorder()
+    
+    var body: some View {
+        HStack {
+//            previews
+            buttonStack
+        }
+    }
+    
+    @State var extraHeight: CGFloat = .zero
+    
+    var previews: some View {
+        HStack {
+            ZStack {
+                Rectangle().fill(.gray.opacity(0.5))
+                    .frame(width: 150, height: 100 + self.extraHeight)
+                Ellipse().fill(.cyan.opacity(0.5))
+                    .frame(width: 100, height: 150 + self.extraHeight)
+                
+            }
+            Button(action: {
+                self.extraHeight += 10
+            }) {
+                Text("Grow!")
+            }
+            
+        }
+    }
+    
+    var buttonStack: some View {
+        VStack(spacing: 8) {
+            Text(recorder.isRecording ? "Recording..." : "Not Recording")
+                .font(.title)
+                .padding()
+            
+            Button(action: {
+                if recorder.isRecording {
+                    recorder.stopRecording()
+                } else {
+                    recorder.startRecording()
+                }
+            }) {
+                Text(recorder.isRecording ? "Stop Recording" : "Start Recording")
+                    .frame(width: 200, height: 50)
+                    .background(recorder.isRecording ? Color.red : Color.green)
+                    .cornerRadius(10)
+            }
+        }
+//        .frame(width: 400, height: 300)
+//        .frame(width: 400, height: 300)
+        .padding()
     }
 }
