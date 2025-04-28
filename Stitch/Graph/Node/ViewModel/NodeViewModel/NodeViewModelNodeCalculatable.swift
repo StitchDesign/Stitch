@@ -109,6 +109,43 @@ extension NodeViewModel: NodeCalculatable {
                     }
                 }
                 
+            case  .loopInsert:
+                // Only special logic needed here is to save the media object for the desired item to insert
+                guard inputCoordinate.portId == 1 else {
+                    guard let computedStates = self.ephemeralObservers as? [LoopingEphemeralObserver] else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    
+                    let didMediaChange = mediaList != computedStates.map(\.inputMedia)
+                    
+                    // Normal media list for 0th index
+                    if inputCoordinate.portId == 0 &&
+                        didMediaChange {
+                        self.zipInputMedia(mediaList: mediaList,
+                                           observerType: LoopingEphemeralObserver.self) { mediaObserver, mediaObject in
+                            mediaObserver.inputMedia = mediaObject
+                        }
+                    }
+                    
+                    return
+                }
+                
+                guard let observers = self.ephemeralObservers as? [LoopingEphemeralObserver] else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                // Arbitrarily use the first observer for saving media
+                let observer = observers.first
+                observer?.mediaListToBeInserted = mediaList
+                
+            case .loopRemove:
+                self.zipInputMedia(mediaList: mediaList,
+                                   observerType: LoopingEphemeralObserver.self) { mediaObserver, mediaObject in
+                    mediaObserver.inputMedia = mediaObject
+                }
+                
             case .coreMLClassify:
                 self.zipInputMedia(mediaList: mediaList,
                                    observerType: ImageClassifierOpObserver.self) { mediaObserver, mediaObject in
