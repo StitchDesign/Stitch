@@ -118,7 +118,7 @@ func loopModificationNodeEval(node: PatchNode,
     //to match origimai
     
     let inputsValues: PortValuesList = node.inputs
-    var existingMediaList = computedStates.map(\.inputMedia)
+    var existingMediaList: [GraphMediaValue?]? = node.userVisibleType == .media ? computedStates.map(\.inputMedia) : nil
     let newMediaListToInsert = computedState.mediaListToBeInserted
     var outputsValues: PortValuesList = node.outputs
     
@@ -193,20 +193,32 @@ func loopModificationNodeEval(node: PatchNode,
                     loop.append(value)
                     
                     // Add media and a new ephemeral observer
-                    existingMediaList.append(media)
+                    if existingMediaList != nil {
+                        existingMediaList?.append(media)
+                    }
 
                 } else {
                     // replaces the value?
                     //                log("loopInsertEval: will add value: \(value) at \(indexToInsertAt)")
-                    loop.insert(value, at: indexToModify)
+                    
+                    if loop.count > indexToModify {
+                        loop.insert(value, at: indexToModify)
+                    }
                     
                     // Add media and a new ephemeral observer
-                    existingMediaList.insert(media, at: index)
+                    if (existingMediaList?.count ?? -1) > indexToModify {
+                        existingMediaList?.insert(media, at: index)
+                    }
                 }
                 
             case .loopRemove:
-                loop.remove(at: indexToModify)
-                existingMediaList.remove(at: indexToModify)
+                if loop.count > indexToModify {
+                    loop.remove(at: indexToModify)
+                }
+                
+                if (existingMediaList?.count ?? -1) > indexToModify {
+                    existingMediaList?.remove(at: indexToModify)
+                }
                 
             default:
                 fatalErrorIfDebug()
