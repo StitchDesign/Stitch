@@ -67,7 +67,12 @@ struct FullScreenPreviewViewWrapper: View {
         }
 
         FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
-            previewView
+            HStack {
+                previewView
+                RecordingView()
+                
+            }
+            // previewView
         }
         .matchedGeometryEffect(id: document.id, in: routerNamespace)
         .matchedGeometryEffect(id: document.id, in: graphNamespace)
