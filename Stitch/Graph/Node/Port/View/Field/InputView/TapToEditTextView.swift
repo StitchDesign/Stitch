@@ -63,6 +63,14 @@ struct TapToEditTextView: View {
     @Binding var isCurrentlyFocused: Bool
     
     
+    var hasChoices: Bool {
+        choices.isDefined
+    }
+    
+    var isForCanvas: Bool {
+        rowId.graphItemType.isCanvas
+    }
+    
     var rowId: NodeRowViewModelId {
         inputField.id.rowId
     }
@@ -85,11 +93,8 @@ struct TapToEditTextView: View {
 #endif
     
     @State private var isBase64 = false
-    
-//    // Only relevant for fields on canvas
-//    @State var isHovering: Bool = false
-    
-    // Only relevant for LahyerDimension fields, for `auto`, `fill`
+        
+    // Only relevant for LayerDimension fields, for `auto`, `fill`
     @State var pickerChoice: String = ""
     
     var body: some View {
@@ -154,8 +159,9 @@ struct TapToEditTextView: View {
         
         .modifier(InputFieldFrameAndPadding(
             width: fieldWidth,
-            hasDropdown: choices.isDefined
-        ))
+            hasChoices: hasChoices,
+            isForCanvas: isForCanvas,
+            isForFlyout: isForFlyout))
         
         .modifier(InputFieldBackgroundColorView(
             isHovering: self.isHovering,
@@ -178,6 +184,7 @@ struct TapToEditTextView: View {
 // MARK: READ-ONLY VIEW
 
 extension TapToEditTextView {
+        
     @MainActor
     var readOnlyTextView: some View {
         // If can tap to edit, and this is a number field,
@@ -189,7 +196,9 @@ extension TapToEditTextView {
             isFocused: false,
             isHovering: isHovering,
             isForLayerInspector: isForLayerInspector,
-            choices: choices,
+            hasChoices: hasChoices,
+            isForCanvas: isForCanvas,
+            isForFlyout: isForFlyout,
             fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isSelectedInspectorRow,
             onTap: {
@@ -262,11 +271,8 @@ extension TapToEditTextView {
     }
     
     var hasPicker: Bool {
-        choices.isDefined // && !isFieldInMultifieldInspectorInputAndNotFlyout
-    }
-    
-    var multifieldLayerInput: LayerInputPort? {
-        isFieldInMultifieldInspectorInputAndNotFlyout ? self.layerInput : nil
+        choices.isDefined && (isForCanvas || isForFlyout) // && !isFieldInMultifieldInspectorInputAndNotFlyout
+//        isForCanvas
     }
 }
 
@@ -359,7 +365,7 @@ extension TapToEditTextView {
         // When dropdown item selected, update text-field's string
         .onChange(of: self.pickerChoice, initial: false) { oldValue, newValue in
             if let _ = self.choices?.first(where: { $0 == newValue }) {
-                // log("on change of choice: valid new choice")
+                 log("on change of choice: valid new choice")
                 self.currentEdit = newValue
                 self.inputEditedCallback(newEdit: newValue,
                                          isCommitting: true)
@@ -369,8 +375,14 @@ extension TapToEditTextView {
         // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
         .onChange(of: self.currentEdit) { oldValue, newValue in
             if let x = self.choices?.first(where: { $0.lowercased() == self.currentEdit.lowercased() }) {
-                // log("found choice \(x)")
+                 log("found choice \(x)")
                 self.pickerChoice = x
+            }
+            
+            // If we edited the input to something other than an available choice, reset the picker's selection (e.g. "fill") to empty,
+            // so that selecting a picker option again will the `.onChange(of: self.pickerChoice)` that updates the field's underyling value etc.
+            else {
+                self.pickerChoice = ""
             }
         }
     } // var layerDimensionPicker

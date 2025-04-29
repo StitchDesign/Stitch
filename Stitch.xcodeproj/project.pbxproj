@@ -596,6 +596,7 @@
 		EC65AC292DC111E00046E59C /* InputFieldBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */; };
 		EC65AC2B2DC112030046E59C /* CommonEditingViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC2A2DC112030046E59C /* CommonEditingViewHelpers.swift */; };
 		EC65AC2D2DC133230046E59C /* TapToEditTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC2C2DC133220046E59C /* TapToEditTextView.swift */; };
+		EC65AC2F2DC1809C0046E59C /* CanvasCommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
 		EC68590B2DB078B7004BF315 /* ArrayUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68590A2DB078B7004BF315 /* ArrayUtils.swift */; };
@@ -1583,6 +1584,7 @@
 		EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldBackgroundView.swift; sourceTree = "<group>"; };
 		EC65AC2A2DC112030046E59C /* CommonEditingViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingViewHelpers.swift; sourceTree = "<group>"; };
 		EC65AC2C2DC133220046E59C /* TapToEditTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToEditTextView.swift; sourceTree = "<group>"; };
+		EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasCommonEditingView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
 		EC68590A2DB078B7004BF315 /* ArrayUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayUtils.swift; sourceTree = "<group>"; };
@@ -4133,6 +4135,7 @@
 				EC8891A22C82387A002390F8 /* CommonEditingViewWrapper.swift */,
 				EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */,
 				B57E997928FE5EAD00E86891 /* CommonEditingView.swift */,
+				EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */,
 				EC65AC2C2DC133220046E59C /* TapToEditTextView.swift */,
 				EC65AC2A2DC112030046E59C /* CommonEditingViewHelpers.swift */,
 				EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */,
@@ -5200,6 +5203,7 @@
 				ECFC975B296794DD000414C4 /* PopAnimationNode.swift in Sources */,
 				EC8A48ED2710EB2F001BB4FC /* GraphStepState.swift in Sources */,
 				B5F88D6A2D2D6D8B00B5A45A /* StitchProjectOverlayView.swift in Sources */,
+				EC65AC2F2DC1809C0046E59C /* CanvasCommonEditingView.swift in Sources */,
 				ECEF8D0D2BFD4460004FABCD /* LayerSizeReader.swift in Sources */,
 				EC2614492B8960B800BEB066 /* Point4DPackNode.swift in Sources */,
 				ECF6AEF9263CB7E50011C679 /* PreviewShapeLayer.swift in Sources */,

@@ -89,7 +89,9 @@ struct LayerInspectorReadOnlyView: View {
             isFocused: false, // never true?
             isHovering: false,  // Can never hover on a inspector's multifield
             isForLayerInspector: true,
-            choices: nil, // always nil for inspector ?
+            hasChoices: false,
+            isForCanvas: false,
+            isForFlyout: false,
             fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isPropertyRowSelected) {
                 // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout

@@ -94,7 +94,17 @@ struct InputFieldFrameAndPadding: ViewModifier {
      - we're hovering over a canvas item's field and so width is larger than normal
      */
     let width: CGFloat
-    let hasDropdown: Bool
+    
+    let hasChoices: Bool
+    let isForCanvas: Bool
+    let isForFlyout: Bool
+    
+    // Actually: inspector's
+    var hasDropdown: Bool {
+        hasChoices && (isForCanvas || isForFlyout)
+//        isForCanvas || isForFlyout
+//        isForCanvas
+    }
     
     var widthAdjustedForDropdown: CGFloat {
         width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)

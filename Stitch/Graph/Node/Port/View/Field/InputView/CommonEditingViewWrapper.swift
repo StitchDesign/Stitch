@@ -20,7 +20,11 @@ struct CommonEditingViewWrapper: View {
     let fieldCoordinate: FieldCoordinate
     let choices: [String]?
     let isForLayerInspector: Bool
+    
+    // What, more specifically, is this for?
     let isPackedLayerInputAlreadyOnCanvas: Bool
+    
+    
     let hasHeterogenousValues: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
@@ -28,7 +32,8 @@ struct CommonEditingViewWrapper: View {
     var isForSpacingField: Bool = false
     var isForLayerDimensionField: Bool = false
     var nodeKind: NodeKind
-            
+       
+    //
     var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
         isFieldInMultifieldInput && isForLayerInspector && !isForFlyout
     }

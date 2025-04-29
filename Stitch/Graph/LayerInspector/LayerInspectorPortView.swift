@@ -100,6 +100,7 @@ struct InspectorLayerInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var layerInputObserver: LayerInputObserver
+    
     let forFlyout: Bool
     
     var label: String {

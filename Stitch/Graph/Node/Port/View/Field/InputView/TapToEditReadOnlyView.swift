@@ -21,24 +21,20 @@ struct TapToEditReadOnlyView: View {
     
     let inputString: String
     
-    // let forPropertySidebar: Bool
-
-    //    let isCanvasField: Bool
-    
     let fieldWidth: CGFloat
     let isFocused: Bool
     let isHovering: Bool
     let isForLayerInspector: Bool
     
-    let choices: [String]?
+    let hasChoices: Bool
+    let isForCanvas: Bool
+    let isForFlyout: Bool
     
 //    let hasPicker: Bool // choices.isDefined && !isFieldInMultfieldInspectorInput
     
     let fieldHasHeterogenousValues: Bool
     let isSelectedInspectorRow: Bool
-    
-//    let isFieldInMultfieldInspectorInput: Bool
-    
+        
     let onTap: () -> Void
     
     var displayString: String {
@@ -56,28 +52,19 @@ struct TapToEditReadOnlyView: View {
         StitchTextView(string: displayString,
                        font: STITCH_FONT,
                        fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
-//        .modifier(InputFieldBackground(
-//            show: self.isHovering || self.forPropertySidebar,
-//            hasDropdown: self.hasPicker,
-//            forPropertySidebar: forPropertySidebar,
-//            isSelectedInspectorRow: isSelectedInspectorRow,
-//            isCanvasField: self.isCanvasField,
-//            width: fieldWidth,
-//            isHovering: isHovering,
-//            onTap: self.onTap))
-        
+
         .modifier(InputFieldFrameAndPadding(
             width: fieldWidth,
-            hasDropdown: choices.isDefined))
+            hasChoices: hasChoices,
+            isForCanvas: isForCanvas,
+            isForFlyout: isForFlyout))
         
         .modifier(InputFieldBackgroundColorView(
             isHovering: isHovering,
             isFocused: isFocused,
             isForLayerInspector: isForLayerInspector,
             isSelectedInspectorRow: isSelectedInspectorRow))
-        
-        // TODO: needs a slightly wider background?
-        
+                
         // Manually focus this field when user taps.
         // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
         .onTapGesture {
