@@ -170,18 +170,11 @@ struct RecordingView: View {
     
     @ViewBuilder
     var labelView: some View {
-        if recorder.isRecording {
-            Image(systemName: "stop.circle.fill")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 22)
-                .background(.ultraThinMaterial)
-        } else {
-            Text("Record")
-                .font(.subheadline)
-                .padding()
-                .background(.ultraThinMaterial)
-                .cornerRadius(26)
-        }
+        Text(recorder.isRecording ? "Stop" : "Record")
+            .font(.subheadline)
+            .opacity(0.6)
+            .padding()
+            .background(.ultraThinMaterial)
+            .cornerRadius(26)
     }
 }
