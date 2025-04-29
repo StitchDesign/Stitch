@@ -56,6 +56,9 @@ struct TapToEditTextView: View {
     
     let fieldWidth: CGFloat
     
+    
+    let isHovering: Bool
+    
     // For canvas fields only
     @Binding var isCurrentlyFocused: Bool
     
@@ -90,8 +93,8 @@ struct TapToEditTextView: View {
     
     @State private var isBase64 = false
     
-    // Only relevant for fields on canvas
-    @State var isHovering: Bool = false
+//    // Only relevant for fields on canvas
+//    @State var isHovering: Bool = false
     
     // Only relevant for LahyerDimension fields, for `auto`, `fill`
     @State var pickerChoice: String = ""
@@ -106,12 +109,12 @@ struct TapToEditTextView: View {
 //        }
         
         textFieldView
-            .frame(width: fieldWidth, // TODO: APRIL 29:  handle picker etc.
-                   alignment: .leading)
-        
-            .padding([.leading, .top, .bottom], 2)
-        
-            .contentShape(Rectangle())
+//            .frame(width: fieldWidth, // TODO: APRIL 29:  handle picker etc.
+//                   alignment: .leading)
+//        
+//            .padding([.leading, .top, .bottom], 2)
+//        
+//            .contentShape(Rectangle())
         
         // TODO: put this common logic (.onAppear, .onChange) into a view modifier?
         
@@ -174,10 +177,19 @@ struct TapToEditTextView: View {
 //            isHovering: isHovering,
 //            onTap: nil))
         
+        .modifier(InputFieldFrameAndPadding(width: fieldWidth))
+        
+        .modifier(InputFieldBackgroundColorView(
+            isHovering: self.isHovering,
+            isFocused: true,
+            isForLayerInspector: isForLayerInspector,
+            isSelectedInspectorRow: isSelectedInspectorRow))
+        
         // Field highlight
         .overlay {
             RoundedRectangle(cornerRadius: 4)
-                .stroke(theme.themeData.edgeColor,
+//                .stroke(theme.themeData.edgeColor,
+                .stroke(.purple,
                         // Color.accentColor,
                         lineWidth: self.showEditingView ? 2 : 0)
         }
@@ -194,8 +206,12 @@ extension TapToEditTextView {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
-        CommonEditingViewReadOnly(
+        TapToEditReadOnlyView(
             inputString: inputString,
+            fieldWidth: fieldWidth,
+            isFocused: false,
+            isHovering: isHovering,
+            isForLayerInspector: isForLayerInspector,
             fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isSelectedInspectorRow,
             onTap: {
@@ -211,6 +227,13 @@ extension TapToEditTextView {
                     dispatch(ReduxFieldFocused(focusedField: .textInput(self.fieldCoordinate)))
                 }
             })
+//        .modifier(InputFieldFrameAndPadding(width: fieldWidth))
+//        
+//        .modifier(InputFieldBackgroundColorView(
+//            isHovering: self.isHovering,
+//            isFocused: false,
+//            isForLayerInspector: isForLayerInspector,
+//            isSelectedInspectorRow: isSelectedInspectorRow))
     }
 }
 
@@ -232,6 +255,9 @@ extension TapToEditTextView {
     // Important perf check to prevent instantiations of editing view
     @MainActor
     var showEditingView: Bool {
+        
+        // TODO: can we create `InspectorCommonEditingView` (analogous to `CanvasCommonEditingView`) and avoid some of these checks? Get the view as small and as focused as possible.
+        
         // Can never focus the field of property row if that propery is already on the graph
         if isForLayerInspector && isPackedLayerInputAlreadyOnCanvas {
             // log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
@@ -246,6 +272,7 @@ extension TapToEditTextView {
         if isForLayerInspector {
             return isThisFieldFocused
         } else {
+            // TODO: Is the `!isSelectionBoxInUse` check still necessary?
             return isThisFieldFocused && !isSelectionBoxInUse
         }
     }

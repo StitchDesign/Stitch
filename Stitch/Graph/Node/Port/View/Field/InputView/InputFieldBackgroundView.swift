@@ -93,18 +93,38 @@ struct InputFieldBackgroundColorView: ViewModifier {
     
     let isHovering: Bool
     let isFocused: Bool
+    let isForLayerInspector: Bool
     
+    // Really, only for iPad
+    let isSelectedInspectorRow: Bool
+    
+    // TODO: should focused fields in flyouts and inspector use same background color as focused canvas fields?
     var color: Color {
+        
+        // Flyout and inspector never
+//        if isForLayerInspector {
+//            return .INSPECTOR_FIELD_BACKGROUND_COLOR
+//        }
+        
         // Focus takes precedent over hover
         if isFocused {
-//            return Color.INSPECTOR_FIELD_BACKGROUND_COLOR
-            return .white
+//            if isForLayerInspector {
+//                return .INSPECTOR_FIELD_BACKGROUND_COLOR
+//            } else {
+                return .WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE
+//            }
+            
         } else if isHovering {
-            return .red
-        } else {
-            // FOR THE INSPECTOR, CANNOT USE CLEAR ?
-             return Color.INSPECTOR_FIELD_BACKGROUND_COLOR
-//            return .clear
+            return .WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE
+        }
+        
+        // "At rest" i.e. no user interaction
+        else {
+            if isForLayerInspector {
+                return .INSPECTOR_FIELD_BACKGROUND_COLOR
+            } else {
+                return .clear
+            }
         }
     }
     
@@ -114,18 +134,7 @@ struct InputFieldBackgroundColorView: ViewModifier {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(self.color)
             }
-    }
-}
-
-// Only for iPad, to change the color of field's background when the entire inspector row is selected
-struct InspectorSelectedRowFieldBackground: ViewModifier {
-    
-    let isSelectedInspectorRow: Bool
-    
-    @Environment(\.appTheme) var theme
-    
-    func body(content: Content) -> some View {
-        content
+        #if !targetEnvironment(macCatalyst)
             .background {
                 if isSelectedInspectorRow {
                     RoundedRectangle(cornerRadius: 4)
@@ -136,8 +145,31 @@ struct InspectorSelectedRowFieldBackground: ViewModifier {
                         }
                 }
             }
+        #endif
     }
 }
+
+//// Only for iPad, to change the color of field's background when the entire inspector row is selected
+//struct InspectorSelectedRowFieldBackground: ViewModifier {
+//    
+//    let isSelectedInspectorRow: Bool
+//    
+//    @Environment(\.appTheme) var theme
+//    
+//    func body(content: Content) -> some View {
+//        content
+//            .background {
+//                if isSelectedInspectorRow {
+//                    RoundedRectangle(cornerRadius: 4)
+//                        .fill(.clear)
+//                        .overlay {
+//                            RoundedRectangle(cornerRadius: 4)
+//                                .fill(theme.fontColor.opacity(0.3))
+//                        }
+//                }
+//            }
+//    }
+//}
 
 
 struct CanvasFieldHoverView: View {

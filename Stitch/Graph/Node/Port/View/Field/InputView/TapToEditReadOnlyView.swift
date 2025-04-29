@@ -14,22 +14,26 @@ extension StitchTheme {
     }
 }
 
-struct CommonEditingViewReadOnly: View {
+// The "read-only" view for "TapToEditView"
+struct TapToEditReadOnlyView: View {
         
     @Environment(\.appTheme) var theme
     
-    // @Bindable var inputField: InputFieldViewModel
     let inputString: String
     
     // let forPropertySidebar: Bool
 
     //    let isCanvasField: Bool
     
-//    let isHovering: Bool
+    let fieldWidth: CGFloat
+    let isFocused: Bool
+    let isHovering: Bool
+    let isForLayerInspector: Bool
+    
 //    let choices: [String]?
     
 //    let hasPicker: Bool // choices.isDefined && !isFieldInMultfieldInspectorInput
-//    let fieldWidth: CGFloat
+    
     let fieldHasHeterogenousValues: Bool
     let isSelectedInspectorRow: Bool
     
@@ -61,6 +65,14 @@ struct CommonEditingViewReadOnly: View {
 //            width: fieldWidth,
 //            isHovering: isHovering,
 //            onTap: self.onTap))
+        
+        .modifier(InputFieldFrameAndPadding(width: fieldWidth))
+        
+        .modifier(InputFieldBackgroundColorView(
+            isHovering: isHovering,
+            isFocused: isFocused,
+            isForLayerInspector: isForLayerInspector,
+            isSelectedInspectorRow: isSelectedInspectorRow))
         
         // TODO: needs a slightly wider background?
         

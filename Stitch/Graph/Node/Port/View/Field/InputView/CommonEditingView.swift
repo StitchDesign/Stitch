@@ -86,7 +86,8 @@ struct CommonEditingView: View {
                 isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
                 fieldWidth: fieldWidth,
                 
-                // Only applicable
+                // Only applicable 
+                isHovering: false,
                 isCurrentlyFocused: .constant(false))
         }
         
@@ -123,19 +124,18 @@ struct CanvasCommonEditingView: View {
     static let HOVER_EXTRA_LENGTH: CGFloat = 52
     
     var hoveringAdjustment: CGFloat {
-        isShowingExtendedField ? Self.HOVER_EXTRA_LENGTH : 0
+        shouldShowExtendedField ? Self.HOVER_EXTRA_LENGTH : 0
     }
     
     // For canvas fields on iPad where hover may not be available (e.g. no trackpad),
-    // tap should focuses the field.
+    // tap should focus the field.
     func onFingerTap() {
-        log("finger tap")
         if !self.isHovering {
             dispatch(ReduxFieldFocused(focusedField: .textInput(self.inputField.id)))
         }
     }
     
-    var isShowingExtendedField: Bool {
+    var shouldShowExtendedField: Bool {
         self.isHovering || self.isCurrentlyFocused
     }
     
@@ -147,67 +147,63 @@ struct CanvasCommonEditingView: View {
         
         // The small-width read-only field shown in an input-field of a canvas item
         // Note: layer inputs can be on the canvas, but ignore multiselect
-        CommonEditingViewReadOnly(inputString: self.inputString,
-                                  fieldHasHeterogenousValues: false,
+        TapToEditReadOnlyView(inputString: self.inputString,
+                              fieldWidth: fieldWidth,
+                              isFocused: false,
+                              isHovering: false,
+                              isForLayerInspector: false,
+                              fieldHasHeterogenousValues: false,
+                              isSelectedInspectorRow: false,
+                              onTap: self.onFingerTap)
+        .overlay {
+            // TODO: show this even if we e.g. stop hovering but the field is focused
+            if shouldShowExtendedField {
+                TapToEditTextView(inputField: inputField,
+                                  inputString: inputString,
+                                  graph: graph,
+                                  document: document,
+                                  layerInput: nil,
+                                  choices: choices,
+                                  isLargeString: isLargeString,
+                                  isForLayerInspector: false,
+                                  isPackedLayerInputAlreadyOnCanvas: false,
+                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
+                                  isForFlyout: false,
+                                  isForSpacingField: isForSpacingField,
                                   isSelectedInspectorRow: false,
-                                  onTap: self.onFingerTap)
+                                  hasHeterogenousValues: false,
+                                  isFieldInMultifieldInspectorInputAndNotFlyout: false,
+                                  
+                                  // The 'tap-to-edit' view shown in this hover-overlay should always have the wide-extension
+                                  fieldWidth: fieldWidth + hoveringAdjustment,
+                                  isHovering: isHovering,
+                                  isCurrentlyFocused: $isCurrentlyFocused)
                 
-        .contentShape(Rectangle())
+                // TODO: proper picker-sensitive width
+                .offset(x: hoveringAdjustment / 2)
+            }
+        }
+        .onHover {
+            self.isHovering = $0
+        }
         
-            .frame(width: fieldWidth, // TODO: APRIL 29:  handle picker etc.
+    }
+}
+
+struct InputFieldFrameAndPadding: ViewModifier {
+    
+    /*
+     Expected to have already been adjusted for the specific case, e.g.
+     - a single field in a multifield input in the inspector (e.g. Position input's X field), so width is smaller than normal
+     - we're hovering over a canvas item's field and so width is larger than normal
+     */
+    let width: CGFloat
+    
+    func body(content: Content) -> some View {
+        content
+            .frame(width: width,
                    alignment: .leading)
-        
             .padding([.leading, .top, .bottom], 2)
         
-            .contentShape(Rectangle())
-        
-            .overlay {
-                // TODO: show this even if we e.g. stop hovering but the field is focused
-                if isHovering || isCurrentlyFocused {
-                    TapToEditTextView(inputField: inputField,
-                                      inputString: inputString,
-                                      graph: graph,
-                                      document: document,
-                                      layerInput: nil,
-                                      choices: choices,
-                                      isLargeString: isLargeString,
-                                      isForLayerInspector: false,
-                                      isPackedLayerInputAlreadyOnCanvas: false,
-                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
-                                      isForFlyout: false,
-                                      isForSpacingField: isForSpacingField,
-                                      isSelectedInspectorRow: false,
-                                      hasHeterogenousValues: false,
-                                      isFieldInMultifieldInspectorInputAndNotFlyout: false,
-                                      fieldWidth: fieldWidth,
-                                      isCurrentlyFocused: $isCurrentlyFocused)
-//                    .onTapGesture(perform: {
-//                        log("canvas hovering TAPPED")
-//                    })
-                
-                    // TODO: proper picker-sensitive width
-                        .frame(width: fieldWidth + hoveringAdjustment,
-                               alignment: .leading)
-                    
-                    // order of .frame vs .padding ?
-                    // May need to pass down `fieldWidth + hovering adjustments` to the TapToEditTextView
-//                    .frame(width: fieldWidth,
-//                           alignment: .leading)
-                    
-                    .padding([.leading, .top, .bottom], 2)
-                    
-                        .modifier(InputFieldBackgroundColorView(
-                            isHovering: isHovering,
-                            isFocused: isCurrentlyFocused))
-
-                        .offset(x: hoveringAdjustment / 2)
-                        .contentShape(Rectangle())
-                    
-                }
-            }
-            .onHover {
-                self.isHovering = $0
-            }
-                                  
     }
 }
