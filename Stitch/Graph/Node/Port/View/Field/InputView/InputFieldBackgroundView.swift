@@ -71,32 +71,32 @@ struct InputFieldBackground: ViewModifier {
             }
             .contentShape(Rectangle())
         
-            .overlay(content: {
-                if isHovering {
-                    content
-                        .frame(width: width + hoveringAdjustment,
-                               alignment: .leading)
-                        .padding([.leading, .top, .bottom], 2)
-                        .background {
-                            // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
-                            let color = show ? Color.red : Color.clear
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(color)
-                                .overlay {
-                                    if isSelectedInspectorRow {
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .fill(theme.fontColor.opacity(0.3))
-                                    }
-                                }
-                        }
-                        .offset(x: hoveringAdjustment / 2)
-                        .onTapGesture {
-                            if let onTap = self.onTap {
-                                onTap()
-                            }
-                        }
-                }
-            })
-            .zIndex(isHovering ? 99999 : 0)
+//            .overlay(content: {
+//                if isHovering {
+//                    content
+//                        .frame(width: width + hoveringAdjustment,
+//                               alignment: .leading)
+//                        .padding([.leading, .top, .bottom], 2)
+//                        .background {
+//                            // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
+//                            let color = show ? Color.red : Color.clear
+//                            RoundedRectangle(cornerRadius: 4)
+//                                .fill(color)
+//                                .overlay {
+//                                    if isSelectedInspectorRow {
+//                                        RoundedRectangle(cornerRadius: 4)
+//                                            .fill(theme.fontColor.opacity(0.3))
+//                                    }
+//                                }
+//                        }
+//                        .offset(x: hoveringAdjustment / 2)
+//                        .onTapGesture {
+//                            if let onTap = self.onTap {
+//                                onTap()
+//                            }
+//                        }
+//                }
+//            })
+//            .zIndex(isHovering ? 99999 : 0)
     }
 }

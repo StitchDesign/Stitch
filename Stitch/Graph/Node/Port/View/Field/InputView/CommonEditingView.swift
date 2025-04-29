@@ -59,6 +59,7 @@ struct CommonEditingView: View {
     let fieldWidth: CGFloat
     
     
+    
     // MARK: LOCAL VIEW STATE
  
 #if DEV_DEBUG
@@ -79,61 +80,29 @@ struct CommonEditingView: View {
         Group {
             // Show dropdown
             if let choices = choices, self.hasPicker {
-                HStack(spacing: 0) {
-                    textFieldView
-                    
-                    /*
-                     Important: must .overlay `picker` on a view that does not change when field is focused/defocused.
-                     
-                     `HStack { textFieldView, picker }` introduces alignment issues from picker's SwiftUI Menu/Picker
-                     
-                     `textFieldView.overlay { picker }` causes picker to flash when the underlying text-field / read-only-text view is changed via if/else.
-                     */
-                    Rectangle().fill(.clear).frame(width: 1, height: 1)
-                        .overlay {
-                            layerDimensionPicker(choices)
-                                .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
-                                .offset(x: -2) // "padding"
-                        }
-                }
+                textFieldViewWithPicker(choices)
             } // if let choices = ...
+            
             else {
                 textFieldView
             }
-            
         }
         
         // TODO: put this common logic (.onAppear, .onChange) into a view modifier?
         
         // TODO: why is `.onChange(of: showEditingView)` not enough for a field focused in a flyout from an inspector-field click ?
-        .onAppear {
-            if isForFlyout {
-                self.updateCurrentEdit()
-            }
-        }
-        .onChange(of: showEditingView) { _, newValue in
+        // For now, we want `initial: true` when we first focus a field
+        .onChange(of: self.showEditingView, initial: true) { _, newValue in
             // Fixes beach balls for base 64 strings
-            if newValue {
-                self.updateCurrentEdit()
-            }
+            if newValue { self.updateCurrentEdit() }
         }
         .onChange(of: self.hasHeterogenousValues, initial: true) { oldValue, newValue in
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
-            if newValue {
-                // log("CommonEditingView: on change of: self.hasHeterogenousValues: had multi")
-                self.updateCurrentEdit()
-            }
+            if newValue { self.updateCurrentEdit() }
         }
         .onHover { isHovering in
             // Ignore multifield hover
             guard self.multifieldLayerInput == nil else { return }
-            
-            // Don't want animation
-            //            withAnimation {
             self.isHovering = isHovering
-            //            }
         }
     }
     
@@ -232,6 +201,25 @@ extension CommonEditingView {
 
 extension CommonEditingView {
             
+    func textFieldViewWithPicker(_ choices: [String]) -> some View {
+        HStack(spacing: 0) {
+            textFieldView
+            /*
+             Important: must .overlay `picker` on a view that does not change when field is focused/defocused.
+             
+             `HStack { textFieldView, picker }` introduces alignment issues from picker's SwiftUI Menu/Picker
+             
+             `textFieldView.overlay { picker }` causes picker to flash when the underlying text-field / read-only-text view is changed via if/else.
+             */
+            Rectangle().fill(.clear).frame(width: 1, height: 1)
+                .overlay {
+                    layerDimensionPicker(choices)
+                        .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
+                        .offset(x: -2) // "padding"
+                }
+        }
+    }
+    
     // Note: currently only used for LayerDimension `fill` and `auto` cases
     @MainActor
     func layerDimensionPicker(_ choices: [String]) -> some View {
@@ -308,14 +296,14 @@ extension CommonEditingView {
         }
                 
         if isForLayerInspector {
-            return thisFieldIsFocused
+            return isThisFieldFocused
         } else {
-            return thisFieldIsFocused && !isSelectionBoxInUse
+            return isThisFieldFocused && !isSelectionBoxInUse
         }
     }
     
     @MainActor
-    var thisFieldIsFocused: Bool {
+    var isThisFieldFocused: Bool {
         switch document.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let k = focusedFieldCoordinate == id
