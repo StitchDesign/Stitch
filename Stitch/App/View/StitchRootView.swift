@@ -352,21 +352,19 @@ final class ReplayKitRecorder: NSObject {
                     print("Error stopping recording: \(error.localizedDescription)")
                 } else if let previewVC = previewVC {
                     print("Stopped recording, showing preview.")
-                    self?.presentPreview(previewVC)
+                    self?.presentPreview(previewVC,
+                                         dismissWindow: dismissWindow)
                 } else {
                     print("Stopped recording, no preview available.")
                 }
                 
                 self?.isRecording = false
-                
-#if targetEnvironment(macCatalyst)
-                dismissWindow(id: RecordingView.windowId)
-#endif
             }
         }
     }
     
-    private func presentPreview(_ previewVC: RPPreviewViewController) {
+    private func presentPreview(_ previewVC: RPPreviewViewController,
+                                dismissWindow: DismissWindowAction) {
         previewVC.previewControllerDelegate = self
         
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -376,7 +374,12 @@ final class ReplayKitRecorder: NSObject {
             // 🛠 Fix: force a form sheet presentation on iPad to avoid crash
             previewVC.modalPresentationStyle = .formSheet
             
-            rootVC.present(previewVC, animated: true, completion: nil)
+            rootVC.present(previewVC, animated: true) {
+#if targetEnvironment(macCatalyst)
+                // Dismiss window if on Mac
+                dismissWindow(id: RecordingView.windowId)
+#endif
+            }
         }
     }
 }
