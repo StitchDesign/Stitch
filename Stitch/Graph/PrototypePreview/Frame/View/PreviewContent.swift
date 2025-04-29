@@ -20,9 +20,7 @@ struct PreviewContent: View {
     
     let showPreviewWindow: Bool
     
-    var previewWindowSizing: PreviewWindowSizing {
-        document.previewWindowSizingObserver
-    }
+    @Bindable var previewWindowSizing: PreviewWindowSizing
     
     var previewDeviceWidth: CGFloat {
         previewWindowSizing.previewDeviceWidth

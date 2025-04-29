@@ -33,7 +33,8 @@ struct FullScreenPreviewViewWrapper: View {
     var previewView: some View {
         PreviewContent(document: document,
                        isFullScreen: true,
-                       showPreviewWindow: true)
+                       showPreviewWindow: true,
+                       previewWindowSizing: document.previewWindowSizingObserver)
         #if !targetEnvironment(macCatalyst)
         .ignoresSafeArea()
         #endif

@@ -61,14 +61,12 @@ struct ContentView: View, KeyboardReadable {
             
             
             // Must respect keyboard safe-area
-            if !document.isScreenSharing {
-                ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
-                                        previewWindowSize: document.previewWindowSize,
-                                        isFullScreen: document.isFullScreenMode,
-                                        showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
-                                        showFullScreenObserver: showFullScreen,
-                                        menuHeight: menuHeight)
-            }
+            ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
+                                    previewWindowSize: document.previewWindowSize,
+                                    isFullScreen: document.isFullScreenMode,
+                                    showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
+                                    showFullScreenObserver: showFullScreen,
+                                    menuHeight: menuHeight)
 
             // Must IGNORE keyboard safe-area
             nodeAndMenu
