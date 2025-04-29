@@ -31,9 +31,12 @@ struct CommonEditingView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var rowObserver: InputNodeRowObserver
+    
     let rowViewModel: InputNodeRowViewModel
     
-    let fieldIndex: Int
+    var fieldIndex: Int {
+        inputField.fieldIndex
+    }
     
     // Only for field-types that use a "TextField + Dropdown" view,
     // e.g. `LayerDimension`
@@ -78,12 +81,9 @@ struct CommonEditingView: View {
     
     var body: some View {
         Group {
-            // Show dropdown
             if let choices = choices, self.hasPicker {
                 textFieldViewWithPicker(choices)
-            } // if let choices = ...
-            
-            else {
+            } else {
                 textFieldView
             }
         }
@@ -142,6 +142,7 @@ struct CommonEditingView: View {
 #if targetEnvironment(macCatalyst)
         .offset(y: -0.5) // slight adjustment required
 #endif
+        
         .modifier(InputFieldBackground(
             show: true, // always show background for a focused input
             hasDropdown: self.hasPicker,

@@ -62,7 +62,6 @@ struct CommonEditingViewWrapper: View {
                           document: document,
                           rowObserver: rowObserver,
                           rowViewModel: rowViewModel,
-                          fieldIndex: fieldCoordinate.fieldIndex,
                           choices: choices,
                           isForLayerInspector: isForLayerInspector,
                           isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
