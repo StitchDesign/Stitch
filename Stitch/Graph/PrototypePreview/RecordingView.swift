@@ -98,7 +98,7 @@ final class ReplayKitRecorderDelegate: NSObject, RPPreviewViewControllerDelegate
 
 struct MacScreenSharingView: View {
     @Environment(\.dismissWindow) private var dismissWindow
-    
+
     let store: StitchStore
     
     var body: some View {
@@ -110,6 +110,14 @@ struct MacScreenSharingView: View {
                                showPreviewWindow: true)
 
                 RecordingView(dismissWindow: dismissWindow)
+            }
+            .background {
+                GeometryReader { geometry in
+                    Color.clear
+                        .onChange(of: geometry.size, initial: true) { _, newSize in
+                            document.previewWindowSizingObserver.userDeviceSize = newSize
+                        }
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
                 dismissWindow(id: RecordingView.windowId)
