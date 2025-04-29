@@ -84,17 +84,12 @@ struct LayerInspectorReadOnlyView: View {
     
     var body: some View {
         TapToEditReadOnlyView(
-//            inputField: fieldObserver,
             inputString: fieldObserver.fieldValue.stringValue,
             fieldWidth: INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH,
-//            forPropertySidebar: true,
-//            isCanvasField: false,
             isFocused: false, // never true?
             isHovering: false,  // Can never hover on a inspector's multifield
-            //choices: nil, // always nil for layer dropdown ?
-//            hasPicker: false,
             isForLayerInspector: true,
-            
+            choices: nil, // always nil for inspector ?
             fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isPropertyRowSelected) {
                 // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout

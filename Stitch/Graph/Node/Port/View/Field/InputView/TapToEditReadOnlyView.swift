@@ -30,7 +30,7 @@ struct TapToEditReadOnlyView: View {
     let isHovering: Bool
     let isForLayerInspector: Bool
     
-//    let choices: [String]?
+    let choices: [String]?
     
 //    let hasPicker: Bool // choices.isDefined && !isFieldInMultfieldInspectorInput
     
@@ -66,7 +66,9 @@ struct TapToEditReadOnlyView: View {
 //            isHovering: isHovering,
 //            onTap: self.onTap))
         
-        .modifier(InputFieldFrameAndPadding(width: fieldWidth))
+        .modifier(InputFieldFrameAndPadding(
+            width: fieldWidth,
+            hasDropdown: choices.isDefined))
         
         .modifier(InputFieldBackgroundColorView(
             isHovering: isHovering,

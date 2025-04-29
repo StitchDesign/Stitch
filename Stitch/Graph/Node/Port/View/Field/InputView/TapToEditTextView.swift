@@ -71,13 +71,6 @@ struct TapToEditTextView: View {
         inputField.fieldIndex
     }
     
-    // If we're not for the inspector or a flyout,
-    // then assume we're on the canvas.
-//    var isCanvasField: Bool {
-////        !isForLayerInspector && !isForFlyout
-//        inputField.id.rowId.graphItemType.getCanvasItemId.isDefined
-//    }
-    
     var isSelectionBoxInUse: Bool {
         self.document.visibleGraph.selection.isSelecting
     }
@@ -100,22 +93,14 @@ struct TapToEditTextView: View {
     @State var pickerChoice: String = ""
     
     var body: some View {
-//        Group {
-//            if let choices = choices, self.hasPicker {
-//                textFieldViewWithPicker(choices)
-//            } else {
-//                textFieldView
-//            }
-//        }
-        
-        textFieldView
-//            .frame(width: fieldWidth, // TODO: APRIL 29:  handle picker etc.
-//                   alignment: .leading)
-//        
-//            .padding([.leading, .top, .bottom], 2)
-//        
-//            .contentShape(Rectangle())
-        
+        Group {
+            if let choices = choices, self.hasPicker {
+                textFieldViewWithPicker(choices)
+            } else {
+                textFieldView
+            }
+        }
+                
         // TODO: put this common logic (.onAppear, .onChange) into a view modifier?
         
         // TODO: why is `.onChange(of: showEditingView)` not enough for a field focused in a flyout from an inspector-field click ?
@@ -167,17 +152,10 @@ struct TapToEditTextView: View {
         .offset(y: -0.5) // slight adjustment required
 #endif
         
-//        .modifier(InputFieldBackground(
-//            show: true, // always show background for a focused input
-//            hasDropdown: self.hasPicker,
-//            forPropertySidebar: isForLayerInspector,
-//            isSelectedInspectorRow: isSelectedInspectorRow,
-//            isCanvasField: self.isCanvasField,
-//            width: fieldWidth,
-//            isHovering: isHovering,
-//            onTap: nil))
-        
-        .modifier(InputFieldFrameAndPadding(width: fieldWidth))
+        .modifier(InputFieldFrameAndPadding(
+            width: fieldWidth,
+            hasDropdown: choices.isDefined
+        ))
         
         .modifier(InputFieldBackgroundColorView(
             isHovering: self.isHovering,
@@ -188,8 +166,7 @@ struct TapToEditTextView: View {
         // Field highlight
         .overlay {
             RoundedRectangle(cornerRadius: 4)
-//                .stroke(theme.themeData.edgeColor,
-                .stroke(.purple,
+                .stroke(theme.themeData.edgeColor,
                         // Color.accentColor,
                         lineWidth: self.showEditingView ? 2 : 0)
         }
@@ -212,6 +189,7 @@ extension TapToEditTextView {
             isFocused: false,
             isHovering: isHovering,
             isForLayerInspector: isForLayerInspector,
+            choices: choices,
             fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isSelectedInspectorRow,
             onTap: {
@@ -227,13 +205,6 @@ extension TapToEditTextView {
                     dispatch(ReduxFieldFocused(focusedField: .textInput(self.fieldCoordinate)))
                 }
             })
-//        .modifier(InputFieldFrameAndPadding(width: fieldWidth))
-//        
-//        .modifier(InputFieldBackgroundColorView(
-//            isHovering: self.isHovering,
-//            isFocused: false,
-//            isForLayerInspector: isForLayerInspector,
-//            isSelectedInspectorRow: isSelectedInspectorRow))
     }
 }
 
@@ -291,7 +262,7 @@ extension TapToEditTextView {
     }
     
     var hasPicker: Bool {
-        choices.isDefined && !isFieldInMultifieldInspectorInputAndNotFlyout
+        choices.isDefined // && !isFieldInMultifieldInspectorInputAndNotFlyout
     }
     
     var multifieldLayerInput: LayerInputPort? {

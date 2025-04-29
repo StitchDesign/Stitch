@@ -94,9 +94,15 @@ struct InputFieldFrameAndPadding: ViewModifier {
      - we're hovering over a canvas item's field and so width is larger than normal
      */
     let width: CGFloat
+    let hasDropdown: Bool
+    
+    var widthAdjustedForDropdown: CGFloat {
+        width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
+    }
     
     func body(content: Content) -> some View {
         content
+            .frame(width: widthAdjustedForDropdown, alignment: .leading)
             .frame(width: width, alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
     }

@@ -58,6 +58,8 @@ struct CommonEditingView: View {
                                   inputString: inputString,
                                   graph: graph,
                                   document: document,
+                                  choices: choices,
+                                  isLargeString: isLargeString,
                                   isFieldInMultifieldInput: isFieldInMultifieldInput,
                                   isForSpacingField: isForSpacingField,
                                   isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
@@ -105,9 +107,9 @@ struct CanvasCommonEditingView: View {
         
     // Only for field-types that use a "TextField + Dropdown" view,
     // e.g. `LayerDimension`
-    var choices: [String]?  = nil // ["fill", "auto"]
+    let choices: [String]? // = nil // ["fill", "auto"]
     
-    var isLargeString: Bool = false
+    let isLargeString: Bool
         
     // inspector only?
     let isFieldInMultifieldInput: Bool
@@ -152,6 +154,7 @@ struct CanvasCommonEditingView: View {
                               isFocused: false,
                               isHovering: false,
                               isForLayerInspector: false,
+                              choices: choices,
                               fieldHasHeterogenousValues: false,
                               isSelectedInspectorRow: false,
                               onTap: self.onFingerTap)
