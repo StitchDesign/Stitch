@@ -189,21 +189,3 @@ struct CanvasCommonEditingView: View {
         
     }
 }
-
-struct InputFieldFrameAndPadding: ViewModifier {
-    
-    /*
-     Expected to have already been adjusted for the specific case, e.g.
-     - a single field in a multifield input in the inspector (e.g. Position input's X field), so width is smaller than normal
-     - we're hovering over a canvas item's field and so width is larger than normal
-     */
-    let width: CGFloat
-    
-    func body(content: Content) -> some View {
-        content
-            .frame(width: width,
-                   alignment: .leading)
-            .padding([.leading, .top, .bottom], 2)
-        
-    }
-}

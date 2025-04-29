@@ -86,6 +86,23 @@ import SwiftUI
 //    }
 //}
 
+struct InputFieldFrameAndPadding: ViewModifier {
+    
+    /*
+     Expected to have already been adjusted for the specific case, e.g.
+     - a single field in a multifield input in the inspector (e.g. Position input's X field), so width is smaller than normal
+     - we're hovering over a canvas item's field and so width is larger than normal
+     */
+    let width: CGFloat
+    
+    func body(content: Content) -> some View {
+        content
+            .frame(width: width, alignment: .leading)
+            .padding([.leading, .top, .bottom], 2)
+    }
+}
+
+
 // Used by canvas fields and, on iPad, when inspector row is selected
 struct InputFieldBackgroundColorView: ViewModifier {
     
@@ -149,32 +166,3 @@ struct InputFieldBackgroundColorView: ViewModifier {
     }
 }
 
-//// Only for iPad, to change the color of field's background when the entire inspector row is selected
-//struct InspectorSelectedRowFieldBackground: ViewModifier {
-//    
-//    let isSelectedInspectorRow: Bool
-//    
-//    @Environment(\.appTheme) var theme
-//    
-//    func body(content: Content) -> some View {
-//        content
-//            .background {
-//                if isSelectedInspectorRow {
-//                    RoundedRectangle(cornerRadius: 4)
-//                        .fill(.clear)
-//                        .overlay {
-//                            RoundedRectangle(cornerRadius: 4)
-//                                .fill(theme.fontColor.opacity(0.3))
-//                        }
-//                }
-//            }
-//    }
-//}
-
-
-struct CanvasFieldHoverView: View {
-    
-    var body: some View {
-        Text("WIP")
-    }
-}
