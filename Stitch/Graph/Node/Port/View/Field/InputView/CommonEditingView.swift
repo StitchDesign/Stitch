@@ -30,16 +30,8 @@ struct CommonEditingView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     
-    var rowId: NodeRowViewModelId {
-        inputField.id.rowId
-    }
-    
     let layerInput: LayerInputPort?
-        
-    var fieldIndex: Int {
-        inputField.fieldIndex
-    }
-    
+            
     // Only for field-types that use a "TextField + Dropdown" view,
     // e.g. `LayerDimension`
     var choices: [String]?  = nil // ["fill", "auto"]
@@ -64,6 +56,16 @@ struct CommonEditingView: View {
     let fieldWidth: CGFloat
 
 
+    
+    
+    var rowId: NodeRowViewModelId {
+        inputField.id.rowId
+    }
+    
+    var fieldIndex: Int {
+        inputField.fieldIndex
+    }
+    
     // If we're not for the inspector or a flyout,
     // then assume we're on the canvas.
     var isCanvasField: Bool {
@@ -213,6 +215,98 @@ extension CommonEditingView {
 }
 
 
+
+
+// MARK: DERIVED
+
+extension CommonEditingView {
+    
+    var fieldCoordinate: FieldCoordinate {
+        self.inputField.id
+    }
+    
+    var nodeId: NodeId {
+        self.rowId.nodeId
+    }
+    
+    // Important perf check to prevent instantiations of editing view
+    @MainActor
+    var showEditingView: Bool {
+        // Can never focus the field of property row if that propery is already on the graph
+        if isForLayerInspector && isPackedLayerInputAlreadyOnCanvas {
+            // log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
+            return false
+        }
+        
+        // Can never focus the field of a multifield input (must happen via flyout)
+        if isForLayerInspector && isFieldInMultifieldInspectorInputAndNotFlyout {
+            return false
+        }
+                
+        if isForLayerInspector {
+            return isThisFieldFocused
+        } else {
+            return isThisFieldFocused && !isSelectionBoxInUse
+        }
+    }
+    
+    @MainActor
+    var isThisFieldFocused: Bool {
+        switch document.reduxFocusedField {
+        case .textInput(let focusedFieldCoordinate):
+            let focused = focusedFieldCoordinate == self.fieldCoordinate
+            log("isThisFieldFocused: self.fieldCoordinate \(self.fieldCoordinate): focused: \(focused)")
+            return focused
+        default:
+            log("isThisFieldFocused: self.fieldCoordinate \(self.fieldCoordinate): NOT FOCUSED")
+            return false
+        }
+    }
+    
+    var hasPicker: Bool {
+        choices.isDefined && !isFieldInMultifieldInspectorInputAndNotFlyout
+    }
+    
+    var multifieldLayerInput: LayerInputPort? {
+        isFieldInMultifieldInspectorInputAndNotFlyout ? self.layerInput : nil
+    }
+}
+
+
+// MARK: METHODS
+
+extension CommonEditingView {
+    @MainActor
+    func updateCurrentEdit(message: String? = nil) {
+        
+        if self.hasHeterogenousValues {
+            self.currentEdit = .HETEROGENOUS_VALUES
+        } else {
+            self.currentEdit = isLargeString ? "" : self.inputString
+        }
+            
+        self.isBase64 = isLargeString
+        
+        // update the picker choice as user types?
+        // so that e.g. if they type away from "auto", the picker will be blank / none / de-selected option
+        
+        // TODO: how to handle this dropdown when we have multiple layers selected?
+        self.pickerChoice = isLargeString ? "" : self.inputString
+    }
+
+    // fka `createInputEditAction`
+    @MainActor func inputEditedCallback(newEdit: String,
+                                        isCommitting: Bool) {
+        self.graph.inputEditedFromUI(
+            fieldValue: .string(.init(newEdit)),
+            fieldIndex: self.fieldIndex,
+            rowId: self.rowId,
+            activeIndex: document.activeIndex,
+            isFieldInsideLayerInspector: self.isForLayerInspector,
+            isCommitting: isCommitting)
+    }
+}
+
 // MARK: PICKER
 
 extension CommonEditingView {
@@ -282,93 +376,4 @@ extension CommonEditingView {
             }
         }
     } // var layerDimensionPicker
-}
-
-
-// MARK: DERIVED
-
-extension CommonEditingView {
-    
-    var fieldCoordinate: FieldCoordinate {
-        self.inputField.id
-    }
-    
-    var nodeId: NodeId {
-        self.rowId.nodeId
-    }
-    
-    // Important perf check to prevent instantiations of editing view
-    @MainActor
-    var showEditingView: Bool {
-        // Can never focus the field of property row if that propery is already on the graph
-        if isForLayerInspector && isPackedLayerInputAlreadyOnCanvas {
-            // log("CommonEditingView: will not focus because already on graph; field index \(self.fieldIndex) of field coordinate \(id) on node \(nodeId)")
-            return false
-        }
-        
-        // Can never focus the field of a multifield input (must happen via flyout)
-        if isForLayerInspector && isFieldInMultifieldInspectorInputAndNotFlyout {
-            return false
-        }
-                
-        if isForLayerInspector {
-            return isThisFieldFocused
-        } else {
-            return isThisFieldFocused && !isSelectionBoxInUse
-        }
-    }
-    
-    @MainActor
-    var isThisFieldFocused: Bool {
-        switch document.reduxFocusedField {
-        case .textInput(let focusedFieldCoordinate):
-            return focusedFieldCoordinate == self.fieldCoordinate
-        default:
-            return false
-        }
-    }
-    
-    var hasPicker: Bool {
-        choices.isDefined && !isFieldInMultifieldInspectorInputAndNotFlyout
-    }
-    
-    var multifieldLayerInput: LayerInputPort? {
-        isFieldInMultifieldInspectorInputAndNotFlyout ? self.layerInput : nil
-    }
-}
-
-
-// MARK: METHODS
-
-extension CommonEditingView {
-    // Currently only used when we focus or de-focus
-    @MainActor
-    func updateCurrentEdit(message: String? = nil) {
-        
-        if self.hasHeterogenousValues {
-            self.currentEdit = .HETEROGENOUS_VALUES
-        } else {
-            self.currentEdit = isLargeString ? "" : self.inputString
-        }
-            
-        self.isBase64 = isLargeString
-        
-        // update the picker choice as user types?
-        // so that e.g. if they type away from "auto", the picker will be blank / none / de-selected option
-        
-        // TODO: how to handle this dropdown when we have multiple layers selected?
-        self.pickerChoice = isLargeString ? "" : self.inputString
-    }
-
-    // fka `createInputEditAction`
-    @MainActor func inputEditedCallback(newEdit: String,
-                                        isCommitting: Bool) {
-        self.graph.inputEditedFromUI(
-            fieldValue: .string(.init(newEdit)),
-            fieldIndex: self.fieldIndex,
-            rowId: self.rowId,
-            activeIndex: document.activeIndex,
-            isFieldInsideLayerInspector: self.isForLayerInspector,
-            isCommitting: isCommitting)
-    }
 }

@@ -58,7 +58,11 @@ struct InputFieldBackground: ViewModifier {
             .padding([.leading, .top, .bottom], 2)
         
             .modifier(InputFieldBackgroundColorView(show: show))
+            
+        // iPad only
+        #if !targetEnvironment(macCatalyst)
             .modifier(InspectorSelectedRowFieldBackground(isSelectedInspectorRow: isSelectedInspectorRow))
+        #endif
         
             .contentShape(Rectangle())
         
@@ -75,7 +79,7 @@ struct InputFieldBackground: ViewModifier {
                         
                         .onTapGesture {
                             if let onTap = self.onTap {
-                                onTap()
+                                onTap() // focuses but then de-focuses
                             }
                         }
                 }
@@ -108,7 +112,6 @@ struct InspectorSelectedRowFieldBackground: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-        #if !targetEnvironment(macCatalyst)
             .background {
                 if isSelectedInspectorRow {
                     RoundedRectangle(cornerRadius: 4)
@@ -119,7 +122,6 @@ struct InspectorSelectedRowFieldBackground: ViewModifier {
                         }
                 }
             }
-        #endif
     }
 }
 
