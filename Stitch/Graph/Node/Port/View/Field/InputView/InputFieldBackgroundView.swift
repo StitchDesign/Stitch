@@ -18,6 +18,8 @@ struct InputFieldBackground: ViewModifier {
     let isSelectedInspectorRow: Bool
     var width: CGFloat
     let isHovering: Bool
+    
+    let onTap: (() -> Void)? // nil =
      
 //    static let HOVER_EXTRA_LENGTH: CGFloat = 80
 //    static let HOVER_EXTRA_LENGTH: CGFloat = 100
@@ -53,7 +55,6 @@ struct InputFieldBackground: ViewModifier {
             .frame(width: widthAdjustedForDropdown, alignment: .leading)
         
         // ... But we always use a full-width background for the focus/hover effect.
-//            .frame(width: fieldWidth, alignment: .leading)
             .frame(width: width, alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
             .background {
@@ -88,8 +89,12 @@ struct InputFieldBackground: ViewModifier {
                                     }
                                 }
                         }
-//                        .offset(x: Self.HOVER_EXTRA_LENGTH/2)
                         .offset(x: hoveringAdjustment / 2)
+                        .onTapGesture {
+                            if let onTap = self.onTap {
+                                onTap()
+                            }
+                        }
                 }
             })
             .zIndex(isHovering ? 99999 : 0)

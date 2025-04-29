@@ -52,7 +52,8 @@ struct CommonEditingViewReadOnly: View {
             forPropertySidebar: forPropertySidebar,
             isSelectedInspectorRow: isSelectedInspectorRow,
             width: fieldWidth,
-            isHovering: isHovering))
+            isHovering: isHovering,
+            onTap: self.onTap))
         
         // Manually focus this field when user taps.
         // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.

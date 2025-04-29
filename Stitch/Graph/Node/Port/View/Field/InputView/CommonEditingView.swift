@@ -12,21 +12,17 @@ import StitchSchemaKit
 // and as a single editable field for a multifield portvalues like .size
 // Only used directly by input fields, not NodeTitleView etc.
 struct CommonEditingView: View {
+    
+    // MARK: ENVIRONMENT STATE
+    
     @Environment(\.appTheme) var theme
     
     // TODO: APRIL 29: remove? is this still relevant?
     @Environment(\.isSelectionBoxInUse) private var isSelectionBoxInUse
+        
     
-    #if DEV_DEBUG
-    @State private var currentEdit = "no entry"
-    #else
-    @State private var currentEdit = ""
-    #endif
     
-    @State private var isBase64 = false
-    
-    // Only relevant for fields on canvas
-    @State var isHovering: Bool = false
+    // MARK: PASSED-IN VIEW PARAMETERS
     
     @Bindable var inputField: InputFieldViewModel
     
@@ -61,6 +57,233 @@ struct CommonEditingView: View {
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
     
     let fieldWidth: CGFloat
+    
+    
+    // MARK: LOCAL VIEW STATE
+ 
+#if DEV_DEBUG
+    @State private var currentEdit = "no entry"
+#else
+    @State private var currentEdit = ""
+#endif
+    
+    @State private var isBase64 = false
+    
+    // Only relevant for fields on canvas
+    @State var isHovering: Bool = false
+    
+    // Only relevant for LahyerDimension fields, for `auto`, `fill`
+    @State var pickerChoice: String = ""
+    
+    var body: some View {
+        Group {
+            // Show dropdown
+            if let choices = choices, self.hasPicker {
+                HStack(spacing: 0) {
+                    textFieldView
+                    
+                    /*
+                     Important: must .overlay `picker` on a view that does not change when field is focused/defocused.
+                     
+                     `HStack { textFieldView, picker }` introduces alignment issues from picker's SwiftUI Menu/Picker
+                     
+                     `textFieldView.overlay { picker }` causes picker to flash when the underlying text-field / read-only-text view is changed via if/else.
+                     */
+                    Rectangle().fill(.clear).frame(width: 1, height: 1)
+                        .overlay {
+                            layerDimensionPicker(choices)
+                                .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
+                                .offset(x: -2) // "padding"
+                        }
+                }
+            } // if let choices = ...
+            else {
+                textFieldView
+            }
+            
+        }
+        
+        // TODO: put this common logic (.onAppear, .onChange) into a view modifier?
+        
+        // TODO: why is `.onChange(of: showEditingView)` not enough for a field focused in a flyout from an inspector-field click ?
+        .onAppear {
+            if isForFlyout {
+                self.updateCurrentEdit()
+            }
+        }
+        .onChange(of: showEditingView) { _, newValue in
+            // Fixes beach balls for base 64 strings
+            if newValue {
+                self.updateCurrentEdit()
+            }
+        }
+        .onChange(of: self.hasHeterogenousValues, initial: true) { oldValue, newValue in
+            // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
+            // log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
+            // log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
+            if newValue {
+                // log("CommonEditingView: on change of: self.hasHeterogenousValues: had multi")
+                self.updateCurrentEdit()
+            }
+        }
+        .onHover { isHovering in
+            // Ignore multifield hover
+            guard self.multifieldLayerInput == nil else { return }
+            
+            // Don't want animation
+            //            withAnimation {
+            self.isHovering = isHovering
+            //            }
+        }
+    }
+    
+    // CONTROLS SWITCHING BETWEEN EDITABLE VS READ-ONLY TEXT
+    // For perf: we don't want the TextField rendering at all if not currently focused
+    @ViewBuilder @MainActor
+    var textFieldView: some View {
+        if showEditingView {
+            editableTextFieldView
+        } else {
+            readOnlyTextView
+        }
+    }
+    
+    @MainActor
+    var editableTextFieldView: some View {
+        // logInView("CommonEditView: if: fieldCoordinate: \(fieldCoordinate)")
+        
+        // Render NodeTextFieldView if its the focused field.
+        StitchTextEditingBindingField(currentEdit: $currentEdit,
+                                      fieldType: .textInput(id),
+                                      font: STITCH_FONT,
+                                      fontColor: STITCH_FONT_GRAY_COLOR,
+                                      fieldEditCallback: inputEditedCallback,
+                                      isBase64: isBase64)
+        .onDisappear {
+            // Fixes issue where default false values aren't shown after clearing inputs
+            self.currentEdit = self.inputString
+            
+            // Fixes issue where edits sometimes don't save if focus is lost
+            if self.currentEdit != self.inputString {
+                self.inputEditedCallback(newEdit: self.currentEdit,
+                                         isCommitting: true)
+            }
+        }
+        
+#if targetEnvironment(macCatalyst)
+        .offset(y: -0.5) // slight adjustment required
+#endif
+        .modifier(InputFieldBackground(
+            show: true, // always show background for a focused input
+            hasDropdown: self.hasPicker,
+            forPropertySidebar: isForLayerInspector,
+            isSelectedInspectorRow: isSelectedInspectorRow,
+            width: fieldWidth,
+            isHovering: isHovering,
+            onTap: nil))
+        
+        // Field highlight
+        .overlay {
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(theme.themeData.edgeColor,
+                        // Color.accentColor,
+                        lineWidth: self.showEditingView ? 2 : 0)
+        }
+    } // editableTextFieldView
+}
+
+
+
+// MARK: READ-ONLY VIEW
+
+extension CommonEditingView {
+    @MainActor
+    var readOnlyTextView: some View {
+        // If can tap to edit, and this is a number field,
+        // then bring up the number-adjustment-bar first;
+        // for multifields now, the editType value is gonna be a parentValue of eg size or position
+        CommonEditingViewReadOnly(
+            inputField: inputField,
+            inputString: inputString,
+            forPropertySidebar: isForLayerInspector,
+            isHovering: isHovering,
+            choices: choices,
+            fieldWidth: fieldWidth,
+            fieldHasHeterogenousValues: hasHeterogenousValues,
+            isSelectedInspectorRow: isSelectedInspectorRow,
+            isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
+            onTap: {
+                // Every multifield input in the inspector uses a flyout
+                if isFieldInMultifieldInspectorInputAndNotFlyout,
+                   let layerInput = rowViewModel.layerInput,
+                   !isForFlyout {
+                    dispatch(FlyoutToggled(flyoutInput: layerInput,
+                                           flyoutNodeId: nodeId,
+                                           fieldToFocus: .textInput(id)))
+                } else {
+                    dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+                }
+            })
+    }
+}
+
+
+// MARK: PICKER
+
+extension CommonEditingView {
+            
+    // Note: currently only used for LayerDimension `fill` and `auto` cases
+    @MainActor
+    func layerDimensionPicker(_ choices: [String]) -> some View {
+        Menu {
+            Picker("", selection: $pickerChoice) {
+                ForEach(self.choices ?? [], id: \.self) {
+                    Text($0)
+                }
+            }
+        } label: {
+            Image(systemName: "chevron.down")
+                .resizable()
+                .frame(width: COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH,
+                       height: COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT)
+                .padding(8) // increase hit area
+        }
+        
+        // TODO: why must we hide the native menuIndicator?
+        .menuIndicator(.hidden) // hides caret indicator
+        
+#if targetEnvironment(macCatalyst)
+        .menuStyle(.button)
+        .buttonStyle(.plain) // fixes Catalyst accent-color issue
+        .foregroundColor(STITCH_FONT_GRAY_COLOR)
+        .pickerStyle(.inline) // avoids unnecessary middle label
+#endif
+
+        // TODO: this fires as soon as the READ-ONLY view is rendered, which we don't want.
+        // When dropdown item selected, update text-field's string
+        .onChange(of: self.pickerChoice, initial: false) { oldValue, newValue in
+            if let _ = self.choices?.first(where: { $0 == newValue }) {
+                // log("on change of choice: valid new choice")
+                self.currentEdit = newValue
+                self.inputEditedCallback(newEdit: newValue,
+                                         isCommitting: true)
+            }
+        }
+        
+        // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
+        .onChange(of: self.currentEdit) { oldValue, newValue in
+            if let x = self.choices?.first(where: { $0.lowercased() == self.currentEdit.lowercased() }) {
+                // log("found choice \(x)")
+                self.pickerChoice = x
+            }
+        }
+    } // var layerDimensionPicker
+}
+
+
+// MARK: DERIVED
+
+extension CommonEditingView {
     
     var id: FieldCoordinate {
         self.inputField.id
@@ -117,205 +340,13 @@ struct CommonEditingView: View {
         choices.isDefined && !isFieldInMultifieldInspectorInputAndNotFlyout
     }
     
-    var body: some View {
-        Group {
-            // Show dropdown
-            if let choices = choices, self.hasPicker {
-                
-                HStack(spacing: 0) {
-                    
-                    textFieldView
-                    
-                    /*
-                     Important: must .overlay `picker` on a view that does not change when field is focused/defocused.
-                     
-                     `HStack { textFieldView, picker }` introduces alignment issues from picker's SwiftUI Menu/Picker
-                     
-                     `textFieldView.overlay { picker }` causes picker to flash when the underlying text-field / read-only-text view is changed via if/else.
-                     */
-                    Rectangle().fill(.clear).frame(width: 1, height: 1)
-                        .overlay {
-                            picker(choices)
-                                .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
-                                .offset(x: -2) // "padding"
-                        }
-                }
-                
-            } else {
-                textFieldView
-            }
-        }
-        .onChange(of: showEditingView) { _, newValue in
-            // Fixes beach balls for base 64 strings
-            if newValue {
-                self.updateCurrentEdit()
-            }
-        }
-        // TODO: why is `.onChange(of: showEditingView)` not enough for a field focused in a flyout from an inspector-field click ?
-        .onAppear {
-            if isForFlyout {
-                self.updateCurrentEdit()
-            }
-        }
-        .onHover { isHovering in
-            // Ignore multifield hover
-            guard self.multifieldLayerInput == nil else { return }
-            
-            // Don't want animation
-//            withAnimation {
-                self.isHovering = isHovering
-//            }
-        }
-        .onChange(of: self.hasHeterogenousValues, initial: true) { oldValue, newValue in
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
-            if newValue {
-                // log("CommonEditingView: on change of: self.hasHeterogenousValues: had multi")
-                self.updateCurrentEdit()
-            }
-        }
-    }
-    
-    @State var choice: String = ""
-        
-    @MainActor
-    func picker(_ choices: [String]) -> some View {
-        Menu {
-            Picker("", selection: $choice) {
-                ForEach(self.choices ?? [], id: \.self) {
-                    Text($0)
-                }
-            }
-        } label: {
-            Image(systemName: "chevron.down")
-                .resizable()
-                .frame(width: COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH,
-                       height: COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT)
-                .padding(8) // increase hit area
-        }
-        
-        // TODO: why must we hide the native menuIndicator?
-        .menuIndicator(.hidden) // hides caret indicator
-        
-#if targetEnvironment(macCatalyst)
-        .menuStyle(.button)
-        .buttonStyle(.plain) // fixes Catalyst accent-color issue
-        .foregroundColor(STITCH_FONT_GRAY_COLOR)
-        .pickerStyle(.inline) // avoids unnecessary middle label
-#endif
-
-        // TODO: this fires as soon as the READ-ONLY view is rendered, which we don't want.
-        // When dropdown item selected, update text-field's string
-        .onChange(of: self.choice, initial: false) { oldValue, newValue in
-            if let _ = self.choices?.first(where: { $0 == newValue }) {
-                // log("on change of choice: valid new choice")
-                self.currentEdit = newValue
-                self.inputEditedCallback(newEdit: newValue,
-                                         isCommitting: true)
-            }
-        }
-        
-        // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
-        .onChange(of: self.currentEdit) { oldValue, newValue in
-            if let x = self.choices?.first(where: { $0.lowercased() == self.currentEdit.lowercased() }) {
-                // log("found choice \(x)")
-                self.choice = x
-            }
-        }
-    } // var picker: ...
-    
-    @ViewBuilder @MainActor
-    var textFieldView: some View {
-        // For perf: we don't want this view rendering at all if not currently focused
-        if showEditingView {
-            editableTextFieldView
-                .overlay { fieldHighlight }
-            
-        } else {
-           readOnlyTextView
-        }
-    }
-    
     var multifieldLayerInput: LayerInputPort? {
         isFieldInMultifieldInspectorInputAndNotFlyout ? rowViewModel.layerInput : nil
     }
-    
-    var fieldHighlight: some View {
-        RoundedRectangle(cornerRadius: 4)
-            .stroke(theme.themeData.edgeColor,
-                    // Color.accentColor,
-                    lineWidth: self.showEditingView ? 2 : 0)
-            // Does nothing because showEditingView is an if/else
-            // .animation(.default, value: self.showEditingView)
-    }
-    
-    @MainActor
-    var editableTextFieldView: some View {
-        // logInView("CommonEditView: if: fieldCoordinate: \(fieldCoordinate)")
-        
-        // Render NodeTextFieldView if its the focused field.
-        StitchTextEditingBindingField(currentEdit: $currentEdit,
-                                      fieldType: .textInput(id),
-                                      font: STITCH_FONT,
-                                      fontColor: STITCH_FONT_GRAY_COLOR,
-                                      fieldEditCallback: inputEditedCallback,
-                                      isBase64: isBase64)
-        .onDisappear {
-            // Fixes issue where default false values aren't shown after clearing inputs
-            self.currentEdit = self.inputString
-            
-            // Fixes issue where edits sometimes don't save if focus is lost
-            if self.currentEdit != self.inputString {
-                self.inputEditedCallback(newEdit: self.currentEdit,
-                                         isCommitting: true)
-            }
-        }
-        
-#if targetEnvironment(macCatalyst)
-        .offset(y: -0.5) // slight adjustment required
-#endif
-        .modifier(InputFieldBackground(
-            show: true, // always show background for a focused input
-            hasDropdown: self.hasPicker,
-            forPropertySidebar: isForLayerInspector,
-            isSelectedInspectorRow: isSelectedInspectorRow,
-            width: fieldWidth,
-            isHovering: isHovering))
-    }
-        
-        
-    @MainActor
-    var readOnlyTextView: some View {
-        // If can tap to edit, and this is a number field,
-        // then bring up the number-adjustment-bar first;
-        // for multifields now, the editType value is gonna be a parentValue of eg size or position
-        CommonEditingViewReadOnly(
-            inputField: inputField,
-            inputString: inputString,
-            forPropertySidebar: isForLayerInspector,
-            isHovering: isHovering,
-            choices: choices,
-            fieldWidth: fieldWidth,
-            fieldHasHeterogenousValues: hasHeterogenousValues,
-            isSelectedInspectorRow: isSelectedInspectorRow,
-            isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
-            onTap: {
-                // Every multifield input in the inspector uses a flyout
-                if isFieldInMultifieldInspectorInputAndNotFlyout,
-                   let layerInput = rowViewModel.layerInput,
-                   !isForFlyout {
-                    dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                           flyoutNodeId: nodeId,
-                                           fieldToFocus: .textInput(id)))
-                } else {
-                    dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
-                }
-            })
-    }
-
-   
 }
+
+
+// MARK: METHODS
 
 extension CommonEditingView {
     // Currently only used when we focus or de-focus
@@ -334,7 +365,7 @@ extension CommonEditingView {
         // so that e.g. if they type away from "auto", the picker will be blank / none / de-selected option
         
         // TODO: how to handle this dropdown when we have multiple layers selected?
-        self.choice = isLargeString ? "" : self.inputString
+        self.pickerChoice = isLargeString ? "" : self.inputString
     }
 
     // fka `createInputEditAction`
