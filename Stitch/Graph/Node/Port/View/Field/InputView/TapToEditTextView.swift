@@ -175,12 +175,12 @@ struct TapToEditTextView: View {
 //            onTap: nil))
         
         // Field highlight
-//        .overlay {
-//            RoundedRectangle(cornerRadius: 4)
-//                .stroke(theme.themeData.edgeColor,
-//                        // Color.accentColor,
-//                        lineWidth: self.showEditingView ? 2 : 0)
-//        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(theme.themeData.edgeColor,
+                        // Color.accentColor,
+                        lineWidth: self.showEditingView ? 2 : 0)
+        }
     } // editableTextFieldView
 }
 

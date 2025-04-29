@@ -102,7 +102,9 @@ struct InputFieldBackgroundColorView: ViewModifier {
         } else if isHovering {
             return .red
         } else {
-            return .clear
+            // FOR THE INSPECTOR, CANNOT USE CLEAR ?
+             return Color.INSPECTOR_FIELD_BACKGROUND_COLOR
+//            return .clear
         }
     }
     
