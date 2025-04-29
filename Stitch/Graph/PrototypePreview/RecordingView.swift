@@ -122,10 +122,18 @@ struct MacScreenSharingView: View {
 
                 RecordingView(dismissWindow: dismissWindow)
             }
+            .onDisappear {
+                dismissRecordingWindow()
+            }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
-                dismissWindow(id: RecordingView.windowId)
+                dismissRecordingWindow()
             }
         }
+    }
+    
+    func dismissRecordingWindow() {
+        dismissWindow(id: RecordingView.windowId)
+        store.currentDocument?.isScreenSharing = false
     }
 }
 
