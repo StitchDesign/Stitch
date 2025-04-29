@@ -63,7 +63,6 @@ struct FieldValueNumberView: View {
             CommonEditingViewWrapper(graph: graph,
                                      document: document,
                                      fieldViewModel: fieldViewModel,
-                                     rowId: rowViewModel.id,
                                      layerInput: rowViewModel.layerInput,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,

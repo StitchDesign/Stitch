@@ -30,7 +30,10 @@ struct CommonEditingView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     
-    let rowId: NodeRowViewModelId
+    var rowId: NodeRowViewModelId {
+        inputField.id.rowId
+    }
+    
     let layerInput: LayerInputPort?
         
     var fieldIndex: Int {
@@ -60,7 +63,7 @@ struct CommonEditingView: View {
     
     let fieldWidth: CGFloat
 
-    
+
     // If we're not for the inspector or a flyout,
     // then assume we're on the canvas.
     var isCanvasField: Bool {
@@ -108,7 +111,11 @@ struct CommonEditingView: View {
         .onHover { isHovering in
             // Ignore multifield hover
             guard self.multifieldLayerInput == nil else { return }
-            self.isHovering = isHovering
+
+            // Only canvas fields support the hover effect
+            if self.isCanvasField {
+                self.isHovering = isHovering
+            }
         }
     }
     
@@ -129,7 +136,7 @@ struct CommonEditingView: View {
         
         // Render NodeTextFieldView if its the focused field.
         StitchTextEditingBindingField(currentEdit: $currentEdit,
-                                      fieldType: .textInput(id),
+                                      fieldType: .textInput(self.fieldCoordinate),
                                       font: STITCH_FONT,
                                       fontColor: STITCH_FONT_GRAY_COLOR,
                                       fieldEditCallback: inputEditedCallback,
@@ -154,6 +161,7 @@ struct CommonEditingView: View {
             hasDropdown: self.hasPicker,
             forPropertySidebar: isForLayerInspector,
             isSelectedInspectorRow: isSelectedInspectorRow,
+            isCanvasField: self.isCanvasField,
             width: fieldWidth,
             isHovering: isHovering,
             onTap: nil))
@@ -182,6 +190,7 @@ extension CommonEditingView {
             inputField: inputField,
             inputString: inputString,
             forPropertySidebar: isForLayerInspector,
+            isCanvasField: self.isCanvasField,
             isHovering: isHovering,
             choices: choices,
             fieldWidth: fieldWidth,
@@ -195,9 +204,9 @@ extension CommonEditingView {
                    !isForFlyout {
                     dispatch(FlyoutToggled(flyoutInput: layerInput,
                                            flyoutNodeId: nodeId,
-                                           fieldToFocus: .textInput(id)))
+                                           fieldToFocus: .textInput(self.fieldCoordinate)))
                 } else {
-                    dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+                    dispatch(ReduxFieldFocused(focusedField: .textInput(self.fieldCoordinate)))
                 }
             })
     }
@@ -280,12 +289,12 @@ extension CommonEditingView {
 
 extension CommonEditingView {
     
-    var id: FieldCoordinate {
+    var fieldCoordinate: FieldCoordinate {
         self.inputField.id
     }
     
     var nodeId: NodeId {
-        self.id.rowId.nodeId
+        self.rowId.nodeId
     }
     
     // Important perf check to prevent instantiations of editing view
@@ -313,11 +322,8 @@ extension CommonEditingView {
     var isThisFieldFocused: Bool {
         switch document.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
-            let k = focusedFieldCoordinate == id
-            // log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
-            return k
+            return focusedFieldCoordinate == self.fieldCoordinate
         default:
-            // log("CommonEditingView: thisFieldIsFocused: false")
             return false
         }
     }

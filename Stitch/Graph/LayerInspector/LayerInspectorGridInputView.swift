@@ -87,7 +87,8 @@ struct LayerInspectorReadOnlyView: View {
             inputField: fieldObserver,
             inputString: fieldObserver.fieldValue.stringValue,
             forPropertySidebar: true,
-            isHovering: false, // Can never hover on a inspector's multifield
+            isCanvasField: false,
+            isHovering: false,  // Can never hover on a inspector's multifield
             choices: nil, // always nil for layer dropdown ?
             fieldWidth: INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH,
             fieldHasHeterogenousValues: hasHeterogenousValues,

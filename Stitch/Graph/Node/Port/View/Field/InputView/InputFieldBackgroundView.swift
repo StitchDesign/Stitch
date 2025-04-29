@@ -9,17 +9,16 @@ import SwiftUI
 
 // TODO: per Elliot, this is actually a perf-expensive view?
 struct InputFieldBackground: ViewModifier {
-    
-    @Environment(\.appTheme) var theme
-    
+        
     let show: Bool // if hovering, selected or for sidebar
     let hasDropdown: Bool
     let forPropertySidebar: Bool
     let isSelectedInspectorRow: Bool
+    let isCanvasField: Bool
     var width: CGFloat
     let isHovering: Bool
     
-    let onTap: (() -> Void)? // nil =
+    let onTap: (() -> Void)?
      
 //    static let HOVER_EXTRA_LENGTH: CGFloat = 80
 //    static let HOVER_EXTRA_LENGTH: CGFloat = 100
@@ -57,46 +56,77 @@ struct InputFieldBackground: ViewModifier {
         // ... But we always use a full-width background for the focus/hover effect.
             .frame(width: width, alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
+        
+            .modifier(InputFieldBackgroundColorView(show: show))
+            .modifier(InspectorSelectedRowFieldBackground(isSelectedInspectorRow: isSelectedInspectorRow))
+        
+            .contentShape(Rectangle())
+        
+        // Canvas field ONLY
+            .overlay(content: {
+                if isHovering, isCanvasField {
+                    content
+                        .frame(width: width + hoveringAdjustment,
+                               alignment: .leading)
+                        .padding([.leading, .top, .bottom], 2)
+                        .modifier(InputFieldBackgroundColorView(show: show))
+                        
+                        .offset(x: hoveringAdjustment / 2)
+                        
+                        .onTapGesture {
+                            if let onTap = self.onTap {
+                                onTap()
+                            }
+                        }
+                }
+            })
+    }
+}
+
+// Used by canvas fields and, on iPad, when inspector row is selected
+struct InputFieldBackgroundColorView: ViewModifier {
+    
+    @Environment(\.appTheme) var theme
+    
+    let show: Bool
+    
+    func body(content: Content) -> some View {
+        content
             .background {
-                // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
-                let color = show ? backgroundColor : Color.clear
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(color)
-                    .overlay {
-                        if isSelectedInspectorRow {
+                    .fill(show ? Color.red : Color.clear)
+            }
+    }
+}
+
+// Only for iPad, to change the color of field's background when the entire inspector row is selected
+struct InspectorSelectedRowFieldBackground: ViewModifier {
+    
+    let isSelectedInspectorRow: Bool
+    
+    @Environment(\.appTheme) var theme
+    
+    func body(content: Content) -> some View {
+        content
+        #if !targetEnvironment(macCatalyst)
+            .background {
+                if isSelectedInspectorRow {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(.clear)
+                        .overlay {
                             RoundedRectangle(cornerRadius: 4)
                                 .fill(theme.fontColor.opacity(0.3))
                         }
-                    }
+                }
             }
-            .contentShape(Rectangle())
-        
-//            .overlay(content: {
-//                if isHovering {
-//                    content
-//                        .frame(width: width + hoveringAdjustment,
-//                               alignment: .leading)
-//                        .padding([.leading, .top, .bottom], 2)
-//                        .background {
-//                            // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
-//                            let color = show ? Color.red : Color.clear
-//                            RoundedRectangle(cornerRadius: 4)
-//                                .fill(color)
-//                                .overlay {
-//                                    if isSelectedInspectorRow {
-//                                        RoundedRectangle(cornerRadius: 4)
-//                                            .fill(theme.fontColor.opacity(0.3))
-//                                    }
-//                                }
-//                        }
-//                        .offset(x: hoveringAdjustment / 2)
-//                        .onTapGesture {
-//                            if let onTap = self.onTap {
-//                                onTap()
-//                            }
-//                        }
-//                }
-//            })
-//            .zIndex(isHovering ? 99999 : 0)
+        #endif
+    }
+}
+
+
+struct CanvasFieldHoverView: View {
+    
+    var body: some View {
+        Text("WIP")
     }
 }

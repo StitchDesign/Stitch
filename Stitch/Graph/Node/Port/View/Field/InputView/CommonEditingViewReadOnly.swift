@@ -21,6 +21,7 @@ struct CommonEditingViewReadOnly: View {
     @Bindable var inputField: InputFieldViewModel
     let inputString: String
     let forPropertySidebar: Bool
+    let isCanvasField: Bool
     let isHovering: Bool
     let choices: [String]?
     let fieldWidth: CGFloat
@@ -51,6 +52,7 @@ struct CommonEditingViewReadOnly: View {
             hasDropdown: self.hasPicker,
             forPropertySidebar: forPropertySidebar,
             isSelectedInspectorRow: isSelectedInspectorRow,
+            isCanvasField: self.isCanvasField,
             width: fieldWidth,
             isHovering: isHovering,
             onTap: self.onTap))

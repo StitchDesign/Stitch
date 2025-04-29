@@ -14,7 +14,6 @@ struct CommonEditingViewWrapper: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var fieldViewModel: InputFieldViewModel
     
-    let rowId: NodeRowViewModelId
     let layerInput: LayerInputPort?
     
     let fieldValue: FieldValue
@@ -57,7 +56,6 @@ struct CommonEditingViewWrapper: View {
                           inputString: fieldValue.stringValue,
                           graph: graph,
                           document: document,
-                          rowId: rowId,
                           layerInput: layerInput,
                           choices: choices,
                           isForLayerInspector: isForLayerInspector,
