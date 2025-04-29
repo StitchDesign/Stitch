@@ -309,17 +309,15 @@ final class ReplayKitRecorder: NSObject {
     func startRecording(dismissWindow: DismissWindowAction) {
         guard !recorder.isRecording else { return }
         
-        DispatchQueue.main.async { [weak self] in
-            self?.recorder.startRecording { [weak self] error in
-                if let error = error {
-                    print("Error starting recording: \(error.localizedDescription)")
+        self.recorder.startRecording { [weak self] error in
+            if let error = error {
+                print("Error starting recording: \(error.localizedDescription)")
 #if targetEnvironment(macCatalyst)
-                    dismissWindow(id: RecordingView.windowId)
+                dismissWindow(id: RecordingView.windowId)
 #endif
-                } else {
-                    print("Started recording.")
-                    self?.isRecording = true
-                }
+            } else {
+                print("Started recording.")
+                self?.isRecording = true
             }
         }
     }
