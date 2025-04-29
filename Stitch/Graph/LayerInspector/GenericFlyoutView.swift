@@ -172,7 +172,7 @@ struct GenericFlyoutRowView: View {
             }
                                     
             if let rowObserver = self.rowObserver {
-                InputValueEntry(graph: graph,
+                InputFieldView(graph: graph,
                                 document: document,
                                 viewModel: viewModel,
                                 node: node,

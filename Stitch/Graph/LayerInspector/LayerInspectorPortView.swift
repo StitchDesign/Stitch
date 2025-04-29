@@ -179,7 +179,7 @@ struct InspectorLayerInputView: View {
                             if let inputRowViewModel = node.getInputRowViewModel(for: fieldId.rowId),
                                let inputRowObserver = node.getInputRowObserver(for: fieldId.rowId.portType) {
                                 
-                                InputValueEntry(
+                                InputFieldView(
                                     graph: graph,
                                     document: document,
                                     viewModel: inputFieldViewModel,
@@ -236,7 +236,7 @@ struct LayerInputFieldsView: View {
         switch layerInputFieldType {
                     
         case .canvas(let canvasNode):
-            InputValueEntry(graph: graph,
+            InputFieldView(graph: graph,
                             document: document,
                             viewModel: inputFieldViewModel,
                             node: node,
@@ -346,8 +346,8 @@ struct LayerInspectorOutputPortView: View {
     
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: OutputFieldViewModel,
-                        isMultiField: Bool) -> OutputValueEntry {
-        OutputValueEntry(graph: graph,
+                        isMultiField: Bool) -> OutputFieldView {
+        OutputFieldView(graph: graph,
                          document: document,
                          viewModel: portViewModel,
                          rowViewModel: rowViewModel,

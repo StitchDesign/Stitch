@@ -17,7 +17,6 @@ struct CommonEditingViewWrapper: View {
     let rowViewModel: InputNodeRowViewModel
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
-    let isCanvasItemSelected: Bool
     let choices: [String]?
     let isForLayerInspector: Bool
     let isPackedLayerInputAlreadyOnCanvas: Bool
@@ -66,7 +65,6 @@ struct CommonEditingViewWrapper: View {
                           rowObserver: rowObserver,
                           rowViewModel: rowViewModel,
                           fieldIndex: fieldCoordinate.fieldIndex,
-                          isCanvasItemSelected: isCanvasItemSelected,
                           choices: choices,
                           isAdjustmentBarInUse: isButtonPressed,
                           isForLayerInspector: isForLayerInspector,

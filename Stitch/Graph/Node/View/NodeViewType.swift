@@ -69,8 +69,8 @@ struct DefaultNodeInputsView: View {
     func valueEntryView(rowObserver: InputNodeRowObserver,
                         rowViewModel: InputNodeRowViewModel,
                         portViewModel: InputFieldViewModel,
-                        isMultiField: Bool) -> InputValueEntry {
-        InputValueEntry(graph: graph,
+                        isMultiField: Bool) -> InputFieldView {
+        InputFieldView(graph: graph,
                         document: document,
                         viewModel: portViewModel,
                         node: node,
@@ -118,6 +118,12 @@ struct DefaultNodeInputsView: View {
                                                     rowViewModel: rowViewModel,
                                                     portViewModel: fieldViewModel,
                                                     isMultiField: isMultiField)
+                                .onHover { isHovering in
+                                    if isHovering {
+                                        self.hoveredField = fieldViewModel.id
+                                    }
+                                }
+                                .zIndex(self.hoveredField == fieldViewModel.id ? 9999 : 0)
                             }
                         }
                     }
@@ -125,6 +131,8 @@ struct DefaultNodeInputsView: View {
             }
         }
     }
+    
+    @State var hoveredField: FieldCoordinate? = nil
 }
 
 // Common to ALL outputs, whether patch, group or layer
@@ -171,7 +179,7 @@ struct DefaultNodeOutputsView: View {
                     if showOutputFields {
                         ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
                             ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-                                OutputValueEntry(graph: graph,
+                                OutputFieldView(graph: graph,
                                                  document: document,
                                                  viewModel: fieldViewModel,
                                                  rowViewModel: rowViewModel,
@@ -183,8 +191,10 @@ struct DefaultNodeOutputsView: View {
                                                  propertyIsAlreadyOnGraph: false,
                                                  isFieldInMultifieldInput: isMultiField,
                                                  isSelectedInspectorRow: false)
-                            }
+                                .zIndex(-99999)
+                            }.zIndex(-99999)
                         }
+                        .zIndex(-999)
                     }
                     
                     LabelDisplayView(label: rowObserver
@@ -194,12 +204,15 @@ struct DefaultNodeOutputsView: View {
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
                                      isSelectedInspectorRow: false)
+                    .zIndex(-999)
                     
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
+                    .zIndex(-999)
                 }
+                .zIndex(-99999)
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graph,
                     document: document,

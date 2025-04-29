@@ -36,6 +36,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     var body: some View {
         Rectangle().fill(self.portColor)
+//            .opacity(nodeIO == .output ? 0 : 1)
         //            Rectangle().fill(portBodyColor)
         //                .overlay {
         //                    if !hasEdge {
@@ -46,18 +47,23 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         //                    }
         //                }
             .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
+            .zIndex(nodeIO == .output ? -9999 : 0)
         // TODO: use `UnevenRoundedRectangle` ?
             .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
             .background {
                 Rectangle()
                     .fill(self.portColor)
+                    .opacity(nodeIO == .output ? 0 : 1)
                     .frame(width: 8)
                     .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
+                    .zIndex(nodeIO == .output ? -9999 : 0)
             }
+            .zIndex(nodeIO == .output ? -9999 : 0)
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
                                              portIsBeingDragged: self.$portIsBeingDragged,
                                              nodeIO: nodeIO,
                                              rowId: self.rowViewModel.id))
+            .zIndex(nodeIO == .output ? -9999 : 0)
             .animation(.linear(duration: self.animationTime),
                        value: self.portColor)
         
@@ -134,6 +140,7 @@ struct PortEntryExtendedHitBox: View {
         Color.HITBOX_COLOR
             .frame(width: EXTENDED_HITBOX_WIDTH,
                    height: EXTENDED_HITBOX_HEIGHT)
+//            .zIndex(nodeIO == .output ? -9999 : 0)
             /*
              Used for obtaining the starting diff adjustment for a port drag;
              PortGestureRecognizerView handles the heavy lifting,

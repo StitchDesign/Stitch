@@ -55,5 +55,6 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
                 
             }
         }
+        .zIndex(nodeIO == .output ? -9999 : 0)
     }
 }

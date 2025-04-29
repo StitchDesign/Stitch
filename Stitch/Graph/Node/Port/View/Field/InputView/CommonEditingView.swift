@@ -8,50 +8,13 @@
 import SwiftUI
 import StitchSchemaKit
 
-extension Color {
-    // Not completely white in light mode, not completely dark in dark mode
-    static let SIDEBAR_AND_INSPECTOR_BACKGROUND_COLOR = Color(.sheetBackground)
-    
-    static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.lightModeBlackDarkModeWhite)
-    
-    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Self.SIDEBAR_AND_INSPECTOR_BACKGROUND_COLOR //Color(.lightModeWhiteDarkModeBlack)
-    
-    static let INSPECTOR_FIELD_BACKGROUND_COLOR = Color(.inspectorFieldBackground)
-    
-#if DEV_DEBUG
-    static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = .blue.opacity(0.5)
-    static let COMMON_EDITING_VIEW_EDITABLE_FIELD_BACKGROUND_COLOR: Color = .green.opacity(0.5)
-#else
-    static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = INPUT_FIELD_BACKGROUND
-    static let COMMON_EDITING_VIEW_EDITABLE_FIELD_BACKGROUND_COLOR: Color = INPUT_FIELD_BACKGROUND
-#endif
-}
-
-let COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH = 12.0
-let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH - 4.0
-
-// node field input/output width, per Figma Spec
-let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
-
-// Need additional space since LayerDimension has the dropdown chevron + can display a percent
-let LAYER_DIMENSION_FIELD_WIDTH: CGFloat = 68
-
-// the soulver node needs more width
-let SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 90
-
-let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
-let SPACING_FIELD_WIDTH: CGFloat = 68
-let PADDING_FIELD_WDITH: CGFloat = 36
-
-// TODO: alternatively, allow these fields to size themselves?
-let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = 44
-//let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = NODE_INPUT_OR_OUTPUT_WIDTH
-
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
 // Only used directly by input fields, not NodeTitleView etc.
 struct CommonEditingView: View {
     @Environment(\.appTheme) var theme
+    
+    // TODO: APRIL 29: remove? is this still relevant?
     @Environment(\.isSelectionBoxInUse) private var isSelectionBoxInUse
     
     #if DEV_DEBUG
@@ -75,8 +38,7 @@ struct CommonEditingView: View {
     let rowViewModel: InputNodeRowViewModel
     
     let fieldIndex: Int
-    let isCanvasItemSelected: Bool
-
+    
     // Only for field-types that use a "TextField + Dropdown" view,
     // e.g. `LayerDimension`
     var choices: [String]?  = nil // ["fill", "auto"]
@@ -92,13 +54,12 @@ struct CommonEditingView: View {
     
     let isForFlyout: Bool
     let isForSpacingField: Bool
-    let isSelectedInspectorRow: Bool
-    let hasHeterogenousValues: Bool
-    
+    let isSelectedInspectorRow: Bool // always false for canvas
+    let hasHeterogenousValues: Bool // for layer multiselect
     
     // also inspector-only ?
+    // TODO: APRIL 29
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
-    
     
     let fieldWidth: CGFloat
     
@@ -127,7 +88,6 @@ struct CommonEditingView: View {
         if isForLayerInspector {
             return thisFieldIsFocused
         } else {
-//            return thisFieldIsFocused && isCanvasItemSelected && !isSelectionBoxInUse
             return thisFieldIsFocused && !isSelectionBoxInUse
         }
     }
@@ -145,6 +105,7 @@ struct CommonEditingView: View {
         }
     }
     
+    // TODO: APRIL 29: difference between this vs `isForLayerInspector` ?
     var isFieldInsideLayerInspector: Bool {
         rowViewModel.isFieldInsideLayerInspector
     }
@@ -201,9 +162,10 @@ struct CommonEditingView: View {
             // Ignore multifield hover
             guard self.multifieldLayerInput == nil else { return }
             
-            withAnimation {
+            // Don't want animation
+//            withAnimation {
                 self.isHovering = isHovering
-            }
+//            }
         }
         .onChange(of: self.hasHeterogenousValues, initial: true) { oldValue, newValue in
             // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
@@ -301,6 +263,7 @@ struct CommonEditingView: View {
                                       fontColor: STITCH_FONT_GRAY_COLOR,
                                       fieldEditCallback: inputEditedCallback,
                                       isBase64: isBase64)
+        .zIndex(isHovering ? 999 : 0)
         .onDisappear {
             // Fixes issue where default false values aren't shown after clearing inputs
             self.currentEdit = self.inputString
@@ -320,7 +283,9 @@ struct CommonEditingView: View {
             hasDropdown: self.hasPicker,
             forPropertySidebar: isForLayerInspector,
             isSelectedInspectorRow: isSelectedInspectorRow,
-            width: fieldWidth))
+            width: fieldWidth,
+            isHovering: isHovering))
+//        .zIndex(isHovering ? 999 : 0)
     }
         
         
@@ -383,55 +348,5 @@ struct CommonEditingView: View {
             rowObserver: rowObserver,
             isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
             isCommitting: isCommitting)
-    }
-}
-
-// TODO: per Elliot, this is actually a perf-expensive view?
-struct InputFieldBackground: ViewModifier {
-    
-    @Environment(\.appTheme) var theme
-    
-    let show: Bool // if hovering, selected or for sidebar
-    let hasDropdown: Bool
-    let forPropertySidebar: Bool
-    let isSelectedInspectorRow: Bool
-    var width: CGFloat
-    
-    var widthAdjustedForDropdown: CGFloat {
-        width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
-    }
-    
-    var backgroundColor: Color {
-        if forPropertySidebar {
-            return Color.INSPECTOR_FIELD_BACKGROUND_COLOR
-        } else {
-            return Color.COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR
-        }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-        
-        // When this field uses a dropdown,
-        // we shrink the "typeable" area of the input,
-        // so that typing never touches the dropdown's menu indicator.
-            .frame(width: widthAdjustedForDropdown, alignment: .leading)
-        
-        // ... But we always use a full-width background for the focus/hover effect.
-            .frame(width: width, alignment: .leading)
-            .padding([.leading, .top, .bottom], 2)
-            .background {
-                // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
-                let color = show ? backgroundColor : Color.clear
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(color)
-                    .overlay {
-                        if isSelectedInspectorRow {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(theme.fontColor.opacity(0.3))
-                        }
-                    }
-            }
-            .contentShape(Rectangle())
     }
 }

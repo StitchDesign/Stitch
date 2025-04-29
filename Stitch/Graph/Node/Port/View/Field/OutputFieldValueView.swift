@@ -8,7 +8,8 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct OutputValueEntry: View {
+// fka `OutputValueEntry`
+struct OutputFieldView: View {
 
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
@@ -40,7 +41,7 @@ struct OutputValueEntry: View {
     }
 
     var valueDisplay: some View {
-        OutputValueView(graph: graph,
+        OutputFieldValueView(graph: graph,
                         document: document,
                         viewModel: viewModel,
                         rowViewModel: rowViewModel,
@@ -70,7 +71,8 @@ struct OutputValueEntry: View {
 
 }
 
-struct OutputValueView: View {
+// fka `OutputValueView`
+struct OutputFieldValueView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: OutputFieldViewModel

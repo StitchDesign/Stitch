@@ -19,7 +19,6 @@ struct FieldValueNumberView: View {
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
-    let isCanvasItemSelected: Bool
     let choices: [String]?
     let isForLayerInspector: Bool
     let hasHeterogenousValues: Bool
@@ -68,7 +67,6 @@ struct FieldValueNumberView: View {
                                      rowViewModel: rowViewModel,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
-                                     isCanvasItemSelected: isCanvasItemSelected,
                                      choices: choices,
                                      isForLayerInspector: isForLayerInspector,
                                      isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,

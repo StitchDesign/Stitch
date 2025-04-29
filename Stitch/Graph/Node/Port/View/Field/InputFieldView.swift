@@ -9,7 +9,8 @@ import SwiftUI
 import StitchSchemaKit
 
 // For an individual field
-struct InputValueEntry: View {
+// fka `InputValueEntry`
+struct InputFieldView: View {
 
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
@@ -189,7 +190,6 @@ struct InputFieldValueView: View {
                                          rowViewModel: rowViewModel,
                                          fieldValue: fieldValue,
                                          fieldCoordinate: fieldCoordinate,
-                                         isCanvasItemSelected: isCanvasItemSelected,
                                          choices: nil,
                                          isForLayerInspector: isForLayerInspector,
                                          isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
@@ -208,7 +208,6 @@ struct InputFieldValueView: View {
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: .number,
                                      fieldCoordinate: fieldCoordinate,
-                                     isCanvasItemSelected: isCanvasItemSelected,
                                      choices: nil,
                                      isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
@@ -227,7 +226,6 @@ struct InputFieldValueView: View {
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                      fieldCoordinate: fieldCoordinate,
-                                     isCanvasItemSelected: isCanvasItemSelected,
                                      choices: graph.getFilteredLayerDimensionChoices(node: node,
                                                                                      layerInputPort: layerInputPort,
                                                                                      activeIndex: document.activeIndex)
@@ -250,7 +248,6 @@ struct InputFieldValueView: View {
                                      fieldValue: fieldValue,
                                      fieldValueNumberType: .number,
                                      fieldCoordinate: fieldCoordinate,
-                                     isCanvasItemSelected: isCanvasItemSelected,
                                      choices: StitchSpacing.choices,
                                      isForLayerInspector: isForLayerInspector,
                                      hasHeterogenousValues: hasHeterogenousValues,
