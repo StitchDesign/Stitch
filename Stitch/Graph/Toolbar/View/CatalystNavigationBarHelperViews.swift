@@ -221,7 +221,7 @@ struct CatalystTopBarGraphButtons: View {
                 document.isScreenSharing = true
                 
                 #if targetEnvironment(macCatalyst)
-                openWindow(id: "mac-screen-sharing")
+                openWindow(id: RecordingView.windowId)
                 #endif
             }
             

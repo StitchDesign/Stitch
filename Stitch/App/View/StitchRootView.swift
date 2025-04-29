@@ -302,7 +302,7 @@ final class ReplayKitRecorder: NSObject {
     
     @MainActor
     func startRecording(document: StitchDocumentViewModel,
-                        dismiss: DismissAction) {
+                        dismissWindow: DismissWindowAction) {
         guard !recorder.isRecording else { return }
         
         #if targetEnvironment(macCatalyst)
@@ -323,7 +323,7 @@ final class ReplayKitRecorder: NSObject {
                 if let error = error {
                     print("Error starting recording: \(error.localizedDescription)")
 #if targetEnvironment(macCatalyst)
-                dismiss()
+                    dismissWindow(id: RecordingView.windowId)
 #endif
                 } else {
                     print("Started recording.")
@@ -334,7 +334,7 @@ final class ReplayKitRecorder: NSObject {
     }
     
     @MainActor
-    func stopRecording(dismiss: DismissAction) {
+    func stopRecording(dismissWindow: DismissWindowAction) {
         guard recorder.isRecording else { return }
         
 #if targetEnvironment(macCatalyst)
@@ -360,7 +360,7 @@ final class ReplayKitRecorder: NSObject {
                 self?.isRecording = false
                 
 #if targetEnvironment(macCatalyst)
-                dismiss()
+                dismissWindow(id: RecordingView.windowId)
 #endif
             }
         }
@@ -391,7 +391,9 @@ extension ReplayKitRecorder: RPPreviewViewControllerDelegate {
 }
 
 struct RecordingView: View {
-    @Environment(\.dismiss) private var dismiss
+    static let windowId = "mac-screen-sharing"
+    
+    @Environment(\.dismissWindow) private var dismissWindow
 
     @State private var recorder = ReplayKitRecorder()
 //    @Bindable var recorder: ReplayKitRecorder // can also pass down from StitchStore
@@ -405,9 +407,9 @@ struct RecordingView: View {
             .onChange(of: self.shouldRecord, initial: true) { oldValue, newValue in
                 if newValue {
                     self.recorder.startRecording(document: document,
-                                                 dismiss: dismiss)
+                                                 dismissWindow: dismissWindow)
                 } else {
-                    self.recorder.stopRecording(dismiss: dismiss)
+                    self.recorder.stopRecording(dismissWindow: dismissWindow)
                 }
             }
     }
@@ -443,7 +445,7 @@ struct RecordingView: View {
             Button(action: {
                 if recorder.isRecording {
                     //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    recorder.stopRecording(dismiss: dismiss)
+                    recorder.stopRecording(dismissWindow: dismissWindow)
                     //                    }
                     
                 } else {
@@ -453,7 +455,7 @@ struct RecordingView: View {
                     
                     //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     recorder.startRecording(document: document,
-                                            dismiss: dismiss)
+                                            dismissWindow: dismissWindow)
                     //                    }
                     
                 }

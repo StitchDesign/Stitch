@@ -16,7 +16,6 @@ struct StitchApp: App {
     // MARK: VERY important to pass the store StateObject into each view for perf
     var body: some Scene {
         WindowGroup {
-
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
@@ -59,17 +58,31 @@ struct StitchApp: App {
         
         #if targetEnvironment(macCatalyst)
         WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
-            if let document = store.currentDocument,
-               document.isScreenSharing {
-                ZStack {
-                    PreviewContent(document: document,
-                                   isFullScreen: true,
-                                   showPreviewWindow: true)
-
-                    RecordingView(document: document)
-                }
-            }
+            MacScreenSharingView(store: store)
         }
         #endif
+    }
+}
+
+// TODO: move
+struct MacScreenSharingView: View {
+    @Environment(\.dismissWindow) private var dismissWindow
+    
+    let store: StitchStore
+    
+    var body: some View {
+        if let document = store.currentDocument,
+           document.isScreenSharing {
+            ZStack {
+                PreviewContent(document: document,
+                               isFullScreen: true,
+                               showPreviewWindow: true)
+
+                RecordingView(document: document)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+                dismissWindow(id: RecordingView.windowId)
+            }
+        }
     }
 }
