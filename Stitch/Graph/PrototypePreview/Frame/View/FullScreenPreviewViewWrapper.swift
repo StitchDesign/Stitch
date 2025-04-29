@@ -69,10 +69,10 @@ struct FullScreenPreviewViewWrapper: View {
         FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
             HStack {
                 previewView
-                RecordingView()
-                if let store = document.storeDelegate {
-                    RecordingView(recorder: store.recorder)
-                }
+                RecordingView(document: document)
+//                if let store = document.storeDelegate {
+//                    RecordingView(recorder: store.recorder)
+//                }
                 
             }
 //             previewView

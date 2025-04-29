@@ -219,7 +219,7 @@ struct StitchRootView: View {
         
         
         // MARK: avoids distortion in ReplayKit video, but messes up top bar buttons
-//        .frame(minWidth: 1024, idealWidth: 1024, maxWidth: 1024, minHeight: 768, idealHeight: 768, maxHeight: 768)
+        .frame(minWidth: 1024, idealWidth: 1024, maxWidth: 1024, minHeight: 768, idealHeight: 768, maxHeight: 768)
         
         // MARK: reading StitchRootView's GeometryReader size; causes error with ReplayKit's startRecording
 //        .frame(minWidth: store.recorder.isRecording ? 1024 : nil,
@@ -294,42 +294,76 @@ import ReplayKit
 import UIKit
 
 @MainActor @Observable
-class ReplayKitRecorder: NSObject {
+final class ReplayKitRecorder: NSObject {
     private let recorder = RPScreenRecorder.shared()
+    private var oldWindowSize: CGSize? = nil
     
     var isRecording = false
     
     @MainActor
-    func startRecording() {
+    func startRecording(document: StitchDocumentViewModel,
+                        openWindow: OpenWindowAction,
+                        dismiss: DismissAction) {
         guard !recorder.isRecording else { return }
         
-        recorder.startRecording { [weak self] error in
-            if let error = error {
-                print("Error starting recording: \(error.localizedDescription)")
-            } else {
-                print("Started recording.")
-                self?.isRecording = true
+        #if targetEnvironment(macCatalyst)
+//        store.isMacScreenSharing = true
+        openWindow(id: "mac-screen-sharing")
+        
+        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
+            // MARK: avoids distortion in ReplayKit video, but messes up top bar buttons
+            self.oldWindowSize = windowScene.windows.first?.rootViewController?.view.bounds.size
+            
+//            windowScene.windows.first?.rootViewController?.view.bounds.size = .init(width: 800, height: 400)
+//                .init(width: document.frame.width - 100,
+//                                                                                    height: document.frame.height)
+        }
+        #endif
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.recorder.startRecording { [weak self] error in
+                if let error = error {
+                    print("Error starting recording: \(error.localizedDescription)")
+#if targetEnvironment(macCatalyst)
+                dismiss()
+#endif
+                } else {
+                    print("Started recording.")
+                    self?.isRecording = true
+                }
             }
         }
     }
     
     @MainActor
-    func stopRecording() {
+    func stopRecording(dismiss: DismissAction) {
         guard recorder.isRecording else { return }
+        
+#if targetEnvironment(macCatalyst)
+//        store.isMacScreenSharing = false
+
+        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene),
+           let oldWindowSize = self.oldWindowSize {
+            windowScene.windows.first?.rootViewController?.view.bounds.size = oldWindowSize
+        }
+#endif
         
         recorder.stopRecording { [weak self] (previewVC, error) in
             Task { @MainActor in
                 if let error = error {
                     print("Error stopping recording: \(error.localizedDescription)")
-                    self?.isRecording = false
                 } else if let previewVC = previewVC {
                     print("Stopped recording, showing preview.")
-                    self?.isRecording = false
                     self?.presentPreview(previewVC)
                 } else {
                     print("Stopped recording, no preview available.")
-                    self?.isRecording = false
                 }
+                
+                self?.isRecording = false
+                
+#if targetEnvironment(macCatalyst)
+                dismiss()
+#endif
             }
         }
     }
@@ -359,9 +393,14 @@ extension ReplayKitRecorder: RPPreviewViewControllerDelegate {
 }
 
 struct RecordingView: View {
-    @State var recorder = ReplayKitRecorder()
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var recorder = ReplayKitRecorder()
 //    @Bindable var recorder: ReplayKitRecorder // can also pass down from StitchStore
     
+    let document: StitchDocumentViewModel
+//    let store: StitchStore
     var shouldRecord: Bool = false
     
     var body: some View {
@@ -371,9 +410,11 @@ struct RecordingView: View {
         }
         .onChange(of: self.shouldRecord, initial: true) { oldValue, newValue in
             if newValue {
-                self.recorder.startRecording()
+                self.recorder.startRecording(document: document,
+                                             openWindow: openWindow,
+                                             dismiss: dismiss)
             } else {
-                self.recorder.stopRecording()
+                self.recorder.stopRecording(dismiss: dismiss)
             }
         }
     }
@@ -409,7 +450,7 @@ struct RecordingView: View {
             Button(action: {
                 if recorder.isRecording {
                     //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    recorder.stopRecording()
+                    recorder.stopRecording(dismiss: dismiss)
                     //                    }
                     
                 } else {
@@ -418,7 +459,9 @@ struct RecordingView: View {
                     //                    }
                     
                     //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    recorder.startRecording()
+                    recorder.startRecording(document: document,
+                                            openWindow: openWindow,
+                                            dismiss: dismiss)
                     //                    }
                     
                 }

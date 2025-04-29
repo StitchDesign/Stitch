@@ -56,5 +56,11 @@ struct StitchApp: App {
                            activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
           
         }
+        
+        #if targetEnvironment(macCatalyst)
+        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
+            Color.clear
+        }
+        #endif
     }
 }
