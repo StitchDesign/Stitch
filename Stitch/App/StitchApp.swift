@@ -61,11 +61,13 @@ struct StitchApp: App {
         WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
             if let document = store.currentDocument,
                document.isScreenSharing {
-                RecordingView(document: document)
-                PreviewContent(document: document,
-                               isFullScreen: true,
-                               showPreviewWindow: true)
+                ZStack {
+                    PreviewContent(document: document,
+                                   isFullScreen: true,
+                                   showPreviewWindow: true)
 
+                    RecordingView(document: document)
+                }
             }
         }
         #endif

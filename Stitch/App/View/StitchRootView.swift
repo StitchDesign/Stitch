@@ -302,13 +302,11 @@ final class ReplayKitRecorder: NSObject {
     
     @MainActor
     func startRecording(document: StitchDocumentViewModel,
-                        openWindow: OpenWindowAction,
                         dismiss: DismissAction) {
         guard !recorder.isRecording else { return }
         
         #if targetEnvironment(macCatalyst)
 //        store.isMacScreenSharing = true
-        openWindow(id: "mac-screen-sharing")
         
         if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
             // MARK: avoids distortion in ReplayKit video, but messes up top bar buttons
@@ -393,7 +391,6 @@ extension ReplayKitRecorder: RPPreviewViewControllerDelegate {
 }
 
 struct RecordingView: View {
-    @Environment(\.openWindow) private var openWindow
     @Environment(\.dismiss) private var dismiss
 
     @State private var recorder = ReplayKitRecorder()
@@ -404,19 +401,15 @@ struct RecordingView: View {
     var shouldRecord: Bool = false
     
     var body: some View {
-        HStack {
-//            previews
-            buttonStack
-        }
-        .onChange(of: self.shouldRecord, initial: true) { oldValue, newValue in
-            if newValue {
-                self.recorder.startRecording(document: document,
-                                             openWindow: openWindow,
-                                             dismiss: dismiss)
-            } else {
-                self.recorder.stopRecording(dismiss: dismiss)
+        buttonStack
+            .onChange(of: self.shouldRecord, initial: true) { oldValue, newValue in
+                if newValue {
+                    self.recorder.startRecording(document: document,
+                                                 dismiss: dismiss)
+                } else {
+                    self.recorder.stopRecording(dismiss: dismiss)
+                }
             }
-        }
     }
     
     @State var extraHeight: CGFloat = .zero
@@ -460,7 +453,6 @@ struct RecordingView: View {
                     
                     //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     recorder.startRecording(document: document,
-                                            openWindow: openWindow,
                                             dismiss: dismiss)
                     //                    }
                     
