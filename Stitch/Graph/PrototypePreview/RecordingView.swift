@@ -131,11 +131,26 @@ struct RecordingView: View {
     
     var body: some View {
         HStack {
+            VStack {
+                Spacer()
+                
+                buttonView
+            }
+            .padding(32)
+            
             Spacer()
             
             VStack {
-                buttonView
+                Spacer()
+                
+                Image("AppIconDefaultDark")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 52)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(16)
             }
+            .padding(32)
         }
     }
     
@@ -149,12 +164,8 @@ struct RecordingView: View {
             }
         }) {
             labelView
-                .padding()
-                .background(.ultraThinMaterial)
-                .cornerRadius(26)
         }
         .buttonStyle(.borderless)
-        .padding()
     }
     
     @ViewBuilder
@@ -164,9 +175,13 @@ struct RecordingView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 22)
+                .background(.ultraThinMaterial)
         } else {
             Text("Record")
                 .font(.subheadline)
+                .padding()
+                .background(.ultraThinMaterial)
+                .cornerRadius(26)
         }
     }
 }
