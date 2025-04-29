@@ -27,9 +27,7 @@ struct CommonEditingViewWrapper: View {
     var isForSpacingField: Bool = false
     var isForLayerDimensionField: Bool = false
     var nodeKind: NodeKind
-    
-    @State private var isButtonPressed = false
-    
+        
     var fieldIndex: Int {
         self.fieldViewModel.fieldIndex
     }
@@ -66,7 +64,6 @@ struct CommonEditingViewWrapper: View {
                           rowViewModel: rowViewModel,
                           fieldIndex: fieldCoordinate.fieldIndex,
                           choices: choices,
-                          isAdjustmentBarInUse: isButtonPressed,
                           isForLayerInspector: isForLayerInspector,
                           isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                           isFieldInMultifieldInput: isFieldInMultifieldInput,

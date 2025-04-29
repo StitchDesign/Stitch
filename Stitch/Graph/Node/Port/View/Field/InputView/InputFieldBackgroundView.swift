@@ -19,9 +19,9 @@ struct InputFieldBackground: ViewModifier {
     var width: CGFloat
     let isHovering: Bool
      
-    static let HOVER_EXTRA_LENGTH: CGFloat = 80
+//    static let HOVER_EXTRA_LENGTH: CGFloat = 80
 //    static let HOVER_EXTRA_LENGTH: CGFloat = 100
-//    static let HOVER_EXTRA_LENGTH: CGFloat = 52
+    static let HOVER_EXTRA_LENGTH: CGFloat = 52
     
     var hoveringAdjustment: CGFloat {
         isHovering ? Self.HOVER_EXTRA_LENGTH : 0

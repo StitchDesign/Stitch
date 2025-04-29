@@ -43,7 +43,6 @@ struct CommonEditingView: View {
     // e.g. `LayerDimension`
     var choices: [String]?  = nil // ["fill", "auto"]
 
-    var isAdjustmentBarInUse: Bool = false
     var isLargeString: Bool = false
     
     let isForLayerInspector: Bool
@@ -213,7 +212,7 @@ struct CommonEditingView: View {
                 // log("on change of choice: valid new choice")
                 self.currentEdit = newValue
                 self.inputEditedCallback(newEdit: newValue,
-                                 isCommitting: true)
+                                         isCommitting: true)
             }
         }
         
@@ -239,7 +238,6 @@ struct CommonEditingView: View {
     }
     
     var multifieldLayerInput: LayerInputPort? {
-        
         isFieldInMultifieldInspectorInputAndNotFlyout ? rowViewModel.layerInput : nil
     }
     
@@ -263,7 +261,6 @@ struct CommonEditingView: View {
                                       fontColor: STITCH_FONT_GRAY_COLOR,
                                       fieldEditCallback: inputEditedCallback,
                                       isBase64: isBase64)
-        .zIndex(isHovering ? 999 : 0)
         .onDisappear {
             // Fixes issue where default false values aren't shown after clearing inputs
             self.currentEdit = self.inputString
@@ -271,7 +268,7 @@ struct CommonEditingView: View {
             // Fixes issue where edits sometimes don't save if focus is lost
             if self.currentEdit != self.inputString {
                 self.inputEditedCallback(newEdit: self.currentEdit,
-                                 isCommitting: true)
+                                         isCommitting: true)
             }
         }
         
@@ -285,7 +282,6 @@ struct CommonEditingView: View {
             isSelectedInspectorRow: isSelectedInspectorRow,
             width: fieldWidth,
             isHovering: isHovering))
-//        .zIndex(isHovering ? 999 : 0)
     }
         
         
@@ -318,6 +314,10 @@ struct CommonEditingView: View {
             })
     }
 
+   
+}
+
+extension CommonEditingView {
     // Currently only used when we focus or de-focus
     @MainActor
     func updateCurrentEdit(message: String? = nil) {
