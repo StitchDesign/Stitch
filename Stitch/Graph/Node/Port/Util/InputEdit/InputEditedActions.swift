@@ -17,7 +17,6 @@ extension GraphState {
                            fieldIndex: Int,
                            rowId: NodeRowViewModelId,
                            activeIndex: ActiveIndex,
-                           rowObserver: InputNodeRowObserver,
                            isFieldInsideLayerInspector: Bool,
                            isCommitting: Bool = true) {
         
@@ -26,14 +25,16 @@ extension GraphState {
         //        log("inputEdited: coordinate: \(coordinate)")
         //        log("inputEdited: isFieldInsideLayerInspector: \(isFieldInsideLayerInspector)")
         //        log("inputEdited: isCommitting: \(isCommitting)")
-
-        rowObserver.handleInputEdited(graph: self,
-                                      fieldValue: fieldValue,
-                                      fieldIndex: fieldIndex,
-                                      rowId: rowId,
-                                      activeIndex: activeIndex,
-                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                      isCommitting: isCommitting)
+        
+        if let rowObserver = self.getInputRowObserver(rowId.asNodeIOCoordinate) {
+            rowObserver.handleInputEdited(graph: self,
+                                          fieldValue: fieldValue,
+                                          fieldIndex: fieldIndex,
+                                          rowId: rowId,
+                                          activeIndex: activeIndex,
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                          isCommitting: isCommitting)
+        }
     }
 }
 

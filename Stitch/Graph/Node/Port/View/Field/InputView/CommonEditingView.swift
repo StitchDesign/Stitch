@@ -21,7 +21,6 @@ struct CommonEditingView: View {
     @Environment(\.isSelectionBoxInUse) private var isSelectionBoxInUse
         
     
-    
     // MARK: PASSED-IN VIEW PARAMETERS
     
     @Bindable var inputField: InputFieldViewModel
@@ -30,10 +29,10 @@ struct CommonEditingView: View {
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var rowObserver: InputNodeRowObserver
     
-    let rowViewModel: InputNodeRowViewModel
-    
+    let rowId: NodeRowViewModelId
+    let layerInput: LayerInputPort?
+        
     var fieldIndex: Int {
         inputField.fieldIndex
     }
@@ -60,7 +59,14 @@ struct CommonEditingView: View {
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
     
     let fieldWidth: CGFloat
+
     
+    // If we're not for the inspector or a flyout,
+    // then assume we're on the canvas.
+    var isCanvasField: Bool {
+//        !isForLayerInspector && !isForFlyout
+        inputField.id.rowId.graphItemType.getCanvasItemId.isDefined
+    }
     
     
     // MARK: LOCAL VIEW STATE
@@ -185,7 +191,7 @@ extension CommonEditingView {
             onTap: {
                 // Every multifield input in the inspector uses a flyout
                 if isFieldInMultifieldInspectorInputAndNotFlyout,
-                   let layerInput = rowViewModel.layerInput,
+                   let layerInput = layerInput,
                    !isForFlyout {
                     dispatch(FlyoutToggled(flyoutInput: layerInput,
                                            flyoutNodeId: nodeId,
@@ -316,21 +322,12 @@ extension CommonEditingView {
         }
     }
     
-    // TODO: APRIL 29: difference between this vs `isForLayerInspector` ?
-    var isFieldInsideLayerInspector: Bool {
-        rowViewModel.isFieldInsideLayerInspector
-    }
-
-    var layerInput: LayerInputPort? {
-        rowViewModel.layerInput
-    }
-    
     var hasPicker: Bool {
         choices.isDefined && !isFieldInMultifieldInspectorInputAndNotFlyout
     }
     
     var multifieldLayerInput: LayerInputPort? {
-        isFieldInMultifieldInspectorInputAndNotFlyout ? rowViewModel.layerInput : nil
+        isFieldInMultifieldInspectorInputAndNotFlyout ? self.layerInput : nil
     }
 }
 
@@ -362,11 +359,10 @@ extension CommonEditingView {
                                         isCommitting: Bool) {
         self.graph.inputEditedFromUI(
             fieldValue: .string(.init(newEdit)),
-            fieldIndex: fieldIndex,
-            rowId: rowViewModel.id,
+            fieldIndex: self.fieldIndex,
+            rowId: self.rowId,
             activeIndex: document.activeIndex,
-            rowObserver: rowObserver,
-            isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
+            isFieldInsideLayerInspector: self.isForLayerInspector,
             isCommitting: isCommitting)
     }
 }

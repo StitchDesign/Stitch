@@ -13,8 +13,10 @@ struct CommonEditingViewWrapper: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var fieldViewModel: InputFieldViewModel
-    @Bindable var rowObserver: InputNodeRowObserver
-    let rowViewModel: InputNodeRowViewModel
+    
+    let rowId: NodeRowViewModelId
+    let layerInput: LayerInputPort?
+    
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
     let choices: [String]?
@@ -27,11 +29,7 @@ struct CommonEditingViewWrapper: View {
     var isForSpacingField: Bool = false
     var isForLayerDimensionField: Bool = false
     var nodeKind: NodeKind
-        
-    var fieldIndex: Int {
-        self.fieldViewModel.fieldIndex
-    }
-    
+            
     var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
         isFieldInMultifieldInput && isForLayerInspector && !isForFlyout
     }
@@ -55,13 +53,12 @@ struct CommonEditingViewWrapper: View {
     }
     
     var body: some View {
-        let stringValue = fieldValue.stringValue
         CommonEditingView(inputField: fieldViewModel,
-                          inputString: stringValue,
+                          inputString: fieldValue.stringValue,
                           graph: graph,
                           document: document,
-                          rowObserver: rowObserver,
-                          rowViewModel: rowViewModel,
+                          rowId: rowId,
+                          layerInput: layerInput,
                           choices: choices,
                           isForLayerInspector: isForLayerInspector,
                           isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
