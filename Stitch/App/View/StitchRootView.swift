@@ -79,6 +79,7 @@ struct StitchRootView: View {
 //                        RecordingView(shouldRecord: store.shouldRecord)
 //                    }
             }
+               
      
             
             // Can't .overlay this, nor use ZStack, nor HStack
@@ -87,6 +88,15 @@ struct StitchRootView: View {
 //            Rectangle().fill(.clear).frame(width: 1, height: 1)
             
         } // ZStack
+        
+        // MARK: no ReplayKit distortion, but restricts size of window and messes up top bar buttons
+//        .fixedSize()
+        
+        // MARK: no ReplayKit distortion, but strange placement of top bar buttons
+//        .aspectRatio(contentMode: .fill)
+//        .aspectRatio(contentMode: .fit)
+        
+//        .ignoresSafeArea(.all)
         
         // MARK: attempting to use .background to place the ReplayKit without  avoid avoids distortion in ReplayKit video, but messes up top bar buttons
         

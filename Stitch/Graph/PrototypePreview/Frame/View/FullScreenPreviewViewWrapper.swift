@@ -70,9 +70,9 @@ struct FullScreenPreviewViewWrapper: View {
             HStack {
                 previewView
                 RecordingView()
-                if let store = document.storeDelegate {
-                    RecordingView(recorder: store.recorder)
-                }
+//                if let store = document.storeDelegate {
+//                    RecordingView(recorder: store.recorder)
+//                }
                 
             }
 //             previewView
