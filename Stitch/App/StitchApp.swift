@@ -11,6 +11,8 @@ import Sentry
 
 @main @MainActor
 struct StitchApp: App {
+    @Environment(\.dismissWindow) private var dismissWindow
+
     @State private var store = StitchStore()
     
     // MARK: VERY important to pass the store StateObject into each view for perf
@@ -33,6 +35,12 @@ struct StitchApp: App {
                         options.enableMetricKitRawPayload = true
                         options.debug = false
                     }
+                    
+                    // Close mac sharing window in case open
+                    #if targetEnvironment(macCatalyst)
+                    dismissWindow(id: RecordingView.windowId)
+                    #endif
+
                 }
                 .environment(self.store)
                 .environment(self.store.environment)
@@ -61,28 +69,5 @@ struct StitchApp: App {
             MacScreenSharingView(store: store)
         }
         #endif
-    }
-}
-
-// TODO: move
-struct MacScreenSharingView: View {
-    @Environment(\.dismissWindow) private var dismissWindow
-    
-    let store: StitchStore
-    
-    var body: some View {
-        if let document = store.currentDocument,
-           document.isScreenSharing {
-            ZStack {
-                PreviewContent(document: document,
-                               isFullScreen: true,
-                               showPreviewWindow: true)
-
-                RecordingView(dismissWindow: dismissWindow)
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
-                dismissWindow(id: RecordingView.windowId)
-            }
-        }
     }
 }

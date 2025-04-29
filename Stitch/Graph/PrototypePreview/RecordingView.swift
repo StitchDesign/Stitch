@@ -96,11 +96,25 @@ final class ReplayKitRecorderDelegate: NSObject, RPPreviewViewControllerDelegate
     }
 }
 
-struct RecordingViewWrapper: View {
+struct MacScreenSharingView: View {
     @Environment(\.dismissWindow) private var dismissWindow
     
+    let store: StitchStore
+    
     var body: some View {
-        RecordingView(dismissWindow: dismissWindow)
+        if let document = store.currentDocument,
+           document.isScreenSharing {
+            ZStack {
+                PreviewContent(document: document,
+                               isFullScreen: true,
+                               showPreviewWindow: true)
+
+                RecordingView(dismissWindow: dismissWindow)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+                dismissWindow(id: RecordingView.windowId)
+            }
+        }
     }
 }
 
@@ -116,30 +130,43 @@ struct RecordingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 8) {
-            Text(recorder.isRecording ? "Recording..." : "Not Recording")
-                .font(.title)
-                .padding()
-                .frame(width: 200, height: 50)
+        HStack {
+            Spacer()
             
-            Button(action: {
-                if recorder.isRecording {
-                    recorder.stopRecording(dismissWindow: dismissWindow)
-                } else {
-                    recorder.startRecording(dismissWindow: dismissWindow)
-                }
-            }) {
-                Text(recorder.isRecording ? "Stop Recording" : "Start Recording")
-                    .frame(width: 200, height: 50)
-                    .background(recorder.isRecording ? Color.red : Color.green)
-                    .cornerRadius(10)
+            VStack {
+                buttonView
             }
         }
+    }
+    
+    @ViewBuilder
+    var buttonView: some View {
+        Button(action: {
+            if recorder.isRecording {
+                recorder.stopRecording(dismissWindow: dismissWindow)
+            } else {
+                recorder.startRecording(dismissWindow: dismissWindow)
+            }
+        }) {
+            labelView
+                .padding()
+                .background(.ultraThinMaterial)
+                .cornerRadius(26)
+        }
+        .buttonStyle(.borderless)
         .padding()
     }
-}
-
-
-#Preview {
-    RecordingViewWrapper()
+    
+    @ViewBuilder
+    var labelView: some View {
+        if recorder.isRecording {
+            Image(systemName: "stop.circle.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 22)
+        } else {
+            Text("Record")
+                .font(.subheadline)
+        }
+    }
 }
