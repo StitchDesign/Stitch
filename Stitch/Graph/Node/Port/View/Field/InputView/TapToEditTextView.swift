@@ -7,15 +7,21 @@
 
 import SwiftUI
 
-// Used for single-field portvalues like .number or .text,
-// and as a single editable field for a multifield portvalues like .size
-// Only used directly by input fields, not NodeTitleView etc.
+/*
+ A common view for directly editable input-fields that accept alphanumeric input.
+ 
+ Intended for input-fields, not e.g. canvas item title fields.
+ 
+ SwiftUI's TextField is very CPU-intensive, even when not focused.
+ Therefore we render Text unless this specific field is focused.
+ */
 struct TapToEditTextView: View {
     
     // MARK: ENVIRONMENT STATE
     
     @Environment(\.appTheme) var theme
             
+    
     // MARK: PASSED-IN VIEW PARAMETERS
     
     @Bindable var inputField: InputFieldViewModel
@@ -49,8 +55,9 @@ struct TapToEditTextView: View {
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
     
     let fieldWidth: CGFloat
-
-
+    
+    // For canvas fields only
+    @Binding var isCurrentlyFocused: Bool
     
     
     var rowId: NodeRowViewModelId {
@@ -63,10 +70,10 @@ struct TapToEditTextView: View {
     
     // If we're not for the inspector or a flyout,
     // then assume we're on the canvas.
-    var isCanvasField: Bool {
-//        !isForLayerInspector && !isForFlyout
-        inputField.id.rowId.graphItemType.getCanvasItemId.isDefined
-    }
+//    var isCanvasField: Bool {
+////        !isForLayerInspector && !isForFlyout
+//        inputField.id.rowId.graphItemType.getCanvasItemId.isDefined
+//    }
     
     var isSelectionBoxInUse: Bool {
         self.document.visibleGraph.selection.isSelecting
@@ -90,13 +97,21 @@ struct TapToEditTextView: View {
     @State var pickerChoice: String = ""
     
     var body: some View {
-        Group {
-            if let choices = choices, self.hasPicker {
-                textFieldViewWithPicker(choices)
-            } else {
-                textFieldView
-            }
-        }
+//        Group {
+//            if let choices = choices, self.hasPicker {
+//                textFieldViewWithPicker(choices)
+//            } else {
+//                textFieldView
+//            }
+//        }
+        
+        textFieldView
+            .frame(width: fieldWidth, // TODO: APRIL 29:  handle picker etc.
+                   alignment: .leading)
+        
+            .padding([.leading, .top, .bottom], 2)
+        
+            .contentShape(Rectangle())
         
         // TODO: put this common logic (.onAppear, .onChange) into a view modifier?
         
@@ -105,18 +120,10 @@ struct TapToEditTextView: View {
         .onChange(of: self.showEditingView, initial: true) { _, newValue in
             // Fixes beach balls for base 64 strings
             if newValue { self.updateCurrentEdit() }
+            self.isCurrentlyFocused = newValue
         }
         .onChange(of: self.hasHeterogenousValues, initial: true) { oldValue, newValue in
             if newValue { self.updateCurrentEdit() }
-        }
-        .onHover { isHovering in
-            // Ignore multifield hover
-            guard self.multifieldLayerInput == nil else { return }
-
-            // Only canvas fields support the hover effect
-            if self.isCanvasField {
-                self.isHovering = isHovering
-            }
         }
     }
     
@@ -157,23 +164,23 @@ struct TapToEditTextView: View {
         .offset(y: -0.5) // slight adjustment required
 #endif
         
-        .modifier(InputFieldBackground(
-            show: true, // always show background for a focused input
-            hasDropdown: self.hasPicker,
-            forPropertySidebar: isForLayerInspector,
-            isSelectedInspectorRow: isSelectedInspectorRow,
-            isCanvasField: self.isCanvasField,
-            width: fieldWidth,
-            isHovering: isHovering,
-            onTap: nil))
+//        .modifier(InputFieldBackground(
+//            show: true, // always show background for a focused input
+//            hasDropdown: self.hasPicker,
+//            forPropertySidebar: isForLayerInspector,
+//            isSelectedInspectorRow: isSelectedInspectorRow,
+//            isCanvasField: self.isCanvasField,
+//            width: fieldWidth,
+//            isHovering: isHovering,
+//            onTap: nil))
         
         // Field highlight
-        .overlay {
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(theme.themeData.edgeColor,
-                        // Color.accentColor,
-                        lineWidth: self.showEditingView ? 2 : 0)
-        }
+//        .overlay {
+//            RoundedRectangle(cornerRadius: 4)
+//                .stroke(theme.themeData.edgeColor,
+//                        // Color.accentColor,
+//                        lineWidth: self.showEditingView ? 2 : 0)
+//        }
     } // editableTextFieldView
 }
 
@@ -188,25 +195,19 @@ extension TapToEditTextView {
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
         CommonEditingViewReadOnly(
-            inputField: inputField,
             inputString: inputString,
-            forPropertySidebar: isForLayerInspector,
-            isCanvasField: self.isCanvasField,
-            isHovering: isHovering,
-            choices: choices,
-            fieldWidth: fieldWidth,
             fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isSelectedInspectorRow,
-            isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
             onTap: {
                 // Every multifield input in the inspector uses a flyout
                 if isFieldInMultifieldInspectorInputAndNotFlyout,
                    let layerInput = layerInput,
                    !isForFlyout {
                     dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                           flyoutNodeId: nodeId,
+                                           flyoutNodeId: self.rowId.nodeId,
                                            fieldToFocus: .textInput(self.fieldCoordinate)))
                 } else {
+                    log("TapToEditTextView: readOnlyTextView: will focus self.fieldCoordinate: \(self.fieldCoordinate)")
                     dispatch(ReduxFieldFocused(focusedField: .textInput(self.fieldCoordinate)))
                 }
             })

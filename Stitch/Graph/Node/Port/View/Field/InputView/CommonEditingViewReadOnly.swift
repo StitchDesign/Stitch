@@ -18,17 +18,22 @@ struct CommonEditingViewReadOnly: View {
         
     @Environment(\.appTheme) var theme
     
-    @Bindable var inputField: InputFieldViewModel
+    // @Bindable var inputField: InputFieldViewModel
     let inputString: String
-    let forPropertySidebar: Bool
-    let isCanvasField: Bool
-    let isHovering: Bool
-    let choices: [String]?
-    let fieldWidth: CGFloat
+    
+    // let forPropertySidebar: Bool
+
+    //    let isCanvasField: Bool
+    
+//    let isHovering: Bool
+//    let choices: [String]?
+    
+//    let hasPicker: Bool // choices.isDefined && !isFieldInMultfieldInspectorInput
+//    let fieldWidth: CGFloat
     let fieldHasHeterogenousValues: Bool
     let isSelectedInspectorRow: Bool
     
-    let isFieldInMultfieldInspectorInput: Bool
+//    let isFieldInMultfieldInspectorInput: Bool
     
     let onTap: () -> Void
     
@@ -36,9 +41,9 @@ struct CommonEditingViewReadOnly: View {
         self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString
     }
     
-    var hasPicker: Bool {
-        choices.isDefined && !isFieldInMultfieldInspectorInput
-    }
+//    var hasPicker: Bool {
+//        choices.isDefined && !isFieldInMultfieldInspectorInput
+//    }
     
     var body: some View {
         // If can tap to edit, and this is a number field,
@@ -47,15 +52,17 @@ struct CommonEditingViewReadOnly: View {
         StitchTextView(string: displayString,
                        font: STITCH_FONT,
                        fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
-        .modifier(InputFieldBackground(
-            show: self.isHovering || self.forPropertySidebar,
-            hasDropdown: self.hasPicker,
-            forPropertySidebar: forPropertySidebar,
-            isSelectedInspectorRow: isSelectedInspectorRow,
-            isCanvasField: self.isCanvasField,
-            width: fieldWidth,
-            isHovering: isHovering,
-            onTap: self.onTap))
+//        .modifier(InputFieldBackground(
+//            show: self.isHovering || self.forPropertySidebar,
+//            hasDropdown: self.hasPicker,
+//            forPropertySidebar: forPropertySidebar,
+//            isSelectedInspectorRow: isSelectedInspectorRow,
+//            isCanvasField: self.isCanvasField,
+//            width: fieldWidth,
+//            isHovering: isHovering,
+//            onTap: self.onTap))
+        
+        // TODO: needs a slightly wider background?
         
         // Manually focus this field when user taps.
         // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
