@@ -59,7 +59,14 @@ struct StitchApp: App {
         
         #if targetEnvironment(macCatalyst)
         WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
-            Color.clear
+            if let document = store.currentDocument,
+               document.isScreenSharing {
+                RecordingView(document: document)
+                PreviewContent(document: document,
+                               isFullScreen: true,
+                               showPreviewWindow: true)
+
+            }
         }
         #endif
     }

@@ -120,6 +120,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
+                        document: document,
                         isDebugMode: document.isDebugMode,
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,

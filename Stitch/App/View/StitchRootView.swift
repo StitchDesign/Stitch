@@ -219,7 +219,7 @@ struct StitchRootView: View {
         
         
         // MARK: avoids distortion in ReplayKit video, but messes up top bar buttons
-        .frame(minWidth: 1024, idealWidth: 1024, maxWidth: 1024, minHeight: 768, idealHeight: 768, maxHeight: 768)
+//        .frame(minWidth: 1024, idealWidth: 1024, maxWidth: 1024, minHeight: 768, idealHeight: 768, maxHeight: 768)
         
         // MARK: reading StitchRootView's GeometryReader size; causes error with ReplayKit's startRecording
 //        .frame(minWidth: store.recorder.isRecording ? 1024 : nil,

@@ -50,8 +50,6 @@ final class StitchStore: Sendable {
     // Tracks ID of project which has a title that's currently getting modified
     @MainActor var projectIdForTitleEdit: GraphId?
     
-    @MainActor var isMacScreenSharing = false
-    
     let environment: StitchEnvironment
     
     @MainActor

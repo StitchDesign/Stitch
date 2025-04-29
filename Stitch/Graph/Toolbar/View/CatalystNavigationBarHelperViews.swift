@@ -155,7 +155,9 @@ extension String {
 
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
+    @Environment(\.openWindow) private var openWindow
 
+    @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
@@ -215,7 +217,14 @@ struct CatalystTopBarGraphButtons: View {
                 }
             }
             
-
+            CatalystNavBarButton(.SHARE_ICON_SF_SYMBOL_NAME) {
+                document.isScreenSharing = true
+                
+                #if targetEnvironment(macCatalyst)
+                openWindow(id: "mac-screen-sharing")
+                #endif
+            }
+            
             CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
                 PROJECT_SETTINGS_ACTION()
             }
