@@ -295,28 +295,19 @@ import UIKit
 
 @MainActor @Observable
 final class ReplayKitRecorder: NSObject {
-    private let recorder = RPScreenRecorder.shared()
-    private var oldWindowSize: CGSize? = nil
+    private let recorder: RPScreenRecorder
+    private let delegate: ReplayKitRecorderDelegate
     
     var isRecording = false
     
+    init(dismissWindow: DismissWindowAction) {
+        self.recorder = RPScreenRecorder.shared()
+        self.delegate = .init(dismissWindow: dismissWindow)
+    }
+    
     @MainActor
-    func startRecording(document: StitchDocumentViewModel,
-                        dismissWindow: DismissWindowAction) {
+    func startRecording(dismissWindow: DismissWindowAction) {
         guard !recorder.isRecording else { return }
-        
-        #if targetEnvironment(macCatalyst)
-//        store.isMacScreenSharing = true
-        
-        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
-            // MARK: avoids distortion in ReplayKit video, but messes up top bar buttons
-            self.oldWindowSize = windowScene.windows.first?.rootViewController?.view.bounds.size
-            
-//            windowScene.windows.first?.rootViewController?.view.bounds.size = .init(width: 800, height: 400)
-//                .init(width: document.frame.width - 100,
-//                                                                                    height: document.frame.height)
-        }
-        #endif
         
         DispatchQueue.main.async { [weak self] in
             self?.recorder.startRecording { [weak self] error in
@@ -337,15 +328,6 @@ final class ReplayKitRecorder: NSObject {
     func stopRecording(dismissWindow: DismissWindowAction) {
         guard recorder.isRecording else { return }
         
-#if targetEnvironment(macCatalyst)
-//        store.isMacScreenSharing = false
-
-        if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene),
-           let oldWindowSize = self.oldWindowSize {
-            windowScene.windows.first?.rootViewController?.view.bounds.size = oldWindowSize
-        }
-#endif
-        
         recorder.stopRecording { [weak self] (previewVC, error) in
             Task { @MainActor in
                 if let error = error {
@@ -365,7 +347,7 @@ final class ReplayKitRecorder: NSObject {
     
     private func presentPreview(_ previewVC: RPPreviewViewController,
                                 dismissWindow: DismissWindowAction) {
-        previewVC.previewControllerDelegate = self
+        previewVC.previewControllerDelegate = self.delegate
         
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = scene.windows.first,
@@ -374,21 +356,28 @@ final class ReplayKitRecorder: NSObject {
             // 🛠 Fix: force a form sheet presentation on iPad to avoid crash
             previewVC.modalPresentationStyle = .formSheet
             
-            rootVC.present(previewVC, animated: true) {
-#if targetEnvironment(macCatalyst)
-                // Dismiss window if on Mac
-                dismissWindow(id: RecordingView.windowId)
-#endif
-            }
+            rootVC.present(previewVC, animated: true)
         }
     }
 }
 
 // MARK: - RPPreviewViewControllerDelegate
-extension ReplayKitRecorder: RPPreviewViewControllerDelegate {
+@MainActor
+final class ReplayKitRecorderDelegate: NSObject, RPPreviewViewControllerDelegate {
+    let dismissWindow: DismissWindowAction
+    
+    init(dismissWindow: DismissWindowAction) {
+        self.dismissWindow = dismissWindow
+    }
+    
     nonisolated func previewControllerDidFinish(_ previewController: RPPreviewViewController) {
-        Task { @MainActor in
-            previewController.dismiss(animated: true, completion: nil)
+        Task { @MainActor [weak self, weak previewController] in
+            previewController?.dismiss(animated: true, completion: nil)
+            
+#if targetEnvironment(macCatalyst)
+            // Dismiss new window if on Mac
+            self?.dismissWindow(id: RecordingView.windowId)
+#endif
         }
     }
 }
@@ -396,49 +385,15 @@ extension ReplayKitRecorder: RPPreviewViewControllerDelegate {
 struct RecordingView: View {
     static let windowId = "mac-screen-sharing"
     
-    @Environment(\.dismissWindow) private var dismissWindow
-
-    @State private var recorder = ReplayKitRecorder()
-//    @Bindable var recorder: ReplayKitRecorder // can also pass down from StitchStore
+    let dismissWindow: DismissWindowAction
+    @State private var recorder: ReplayKitRecorder
     
-    let document: StitchDocumentViewModel
-//    let store: StitchStore
-    var shouldRecord: Bool = false
+    init(dismissWindow: DismissWindowAction) {
+        self.dismissWindow = dismissWindow
+        self.recorder = .init(dismissWindow: dismissWindow)
+    }
     
     var body: some View {
-        buttonStack
-            .onChange(of: self.shouldRecord, initial: true) { oldValue, newValue in
-                if newValue {
-                    self.recorder.startRecording(document: document,
-                                                 dismissWindow: dismissWindow)
-                } else {
-                    self.recorder.stopRecording(dismissWindow: dismissWindow)
-                }
-            }
-    }
-    
-    @State var extraHeight: CGFloat = .zero
-    
-    var previews: some View {
-        HStack {
-            ZStack {
-                Rectangle().fill(.gray.opacity(0.5))
-                    .frame(width: 150, height: 100 + self.extraHeight)
-                Ellipse().fill(.cyan.opacity(0.5))
-                    .frame(width: 100, height: 150 + self.extraHeight)
-                
-            }
-            Button(action: {
-                self.extraHeight += 10
-            }) {
-                Text("Grow!")
-            }
-            
-        }
-    }
-    
-    @MainActor
-    var buttonStack: some View {
         VStack(spacing: 8) {
             Text(recorder.isRecording ? "Recording..." : "Not Recording")
                 .font(.title)
@@ -447,20 +402,9 @@ struct RecordingView: View {
             
             Button(action: {
                 if recorder.isRecording {
-                    //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     recorder.stopRecording(dismissWindow: dismissWindow)
-                    //                    }
-                    
                 } else {
-                    //                    if let windowScene = (UIApplication.shared.connectedScenes.first as? UIWindowScene) {
-                    //                        windowScene.windows.first?.rootViewController?.view.bounds.size = CGSize(width: 1024, height: 768)
-                    //                    }
-                    
-                    //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    recorder.startRecording(document: document,
-                                            dismissWindow: dismissWindow)
-                    //                    }
-                    
+                    recorder.startRecording(dismissWindow: dismissWindow)
                 }
             }) {
                 Text(recorder.isRecording ? "Stop Recording" : "Start Recording")

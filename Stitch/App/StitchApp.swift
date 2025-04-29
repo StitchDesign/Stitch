@@ -78,7 +78,7 @@ struct MacScreenSharingView: View {
                                isFullScreen: true,
                                showPreviewWindow: true)
 
-                RecordingView(document: document)
+                RecordingView(dismissWindow: dismissWindow)
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
                 dismissWindow(id: RecordingView.windowId)
