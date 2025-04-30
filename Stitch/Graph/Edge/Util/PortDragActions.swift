@@ -135,7 +135,7 @@ extension GraphState {
                        rowId: NodeRowViewModelId) {
                 
         guard let outputRowViewModel = self.getOutputRowViewModel(for: rowId),
-                let document = self.documentDelegate else {
+              let document = self.documentDelegate else {
             fatalErrorIfDebug()
             return
         }

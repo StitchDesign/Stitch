@@ -11,7 +11,6 @@ import StitchSchemaKit
 struct EdgeDrawingView: View {
     let graph: GraphState
     @Bindable var edgeDrawingObserver: EdgeDrawingObserver
-//    let inputsAtThisTraversalLevel: [InputNodeRowViewModel]
     
     var body: some View {
         if let outputDrag = edgeDrawingObserver.drawingGesture {
