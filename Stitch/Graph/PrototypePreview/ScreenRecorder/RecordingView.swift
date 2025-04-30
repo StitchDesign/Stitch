@@ -107,6 +107,9 @@ struct RecordingView: View {
 }
 
 struct RecordingWatermarkView<PreviewView>: View where PreviewView: View {
+    private let stitchFontColor = Color(red: 0.48, green: 0.42, blue: 0.88)
+    private let appIconName = "AppIconDefaultDark"
+    
     let isVisible: Bool
     @ViewBuilder var previewView: () -> PreviewView
     
@@ -116,7 +119,6 @@ struct RecordingWatermarkView<PreviewView>: View where PreviewView: View {
             
             if isVisible {
                 watermarkWrapper
-                    .opacity(0.5)
                     .padding(8)
                     .allowsHitTesting(true)
             }
@@ -136,18 +138,23 @@ struct RecordingWatermarkView<PreviewView>: View where PreviewView: View {
     }
     
     var watermark: some View {
-        VStack {
-            Image("AppIconDefaultDark")
+        HStack(spacing: .zero) {
+            Image(appIconName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 48)
-                .background(.ultraThickMaterial)
-                .cornerRadius(16)
+                .frame(width: 20)
             
             Text("@stitchdesignapp")
                 .font(.system(size: 12, design: .rounded))
-                .foregroundStyle(STITCH_PURPLE)
-                .offset(y: -4)
+                .fontWeight(.bold)
+                .foregroundStyle(stitchFontColor)
+                .padding(.trailing, 4)
         }
+        .opacity(0.9)
+        .padding(4)
+        
+        // material backgrounds bug out and change opacities strangely
+        .background(Color(red: 1, green: 1, blue: 1, opacity: 0.3))
+        .cornerRadius(12)
     }
 }
