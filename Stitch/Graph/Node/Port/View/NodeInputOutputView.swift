@@ -33,7 +33,6 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     var body: some View {
         PortEntryView(rowViewModel: rowViewModel,
                       graph: graph,
-                      coordinate: coordinate,
                       nodeIO: nodeIO)
         .onTapGesture {
             // Can only tap canvas ports, not layer inspector ports
