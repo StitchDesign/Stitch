@@ -113,6 +113,12 @@ extension StitchDocumentViewModel {
         
         // Only adjust node positions if actions were valid and successfully applied
         // Note: position AI-generated nodes after a short delay, so that view has time to read canvas items' sizes
+        
+        // Call this first?
+//        self.graphUpdaterId = .randomId()
+        self.visibleGraph.updateGraphData(self)
+        
+        // TODO: actually wait until all the nodes have been created and rendered on screen ?
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             let (depthMap, _) = convertedActions.calculateAINodesAdjacency()
             let createdNodes = convertedActions.nodesCreatedByLLMActions()
@@ -327,6 +333,10 @@ struct UpdateAIGeneratedNodesPositions: StitchDocumentEvent {
         state.updateVisibleCanvasItems()
         
         state.encodeProjectInBackground()
+        
+        state.visibleGraph.updateGraphData(state)
+        
+//        state.graphUpdaterId = .randomId()
     }
 }
 
