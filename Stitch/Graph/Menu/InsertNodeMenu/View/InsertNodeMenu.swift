@@ -121,8 +121,8 @@ struct InsertNodeMenuView: View {
                     
                     if isLoading {
                         ProgressView()
-                            .scaleEffect(0.7)
-                            .foregroundStyle(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
+                            .scaleEffect(0.8)
+                            .tint(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
                     }
                 }
                 .padding(8)
