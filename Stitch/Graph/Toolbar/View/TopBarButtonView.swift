@@ -176,7 +176,7 @@ struct iPadGraphTopBarMiscMenu: View {
                              label: FILE_IMPORT_LABEL)
             
             iPadTopBarButton(action: {
-                document.isScreenSharing = true
+                document.isScreenRecording = true
                 document.isFullScreenMode = true
             },
                              iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME),

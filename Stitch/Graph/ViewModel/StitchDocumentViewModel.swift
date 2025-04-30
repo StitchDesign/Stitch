@@ -122,7 +122,7 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var openPortPreview: OpenedPortPreview?
     
     // Screen sharing UX
-    @MainActor var isScreenSharing = false
+    @MainActor var isScreenRecording = false
     
     /// Subscribed by view to trigger graph view update based on data changes.
     @MainActor var graphUpdaterId: GraphUpdaterId = .init(value: .zero)

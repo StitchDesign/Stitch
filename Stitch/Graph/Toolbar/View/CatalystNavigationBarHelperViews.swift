@@ -218,7 +218,7 @@ struct CatalystTopBarGraphButtons: View {
             }
             
             CatalystNavBarButton(.SHARE_ICON_SF_SYMBOL_NAME) {
-                document.isScreenSharing = true
+                document.isScreenRecording = true
                 
                 #if targetEnvironment(macCatalyst)
                 openWindow(id: RecordingView.windowId)

@@ -15,7 +15,7 @@ struct StitchProjectOverlayView: View {
     let graphNamespace: Namespace.ID
     
     var showPreviewWindow: Bool {
-        document.showPreviewWindow && !document.isScreenSharing
+        document.showPreviewWindow && !document.isScreenRecording
     }
     
     var body: some View {

@@ -20,7 +20,7 @@ struct MacScreenSharingView: View {
     
     var body: some View {
         if let document = store.currentDocument,
-           document.isScreenSharing {
+           document.isScreenRecording {
             ZStack {
                 ProjectWindowSizeReader(previewWindowSizing: self.screenSharingProjectObserver,
                                         previewWindowSize: document.previewWindowSize,
@@ -47,7 +47,7 @@ struct MacScreenSharingView: View {
     
     func dismissRecordingWindow() {
         dismissWindow(id: RecordingView.windowId)
-        store.currentDocument?.isScreenSharing = false
+        store.currentDocument?.isScreenRecording = false
     }
 }
 #endif
@@ -72,25 +72,12 @@ struct RecordingView: View {
         HStack {
             VStack {
                 Spacer()
-                
                 buttonView
             }
-            .padding(32)
-            
+
             Spacer()
-            
-            VStack {
-                Spacer()
-                
-                Image("AppIconDefaultDark")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 52)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
-            }
-            .padding(32)
         }
+        .padding(16)
     }
     
     @ViewBuilder
@@ -115,5 +102,41 @@ struct RecordingView: View {
             .padding()
             .background(.ultraThinMaterial)
             .cornerRadius(26)
+    }
+}
+
+struct RecordingWatermarkView<PreviewView>: View where PreviewView: View {
+    let isVisible: Bool
+    @ViewBuilder var previewView: () -> PreviewView
+    
+    var body: some View {
+        ZStack {
+            previewView()
+            
+            if isVisible {
+                watermark
+                    .opacity(0.7)
+                    .padding(16)
+                    .border(.red)
+                    .allowsHitTesting(true)
+            }
+        }
+    }
+    
+    var watermark: some View {
+        HStack {
+            Spacer()
+            
+            VStack {
+                Spacer()
+                
+                Image("AppIconDefaultDark")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 52)
+                    .background(.ultraThickMaterial)
+                    .cornerRadius(16)
+            }
+        }
     }
 }

@@ -72,7 +72,7 @@ struct FullScreenPreviewViewWrapper: View {
                 previewView
 
                 #if !targetEnvironment(macCatalyst)
-                if document.isScreenSharing {
+                if document.isScreenRecording {
                     RecordingView()
                 }
                 #endif

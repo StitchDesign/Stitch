@@ -123,7 +123,7 @@ struct ToggleFullScreenEvent: StitchDocumentEvent {
             state.visibleGraph.visibleNodesViewModel.setAllCanvasItemsVisible()
             
             // Disable screen sharing if that's happening
-            state.isScreenSharing = false
+            state.isScreenRecording = false
         }
     }
 }
