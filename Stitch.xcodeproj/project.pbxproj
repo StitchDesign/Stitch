@@ -151,6 +151,7 @@
 		B55979242A215A3400363149 /* EdgeEditModeLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */; };
 		B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */; };
 		B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */; };
+		B55FB4482DC2D4750003E390 /* TopBarSharingButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */; };
 		B560CE812CF1C93100F31905 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B560CE802CF1C93100F31905 /* StitchEngine */; };
 		B561B44B2923465D00DE4A0D /* iPadProjectSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B561B44A2923465D00DE4A0D /* iPadProjectSidebarView.swift */; };
 		B5657D362C0983E300287362 /* MediaEvalOpObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */; };
@@ -1160,6 +1161,7 @@
 		B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeLabelsView.swift; sourceTree = "<group>"; };
 		B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUndoManager.swift; sourceTree = "<group>"; };
 		B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIColor.swift; sourceTree = "<group>"; };
+		B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarSharingButtonsView.swift; sourceTree = "<group>"; };
 		B561B44A2923465D00DE4A0D /* iPadProjectSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadProjectSidebarView.swift; sourceTree = "<group>"; };
 		B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaEvalOpObservable.swift; sourceTree = "<group>"; };
 		B5657D382C0B94A300287362 /* GraphMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMediaValue.swift; sourceTree = "<group>"; };
@@ -2832,6 +2834,7 @@
 		B555011E2C1BF20A0081C3F1 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */,
 				EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */,
 				EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */,
 			);
@@ -5421,6 +5424,7 @@
 				B569E58B2B06A8B100C7435B /* NodeInfo.swift in Sources */,
 				B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */,
 				EC90A7082AF0015E007EE504 /* StitchTheme.swift in Sources */,
+				B55FB4482DC2D4750003E390 /* TopBarSharingButtonsView.swift in Sources */,
 				B59C01372B4625F1001CDF87 /* SchemaNodesUtil.swift in Sources */,
 				20308FA025AD1721008CE3BE /* FloatingWindowView.swift in Sources */,
 				203D56BA25B0DA7C00EF7AC2 /* PortEdgeData.swift in Sources */,
