@@ -135,7 +135,7 @@ extension GraphState {
                        rowId: NodeRowViewModelId) {
                 
         guard let outputRowViewModel = self.getOutputRowViewModel(for: rowId),
-                let document = self.documentDelegate else {
+              let document = self.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
@@ -148,18 +148,8 @@ extension GraphState {
         // Starting port drag
         if !self.edgeDrawingObserver.drawingGesture.isDefined {
             
-            self.outputDragStartedCount += 1
-
             let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
-
-            // 3 still allows flashing;
-            // 10 creates a noticeable lag;
-            // 5 is perfect?
-            guard self.outputDragStartedCount > 5 else {
-                // log("OutputDragged: exiting early: state.outputDragStartedCount was: \(state.outputDragStartedCount)")
-                return
-            }
-
+            
             let drag = OutputDragGesture(output: outputRowViewModel,
                                          dragLocation: gesture.location,
                                          startingDiffFromCenter: diffFromCenter)
@@ -169,9 +159,19 @@ extension GraphState {
             // Wipe selected edges, canvas items. etc.
             self.resetAlertAndSelectionState(document: document)
             
+            if let outputRowObserver = self.getOutputRowObserver(outputRowViewModel.nodeIOCoordinate),
+               let canvasItemId = outputRowViewModel.canvasItemDelegate?.id {
+                
+                outputRowViewModel.portUIViewModel.updatePortColor(
+                    canvasItemId: canvasItemId,
+                    hasEdge: outputRowObserver.hasEdge,
+                    hasLoop: outputRowObserver.hasLoopedValues,
+                    selectedEdges: selectedEdges,
+                    selectedCanvasItems: self.selectedCanvasItems,
+                    drawingObserver: self.edgeDrawingObserver)
+            }
+            
         } else {
-            self.outputDragStartedCount = 0
-
             guard let existingDrag = self.edgeDrawingObserver.drawingGesture else {
                 // log("OutputDragged: output drag not yet initialized by SwiftUI handler; exiting early")
                 return
@@ -187,7 +187,6 @@ extension GraphState {
     
     @MainActor
     func outputDragEnded() {
-        self.outputDragStartedCount = 0
         
         guard let from = self.edgeDrawingObserver.drawingGesture?.output,
               let to = self.edgeDrawingObserver.nearestEligibleInput,
@@ -218,13 +217,6 @@ extension GraphState {
     }
 }
 
-struct EligibleInputReset: ProjectEnvironmentEvent {
-    func handle(graphState: GraphState,
-                environment: StitchEnvironment) -> GraphResponse {
-        graphState.edgeDrawingObserver.nearestEligibleInput = nil
-        return .noChange
-    }
-}
 
 extension GraphState {
     @MainActor
@@ -240,9 +232,7 @@ extension GraphState {
             DispatchQueue.main.async { [weak self] in
                 self?.edgeDrawingObserver.reset()
             }
-//            let resetRecentlyDrawnEdgeEffect: Effect = createDelayedEffect(
-//                delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
-//                action: ResetRecentlyDrawnEdge())
+
             self.edgeAdded(edge: newEdge)
         }
 
@@ -257,12 +247,6 @@ struct ResetRecentlyDrawnEdge: GraphEvent {
         state.edgeDrawingObserver.reset()
     }
 }
-
-//struct DisableEdgeAnimation: GraphEvent {
-//    func handle(state: GraphState) {
-//        state.edgeAnimationEnabled = false
-//    }
-//}
 
 struct TimeHelpers {
     static let ThreeTenthsOfASecondInSeconds: Double = 0.3

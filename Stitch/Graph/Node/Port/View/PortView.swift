@@ -19,25 +19,20 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
 
 let NODE_PORT_HEIGHT: CGFloat = 8
 
-struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
+struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
     @Environment(\.appTheme) private var theme
     
-    @Bindable var rowViewModel: NodeRowViewModelType
+    @Bindable var portUIViewModel: PortUIViewModelType
     @Bindable var graph: GraphState
     
+    let rowId: NodeRowViewModelId
     let nodeIO: NodeIO
 
     @MainActor
     var portColor: Color {
-        rowViewModel.portUIViewModel.portColor.color(theme)
+        portUIViewModel.portColor.color(theme)
     }
-    
-    @State private var portIsBeingDragged = false
-    
-    var rowId: NodeRowViewModelId {
-        self.rowViewModel.id
-    }
-    
+        
     var body: some View {
         Rectangle().fill(self.portColor)
         //            Rectangle().fill(portBodyColor)
@@ -59,30 +54,22 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                     .offset(x: nodeIO == .input ? -4 : 4)
             }
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
-                                             portIsBeingDragged: self.$portIsBeingDragged,
                                              nodeIO: nodeIO,
                                              rowId: rowId))
-            .animation(.linear(duration: self.animationTime),
-                       value: self.portColor)
-        
-        // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
-        
-        // Update port color on selected edges change
+        // Just for when user has tapped an edge?
             .onChange(of: graph.selectedEdges) {
-                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
+                self.graph.maybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO)
             }
-            .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { _, _ in
-                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
-            }
-            .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { _, _ in
-                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
-            }
-    }
         
-    // Only animate port colors if we're dragging from this output
-//    @MainActor
-    var animationTime: Double {
-        self.portIsBeingDragged ? DrawnEdge.animationDuration : .zero
+        // TODO: better?: update the portColor of the specific port for the output drag, when/where we actually modify `drawingGesture`
+            .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { _, _ in
+                self.graph.maybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO)
+            }
+        
+        // Now handled in `findEligibleInput` instead
+        //            .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { _, _ in
+        //                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
+        //            }
     }
 }
 
@@ -92,27 +79,25 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
 
  When updating that color, we will still need to know whether we have an edge and/or a loop, facts which are provided by the row observer.
  Previously we were accessing this via row view model's row observer delegate, which in any case caused an additional render cycle.
- 
- Note: trying an action because:
- - we can look up the row observer in state, to avoid a delegate-access which triggers a render-cycle
- - passing the node row observer to the PortEntryView was giving me complaints about generics
  */
-struct MaybeUpdatePortColor: GraphEvent {
-    let rowId: NodeRowViewModelId
-    let nodeIO: NodeIO
-    
-    func handle(state: GraphState) {
+extension GraphState {
+    @MainActor
+    func maybeUpdatePortColor(rowId: NodeRowViewModelId, nodeIO: NodeIO) {
         switch nodeIO {
+            
         case .input:
-            state.getInputRowObserver(rowId.asNodeIOCoordinate)?
-                .updatePortColorAndUpstreamOutputPortColor(selectedEdges: state.selectedEdges,
-                                                           selectedCanvasItems: state.selection.selectedCanvasItems,
-                                                           drawingObserver: state.edgeDrawingObserver)
+            self.getInputRowObserver(rowId.asNodeIOCoordinate)?
+                .updatePortColorAndUpstreamOutputPortColor(
+                    selectedEdges: self.selectedEdges,
+                    selectedCanvasItems: self.selectedCanvasItems,
+                    drawingObserver: self.edgeDrawingObserver)
+        
         case .output:
-            state.getOutputRowObserver(rowId.asNodeIOCoordinate)?
-                .updatePortColorAndDownstreamInputsPortColors(selectedEdges: state.selectedEdges,
-                                                              selectedCanvasItems: state.selection.selectedCanvasItems,
-                                                              drawingObserver: state.edgeDrawingObserver)
+            self.getOutputRowObserver(rowId.asNodeIOCoordinate)?
+                .updatePortColorAndDownstreamInputsPortColors(
+                    selectedEdges: self.selectedEdges,
+                    selectedCanvasItems: self.selectedCanvasItems,
+                    drawingObserver: self.edgeDrawingObserver)
         }
     }
 }
@@ -124,9 +109,7 @@ extension Color {
 
 struct PortEntryExtendedHitBox: View {
     @Bindable var graph: GraphState
-    
-    @Binding var portIsBeingDragged: Bool
-    
+        
     let nodeIO: NodeIO // input vs output
     let rowId: NodeRowViewModelId // how to retrieve the
     
@@ -135,7 +118,6 @@ struct PortEntryExtendedHitBox: View {
         Color.HITBOX_COLOR
             .frame(width: EXTENDED_HITBOX_WIDTH,
                    height: EXTENDED_HITBOX_HEIGHT)
-//            .zIndex(nodeIO == .output ? -9999 : 0)
             /*
              Used for obtaining the starting diff adjustment for a port drag;
              PortGestureRecognizerView handles the heavy lifting,
@@ -148,7 +130,6 @@ struct PortEntryExtendedHitBox: View {
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
-                            self.portIsBeingDragged = true
                             
                             switch nodeIO {
                             case .input:
@@ -159,7 +140,6 @@ struct PortEntryExtendedHitBox: View {
                         } // .onChanged
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
-                            self.portIsBeingDragged = false
                             switch nodeIO {
                             case .input:
                                 graph.inputDragEnded()
