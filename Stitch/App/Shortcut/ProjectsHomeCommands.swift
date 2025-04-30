@@ -37,11 +37,7 @@ struct ProjectsHomeCommands: Commands {
     }
     
     var textFieldFocused: Bool {
-        let k = activeReduxFocusedField.isDefined || focusedField.isDefined
-        //        log("ProjectsHomeCommands: activeReduxFocusedField: \(activeReduxFocusedField)")
-        //        log("ProjectsHomeCommands: focusedField.isDefined: \(focusedField.isDefined)")
-        //        log("ProjectsHomeCommands: k: \(k)")
-        return k
+        activeReduxFocusedField.isDefined || focusedField.isDefined
     }
 
     var body: some Commands {

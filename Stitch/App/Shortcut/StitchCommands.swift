@@ -25,8 +25,5 @@ struct StitchCommands: Commands {
 
         ProjectsHomeCommands(store: store,
                              activeReduxFocusedField: activeReduxFocusedField)
-
-        // TODO: Why were these commands being ignored?
-        //        GraphCommands()
     }
 }
