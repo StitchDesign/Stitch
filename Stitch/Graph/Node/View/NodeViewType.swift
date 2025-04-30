@@ -116,20 +116,15 @@ struct DefaultNodeInputsView: View {
                                          isSelectedInspectorRow: false)
                         
                         ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
-                            ForEach(fieldGroup.fieldObservers) { inputViewModel in
+                            let fields = fieldGroup.fieldObservers
+                            ForEach(Array(zip(fields.indices, fields)), id: \.0) { index, inputViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel,
                                                     portViewModel: inputViewModel,
                                                     isMultiField: isMultiField)
-                                
                                 // For hovered canvas input fields, so that e.g. the hovered Position input's X field will be elevated about the same Position input's Y field
-                                // TODO: perf cost? should we instead assign .zIndex to each input (in reverse order?)
-                                .onHover { isHovering in
-                                    if isHovering {
-                                        self.hoveredField = inputViewModel.id
-                                    }
-                                }
-                                .zIndex(self.hoveredField == inputViewModel.id ? 99 : 0)
+                                // z-index = from left to right in descending order
+                                .zIndex(-CGFloat(index))
                             } // ForEach
                         } // ForEach
                     } // HStack(alignment: isMultfield ? ...)
