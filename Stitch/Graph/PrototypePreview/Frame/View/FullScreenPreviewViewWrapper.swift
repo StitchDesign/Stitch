@@ -102,6 +102,26 @@ struct FullScreenPreviewViewWrapper: View {
     }
 }
 
+struct FullScreenPreviewViewModifier: ViewModifier {
+    let document: StitchDocumentViewModel
+    
+    func body(content: Content) -> some View {
+        content
+#if !targetEnvironment(macCatalyst)
+                // Fullscreen ALWAYS ignores ALL safe areas
+                    .ignoresSafeArea(.all)
+#endif
+                    
+                // for modal background, use preview windw background color + a couple shades darker
+                    .background {
+                        document.previewWindowBackgroundColor.overlay {
+                            Color.black.opacity(0.2)
+                        }
+                    }
+    }
+}
+
+
 // struct FullScreenPreviewViewWrapper_Previews: PreviewProvider {
 //    @Namespace static var mockNamespace
 //

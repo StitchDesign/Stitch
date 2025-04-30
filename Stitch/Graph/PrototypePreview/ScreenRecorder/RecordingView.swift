@@ -36,6 +36,7 @@ struct MacScreenSharingView: View {
 
                 RecordingView(dismissWindow: dismissWindow)
             }
+            .modifier(FullScreenPreviewViewModifier(document: document))
             .onDisappear {
                 dismissRecordingWindow()
             }
@@ -114,29 +115,39 @@ struct RecordingWatermarkView<PreviewView>: View where PreviewView: View {
             previewView()
             
             if isVisible {
-                watermark
-                    .opacity(0.7)
-                    .padding(16)
-                    .border(.red)
+                watermarkWrapper
+                    .opacity(0.5)
+                    .padding(8)
                     .allowsHitTesting(true)
             }
         }
     }
     
-    var watermark: some View {
+    var watermarkWrapper: some View {
         HStack {
             Spacer()
             
             VStack {
                 Spacer()
                 
-                Image("AppIconDefaultDark")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 52)
-                    .background(.ultraThickMaterial)
-                    .cornerRadius(16)
+                watermark
             }
+        }
+    }
+    
+    var watermark: some View {
+        VStack {
+            Image("AppIconDefaultDark")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 48)
+                .background(.ultraThickMaterial)
+                .cornerRadius(16)
+            
+            Text("@stitchdesignapp")
+                .font(.system(size: 12, design: .rounded))
+                .foregroundStyle(STITCH_PURPLE)
+                .offset(y: -4)
         }
     }
 }

@@ -88,17 +88,7 @@ struct ContentView: View, KeyboardReadable {
             // Also, if in full-screen preview mode on Catalyst or iPad, place the fullscreen preview on top.
             if showFullScreen.isTrue || StitchDocumentViewModel.isPhoneDevice {
                 fullScreenPreviewView
-#if !targetEnvironment(macCatalyst)
-                // Fullscreen ALWAYS ignores ALL safe areas
-                    .ignoresSafeArea(.all)
-#endif
-                    
-                // for modal background, use preview windw background color + a couple shades darker
-                    .background {
-                        document.previewWindowBackgroundColor.overlay {
-                            Color.black.opacity(0.2)
-                        }
-                    }
+                    .modifier(FullScreenPreviewViewModifier(document: document))
             } // if showFullScreen.isTrue
             
             // NEVER show graph-view on iPhone
