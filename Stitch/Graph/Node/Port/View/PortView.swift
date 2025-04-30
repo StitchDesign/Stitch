@@ -34,9 +34,12 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     @State private var portIsBeingDragged = false
     
+    var rowId: NodeRowViewModelId {
+        self.rowViewModel.id
+    }
+    
     var body: some View {
         Rectangle().fill(self.portColor)
-//            .opacity(nodeIO == .output ? 0 : 1)
         //            Rectangle().fill(portBodyColor)
         //                .overlay {
         //                    if !hasEdge {
@@ -47,40 +50,35 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         //                    }
         //                }
             .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
-            .zIndex(nodeIO == .output ? -9999 : 0)
         // TODO: use `UnevenRoundedRectangle` ?
             .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
             .background {
                 Rectangle()
                     .fill(self.portColor)
-                    .opacity(nodeIO == .output ? 0 : 1)
                     .frame(width: 8)
-                    .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
-                    .zIndex(nodeIO == .output ? -9999 : 0)
+                    .offset(x: nodeIO == .input ? -4 : 4)
             }
-            .zIndex(nodeIO == .output ? -9999 : 0)
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
                                              portIsBeingDragged: self.$portIsBeingDragged,
                                              nodeIO: nodeIO,
-                                             rowId: self.rowViewModel.id))
-            .zIndex(nodeIO == .output ? -9999 : 0)
-            .animation(.linear(duration: self.animationTime),
-                       value: self.portColor)
+                                             rowId: rowId))
+//            .animation(.linear(duration: self.animationTime),
+//                       value: self.portColor)
         
         // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
         
         // Update port color on selected edges change
             .onChange(of: graph.selectedEdges) {
-                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
-                                              nodeIO: NodeRowViewModelType.nodeIO))
+                dispatch(MaybeUpdatePortColor(rowId: rowId,
+                                              nodeIO: nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { oldValue, newValue in
-                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
-                                              nodeIO: NodeRowViewModelType.nodeIO))
+                dispatch(MaybeUpdatePortColor(rowId: rowId,
+                                              nodeIO: nodeIO))
             }
             .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { oldValue, newValue in
-                dispatch(MaybeUpdatePortColor(rowId: self.rowViewModel.id,
-                                              nodeIO: NodeRowViewModelType.nodeIO))
+                dispatch(MaybeUpdatePortColor(rowId: rowId,
+                                              nodeIO: nodeIO))
             }
     }
         

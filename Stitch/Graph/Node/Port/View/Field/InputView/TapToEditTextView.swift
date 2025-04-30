@@ -179,16 +179,11 @@ extension TapToEditTextView {
     var fieldCoordinate: FieldCoordinate {
         self.inputField.id
     }
-    
-    var nodeId: NodeId {
-        self.rowId.nodeId
-    }
-    
-    // Important perf check to prevent instantiations of editing view
+        
+    // TODO: can we create `InspectorCommonEditingView` (analogous to `CanvasCommonEditingView`) and avoid some of these checks? Get the view as small and as focused as possible.
+    // TODO: perhaps we can pass this in like a function ?
     @MainActor
     var showEditingView: Bool {
-        
-        // TODO: can we create `InspectorCommonEditingView` (analogous to `CanvasCommonEditingView`) and avoid some of these checks? Get the view as small and as focused as possible.
         
         // Can never focus the field of property row if that propery is already on the graph
         if isForLayerInspector && isPackedLayerInputAlreadyOnCanvas {

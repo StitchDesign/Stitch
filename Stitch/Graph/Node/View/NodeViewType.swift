@@ -88,6 +88,8 @@ struct DefaultNodeInputsView: View {
                        useIndividualFieldLabel: true)
     }
     
+    @State var hoveredField: FieldCoordinate? = nil
+    
     var body: some View {
         DefaultNodeRowsView(graph: graph,
                             node: node,
@@ -113,27 +115,28 @@ struct DefaultNodeInputsView: View {
                                          fontColor: STITCH_FONT_GRAY_COLOR,
                                          isSelectedInspectorRow: false)
                         
-                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
-                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
+                            ForEach(fieldGroup.fieldObservers) { inputViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel,
-                                                    portViewModel: fieldViewModel,
+                                                    portViewModel: inputViewModel,
                                                     isMultiField: isMultiField)
+                                
+                                // For hovered canvas input fields, so that e.g. the hovered Position input's X field will be elevated about the same Position input's Y field
+                                // TODO: perf cost? should we instead assign .zIndex to each input (in reverse order?)
                                 .onHover { isHovering in
                                     if isHovering {
-                                        self.hoveredField = fieldViewModel.id
+                                        self.hoveredField = inputViewModel.id
                                     }
                                 }
-                                .zIndex(self.hoveredField == fieldViewModel.id ? 9999 : 0)
-                            }
-                        }
-                    }
-                }
+                                .zIndex(self.hoveredField == inputViewModel.id ? 99 : 0)
+                            } // ForEach
+                        } // ForEach
+                    } // HStack(alignment: isMultfield ? ...)
+                } // HStack
             }
         }
     }
-    
-    @State var hoveredField: FieldCoordinate? = nil
 }
 
 // Common to ALL outputs, whether patch, group or layer
@@ -178,11 +181,11 @@ struct DefaultNodeOutputsView: View {
                 
                 HStack {
                     if showOutputFields {
-                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
-                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
+                            ForEach(fieldGroup.fieldObservers) { outputViewModel in
                                 OutputFieldView(graph: graph,
                                                  document: document,
-                                                 viewModel: fieldViewModel,
+                                                 viewModel: outputViewModel,
                                                  rowViewModel: rowViewModel,
                                                  rowObserver: rowObserver,
                                                  node: node,
@@ -192,10 +195,8 @@ struct DefaultNodeOutputsView: View {
                                                  propertyIsAlreadyOnGraph: false,
                                                  isFieldInMultifieldInput: isMultiField,
                                                  isSelectedInspectorRow: false)
-                                .zIndex(-99999)
-                            }.zIndex(-99999)
+                            }
                         }
-                        .zIndex(-999)
                     }
                     
                     LabelDisplayView(label: rowObserver
@@ -205,15 +206,12 @@ struct DefaultNodeOutputsView: View {
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
                                      isSelectedInspectorRow: false)
-                    .zIndex(-999)
                     
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
-                    .zIndex(-999)
                 }
-                .zIndex(-99999)
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graph,
                     document: document,

@@ -96,7 +96,7 @@ struct CommonEditingView: View {
                 isHovering: false,
                 isCurrentlyFocused: .constant(false),
                 
-                // i.e. Inspector or flyout input/field tapped
+                // i.e. Inspector or flyout field tapped
                 onReadOnlyTap: {
                     if isFieldInMultifieldInspectorInputAndNotFlyout,
                        let layerInput = layerInput {

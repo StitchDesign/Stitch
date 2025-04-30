@@ -29,13 +29,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     var nodeIO: NodeIO {
         NodeRowObserverType.nodeIOType
     }
-    
-    // should be passed down as a param
-    @MainActor
-    var isGroup: Bool {
-        node.kind.isGroup
-    }
-    
+        
     var body: some View {
         PortEntryView(rowViewModel: rowViewModel,
                       graph: graph,
@@ -55,6 +49,5 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
                 
             }
         }
-        .zIndex(nodeIO == .output ? -9999 : 0)
     }
 }
