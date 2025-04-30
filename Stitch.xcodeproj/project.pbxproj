@@ -208,6 +208,7 @@
 		B59F03B22CB705D100A9422C /* ComponentNavBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */; };
 		B59F03B72CB75B8D00A9422C /* GraphComponentHashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */; };
 		B5A2452D2DC095100083A774 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2452C2DC095080083A774 /* RecordingView.swift */; };
+		B5A245302DC1DA2C0083A774 /* ReplayKitRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2452F2DC1DA270083A774 /* ReplayKitRecorder.swift */; };
 		B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */; };
 		B5A2D11D286F7A5A002BFB97 /* VisualMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */; };
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
@@ -1211,6 +1212,7 @@
 		B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentNavBarView.swift; sourceTree = "<group>"; };
 		B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphComponentHashable.swift; sourceTree = "<group>"; };
 		B5A2452C2DC095080083A774 /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
+		B5A2452F2DC1DA270083A774 /* ReplayKitRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayKitRecorder.swift; sourceTree = "<group>"; };
 		B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerView.swift; sourceTree = "<group>"; };
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
@@ -3625,9 +3627,9 @@
 		B596608E2C1A460C00BE75D7 /* PrototypePreview */ = {
 			isa = PBXGroup;
 			children = (
-				B5A2452C2DC095080083A774 /* RecordingView.swift */,
 				B55500D42C1BA7520081C3F1 /* Frame */,
 				B55500D52C1BA7660081C3F1 /* Layer */,
+				B5A2452E2DC1DA040083A774 /* ScreenRecorder */,
 			);
 			path = PrototypePreview;
 			sourceTree = "<group>";
@@ -3842,6 +3844,15 @@
 				B59660A02C1A4D6800BE75D7 /* Util */,
 			);
 			path = Node;
+			sourceTree = "<group>";
+		};
+		B5A2452E2DC1DA040083A774 /* ScreenRecorder */ = {
+			isa = PBXGroup;
+			children = (
+				B5A2452F2DC1DA270083A774 /* ReplayKitRecorder.swift */,
+				B5A2452C2DC095080083A774 /* RecordingView.swift */,
+			);
+			path = ScreenRecorder;
 			sourceTree = "<group>";
 		};
 		B5B95B962CB6D64800DA64B3 /* System */ = {
@@ -5377,6 +5388,7 @@
 				ECE35EF027CEE99300CB8F5C /* InputEditedActions.swift in Sources */,
 				EC226C672BD881D400411EB7 /* SFSymbolLayerNode.swift in Sources */,
 				ECEEA50B2AFF1A6000C7CE86 /* CommentBoxTitleEditView.swift in Sources */,
+				B5A245302DC1DA2C0083A774 /* ReplayKitRecorder.swift in Sources */,
 				B5E34E1E2A81E9A80011A3E1 /* EnvironmentValues.swift in Sources */,
 				EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */,
 				EC844A682B5F20EF00C79B0B /* StitchFontWeight.swift in Sources */,
