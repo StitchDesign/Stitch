@@ -88,7 +88,8 @@ struct FloatingWindowView: View {
     var floatingWindow: some View {
         PreviewContent(document: document,
                        isFullScreen: false,
-                       showPreviewWindow: showPreviewWindow)
+                       showPreviewWindow: showPreviewWindow,
+                       previewWindowSizing: document.previewWindowSizingObserver)
         .frame(self.previewWindowSizing.dimensions)
         .padding(.top, PREVIEW_WINDOW_Y_PADDING)
     }

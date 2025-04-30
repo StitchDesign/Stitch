@@ -20,8 +20,15 @@ struct iPadTopBarButton: View {
             TopBarImageButton(iconName: iconName,
                               label: label)
         }
-        .padding(TOPBAR_SPACING)
-        .hoverEffect(.highlight)
+        .modifier(iPadTopBarButtonStyle())
+    }
+}
+
+struct iPadTopBarButtonStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(TOPBAR_SPACING)
+            .hoverEffect(.highlight)
     }
 }
 
@@ -84,6 +91,7 @@ struct TopBarImageButton: View {
 
 struct iPadGraphTopBarButtons: View {
 
+    let document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
@@ -128,6 +136,7 @@ struct iPadGraphTopBarButtons: View {
 
             // the misc (...) button
             iPadGraphTopBarMiscMenu(
+                document: document,
                 llmRecordingModeActive: llmRecordingModeActive,
                 llmRecordingModeEnabled: llmRecordingModeEnabled)
             
@@ -139,6 +148,7 @@ struct iPadGraphTopBarButtons: View {
 }
 
 struct iPadGraphTopBarMiscMenu: View {
+    @Bindable var document: StitchDocumentViewModel
     let llmRecordingModeActive: Bool
     let llmRecordingModeEnabled: Bool
     
@@ -171,6 +181,9 @@ struct iPadGraphTopBarMiscMenu: View {
             iPadTopBarButton(action: FILE_IMPORT_ACTION,
                              iconName: FILE_IMPORT_ICON_NAME,
                              label: FILE_IMPORT_LABEL)
+            
+            TopBarSharingButtonsView(document: document)
+                .modifier(iPadTopBarButtonStyle())
 
             iPadTopBarButton(action: PROJECT_SETTINGS_ACTION,
                              iconName: PROJECT_SETTINGS_ICON_NAME,
