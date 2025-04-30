@@ -75,17 +75,18 @@ extension GraphState {
         
         // Which node is this cursor-drawn-edge extended from?
         // Never create an edge from an output to an input on the very same node.
-        cursorNodeId: CanvasItemId) {
+        cursorNodeId: CanvasItemId
+    ) {
         
         var nearestInputs = [InputNodeRowViewModel]()
-            
-            let canvasItemsAtThisTraversalLevel = self
-                .getCanvasItemsAtTraversalLevel(groupNodeFocused: documentDelegate?.groupNodeFocused?.groupNodeId)
-            
-            let eligibleInputs = canvasItemsAtThisTraversalLevel
-                .flatMap { canvasItem -> [InputNodeRowViewModel] in
-                    canvasItem.inputViewModels
-                }
+        
+        let canvasItemsAtThisTraversalLevel = self
+            .getCanvasItemsAtTraversalLevel(groupNodeFocused: documentDelegate?.groupNodeFocused?.groupNodeId)
+        
+        let eligibleInputs = canvasItemsAtThisTraversalLevel
+            .flatMap { canvasItem -> [InputNodeRowViewModel] in
+                canvasItem.inputViewModels
+            }
         
         // Only look at pref-dict inputs' which are on this level
         for inputViewModel in eligibleInputs {
@@ -100,12 +101,28 @@ extension GraphState {
         }
         
         if nearestInputs.isEmpty {
-            dispatch(EligibleInputReset())
+            self.edgeDrawingObserver.nearestEligibleInput = nil
         } else if let nearestInput = nearestInputs.last {
             // While dragging cursor from an output/input,
             // we've detected that we're over an eligible input
             // to which we could create a connection.
             self.edgeDrawingObserver.nearestEligibleInput = nearestInput
+        }
+        
+        // After we've set or wiped the nearestEligible input,
+        // *animate* the port color change:
+        withAnimation(.linear(duration: DrawnEdge.ANIMATION_DURATION)) {
+            if let drawingGesture = self.edgeDrawingObserver.drawingGesture,
+               let outputObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
+               let canvasItemId = drawingGesture.output.canvasItemDelegate?.id {
+                drawingGesture.output.portUIViewModel.updatePortColor(
+                    canvasItemId: canvasItemId,
+                    hasEdge: outputObserver.hasEdge,
+                    hasLoop: outputObserver.hasLoopedValues,
+                    selectedEdges: self.selectedEdges,
+                    selectedCanvasItems: self.selectedCanvasItems,
+                    drawingObserver: self.edgeDrawingObserver)
+            }
         }
     }
     
@@ -115,7 +132,7 @@ extension GraphState {
         guard let connectedInputs = self.connections.get(outputCoordinate) else {
             return
         }
-
+        
         connectedInputs.forEach { inputs in
             guard let inputObserver = self.getInputObserver(coordinate: inputs),
                   let inputObserverNode = self.getNode(inputObserver.id.nodeId) else {
