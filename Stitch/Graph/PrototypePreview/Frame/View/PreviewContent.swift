@@ -17,12 +17,11 @@ struct PreviewContent: View {
     
     @Bindable var document: StitchDocumentViewModel
     let isFullScreen: Bool
-    
     let showPreviewWindow: Bool
     
-    var previewWindowSizing: PreviewWindowSizing {
-        document.previewWindowSizingObserver
-    }
+    let showWatermark: Bool = true
+    
+    @Bindable var previewWindowSizing: PreviewWindowSizing
     
     var previewDeviceWidth: CGFloat {
         previewWindowSizing.previewDeviceWidth
@@ -74,16 +73,18 @@ struct PreviewContent: View {
                 UIKitWrapper(ignoresKeyCommands: false,
                              inputTextFieldFocused: inputTextFieldFocused,
                              name: .previewWindow) {
-                    GeneratePreview(document: document)
-                        .frame(finalSize)
-                        .coordinateSpace(name: Self.prototypeCoordinateSpace)
-                        .background(document.previewWindowBackgroundColor)
-                        .contentShape(Rectangle())
+                    RecordingWatermarkView(isVisible: document.isScreenRecording) {
+                        GeneratePreview(document: document)
+                    }
+                    .frame(finalSize)
+                    .coordinateSpace(name: Self.prototypeCoordinateSpace)
+                    .background(document.previewWindowBackgroundColor)
+                    .contentShape(Rectangle())
                     // Keeps layers rendered within preview window
-                        .clipped()
+                    .clipped()
                     // Important: render preview window border BEFORE applying scale
-                        .previewWindowBorder(showsBorder: !isFullScreen)
-                        .scaleEffect(finalScale)
+                    .previewWindowBorder(showsBorder: !isFullScreen)
+                    .scaleEffect(finalScale)
                 }
             } else {
                 UIKitWrapper(ignoresKeyCommands: false,

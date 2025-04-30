@@ -151,6 +151,7 @@
 		B55979242A215A3400363149 /* EdgeEditModeLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */; };
 		B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */; };
 		B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */; };
+		B55FB4482DC2D4750003E390 /* TopBarSharingButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */; };
 		B560CE812CF1C93100F31905 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B560CE802CF1C93100F31905 /* StitchEngine */; };
 		B561B44B2923465D00DE4A0D /* iPadProjectSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B561B44A2923465D00DE4A0D /* iPadProjectSidebarView.swift */; };
 		B5657D362C0983E300287362 /* MediaEvalOpObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */; };
@@ -207,6 +208,8 @@
 		B59F03B02CB6E67200A9422C /* EncoderDirectoryLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03AF2CB6E66D00A9422C /* EncoderDirectoryLocation.swift */; };
 		B59F03B22CB705D100A9422C /* ComponentNavBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */; };
 		B59F03B72CB75B8D00A9422C /* GraphComponentHashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */; };
+		B5A2452D2DC095100083A774 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2452C2DC095080083A774 /* RecordingView.swift */; };
+		B5A245302DC1DA2C0083A774 /* ReplayKitRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2452F2DC1DA270083A774 /* ReplayKitRecorder.swift */; };
 		B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */; };
 		B5A2D11D286F7A5A002BFB97 /* VisualMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */; };
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
@@ -1158,6 +1161,7 @@
 		B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeLabelsView.swift; sourceTree = "<group>"; };
 		B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUndoManager.swift; sourceTree = "<group>"; };
 		B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIColor.swift; sourceTree = "<group>"; };
+		B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarSharingButtonsView.swift; sourceTree = "<group>"; };
 		B561B44A2923465D00DE4A0D /* iPadProjectSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadProjectSidebarView.swift; sourceTree = "<group>"; };
 		B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaEvalOpObservable.swift; sourceTree = "<group>"; };
 		B5657D382C0B94A300287362 /* GraphMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMediaValue.swift; sourceTree = "<group>"; };
@@ -1209,6 +1213,8 @@
 		B59F03AF2CB6E66D00A9422C /* EncoderDirectoryLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncoderDirectoryLocation.swift; sourceTree = "<group>"; };
 		B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentNavBarView.swift; sourceTree = "<group>"; };
 		B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphComponentHashable.swift; sourceTree = "<group>"; };
+		B5A2452C2DC095080083A774 /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
+		B5A2452F2DC1DA270083A774 /* ReplayKitRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayKitRecorder.swift; sourceTree = "<group>"; };
 		B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerView.swift; sourceTree = "<group>"; };
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
@@ -2828,6 +2834,7 @@
 		B555011E2C1BF20A0081C3F1 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */,
 				EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */,
 				EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */,
 			);
@@ -3625,6 +3632,7 @@
 			children = (
 				B55500D42C1BA7520081C3F1 /* Frame */,
 				B55500D52C1BA7660081C3F1 /* Layer */,
+				B5A2452E2DC1DA040083A774 /* ScreenRecorder */,
 			);
 			path = PrototypePreview;
 			sourceTree = "<group>";
@@ -3839,6 +3847,15 @@
 				B59660A02C1A4D6800BE75D7 /* Util */,
 			);
 			path = Node;
+			sourceTree = "<group>";
+		};
+		B5A2452E2DC1DA040083A774 /* ScreenRecorder */ = {
+			isa = PBXGroup;
+			children = (
+				B5A2452F2DC1DA270083A774 /* ReplayKitRecorder.swift */,
+				B5A2452C2DC095080083A774 /* RecordingView.swift */,
+			);
+			path = ScreenRecorder;
 			sourceTree = "<group>";
 		};
 		B5B95B962CB6D64800DA64B3 /* System */ = {
@@ -5374,6 +5391,7 @@
 				ECE35EF027CEE99300CB8F5C /* InputEditedActions.swift in Sources */,
 				EC226C672BD881D400411EB7 /* SFSymbolLayerNode.swift in Sources */,
 				ECEEA50B2AFF1A6000C7CE86 /* CommentBoxTitleEditView.swift in Sources */,
+				B5A245302DC1DA2C0083A774 /* ReplayKitRecorder.swift in Sources */,
 				B5E34E1E2A81E9A80011A3E1 /* EnvironmentValues.swift in Sources */,
 				EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */,
 				EC844A682B5F20EF00C79B0B /* StitchFontWeight.swift in Sources */,
@@ -5406,6 +5424,7 @@
 				B569E58B2B06A8B100C7435B /* NodeInfo.swift in Sources */,
 				B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */,
 				EC90A7082AF0015E007EE504 /* StitchTheme.swift in Sources */,
+				B55FB4482DC2D4750003E390 /* TopBarSharingButtonsView.swift in Sources */,
 				B59C01372B4625F1001CDF87 /* SchemaNodesUtil.swift in Sources */,
 				20308FA025AD1721008CE3BE /* FloatingWindowView.swift in Sources */,
 				203D56BA25B0DA7C00EF7AC2 /* PortEdgeData.swift in Sources */,
@@ -5555,6 +5574,7 @@
 				ECE2AFEA2C0A43D200F5FE87 /* InsertNodeMenuActions.swift in Sources */,
 				ECCF23512D4C6C5A00BC2F2F /* StepTypeAction.swift in Sources */,
 				EC9AB64728DFEA23002810BC /* ScrollPagingInteractionHelpers.swift in Sources */,
+				B5A2452D2DC095100083A774 /* RecordingView.swift in Sources */,
 				ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */,
 				B557806F2CB04CCC00907BA8 /* GroupNodeType.swift in Sources */,
 				ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */,

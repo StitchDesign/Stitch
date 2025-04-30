@@ -18,7 +18,7 @@ let cancelString = "Cancel"
 struct FullScreenPreviewViewWrapper: View {
     @Bindable var document: StitchDocumentViewModel
     @State private var showDeleteAlert: Bool = false
-
+    
     let previewWindowSizing: PreviewWindowSizing
     
     let showFullScreenPreviewSheet: Bool
@@ -33,7 +33,8 @@ struct FullScreenPreviewViewWrapper: View {
     var previewView: some View {
         PreviewContent(document: document,
                        isFullScreen: true,
-                       showPreviewWindow: true)
+                       showPreviewWindow: true,
+                       previewWindowSizing: document.previewWindowSizingObserver)
         #if !targetEnvironment(macCatalyst)
         .ignoresSafeArea()
         #endif
@@ -67,7 +68,15 @@ struct FullScreenPreviewViewWrapper: View {
         }
 
         FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
-            previewView
+            ZStack {
+                previewView
+
+                #if !targetEnvironment(macCatalyst)
+                if document.isScreenRecording {
+                    RecordingView()
+                }
+                #endif
+            }
         }
         .matchedGeometryEffect(id: document.id, in: routerNamespace)
         .matchedGeometryEffect(id: document.id, in: graphNamespace)
@@ -92,6 +101,26 @@ struct FullScreenPreviewViewWrapper: View {
         .statusBar(hidden: true)
     }
 }
+
+struct FullScreenPreviewViewModifier: ViewModifier {
+    let document: StitchDocumentViewModel
+    
+    func body(content: Content) -> some View {
+        content
+#if !targetEnvironment(macCatalyst)
+                // Fullscreen ALWAYS ignores ALL safe areas
+                    .ignoresSafeArea(.all)
+#endif
+                    
+                // for modal background, use preview windw background color + a couple shades darker
+                    .background {
+                        document.previewWindowBackgroundColor.overlay {
+                            Color.black.opacity(0.2)
+                        }
+                    }
+    }
+}
+
 
 // struct FullScreenPreviewViewWrapper_Previews: PreviewProvider {
 //    @Namespace static var mockNamespace

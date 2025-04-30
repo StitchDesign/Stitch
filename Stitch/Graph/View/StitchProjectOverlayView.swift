@@ -15,7 +15,7 @@ struct StitchProjectOverlayView: View {
     let graphNamespace: Namespace.ID
     
     var showPreviewWindow: Bool {
-        document.showPreviewWindow
+        document.showPreviewWindow && !document.isScreenRecording
     }
     
     var body: some View {
@@ -35,6 +35,7 @@ struct StitchProjectOverlayView: View {
                         deviceScreenSize: document.frame.size,
                         showPreviewWindow: showPreviewWindow,
                         namespace: graphNamespace)
+                    .transition(.opacity)
                 }
             }
             // Hides prototype on debug mode

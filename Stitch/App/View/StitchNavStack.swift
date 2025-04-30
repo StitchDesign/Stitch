@@ -9,6 +9,8 @@ import SwiftUI
 import StitchSchemaKit
 
 struct StitchNavStack: View {
+    @Environment(\.dismissWindow) private var dismissWindow
+
     @Bindable var store: StitchStore
     
     var body: some View {
@@ -24,6 +26,11 @@ struct StitchNavStack: View {
                                 // Remove document from project loader
                                 // MARK: logic needs to be here as its the one place guaranteed to have the project
                                 projectLoader.documentViewModel = nil
+                                
+                                // Close mac screen sharing if still visible
+                                #if targetEnvironment(macCatalyst)
+                                dismissWindow(id: RecordingView.windowId)
+                                #endif
                             }
                         }
                     }
