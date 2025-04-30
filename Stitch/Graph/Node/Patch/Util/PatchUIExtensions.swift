@@ -10,6 +10,19 @@ import SwiftUI
 import StitchSchemaKit
 
 extension Patch {
+    
+    // i.e. "shows the outputs (i.e. port) but not the field" e.g. Size Pack;
+    // Not the same as "outputs disabled (don't even show the port)" e.g. Haptic Feedback
+    var neverShowsOutputsFields: Bool {
+        switch self {
+        // Pack nodes show their outputs' ports but not their fields
+        case .positionPack, .sizePack, .point3DPack, .point4DPack, .transformPack:
+            return true
+        default:
+            return false
+        }
+    }
+    
     var inputsDisabled: Bool {
         switch self {
         case .time, .deviceTime, .deviceMotion, .deviceInfo, .whenPrototypeStarts, .mouse:
@@ -36,10 +49,6 @@ extension Patch {
     var isOutputsOnly: Bool {
         // if inputs are disabled, then we only have outputs.
         inputsDisabled
-    }
-
-    var isDoubleSided: Bool {
-        return !isInputsOnly && !isOutputsOnly
     }
 
     func nodeUIColor(_ splitterType: SplitterType?) -> NodeUIColor {
