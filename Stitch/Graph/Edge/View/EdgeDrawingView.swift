@@ -93,7 +93,8 @@ struct EdgeFromDraggedOutputView: View {
                          totalOutputs: outputAnchorData.totalOutputs,
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false)
-                .animation(.default, value: color)
+                .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
+                           value: color)
             }
         }
         .onChange(of: pointTo) {
