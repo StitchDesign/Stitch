@@ -352,14 +352,11 @@ struct LayerInspectorOutputPortView: View {
                         isMultiField: Bool) -> OutputFieldView {
         OutputFieldView(graph: graph,
                          document: document,
-                         viewModel: portViewModel,
+                         outputField: portViewModel,
                          rowViewModel: rowViewModel,
                          rowObserver: rowObserver,
                          node: node,
-                         canvasItem: canvasItem,
-                         isMultiField: isMultiField,
                          forPropertySidebar: true,
-                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                          isFieldInMultifieldInput: isMultiField,
                          isSelectedInspectorRow: propertyRowIsSelected)
     }

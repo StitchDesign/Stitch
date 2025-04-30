@@ -598,6 +598,7 @@
 		EC65AC2F2DC1809C0046E59C /* CanvasCommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */; };
 		EC65AC312DC197D60046E59C /* TapToEditTextPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC302DC197D60046E59C /* TapToEditTextPickerView.swift */; };
 		EC65AC332DC1A3500046E59C /* InputFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */; };
+		EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC342DC1AB580046E59C /* OutputFieldView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
 		EC68590B2DB078B7004BF315 /* ArrayUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68590A2DB078B7004BF315 /* ArrayUtils.swift */; };
@@ -1587,6 +1588,7 @@
 		EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasCommonEditingView.swift; sourceTree = "<group>"; };
 		EC65AC302DC197D60046E59C /* TapToEditTextPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToEditTextPickerView.swift; sourceTree = "<group>"; };
 		EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldValueView.swift; sourceTree = "<group>"; };
+		EC65AC342DC1AB580046E59C /* OutputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
 		EC68590A2DB078B7004BF315 /* ArrayUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayUtils.swift; sourceTree = "<group>"; };
@@ -3464,6 +3466,7 @@
 				ECF0B0F52877E565001D7CFC /* ValueButton */,
 				EC9D16E12808D97A00684978 /* InputFieldView.swift */,
 				EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */,
+				EC65AC342DC1AB580046E59C /* OutputFieldView.swift */,
 				B5969F8D2C2F3F7A0012F4BD /* OutputFieldValueView.swift */,
 				EC4A7210274C260C0026B233 /* WirelessPortView.swift */,
 			);
@@ -5690,6 +5693,7 @@
 				B53857B02B50682400428962 /* NodeDefinitionKinds.swift in Sources */,
 				B59DD41B2D10BEF400D05C68 /* AnchorEntitiesDropdownView.swift in Sources */,
 				E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */,
+				EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */,
 				ECA92A60260A6CDA00281B52 /* EdgeAnchorData.swift in Sources */,
 				EC49148F293580EE00D74344 /* ColorToHSLNode.swift in Sources */,
 				B596609B2C1A4B9900BE75D7 /* StitchShape.swift in Sources */,

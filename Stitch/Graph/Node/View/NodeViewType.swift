@@ -184,17 +184,14 @@ struct DefaultNodeOutputsView: View {
                         ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
                             ForEach(fieldGroup.fieldObservers) { outputViewModel in
                                 OutputFieldView(graph: graph,
-                                                 document: document,
-                                                 viewModel: outputViewModel,
-                                                 rowViewModel: rowViewModel,
-                                                 rowObserver: rowObserver,
-                                                 node: node,
-                                                 canvasItem: canvas,
-                                                 isMultiField: isMultiField,
-                                                 forPropertySidebar: false,
-                                                 propertyIsAlreadyOnGraph: false,
-                                                 isFieldInMultifieldInput: isMultiField,
-                                                 isSelectedInspectorRow: false)
+                                                document: document,
+                                                outputField: outputViewModel,
+                                                rowViewModel: rowViewModel,
+                                                rowObserver: rowObserver,
+                                                node: node,
+                                                forPropertySidebar: false,
+                                                isFieldInMultifieldInput: isMultiField,
+                                                isSelectedInspectorRow: false)
                             }
                         }
                     }
