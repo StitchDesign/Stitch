@@ -405,8 +405,12 @@ extension GraphState {
         self.resetSelectedCanvasItems()
 
         // Reset edit mode selections + inspector focus and actively-selected
-        self.sidebarSelectionState.resetEditModeSelections()
-        // self.sidebarSelectionState.primary = .init()
+        
+        // We only want to do this if we actually copied a sidebar item
+        let copiedAtleastOneLayer = newNodes.contains { $0.kind.isLayer }
+        if copiedAtleastOneLayer {
+            self.sidebarSelectionState.resetEditModeSelections()
+        }
         
         self.layersSidebarViewModel.items.updateSidebarIndices()
         
