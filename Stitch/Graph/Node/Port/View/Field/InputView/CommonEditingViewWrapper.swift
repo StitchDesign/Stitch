@@ -8,7 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct CommonEditingViewWrapper: View {
+struct CommonEditingView: View {
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var inputField: InputFieldViewModel

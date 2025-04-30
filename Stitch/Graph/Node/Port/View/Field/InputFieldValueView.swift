@@ -77,7 +77,7 @@ struct InputFieldValueView: View {
     var body: some View {
         switch fieldValue {
         case .string:
-            CommonEditingViewWrapper(document: document,
+            CommonEditingView(document: document,
                                      inputField: inputField,
                                      layerInput: layerInputPort,
                                      choices: nil,

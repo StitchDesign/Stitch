@@ -63,7 +63,7 @@ struct FieldValueNumberView: View {
                                       isPressed: $isButtonPressed)
             }
             
-            CommonEditingViewWrapper(document: document,
+            CommonEditingView(document: document,
                                      inputField: inputField,
                                      layerInput: layerInput,
                                      choices: choices,
