@@ -101,9 +101,7 @@ struct StitchColorPickerView: View {
                     .padding()
                 })
                 .onTapGesture {
-//                    if !isCatalyst && isForFlyout {
-                    
-                    // iPad layer inspector uses flyout, due to iPad-platform-specifci shrinking
+                    // iPad layer inspector uses flyout, due to iPad-platform-specific shrinking
                     if !isCatalyst,
                        // isForFlyout, // TODO: always false?
                        isFieldInsideLayerInspector,
@@ -131,18 +129,3 @@ struct StitchColorPickerView: View {
     }
 
 }
-
-//#Preview {
-//    
-//    VStack(spacing: 100) {
-//        
-//        StitchColorPickerOrb(chosenColor: .green)
-//            .scaleEffect(2)
-//        
-//        StitchColorPickerView(coordinate: .fakeInputCoordinate,
-//                              chosenColor: .constant(.red),
-//                              graph: .init(id: .init(), store: nil))
-//            .scaleEffect(2)
-//    }
-//    
-//}

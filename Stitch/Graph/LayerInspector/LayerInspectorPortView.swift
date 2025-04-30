@@ -100,6 +100,7 @@ struct InspectorLayerInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var layerInputObserver: LayerInputObserver
+    
     let forFlyout: Bool
     
     var label: String {
@@ -179,13 +180,14 @@ struct InspectorLayerInputView: View {
                             if let inputRowViewModel = node.getInputRowViewModel(for: fieldId.rowId),
                                let inputRowObserver = node.getInputRowObserver(for: fieldId.rowId.portType) {
                                 
-                                InputValueEntry(
+                                InputFieldView(
                                     graph: graph,
                                     document: document,
-                                    viewModel: inputFieldViewModel,
+                                    inputField: inputFieldViewModel,
                                     node: node,
-                                    rowViewModel: inputRowViewModel,
-                                    canvasItem: nil,
+                                    rowId: inputRowViewModel.id,
+                                    layerInputPort: inputRowViewModel.layerInput,
+                                    canvasItemId: nil,
                                     rowObserver: inputRowObserver,
                                     isCanvasItemSelected: false,
                                     hasIncomingEdge: false,
@@ -236,21 +238,22 @@ struct LayerInputFieldsView: View {
         switch layerInputFieldType {
                     
         case .canvas(let canvasNode):
-            InputValueEntry(graph: graph,
-                            document: document,
-                            viewModel: inputFieldViewModel,
-                            node: node,
-                            rowViewModel: rowViewModel,
-                            canvasItem: canvasNode,
-                            rowObserver: rowObserver,
-                            isCanvasItemSelected: isNodeSelected,
-                            hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                            isForLayerInspector: false,
-                            isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
-                            isFieldInMultifieldInput: isMultifield,
-                            isForFlyout: false,
-                            isSelectedInspectorRow: false, // Always false for canvas layer input
-                            useIndividualFieldLabel: true)
+            InputFieldView(graph: graph,
+                           document: document,
+                           inputField: inputFieldViewModel,
+                           node: node,
+                           rowId: rowViewModel.id,
+                           layerInputPort: rowViewModel.layerInput,
+                           canvasItemId: canvasNode.id,
+                           rowObserver: rowObserver,
+                           isCanvasItemSelected: isNodeSelected,
+                           hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                           isForLayerInspector: false,
+                           isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
+                           isFieldInMultifieldInput: isMultifield,
+                           isForFlyout: false,
+                           isSelectedInspectorRow: false, // Always false for canvas layer input
+                           useIndividualFieldLabel: true)
         }
     }
     
@@ -346,17 +349,14 @@ struct LayerInspectorOutputPortView: View {
     
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: OutputFieldViewModel,
-                        isMultiField: Bool) -> OutputValueEntry {
-        OutputValueEntry(graph: graph,
+                        isMultiField: Bool) -> OutputFieldView {
+        OutputFieldView(graph: graph,
                          document: document,
-                         viewModel: portViewModel,
+                         outputField: portViewModel,
                          rowViewModel: rowViewModel,
                          rowObserver: rowObserver,
                          node: node,
-                         canvasItem: canvasItem,
-                         isMultiField: isMultiField,
-                         forPropertySidebar: true,
-                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                         isForLayerInspector: true,
                          isFieldInMultifieldInput: isMultiField,
                          isSelectedInspectorRow: propertyRowIsSelected)
     }

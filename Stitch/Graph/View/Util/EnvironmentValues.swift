@@ -20,10 +20,6 @@ struct EdgeStyleKey: EnvironmentKey {
     static let defaultValue: EdgeStyle = .defaultEdgeStyle
 }
 
-struct SelectionBoxInUseKey: EnvironmentKey {
-    static let defaultValue = false
-}
-
 struct SafeAreaInsetsEnvironmentKey: EnvironmentKey, Hashable {
     static let defaultValue = SafeAreaInsets()
 }
@@ -37,11 +33,6 @@ extension EnvironmentValues {
     var appTheme: StitchTheme {
         get { self[AppThemeKey.self] }
         set { self[AppThemeKey.self] = newValue }
-    }
-
-    var isSelectionBoxInUse: Bool {
-        get { self[SelectionBoxInUseKey.self] }
-        set { self[SelectionBoxInUseKey.self] = newValue }
     }
 
     var edgeStyle: EdgeStyle {

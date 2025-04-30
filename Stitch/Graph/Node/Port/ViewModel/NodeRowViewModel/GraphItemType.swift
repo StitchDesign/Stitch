@@ -30,6 +30,10 @@ extension GraphItemType {
         }
     }
     
+    var isCanvas: Bool {
+        self.getCanvasItemId.isDefined
+    }
+    
     var isLayerInspector: Bool {
         switch self {
         case .layerInspector:

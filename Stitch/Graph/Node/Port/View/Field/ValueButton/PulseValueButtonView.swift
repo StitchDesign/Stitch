@@ -17,7 +17,7 @@ struct PulseValueButtonView: View {
     
     let rowObserver: InputNodeRowObserver? // nil = for output
     
-    let canvasItem: CanvasItemViewModel?
+    let canvasItemId: CanvasItemId?
     let pulseTime: TimeInterval
 
     // always false for outputs
@@ -38,7 +38,7 @@ struct PulseValueButtonView: View {
         StitchButton {
             if let rowObserver = rowObserver {
                 graph.pulseValueButtonClicked(rowObserver,
-                                              canvasItemId: canvasItem?.id)
+                                              canvasItemId: canvasItemId)
             } else {
                 log("PulseValueButtonView error: output unexpectedly encountered for \(rowObserver?.id)")
             }

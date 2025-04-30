@@ -69,30 +69,33 @@ struct DefaultNodeInputsView: View {
     func valueEntryView(rowObserver: InputNodeRowObserver,
                         rowViewModel: InputNodeRowViewModel,
                         portViewModel: InputFieldViewModel,
-                        isMultiField: Bool) -> InputValueEntry {
-        InputValueEntry(graph: graph,
-                        document: document,
-                        viewModel: portViewModel,
-                        node: node,
-                        rowViewModel: rowViewModel,
-                        canvasItem: canvas,
-                        rowObserver: rowObserver,
-                        isCanvasItemSelected: isNodeSelected,
-                        hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                        isForLayerInspector: false,
-                        isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
-                        isFieldInMultifieldInput: isMultiField,
-                        isForFlyout: false,
-                        isSelectedInspectorRow: false,
-                        useIndividualFieldLabel: true)
+                        isMultiField: Bool) -> InputFieldView {
+        InputFieldView(graph: graph,
+                       document: document,
+                       inputField: portViewModel,
+                       node: node,
+                       rowId: rowViewModel.id,
+                       layerInputPort: rowViewModel.layerInput,
+                       canvasItemId: canvas.id,
+                       rowObserver: rowObserver,
+                       isCanvasItemSelected: isNodeSelected,
+                       hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                       isForLayerInspector: false,
+                       isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
+                       isFieldInMultifieldInput: isMultiField,
+                       isForFlyout: false,
+                       isSelectedInspectorRow: false,
+                       useIndividualFieldLabel: true)
     }
+    
+    @State var hoveredField: FieldCoordinate? = nil
     
     var body: some View {
         DefaultNodeRowsView(graph: graph,
-                       node: node,
-                       canvas: canvas,
-                       rowViewModels: canvas.inputViewModels,
-                       nodeIO: .input) { rowViewModel in
+                            node: node,
+                            canvas: canvas,
+                            rowViewModels: canvas.inputViewModels,
+                            nodeIO: .input) { rowViewModel in
             if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
                 
                 let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1
@@ -112,16 +115,20 @@ struct DefaultNodeInputsView: View {
                                          fontColor: STITCH_FONT_GRAY_COLOR,
                                          isSelectedInspectorRow: false)
                         
-                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
-                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
+                            let fields = fieldGroup.fieldObservers
+                            ForEach(Array(zip(fields.indices, fields)), id: \.0) { index, inputViewModel in
                                 self.valueEntryView(rowObserver: rowObserver,
                                                     rowViewModel: rowViewModel,
-                                                    portViewModel: fieldViewModel,
+                                                    portViewModel: inputViewModel,
                                                     isMultiField: isMultiField)
-                            }
-                        }
-                    }
-                }
+                                // For hovered canvas input fields, so that e.g. the hovered Position input's X field will be elevated about the same Position input's Y field
+                                // z-index = from left to right in descending order
+                                .zIndex(-CGFloat(index))
+                            } // ForEach
+                        } // ForEach
+                    } // HStack(alignment: isMultfield ? ...)
+                } // HStack
             }
         }
     }
@@ -159,30 +166,27 @@ struct DefaultNodeOutputsView: View {
     
     var body: some View {
         DefaultNodeRowsView(graph: graph,
-                       node: node,
-                       canvas: canvas,
-                       rowViewModels: canvas.outputViewModels,
-                       nodeIO: .output) { rowViewModel in
+                            node: node,
+                            canvas: canvas,
+                            rowViewModels: canvas.outputViewModels,
+                            nodeIO: .output) { rowViewModel in
             if let portId = rowViewModel.id.portType.portId,
                let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
                 let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1
                 
                 HStack {
                     if showOutputFields {
-                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroupViewModel in
-                            ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
-                                OutputValueEntry(graph: graph,
-                                                 document: document,
-                                                 viewModel: fieldViewModel,
-                                                 rowViewModel: rowViewModel,
-                                                 rowObserver: rowObserver,
-                                                 node: node,
-                                                 canvasItem: canvas,
-                                                 isMultiField: isMultiField,
-                                                 forPropertySidebar: false,
-                                                 propertyIsAlreadyOnGraph: false,
-                                                 isFieldInMultifieldInput: isMultiField,
-                                                 isSelectedInspectorRow: false)
+                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
+                            ForEach(fieldGroup.fieldObservers) { outputViewModel in
+                                OutputFieldView(graph: graph,
+                                                document: document,
+                                                outputField: outputViewModel,
+                                                rowViewModel: rowViewModel,
+                                                rowObserver: rowObserver,
+                                                node: node,
+                                                isForLayerInspector: false,
+                                                isFieldInMultifieldInput: isMultiField,
+                                                isSelectedInspectorRow: false)
                             }
                         }
                     }
