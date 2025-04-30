@@ -10,6 +10,18 @@ import SwiftUI
 import StitchSchemaKit
 
 extension Patch {
+  
+    // i.e. "shows the inputs (i.e. port) but not the field" e.g. Size Unpack;
+    // Not the same as "inputs disabled (don't even show the port)" e.g. Time node
+    var neverShowsInputsFields: Bool {
+        switch self {
+        // Pack nodes show their outputs' ports but not their fields
+        case .positionUnpack, .sizeUnpack, .point3DUnpack, .point4DUnpack, .transformUnpack:
+            return true
+        default:
+            return false
+        }
+    }
     
     // i.e. "shows the outputs (i.e. port) but not the field" e.g. Size Pack;
     // Not the same as "outputs disabled (don't even show the port)" e.g. Haptic Feedback

@@ -90,6 +90,19 @@ struct DefaultNodeInputsView: View {
     
     @State var hoveredField: FieldCoordinate? = nil
     
+    @MainActor
+    var showsInputFields: Bool {
+        guard let patch = node.patchNode?.patch else {
+            return true
+        }
+        
+        if patch.neverShowsInputsFields {
+            return false
+        }
+        
+        return true
+    }
+    
     var body: some View {
         DefaultNodeRowsView(graph: graph,
                             node: node,
@@ -115,19 +128,23 @@ struct DefaultNodeInputsView: View {
                                          fontColor: STITCH_FONT_GRAY_COLOR,
                                          isSelectedInspectorRow: false)
                         
-                        ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
-                            let fields = fieldGroup.fieldObservers
-                            ForEach(Array(zip(fields.indices, fields)), id: \.0) { index, inputViewModel in
-                                self.valueEntryView(rowObserver: rowObserver,
-                                                    rowViewModel: rowViewModel,
-                                                    portViewModel: inputViewModel,
-                                                    isMultiField: isMultiField)
-                                // For hovered canvas input fields, so that e.g. the hovered Position input's X field will be elevated about the same Position input's Y field
-                                // z-index = from left to right in descending order
-                                .zIndex(-CGFloat(index))
+                        if showsInputFields {
+                            ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
+                                let fields = fieldGroup.fieldObservers
+                                ForEach(Array(zip(fields.indices, fields)), id: \.0) { index, inputViewModel in
+                                    self.valueEntryView(rowObserver: rowObserver,
+                                                        rowViewModel: rowViewModel,
+                                                        portViewModel: inputViewModel,
+                                                        isMultiField: isMultiField)
+                                    // For hovered canvas input fields, so that e.g. the hovered Position input's X field will be elevated about the same Position input's Y field
+                                    // z-index = from left to right in descending order
+                                    .zIndex(-CGFloat(index))
+                                } // ForEach
+                                
                             } // ForEach
-                        } // ForEach
-                    } // HStack(alignment: isMultfield ? ...)
+                        }
+                                                
+                    } // HStack(alignment: isMultifield ? ...)
                 } // HStack
             }
         }
@@ -196,7 +213,7 @@ struct DefaultNodeOutputsView: View {
                                                 isSelectedInspectorRow: false)
                             }
                         }
-                    }
+                    } // if showOutputFields
                     
                     LabelDisplayView(label: rowObserver
                         .label(node: node,
