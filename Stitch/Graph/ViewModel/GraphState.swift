@@ -44,7 +44,6 @@ final class GraphState: Sendable {
     // Hackiness for handling edge case in our UI where somehow
     // UIKit node drag and SwiftUI port drag can happen at sometime.
     @MainActor var nodeIsMoving = false
-    @MainActor var outputDragStartedCount = 0
     
     // Keeps track of interaction nodes and their selected layer
     @MainActor var dragInteractionNodes = [LayerNodeId: NodeIdSet]()

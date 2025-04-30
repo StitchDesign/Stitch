@@ -193,7 +193,6 @@ extension GraphState {
         // end any edge-drawing
         self.edgeDrawingObserver.reset()
         self.nodeIsMoving = true
-        self.outputDragStartedCount = 0
     }
 }
 
@@ -265,7 +264,6 @@ extension StitchDocumentViewModel {
             .forEach { _update($0) }
         
         graph.nodeIsMoving = false
-        graph.outputDragStartedCount = 0
         
         // Rebuild comment boxes
         graph.rebuildCommentBoxes(currentTraversalLevel: groupNodeFocused)

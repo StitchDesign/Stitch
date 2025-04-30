@@ -22,17 +22,14 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     
     @State private var showPopover: Bool = false
     
-    var coordinate: NodeIOPortType {
-        self.rowObserver.id.portType
-    }
-    
     var nodeIO: NodeIO {
         NodeRowObserverType.nodeIOType
     }
         
     var body: some View {
-        PortEntryView(rowViewModel: rowViewModel,
+        PortEntryView(portUIViewModel: rowViewModel.portUIViewModel,
                       graph: graph,
+                      rowId: rowViewModel.id,
                       nodeIO: nodeIO)
         .onTapGesture {
             // Can only tap canvas ports, not layer inspector ports
