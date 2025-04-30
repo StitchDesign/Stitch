@@ -177,6 +177,12 @@ extension StitchDocumentViewModel {
         let newGroupNodeId = UUID()
         let newComponentId = UUID()
         let selectedCanvasItems = self.visibleGraph.getSelectedCanvasItems(groupNodeFocused: self.groupNodeFocused?.groupNodeId)
+        
+        guard selectedCanvasItems.count >= 2 else {
+            log("Not enough canvas items selected to create a group node")
+            return
+        }
+        
         let edges = self.visibleGraph.createEdges()
         let center = self.newCanvasItemInsertionLocation
 
