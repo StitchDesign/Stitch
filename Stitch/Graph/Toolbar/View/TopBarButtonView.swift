@@ -84,6 +84,7 @@ struct TopBarImageButton: View {
 
 struct iPadGraphTopBarButtons: View {
 
+    let document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
@@ -128,6 +129,7 @@ struct iPadGraphTopBarButtons: View {
 
             // the misc (...) button
             iPadGraphTopBarMiscMenu(
+                document: document,
                 llmRecordingModeActive: llmRecordingModeActive,
                 llmRecordingModeEnabled: llmRecordingModeEnabled)
             
@@ -139,6 +141,7 @@ struct iPadGraphTopBarButtons: View {
 }
 
 struct iPadGraphTopBarMiscMenu: View {
+    @Bindable var document: StitchDocumentViewModel
     let llmRecordingModeActive: Bool
     let llmRecordingModeEnabled: Bool
     
@@ -171,6 +174,13 @@ struct iPadGraphTopBarMiscMenu: View {
             iPadTopBarButton(action: FILE_IMPORT_ACTION,
                              iconName: FILE_IMPORT_ICON_NAME,
                              label: FILE_IMPORT_LABEL)
+            
+            iPadTopBarButton(action: {
+                document.isScreenSharing = true
+                document.isFullScreenMode = true
+            },
+                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME),
+                             label: "Share")
 
             iPadTopBarButton(action: PROJECT_SETTINGS_ACTION,
                              iconName: PROJECT_SETTINGS_ICON_NAME,

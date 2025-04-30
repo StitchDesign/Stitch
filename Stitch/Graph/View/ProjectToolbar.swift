@@ -84,6 +84,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 // .secondaryAction = center
                 ToolbarItemGroup(placement: .primaryAction) {
                     iPadGraphTopBarButtons(
+                        document: document,
                         isDebugMode: document.isDebugMode,
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
