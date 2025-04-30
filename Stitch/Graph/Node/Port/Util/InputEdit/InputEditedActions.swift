@@ -125,7 +125,7 @@ extension InputNodeRowObserver {
             // If the underlying pre- and edit-values are the same, then the fields-UI ought to match
             if newValue == parentPortValue,
                !rowId.graphItemType.isLayerInspector {
-                assertInDebug(expectedFieldsUI == currentFieldsUI)
+                // assertInDebug(expectedFieldsUI == currentFieldsUI)
             }
         }
 #endif

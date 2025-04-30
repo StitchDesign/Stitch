@@ -146,8 +146,15 @@ struct DefaultNodeOutputsView: View {
     var showOutputFields: Bool {
 
         // Most patches (except for splitters nodes, under certain conditions) have/show outputs.
-        guard let patchNode = node.patchNode,
-              let splitterType = patchNode.splitterType else {
+        guard let patchNode = node.patchNode else {
+            return true // e.g. this was a layer-ouput-on-the-canvas
+        }
+        
+        if patchNode.patch.neverShowsOutputsFields {
+            return false
+        }
+        
+        guard let splitterType = patchNode.splitterType else {
             return true
         }
         
