@@ -11,12 +11,13 @@ import Sentry
 
 @main @MainActor
 struct StitchApp: App {
+    @Environment(\.dismissWindow) private var dismissWindow
+
     @State private var store = StitchStore()
     
     // MARK: VERY important to pass the store StateObject into each view for perf
     var body: some Scene {
         WindowGroup {
-
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
@@ -34,6 +35,12 @@ struct StitchApp: App {
                         options.enableMetricKitRawPayload = true
                         options.debug = false
                     }
+                    
+                    // Close mac sharing window in case open
+                    #if targetEnvironment(macCatalyst)
+                    dismissWindow(id: RecordingView.windowId)
+                    #endif
+
                 }
                 .environment(self.store)
                 .environment(self.store.environment)
@@ -56,5 +63,11 @@ struct StitchApp: App {
                            activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
           
         }
+        
+        #if targetEnvironment(macCatalyst)
+        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
+            MacScreenSharingView(store: store)
+        }
+        #endif
     }
 }
