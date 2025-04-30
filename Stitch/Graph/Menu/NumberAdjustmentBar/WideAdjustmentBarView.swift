@@ -152,7 +152,6 @@ struct WideAdjustmentBarView: View {
                                     fieldIndex: self.fieldCoordinate.fieldIndex,
                                     rowId: self.fieldCoordinate.rowId,
                                     activeIndex: activeIndex,
-                                    rowObserver: rowObserver,
                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                     isCommitting: false)
                             }
@@ -378,7 +377,6 @@ struct WideAdjustmentBarView: View {
                         fieldIndex: pref.field.fieldIndex,
                         rowId: pref.field.rowId,
                         activeIndex: activeIndex,
-                        rowObserver: rowObserver,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         // We don't persist changes from auto-selectiong the center value during scroll
                         isCommitting: false)

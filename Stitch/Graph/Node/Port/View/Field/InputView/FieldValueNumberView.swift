@@ -14,29 +14,31 @@ struct FieldValueNumberView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var rowObserver: InputNodeRowObserver
-    @Bindable var rowViewModel: InputNodeRowViewModel
-    @Bindable var fieldViewModel: InputFieldViewModel
-    let fieldValue: FieldValue
+        
+    @Bindable var inputField: InputFieldViewModel
+    
     let fieldValueNumberType: FieldValueNumberType
-    let fieldCoordinate: FieldCoordinate
-    let isCanvasItemSelected: Bool
+    
+    let layerInput: LayerInputPort?
+    
     let choices: [String]?
+    
     let isForLayerInspector: Bool
     let hasHeterogenousValues: Bool
     let isPackedLayerInputAlreadyOnCanvas: Bool
+    
     let isFieldInMultifieldInput: Bool
+    
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
+    
     var isForSpacingField: Bool = false
     var isForLayerDimensionField: Bool = false
+    
     var nodeKind: NodeKind
     
     @State private var isButtonPressed = false
-    
-    var fieldIndex: Int {
-        self.fieldViewModel.fieldIndex
-    }
-    
+        
     var isFieldInMultifieldInputInInspector: Bool {
         isFieldInMultifieldInput && isForLayerInspector && !isForFlyout
     }
@@ -52,24 +54,21 @@ struct FieldValueNumberView: View {
                 // Limit renders by not passing in number value unless button pressed
                 NumberValueButtonView(graph: graph,
                                       document: document,
-                                      value: isButtonPressed ? fieldValue.numberValue : .zero,
-                                      fieldCoordinate: fieldCoordinate,
+                                      value: isButtonPressed ? inputField.fieldValue.numberValue : .zero,
+                                      fieldCoordinate: inputField.id,
                                       rowObserver: rowObserver,
                                       fieldValueNumberType: fieldValueNumberType,
-                                      isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
+                                      isFieldInsideLayerInspector: isForLayerInspector,
                                       isSelectedInspectorRow: isSelectedInspectorRow,
                                       isPressed: $isButtonPressed)
             }
             
-            CommonEditingViewWrapper(graph: graph,
-                                     document: document,
-                                     fieldViewModel: fieldViewModel,
-                                     rowObserver: rowObserver,
-                                     rowViewModel: rowViewModel,
-                                     fieldValue: fieldValue,
-                                     fieldCoordinate: fieldCoordinate,
-                                     isCanvasItemSelected: isCanvasItemSelected,
+            CommonEditingView(document: document,
+                                     inputField: inputField,
+                                     layerInput: layerInput,
                                      choices: choices,
+                                     // TODO: was not being used?
+                                     isLargeString: false,
                                      isForLayerInspector: isForLayerInspector,
                                      isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      hasHeterogenousValues: hasHeterogenousValues,

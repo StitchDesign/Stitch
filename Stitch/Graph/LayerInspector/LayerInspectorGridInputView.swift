@@ -57,7 +57,7 @@ struct LayerInspectorGridInputView: View {
     
     // Note: a layer's padding and margin inputs/fields can never be blocked; we can revisit this if that changes in the future
     func observerView(_ fieldObserver: FieldViewModel) -> some View {
-        LayerInspectorReadOnlyView(propertySidebar: graph.propertySidebar,
+        InspectorFieldReadOnlyView(propertySidebar: graph.propertySidebar,
                                    nodeId: node.id,
                                    layerInputObserver: layerInputObserver,
                                    fieldObserver: fieldObserver,
@@ -66,8 +66,8 @@ struct LayerInspectorGridInputView: View {
 }
 
 
-// Only used by inspector's special multifield views
-struct LayerInspectorReadOnlyView: View {
+// ONLY used by inspector's special multifield views, e.g. fields for Padding input
+struct InspectorFieldReadOnlyView: View {
     @Bindable var propertySidebar: PropertySidebarObserver
     let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
@@ -83,16 +83,16 @@ struct LayerInspectorReadOnlyView: View {
     }
     
     var body: some View {
-        CommonEditingViewReadOnly(
-            inputField: fieldObserver,
+        TapToEditReadOnlyView(
             inputString: fieldObserver.fieldValue.stringValue,
-            forPropertySidebar: true,
-            isHovering: false, // Can never hover on a inspector's multifield
-            choices: nil, // always nil for layer dropdown ?
             fieldWidth: INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH,
+            isFocused: false, // never true?
+            isHovering: false,  // Can never hover on a inspector's multifield
+            isForLayerInspector: true,
+            hasPicker: false,
             fieldHasHeterogenousValues: hasHeterogenousValues,
             isSelectedInspectorRow: isPropertyRowSelected,
-            isFieldInMultfieldInspectorInput: true) {
+            onTap: {
                 // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout
                 if layerInputObserver.mode == .packed,
                    let canvasNodeForPackedInput = layerInputObserver.getCanvasItemForWholeInput() {
@@ -105,6 +105,6 @@ struct LayerInspectorReadOnlyView: View {
                         flyoutNodeId: nodeId,
                         fieldToFocus: .textInput(fieldObserver.id)))
                 }
-            }
+            })
     }
 }

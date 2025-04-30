@@ -76,8 +76,9 @@ struct ContentView: View, KeyboardReadable {
                 .ignoresSafeArea([.keyboard])
 #endif
         }
+        
+        // TODO: remove these? just access from document in the relevant view?
        .environment(\.viewframe, document.frame)
-       .environment(\.isSelectionBoxInUse, document.visibleGraph.selection.isSelecting)
     }
 
     @ViewBuilder

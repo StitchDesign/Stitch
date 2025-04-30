@@ -8,87 +8,30 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct OutputValueEntry: View {
-
+// fka `OutputValueView`
+struct OutputFieldValueView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var viewModel: OutputFieldViewModel
-
-    let rowViewModel: OutputNodeRowViewModel
-    let rowObserver: OutputNodeRowObserver
-    let node: NodeViewModel
-    let canvasItem: CanvasItemViewModel?
-    let isMultiField: Bool
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
-    let isFieldInMultifieldInput: Bool
-    let isSelectedInspectorRow: Bool
-
-    // Used by button view to determine if some button has been pressed.
-    // Saving this state outside the button context allows us to control renders.
-    @State private var isButtonPressed = false
-
-    var label: String {
-        self.viewModel.fieldLabel
-    }
+    @Bindable var outputField: OutputFieldViewModel
     
-    var labelDisplay: some View {
-        LabelDisplayView(label: label,
-                         isLeftAligned: false,
-                         fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: isSelectedInspectorRow)
-    }
-
-    var valueDisplay: some View {
-        OutputValueView(graph: graph,
-                        document: document,
-                        viewModel: viewModel,
-                        rowViewModel: rowViewModel,
-                        rowObserver: rowObserver,
-                        node: node,
-                        canvasItem: canvasItem,
-                        isMultiField: isMultiField,
-                        forPropertySidebar: forPropertySidebar,
-                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                        isFieldInMultifieldInput: isFieldInMultifieldInput,
-                        isSelectedInspectorRow: isSelectedInspectorRow,
-                        isButtonPressed: $isButtonPressed)
-            .font(STITCH_FONT)
-            // Monospacing prevents jittery node widths if values change on graphstep
-            .monospacedDigit()
-            .lineLimit(1)
-    }
-
-    var body: some View {
-        HStack(spacing: NODE_COMMON_SPACING) {
-            labelDisplay
-            valueDisplay
-        }
-        .foregroundColor(VALUE_FIELD_BODY_COLOR)
-        .height(NODE_ROW_HEIGHT + 6)
-    }
-
-}
-
-struct OutputValueView: View {
-    @Bindable var graph: GraphState
-    @Bindable var document: StitchDocumentViewModel
-    @Bindable var viewModel: OutputFieldViewModel
-    
+    // TODO: can be replaced by rowObserver.coordinate ? or tricky for group node outputs ?
     let rowViewModel: OutputNodeRowViewModel
+    
     let rowObserver: OutputNodeRowObserver
+    
     let node: NodeViewModel
-    let canvasItem: CanvasItemViewModel?
-    let isMultiField: Bool
-    let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+        
+    let isForLayerInspector: Bool
     let isFieldInMultifieldInput: Bool
+    
+    // Note: only the CanvasSketch and TextField layers have outputs (Image, Text respectively),
+    // so the vast majority of outputs *cannot* be 'selected in the inspector'
     let isSelectedInspectorRow: Bool
     
     @Binding var isButtonPressed: Bool
 
     var fieldValue: FieldValue {
-        viewModel.fieldValue
+        outputField.fieldValue
     }
 
     // Which part of the port-value this value is for.
@@ -97,7 +40,7 @@ struct OutputValueView: View {
     // field index 1 = y
     // field index 2 = z
     var fieldIndex: Int {
-        viewModel.fieldIndex
+        outputField.fieldIndex
     }
 
     // Are the values left- or right-aligned?
@@ -105,10 +48,10 @@ struct OutputValueView: View {
     // - input or,
     // - field within a multifield output
     var outputAlignment: Alignment {
-        if forPropertySidebar {
+        if isForLayerInspector {
             return .leading
         } else {
-            return isMultiField ? .leading : .trailing
+            return isFieldInMultifieldInput ? .leading : .trailing
         }
     }
     
@@ -132,15 +75,19 @@ struct OutputValueView: View {
             readOnlyView(choiceDisplay)
             
         case .anchorEntity(let anchorEntityId):
-            let displayName = graph.getNodeViewModel(anchorEntityId ?? .init())?.getDisplayTitle() ?? AnchorDropdownChoice.noneDisplayName
+            let displayName = graph.getNode(anchorEntityId ?? .init())?.getDisplayTitle() ?? AnchorDropdownChoice.noneDisplayName
             readOnlyView(displayName)
             
+        // TODO: what are other "input only" types of FieldValues ? We should debug-crash on those if we
         case .layerGroupAlignment:
-            EmptyView() // Can't really happen
+            EmptyView()
+                .onAppear {
+                    fatalErrorIfDebug()
+                }
             
         case .media:
-            MediaFieldLabelView(viewModel: viewModel,
-                                inputType: viewModel.id.rowId.portType,
+            MediaFieldLabelView(viewModel: outputField,
+                                inputType: outputField.id.rowId.portType,
                                 node: node,
                                 graph: graph,
                                 document: document,
@@ -156,7 +103,7 @@ struct OutputValueView: View {
         case .pulse(let pulseTime):
             PulseValueButtonView(graph: graph,
                                  rowObserver: nil,
-                                 canvasItem: canvasItem,
+                                 canvasItemId: nil,
                                  pulseTime: pulseTime,
                                  hasIncomingEdge: false)
             
@@ -201,7 +148,7 @@ struct OutputValueView: View {
                            alignment: outputAlignment,
                            fontColor: STITCH_FONT_GRAY_COLOR,
                            isSelectedInspectorRow: isSelectedInspectorRow,
-                           forPropertySidebar: forPropertySidebar,
+                           isForLayerInspector: isForLayerInspector,
                            isFieldInMultifieldInput: isFieldInMultifieldInput)
     }
 }

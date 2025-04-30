@@ -169,8 +169,10 @@ struct NodeView: View {
     var nodeBodyKind: some View {
         HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
             inputsViews()
+                .zIndex(9999)
             Spacer()
             outputsViews()
+                .zIndex(-9999)
         }
     }
     
@@ -215,6 +217,7 @@ struct NodeView: View {
                                        document: document,
                                        node: stitch,
                                        canvas: node)
+                .zIndex(-999)
             }
         }
     }
