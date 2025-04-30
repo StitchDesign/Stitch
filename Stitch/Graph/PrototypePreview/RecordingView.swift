@@ -11,21 +11,27 @@ import UIKit
 
 @MainActor @Observable
 final class ReplayKitRecorder: NSObject {
-    private let recorder: RPScreenRecorder
     private let delegate: ReplayKitRecorderDelegate
     
     var isRecording = false
     
+#if targetEnvironment(macCatalyst)
     init(dismissWindow: DismissWindowAction) {
-        self.recorder = RPScreenRecorder.shared()
         self.delegate = .init(dismissWindow: dismissWindow)
     }
+#else
+    override init() {
+        self.delegate = .init()
+        super.init()
+    }
+#endif
     
     @MainActor
     func startRecording(dismissWindow: DismissWindowAction) {
+        let recorder = RPScreenRecorder.shared()
         guard !recorder.isRecording else { return }
         
-        self.recorder.startRecording { [weak self] error in
+        recorder.startRecording { [weak self] error in
             if let error = error {
                 print("Error starting recording: \(error.localizedDescription)")
 #if targetEnvironment(macCatalyst)
@@ -40,6 +46,7 @@ final class ReplayKitRecorder: NSObject {
     
     @MainActor
     func stopRecording(dismissWindow: DismissWindowAction) {
+        let recorder = RPScreenRecorder.shared()
         guard recorder.isRecording else { return }
         
         recorder.stopRecording { [weak self] (previewVC, error) in
@@ -78,11 +85,13 @@ final class ReplayKitRecorder: NSObject {
 // MARK: - RPPreviewViewControllerDelegate
 @MainActor
 final class ReplayKitRecorderDelegate: NSObject, RPPreviewViewControllerDelegate {
+#if targetEnvironment(macCatalyst)
     let dismissWindow: DismissWindowAction
-    
+
     init(dismissWindow: DismissWindowAction) {
         self.dismissWindow = dismissWindow
     }
+#endif
     
     nonisolated func previewControllerDidFinish(_ previewController: RPPreviewViewController) {
         Task { @MainActor [weak self, weak previewController] in
@@ -96,6 +105,7 @@ final class ReplayKitRecorderDelegate: NSObject, RPPreviewViewControllerDelegate
     }
 }
 
+#if targetEnvironment(macCatalyst)
 struct MacScreenSharingView: View {
     @Environment(\.dismissWindow) private var dismissWindow
     @State private var screenSharingProjectObserver = PreviewWindowSizing()
@@ -136,17 +146,23 @@ struct MacScreenSharingView: View {
         store.currentDocument?.isScreenSharing = false
     }
 }
+#endif
 
 struct RecordingView: View {
     static let windowId = "mac-screen-sharing"
+    @Environment(\.dismissWindow) private var dismissWindow
     
-    let dismissWindow: DismissWindowAction
     @State private var recorder: ReplayKitRecorder
     
+#if targetEnvironment(macCatalyst)
     init(dismissWindow: DismissWindowAction) {
-        self.dismissWindow = dismissWindow
         self.recorder = .init(dismissWindow: dismissWindow)
     }
+#else
+    init() {
+        self.recorder = .init()
+    }
+#endif
     
     var body: some View {
         HStack {

@@ -68,15 +68,15 @@ struct FullScreenPreviewViewWrapper: View {
         }
 
         FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
-            HStack {
+            ZStack {
                 previewView
-//                RecordingView(document: document)
-//                if let store = document.storeDelegate {
-//                    RecordingView(recorder: store.recorder)
-//                }
-                
+
+                #if !targetEnvironment(macCatalyst)
+                if document.isScreenSharing {
+                    RecordingView()
+                }
+                #endif
             }
-//             previewView
         }
         .matchedGeometryEffect(id: document.id, in: routerNamespace)
         .matchedGeometryEffect(id: document.id, in: graphNamespace)
