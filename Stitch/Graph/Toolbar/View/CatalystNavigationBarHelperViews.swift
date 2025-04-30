@@ -217,13 +217,28 @@ struct CatalystTopBarGraphButtons: View {
                 }
             }
             
-            CatalystNavBarButton(.SHARE_ICON_SF_SYMBOL_NAME) {
-                document.isScreenRecording = true
+            Menu {                
+                ShareLink(item: document.lastEncodedDocument,
+                          preview: SharePreview(document.projectName)) {
+                    Text("Share Document")
+                    Image(systemName: "document.fill")
+                }
                 
-                #if targetEnvironment(macCatalyst)
-                openWindow(id: RecordingView.windowId)
-                #endif
+                StitchButton {
+                    document.isScreenRecording = true
+                    
+#if targetEnvironment(macCatalyst)
+                    openWindow(id: RecordingView.windowId)
+#endif
+                } label: {
+                    Text("Record Prototype")
+                    Image(systemName: "inset.filled.rectangle.badge.record")
+                }
+            } label: {
+                Image(systemName: .SHARE_ICON_SF_SYMBOL_NAME)
             }
+            .menuIndicator(.hidden)
+            .frame(width: 30, height: 30)
             
             CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
                 PROJECT_SETTINGS_ACTION()
