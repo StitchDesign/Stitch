@@ -174,7 +174,6 @@
 		B5770BA32D3ACF1D0013AD09 /* Model3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5770BA22D3ACF1C0013AD09 /* Model3DView.swift */; };
 		B57967522B5F2BF8007F5F24 /* SchemaObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */; };
 		B57B27392A77522A007D6A4F /* FieldValueNumberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57B27382A77522A007D6A4F /* FieldValueNumberView.swift */; };
-		B57E997A28FE5EAD00E86891 /* CommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57E997928FE5EAD00E86891 /* CommonEditingView.swift */; };
 		B57F3A802946CE4700DFC0AE /* VisibleNodesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */; };
 		B57F3A822947B4BC00DFC0AE /* SideEffectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A812947B4BC00DFC0AE /* SideEffectCoordinator.swift */; };
 		B57F3A84294A85EC00DFC0AE /* GraphBackgroundGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A83294A85EC00DFC0AE /* GraphBackgroundGestureView.swift */; };
@@ -200,7 +199,7 @@
 		B59660A72C1A52D500BE75D7 /* PreviewLayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59660A62C1A52D500BE75D7 /* PreviewLayerView.swift */; };
 		B59660AA2C1A53DC00BE75D7 /* LayerNodeEntityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59660A92C1A53DC00BE75D7 /* LayerNodeEntityUtils.swift */; };
 		B5969F8C2C2CAAA60012F4BD /* NodeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */; };
-		B5969F8E2C2F3F7A0012F4BD /* OutputValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5969F8D2C2F3F7A0012F4BD /* OutputValueView.swift */; };
+		B5969F8E2C2F3F7A0012F4BD /* OutputFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5969F8D2C2F3F7A0012F4BD /* OutputFieldValueView.swift */; };
 		B5976C1D2980CBC00082BF14 /* StitchEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5976C1C2980CBC00082BF14 /* StitchEntity.swift */; };
 		B59C01342B4552F6001CDF87 /* NodeRowDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */; };
 		B59C01372B4625F1001CDF87 /* SchemaNodesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */; };
@@ -593,6 +592,13 @@
 		EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */; };
 		EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */; };
 		EC650BDB2686702800C4CCC9 /* SpeakerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */; };
+		EC65AC292DC111E00046E59C /* InputFieldBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */; };
+		EC65AC2B2DC112030046E59C /* CommonEditingViewHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC2A2DC112030046E59C /* CommonEditingViewHelpers.swift */; };
+		EC65AC2D2DC133230046E59C /* TapToEditTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC2C2DC133220046E59C /* TapToEditTextView.swift */; };
+		EC65AC2F2DC1809C0046E59C /* CanvasCommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */; };
+		EC65AC312DC197D60046E59C /* TapToEditTextPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC302DC197D60046E59C /* TapToEditTextPickerView.swift */; };
+		EC65AC332DC1A3500046E59C /* InputFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */; };
+		EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC342DC1AB580046E59C /* OutputFieldView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
 		EC68590B2DB078B7004BF315 /* ArrayUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68590A2DB078B7004BF315 /* ArrayUtils.swift */; };
@@ -647,8 +653,8 @@
 		EC8605B8269E1A23007B8ED3 /* JSONArrayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8605B7269E1A23007B8ED3 /* JSONArrayNode.swift */; };
 		EC8605BA269E1A2B007B8ED3 /* ArrayAppendNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8605B9269E1A2B007B8ED3 /* ArrayAppendNode.swift */; };
 		EC865B8429E7584F0030FD89 /* TopBarButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */; };
-		EC8891A32C82387A002390F8 /* CommonEditingViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A22C82387A002390F8 /* CommonEditingViewWrapper.swift */; };
-		EC8891A52C82388D002390F8 /* CommonEditingViewReadOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A42C82388D002390F8 /* CommonEditingViewReadOnly.swift */; };
+		EC8891A32C82387A002390F8 /* CommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A22C82387A002390F8 /* CommonEditingView.swift */; };
+		EC8891A52C82388D002390F8 /* TapToEditReadOnlyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */; };
 		EC8967002B4E1C8E0066879B /* CurveLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8966FF2B4E1C8E0066879B /* CurveLine.swift */; };
 		EC8967022B4E1D3B0066879B /* EdgeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8967012B4E1D3B0066879B /* EdgeStyle.swift */; };
 		EC8967042B4E230A0066879B /* StraightLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8967032B4E230A0066879B /* StraightLine.swift */; };
@@ -703,7 +709,7 @@
 		EC9C498E268E29F4004150F8 /* SoundHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C498D268E29F4004150F8 /* SoundHelpers.swift */; };
 		EC9C6F9B298C45EE00E05523 /* CanvasItemMenuButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C6F9A298C45EE00E05523 /* CanvasItemMenuButtonsView.swift */; };
 		EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16DF2808D89000684978 /* CanvasItemTitleView.swift */; };
-		EC9D16E22808D97A00684978 /* InputValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16E12808D97A00684978 /* InputValueEntry.swift */; };
+		EC9D16E22808D97A00684978 /* InputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16E12808D97A00684978 /* InputFieldView.swift */; };
 		EC9DB346280F1F710061EC3C /* EdgeDrawingObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */; };
 		EC9DB348280F239C0061EC3C /* PortDragActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB347280F239C0061EC3C /* PortDragActions.swift */; };
 		EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9F0C8C26549B38003DFD41 /* CameraFeedNode.swift */; };
@@ -1172,7 +1178,6 @@
 		B5770BA22D3ACF1C0013AD09 /* Model3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DView.swift; sourceTree = "<group>"; };
 		B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaObserver.swift; sourceTree = "<group>"; };
 		B57B27382A77522A007D6A4F /* FieldValueNumberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldValueNumberView.swift; sourceTree = "<group>"; };
-		B57E997928FE5EAD00E86891 /* CommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingView.swift; sourceTree = "<group>"; };
 		B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisibleNodesViewModel.swift; sourceTree = "<group>"; };
 		B57F3A812947B4BC00DFC0AE /* SideEffectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideEffectCoordinator.swift; sourceTree = "<group>"; };
 		B57F3A83294A85EC00DFC0AE /* GraphBackgroundGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBackgroundGestureView.swift; sourceTree = "<group>"; };
@@ -1196,7 +1201,7 @@
 		B59660A62C1A52D500BE75D7 /* PreviewLayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewLayerView.swift; sourceTree = "<group>"; };
 		B59660A92C1A53DC00BE75D7 /* LayerNodeEntityUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeEntityUtils.swift; sourceTree = "<group>"; };
 		B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowViewModel.swift; sourceTree = "<group>"; };
-		B5969F8D2C2F3F7A0012F4BD /* OutputValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputValueView.swift; sourceTree = "<group>"; };
+		B5969F8D2C2F3F7A0012F4BD /* OutputFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldValueView.swift; sourceTree = "<group>"; };
 		B5976C1C2980CBC00082BF14 /* StitchEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEntity.swift; sourceTree = "<group>"; };
 		B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowDefinitions.swift; sourceTree = "<group>"; };
 		B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaNodesUtil.swift; sourceTree = "<group>"; };
@@ -1577,6 +1582,13 @@
 		EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingEdgesView.swift; sourceTree = "<group>"; };
 		EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundImportNode.swift; sourceTree = "<group>"; };
 		EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerNode.swift; sourceTree = "<group>"; };
+		EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldBackgroundView.swift; sourceTree = "<group>"; };
+		EC65AC2A2DC112030046E59C /* CommonEditingViewHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingViewHelpers.swift; sourceTree = "<group>"; };
+		EC65AC2C2DC133220046E59C /* TapToEditTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToEditTextView.swift; sourceTree = "<group>"; };
+		EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasCommonEditingView.swift; sourceTree = "<group>"; };
+		EC65AC302DC197D60046E59C /* TapToEditTextPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToEditTextPickerView.swift; sourceTree = "<group>"; };
+		EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldValueView.swift; sourceTree = "<group>"; };
+		EC65AC342DC1AB580046E59C /* OutputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
 		EC68590A2DB078B7004BF315 /* ArrayUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayUtils.swift; sourceTree = "<group>"; };
@@ -1630,8 +1642,8 @@
 		EC8605B7269E1A23007B8ED3 /* JSONArrayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONArrayNode.swift; sourceTree = "<group>"; };
 		EC8605B9269E1A2B007B8ED3 /* ArrayAppendNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayAppendNode.swift; sourceTree = "<group>"; };
 		EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarButtonView.swift; sourceTree = "<group>"; };
-		EC8891A22C82387A002390F8 /* CommonEditingViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingViewWrapper.swift; sourceTree = "<group>"; };
-		EC8891A42C82388D002390F8 /* CommonEditingViewReadOnly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingViewReadOnly.swift; sourceTree = "<group>"; };
+		EC8891A22C82387A002390F8 /* CommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingView.swift; sourceTree = "<group>"; };
+		EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToEditReadOnlyView.swift; sourceTree = "<group>"; };
 		EC8966FF2B4E1C8E0066879B /* CurveLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveLine.swift; sourceTree = "<group>"; };
 		EC8967012B4E1D3B0066879B /* EdgeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeStyle.swift; sourceTree = "<group>"; };
 		EC8967032B4E230A0066879B /* StraightLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StraightLine.swift; sourceTree = "<group>"; };
@@ -1685,7 +1697,7 @@
 		EC9C498D268E29F4004150F8 /* SoundHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundHelpers.swift; sourceTree = "<group>"; };
 		EC9C6F9A298C45EE00E05523 /* CanvasItemMenuButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemMenuButtonsView.swift; sourceTree = "<group>"; };
 		EC9D16DF2808D89000684978 /* CanvasItemTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemTitleView.swift; sourceTree = "<group>"; };
-		EC9D16E12808D97A00684978 /* InputValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputValueEntry.swift; sourceTree = "<group>"; };
+		EC9D16E12808D97A00684978 /* InputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldView.swift; sourceTree = "<group>"; };
 		EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingObserver.swift; sourceTree = "<group>"; };
 		EC9DB347280F239C0061EC3C /* PortDragActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortDragActions.swift; sourceTree = "<group>"; };
 		EC9F0C8C26549B38003DFD41 /* CameraFeedNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeedNode.swift; sourceTree = "<group>"; };
@@ -3452,8 +3464,10 @@
 				EC343B8D2822EB5900104E82 /* InputView */,
 				EC4D95AB26B4B82A00AD5AB4 /* Media */,
 				ECF0B0F52877E565001D7CFC /* ValueButton */,
-				EC9D16E12808D97A00684978 /* InputValueEntry.swift */,
-				B5969F8D2C2F3F7A0012F4BD /* OutputValueView.swift */,
+				EC9D16E12808D97A00684978 /* InputFieldView.swift */,
+				EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */,
+				EC65AC342DC1AB580046E59C /* OutputFieldView.swift */,
+				B5969F8D2C2F3F7A0012F4BD /* OutputFieldValueView.swift */,
 				EC4A7210274C260C0026B233 /* WirelessPortView.swift */,
 			);
 			path = Field;
@@ -4124,9 +4138,13 @@
 				ECDC9FB929099E8800E4F7D9 /* iPadDropdownView.swift */,
 				B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */,
 				B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */,
-				EC8891A22C82387A002390F8 /* CommonEditingViewWrapper.swift */,
-				EC8891A42C82388D002390F8 /* CommonEditingViewReadOnly.swift */,
-				B57E997928FE5EAD00E86891 /* CommonEditingView.swift */,
+				EC8891A22C82387A002390F8 /* CommonEditingView.swift */,
+				EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */,
+				EC65AC2E2DC1809C0046E59C /* CanvasCommonEditingView.swift */,
+				EC65AC302DC197D60046E59C /* TapToEditTextPickerView.swift */,
+				EC65AC2C2DC133220046E59C /* TapToEditTextView.swift */,
+				EC65AC2A2DC112030046E59C /* CommonEditingViewHelpers.swift */,
+				EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */,
 				ECF387D2280B600A0075F0E5 /* ReadOnlyEntry.swift */,
 			);
 			path = InputView;
@@ -4995,6 +5013,7 @@
 				EC572B3B26337C5F00C8E49A /* NodeTypeUtils.swift in Sources */,
 				B56FFB482C18FF9700623CC7 /* LoopedEval.swift in Sources */,
 				B55501342C1C00EB0081C3F1 /* GraphStepIncrementer.swift in Sources */,
+				EC65AC312DC197D60046E59C /* TapToEditTextPickerView.swift in Sources */,
 				EC0F334C2BED93EF008093BC /* GraphDelegate.swift in Sources */,
 				EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */,
 				ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */,
@@ -5027,8 +5046,9 @@
 				ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */,
 				B55500C02C1B9D890081C3F1 /* FieldGroup.swift in Sources */,
 				ECB8778C2C7D56D0004ACF60 /* LayerMultiselect.swift in Sources */,
-				EC8891A52C82388D002390F8 /* CommonEditingViewReadOnly.swift in Sources */,
+				EC8891A52C82388D002390F8 /* TapToEditReadOnlyView.swift in Sources */,
 				EC991F6B2937D55600AE0A45 /* ArrayJoinNode.swift in Sources */,
+				EC65AC292DC111E00046E59C /* InputFieldBackgroundView.swift in Sources */,
 				B5D689BD275833390086C297 /* ProjectAlertState.swift in Sources */,
 				ECF387D3280B600A0075F0E5 /* ReadOnlyEntry.swift in Sources */,
 				ECA3915F29A6C410005C10A8 /* StitchNavStack.swift in Sources */,
@@ -5190,6 +5210,7 @@
 				ECFC975B296794DD000414C4 /* PopAnimationNode.swift in Sources */,
 				EC8A48ED2710EB2F001BB4FC /* GraphStepState.swift in Sources */,
 				B5F88D6A2D2D6D8B00B5A45A /* StitchProjectOverlayView.swift in Sources */,
+				EC65AC2F2DC1809C0046E59C /* CanvasCommonEditingView.swift in Sources */,
 				ECEF8D0D2BFD4460004FABCD /* LayerSizeReader.swift in Sources */,
 				EC2614492B8960B800BEB066 /* Point4DPackNode.swift in Sources */,
 				ECF6AEF9263CB7E50011C679 /* PreviewShapeLayer.swift in Sources */,
@@ -5219,7 +5240,6 @@
 				B55500B62C1B98B00081C3F1 /* SingleDropdownKind.swift in Sources */,
 				ECE35EDE27CEDB7100CB8F5C /* LayerDimensionUtils.swift in Sources */,
 				EC68A6FC288B311A00689F92 /* SplitterTypeActions.swift in Sources */,
-				B57E997A28FE5EAD00E86891 /* CommonEditingView.swift in Sources */,
 				EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */,
 				ECB9A86F2AEB4950006E65EE /* AlphaSliderView.swift in Sources */,
 				EC1B41AE26BC4BD40016C2C2 /* LayerDraggedActions.swift in Sources */,
@@ -5238,6 +5258,7 @@
 				EC4081252C0114060047989F /* StitchCustomURL.swift in Sources */,
 				205BB3B125BA203D00F144A7 /* PortView.swift in Sources */,
 				E4D7EA152BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift in Sources */,
+				EC65AC2D2DC133230046E59C /* TapToEditTextView.swift in Sources */,
 				EC9AB64328DFE8FF002810BC /* ScrollData.swift in Sources */,
 				EC014FEF2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift in Sources */,
 				E40EBAD22BB5D8DD00CCA3C3 /* SwitchLayerNode.swift in Sources */,
@@ -5266,7 +5287,7 @@
 				EC28CC9A287E347A00987792 /* PatchEvaluateExtensions.swift in Sources */,
 				ECCEB26A2963928D007E35D1 /* UnionNode.swift in Sources */,
 				ECD039272641F3C9003926B4 /* PreviewGroup.swift in Sources */,
-				B5969F8E2C2F3F7A0012F4BD /* OutputValueView.swift in Sources */,
+				B5969F8E2C2F3F7A0012F4BD /* OutputFieldValueView.swift in Sources */,
 				B50CE3082908D0C40065378E /* StitchTextEditingField.swift in Sources */,
 				ECC2BCDF2B9B751500D5F942 /* SidebarListItemView.swift in Sources */,
 				EC1E7A6D287CFA9600144D05 /* StringUtils.swift in Sources */,
@@ -5286,6 +5307,7 @@
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
 				EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */,
+				EC65AC2B2DC112030046E59C /* CommonEditingViewHelpers.swift in Sources */,
 				B55500C82C1B9FCF0081C3F1 /* LayerDimensionField.swift in Sources */,
 				EC11218F2942846900F0AE19 /* ShapeLayerNode.swift in Sources */,
 				B55500E92C1BACC80081C3F1 /* PreviewCommonModifierWithoutFrame.swift in Sources */,
@@ -5594,13 +5616,14 @@
 				B55500A82C1A7A5E0081C3F1 /* NodeViewModelUtils.swift in Sources */,
 				ECD936542B714E4B008969E3 /* EdgeUtils.swift in Sources */,
 				EC609DCA293549F600BF60A5 /* SquareRootNode.swift in Sources */,
+				EC65AC332DC1A3500046E59C /* InputFieldValueView.swift in Sources */,
 				B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */,
 				EC8605B6269E1A18007B8ED3 /* JSONObjectNode.swift in Sources */,
 				ECDCE3602821F13800D83EC3 /* DropDownChoiceView.swift in Sources */,
 				EC29423D2BA13DB400D14CD1 /* JumpToCanvasItem.swift in Sources */,
 				EC4D0D8A290861E300444B04 /* GraphBounds.swift in Sources */,
 				ECA92A0C260A69A000281B52 /* AddNode.swift in Sources */,
-				EC9D16E22808D97A00684978 /* InputValueEntry.swift in Sources */,
+				EC9D16E22808D97A00684978 /* InputFieldView.swift in Sources */,
 				B56FFB2D2C18B7B400623CC7 /* SupportedMediaFormat.swift in Sources */,
 				B55500BD2C1B9A1B0081C3F1 /* JSONReplViews.swift in Sources */,
 				EC49069D2CCACD4000165554 /* StitchCustomColorPickerView.swift in Sources */,
@@ -5613,7 +5636,7 @@
 				EC609DBE2935311900BF60A5 /* UIKitExtensionUtils.swift in Sources */,
 				B5FF449E2D5D0AFC0083B34E /* StitchAIManagerError.swift in Sources */,
 				B530D5032C18AB390005C6A9 /* AppThemeActions.swift in Sources */,
-				EC8891A32C82387A002390F8 /* CommonEditingViewWrapper.swift in Sources */,
+				EC8891A32C82387A002390F8 /* CommonEditingView.swift in Sources */,
 				EC26144B2B8960CC00BEB066 /* TransformPackNode.swift in Sources */,
 				ECA92A10260A69B000281B52 /* MultiplyNode.swift in Sources */,
 				EC22562B2D407EC700BB7292 /* LayerGroupAlignmentChoicesView.swift in Sources */,
@@ -5670,6 +5693,7 @@
 				B53857B02B50682400428962 /* NodeDefinitionKinds.swift in Sources */,
 				B59DD41B2D10BEF400D05C68 /* AnchorEntitiesDropdownView.swift in Sources */,
 				E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */,
+				EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */,
 				ECA92A60260A6CDA00281B52 /* EdgeAnchorData.swift in Sources */,
 				EC49148F293580EE00D74344 /* ColorToHSLNode.swift in Sources */,
 				B596609B2C1A4B9900BE75D7 /* StitchShape.swift in Sources */,
