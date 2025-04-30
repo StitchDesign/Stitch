@@ -71,20 +71,21 @@ struct DefaultNodeInputsView: View {
                         portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputFieldView {
         InputFieldView(graph: graph,
-                        document: document,
-                        inputField: portViewModel,
-                        node: node,
-                        rowViewModel: rowViewModel,
-                        canvasItem: canvas,
-                        rowObserver: rowObserver,
-                        isCanvasItemSelected: isNodeSelected,
-                        hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                        isForLayerInspector: false,
-                        isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
-                        isFieldInMultifieldInput: isMultiField,
-                        isForFlyout: false,
-                        isSelectedInspectorRow: false,
-                        useIndividualFieldLabel: true)
+                       document: document,
+                       inputField: portViewModel,
+                       node: node,
+                       rowId: rowViewModel.id,
+                       layerInputPort: rowViewModel.layerInput,
+                       canvasItemId: canvas.id,
+                       rowObserver: rowObserver,
+                       isCanvasItemSelected: isNodeSelected,
+                       hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                       isForLayerInspector: false,
+                       isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
+                       isFieldInMultifieldInput: isMultiField,
+                       isForFlyout: false,
+                       isSelectedInspectorRow: false,
+                       useIndividualFieldLabel: true)
     }
     
     var body: some View {

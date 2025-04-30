@@ -12,8 +12,12 @@ struct ColorOrbValueButtonView: View {
     @State private var colorState: Color = .white
 
     let fieldViewModel: InputFieldViewModel
-    let rowViewModel: InputNodeRowViewModel
+        
     let rowObserver: InputNodeRowObserver
+    
+    let rowId: NodeRowViewModelId
+    let isForLayerInspector: Bool
+    
     let isForFlyout: Bool
     let currentColor: Color // the current color, from input
     let hasIncomingEdge: Bool
@@ -40,16 +44,16 @@ struct ColorOrbValueButtonView: View {
                     rowObserver: rowObserver,
                     choice: .color(newColor),
                     activeIndex: activeIndex,
-                    isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
+                    isFieldInsideLayerInspector: isForLayerInspector,
                     // Lots of small changes so don't persist everything
                     isPersistence: false)
             }
         }
 
-        StitchColorPickerView(rowViewModelId: rowViewModel.id,
+        StitchColorPickerView(rowViewModelId: rowId,
                               rowObserver: rowObserver,
                               fieldCoordinate: fieldViewModel.id,
-                              isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
+                              isFieldInsideLayerInspector: isForLayerInspector,
                               isForFlyout: isForFlyout,
                               isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
                               activeIndex: activeIndex,

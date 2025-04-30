@@ -173,13 +173,15 @@ struct GenericFlyoutRowView: View {
                                     
             if let rowObserver = self.rowObserver {
                 InputFieldView(graph: graph,
-                                document: document,
-                                inputField: viewModel,
-                                node: node,
-                                rowViewModel: rowViewModel,
-                                canvasItem: nil,
-                                // For input editing, however, we need the proper packed vs unpacked state
-                                rowObserver: rowObserver,
+                               document: document,
+                               inputField: viewModel,
+                               node: node,
+                               rowId: rowViewModel.id,
+                               layerInputPort: rowViewModel.layerInput,
+                               canvasItemId: nil,
+                               
+                               // For input editing, however, we need the proper packed vs unpacked state
+                               rowObserver: rowObserver,
                                 isCanvasItemSelected: false, // Always false
                                 hasIncomingEdge: false,
                                 isForLayerInspector: true,
