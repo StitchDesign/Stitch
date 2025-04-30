@@ -62,23 +62,20 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                                              portIsBeingDragged: self.$portIsBeingDragged,
                                              nodeIO: nodeIO,
                                              rowId: rowId))
-//            .animation(.linear(duration: self.animationTime),
-//                       value: self.portColor)
+            .animation(.linear(duration: self.animationTime),
+                       value: self.portColor)
         
         // TODO: perf implications updating every port's color when selectedEdges or edgeDrawingObserver changes?
         
         // Update port color on selected edges change
             .onChange(of: graph.selectedEdges) {
-                dispatch(MaybeUpdatePortColor(rowId: rowId,
-                                              nodeIO: nodeIO))
+                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
             }
-            .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { oldValue, newValue in
-                dispatch(MaybeUpdatePortColor(rowId: rowId,
-                                              nodeIO: nodeIO))
+            .onChange(of: self.graph.edgeDrawingObserver.drawingGesture.isDefined) { _, _ in
+                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
             }
-            .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { oldValue, newValue in
-                dispatch(MaybeUpdatePortColor(rowId: rowId,
-                                              nodeIO: nodeIO))
+            .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { _, _ in
+                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
             }
     }
         
