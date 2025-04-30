@@ -356,7 +356,7 @@ struct LayerInspectorOutputPortView: View {
                          rowViewModel: rowViewModel,
                          rowObserver: rowObserver,
                          node: node,
-                         forPropertySidebar: true,
+                         isForLayerInspector: true,
                          isFieldInMultifieldInput: isMultiField,
                          isSelectedInspectorRow: propertyRowIsSelected)
     }

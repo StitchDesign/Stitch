@@ -189,7 +189,7 @@ struct DefaultNodeOutputsView: View {
                                                 rowViewModel: rowViewModel,
                                                 rowObserver: rowObserver,
                                                 node: node,
-                                                forPropertySidebar: false,
+                                                isForLayerInspector: false,
                                                 isFieldInMultifieldInput: isMultiField,
                                                 isSelectedInspectorRow: false)
                             }

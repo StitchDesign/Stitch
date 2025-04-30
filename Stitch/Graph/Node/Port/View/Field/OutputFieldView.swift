@@ -19,7 +19,7 @@ struct OutputFieldView: View {
     let rowObserver: OutputNodeRowObserver
     let node: NodeViewModel
         
-    let forPropertySidebar: Bool
+    let isForLayerInspector: Bool
     
     let isFieldInMultifieldInput: Bool
     
@@ -47,7 +47,7 @@ struct OutputFieldView: View {
                              rowViewModel: rowViewModel,
                              rowObserver: rowObserver,
                              node: node,
-                             isForLayerInspector: forPropertySidebar,
+                             isForLayerInspector: isForLayerInspector,
                              isFieldInMultifieldInput: isFieldInMultifieldInput,
                              isSelectedInspectorRow: isSelectedInspectorRow,
                              isButtonPressed: $isButtonPressed)
