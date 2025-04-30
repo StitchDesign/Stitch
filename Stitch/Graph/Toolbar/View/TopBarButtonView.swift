@@ -20,8 +20,15 @@ struct iPadTopBarButton: View {
             TopBarImageButton(iconName: iconName,
                               label: label)
         }
-        .padding(TOPBAR_SPACING)
-        .hoverEffect(.highlight)
+        .modifier(iPadTopBarButtonStyle())
+    }
+}
+
+struct iPadTopBarButtonStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(TOPBAR_SPACING)
+            .hoverEffect(.highlight)
     }
 }
 
@@ -175,12 +182,8 @@ struct iPadGraphTopBarMiscMenu: View {
                              iconName: FILE_IMPORT_ICON_NAME,
                              label: FILE_IMPORT_LABEL)
             
-            iPadTopBarButton(action: {
-                document.isScreenRecording = true
-                document.isFullScreenMode = true
-            },
-                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME),
-                             label: "Share")
+            TopBarSharingButtonsView(document: document)
+                .modifier(iPadTopBarButtonStyle())
 
             iPadTopBarButton(action: PROJECT_SETTINGS_ACTION,
                              iconName: PROJECT_SETTINGS_ICON_NAME,

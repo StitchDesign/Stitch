@@ -155,8 +155,6 @@ extension String {
 
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
-    @Environment(\.openWindow) private var openWindow
-
     @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
@@ -217,28 +215,8 @@ struct CatalystTopBarGraphButtons: View {
                 }
             }
             
-            Menu {                
-                ShareLink(item: document.lastEncodedDocument,
-                          preview: SharePreview(document.projectName)) {
-                    Text("Share Document")
-                    Image(systemName: "document.fill")
-                }
-                
-                StitchButton {
-                    document.isScreenRecording = true
-                    
-#if targetEnvironment(macCatalyst)
-                    openWindow(id: RecordingView.windowId)
-#endif
-                } label: {
-                    Text("Record Prototype")
-                    Image(systemName: "inset.filled.rectangle.badge.record")
-                }
-            } label: {
-                Image(systemName: .SHARE_ICON_SF_SYMBOL_NAME)
-            }
-            .menuIndicator(.hidden)
-            .frame(width: 30, height: 30)
+            TopBarSharingButtonsView(document: document)
+                .modifier(CatalystTopBarButtonStyle())
             
             CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
                 PROJECT_SETTINGS_ACTION()
@@ -253,6 +231,44 @@ struct CatalystTopBarGraphButtons: View {
             CatalystNavBarButton(action: {
                 dispatch(LayerInspectorToggled())
             }, iconName: .sfSymbol("sidebar.right"))
+        }
+    }
+}
+
+// TOOD: move
+struct TopBarSharingButtonsView: View {
+#if targetEnvironment(macCatalyst)
+    @Environment(\.openWindow) private var openWindow
+#endif
+    
+    @Bindable var document: StitchDocumentViewModel
+    
+    var body: some View {
+        Menu {
+            ShareLink(item: document.lastEncodedDocument,
+                      preview: SharePreview(document.projectName)) {
+                Text("Share Document")
+                Image(systemName: "document.fill")
+            }
+            
+            StitchButton {
+                document.isScreenRecording = true
+                
+#if targetEnvironment(macCatalyst)
+                openWindow(id: RecordingView.windowId)
+#else
+                document.isFullScreenMode = true
+#endif
+            } label: {
+                Text("Record Prototype")
+                Image(systemName: "inset.filled.rectangle.badge.record")
+            }
+        } label: {
+            #if !targetEnvironment(macCatalyst)
+            Text("Share")
+            #endif
+            
+            Image(systemName: .SHARE_ICON_SF_SYMBOL_NAME)
         }
     }
 }
@@ -328,8 +344,7 @@ struct CatalystNavBarButton: View, Identifiable {
         .rotation3DEffect(Angle(degrees: rotationZ),
                           axis: (x: 0, y: 0, z: rotationZ))
 
-        // Hides the little arrow on Catalyst
-        .menuIndicator(.hidden)
+        .modifier(CatalystTopBarButtonStyle())
         .simultaneousGesture(TapGesture().onEnded({ _ in
             action()
         }))
@@ -337,7 +352,15 @@ struct CatalystNavBarButton: View, Identifiable {
         // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appearance, losing the hover-highlight effect etc.;
         // so we use UIKitOnTapModifier for proper callback.
 //        .modifier(UIKitOnTapModifier(onTapCallback: action))
+    }
+}
 
+struct CatalystTopBarButtonStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+        // Hides the little arrow on Catalyst
+        .menuIndicator(.hidden)
+        
         // TODO: find ideal button size?
         // Note: *must* provide explicit frame
         .frame(width: 30, height: 30)
