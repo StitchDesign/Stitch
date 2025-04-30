@@ -41,7 +41,7 @@ struct CanvasCommonEditingView: View {
     
     // Canvas input fields that are hovered or actively-focused show more of their contents
     var shouldShowExtendedField: Bool {
-        self.isHovering || self.isCurrentlyFocused
+        self.isHovering || self.isCurrentlyFocused || isThisFieldReduxFocused
     }
     
     @State private var isHovering = false
@@ -100,8 +100,32 @@ struct CanvasCommonEditingView: View {
             }
         }
         .onHover {
+            // If some other field is focused, this field can never be extended;
+            // so turn off hovering and ignore future hovers.
+            guard !isSomeOtherTextInputReduxFocused else {
+                self.isHovering = false
+                return
+            }
+            
             self.isHovering = $0
         }
         
+        // If we defocus this field, immediately stop hovering
+        .onChange(of: self.isThisFieldReduxFocused) { oldValue, newValue in
+            if !newValue {
+                self.isHovering = false
+            }
+        }
+    }
+    
+    var isThisFieldReduxFocused: Bool {
+        self.document.reduxFocusedField?.getTextInputEdit == inputField.id
+    }
+    
+    var isSomeOtherTextInputReduxFocused: Bool {
+        if let reduxFocusedTextField = self.document.reduxFocusedField?.getTextInputEdit {
+            return reduxFocusedTextField != inputField.id
+        }
+        return false
     }
 }

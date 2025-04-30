@@ -209,10 +209,10 @@ extension TapToEditTextView {
         switch document.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let focused = focusedFieldCoordinate == self.fieldCoordinate
-            log("isThisFieldFocused: self.fieldCoordinate \(self.fieldCoordinate): focused: \(focused)")
+            // log("isThisFieldFocused: self.fieldCoordinate \(self.fieldCoordinate): focused: \(focused)")
             return focused
         default:
-            log("isThisFieldFocused: self.fieldCoordinate \(self.fieldCoordinate): NOT FOCUSED")
+            // log("isThisFieldFocused: self.fieldCoordinate \(self.fieldCoordinate): NOT FOCUSED")
             return false
         }
     }
