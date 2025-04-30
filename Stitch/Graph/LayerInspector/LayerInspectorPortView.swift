@@ -183,7 +183,7 @@ struct InspectorLayerInputView: View {
                                 InputFieldView(
                                     graph: graph,
                                     document: document,
-                                    viewModel: inputFieldViewModel,
+                                    inputField: inputFieldViewModel,
                                     node: node,
                                     rowViewModel: inputRowViewModel,
                                     canvasItem: nil,
@@ -238,20 +238,20 @@ struct LayerInputFieldsView: View {
                     
         case .canvas(let canvasNode):
             InputFieldView(graph: graph,
-                            document: document,
-                            viewModel: inputFieldViewModel,
-                            node: node,
-                            rowViewModel: rowViewModel,
-                            canvasItem: canvasNode,
-                            rowObserver: rowObserver,
-                            isCanvasItemSelected: isNodeSelected,
-                            hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
-                            isForLayerInspector: false,
-                            isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
-                            isFieldInMultifieldInput: isMultifield,
-                            isForFlyout: false,
-                            isSelectedInspectorRow: false, // Always false for canvas layer input
-                            useIndividualFieldLabel: true)
+                           document: document,
+                           inputField: inputFieldViewModel,
+                           node: node,
+                           rowViewModel: rowViewModel,
+                           canvasItem: canvasNode,
+                           rowObserver: rowObserver,
+                           isCanvasItemSelected: isNodeSelected,
+                           hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                           isForLayerInspector: false,
+                           isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
+                           isFieldInMultifieldInput: isMultifield,
+                           isForFlyout: false,
+                           isSelectedInspectorRow: false, // Always false for canvas layer input
+                           useIndividualFieldLabel: true)
         }
     }
     

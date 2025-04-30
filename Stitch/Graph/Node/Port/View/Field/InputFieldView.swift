@@ -15,7 +15,7 @@ struct InputFieldView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     
-    @Bindable var viewModel: InputFieldViewModel
+    @Bindable var inputField: InputFieldViewModel
     let node: NodeViewModel
     let rowViewModel: InputNodeRowViewModel
     let canvasItem: CanvasItemViewModel?
@@ -38,7 +38,7 @@ struct InputFieldView: View {
     @State private var isButtonPressed = false
     
     var individualFieldLabelDisplay: LabelDisplayView {
-        LabelDisplayView(label: self.viewModel.fieldLabel,
+        LabelDisplayView(label: self.inputField.fieldLabel,
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
@@ -48,7 +48,7 @@ struct InputFieldView: View {
     var valueDisplay: some View {
         InputFieldValueView(graph: graph,
                             document: document,
-                            viewModel: viewModel,
+                            inputField: inputField,
                             propertySidebar: graph.propertySidebar,
                             node: node,
                             rowViewModel: rowViewModel,
@@ -114,8 +114,10 @@ extension UnpackedPortType {
 struct InputFieldValueView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var viewModel: InputFieldViewModel
+    @Bindable var inputField: InputFieldViewModel
+    
     @Bindable var propertySidebar: PropertySidebarObserver
+    
     let node: NodeViewModel
     let rowViewModel: InputNodeRowViewModel
     let canvasItem: CanvasItemViewModel?
@@ -137,15 +139,11 @@ struct InputFieldValueView: View {
     @Binding var isButtonPressed: Bool
     
     var fieldCoordinate: FieldCoordinate {
-        self.viewModel.id
+        self.inputField.id
     }
     
     var fieldValue: FieldValue {
-        viewModel.fieldValue
-    }
-    
-    var isFieldInsideLayerInspector: Bool {
-        rowViewModel.isFieldInsideLayerInspector
+        inputField.fieldValue
     }
     
     // Which part of the port-value this value is for.
@@ -154,7 +152,7 @@ struct InputFieldValueView: View {
     // field index 1 = y
     // field index 2 = z
     var fieldIndex: Int {
-        viewModel.fieldIndex
+        inputField.fieldIndex
     }
     
     var nodeKind: NodeKind {
@@ -181,13 +179,12 @@ struct InputFieldValueView: View {
     var body: some View {
         switch fieldValue {
         case .string:
-            CommonEditingViewWrapper(graph: graph,
-                                     document: document,
-                                     fieldViewModel: viewModel,
+            CommonEditingViewWrapper(document: document,
+                                     inputField: inputField,
                                      layerInput: rowViewModel.layerInput,
-                                     fieldValue: fieldValue,
-                                     fieldCoordinate: fieldCoordinate,
                                      choices: nil,
+                                     // TODO: was not being used?
+                                     isLargeString: false,
                                      isForLayerInspector: isForLayerInspector,
                                      isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                      hasHeterogenousValues: hasHeterogenousValues,
@@ -200,11 +197,9 @@ struct InputFieldValueView: View {
             FieldValueNumberView(graph: graph,
                                  document: document,
                                  rowObserver: rowObserver,
-                                 rowViewModel: rowViewModel,
-                                 fieldViewModel: viewModel,
-                                 fieldValue: fieldValue,
+                                 inputField: inputField,
                                  fieldValueNumberType: .number,
-                                 fieldCoordinate: fieldCoordinate,
+                                 layerInput: rowViewModel.layerInput,
                                  choices: nil,
                                  isForLayerInspector: isForLayerInspector,
                                  hasHeterogenousValues: hasHeterogenousValues,
@@ -218,11 +213,9 @@ struct InputFieldValueView: View {
             FieldValueNumberView(graph: graph,
                                  document: document,
                                  rowObserver: rowObserver,
-                                 rowViewModel: rowViewModel,
-                                 fieldViewModel: viewModel,
-                                 fieldValue: fieldValue,
+                                 inputField: inputField,
                                  fieldValueNumberType: layerDimensionField.fieldValueNumberType,
-                                 fieldCoordinate: fieldCoordinate,
+                                 layerInput: rowViewModel.layerInput,
                                  choices: graph.getFilteredLayerDimensionChoices(node: node,
                                                                                  layerInputPort: layerInputPort,
                                                                                  activeIndex: document.activeIndex)
@@ -240,11 +233,9 @@ struct InputFieldValueView: View {
             FieldValueNumberView(graph: graph,
                                  document: document,
                                  rowObserver: rowObserver,
-                                 rowViewModel: rowViewModel,
-                                 fieldViewModel: viewModel,
-                                 fieldValue: fieldValue,
+                                 inputField: inputField,
                                  fieldValueNumberType: .number,
-                                 fieldCoordinate: fieldCoordinate,
+                                 layerInput: rowViewModel.layerInput,
                                  choices: StitchSpacing.choices,
                                  isForLayerInspector: isForLayerInspector,
                                  hasHeterogenousValues: hasHeterogenousValues,
@@ -260,7 +251,7 @@ struct InputFieldValueView: View {
                              graph: graph,
                              document: document,
                              value: bool,
-                             isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                             isFieldInsideLayerInspector: isForLayerInspector,
                              isSelectedInspectorRow: isSelectedInspectorRow,
                              isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues)
             
@@ -269,7 +260,7 @@ struct InputFieldValueView: View {
                                graph: graph,
                                choiceDisplay: choiceDisplay,
                                choices: choices,
-                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                               isFieldInsideLayerInspector: isForLayerInspector,
                                isSelectedInspectorRow: isSelectedInspectorRow,
                                hasHeterogenousValues: hasHeterogenousValues,
                                activeIndex: document.activeIndex)
@@ -278,13 +269,13 @@ struct InputFieldValueView: View {
             StitchFontDropdown(rowObserver: rowObserver,
                                graph: graph,
                                stitchFont: stitchFont,
-                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                               isFieldInsideLayerInspector: isForLayerInspector,
                                isSelectedInspectorRow: isSelectedInspectorRow,
                                hasHeterogenousValues: hasHeterogenousValues,
                                activeIndex: document.activeIndex)
             // need enough width for font design + font weight name
             .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
-                   alignment: isFieldInsideLayerInspector ? .trailing : .leading)
+                   alignment: isForLayerInspector ? .trailing : .leading)
             
         case .layerDropdown(let layerId):
             LayerNamesDropDownChoiceView(
@@ -292,13 +283,13 @@ struct InputFieldValueView: View {
                 visibleNodes: graph.visibleNodesViewModel,
                 rowObserver: rowObserver,
                 value: .assignedLayer(layerId),
-                isFieldInsideLayerInspector: rowViewModel.isFieldInsideLayerInspector,
+                isFieldInsideLayerInspector: isForLayerInspector,
                 isForPinTo: false,
                 isSelectedInspectorRow: isSelectedInspectorRow,
                 choices: graph
                     .layerDropdownChoices(isForNode: node.id,
                                           isForLayerGroup: false,
-                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                          isFieldInsideLayerInspector: isForLayerInspector,
                                           isForPinTo: false),
                 hasHeterogenousValues: hasHeterogenousValues,
                 activeIndex: document.activeIndex)
@@ -307,7 +298,7 @@ struct InputFieldValueView: View {
             AnchorEntitiesDropdownView(rowObserver: rowObserver,
                                        graph: graph,
                                        value: .anchorEntity(anchorEntityId),
-                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                       isFieldInsideLayerInspector: isForLayerInspector,
                                        activeIndex: document.activeIndex)
             
         case .layerGroupOrientationDropdown(let x):
@@ -315,7 +306,7 @@ struct InputFieldValueView: View {
                 rowObserver: rowObserver,
                 graph: graph,
                 value: x,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                isFieldInsideLayerInspector: isForLayerInspector,
                 hasHeterogenousValues: hasHeterogenousValues,
                 activeIndex: document.activeIndex)
             
@@ -336,7 +327,7 @@ struct InputFieldValueView: View {
                         rowObserver: rowObserver,
                         graph: graph,
                         value: x,
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                        isFieldInsideLayerInspector: isForLayerInspector,
                         hasHeterogenousValues: hasHeterogenousValues,
                         activeIndex: document.activeIndex)
                 case .horizontal:
@@ -346,7 +337,7 @@ struct InputFieldValueView: View {
                         graph: graph,
                         activeIndex: document.activeIndex,
                         value: x,
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                        isFieldInsideLayerInspector: isForLayerInspector,
                         hasHeterogenousValues: hasHeterogenousValues)
                     
                 case .grid, .none:
@@ -365,7 +356,7 @@ struct InputFieldValueView: View {
                 graph: graph,
                 value: .textAlignment(x),
                 choices: LayerTextAlignment.choices,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                isFieldInsideLayerInspector: isForLayerInspector,
                 hasHeterogenousValues: hasHeterogenousValues,
                 activeIndex: document.activeIndex)
             
@@ -376,7 +367,7 @@ struct InputFieldValueView: View {
                 graph: graph,
                 value: .textVerticalAlignment(x),
                 choices: LayerTextVerticalAlignment.choices,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                isFieldInsideLayerInspector: isForLayerInspector,
                 hasHeterogenousValues: hasHeterogenousValues,
                 activeIndex: document.activeIndex)
             
@@ -387,7 +378,7 @@ struct InputFieldValueView: View {
                 graph: graph,
                 value: .textDecoration(x),
                 choices: LayerTextDecoration.choices,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                isFieldInsideLayerInspector: isForLayerInspector,
                 hasHeterogenousValues: hasHeterogenousValues,
                 activeIndex: document.activeIndex)
             
@@ -397,13 +388,13 @@ struct InputFieldValueView: View {
                 visibleNodes: graph.visibleNodesViewModel,
                 rowObserver: rowObserver,
                 value: .pinTo(pinToId),
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                isFieldInsideLayerInspector: isForLayerInspector,
                 isForPinTo: true,
                 isSelectedInspectorRow: isSelectedInspectorRow,
                 choices: graph
                     .layerDropdownChoices(isForNode: node.id,
                                           isForLayerGroup: isForLayerGroup,
-                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                          isFieldInsideLayerInspector: isForLayerInspector,
                                           isForPinTo: true),
                 hasHeterogenousValues: hasHeterogenousValues,
                 activeIndex: document.activeIndex)
@@ -413,7 +404,7 @@ struct InputFieldValueView: View {
                               graph: graph,
                               document: document,
                               selection: anchor,
-                              isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                              isFieldInsideLayerInspector: isForLayerInspector,
                               isSelectedInspectorRow: isSelectedInspectorRow,
                               hasHeterogenousValues: hasHeterogenousValues)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
@@ -426,7 +417,7 @@ struct InputFieldValueView: View {
         case .media(let media):
             if let mediaType = self.nodeKind.mediaType(coordinate: rowObserver.id) {
                 MediaInputFieldValueView(
-                    viewModel: viewModel,
+                    viewModel: inputField,
                     rowObserver: rowObserver,
                     node: node,
                     isUpstreamValue: isUpstreamValue,
@@ -435,7 +426,7 @@ struct InputFieldValueView: View {
                     nodeKind: nodeKind,
                     isInput: true,
                     fieldIndex: fieldIndex,
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    isFieldInsideLayerInspector: isForLayerInspector,
                     isSelectedInspectorRow: isSelectedInspectorRow,
                     isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
                     mediaType: mediaType,
@@ -449,7 +440,7 @@ struct InputFieldValueView: View {
             }
             
         case .color(let color):
-            ColorOrbValueButtonView(fieldViewModel: viewModel,
+            ColorOrbValueButtonView(fieldViewModel: inputField,
                                     rowViewModel: rowViewModel,
                                     rowObserver: rowObserver,
                                     isForFlyout: isForFlyout,
@@ -462,7 +453,7 @@ struct InputFieldValueView: View {
         case .pulse(let pulseTime):
             PulseValueButtonView(graph: graph,
                                  rowObserver: rowObserver,
-                                 canvasItem: canvasItem,
+                                 canvasItemId: canvasItem?.id,
                                  pulseTime: pulseTime,
                                  hasIncomingEdge: hasIncomingEdge)
             
@@ -482,7 +473,7 @@ struct InputFieldValueView: View {
                                alignment: .leading,
                                fontColor: STITCH_FONT_GRAY_COLOR,
                                isSelectedInspectorRow: isSelectedInspectorRow,
-                               forPropertySidebar: isForLayerInspector,
+                               isForLayerInspector: isForLayerInspector,
                                isFieldInMultifieldInput: isFieldInMultifieldInput)
         }
     }

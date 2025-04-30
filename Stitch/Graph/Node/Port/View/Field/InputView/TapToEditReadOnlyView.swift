@@ -26,13 +26,11 @@ struct TapToEditReadOnlyView: View {
     let isHovering: Bool
     let isForLayerInspector: Bool
     
-    let hasChoices: Bool
-    let isForCanvas: Bool
-    let isForFlyout: Bool
+    let hasPicker: Bool
     
-//    let hasPicker: Bool // choices.isDefined && !isFieldInMultfieldInspectorInput
-    
+    // Only relevant for inspector or flyout, never a canvas  field
     let fieldHasHeterogenousValues: Bool
+    
     let isSelectedInspectorRow: Bool
         
     let onTap: () -> Void
@@ -40,11 +38,7 @@ struct TapToEditReadOnlyView: View {
     var displayString: String {
         self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString
     }
-    
-//    var hasPicker: Bool {
-//        choices.isDefined && !isFieldInMultfieldInspectorInput
-//    }
-    
+        
     var body: some View {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
@@ -55,9 +49,7 @@ struct TapToEditReadOnlyView: View {
 
         .modifier(InputFieldFrameAndPadding(
             width: fieldWidth,
-            hasChoices: hasChoices,
-            isForCanvas: isForCanvas,
-            isForFlyout: isForFlyout))
+            hasPicker: hasPicker))
         
         .modifier(InputFieldBackgroundColorView(
             isHovering: isHovering,

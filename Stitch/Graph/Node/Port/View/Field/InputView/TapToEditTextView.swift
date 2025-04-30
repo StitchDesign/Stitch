@@ -21,62 +21,46 @@ struct TapToEditTextView: View {
     
     @Environment(\.appTheme) var theme
             
-    
+
     // MARK: PASSED-IN VIEW PARAMETERS
+
+    @Bindable var document: StitchDocumentViewModel
     
     @Bindable var inputField: InputFieldViewModel
     
-    let inputString: String
+    // TODO: isn't this always just `inputField.fieldValue.stringValue` ?
+//    let inputString: String
+    var inputString: String {
+        inputField.fieldValue.stringValue
+    }
     
-    @Bindable var graph: GraphState
-    @Bindable var document: StitchDocumentViewModel
-    
-    let layerInput: LayerInputPort?
-            
+    let fieldWidth: CGFloat
+                
     // Only for field-types that use a "TextField + Dropdown" view,
-    // e.g. `LayerDimension`
-    let choices: [String]? // = nil // ["fill", "auto"]
-
-    var isLargeString: Bool // = false
+    let choices: [String]? // e.g. `LayerDimension` has ["fill", "auto"]
+    let hasPicker: Bool
     
+    // For Base64
+    let isLargeString: Bool
+    
+    // For inspector and flyout only
     let isForLayerInspector: Bool
     let isPackedLayerInputAlreadyOnCanvas: Bool
-    
-    // inspector only?
-    let isFieldInMultifieldInput: Bool
-    
-    let isForFlyout: Bool
-    let isForSpacingField: Bool
     let isSelectedInspectorRow: Bool // always false for canvas
     let hasHeterogenousValues: Bool // for layer multiselect
     
-    // also inspector-only ?
-    // TODO: APRIL 29
+    // Helps us know when tapping a field in inspector can open the flyout
     let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
     
-    let fieldWidth: CGFloat
-    
-    
+    // For canvas input fields only
     let isHovering: Bool
-    
-    // For canvas fields only
     @Binding var isCurrentlyFocused: Bool
     
     
-    var hasChoices: Bool {
-        choices.isDefined
-    }
-    
-    var isForCanvas: Bool {
-        rowId.graphItemType.isCanvas
-    }
-    
+    var onReadOnlyTap: () -> Void
+        
     var rowId: NodeRowViewModelId {
         inputField.id.rowId
-    }
-    
-    var fieldIndex: Int {
-        inputField.fieldIndex
     }
     
     var isSelectionBoxInUse: Bool {
@@ -87,15 +71,16 @@ struct TapToEditTextView: View {
     // MARK: LOCAL VIEW STATE
  
 #if DEV_DEBUG
-    @State private var currentEdit = "no entry"
+    @State var currentEdit = "no entry"
 #else
-    @State private var currentEdit = ""
+    @State var currentEdit = ""
 #endif
     
     @State private var isBase64 = false
         
     // Only relevant for LayerDimension fields, for `auto`, `fill`
     @State var pickerChoice: String = ""
+    
     
     var body: some View {
         Group {
@@ -127,7 +112,16 @@ struct TapToEditTextView: View {
         if showEditingView {
             editableTextFieldView
         } else {
-            readOnlyTextView
+            TapToEditReadOnlyView(
+                inputString: inputString,
+                fieldWidth: fieldWidth,
+                isFocused: false,
+                isHovering: isHovering,
+                isForLayerInspector: isForLayerInspector,
+                hasPicker: hasPicker,
+                fieldHasHeterogenousValues: hasHeterogenousValues,
+                isSelectedInspectorRow: isSelectedInspectorRow,
+                onTap: onReadOnlyTap)
         }
     }
     
@@ -159,9 +153,7 @@ struct TapToEditTextView: View {
         
         .modifier(InputFieldFrameAndPadding(
             width: fieldWidth,
-            hasChoices: hasChoices,
-            isForCanvas: isForCanvas,
-            isForFlyout: isForFlyout))
+            hasPicker: hasPicker))
         
         .modifier(InputFieldBackgroundColorView(
             isHovering: self.isHovering,
@@ -178,46 +170,6 @@ struct TapToEditTextView: View {
         }
     } // editableTextFieldView
 }
-
-
-
-// MARK: READ-ONLY VIEW
-
-extension TapToEditTextView {
-        
-    @MainActor
-    var readOnlyTextView: some View {
-        // If can tap to edit, and this is a number field,
-        // then bring up the number-adjustment-bar first;
-        // for multifields now, the editType value is gonna be a parentValue of eg size or position
-        TapToEditReadOnlyView(
-            inputString: inputString,
-            fieldWidth: fieldWidth,
-            isFocused: false,
-            isHovering: isHovering,
-            isForLayerInspector: isForLayerInspector,
-            hasChoices: hasChoices,
-            isForCanvas: isForCanvas,
-            isForFlyout: isForFlyout,
-            fieldHasHeterogenousValues: hasHeterogenousValues,
-            isSelectedInspectorRow: isSelectedInspectorRow,
-            onTap: {
-                // Every multifield input in the inspector uses a flyout
-                if isFieldInMultifieldInspectorInputAndNotFlyout,
-                   let layerInput = layerInput,
-                   !isForFlyout {
-                    dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                           flyoutNodeId: self.rowId.nodeId,
-                                           fieldToFocus: .textInput(self.fieldCoordinate)))
-                } else {
-                    log("TapToEditTextView: readOnlyTextView: will focus self.fieldCoordinate: \(self.fieldCoordinate)")
-                    dispatch(ReduxFieldFocused(focusedField: .textInput(self.fieldCoordinate)))
-                }
-            })
-    }
-}
-
-
 
 
 // MARK: DERIVED
@@ -269,11 +221,6 @@ extension TapToEditTextView {
             return false
         }
     }
-    
-    var hasPicker: Bool {
-        choices.isDefined && (isForCanvas || isForFlyout) // && !isFieldInMultifieldInspectorInputAndNotFlyout
-//        isForCanvas
-    }
 }
 
 
@@ -301,89 +248,13 @@ extension TapToEditTextView {
     // fka `createInputEditAction`
     @MainActor func inputEditedCallback(newEdit: String,
                                         isCommitting: Bool) {
-        self.graph.inputEditedFromUI(
+        
+        self.document.visibleGraph.inputEditedFromUI(
             fieldValue: .string(.init(newEdit)),
-            fieldIndex: self.fieldIndex,
+            fieldIndex: self.inputField.fieldIndex,
             rowId: self.rowId,
             activeIndex: document.activeIndex,
             isFieldInsideLayerInspector: self.isForLayerInspector,
             isCommitting: isCommitting)
     }
-}
-
-// MARK: PICKER
-
-extension TapToEditTextView {
-            
-    func textFieldViewWithPicker(_ choices: [String]) -> some View {
-        HStack(spacing: 0) {
-            textFieldView
-            /*
-             Important: must .overlay `picker` on a view that does not change when field is focused/defocused.
-             
-             `HStack { textFieldView, picker }` introduces alignment issues from picker's SwiftUI Menu/Picker
-             
-             `textFieldView.overlay { picker }` causes picker to flash when the underlying text-field / read-only-text view is changed via if/else.
-             */
-            Rectangle().fill(.clear).frame(width: 1, height: 1)
-                .overlay {
-                    layerDimensionPicker(choices)
-                        .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
-                        .offset(x: -2) // "padding"
-                }
-        }
-    }
-    
-    // Note: currently only used for LayerDimension `fill` and `auto` cases
-    @MainActor
-    func layerDimensionPicker(_ choices: [String]) -> some View {
-        Menu {
-            Picker("", selection: $pickerChoice) {
-                ForEach(self.choices ?? [], id: \.self) {
-                    Text($0)
-                }
-            }
-        } label: {
-            Image(systemName: "chevron.down")
-                .resizable()
-                .frame(width: COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH,
-                       height: COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT)
-                .padding(8) // increase hit area
-        }
-        
-        // TODO: why must we hide the native menuIndicator?
-        .menuIndicator(.hidden) // hides caret indicator
-        
-#if targetEnvironment(macCatalyst)
-        .menuStyle(.button)
-        .buttonStyle(.plain) // fixes Catalyst accent-color issue
-        .foregroundColor(STITCH_FONT_GRAY_COLOR)
-        .pickerStyle(.inline) // avoids unnecessary middle label
-#endif
-
-        // TODO: this fires as soon as the READ-ONLY view is rendered, which we don't want.
-        // When dropdown item selected, update text-field's string
-        .onChange(of: self.pickerChoice, initial: false) { oldValue, newValue in
-            if let _ = self.choices?.first(where: { $0 == newValue }) {
-                 log("on change of choice: valid new choice")
-                self.currentEdit = newValue
-                self.inputEditedCallback(newEdit: newValue,
-                                         isCommitting: true)
-            }
-        }
-        
-        // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
-        .onChange(of: self.currentEdit) { oldValue, newValue in
-            if let x = self.choices?.first(where: { $0.lowercased() == self.currentEdit.lowercased() }) {
-                 log("found choice \(x)")
-                self.pickerChoice = x
-            }
-            
-            // If we edited the input to something other than an available choice, reset the picker's selection (e.g. "fill") to empty,
-            // so that selecting a picker option again will the `.onChange(of: self.pickerChoice)` that updates the field's underyling value etc.
-            else {
-                self.pickerChoice = ""
-            }
-        }
-    } // var layerDimensionPicker
 }

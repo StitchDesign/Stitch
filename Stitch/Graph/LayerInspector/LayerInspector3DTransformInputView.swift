@@ -49,7 +49,7 @@ struct LayerInspector3DTransformInputView: View {
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  isSelectedInspectorRow: isPropertyRowSelected)
                 
-                LayerInspectorReadOnlyView(propertySidebar: graph.propertySidebar,
+                InspectorFieldReadOnlyView(propertySidebar: graph.propertySidebar,
                                            nodeId: nodeId,
                                            layerInputObserver: layerInputObserver,
                                            fieldObserver: fieldObserver,

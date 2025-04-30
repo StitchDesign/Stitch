@@ -72,7 +72,7 @@ struct DefaultNodeInputsView: View {
                         isMultiField: Bool) -> InputFieldView {
         InputFieldView(graph: graph,
                         document: document,
-                        viewModel: portViewModel,
+                        inputField: portViewModel,
                         node: node,
                         rowViewModel: rowViewModel,
                         canvasItem: canvas,
@@ -89,10 +89,10 @@ struct DefaultNodeInputsView: View {
     
     var body: some View {
         DefaultNodeRowsView(graph: graph,
-                       node: node,
-                       canvas: canvas,
-                       rowViewModels: canvas.inputViewModels,
-                       nodeIO: .input) { rowViewModel in
+                            node: node,
+                            canvas: canvas,
+                            rowViewModels: canvas.inputViewModels,
+                            nodeIO: .input) { rowViewModel in
             if let rowObserver = node.getInputRowObserverForUI(for: rowViewModel.id.portType, graph) {
                 
                 let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1
@@ -167,10 +167,10 @@ struct DefaultNodeOutputsView: View {
     
     var body: some View {
         DefaultNodeRowsView(graph: graph,
-                       node: node,
-                       canvas: canvas,
-                       rowViewModels: canvas.outputViewModels,
-                       nodeIO: .output) { rowViewModel in
+                            node: node,
+                            canvas: canvas,
+                            rowViewModels: canvas.outputViewModels,
+                            nodeIO: .output) { rowViewModel in
             if let portId = rowViewModel.id.portType.portId,
                let rowObserver = node.getOutputRowObserverForUI(for: portId, graph) {
                 let isMultiField = (rowViewModel.cachedFieldValueGroups.first?.fieldObservers.count ?? 0) > 1

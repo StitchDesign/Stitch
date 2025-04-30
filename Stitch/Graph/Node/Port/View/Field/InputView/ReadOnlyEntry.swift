@@ -23,12 +23,12 @@ struct ReadOnlyValueEntry: View {
     var fontColor: Color = STITCH_FONT_GRAY_COLOR
     let isSelectedInspectorRow: Bool
     
-    let forPropertySidebar: Bool
+    let isForLayerInspector: Bool
     let isFieldInMultifieldInput: Bool
     
     @MainActor
     var fieldWidth: CGFloat {
-         if isFieldInMultifieldInput && forPropertySidebar {
+         if isFieldInMultifieldInput && isForLayerInspector {
             return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
         } else {
             return NODE_INPUT_OR_OUTPUT_WIDTH

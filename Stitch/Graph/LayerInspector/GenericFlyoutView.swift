@@ -174,7 +174,7 @@ struct GenericFlyoutRowView: View {
             if let rowObserver = self.rowObserver {
                 InputFieldView(graph: graph,
                                 document: document,
-                                viewModel: viewModel,
+                                inputField: viewModel,
                                 node: node,
                                 rowViewModel: rowViewModel,
                                 canvasItem: nil,

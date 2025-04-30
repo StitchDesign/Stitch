@@ -158,7 +158,7 @@ struct OutputFieldValueView: View {
         case .pulse(let pulseTime):
             PulseValueButtonView(graph: graph,
                                  rowObserver: nil,
-                                 canvasItem: canvasItem,
+                                 canvasItemId: nil,
                                  pulseTime: pulseTime,
                                  hasIncomingEdge: false)
             
@@ -203,7 +203,7 @@ struct OutputFieldValueView: View {
                            alignment: outputAlignment,
                            fontColor: STITCH_FONT_GRAY_COLOR,
                            isSelectedInspectorRow: isSelectedInspectorRow,
-                           forPropertySidebar: forPropertySidebar,
+                           isForLayerInspector: forPropertySidebar,
                            isFieldInMultifieldInput: isFieldInMultifieldInput)
     }
 }

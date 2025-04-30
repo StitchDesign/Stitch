@@ -95,19 +95,17 @@ struct InputFieldFrameAndPadding: ViewModifier {
      */
     let width: CGFloat
     
-    let hasChoices: Bool
-    let isForCanvas: Bool
-    let isForFlyout: Bool
+    let hasPicker: Bool
     
     // Actually: inspector's
-    var hasDropdown: Bool {
-        hasChoices && (isForCanvas || isForFlyout)
-//        isForCanvas || isForFlyout
-//        isForCanvas
-    }
+//    var hasDropdown: Bool {
+//        hasChoices && (isForCanvas || isForFlyout)
+////        isForCanvas || isForFlyout
+////        isForCanvas
+//    }
     
     var widthAdjustedForDropdown: CGFloat {
-        width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
+        width - (hasPicker ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
     }
     
     func body(content: Content) -> some View {
