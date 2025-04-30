@@ -300,10 +300,13 @@ struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
     @ViewBuilder var valueEntryView: (InputFieldViewModel, Bool) -> ValueView
     
     var body: some View {
-        ForEach(fieldGroup.fieldObservers) { fieldViewModel in
+        let fields = fieldGroup.fieldObservers
+        ForEach(Array(zip(fields.indices, fields)), id: \.0) { index, fieldViewModel in
+//        ForEach(fieldGroup.fieldObservers) { fieldViewModel in
             let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
             if !isBlocked {
                 self.valueEntryView(fieldViewModel, isMultifield)
+                    .zIndex(-CGFloat(index))
             }
         }
     }
