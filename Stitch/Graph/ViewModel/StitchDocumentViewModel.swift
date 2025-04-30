@@ -99,7 +99,6 @@ final class StitchDocumentViewModel: Sendable {
     // Only applies to non-iPhones so that exiting full-screen mode goes
     // back to graph instead of projects list
     @MainActor var isFullScreenMode: Bool = false
-//    @MainActor var isFullScreenMode: Bool = true
     
     @MainActor var leftSidebarOpen = false
 
