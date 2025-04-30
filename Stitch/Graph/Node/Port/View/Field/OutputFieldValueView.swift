@@ -14,7 +14,7 @@ struct OutputFieldValueView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var outputField: OutputFieldViewModel
     
-    // TODO: can be replaced by rowObserver.coordinate ?
+    // TODO: can be replaced by rowObserver.coordinate ? or tricky for group node outputs ?
     let rowViewModel: OutputNodeRowViewModel
     
     let rowObserver: OutputNodeRowObserver

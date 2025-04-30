@@ -28,13 +28,9 @@ struct OutputFieldView: View {
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
-
-    var label: String {
-        self.outputField.fieldLabel
-    }
     
     var labelDisplay: some View {
-        LabelDisplayView(label: label,
+        LabelDisplayView(label: self.outputField.fieldLabel,
                          isLeftAligned: false,
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
