@@ -45,8 +45,11 @@ struct SwitchNode: PatchNodeDefinition {
 @MainActor
 func switchEval(node: PatchNode,
                 graphStep: GraphStepState) -> ImpureEvalResult {
-    node.loopedEvalOutputsPersistence(graphTime: graphStep.graphTime,
-                                      callback: switchOpClosure)
+    node.loopedEvalOutputsPersistence(graphTime: graphStep.graphTime) { values, computedState in
+        switchOpClosure(values: values,
+                        graphTime: graphStep.graphTime,
+                        computedState: computedState)
+    }
 }
 
 func switchOpClosure(values: PortValues,
