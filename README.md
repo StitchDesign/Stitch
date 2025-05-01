@@ -59,14 +59,14 @@ Once you've done that, you should be good to go for running and developing local
 
 ## Prototype Gallery
 
-![Monthly Stays](README_Assets/Monthly_Stays_GIF)
+![Monthly Stays](README_Assets/Monthly_Stays_GIF.gif)
 
-![Humane](README_Assets/Humane_GIF)
+![Humane](README_Assets/Humane_GIF.gif)
 
-![Quick_Connections](README_Assets/Quick_Connections_GIF)
+![Quick_Connections](README_Assets/Quick_Connections_GIF.gif)
 
-![Wallet](README_Assets/Wallet_GIF)
+![Wallet](README_Assets/Wallet_GIF.gif)
 
-![Circular_text](README_Assets/Circular_text_GIF)
+![Circular_text](README_Assets/Circular_text_GIF.gif)
 
-![AR](README_Assets/AR_short_GIF)
+![AR](README_Assets/AR_short_GIF.gif)
