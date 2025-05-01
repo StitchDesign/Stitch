@@ -59,8 +59,6 @@ Once you've done that, you should be good to go for running and developing local
 
 ## Prototype Gallery
 
-![prototype](README_Assets/CleanShot2024-06-25at23.07.52.gif)
-
 ![Monthly Stays](README_Assets/Monthly_Stays_GIF)
 
 ![Humane](README_Assets/Humane_GIF)
