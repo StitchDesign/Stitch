@@ -23,7 +23,7 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
         let graph = state.visibleGraph
         let graphTime = state.graphStepManager.graphTime
 
-        guard let receiverNode = graph.getPatchNode(id: receiverNodeId),
+        guard let receiverNode = graph.getNode(id: receiverNodeId),
               let receiverNodeInputObserver = receiverNode.getInputRowObserver(0) else {
             log("SetBroadcastForWirelessReceiver: could not find received node \(receiverNodeId)")
             return
@@ -46,7 +46,7 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
         }
 
         // Find the broadcaster and the receiver.
-        guard let broadcasterNode = graph.getPatchNode(id: broadcasterNodeId) else {
+        guard let broadcasterNode = graph.getNode(id: broadcasterNodeId) else {
             log("SetBroadcastForWirelessReceiver: could not find node for broadcaster id \(broadcasterNodeId)")
             return
         }

@@ -10,16 +10,25 @@ import StitchSchemaKit
 
 // Easier to find than `nodeTypeChanged` which shares same name as several protocol methods.
 // Also separates view model update logic from disk-reading/writing side-effects.
-struct NodeTypeChanged: StitchDocumentEvent {
-    let nodeId: NodeId
+struct NodeTypeChangedFromCanvasItemMenu: StitchDocumentEvent {
     let newNodeType: NodeType
     
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-        let _ = state.visibleGraph
-            .nodeTypeChanged(nodeId: nodeId,
-                             newNodeType: newNodeType,
-                             activeIndex: state.activeIndex)
+        
+        let graph = state.visibleGraph
+        
+        graph.selectedCanvasItems.forEach {
+            if let patchNode: PatchNodeViewModel = graph.getPatchNode(id: $0.nodeId),
+               patchNode.patch.availableNodeTypes.contains(newNodeType) {
+                
+                let _ = graph.nodeTypeChanged(nodeId: patchNode.id,
+                                              newNodeType: newNodeType,
+                                              activeIndex: state.activeIndex)
+                
+            }
+               
+        }
         
         state.encodeProjectInBackground()
     }
