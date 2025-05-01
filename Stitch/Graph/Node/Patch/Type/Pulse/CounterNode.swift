@@ -56,8 +56,11 @@ func counterEval(node: PatchNode,
     
     let graphTime: TimeInterval = graphStep.graphTime
     
-    return node.loopedEvalOutputsPersistence(graphTime: graphTime,
-                                             callback: counterOpClosure)
+    return node.loopedEvalOutputsPersistence(graphTime: graphTime) { values, computedState in
+        counterOpClosure(values: values,
+                         graphTime: graphTime,
+                         computedState: computedState)
+    }
 }
 
 func counterOpClosure(values: PortValues,
