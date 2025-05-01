@@ -161,7 +161,7 @@ extension GraphState {
            (graphTime - lastMouseMovement) > DRAG_NODE_VELOCITY_RESET_STEP {
             
             for mouseNodeId in self.mouseNodes {
-                if let mouseNodeState = self.getPatchNode(id: mouseNodeId)?.ephemeralObservers?.first as? MouseNodeState {
+                if let mouseNodeState = self.getNode(id: mouseNodeId)?.ephemeralObservers?.first as? MouseNodeState {
                     
                     mouseNodeState.velocity = .zero
                     nodesToRunOnGraphStep.insert(mouseNodeId)
