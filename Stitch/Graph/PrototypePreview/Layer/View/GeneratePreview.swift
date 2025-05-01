@@ -373,9 +373,9 @@ struct LayerDataView: View {
       
             ForEach(maskedLayerDataList) { (maskedLayerData: LayerData) in
                 
-                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
+                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.previewCoordinate == maskedLayerData.previewCoordinate }),
                     maskedIndex < maskerLayerDataList.endIndex, // Is this check necessary?
-                    let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.id.loopIndex == maskedLayerData.id.loopIndex }) {
+                    let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.previewCoordinate.loopIndex == maskedLayerData.previewCoordinate.loopIndex }) {
                     
                     // Turn masked LayerData into a single view
                     let masked: some View = LayerDataView(
@@ -407,7 +407,7 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let id, _):
+        case .nongroup(_, let id, _):
             if let layerNode = graph.getNode(id.layerNodeId.asNodeId)?.layerNode,
                let layerViewModel = layerNode.previewLayerViewModels[safe: id.loopIndex] {
                 NonGroupPreviewLayersView(document: document,
@@ -421,7 +421,7 @@ struct LayerDataView: View {
                                           realityContent: realityContent)
             }
                         
-        case .group(let id, let childrenData, _):
+        case .group(_, let id, let childrenData, _):
             if let layerNode = graph.getNode(id.layerNodeId.asNodeId)?.layerNode,
                let layerViewModel = layerNode.previewLayerViewModels[safe: id.loopIndex] {
                 GroupPreviewLayersView(document: document,

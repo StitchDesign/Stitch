@@ -55,7 +55,7 @@ struct SwitchLayerNode: LayerNodeDefinition {
             viewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
-            id: viewModel.id, 
+            id: viewModel.previewCoordinate, 
             isEnabled: viewModel.enabled.getBool ?? false,
             togglePulse: viewModel.isSwitchToggled.getPulse ?? .zero,
             position: viewModel.position.getPosition ?? .zero,
