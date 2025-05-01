@@ -211,7 +211,7 @@ extension StitchDocumentViewModel {
                              center: center,
                              focusedGroupNodeId: self.groupNodeFocused?.groupNodeId)
         
-        //input splitters need to be west of the `to` node for the `edge`
+        // input splitters need to be west of the `to` node for the `edge`
         graph.createSplitterForNewGroup(splitterType: .input,
                                         selectedCanvasItems: selectedCanvasItems,
                                         edges: edges,
@@ -289,6 +289,13 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphState {
+    /*
+     TODO: positioning of the input/output splitters may benenfit from a simpler algorithm:
+     - input splitters: find the eastern-most node inside the group and stagger the nodes up/down from there
+     - output splitters: same, but for the western-most node
+     
+     But would want the ordering to match still, don't want a bunch of crossed edges.
+     */
     @MainActor func createSplitterForNewGroup(splitterType: SplitterType,
                                               selectedCanvasItems: CanvasItemViewModels,
                                               edges: [PortEdgeData],
@@ -306,13 +313,21 @@ extension GraphState {
         self.getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
         
         let edgesToUpdate = splitterType == .input ? inputEdgesToUpdate : outputEdgesToUpdate
-        
+                
         edgesToUpdate.enumerated().forEach { portId, edge in
-            
+
             // Retrieve relevant old-edge's destination node's position
             let port: NodeIOCoordinate = splitterType == .input ? edge.to : edge.from
             var nodePosition = oldEdgeLocations.get(port) ?? center
             
+            // Helps with https://github.com/StitchDesign/Stitch--Old/issues/7215
+            // Still not perfect for some output cases but good enough for now?
+            let staggerHelper = edge.to.portType.portId ?? 0
+
+            // Increment node position for next input splitter node
+            // Do not stagger x, only stagger vertically
+            nodePosition.y += (GROUP_NODE_SPLITTER_POSITION_STAGGER_SIZE * CGFloat(staggerHelper))
+                        
             self.insertIntermediaryNode(
                 inBetweenNodesOf: edge,
                 newGroupNodeId: newGroupNodeId,
@@ -321,11 +336,7 @@ extension GraphState {
                 portId: portId,
                 position: nodePosition,
                 activeIndex: activeIndex)
-            
-            // Increment node position for next input splitter node
-            // Do not stagger x, only stagger vertically
-            nodePosition.y += GROUP_NODE_SPLITTER_POSITION_STAGGER_SIZE
-            
+                        
             oldEdgeLocations[port] = nodePosition
         }
     }
@@ -418,18 +429,14 @@ extension GraphState {
         self.removeEdgeAt(input: oldEdge.to)
 
         // Create edge from source patch node to new splitter node
-//        if willCreateNewInputConnection {
-            self.addEdgeWithoutGraphRecalc(
-                from: oldEdge.from,
-                to: newConnectionPortId)
-//        }
-
+        self.addEdgeWithoutGraphRecalc(
+            from: oldEdge.from,
+            to: newConnectionPortId)
+        
         // Create edge from new splitter node to downstream node of old connection
-//        if willCreateNewOutputConnection {
-            self.addEdgeWithoutGraphRecalc(
-                from: newConnectionPortId,
-                to: oldEdge.to)
-//        }
+        self.addEdgeWithoutGraphRecalc(
+            from: newConnectionPortId,
+            to: oldEdge.to)
     }
 
     @MainActor
