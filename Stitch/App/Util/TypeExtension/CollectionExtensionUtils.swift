@@ -123,6 +123,15 @@ extension Set {
     }
 }
 
+// i.e. just a reduce operation, but can't start with an empty set,
+// since no other set will intersect with an empty set.
+func intersectionOfAll<T: Hashable>(_ sets: [Set<T>]) -> Set<T> {
+    guard let first = sets.first else {
+        return [] // No sets to intersect
+    }
+    return sets.dropFirst().reduce(first) { $0.intersection($1) }
+}
+
 extension Collection where Element: Hashable {
     var toSet: Set<Element> {
         Set(self)

@@ -99,13 +99,42 @@ struct CanvasItemMenuButtonsView: View {
         return nil
     }
 
-    
-    var nodeTypeChoices: [UserVisibleType] {
-        guard let patch = self.node.patch else { return [] }
+    // If the selected canvas items have a non-empty intersection of node types,
+    // allow multiple patches' node types to be changed at once
+    var nodeTypeChoices: [NodeType] {
         
-        return Patch.nodeTypeChoices.get(patch) ?? []
+        let selectedCanvasItems = graph.selectedCanvasItems
+        
+        let selectedPatches: [Patch] = selectedCanvasItems.compactMap {
+            graph.getPatchNode(id: $0.nodeId)?.patch
+        }
+        
+        // Only offer to change patch nodes' node type if ONLY patch nodes are selected on canvas
+        guard selectedPatches.count == selectedCanvasItems.count else {
+            return []
+        }
+                                
+        // e.g. Add and Multiply node both support `.number` and `.position`
+        // but only Add supports `.string`,
+        // so result is `{ .number, .position }`
+        let overlappingNodesTypes = intersectionOfAll( selectedPatches.map(\.availableNodeTypes))
+                
+        guard !overlappingNodesTypes.isEmpty else {
+            return []
+        }
+        
+        let choicesForSelectedPatchNodes = NodeType.allCases.reduce(into: [NodeType]()) {
+            if overlappingNodesTypes.contains($1) {
+                $0.append($1)
+            }
+        }
+        
+        // TODO: arrange enum cases of UserVisibleType i.e. NodeType alphabetically so that sorting is not necessary
+        return choicesForSelectedPatchNodes.sorted { n1, n2 in
+            n1.display < n2.display
+        }
     }
-    
+        
     var body: some View {
         Group {
             if singleGroupNodeSelected {
@@ -135,6 +164,12 @@ struct CanvasItemMenuButtonsView: View {
                 Group {
                     deleteButton
                     duplicateButton
+                    
+                    if let nodeType = nodeType,
+                       !nodeTypeChoices.isEmpty {
+                        nodeTypeSubmenu(nodeType, nodeTypeChoices)
+                    }
+                    
                     createGroupButton
                     if FeatureFlags.USE_COMPONENTS {
                         createComponentButton
@@ -162,14 +197,12 @@ struct CanvasItemMenuButtonsView: View {
                 splitterTypeSubmenu(nodeId: nodeId, splitterType)
             }
 
-            // node-type carousel:
             // only for nodes with node-types;
-            // ie only some patch nodes and never layer nodes.
+            // i.e. only some patch nodes and never layer nodes.
             if let nodeType = nodeType,
-               let nodeId = canvasItemId.nodeCase,
                !nodeTypeChoices.isEmpty {
-                nodeTypeSubmenu(nodeId: nodeId, nodeType, nodeTypeChoices)
-            } // if let nodeType
+                nodeTypeSubmenu(nodeType, nodeTypeChoices)
+            }
 
             if hasLoopIndexCarousel {
                 loopIndexSubmenu(activeIndex: activeIndex,
@@ -274,29 +307,20 @@ struct CanvasItemMenuButtonsView: View {
     }
 
     @MainActor
-    func nodeTypeSubmenu(nodeId: NodeId,
-                         _ currentNodeType: UserVisibleType,
+    func nodeTypeSubmenu(_ currentNodeType: UserVisibleType,
                          _ nodeTypeChoices: [UserVisibleType]) -> some View {
 
         let binding: Binding<UserVisibleType> = .init {
             currentNodeType
         } set: { newChoice in
-            dispatch(NodeTypeChanged(nodeId: nodeId,
-                                     newNodeType: newChoice))
+            dispatch(NodeTypeChangedFromCanvasItemMenu(newNodeType: newChoice))
         }
 
+        // The picker for this specific node
         return Picker("Change Node Type", selection: binding) {
             ForEach(nodeTypeChoices, id: \.self) { choice in
                 StitchTextView(string: choice.displayForNodeMenu)
-
-                // Alternatively, we can use our own icon:
-                //                Label {
-                //                    StitchTextView(string: choice.display)
-                //                } icon: {
-                //                    Image(systemName: currentNodeType == choice ? "circle.fill" : "circle")
-                //                }
-
-            } // ForEach
+            }
         }.pickerStyle(.menu)
     }
 

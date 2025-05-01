@@ -439,7 +439,7 @@ extension GraphState {
             return false
         }
         
-        return self.getPatchNode(id: output.nodeId)?
+        return self.getNode(id: output.nodeId)?
             .getOutputRowObserver(for: portId)
             .isDefined ?? false
     }

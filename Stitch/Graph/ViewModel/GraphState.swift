@@ -659,8 +659,8 @@ extension GraphState {
     }
     
     @MainActor
-    func getPatchNode(id nodeId: NodeId) -> PatchNode? {
-        self.visibleNodesViewModel.patchNodes.get(nodeId)
+    func getPatchNode(id nodeId: NodeId) -> PatchNodeViewModel? {
+        self.visibleNodesViewModel.patchNodes.get(nodeId)?.patchNode
     }
     
     @MainActor

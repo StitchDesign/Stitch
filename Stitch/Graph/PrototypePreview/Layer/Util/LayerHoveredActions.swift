@@ -40,7 +40,7 @@ extension StitchDocumentViewModel {
             // allGraphs = have to update all components etc., so that values flow up properly ?
             self.allGraphs.forEach { graph in
                 
-                if let mouseNode = graph.getPatchNode(id: mouseNodeId) {
+                if let mouseNode = graph.getNode(id: mouseNodeId) {
                     // Note: a mouse node will only ever have a single ephemeral observer, since it has no inputs and cannot be assigned to a layer (only the preview window as a whole)
                     guard let ephemeralObservers: [MouseNodeState] = (mouseNode.ephemeralObservers as? [MouseNodeState]) else {
                         fatalErrorIfDebug() // should have
