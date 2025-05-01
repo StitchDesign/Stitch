@@ -58,4 +58,15 @@ Make sure that your development team has entitlements for CloudKit and Push Noti
 Once you've done that, you should be good to go for running and developing locally!
 
 ## Prototype Gallery
-![prototype](README_Assets/CleanShot2024-06-25at23.07.52.gif)
+
+![Monthly Stays](README_Assets/Monthly_Stays_GIF)
+
+![Humane](README_Assets/Humane_GIF)
+
+![Quick_Connections](README_Assets/Quick_Connections_GIF)
+
+![Wallet](README_Assets/Wallet_GIF)
+
+![Circular_text](README_Assets/Circular_text_GIF)
+
+![AR](README_Assets/AR_short_GIF)
