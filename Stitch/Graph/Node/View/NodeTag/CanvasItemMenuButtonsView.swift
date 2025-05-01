@@ -303,11 +303,7 @@ struct CanvasItemMenuButtonsView: View {
         let binding: Binding<SplitterType> = .init {
             currentSplitterType
         } set: { newChoice in
-            dispatch(SplitterTypeChangedFromCanvasItemMenu(
-                        newType: newChoice,
-//                        currentType: currentSplitterType,
-//                        splitterNodeId: nodeId
-            ))
+            dispatch(SplitterTypeChangedFromCanvasItemMenu(newType: newChoice))
         }
 
         return Picker("Change Splitter Type", selection: binding) {
