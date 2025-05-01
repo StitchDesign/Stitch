@@ -30,7 +30,7 @@ struct PreviewRealityLayer: View {
         let scale = viewModel.scale.asCGFloat
         let cameraDirection = viewModel.cameraDirection.getCameraDirection ?? .back
         
-        if let node = document.visibleGraph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
+        if let node = document.visibleGraph.getNodeViewModel(viewModel.previewCoordinate.layerNodeId.asNodeId) {
             @Bindable var node = node
             
             RealityLayerView(document: document,

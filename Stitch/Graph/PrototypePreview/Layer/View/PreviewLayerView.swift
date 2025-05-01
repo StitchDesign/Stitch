@@ -21,7 +21,7 @@ struct PreviewLayerView: View {
     let realityContent: LayerRealityCameraContent?
 
     var id: PreviewCoordinate {
-        self.layerViewModel.id
+        self.layerViewModel.previewCoordinate
     }
     
     var body: some View {

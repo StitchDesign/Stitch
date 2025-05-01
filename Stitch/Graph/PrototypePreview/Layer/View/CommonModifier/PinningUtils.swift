@@ -204,7 +204,7 @@ func getFlattenedPinMap(layerNodes: LayerNodesDict,
                 
                 // `PinToId.root` case does not have a corresponding layer node,
                 //
-                let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId,
+                let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.previewCoordinate.layerNodeId,
                                                               from: graph)
                 
                 if pinReceivingLayer == nil && pinToId != .root {
@@ -328,7 +328,7 @@ extension GraphState {
             // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
             // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
         case .parent:
-            if let layerNode = self.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
+            if let layerNode = self.getNode(pinnedLayerViewModel.previewCoordinate.layerNodeId.asNodeId)?.layerNode,
                let parent = layerNode.layerGroupId {
                 return self.getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
                                                for: pinnedLayerViewModel)
@@ -357,7 +357,7 @@ extension GraphState {
         }
         
         // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
-        let pinReceiverAtSameLoopIndex = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: pinnedLayerViewModel.id.loopIndex]
+        let pinReceiverAtSameLoopIndex = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: pinnedLayerViewModel.previewCoordinate.loopIndex]
         
         let firstPinReceiver = pinReceiver.layerNodeViewModel?.previewLayerViewModels.first
         

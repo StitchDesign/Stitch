@@ -13,10 +13,12 @@ typealias LayerDataList = [LayerData]
 
 /// Data type used for getting sorted data in views.
 enum LayerData {
-    case nongroup(id: PreviewCoordinate,
+    case nongroup(id: UUID,
+                  previewCoordinate: PreviewCoordinate,
                   isPinned: Bool)
 
-    case group(id: PreviewCoordinate,
+    case group(id: UUID,
+               previewCoordinate: PreviewCoordinate,
                children: LayerDataList,
                isPinned: Bool)
 
@@ -26,14 +28,25 @@ enum LayerData {
 
 
 extension LayerData: Identifiable {
-    var id: PreviewCoordinate {
+    var id: UUID {
         switch self {
-        case .nongroup(let id, let isPinned):
+        case .nongroup(let id, let previewCoordinate, let isPinned):
             return id
-        case .group(let id, let children, let isPinned):
+        case .group(let id, let previewCoordinate, let children, let isPinned):
             return id
         case .mask(let masked, let masker):
             return masked.first!.id
+        }
+    }
+    
+    var previewCoordinate: PreviewCoordinate {
+        switch self {
+        case .nongroup(_, let id, _):
+            return id
+        case .group(_, let id, _, _):
+            return id
+        case .mask(let masked, let masker):
+            return masked.first!.previewCoordinate
         }
     }
 
@@ -41,16 +54,16 @@ extension LayerData: Identifiable {
         switch self {
         case .nongroup, .mask:
             return nil
-        case .group(_, let layerDataList, _):
+        case .group(_, _, let layerDataList, _):
             return layerDataList
         }
     }
 
     var isPinned: Bool {
         switch self {
-        case .nongroup(_, let isPinned):
+        case .nongroup(_, _, let isPinned):
             return isPinned
-        case .group(_, _, let isPinned):
+        case .group(_, _, _, let isPinned):
             return isPinned
         case .mask:
             return false
@@ -59,7 +72,7 @@ extension LayerData: Identifiable {
     
     @MainActor
     func getLayer(graph: GraphState) -> LayerViewModel? {
-        let id = self.id
+        let id = self.previewCoordinate
         return graph.getNodeViewModel(id.layerNodeId.asNodeId)?.layerNode?.previewLayerViewModels[safe: id.loopIndex]
     }
     
