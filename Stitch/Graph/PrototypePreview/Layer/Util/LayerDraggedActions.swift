@@ -71,7 +71,7 @@ extension GraphState {
             self.activeDragInteraction.activeDragInteractionNodes = self.activeDragInteraction.activeDragInteractionNodes.union(dragInteractionIdSet)
             
             for dragInteractionId in dragInteractionIdSet {
-                if let node = self.getPatchNode(id: dragInteractionId),
+                if let node = self.getNode(id: dragInteractionId),
                    node.isDragNodeEnabled {
                     nodesToRecalculate.insert(node.id)
                 } // if let node
