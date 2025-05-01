@@ -80,10 +80,17 @@ struct CanvasItemMenuButtonsView: View {
 
     // Only show splitter-type carousel if not at top-level
     var hasSplitterTypeCarousel: Bool {
-        splitterType.isDefined
-            && activeGroupId.isDefined
+        // We must be inside a group
+        guard activeGroupId.isDefined else {
+            return false
+        }
+        
+        // Every selected canvas item must be a splitter patch node
+        return graph.selectedCanvasItems.allSatisfy { canvasItemId in
+            graph.getSplitterPatchNode(id: canvasItemId.nodeId).isDefined
+        }
     }
-    
+        
     var isWirelessReceiver: Bool {
         node.kind == .patch(.wirelessReceiver)
     }
@@ -170,6 +177,11 @@ struct CanvasItemMenuButtonsView: View {
                         nodeTypeSubmenu(nodeType, nodeTypeChoices)
                     }
                     
+                    if let splitterType = splitterType,
+                       hasSplitterTypeCarousel {
+                        splitterTypeSubmenu(splitterType)
+                    }
+                    
                     createGroupButton
                     if FeatureFlags.USE_COMPONENTS {
                         createComponentButton
@@ -192,9 +204,8 @@ struct CanvasItemMenuButtonsView: View {
             addOrRemoveInputButons
             
             if let splitterType = splitterType,
-               let nodeId = canvasItemId.nodeCase,
                hasSplitterTypeCarousel {
-                splitterTypeSubmenu(nodeId: nodeId, splitterType)
+                splitterTypeSubmenu(splitterType)
             }
 
             // only for nodes with node-types;
@@ -287,16 +298,16 @@ struct CanvasItemMenuButtonsView: View {
     }
     
     @MainActor
-    func splitterTypeSubmenu(nodeId: NodeId,
-                             _ currentSplitterType: SplitterType) -> some View {
+    func splitterTypeSubmenu(_ currentSplitterType: SplitterType) -> some View {
 
         let binding: Binding<SplitterType> = .init {
             currentSplitterType
         } set: { newChoice in
-            dispatch(SplitterTypeChanged(
+            dispatch(SplitterTypeChangedFromCanvasItemMenu(
                         newType: newChoice,
-                        currentType: currentSplitterType,
-                        splitterNodeId: nodeId))
+//                        currentType: currentSplitterType,
+//                        splitterNodeId: nodeId
+            ))
         }
 
         return Picker("Change Splitter Type", selection: binding) {

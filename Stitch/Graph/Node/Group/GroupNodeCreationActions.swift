@@ -323,8 +323,8 @@ extension GraphState {
                 activeIndex: activeIndex)
             
             // Increment node position for next input splitter node
-            nodePosition.x += NODE_POSITION_STAGGER_SIZE
-            nodePosition.y += NODE_POSITION_STAGGER_SIZE
+            // Do not stagger x, only stagger vertically
+            nodePosition.y += GROUP_NODE_SPLITTER_POSITION_STAGGER_SIZE
             
             oldEdgeLocations[port] = nodePosition
         }

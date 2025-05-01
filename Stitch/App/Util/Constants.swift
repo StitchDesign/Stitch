@@ -36,6 +36,8 @@ let falseColor = Color.black
  -- MARK: MEASUREMENTS
  ---------------------------------------------------------------- */
 
+let GROUP_NODE_SPLITTER_POSITION_STAGGER_SIZE: CGFloat = 120
+
 let NODE_POSITION_STAGGER_SIZE: CGFloat = 50
 
 let PREVIEW_SHOWN_DEFAULT_STATE: Bool = true

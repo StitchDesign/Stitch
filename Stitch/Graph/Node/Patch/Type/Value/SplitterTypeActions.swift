@@ -9,34 +9,31 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// formerly `SplitterOptionSelected`
-struct SplitterTypeChanged: StitchDocumentEvent {
+
+struct SplitterTypeChangedFromCanvasItemMenu: StitchDocumentEvent {
 
     let newType: SplitterType
-    let currentType: SplitterType
-    let splitterNodeId: NodeId
 
     func handle(state: StitchDocumentViewModel) {
-        //        log("SplitterOptionSelected called: newType: \(newType)")
-        //        log("SplitterOptionSelected called: currentType: \(currentType)")
 
+        guard state.groupNodeFocused.isDefined else {
+            log("SplitterTypeChangedFromCanvasItemMenu: no active group")
+            return
+        }
+                
         let graph = state.visibleGraph
         
-        guard let activeGroupId = state.groupNodeFocused else {
-            log("SplitterOptionSelected: no active group")
-            return
+        graph.selectedCanvasItems.forEach { canvasItemId in
+            if let splitter = graph.getNode(id: canvasItemId.nodeId),
+               let currentType = splitter.splitterType {
+                
+                graph.setSplitterType(
+                    splitterNode: splitter,
+                    newType: newType,
+                    currentType: currentType,
+                    activeIndex: state.activeIndex)
+            }
         }
-
-        guard let splitterNode = graph.getNodeViewModel(splitterNodeId) else {
-            log("SplitterOptionSelected: could not find GroupNode \(activeGroupId)")
-            return
-        }
-
-        graph.setSplitterType(
-            splitterNode: splitterNode,
-            newType: newType,
-            currentType: currentType,
-            activeIndex: state.activeIndex)
         
         // Forces group port view models to update
         graph.updateGraphData(state)
@@ -87,6 +84,11 @@ extension GraphState {
                     inputObserver.removeUpstreamConnection(node: splitterNode)
                 }
             }
+            
+            // Also, if we became an output, we need to remove any outgoing edges;
+            // otherwise "input splitter -> output splitter" change will mean
+            // that a group node's incoming edge is now... a group node output that feeds into the group itself !
+            self.removeConnections(from: outputPort)
         }
         
         // Resize group node given new fields

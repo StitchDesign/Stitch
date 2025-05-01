@@ -660,7 +660,17 @@ extension GraphState {
     
     @MainActor
     func getPatchNode(id nodeId: NodeId) -> PatchNodeViewModel? {
-        self.visibleNodesViewModel.patchNodes.get(nodeId)?.patchNode
+        self.visibleNodesViewModel.getNode(nodeId)?.patchNode
+    }
+    
+    @MainActor
+    func getSplitterPatchNode(id nodeId: NodeId) -> PatchNodeViewModel? {
+        if let node = self.getPatchNode(id: nodeId),
+           node.patch == .splitter {
+            return node
+        }
+        
+        return nil
     }
     
     @MainActor
