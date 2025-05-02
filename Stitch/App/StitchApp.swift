@@ -8,6 +8,8 @@
 import SwiftUI
 import StitchSchemaKit
 import Sentry
+import FirebaseCore
+import FirebaseAnalytics
 
 @main @MainActor
 struct StitchApp: App {
@@ -36,6 +38,8 @@ struct StitchApp: App {
                         options.debug = false
                     }
                     
+                    FirebaseApp.configure()
+
                     // Close mac sharing window in case open
                     #if targetEnvironment(macCatalyst)
                     dismissWindow(id: RecordingView.windowId)
