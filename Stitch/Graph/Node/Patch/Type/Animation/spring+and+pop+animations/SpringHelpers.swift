@@ -11,7 +11,6 @@ import SwiftUI
 
 struct SpringHelpers {
     
-    // TODO: don't create a native Spring everytime; instead, store it on the animation state
     static func progress(spring: Spring,
                          from: CGFloat, // current output
                          to: CGFloat, // toValue
