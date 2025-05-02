@@ -126,9 +126,10 @@ extension NodeViewModel {
     
         // the id of the connected wireless broadcast node
         // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
-        let wirelessBroadcastId = firstInput.upstreamOutputCoordinate?.nodeId
+//        let wirelessBroadcastId = firstInput.upstreamOutputCoordinate?.nodeId
         // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
-        return wirelessBroadcastId
+//        return wirelessBroadcastId
+        return nil
     }
 
     @MainActor

@@ -106,7 +106,7 @@ extension GraphState {
             layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
             
             // Remove conection
-            layerNode[keyPath: x.keyPath.layerNodeKeyPath].rowObserver.upstreamOutputCoordinate = nil
+//            layerNode[keyPath: x.keyPath.layerNodeKeyPath].rowObserver.upstreamOutputCoordinate = nil
             
             // Check if packed mode changed
             let newPackMode = inputPort.mode
@@ -123,9 +123,9 @@ extension GraphState {
             }
 
             // Find this output coord's downstream input coord's; set each input coord's row observer's upstream-output nil
-            self.connections.get(outputData.rowObserver.id)?.forEach { (inputCoordinate: InputCoordinate) in
-                self.getInputRowObserver(inputCoordinate)?.upstreamOutputCoordinate = nil
-            }
+//            self.connections.get(outputData.rowObserver.id)?.forEach { (inputCoordinate: InputCoordinate) in
+//                self.getInputRowObserver(inputCoordinate)?.upstreamOutputCoordinate = nil
+//            }
             
             outputData.canvasObserver = nil
         }

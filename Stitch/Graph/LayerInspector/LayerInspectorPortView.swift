@@ -247,7 +247,7 @@ struct LayerInputFieldsView: View {
                            canvasItemId: canvasNode.id,
                            rowObserver: rowObserver,
                            isCanvasItemSelected: isNodeSelected,
-                           hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                           hasIncomingEdge: false,// rowObserver.upstreamOutputCoordinate.isDefined,
                            isForLayerInspector: false,
                            isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
                            isFieldInMultifieldInput: isMultifield,

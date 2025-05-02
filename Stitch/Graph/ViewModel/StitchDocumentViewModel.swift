@@ -278,19 +278,19 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         let canvasItems = graph.getCanvasItemsAtTraversalLevel(groupNodeFocused: self.groupNodeFocused?.groupNodeId).count
 
         // Tracks edge changes to reset cached data
-        let upstreamConnections = allInputsObservers
-        // Important: use compactMap, otherwise `nil` (i.e. non-existence connections) will be counted as a valid connection
-            .compactMap { $0.upstreamOutputCoordinate }
-        
-        // Tracks manual edits
-        let manualEdits: [PortValue] = allInputsObservers
-            .compactMap {
-                guard $0.upstreamOutputCoordinate == nil else {
-                    return nil
-                }
-                
-                return $0.getActiveValue(activeIndex: self.activeIndex)
-            }
+//        let upstreamConnections = allInputsObservers
+//        // Important: use compactMap, otherwise `nil` (i.e. non-existence connections) will be counted as a valid connection
+//            .compactMap { $0.upstreamOutputCoordinate }
+//        
+//        // Tracks manual edits
+//        let manualEdits: [PortValue] = allInputsObservers
+//            .compactMap {
+//                guard $0.upstreamOutputCoordinate == nil else {
+//                    return nil
+//                }
+//                
+//                return $0.getActiveValue(activeIndex: self.activeIndex)
+//            }
         
         // Track group node ID, which fixes edges when traversing
         let groupNodeIdFocused = self.groupNodeFocused
@@ -303,8 +303,8 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)
-        hasher.combine(upstreamConnections)
-        hasher.combine(manualEdits)
+//        hasher.combine(upstreamConnections)
+//        hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
         hasher.combine(aiActions)
         hasher.combine(splitterLabels)

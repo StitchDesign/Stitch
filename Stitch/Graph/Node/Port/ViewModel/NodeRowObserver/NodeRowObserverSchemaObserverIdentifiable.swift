@@ -17,9 +17,9 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     /// Updates values for inputs.
     @MainActor
     func update(from schema: NodePortInputEntity) {
-        if self.upstreamOutputCoordinate != schema.portData.upstreamConnection {
-            self.upstreamOutputCoordinate = schema.portData.upstreamConnection
-        }
+//        if self.upstreamOutputCoordinate != schema.portData.upstreamConnection {
+//            self.upstreamOutputCoordinate = schema.portData.upstreamConnection
+//        }
 
         // Update values if no upstream connection
         if let values = schema.portData.values {
@@ -36,8 +36,11 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
                         
         switch nodeConnection {
         case .upstreamConnection(let upstreamOutputCoordinate):
-            if self.upstreamOutputCoordinate != upstreamOutputCoordinate {
-                self.upstreamOutputCoordinate = upstreamOutputCoordinate                
+            let oldValue = self.upstreamOutputCoordinate
+            if oldValue != upstreamOutputCoordinate {
+                // MARK: this causes something
+                self.upstreamOutputCoordinate = upstreamOutputCoordinate
+//                self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
             }
             
         case .values(let values):
@@ -61,26 +64,26 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     @MainActor
     func onPrototypeRestart(document: StitchDocumentViewModel) {
                 
-        guard self.upstreamOutputCoordinate.isDefined,
-              let node = document.visibleGraph.getNode(self.id.nodeId),
-              let patch = node.kind.getPatch,
-              let portId = self.id.portId else {
-            return
-        }
-                
-        let defaultInputs: NodeInputDefinitions = node.kind
-            .rowDefinitions(for: node.userVisibleType)
-            .inputs
-        
-        guard let defaultValues = getDefaultValueForPatchNodeInput(portId,
-                                                                   defaultInputs,
-                                                                   patch: patch) else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        // NOTE: important to use `setValuesInInput` so that field observers are updated as well
-        self.setValuesInInput(defaultValues)
+//        guard self.upstreamOutputCoordinate.isDefined,
+//              let node = document.visibleGraph.getNode(self.id.nodeId),
+//              let patch = node.kind.getPatch,
+//              let portId = self.id.portId else {
+//            return
+//        }
+//                
+//        let defaultInputs: NodeInputDefinitions = node.kind
+//            .rowDefinitions(for: node.userVisibleType)
+//            .inputs
+//        
+//        guard let defaultValues = getDefaultValueForPatchNodeInput(portId,
+//                                                                   defaultInputs,
+//                                                                   patch: patch) else {
+//            fatalErrorIfDebug()
+//            return
+//        }
+//        
+//        // NOTE: important to use `setValuesInInput` so that field observers are updated as well
+//        self.setValuesInInput(defaultValues)
         // self.updateValues(defaultValues)
     }
 }
