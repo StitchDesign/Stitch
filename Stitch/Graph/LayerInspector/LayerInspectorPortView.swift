@@ -384,7 +384,7 @@ struct LayerInspectorOutputPortView: View {
                                  isSelectedInspectorRow: propertyRowIsSelected)
                 Spacer()
                 
-                LayerOutputFieldsView(fieldValueTypes: rowViewModel.cachedFieldValueGroups,
+                LayerOutputFieldsView(fieldGroups: rowViewModel.cachedFieldValueGroups,
                                       valueEntryView: valueEntryView)
             } // HStack
         }
@@ -400,14 +400,14 @@ struct LayerInspectorOutputPortView: View {
 struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
     typealias ValueEntryViewBuilder = (OutputFieldViewModel, Bool) -> ValueEntry
     
-    let fieldValueTypes: [FieldGroup]
+    let fieldGroups: [FieldGroup]
     @ViewBuilder var valueEntryView: ValueEntryViewBuilder
 
     var body: some View {
-        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroup) in
-            let isMultifield = fieldGroupViewModel.fieldObservers.count > 1
+        ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
+            let isMultifield = fieldGroup.fieldObservers.count > 1
             
-            if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
+            if let fieldGroupLabel = fieldGroup.groupLabel {
                 HStack {
                     LabelDisplayView(label: fieldGroupLabel,
                                      isLeftAligned: false,
@@ -418,7 +418,7 @@ struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
             }
             
             HStack {
-                ForEach(fieldGroupViewModel.fieldObservers) { fieldViewModel in
+                ForEach(fieldGroup.fieldObservers) { fieldViewModel in
                     self.valueEntryView(fieldViewModel,
                                         isMultifield)
                 }

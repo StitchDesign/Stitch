@@ -142,7 +142,18 @@ struct OutputFieldValueView: View {
             readOnlyView(self.fieldValue.stringValue)
         }
     }
+    
+    // TODO: implement "extended view on hover" for individual output fields
+    @State var isHovering: Bool = false
+        
+    var hoveringAdjustment: CGFloat {
+        isHovering ? .EXTENDED_FIELD_LENGTH : 0
+    }
 
+    var isCanvas: Bool {
+        self.rowViewModel.id.graphItemType.isCanvas
+    }
+    
     @ViewBuilder func readOnlyView(_ displayName: String) -> some View {
         ReadOnlyValueEntry(value: displayName,
                            alignment: outputAlignment,
@@ -150,5 +161,29 @@ struct OutputFieldValueView: View {
                            isSelectedInspectorRow: isSelectedInspectorRow,
                            isForLayerInspector: isForLayerInspector,
                            isFieldInMultifieldInput: isFieldInMultifieldInput)
+        
+        .overlay(content: {
+            
+            if isHovering {
+                StitchTextView(string: displayName,
+                               fontColor: STITCH_FONT_GRAY_COLOR)
+                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH + hoveringAdjustment,
+                           alignment: .leading) // Always leading
+                    .padding([.leading, .top, .bottom], 2)
+
+                    .background {
+                        // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(isHovering ? Color.EXTENDED_FIELD_BACKGROUND_COLOR : Color.clear)
+                    }
+                     .offset(x: hoveringAdjustment / 2)
+            }
+        })
+        .onHover { isHovering in
+            if isCanvas {
+                self.isHovering = isHovering
+            }
+            
+        }
     }
 }

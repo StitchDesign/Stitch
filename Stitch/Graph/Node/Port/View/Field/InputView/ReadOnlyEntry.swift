@@ -36,13 +36,13 @@ struct ReadOnlyValueEntry: View {
     }
 
     // TODO: implement "extended view on hover" for individual output fields
-//    @State var isHovering: Bool = false
-//    
-//    static let HOVER_EXTRA_LENGTH: CGFloat = 52
-//    
-//    var hoveringAdjustment: CGFloat {
-//        isHovering ? Self.HOVER_EXTRA_LENGTH : 0
-//    }
+    @State var isHovering: Bool = false
+    
+    static let HOVER_EXTRA_LENGTH: CGFloat = 52
+    
+    var hoveringAdjustment: CGFloat {
+        isHovering ? Self.HOVER_EXTRA_LENGTH : 0
+    }
     
     var body: some View {
         StitchTextView(string: value,
@@ -51,29 +51,8 @@ struct ReadOnlyValueEntry: View {
             .monospacedDigit()
             .frame(width: fieldWidth,
                    alignment: alignment)
-        
-        //            .overlay(content: {
-        //                if isHovering {
-        //                    StitchTextView(string: value,
-        //                                   fontColor: fontColor)
-        //                        .frame(width: fieldWidth + hoveringAdjustment,
-        //                               alignment: alignment)
-        //                        .padding([.leading, .top, .bottom], 2)
-        //
-        //                        .background {
-        //                            // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
-        //                            let color = isHovering ? Color.green : Color.clear
-        //                            RoundedRectangle(cornerRadius: 4)
-        //                                .fill(color)
-        //                        }
-        //                        // .offset(x: hoveringAdjustment / 2)
-        //                }
-        //            })
-        //            .onHover { isHovering in
-        //                self.isHovering = isHovering
-        //            }
-        
-        
+            .padding([.leading, .top, .bottom], 2) // padding to mat
+                
         // TODO: `NODE_INPUT_OR_OUTPUT_WIDTH * 1.5` is long enough for CoreML's "No Results" but too long for most other cases; but e.g. the DeviceInfo node's outputs properly need more space
         //            .frame(minWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 1.5,
         //                   maxWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 2,
