@@ -228,8 +228,9 @@ struct PreviewLayersView: View {
             // So we use the largest width.
             // TODO: perf implications of iterating through e.g. 900 views?
             let longestReadWidth = presentedLayers.max { d1, d2 in
-                d1.layer.readSize.width < d2.layer.readSize.width
-            }?.layer.readSize.width ?? .zero
+                d1.getLayer(graph: graph)?.readSize.width ?? -1 <
+                    d2.getLayer(graph: graph)?.readSize.width ?? -1
+            }?.getLayer(graph: graph)?.readSize.width ?? .zero
             
             // logInView("gridView: longestReadWidth: \(longestReadWidth)")
             
@@ -372,9 +373,9 @@ struct LayerDataView: View {
       
             ForEach(maskedLayerDataList) { (maskedLayerData: LayerData) in
                 
-                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.id == maskedLayerData.id }),
+                if let maskedIndex = maskedLayerDataList.firstIndex(where: { $0.previewCoordinate == maskedLayerData.previewCoordinate }),
                     maskedIndex < maskerLayerDataList.endIndex, // Is this check necessary?
-                    let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.id.loopIndex == maskedLayerData.id.loopIndex }) {
+                    let maskerLayerData: LayerData = maskerLayerDataList.first(where: { $0.previewCoordinate.loopIndex == maskedLayerData.previewCoordinate.loopIndex }) {
                     
                     // Turn masked LayerData into a single view
                     let masked: some View = LayerDataView(
@@ -406,28 +407,34 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let layerNode, let layerViewModel, _):
-            NonGroupPreviewLayersView(document: document,
-                                      graph: graph,
-                                      layerNode: layerNode,
-                                      layerViewModel: layerViewModel,
-                                      isPinnedViewRendering: !isGhostView,
-                                      parentSize: parentSize,
-                                      parentDisablesPosition: parentDisablesPosition,
-                                      parentIsScrollableGrid: parentIsScrollableGrid,
-                                      realityContent: realityContent)
+        case .nongroup(_, let id, _):
+            if let layerNode = graph.getNode(id.layerNodeId.asNodeId)?.layerNode,
+               let layerViewModel = layerNode.previewLayerViewModels[safe: id.loopIndex] {
+                NonGroupPreviewLayersView(document: document,
+                                          graph: graph,
+                                          layerNode: layerNode,
+                                          layerViewModel: layerViewModel,
+                                          isPinnedViewRendering: !isGhostView,
+                                          parentSize: parentSize,
+                                          parentDisablesPosition: parentDisablesPosition,
+                                          parentIsScrollableGrid: parentIsScrollableGrid,
+                                          realityContent: realityContent)
+            }
                         
-        case .group(let layerNode, let layerViewModel, let childrenData, _):
-            GroupPreviewLayersView(document: document,
-                                   graph: graph,
-                                   layerNode: layerNode,
-                                   layerViewModel: layerViewModel,
-                                   childrenData: childrenData,
-                                   isPinnedViewRendering: !isGhostView,
-                                   parentSize: parentSize,
-                                   parentDisablesPosition: parentDisablesPosition,
-                                   parentIsScrollableGrid: parentIsScrollableGrid,
-                                   realityContent: realityContent)
+        case .group(_, let id, let childrenData, _):
+            if let layerNode = graph.getNode(id.layerNodeId.asNodeId)?.layerNode,
+               let layerViewModel = layerNode.previewLayerViewModels[safe: id.loopIndex] {
+                GroupPreviewLayersView(document: document,
+                                       graph: graph,
+                                       layerNode: layerNode,
+                                       layerViewModel: layerViewModel,
+                                       childrenData: childrenData,
+                                       isPinnedViewRendering: !isGhostView,
+                                       parentSize: parentSize,
+                                       parentDisablesPosition: parentDisablesPosition,
+                                       parentIsScrollableGrid: parentIsScrollableGrid,
+                                       realityContent: realityContent)
+            }
         } // switch
     }
 }
@@ -496,7 +503,11 @@ struct NonGroupPreviewLayersView: View {
                     return
                 }
                 
-                Task(priority: .high) { [weak layerViewModel] in
+                Task(priority: .high) { [weak layerViewModel, weak document] in
+                    guard let document = document else {
+                        return
+                    }
+                    
                     await layerViewModel?.loadMedia(mediaValue: mediaValue,
                                                     document: document,
                                                     mediaRowObserver: layerViewModel?.mediaRowObserver)

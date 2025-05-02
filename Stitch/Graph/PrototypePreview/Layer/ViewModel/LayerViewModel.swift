@@ -15,7 +15,9 @@ import StitchEngine
 final class LayerViewModel: Sendable {
     private let mediaImportCoordinator = MediaLayerImportCoordinator()
     
-    let id: PreviewCoordinate
+    // Make unique ID for each layer view model so that a new creation can't use the same preview coordinate and confuse the view that nothing changed
+    let id = UUID()
+    let previewCoordinate: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer
     
@@ -39,7 +41,7 @@ final class LayerViewModel: Sendable {
     @MainActor
     var readFrame: CGRect = .zero {
         didSet {
-            dispatch(AssignedLayerUpdated(changedLayerNode: self.id.layerNodeId))
+            dispatch(AssignedLayerUpdated(changedLayerNode: self.previewCoordinate.layerNodeId))
         }
     }
     
@@ -252,7 +254,7 @@ final class LayerViewModel: Sendable {
          position: PortValue = .position(.zero),
          nodeDelegate: NodeViewModel?) {
         
-        self.id = id
+        self.previewCoordinate = id
         self.layer = layer
         self.zIndex = zIndex
         self.position = position
@@ -413,7 +415,7 @@ extension LayerViewModel: InteractiveLayerDelegate {
 extension LayerViewModel {
     @MainActor var mediaRowObserver: InputNodeRowObserver? {
         guard let layerNode = self.nodeDelegate?.graphDelegate?
-            .getNodeViewModel(self.id.layerNodeId.asNodeId)?.layerNode else {
+            .getNodeViewModel(self.previewCoordinate.layerNodeId.asNodeId)?.layerNode else {
             return nil
         }
                 
@@ -533,7 +535,7 @@ extension LayerViewModel {
                                     portId: Int,
                                     inputType: LayerInputPort,
                                     graph: GraphSetter) {
-        let loopIndex = self.id.loopIndex
+        let loopIndex = self.previewCoordinate.loopIndex
         let inputSupportsLoopedValues = inputType.supportsLoopedTypes
         
         if !inputSupportsLoopedValues {

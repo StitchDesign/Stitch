@@ -12,13 +12,13 @@ import OrderedCollections
 typealias LayerDataList = [LayerData]
 
 /// Data type used for getting sorted data in views.
-indirect enum LayerData {
-    case nongroup(layerNode: LayerNodeViewModel,
-                  layerViewModel: LayerViewModel,
+enum LayerData {
+    case nongroup(id: UUID,
+                  previewCoordinate: PreviewCoordinate,
                   isPinned: Bool)
 
-    case group(layerNode: LayerNodeViewModel,
-               layerViewModel: LayerViewModel,
+    case group(id: UUID,
+               previewCoordinate: PreviewCoordinate,
                children: LayerDataList,
                isPinned: Bool)
 
@@ -28,8 +28,26 @@ indirect enum LayerData {
 
 
 extension LayerData: Identifiable {
-    var id: PreviewCoordinate {
-        self.layer.id
+    var id: UUID {
+        switch self {
+        case .nongroup(let id, let previewCoordinate, let isPinned):
+            return id
+        case .group(let id, let previewCoordinate, let children, let isPinned):
+            return id
+        case .mask(let masked, let masker):
+            return masked.first!.id
+        }
+    }
+    
+    var previewCoordinate: PreviewCoordinate {
+        switch self {
+        case .nongroup(_, let id, _):
+            return id
+        case .group(_, let id, _, _):
+            return id
+        case .mask(let masked, let masker):
+            return masked.first!.previewCoordinate
+        }
     }
 
     var groupDataList: LayerDataList? {
@@ -52,35 +70,27 @@ extension LayerData: Identifiable {
         }
     }
     
-    var layer: LayerViewModel {
-        switch self {
-        case .nongroup(_, let layer, _):
-            return layer
-        case .group(_, let layer, _, _):
-            return layer
-        case .mask(masked: let layerDataList, masker: _):
-            // TODO: `layerDataList` should be NonEmpty; there's no way to gracefully fail here
-            return layerDataList.first!.layer
-        }
+    @MainActor
+    func getLayer(graph: GraphState) -> LayerViewModel? {
+        let id = self.previewCoordinate
+        return graph.getNodeViewModel(id.layerNodeId.asNodeId)?.layerNode?.previewLayerViewModels[safe: id.loopIndex]
     }
     
     @MainActor
-    var zIndex: CGFloat {
-        switch self {
-        case .nongroup(_, let layer, _):
-            return layer.zIndex.getNumber ?? .zero
-        case .group(_, let layer, _, _):
-            return layer.zIndex.getNumber ?? .zero
-        case .mask(masked: let masked, masker: _):
-            // TODO: is z-index for a LayerData really the first
-            return masked.first?.layer.zIndex.getNumber ?? .zero
+    func getZIndex(graph: GraphState) -> CGFloat {
+        guard let layer = self.getLayer(graph: graph) else {
+            return .zero
         }
+        
+        return layer.zIndex.getNumber ?? .zero
     }
 }
 
 /// Provides equatable equivalent that supports main actor isolation.
 protocol MainActorEquatable {
-    @MainActor static func equals(_ lhs: Self, _ rhs: Self) -> Bool
+    @MainActor static func equals(_ lhs: Self,
+                                  _ rhs: Self,
+                                  graph: GraphState) -> Bool
 }
 
 // TODO: Can we separate "cached preview layers changed" from the data we need
@@ -88,13 +98,17 @@ protocol MainActorEquatable {
 // Note: we define a custom == on LayerData because
 extension LayerData: MainActorEquatable {
     @MainActor
-    static func equals(_ lhs: LayerData, _ rhs: LayerData) -> Bool {
+    static func equals(_ lhs: LayerData,
+                       _ rhs: LayerData,
+                       graph: GraphState) -> Bool {
         lhs.id == rhs.id &&
         lhs.isPinned == rhs.isPinned &&
-        lhs.zIndex == rhs.zIndex &&
+        lhs.getZIndex(graph: graph) == rhs.getZIndex(graph: graph) &&
 
         // Did the children change?
-        LayerDataList.equals(lhs.groupDataList ?? [], rhs.groupDataList ?? []) &&
+        LayerDataList.equals(lhs.groupDataList ?? [],
+                             rhs.groupDataList ?? [],
+                             graph: graph) &&
         
         // Important to check if the case changed
         // (e.g. we hid a masker layer, so a previously masked layer now became .nonGroup or .group instead of .mask)
@@ -138,13 +152,17 @@ extension LayerData {
 
 extension Array where Element: MainActorEquatable {
     @MainActor
-    static func equals(_ lhs: [Element], _ rhs: [Element]) -> Bool {
+    static func equals(_ lhs: [Element],
+                       _ rhs: [Element],
+                       graph: GraphState) -> Bool {
         guard lhs.count == rhs.count else {
             return false
         }
         
         return zip(lhs, rhs).allSatisfy { lhsElement, rhsElement in
-            Element.equals(lhsElement, rhsElement)
+            Element.equals(lhsElement,
+                           rhsElement,
+                           graph: graph)
         }
     }
 }
