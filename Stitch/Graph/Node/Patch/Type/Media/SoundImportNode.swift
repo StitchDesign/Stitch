@@ -74,13 +74,34 @@ struct SoundImportNode: PatchNodeDefinition {
     }
     
     static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        MediaEvalOpObserver()
+        SoundImportMediaEvalOpObserver()
+    }
+}
+
+@Observable
+final class SoundImportMediaEvalOpObserver: NodeEphemeralOutputPersistence, MediaEvalOpObservable {
+    static let outputIndexToSave = 3
+    
+    @MainActor var previousValue: PortValue?
+    @MainActor var currentLoadingMediaId: UUID?
+    let mediaViewModel: MediaViewModel
+    let mediaActor: MediaEvalOpCoordinator
+    @MainActor weak var nodeDelegate: NodeViewModel?
+    
+    @MainActor init() {
+        self.mediaViewModel = .init()
+        self.mediaActor = .init()
+    }
+    
+    func onPrototypeRestart(document: StitchDocumentViewModel) {
+        self.previousValue = nil
     }
 }
 
 extension SoundImportNode {
     @MainActor
     static func soundImportEvalOp(media: GraphMediaValue,
+                                  observer: SoundImportMediaEvalOpObserver,
                                   values: PortValues,
                                   defaultOutputs: PortValues,
                                   graphTime: TimeInterval) -> PortValues {
@@ -96,7 +117,7 @@ extension SoundImportNode {
         let playRate: Double = values[safe: 5]?.getNumber ?? 1
         
         // Get previously saved playback time in case video is paused
-        var currentPlaybackTime = values[safe: 9]?.getNumber ?? .zero
+        var currentPlaybackTime = observer.previousValue?.getNumber ?? .zero
         
         if playing {
             currentPlaybackTime = delegate.getCurrentPlaybackTime()
@@ -132,20 +153,19 @@ func soundImportEval(node: PatchNode) -> EvalResult {
     let graphTime = node.graphDelegate?.graphStepState.graphTime ?? .zero
     let defaultOutputs = node.defaultOutputs
 
-    let results: [MediaEvalOpResult] = node.getLoopedEvalResults(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
+    var evalResult = node.loopedEvalOutputsPersistence() { (values, mediaObserver, loopIndex) -> MediaEvalOpResult in
         
         mediaObserver.mediaEvalOpCoordinator(inputPortIndex: 0,
                                              values: values,
                                              loopIndex: loopIndex,
-                                             defaultOutputs: defaultOutputs) { media in
+                                             defaultOutputs: defaultOutputs) { @Sendable media in
             SoundImportNode.soundImportEvalOp(media: media,
+                                              observer: mediaObserver,
                                               values: values,
                                               defaultOutputs: defaultOutputs,
                                               graphTime: graphTime)
         }
     }
-    
-    var finalResult = results.createPureEvalResult(node: node)
     
     // MARK: frequencies logic saved for end due to loop of values
     
@@ -157,12 +177,12 @@ func soundImportEval(node: PatchNode) -> EvalResult {
         
         let frequencyAmplitudesValues = frequencyAmplitudes.map { PortValue.number($0) }
         
-        if finalResult.outputsValues[safe: 5] != nil {
-            finalResult.outputsValues[5] = frequencyAmplitudesValues
+        if evalResult.outputsValues[safe: 5] != nil {
+            evalResult.outputsValues[5] = frequencyAmplitudesValues
         } else {
-            finalResult.outputsValues.append(frequencyAmplitudesValues)
+            evalResult.outputsValues.append(frequencyAmplitudesValues)
         }
     }
     
-    return finalResult
+    return evalResult
 }
