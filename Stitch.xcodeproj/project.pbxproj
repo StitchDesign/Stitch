@@ -308,6 +308,7 @@
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = E42AAE4B2D4844EE002D187D /* Sentry */; };
 		E42B46DC2DC55B4F009C6890 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E42B46DB2DC55B4F009C6890 /* FirebaseAnalytics */; };
+		E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */; };
 		E42BA45D291C69C200EB7356 /* SIMDExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */; };
 		E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */; };
 		E42CFD462D4413F90034CCFF /* secrets.json in Resources */ = {isa = PBXBuildFile; fileRef = E42CFD452D4413F90034CCFF /* secrets.json */; };
@@ -1305,6 +1306,7 @@
 		E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Vintage Toy Robot.usdz"; sourceTree = "<group>"; };
 		E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBeforeSubmitModalView.swift; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
+		E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E42BA45C291C69C200EB7356 /* SIMDExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SIMDExtensions.swift; sourceTree = "<group>"; };
 		E42C0D042D47F87A00AA2BB1 /* openAIRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = openAIRequestTests.swift; sourceTree = "<group>"; };
 		E42CFD452D4413F90034CCFF /* secrets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = secrets.json; sourceTree = SOURCE_ROOT; };
@@ -2068,6 +2070,7 @@
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
+				E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
 				B56FFB522C195EA000623CC7 /* Graph */,
@@ -4910,6 +4913,7 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
+				E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
