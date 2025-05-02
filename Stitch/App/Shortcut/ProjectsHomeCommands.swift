@@ -296,13 +296,9 @@ struct ProjectsHomeCommands: Commands {
         } // CommandMenu
 
         CommandGroup(replacing: .newItem) {
-            SwiftUIShortcutView(title: activeProject ? "New Node" : "New Project",
+            SwiftUIShortcutView(title: "New Project",
                                 key: NEW_PROJECT_SHORTCUT) {
-                if activeProject {
-                    INSERT_NODE_ACTION()
-                } else {
-                    store.createNewProjectSideEffect(isProjectImport: false)
-                }
+                store.createNewProjectSideEffect(isProjectImport: false)
             }
 
             // NOTE: we already get CMD + W in Catalyst
