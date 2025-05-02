@@ -105,12 +105,12 @@ func layerSortingComparator(lhs: LayerType,
     let rhsSidebarIndex = rhs.sidebarIndex
     
     // If both layers are in same pinning linked list, prioritize the lower-level pin over a receiver
-    let isPinningScenario = pinMap.areLayersInSamePinFamily(idSet: .init([lhs.id.layerNodeId, rhs.id.layerNodeId]))
+    let isPinningScenario = pinMap.areLayersInSamePinFamily(idSet: .init([lhs.previewCoordinate.layerNodeId, rhs.previewCoordinate.layerNodeId]))
     
     // Determines if a view is pinned and if so, how nested that pin is (higher value = more nesting)
     if isPinningScenario {
-        let lhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: lhs.id.layerNodeId)
-        let rhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: rhs.id.layerNodeId)
+        let lhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: lhs.previewCoordinate.layerNodeId)
+        let rhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: rhs.previewCoordinate.layerNodeId)
         
         if lhsPinNestedCount != rhsPinNestedCount {
             return rhsPinNestedCount > lhsPinNestedCount
@@ -174,21 +174,13 @@ func getLayerDataFromLayerType(_ layerType: LayerType,
         
         // we call `getLayerDataFromLayerType` recursively, and
     case .nongroup(let data, let isPinned): // LayerData
-        
-        guard let layerNode = layerNodes.get(data.id.layerNodeId.id),
-              let previewLayer: LayerViewModel = layerNode
-                // these layer view models are ALREADY CREATED on the layer node
-            .previewLayerViewModels[safe: data.id.loopIndex] else {
-            return nil
-        }
-        
-        return .nongroup(layerNode: layerNode,
-                         layerViewModel: previewLayer,
+        return .nongroup(id: data.id,
+                         previewCoordinate: data.previewCoordinate,
                          isPinned: isPinned)
         
     case .group(let layerGroupData, let isPinned): // LayerGroupData
-        guard let layerNode = layerNodes.get(layerGroupData.id.layerNodeId.asNodeId),
-              let previewLayer: LayerViewModel = layerNode.previewLayerViewModels[safe: layerGroupData.id.loopIndex] else {
+        guard let layerNode = layerNodes.get(layerGroupData.previewCoordinate.layerNodeId.asNodeId),
+              let previewLayer: LayerViewModel = layerNode.previewLayerViewModels[safe: layerGroupData.previewCoordinate.loopIndex] else {
             
             return nil
         }
@@ -208,8 +200,8 @@ func getLayerDataFromLayerType(_ layerType: LayerType,
             isInGroupOrientation: isInGroupOrientation,
             activeIndex: activeIndex)
         
-        return .group(layerNode: layerNode,
-                      layerViewModel: previewLayer,
+        return .group(id: layerGroupData.id,
+                      previewCoordinate: layerGroupData.previewCoordinate,
                       children: childrenData,
                       isPinned: isPinned)
     }
@@ -233,6 +225,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
         let layerTypes: LayerTypeOrderedSet = layerNode.previewLayerViewModels
             .map { layerViewModel in
                     .group(data: .init(id: layerViewModel.id,
+                                       previewCoordinate: layerViewModel.previewCoordinate,
                                        zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                        sidebarIndex: sidebarIndex,
                                        childrenSidebarLayers: children,
@@ -250,6 +243,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
             .reversed() // Reverse loop's layer view models, for default "ZStack" case
             .map { layerViewModel in
                     .nongroup(data: .init(id: layerViewModel.id,
+                                          previewCoordinate: layerViewModel.previewCoordinate,
                                           zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                           sidebarIndex: sidebarIndex,
                                           layer: layerNode.layer),

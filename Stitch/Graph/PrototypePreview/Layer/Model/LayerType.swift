@@ -24,14 +24,16 @@ indirect enum LayerType: Equatable, Hashable {
 }
 
 struct LayerTypeNonGroupData: Equatable, Hashable {
-    let id: PreviewCoordinate
+    let id: UUID
+    let previewCoordinate: PreviewCoordinate
     let zIndex: CGFloat
     let sidebarIndex: Int
     let layer: Layer // debug
 }
 
 struct LayerTypeGroupData: Equatable, Hashable {
-    let id: PreviewCoordinate
+    let id: UUID
+    let previewCoordinate: PreviewCoordinate
     let zIndex: CGFloat
     let sidebarIndex: Int
     let childrenSidebarLayers: SidebarLayerList
@@ -41,7 +43,7 @@ struct LayerTypeGroupData: Equatable, Hashable {
 extension LayerType {
     
     // Only used for pinning?
-    var id: PreviewCoordinate {
+    var id: UUID {
         switch self {
         case .nongroup(let data, _):
             return data.id
@@ -51,6 +53,19 @@ extension LayerType {
             // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
             // return masked.id
             return masked.first!.id
+        }
+    }
+    
+    var previewCoordinate: PreviewCoordinate {
+        switch self {
+        case .nongroup(let data, _):
+            return data.previewCoordinate
+        case .group(let data, _):
+            return data.previewCoordinate
+        case .mask(masked: let masked, masker: _):
+            // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
+            // return masked.id
+            return masked.first!.previewCoordinate
         }
     }
 
