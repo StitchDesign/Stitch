@@ -8,6 +8,14 @@
 import SwiftUI
 
 
+extension Color {
+    static let EXTENDED_FIELD_BACKGROUND_COLOR: Self = .WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE
+}
+
+extension CGFloat {
+    static let EXTENDED_FIELD_LENGTH: Self = 52
+}
+
 struct CanvasCommonEditingView: View {
     
     @Bindable var document: StitchDocumentViewModel
@@ -22,18 +30,9 @@ struct CanvasCommonEditingView: View {
         
     let fieldWidth: CGFloat
     
-    static let HOVER_EXTRA_LENGTH: CGFloat = 52
-    
     var hoveringAdjustment: CGFloat {
-        shouldShowExtendedField ? Self.HOVER_EXTRA_LENGTH : 0
+        shouldShowExtendedField ? .EXTENDED_FIELD_LENGTH : 0
     }
-    
-    
-//    func onFingerTap() {
-//        if !self.isHovering {
-//            dispatch(ReduxFieldFocused(focusedField: .textInput(self.inputField.id)))
-//        }
-//    }
     
     func onTap() {
         dispatch(ReduxFieldFocused(focusedField: .textInput(self.inputField.id)))
