@@ -366,6 +366,7 @@ extension GraphState {
         self._updateGraphData(document, documentEncoder: documentEncoder)
     }
     
+    // TODO: separate out the "update cached UI data" part and compose these together
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
     private func _updateGraphData(_ document: StitchDocumentViewModel,
