@@ -21,7 +21,7 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     }
     
     var key: PreviewCoordinate {
-        viewModel.id
+        viewModel.previewCoordinate
     }
     
     /// Important to only report pin data from ghost view.
@@ -45,7 +45,7 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                         //viewModel.previewWindowRect = newValue
                         
                         // If this layer *receives* a pin, populate its pin-receiver data fields:
-                        if pinMap.get(viewModel.id.layerNodeId).isDefined,
+                        if pinMap.get(viewModel.previewCoordinate.layerNodeId).isDefined,
                            // TODO: how or why can newValue
                            (!newValue.width.isNaN && !newValue.height.isNaN) {
                             // log("PreviewWindowCoordinateSpaceReader: had pinMap entry for viewModel.id.layerNodeId \(viewModel.id.layerNodeId), newValue.origin: \(newValue.origin)")
