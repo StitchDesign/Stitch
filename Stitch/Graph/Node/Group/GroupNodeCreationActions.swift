@@ -248,7 +248,7 @@ extension StitchDocumentViewModel {
         graph.resetSelectedCanvasItems()
         
         // ... then select the GroupNode and its edges
-        if let newGroupNodeId = newGroupNode.patchCanvasItem?.id {
+        if let newGroupNodeId = newGroupNode.nonLayerCanvasItem?.id {
             graph.selectCanvasItem(newGroupNodeId)
         }
 
@@ -386,8 +386,8 @@ extension GraphState {
             parentGroupNodeId: GroupNodeId(newGroupNodeId),
             graphDelegate: self)
 
-        newSplitterNode.patchCanvasItem?.position = position
-        newSplitterNode.patchCanvasItem?.previousPosition = position
+        newSplitterNode.nonLayerCanvasItem?.position = position
+        newSplitterNode.nonLayerCanvasItem?.previousPosition = position
 
         guard let splitterNode = newSplitterNode.patchNode else {
             fatalErrorIfDebug()

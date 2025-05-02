@@ -103,33 +103,25 @@ extension GraphState {
             // add node's edges to highlighted edges; wipe old highlighted edges
             state.selectedEdges = .init()
         }
-        
+                
         // Copy nodes if no drag started yet
-        let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
-                                   selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
+        let copyResult = self.createCopiedComponent(
+            groupNodeFocused: document.groupNodeFocused,
+            selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
+                
+        let (destinationGraphEntity, newNodes, nodeIdMap) = Self.insertNodesAndSidebarLayersIntoDestinationGraph(
+            destinationGraph: self.createSchema(),
+            graphToInsert: copyResult.component.graphEntity,
+            focusedGroupNode: document.groupNodeFocused?.groupNodeId,
+            destinationGraphInfo: nil,
+            originalOptionDraggedLayer: nil)
         
-        let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
-            component: copiedComponentResult.component,
-            destinationGraphInfo: nil)
-        
-        // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = Self.createNewNodes(
-            from: newComponent,
-            focusedGroupNode: document.groupNodeFocused?.groupNodeId)
-        
-        // this actually adds the new components' nodes to the state
-        let graph = self.addComponentToGraph(newComponent: newComponent,
-                                             newNodes: newNodes,
-                                             nodeIdMap: nodeIdMap)
-        
-        self.update(from: graph)
+        // TODO: should we provide an explicit `rootUrl` here too? See `sidebarSelectedItemsDuplicated`
+        self.update(from: destinationGraphEntity)
         
         self.updateGraphAfterPaste(newNodes: newNodes,
                                    nodeIdMap: nodeIdMap,
                                    isOptionDragInSidebar: false)
-        
-        return
     }
 }
 
