@@ -66,21 +66,19 @@ struct NodeView: View {
             // Catalyst right-click to open canvas item menu
                 .contextMenu {
                     CanvasItemMenuButtonsView(graph: graph,
-                                           document: document,
-                                           node: stitch,
-                                           canvasItemId: node.id,
-                                           activeGroupId: activeGroupId,
-                                           canAddInput: canAddInput,
-                                           canRemoveInput: canRemoveInput,
-                                           atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                                              document: document,
+                                              node: stitch,
+                                              canvasItemId: node.id,
+                                              activeGroupId: activeGroupId,
+                                              canAddInput: canAddInput,
+                                              canRemoveInput: canRemoveInput,
+                                              atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
                 }
 #endif
-                .modifier(
-                    NodeViewTapGestureModifier(graph: graph,
-                                               document: document,
-                                               stitch: stitch,
-                                               node: node)
-                )
+                .modifier(NodeViewTapGestureModifier(graph: graph,
+                                                     document: document,
+                                                     stitch: stitch,
+                                                     node: node))
             
             /*
              Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.

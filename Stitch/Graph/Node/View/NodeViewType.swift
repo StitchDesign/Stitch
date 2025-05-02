@@ -230,6 +230,14 @@ struct DefaultNodeOutputsView: View {
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
+
+                    // TODO: how to handle "hover to show more of output" vs "hover to enter edge edit mode" ?
+//                    .modifier(EdgeEditModeOutputHoverViewModifier(
+//                        graph: graph,
+//                        document: document,
+//                        outputCoordinate: .init(portId: rowViewModel.id.portId,
+//                                                canvasId: canvas.id)))
+                    
                     .zIndex(-99)
                 }
                 .modifier(EdgeEditModeOutputHoverViewModifier(

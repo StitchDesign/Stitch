@@ -145,14 +145,12 @@ struct OutputFieldValueView: View {
     
     // TODO: implement "extended view on hover" for individual output fields
     @State var isHovering: Bool = false
-    
-    static let HOVER_EXTRA_LENGTH: CGFloat = 52
-    
+        
     var hoveringAdjustment: CGFloat {
-        isHovering ? Self.HOVER_EXTRA_LENGTH : 0
+        isHovering ? .EXTENDED_FIELD_LENGTH : 0
     }
 
-    var isCanvasOutputField: Bool {
+    var isCanvas: Bool {
         self.rowViewModel.id.graphItemType.isCanvas
     }
     
@@ -170,20 +168,19 @@ struct OutputFieldValueView: View {
                 StitchTextView(string: displayName,
                                fontColor: STITCH_FONT_GRAY_COLOR)
                     .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH + hoveringAdjustment,
-                           alignment: outputAlignment)
+                           alignment: .leading) // Always leading
                     .padding([.leading, .top, .bottom], 2)
 
                     .background {
                         // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
-                        let color = isHovering ? Color.green : Color.clear
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(color)
+                            .fill(isHovering ? Color.EXTENDED_FIELD_BACKGROUND_COLOR : Color.clear)
                     }
                      .offset(x: hoveringAdjustment / 2)
             }
         })
         .onHover { isHovering in
-            if isCanvasOutputField {
+            if isCanvas {
                 self.isHovering = isHovering
             }
             

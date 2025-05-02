@@ -57,11 +57,11 @@ struct InputFieldBackgroundColorView: ViewModifier {
 //            if isForLayerInspector {
 //                return .INSPECTOR_FIELD_BACKGROUND_COLOR
 //            } else {
-                return .WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE
+                return .EXTENDED_FIELD_BACKGROUND_COLOR
 //            }
             
         } else if isHovering {
-            return .WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE
+            return .EXTENDED_FIELD_BACKGROUND_COLOR
         }
         
         // "At rest" i.e. no user interaction

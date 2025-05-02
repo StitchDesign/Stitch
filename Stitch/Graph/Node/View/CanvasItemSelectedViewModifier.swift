@@ -24,11 +24,14 @@ struct CanvasItemSelectedViewModifier: ViewModifier {
 //            .padding(3)
 //            .padding(7)
             .padding(6)
-            .overlay {
+//            .overlay {
+            .background {
                 if isSelected {
                     // needs to be slightly larger than
                     RoundedRectangle(cornerRadius: CANVAS_ITEM_SELECTED_CORNER_RADIUS)
                         .strokeBorder(theme.themeData.highlightedEdgeColor, lineWidth: 3)
+                        
+                        .zIndex(-9999)
                 }
             }
     }

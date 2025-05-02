@@ -51,6 +51,7 @@ struct ReadOnlyValueEntry: View {
             .monospacedDigit()
             .frame(width: fieldWidth,
                    alignment: alignment)
+            .padding([.leading, .top, .bottom], 2) // padding to mat
                 
         // TODO: `NODE_INPUT_OR_OUTPUT_WIDTH * 1.5` is long enough for CoreML's "No Results" but too long for most other cases; but e.g. the DeviceInfo node's outputs properly need more space
         //            .frame(minWidth: NODE_INPUT_OR_OUTPUT_WIDTH * 1.5,
