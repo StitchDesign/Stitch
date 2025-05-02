@@ -28,13 +28,6 @@ struct CanvasCommonEditingView: View {
         shouldShowExtendedField ? Self.HOVER_EXTRA_LENGTH : 0
     }
     
-    
-//    func onFingerTap() {
-//        if !self.isHovering {
-//            dispatch(ReduxFieldFocused(focusedField: .textInput(self.inputField.id)))
-//        }
-//    }
-    
     func onTap() {
         dispatch(ReduxFieldFocused(focusedField: .textInput(self.inputField.id)))
     }

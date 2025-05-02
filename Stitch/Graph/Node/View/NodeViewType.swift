@@ -201,7 +201,8 @@ struct DefaultNodeOutputsView: View {
                 HStack {
                     if showOutputFields {
                         ForEach(rowViewModel.cachedFieldValueGroups) { fieldGroup in
-                            ForEach(fieldGroup.fieldObservers) { outputViewModel in
+                            let fields = fieldGroup.fieldObservers
+                            ForEach(Array(zip(fields.indices, fields)), id: \.0) { index, outputViewModel in
                                 OutputFieldView(graph: graph,
                                                 document: document,
                                                 outputField: outputViewModel,
@@ -211,6 +212,7 @@ struct DefaultNodeOutputsView: View {
                                                 isForLayerInspector: false,
                                                 isFieldInMultifieldInput: isMultiField,
                                                 isSelectedInspectorRow: false)
+                                .zIndex(-CGFloat(index))
                             }
                         }
                     } // if showOutputFields
@@ -222,11 +224,13 @@ struct DefaultNodeOutputsView: View {
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
                                      isSelectedInspectorRow: false)
+                    .zIndex(-98)
                     
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
+                    .zIndex(-99)
                 }
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graph,
