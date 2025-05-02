@@ -305,6 +305,7 @@ extension GraphState {
         self.update(from: destinationGraphEntity)
         
         self.updateGraphAfterPaste(newNodes: newNodes,
+                                   document: document,
                                    nodeIdMap: nodeIdMap,
                                    isOptionDragInSidebar: false)
     }
@@ -333,7 +334,6 @@ extension GraphState {
             fatalErrorIfDebug()
         }
     }
-    
     
     @MainActor
     static func updateCopiedNodesPositions(nodeEntities: NodeEntities,
@@ -367,34 +367,7 @@ extension GraphState {
             }
         }
     }
-        
-
-//    @MainActor
-//    static func updateCopiedNodesIdsAndPositions<T>(component: T,
-//                                                    focusedGroupNode: NodeId?,
-//                                                    // nil = this was duplication, not copy-paste
-//                                                    destinationGraphInfo: CopyPasteGraphDestinationInfo?) -> (T, NodeIdMap) where T: StitchComponentable {
-//        // Change all IDs
-//        var newComponent = component
-//        let (newGraph, nodeIdMap) = newComponent.graphEntity.changeIds()
-//        newComponent.graphEntity = newGraph
-//        
-//        // Update parent ids -- must be done *before* updating positions,
-//        // since position-update-logic looks only at pasted nodes at this is traversal level
-//        let newNodeEntities: NodeEntities = Self.updateNodesParentIds(
-//            nodeEntities: newComponent.nodes,
-//            focusedGroupNode: focusedGroupNode)
-//                
-//        // Update node entities' positions
-//        let nodes: NodeEntities = Self.updateCopiedNodesPositions(
-//            nodeEntities: newNodeEntities,
-//            destinationGraphInfo: destinationGraphInfo)
-//        
-//        
-//        
-//        return (newComponent, nodeIdMap)
-//    }
-    
+            
     @MainActor
     static func updateNodesParentIds(nodeEntities: NodeEntities,
                                      focusedGroupNode: NodeId?) -> [NodeEntity] {
@@ -416,6 +389,7 @@ extension GraphState {
     
     @MainActor
     func updateGraphAfterPaste(newNodes: [NodeEntity],
+                               document: StitchDocumentViewModel,
                                nodeIdMap: NodeIdMap,
                                isOptionDragInSidebar: Bool) {
         // Reset selected nodes
@@ -494,7 +468,10 @@ extension GraphState {
                     }
                 }
         }
-                
+              
+        removeCrossTraversalEdges(graph: self,
+                                  document: document,
+                                  for: newNodes.map(\.id).toSet)
     }
     
     // Duplicate ONLY the selected comment boxes
@@ -509,6 +486,82 @@ extension GraphState {
         //                duplicatingCommentsOnly: true))
     }
 }
+
+
+
+/*
+ Only wireless nodes and group splitters can have edges that cross traversal levels.
+ */
+// TODO: handle non-patch-node cases
+@MainActor
+func removeCrossTraversalEdges(graph: GraphState,
+                               document: StitchDocumentViewModel,
+                               for nodes: NodeIdSet) {
+    
+    // Establishes references
+    // TODO: why weren't references already established? can avoid having to work with the weak var references here?
+    graph.updateGraphData(document)
+    
+    for nodeId in nodes {
+        
+        guard let node = graph.getNode(nodeId),
+              // TODO: handling layer inputs, components, group nodes ?
+              let patchNode = node.patchNode else {
+            continue
+        }
+        
+        if patchNode.isWirelessOrGroupSplitterNode {
+            continue
+        }
+                
+        node.getAllInputsObservers().forEach { inputObserver in
+            // If we have an upstream output...
+            if let upstreamOutputObserverNodeId = inputObserver.upstreamOutputObserver?.id.nodeId,
+               let upstreamNode = graph.getNode(upstreamOutputObserverNodeId)?.patchNodeViewModel,
+               // ... that is not a wireless node or group splitter,
+               !upstreamNode.isWirelessOrGroupSplitterNode,
+               // and is on a different traversal level
+               upstreamNode.parentGroupNodeId != patchNode.parentGroupNodeId {
+                
+                // ... then remove the connection
+                inputObserver.removeUpstreamConnection(node: node)
+            }
+        }
+        
+        node.getAllOutputsObservers().forEach { outputObserver in
+            outputObserver.getDownstreamInputsObservers().forEach { downstreamInputObserver in
+                if let downstreamNode = graph.getNode(downstreamInputObserver.id.nodeId),
+                   let downstreamPatchNode = downstreamNode.patchNodeViewModel,
+                   !downstreamPatchNode.isWirelessOrGroupSplitterNode,
+                   downstreamPatchNode.parentGroupNodeId != patchNode.parentGroupNodeId {
+                    
+                    downstreamInputObserver.removeUpstreamConnection(node: downstreamNode)
+                }
+            }
+        }
+    } // for node in nodes
+    
+    // update UI data etc.
+    graph.updateGraphData(document)
+}
+
+
+extension PatchNodeViewModel {
+    @MainActor
+    var isWirelessOrGroupSplitterNode: Bool {
+        if self.patch == .wirelessReceiver || self.patch == .wirelessReceiver {
+            return true
+        }
+        
+        if let splitterType = self.splitterType,
+           splitterType != .inline {
+            return true
+        }
+        
+        return false
+    }
+}
+
 
 @MainActor
 func updateOrderedSidebarLayers(originalSidebarLayers: [SidebarLayerData],

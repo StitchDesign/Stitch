@@ -22,7 +22,6 @@ extension InputNodeRowObserver {
     /// Removes edges to some observer and conducts the following steps;
     /// 1. Removes connection by deleting reference to upstream output observer.
     /// 2. Flattens values.
-    /// 3. Returns side effects for media which needs to be cleared.
     @MainActor
     func removeUpstreamConnection(node: NodeViewModel) {
         
