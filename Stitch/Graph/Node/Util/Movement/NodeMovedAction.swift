@@ -120,6 +120,7 @@ extension GraphState {
         self.update(from: destinationGraphEntity)
         
         self.updateGraphAfterPaste(newNodes: newNodes,
+                                   document: document,
                                    nodeIdMap: nodeIdMap,
                                    isOptionDragInSidebar: false)
     }

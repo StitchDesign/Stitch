@@ -43,6 +43,7 @@ extension GraphState {
         self.update(from: destinationGraphEntity, rootUrl: rootUrl)
 
         self.updateGraphAfterPaste(newNodes: newNodes,
+                                   document: document,
                                    nodeIdMap: nodeIdMap,
                                    isOptionDragInSidebar: originalOptionDraggedLayer.isDefined)
     }
