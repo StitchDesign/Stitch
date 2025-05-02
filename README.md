@@ -35,7 +35,7 @@ We’re a group of passionate engineers and designers who share a love for Apple
 #### Collaborators
 ##### Engineering:
 * [Chris](https://github.com/pianostringquartet)
-* [Elliot](https://x.com/ellbosch)
+* [Elliot](https://github.com/ellbosch)
 * [Nick](https://x.com/nickarner)
 * [Ryan](https://www.ryapapap.com)
 
