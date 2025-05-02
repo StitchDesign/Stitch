@@ -926,7 +926,12 @@ extension GraphState {
         
         for (portId, newOutputValue) in portValues.enumerated() {
             let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)
-            var outputValuesToUpdate: PortValues = outputsToUpdate[safe: portId] ?? []
+            
+            guard var outputValuesToUpdate: PortValues = outputsToUpdate[safe: portId],
+                  !outputValuesToUpdate.isEmpty else {
+                // Exit program if no outputs
+                return
+            }
             
             // Lengthen outputs if loop index exceeds count
             if outputValuesToUpdate.count < loopIndex + 1 {

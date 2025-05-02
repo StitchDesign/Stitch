@@ -98,10 +98,10 @@ extension InputNodeRowObserver {
                 
         guard let node = self.nodeDelegate,
               let graph = node.graphDelegate else {
-//            self.setValuesInRowObserver(incomingValues,
-//                                        selectedEdges: .init(),
-//                                        selectedCanvasItems: .init(),
-//                                        drawingObserver: .init())
+            self.setValuesInRowObserver(incomingValues,
+                                        selectedEdges: .init(),
+                                        selectedCanvasItems: .init(),
+                                        drawingObserver: .init())
             return
         }
 
@@ -120,10 +120,10 @@ extension InputNodeRowObserver {
         }
         
         // Set the coerced values in the input
-//        self.setValuesInRowObserver(newValues,
-//                                    selectedEdges: graph.selectedEdges,
-//                                    selectedCanvasItems: graph.selection.selectedCanvasItems,
-//                                    drawingObserver: graph.edgeDrawingObserver)
+        self.setValuesInRowObserver(newValues,
+                                    selectedEdges: graph.selectedEdges,
+                                    selectedCanvasItems: graph.selection.selectedCanvasItems,
+                                    drawingObserver: graph.edgeDrawingObserver)
         
         // Update other parts of graph state in response to input change
         self.inputPostProcessing(oldValues: oldValues,
