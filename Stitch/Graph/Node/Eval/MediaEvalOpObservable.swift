@@ -162,7 +162,7 @@ extension MediaEvalOpObservable {
                                                             values: [MediaEvalResult.ValueType],
                                                             loopIndex: Int,
                                                             defaultOutputs: [MediaEvalResult.ValueType],
-                                                            evalOp: @escaping @MainActor (GraphMediaValue) -> [MediaEvalResult.ValueType]) -> MediaEvalResult where MediaEvalResult: MediaEvalResultable {
+                                                            evalOp: @escaping @Sendable @MainActor (GraphMediaValue) -> [MediaEvalResult.ValueType]) -> MediaEvalResult where MediaEvalResult: MediaEvalResultable {
         guard let node = self.nodeDelegate else {
             return .init(from: defaultOutputs)
         }
