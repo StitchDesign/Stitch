@@ -19,3 +19,4 @@ secrets.json
 setup_secrets*.sh
 
 .sentryclirc
+Stitch/GoogleService-Info.plist
