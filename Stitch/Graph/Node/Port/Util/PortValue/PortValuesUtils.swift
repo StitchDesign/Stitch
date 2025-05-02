@@ -133,6 +133,8 @@ extension PortValuesList {
 
 
 extension PortValues: NodeEvalOpResultable {
+    var values: PortValues { self }
+    
     init(from values: PortValues) {
         self = values
     }

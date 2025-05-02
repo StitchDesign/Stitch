@@ -39,6 +39,7 @@ struct PulseOnChangeNode: PatchNodeDefinition {
 }
 
 // outPulse is for an Output; can never be manually pulsed.
+@MainActor
 func pulseOnChangeOpClosure(values: PortValues,
                             computedState: ComputedNodeState,
                             graphTime: TimeInterval) -> ImpureEvalOpResult {

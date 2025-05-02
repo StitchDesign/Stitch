@@ -18,6 +18,10 @@ struct ImpureEvalOpResult {
 }
 
 extension ImpureEvalOpResult: NodeEvalOpResultable {
+    var values: PortValues {
+        outputs
+    }
+    
     init(from values: PortValues) {
         self.outputs = values
     }

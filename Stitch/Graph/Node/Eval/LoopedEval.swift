@@ -21,6 +21,8 @@ typealias NodeLayerViewModelInteractiveOp<T> = (LayerViewModel, InteractiveLayer
 
 /// Allows for generic results while ensure there's some way to get default output values.
 protocol NodeEvalOpResultable {
+    var values: PortValues { get }
+    
     init(from values: PortValues)
     
     @MainActor
@@ -270,6 +272,17 @@ extension NodeViewModel {
             computedState.previousValue = newValue
             
             return [newValue]
+        }
+    }
+    
+    /// Saves previous values in some `NodeEphemeralOutputPersistence`.
+    @MainActor
+    func loopedEvalOutputsPersistence<PersistenceObserver, EvalOpResult>(callback: @escaping (PortValues, PersistenceObserver, Int) -> EvalOpResult) -> EvalResult where PersistenceObserver: NodeEphemeralOutputPersistence, EvalOpResult: NodeEvalOpResultable {
+        self.loopedEval(PersistenceObserver.self) { values, observerOp, loopIndex in
+            let result = callback(values, observerOp, loopIndex)
+            observerOp.previousValue = result.values[safe: PersistenceObserver.outputIndexToSave]
+            
+            return result
         }
     }
 }

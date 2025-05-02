@@ -79,6 +79,11 @@ struct MediaEvalValuesListResult: NodeEvalOpResultable, MediaEvalResultable {
 }
 
 extension MediaEvalValuesListResult {
+    var values: PortValues {
+        fatalErrorIfDebug("Don't use this here")
+        return valuesList.first ?? []
+    }
+    
     init(from values: PortValuesList) {
         self.valuesList = values
     }

@@ -18,6 +18,17 @@ enum AsyncMediaOutputs {
 }
 
 extension AsyncMediaOutputs: NodeEvalOpResultable {
+    var values: PortValues {
+        switch self {
+        case .byIndex(let portValues):
+            return portValues
+        case .all(let portValuesList):
+            // Don't think this should happen but let Elliot know if it does
+            fatalErrorIfDebug()
+            return portValuesList.first ?? []
+        }
+    }
+    
     static func createEvalResult(from results: [AsyncMediaOutputs],
                                  node: NodeViewModel) -> EvalResult {
         results.toImpureEvalResult()
