@@ -65,7 +65,7 @@ typealias AnimationCurveFormula = (Double, // t: current frame
 
 /*
  Every animation value-type (eg .number, .position, .color etc.)
- is or can be broken down into a single numeric-returning calculation.
+  can be decomposed into a single numeric-returning calculation.
 
  Returns: `(newNumber: Double, shouldRunAgain: Bool)`
  */
@@ -76,25 +76,10 @@ func runAnimation(toValue: Double,
                   curve: ClassicAnimationCurve,
                   currentFrameCount: Int,
                   fps: StitchFPS) -> (Double, Bool) {
-
-    runAnimationCurveFormula(formula: curve.formula,
-                             duration: duration,
-                             toValue: toValue,
-                             startValue: startValue,
-                             difference: difference,
-                             currentFrame: currentFrameCount,
-                             fps: fps)
-}
-
-// returns (newValue, runAgain?)
-func runAnimationCurveFormula(formula: AnimationCurveFormula,
-                              duration: Double, // in seconds
-                              toValue: Double,
-                              startValue: Double,
-                              difference: Double,
-                              currentFrame: Int,
-                              fps: StitchFPS) -> (Double, Bool) {
-
+    
+    let formula = curve.formula
+    let currentFrame = currentFrameCount
+    
     let animationFrameRate = classicAnimationFrame(fps)
 
     // let durationInFrames: CGFloat = duration * CLASSIC_ANIMATION_FRAMERATE
@@ -104,7 +89,16 @@ func runAnimationCurveFormula(formula: AnimationCurveFormula,
                          startValue,
                          difference,
                          durationInFrames)
-
+    
+    // HACK: If duration < 0.1, stop when currentFrame has passed the expected duration
+    // TODO: smarter way to prevent some animations (linear, etc.) from continuing indefinitely when duration < 0.1
+    // TODO: can we leverage SwiftUI's `Animation.animate(value:time:context:)` ?
+    if duration < 0.1,
+       currentFrame.toDouble > durationInFrames{
+        return (toValue.asPositiveZero, false)
+    }
+    
+    
     let isSame: Bool = abs(toValue - result) < IS_SAME_DIFFERENCE_ALLOWANCE
 
     //    #if DEV_DEBUG
