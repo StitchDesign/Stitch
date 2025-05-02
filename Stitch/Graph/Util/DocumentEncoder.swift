@@ -31,7 +31,7 @@ final actor ComponentEncoder: DocumentEncodable {
     @MainActor weak var delegate: StitchMasterComponent?
     
     init(component: StitchComponent) {
-        self.id = component.graph.id
+        self.id = component.graphEntity.id
         self.documentId = component.id
         self.saveLocation = .document(component.saveLocation)
     }

@@ -54,6 +54,7 @@ extension NodeEntity {
         var nodeEntity = self
         
         switch nodeEntity.nodeTypeEntity {
+        
         case .patch(var patch):
             patch.canvasEntity = callback(patch.canvasEntity)
             nodeEntity.nodeTypeEntity = .patch(patch)

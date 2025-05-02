@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 protocol StitchComponentable: StitchDocumentEncodable {
-    var graph: GraphEntity { get set }
+    var graphEntity: GraphEntity { get set }
 }
 
 extension StitchDocumentEncodable {

@@ -39,8 +39,8 @@ class GroupNodeTests: XCTestCase {
         // Create two Add nodes
         guard let node1 = documentViewModel.nodeInserted(choice: .patch(.add)),
               let node2 = documentViewModel.nodeInserted(choice: .patch(.add)),
-              let canvasNode1 = node1.patchCanvasItem,
-              let canvasNode2 = node2.patchCanvasItem else {
+              let canvasNode1 = node1.nonLayerCanvasItem,
+              let canvasNode2 = node2.nonLayerCanvasItem else {
 //            XCTAbortTest()
             fatalError("failed to create Add nodes")
         }
@@ -67,7 +67,7 @@ class GroupNodeTests: XCTestCase {
         XCTAssert(canvasNode1.parentGroupNodeId == groupNode.id)
         XCTAssert(canvasNode2.parentGroupNodeId == groupNode.id)
         
-        let nodesInGroup = graphState.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == groupNode.id }
+        let nodesInGroup = graphState.nodes.values.filter { $0.nonLayerCanvasItem?.parentGroupNodeId == groupNode.id }
         
         // There should only be two nodes in the group; no splitters etc.
         XCTAssertEqual(nodesInGroup.count, 2)
@@ -87,7 +87,7 @@ class GroupNodeTests: XCTestCase {
 //        let graphState = document.graph
         let groupNodeId = groupNode.id
         
-        guard let canvasItem = groupNode.patchCanvasItem else {
+        guard let canvasItem = groupNode.nonLayerCanvasItem else {
             XCTFail()
             fatalError()
         }
@@ -108,8 +108,8 @@ class GroupNodeTests: XCTestCase {
             return
         }
         
-        XCTAssertEqual(document.visibleGraph.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == groupNodeId }.count, 2)
-        XCTAssertEqual(document.visibleGraph.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == otherGroupNodeId }.count, 2)
+        XCTAssertEqual(document.visibleGraph.nodes.values.filter { $0.nonLayerCanvasItem?.parentGroupNodeId == groupNodeId }.count, 2)
+        XCTAssertEqual(document.visibleGraph.nodes.values.filter { $0.nonLayerCanvasItem?.parentGroupNodeId == otherGroupNodeId }.count, 2)
     }
 }
 

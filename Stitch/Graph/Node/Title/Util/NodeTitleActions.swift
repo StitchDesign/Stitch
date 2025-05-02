@@ -28,7 +28,7 @@ extension NodeViewModel {
             }
             
             // Resize node
-            self.patchCanvasItem?.resetViewSizingCache()
+            self.nonLayerCanvasItem?.resetViewSizingCache()
             
         case .layerInspector:
             self.title = edit
