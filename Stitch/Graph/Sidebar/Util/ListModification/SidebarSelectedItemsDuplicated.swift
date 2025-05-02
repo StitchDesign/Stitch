@@ -20,11 +20,30 @@ extension GraphState {
     @MainActor
     func sidebarSelectedItemsDuplicated(originalOptionDraggedLayer: SidebarListItemId? = nil,
                                         document: StitchDocumentViewModel) {
-        let nodeIds = self.layersSidebarViewModel.selectionState.primary
-        self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds,
-                                       originalOptionDraggedLayer: originalOptionDraggedLayer,
-                                       document: document)
         
-        // Move nodes
+        let selectedNodeIds = self.layersSidebarViewModel.selectionState.primary
+        
+        guard let rootUrl = document.documentEncoder?.rootUrl else {
+            return
+        }
+        
+        let groupNodeFocused = document.groupNodeFocused
+        
+        // Copy nodes if no drag started yet
+        let copyResult = self.createCopiedComponent(groupNodeFocused: groupNodeFocused,
+                                                    selectedNodeIds: selectedNodeIds)
+        
+        let (destinationGraphEntity, newNodes, nodeIdMap) = Self.insertNodesAndSidebarLayersIntoDestinationGraph(
+            destinationGraph: self.createSchema(),
+            graphToInsert: copyResult.component.graphEntity,
+            focusedGroupNode: groupNodeFocused?.groupNodeId,
+            destinationGraphInfo: nil,
+            originalOptionDraggedLayer: originalOptionDraggedLayer)
+            
+        self.update(from: destinationGraphEntity, rootUrl: rootUrl)
+
+        self.updateGraphAfterPaste(newNodes: newNodes,
+                                   nodeIdMap: nodeIdMap,
+                                   isOptionDragInSidebar: originalOptionDraggedLayer.isDefined)
     }
 }

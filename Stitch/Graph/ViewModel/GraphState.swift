@@ -543,17 +543,7 @@ extension GraphState {
         self.nodes.values.forEach { $0.onPrototypeRestart(document: document) }
         self.initializeGraphComputation()
     }
-    
-    @MainActor
-    var localPosition: CGPoint {
-        self.documentDelegate?.localPosition ?? ABSOLUTE_GRAPH_CENTER
-    }
-    
-    @MainActor
-    var previewWindowBackgroundColor: Color {
-        self.documentDelegate?.previewWindowBackgroundColor ?? .LAYER_DEFAULT_COLOR
-    }
-    
+            
     @MainActor
     func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
         self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)

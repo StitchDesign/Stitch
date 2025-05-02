@@ -110,15 +110,15 @@ extension StitchComponent: StitchDocumentMigratable {
 
 extension StitchClipboardContent {
     var name: String {
-        self.graph.name
+        self.graphEntity.name
     }
     
     public var id: UUID {
         get {
-            self.graph.id
+            self.graphEntity.id
         }
         set(newValue) {
-            self.graph.id = newValue
+            self.graphEntity.id = newValue
         }
     }
 }

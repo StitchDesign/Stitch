@@ -92,8 +92,8 @@ extension GraphState {
         }
         
         // Resize group node given new fields
-        if let groupNodeId = splitterNode.patchCanvasItem?.parentGroupNodeId,
-           let groupCanvasNode = self.getNodeViewModel(groupNodeId)?.patchCanvasItem {
+        if let groupNodeId = splitterNode.nonLayerCanvasItem?.parentGroupNodeId,
+           let groupCanvasNode = self.getNodeViewModel(groupNodeId)?.nonLayerCanvasItem {
             groupCanvasNode.resetViewSizingCache()
         }
     }

@@ -36,10 +36,9 @@ extension NodeEntity: GraphCopyable {
                     mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> NodeEntity {
         .init(id: newId, 
-              nodeTypeEntity: self.nodeTypeEntity
-            .createCopy(newId: newId,
-                        mappableData: mappableData,
-                        copiedNodeIds: copiedNodeIds),
+              nodeTypeEntity: self.nodeTypeEntity.createCopy(newId: newId,
+                                                             mappableData: mappableData,
+                                                             copiedNodeIds: copiedNodeIds),
               title: self.title)
     }
 }
@@ -126,16 +125,14 @@ extension PatchNodeEntity: GraphCopyable {
         
         return .init(id: newId,
                      patch: self.patch,
-                     inputs: newInputs, 
-                     canvasEntity: self.canvasEntity
-            .createCopy(newId: newId,
-                        mappableData: mappableData,
-                        copiedNodeIds: copiedNodeIds),
+                     inputs: newInputs,
+                     canvasEntity: self.canvasEntity.createCopy(newId: newId,
+                                                                mappableData: mappableData,
+                                                                copiedNodeIds: copiedNodeIds),
                      userVisibleType: self.userVisibleType,
-                     splitterNode: self.splitterNode?
-            .createCopy(newId: newId,
-                        mappableData: mappableData,
-                        copiedNodeIds: copiedNodeIds),
+                     splitterNode: self.splitterNode?.createCopy(newId: newId,
+                                                                 mappableData: mappableData,
+                                                                 copiedNodeIds: copiedNodeIds),
                      mathExpression: self.mathExpression)
     }
 }
@@ -416,7 +413,7 @@ extension GraphState {
         self.createComponent(componentId: .init(),
                              groupNodeFocused: groupNodeFocused,
                              selectedNodeIds: selectedNodeIds) { graph in
-            StitchClipboardContent(graph: graph)
+            StitchClipboardContent(graphEntity: graph)
         }
     }
     
@@ -508,44 +505,6 @@ extension Array where Element: StitchNestedListElementObservable {
 }
 
 extension GraphState {
-    /// Synchronous caller for node copying, used for Option + drag.
-    @MainActor
-    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet,
-                                   originalOptionDraggedLayer: SidebarListItemId? = nil,
-                                   document: StitchDocumentViewModel) {
-        guard let rootUrl = document.documentEncoder?.rootUrl else {
-            return
-        }
-        
-        let groupNodeFocused = document.groupNodeFocused
-        
-        // Copy nodes if no drag started yet
-        let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: groupNodeFocused,
-                                   selectedNodeIds: selectedNodeIds)
-        
-        // creates new ids for nodes and sidebar layers; updates nodes' positions (staggering for duplication)
-        let (newComponent, nodeIdMap) = Self.updateCopiedNodes(
-            component: copiedComponentResult.component,
-            destinationGraphInfo: nil)
-                                
-        // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = Self.createNewNodes(
-            from: newComponent,
-            focusedGroupNode: groupNodeFocused?.groupNodeId)
-        
-        let graph = self.addComponentToGraph(newComponent: newComponent,
-                                             newNodes: newNodes,
-                                             nodeIdMap: nodeIdMap,
-                                             originalOptionDraggedLayer: originalOptionDraggedLayer)
-
-        self.update(from: graph, rootUrl: rootUrl)
-        
-        self.updateGraphAfterPaste(newNodes: newNodes,
-                                   nodeIdMap: nodeIdMap,
-                                   isOptionDragInSidebar: originalOptionDraggedLayer.isDefined)
-    }
-
     @MainActor
     func copyToClipboard(selectedNodeIds: NodeIdSet,
                          groupNodeFocused: GroupNodeType?) {

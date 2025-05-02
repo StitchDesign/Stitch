@@ -23,6 +23,15 @@ extension StitchComponent {
 }
 
 extension StitchComponent: StitchComponentable {
+    var graphEntity: GraphEntity {
+        get {
+            self.graph
+        }
+        set {
+            self.graph = newValue
+        }
+    }
+    
     static let zippedFileType: UTType = .stitchComponentZipped
     static let unzippedFileType: UTType = .stitchComponentUnzipped
 
@@ -35,23 +44,23 @@ extension StitchComponent: StitchComponentable {
 extension StitchComponentable {
     public var id: UUID {
         get {
-            self.graph.id
+            self.graphEntity.id
         }
         set(newValue) {
-            self.graph.id = newValue
+            self.graphEntity.id = newValue
         }
     }
     
     var name: String {
-        self.graph.name
+        self.graphEntity.name
     }
     
     var nodes: [NodeEntity] {
-        self.graph.nodes
+        self.graphEntity.nodes
     }
     
     var orderedSidebarLayers: SidebarLayerList {
-        self.graph.orderedSidebarLayers
+        self.graphEntity.orderedSidebarLayers
     }
 }
 
