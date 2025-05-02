@@ -122,27 +122,27 @@ extension GraphState {
     // Recreate edges if splitter contains upstream and downstream edges
     @MainActor
     func insertEdgesAfterGroupUncreated(for splitterNode: NodeViewModel) {
-//        guard splitterNode.splitterType?.isGroupSplitter ?? false else {
-//            fatalErrorIfDebug()
-//            return
-//        }
-//
-//        let splitterOutputCoordinate = NodeIOCoordinate(portId: .zero,
-//                                                        nodeId: splitterNode.id)
-//
-//        guard let upstreamOutput = splitterNode.getInputRowObserver(for: .portIndex(0))?.upstreamOutputCoordinate,
-//              let downstreamInputsFromSplitter = self.connections.get(splitterOutputCoordinate) else {
-//            // Nothing to do if no upstream output or downstream inputs
-//            return
-//        }
-//
-//        downstreamInputsFromSplitter.forEach { inputId in
-//            guard let inputObserver = self.getInputObserver(coordinate: inputId) else {
-//                return
-//            }
-//
-//            // Sets new edges for each connected input
-//            inputObserver.upstreamOutputCoordinate = upstreamOutput
-//        }
+        guard splitterNode.splitterType?.isGroupSplitter ?? false else {
+            fatalErrorIfDebug()
+            return
+        }
+
+        let splitterOutputCoordinate = NodeIOCoordinate(portId: .zero,
+                                                        nodeId: splitterNode.id)
+
+        guard let upstreamOutput = splitterNode.getInputRowObserver(for: .portIndex(0))?.upstreamOutputCoordinate,
+              let downstreamInputsFromSplitter = self.connections.get(splitterOutputCoordinate) else {
+            // Nothing to do if no upstream output or downstream inputs
+            return
+        }
+
+        downstreamInputsFromSplitter.forEach { inputId in
+            guard let inputObserver = self.getInputObserver(coordinate: inputId) else {
+                return
+            }
+
+            // Sets new edges for each connected input
+            inputObserver.upstreamOutputCoordinate = upstreamOutput
+        }
     }
 }

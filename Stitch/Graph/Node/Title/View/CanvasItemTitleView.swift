@@ -120,8 +120,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
     }
     
     var currentBroadcastChoiceNodeId: NodeId? {
-        nil
-//        self.rowObserver.upstreamOutputCoordinate?.nodeId
+        self.rowObserver.upstreamOutputCoordinate?.nodeId
     }
     
     func updateCurrentBroadcastChoice() {
@@ -159,9 +158,9 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
         .foregroundColor(STITCH_TITLE_FONT_COLOR)
         .menuIndicator(.hidden)
         // Choice logic here for perf
-//        .onChange(of: self.rowObserver.upstreamOutputCoordinate, initial: true) {
-//            self.updateCurrentBroadcastChoice()
-//        }
+        .onChange(of: self.rowObserver.upstreamOutputCoordinate, initial: true) {
+            self.updateCurrentBroadcastChoice()
+        }
         // Broadcaster detection saved here for perf
         .onChange(of: self.choice, initial: true) {
             self.updateBroadcasterNode()

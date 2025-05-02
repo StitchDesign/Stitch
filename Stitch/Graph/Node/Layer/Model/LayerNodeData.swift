@@ -299,7 +299,6 @@ extension LayerInputObserver {
         // This logic is needed to prevent a bug where unpacked mode updates packed observer values despite upstream connection
         switch self.observerMode {
         case .packed(let packedObserver):
-            // MARK: issue is here
             packedObserver.rowObserver.update(from: schema.packedData.inputPort,
                                               layer: self.layer,
                                               inputType: .init(layerInput: layerInputType,

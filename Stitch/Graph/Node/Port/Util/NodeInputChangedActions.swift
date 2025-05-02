@@ -44,7 +44,7 @@ struct InputRemovedAction: GraphEventWithResponse {
            let lastObserver = node.getAllInputsObservers().last {
 
             // Remove connections pointing to the input.
-//            lastObserver.upstreamOutputCoordinate = nil
+            lastObserver.upstreamOutputCoordinate = nil
 
             // Remove the input from the node itself.
             inputChanger(node, false)

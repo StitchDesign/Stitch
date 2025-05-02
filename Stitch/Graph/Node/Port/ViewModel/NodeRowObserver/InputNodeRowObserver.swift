@@ -22,16 +22,19 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
 
     // Connected upstream node, if input
     @MainActor
-    var upstreamOutputCoordinate: NodeIOCoordinate?
+    var upstreamOutputCoordinate: NodeIOCoordinate? {
+        didSet(oldValue) {
+            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
+        }
+    }
     
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
     var upstreamOutputObserver: OutputNodeRowObserver? {
-        nil
-//        guard let graph = self.nodeDelegate?.graphDelegate else {
-//            return nil
-//        }
-//        return self.getUpstreamOutputObserver(graph: graph)
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            return nil
+        }
+        return self.getUpstreamOutputObserver(graph: graph)
     }
     
     // NodeRowObserver holds a reference to its parent, the Node
@@ -44,8 +47,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     @MainActor
     var hasEdge: Bool {
-        false
-//        self.upstreamOutputCoordinate.isDefined
+        self.upstreamOutputCoordinate.isDefined
     }
     
     @MainActor
@@ -60,7 +62,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          id: NodeIOCoordinate,
          upstreamOutputCoordinate: NodeIOCoordinate?) {
         self.id = id
-        // MARK: this also fixes the leak
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
         self.allLoopedValues = values
         self.hasLoopedValues = values.hasLoop
@@ -150,43 +151,42 @@ extension InputNodeRowObserver {
     
     @MainActor
     func didUpstreamOutputCoordinateUpdate(oldValue: NodeIOCoordinate?) {
-//        let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
+        let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
         
-//        guard let _ = self.upstreamOutputCoordinate else {
-//            if let oldUpstreamObserver = self.upstreamOutputObserver {
-//                log("upstreamOutputCoordinate: removing edge")
-//                
-//                // Remove edge data
-//                oldUpstreamObserver.containsDownstreamConnection = false
-//            }
-//            
-//            if coordinateValueChanged {
-//                // Flatten values
-//                let newFlattenedValues = self.allLoopedValues.flattenValues()
-//                self.updateValuesInInput(newFlattenedValues)
-//
-//                // Recalculate node once values update
-//                self.nodeDelegate?.scheduleForNextGraphStep()
-//            }
-//            
-//            return
-//        }
-//        
-//        // Update that upstream observer of new edge
-//        self.upstreamOutputObserver?.containsDownstreamConnection = true
+        guard let _ = self.upstreamOutputCoordinate else {
+            if let oldUpstreamObserver = self.upstreamOutputObserver {
+                log("upstreamOutputCoordinate: removing edge")
+                
+                // Remove edge data
+                oldUpstreamObserver.containsDownstreamConnection = false
+            }
+            
+            if coordinateValueChanged {
+                // Flatten values
+                let newFlattenedValues = self.allLoopedValues.flattenValues()
+                self.updateValuesInInput(newFlattenedValues)
+
+                // Recalculate node once values update
+                self.nodeDelegate?.scheduleForNextGraphStep()
+            }
+            
+            return
+        }
+        
+        // Update that upstream observer of new edge
+        self.upstreamOutputObserver?.containsDownstreamConnection = true
     }
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
     private func getUpstreamOutputObserver(graph: GraphReader) -> OutputNodeRowObserver? {
-        nil
-//        guard let upstreamCoordinate = self.upstreamOutputCoordinate,
-//              let upstreamPortId = upstreamCoordinate.portId else {
-//            return nil
-//        }
-//
-//        // Set current upstream observer
-//        return graph.getNode(upstreamCoordinate.nodeId)?.getOutputRowObserver(for: upstreamPortId)
+        guard let upstreamCoordinate = self.upstreamOutputCoordinate,
+              let upstreamPortId = upstreamCoordinate.portId else {
+            return nil
+        }
+
+        // Set current upstream observer
+        return graph.getNode(upstreamCoordinate.nodeId)?.getOutputRowObserver(for: upstreamPortId)
     }
         
     @MainActor var allRowViewModels: [InputNodeRowViewModel] {
@@ -199,30 +199,30 @@ extension InputNodeRowObserver {
     
     @MainActor
     func buildUpstreamReference() {
-//        guard let connectedOutputObserver = self.upstreamOutputObserver else {
-//            // Upstream values are cached and need to be refreshed if disconnected
-//            if self.upstreamOutputCoordinate != nil {
-//                self.upstreamOutputCoordinate = nil
-//            }
-//            
-//            return
-//        }
-//
-//        //        // Check for connected row observer rather than just setting ID--makes for
-//        //        // a more robust check in ensuring the connection actually exists
-//        //        assertInDebug(
-//        //            connectedOutputObserver.id.portId.flatMap { portId in
-//        //                self.nodeDelegate?
-//        //                    .graphDelegate?
-//        //                // Note: we have to retrieve the node for the upstream output
-//        //                    .getNode(connectedOutputObserver.id.nodeId)?
-//        //                    .getOutputRowObserver(for: portId)
-//        //            }.isDefined
-//        //        )
-//        
-//        // Report to output observer that there's an edge (for port colors)
-//        // We set this to false on default above
-//        connectedOutputObserver.containsDownstreamConnection = true
+        guard let connectedOutputObserver = self.upstreamOutputObserver else {
+            // Upstream values are cached and need to be refreshed if disconnected
+            if self.upstreamOutputCoordinate != nil {
+                self.upstreamOutputCoordinate = nil
+            }
+            
+            return
+        }
+
+        //        // Check for connected row observer rather than just setting ID--makes for
+        //        // a more robust check in ensuring the connection actually exists
+        //        assertInDebug(
+        //            connectedOutputObserver.id.portId.flatMap { portId in
+        //                self.nodeDelegate?
+        //                    .graphDelegate?
+        //                // Note: we have to retrieve the node for the upstream output
+        //                    .getNode(connectedOutputObserver.id.nodeId)?
+        //                    .getOutputRowObserver(for: portId)
+        //            }.isDefined
+        //        )
+        
+        // Report to output observer that there's an edge (for port colors)
+        // We set this to false on default above
+        connectedOutputObserver.containsDownstreamConnection = true
     }
 }
 

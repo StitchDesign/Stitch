@@ -79,7 +79,7 @@ extension InputNodeRowObserver {
         }
         
         // Removes connection--important to do this after media handling above
-//        self.upstreamOutputCoordinate = nil
+        self.upstreamOutputCoordinate = nil
     }
 }
 
@@ -135,13 +135,13 @@ extension GraphState {
 
         // TODO: are we sure we want to do this?
         // Runs logic to disconnect existing media connected by edge
-//        if downstreamInputObserver.upstreamOutputCoordinate != nil,
-//           let downstreamInputObserverNode = self.getNode(downstreamInputObserver.id.nodeId) {
-//            downstreamInputObserver.removeUpstreamConnection(node: downstreamInputObserverNode)
-//        }
+        if downstreamInputObserver.upstreamOutputCoordinate != nil,
+           let downstreamInputObserverNode = self.getNode(downstreamInputObserver.id.nodeId) {
+            downstreamInputObserver.removeUpstreamConnection(node: downstreamInputObserverNode)
+        }
         
         // Sets edge
-//        downstreamInputObserver.upstreamOutputCoordinate = edge.from
+        downstreamInputObserver.upstreamOutputCoordinate = edge.from
 
         // If the downstream observer is a pulse-type, we must manually flow the values down when edge first created,
         // since pulse inputs are skipped whenever the upstream output's values "did not change"

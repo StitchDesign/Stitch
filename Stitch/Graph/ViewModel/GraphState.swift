@@ -411,27 +411,27 @@ extension GraphState {
             .flatMap { canvasItem -> [InputNodeRowViewModel] in
                 canvasItem.inputViewModels
             }
-        return []
-//        let connectedInputs: [InputNodeRowViewModel] = newInputs.filter { input in
-//            guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
-//                return false
-//            }
-//            return input.rowDelegate?.containsUpstreamConnection ?? false
-//        }
-//        
-//        return connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
-//            
-//            guard let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
-//                  let upstreamOutputPortUIViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.portUIViewModel,
-//                  let upstreamCanvasItem: CanvasItemViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate else {
-//                // log("no connected edge data for downstreamInput \(downstreamInput.id)")
-//                return nil
-//            }
-//            
-//            return ConnectedEdgeData(upstreamCanvasItem: upstreamCanvasItem,
-//                                     upstreamOutputPortUIViewModel: upstreamOutputPortUIViewModel,
-//                                     downstreamInput: downstreamInput)
-//        }
+        
+        let connectedInputs: [InputNodeRowViewModel] = newInputs.filter { input in
+            guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+                return false
+            }
+            return input.rowDelegate?.containsUpstreamConnection ?? false
+        }
+        
+        return connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
+            
+            guard let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
+                  let upstreamOutputPortUIViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.portUIViewModel,
+                  let upstreamCanvasItem: CanvasItemViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate else {
+                // log("no connected edge data for downstreamInput \(downstreamInput.id)")
+                return nil
+            }
+            
+            return ConnectedEdgeData(upstreamCanvasItem: upstreamCanvasItem,
+                                     upstreamOutputPortUIViewModel: upstreamOutputPortUIViewModel,
+                                     downstreamInput: downstreamInput)
+        }
     }
 }
 

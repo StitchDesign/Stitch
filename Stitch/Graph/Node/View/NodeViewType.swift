@@ -79,7 +79,7 @@ struct DefaultNodeInputsView: View {
                        canvasItemId: canvas.id,
                        rowObserver: rowObserver,
                        isCanvasItemSelected: isNodeSelected,
-                       hasIncomingEdge: false,// rowObserver.upstreamOutputCoordinate.isDefined,
+                       hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
                        isForLayerInspector: false,
                        isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
                        isFieldInMultifieldInput: isMultiField,
