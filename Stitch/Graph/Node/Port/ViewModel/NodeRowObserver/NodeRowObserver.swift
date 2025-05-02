@@ -208,7 +208,7 @@ extension NodeRowObserver {
             self.allLoopedValues
         }
         set(newValue) {
-            self.allLoopedValues = newValue
+//            self.allLoopedValues = newValue
         }
     }
     

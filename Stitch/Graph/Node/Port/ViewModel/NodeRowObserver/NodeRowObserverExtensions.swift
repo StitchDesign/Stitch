@@ -21,7 +21,7 @@ extension NodeRowObserver {
                                 selectedCanvasItems: CanvasItemIdSet,
                                 drawingObserver: EdgeDrawingObserver) {
         
-        self.allLoopedValues = newValues
+//        self.allLoopedValues = newValues
         
         // Always update "hasLoop", since offscreen node may have an onscreen edge.
         let hasLoop = newValues.hasLoop
