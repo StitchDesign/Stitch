@@ -52,6 +52,7 @@ func switchEval(node: PatchNode,
     }
 }
 
+@MainActor
 func switchOpClosure(values: PortValues,
                      graphTime: TimeInterval,
                      computedState: ComputedNodeState) -> PortValue {

@@ -63,6 +63,7 @@ func counterEval(node: PatchNode,
     }
 }
 
+@MainActor
 func counterOpClosure(values: PortValues,
                       graphTime: TimeInterval,
                       computedState: ComputedNodeState) -> PortValue {

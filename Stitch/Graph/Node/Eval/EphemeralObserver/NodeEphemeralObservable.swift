@@ -31,7 +31,9 @@ extension NodeEphemeralObservable {
                          kind: NodeKind) { }
 }
 
-final class ComputedNodeState: NodeEphemeralObservable {
+final class ComputedNodeState: NodeEphemeralObservable, NodeEphemeralOutputPersistence {
+    static let outputIndexToSave = 0
+    
     // starts out empty when node has not yet been run;
     // filled every time we coerce- or parse-update
     var previousValue: PortValue?
@@ -56,7 +58,15 @@ final class ComputedNodeState: NodeEphemeralObservable {
     var sampleRangeState: SampleRangeComputedState?
 }
 
+protocol NodeEphemeralOutputPersistence: NodeEphemeralObservable {
+    
+    @MainActor var previousValue: PortValue? { get set }
+    
+    static var outputIndexToSave: Int { get }
+}
+
 extension ComputedNodeState {
+    @MainActor
     func onPrototypeRestart(document: StitchDocumentViewModel) {
         self.previousValue = nil
         self.preservedValues = .init()
