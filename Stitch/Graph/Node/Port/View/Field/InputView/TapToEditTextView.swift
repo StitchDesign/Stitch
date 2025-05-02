@@ -27,13 +27,7 @@ struct TapToEditTextView: View {
     @Bindable var document: StitchDocumentViewModel
     
     @Bindable var inputField: InputFieldViewModel
-    
-    // TODO: isn't this always just `inputField.fieldValue.stringValue` ?
-//    let inputString: String
-    var inputString: String {
-        inputField.fieldValue.stringValue
-    }
-    
+        
     let fieldWidth: CGFloat
                 
     // Only for field-types that use a "TextField + Dropdown" view,
@@ -59,6 +53,10 @@ struct TapToEditTextView: View {
     
     var onReadOnlyTap: () -> Void
         
+    var inputString: String {
+        inputField.fieldValue.stringValue
+    }
+    
     var rowId: NodeRowViewModelId {
         inputField.id.rowId
     }
