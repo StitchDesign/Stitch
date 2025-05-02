@@ -376,7 +376,7 @@ extension VisibleNodesViewModel {
         // Fixes issues where new rows don't have port locations
         for node in self.nodes.values {
             // NOTE: what about layer canvas inputs' ?
-            node.patchCanvasItem?.updateAnchorPoints()
+            node.nonLayerCanvasItem?.updateAnchorPoints()
         }
     }
 }

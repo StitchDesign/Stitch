@@ -196,12 +196,13 @@ extension NodeViewModel {
             }
         
         case .group, .component:
-            return self.patchCanvasItem
+            return self.nonLayerCanvasItem
         }
     }
     
+    // fka `patchCanvasItem`, but was ambiguous between "Patch-only" vs "non-Layer (i.e. Patch or Group or Component)"
     @MainActor
-    var patchCanvasItem: CanvasItemViewModel? {
+    var nonLayerCanvasItem: CanvasItemViewModel? {
         switch nodeType {
         case .patch(let patchNode):
             return patchNode.canvasObserver

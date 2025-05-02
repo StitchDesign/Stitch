@@ -18,6 +18,25 @@ func curry<A, B, C>(_ function: @escaping (A, B) -> C) -> (A) -> (B) -> C {
     return { a in { b in function(a, b) } }
 }
 
+func flip<A, B, C>(_ f: @escaping (A) -> (B) -> C) -> (B) -> (A) -> C {
+    return { b in { a in f(a)(b) } }
+}
+
+func pipe<A, B>(_ f: @escaping (A) -> B) -> (A) -> B {
+    return f
+}
+
+func pipe<A, B, C>(_ f: @escaping (A) -> B,
+                   _ g: @escaping (B) -> C) -> (A) -> C {
+    return { g(f($0)) }
+}
+
+func pipe<A, B, C, D>(_ f: @escaping (A) -> B,
+                      _ g: @escaping (B) -> C,
+                      _ h: @escaping (C) -> D) -> (A) -> D {
+    return { h(g(f($0))) }
+}
+
 /* ----------------------------------------------------------------
  Helper functions
  ---------------------------------------------------------------- */

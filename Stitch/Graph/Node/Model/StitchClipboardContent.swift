@@ -18,7 +18,7 @@ struct StitchClipboardContent: StitchComponentable, StitchDocumentEncodable {
     static let dataJsonName = StitchDocument.graphDataFileName
     static let subfolders: [StitchEncodableSubfolder] = StitchEncodableSubfolder.allCases
     
-    var graph: GraphEntity
+    var graphEntity: GraphEntity
 }
 
 extension StitchClipboardContent {
@@ -29,7 +29,7 @@ extension StitchClipboardContent {
     }
     
     init() {
-        self.init(graph: .createEmpty())
+        self.init(graphEntity: .createEmpty())
     }
     var rootUrl: URL {
         Self.rootUrl
