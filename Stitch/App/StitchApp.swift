@@ -38,7 +38,9 @@ struct StitchApp: App {
                         options.debug = false
                     }
                     
+                    #if !DEBUG
                     FirebaseApp.configure()
+                    #endif
 
                     // Close mac sharing window in case open
                     #if targetEnvironment(macCatalyst)
