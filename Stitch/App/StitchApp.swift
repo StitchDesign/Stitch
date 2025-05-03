@@ -38,7 +38,7 @@ struct StitchApp: App {
                         options.debug = false
                     }
                     
-                    #if !DEBUG
+                    #if RELEASE
                     do {
                         FirebaseApp.configure()
                     } catch {
