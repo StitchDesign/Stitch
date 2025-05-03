@@ -14,10 +14,32 @@ import FirebaseAnalytics
 @main @MainActor
 struct StitchApp: App {
     @Environment(\.dismissWindow) private var dismissWindow
-
-    @State private var store = StitchStore()
     
     // MARK: VERY important to pass the store StateObject into each view for perf
+    @State private var store = StitchStore()
+    
+    private static var isFirebaseConfigValid: Bool {
+        guard
+            let url = Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist"),
+            let options = FirebaseOptions(contentsOfFile: url.path)
+        else { return false }
+
+        return [
+            options.apiKey?.isEmpty,
+            options.googleAppID.isEmpty,
+            options.projectID?.isEmpty
+        ].allSatisfy { $0 == false }
+    }
+    
+    private static func configureFirebaseIfPossible() {
+        guard FirebaseApp.app() == nil else { return }
+        guard isFirebaseConfigValid else {
+            print("⚠️  Firebase configuration skipped – incomplete GoogleService-Info.plist")
+            return
+        }
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             // iPad uses StitchRouter to use the project zoom in/out animation
@@ -38,7 +60,9 @@ struct StitchApp: App {
                         options.debug = false
                     }
                     
-                    FirebaseApp.configure()
+                    #if !DEBUG
+                    Self.configureFirebaseIfPossible()
+                    #endif
 
                     // Close mac sharing window in case open
                     #if targetEnvironment(macCatalyst)
