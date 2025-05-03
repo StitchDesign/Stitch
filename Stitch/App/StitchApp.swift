@@ -39,7 +39,11 @@ struct StitchApp: App {
                     }
                     
                     #if !DEBUG
-                    FirebaseApp.configure()
+                    do {
+                        FirebaseApp.configure()
+                    } catch {
+                        print("Failed to configure Firebase: \(error). ")
+                    }
                     #endif
 
                     // Close mac sharing window in case open
