@@ -87,16 +87,21 @@ extension NodeViewModelType {
             patchNodeViewModel.initializeDelegate(node,
                                                   graph: graph,
                                                   activeIndex: activeIndex)
+        
         case .layer(let layerNodeViewModel):
             layerNodeViewModel.initializeDelegate(node,
                                                   graph: graph,
                                                   activeIndex: activeIndex)
+            
         case .group(let canvasItemViewModel):
-            canvasItemViewModel.initializeDelegate(node,
-                                                   activeIndex: activeIndex,
-                                                   // Not relevant
-                                                   unpackedPortParentFieldGroupType: nil,
-                                                   unpackedPortIndex: nil)
+            canvasItemViewModel.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+                node,
+                activeIndex: activeIndex,
+                // Not relevant
+                unpackedPortParentFieldGroupType: nil,
+                unpackedPortIndex: nil,
+                graph: graph)
+            
         case .component(let componentViewModel):
             componentViewModel.initializeDelegate(node: node,
                                                   components: components,

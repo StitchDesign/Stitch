@@ -134,11 +134,21 @@ extension NodeViewModel {
     @MainActor
     func initializeDelegate(graph: GraphState,
                             document: StitchDocumentViewModel) {
+        self.assignReferences(graph: graph, document: document)
+        self.syncEphemeralObservers()
+    }
+    
+    @MainActor
+    func assignReferences(graph: GraphState,
+                          document: StitchDocumentViewModel) {
+        
+        // Assign reference to self
         self.graphDelegate = graph
+        
+        // Assign reference to node sub-type: Patch vs Layer vs ...
         self.nodeType.initializeDelegate(self,
                                          components: graph.components,
                                          document: document)
-        self.syncEphemeralObservers()
     }
     
     @MainActor
@@ -656,14 +666,17 @@ extension NodeViewModel {
         patchNode.inputsObservers.append(newInputObserver)
         patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
         
-        // Assign delegates once view models are assigned to node
-        newInputObserver.initializeDelegate(self, graph: graph)
-        newInputViewModel.initializeDelegate(
-            self,
-            initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
-            // Only relevant for layer nodes, which cannot have an input added or removed
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil)
+        // TODO: should no longer be necessary ? should be handled by `updateGraphData` call ?
+        graph.updateGraphData(document)
+//
+//        // Assign delegates once view models are assigned to node
+//        newInputObserver.initializeDelegate(self, graph: graph)
+//        newInputViewModel.initializeDelegate(
+//            self,
+//            initialValue: newInputObserver.getActiveValue(activeIndex: document.activeIndex),
+//            // Only relevant for layer nodes, which cannot have an input added or removed
+//            unpackedPortParentFieldGroupType: nil,
+//            unpackedPortIndex: nil)
     }
 
     @MainActor
