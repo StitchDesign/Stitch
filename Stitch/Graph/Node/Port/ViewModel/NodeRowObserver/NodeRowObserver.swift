@@ -176,7 +176,19 @@ extension NodeRowObserver {
     
     @MainActor
     func initializeDelegate(_ node: NodeViewModel, graph: GraphState) {
+        self.assignReferences(node)
+        
+        // TODO: why are we calling `post-processing` here ? is it for initialization -- or is it for "we had some schema update, so refresh xyz" ?
+        self.processPortChangeAndUpdateCachedPortColor(graph: graph)
+    }
+    
+    @MainActor
+    func assignReferences(_ node: NodeViewModel) {
         self.nodeDelegate = node
+    }
+    
+    @MainActor
+    func processPortChangeAndUpdateCachedPortColor(graph: GraphState) {
         
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {

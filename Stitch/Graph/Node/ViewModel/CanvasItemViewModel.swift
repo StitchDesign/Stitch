@@ -214,10 +214,11 @@ extension CanvasItemViewModel {
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         
-        self.nodeDelegate = node
+        self.assignReferences(node: node)
         
         self.inputViewModels.forEach {
             // Note: assumes the row view model as already have its underlying row observer delegate assigned
+            // TODO: can we pass down graph and retrieve the relevant row observer, so we don't rely on the assumption that we've set the row-observer delegate already ? Careful: row view model's row observer might be for a different one than the id that's specified ?
             if let rowObserver = $0.rowDelegate {
                 $0.initializeDelegate(
                     node,
@@ -240,6 +241,11 @@ extension CanvasItemViewModel {
         
         // Reset cache data--fixes scenarios like undo
 //        self.viewCache?.needsUpdating = true
+    }
+    
+    @MainActor
+    func assignReferences(node: NodeViewModel) {
+        self.nodeDelegate = node
     }
 
     @MainActor

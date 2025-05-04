@@ -180,10 +180,12 @@ extension StitchComponentViewModel {
         }
         
         self.componentDelegate = masterComponent
+        
         self.canvas.initializeDelegate(node,
                                        activeIndex: document.activeIndex,
                                        unpackedPortParentFieldGroupType: nil,
                                        unpackedPortIndex: nil)
+        
         self.graph.initializeDelegate(document: document,
                                       documentEncoderDelegate: masterComponent.encoder)
         

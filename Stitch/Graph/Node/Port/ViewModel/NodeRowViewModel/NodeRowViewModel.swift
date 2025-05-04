@@ -77,9 +77,23 @@ extension NodeRowViewModel {
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
         
-        // Why must we set the delegate
-        self.nodeDelegate = node
+        self.assignReferences(node: node)
         
+        self.initializeFieldGroupsIfEmptyAndUpdatePortAddress(
+            initialValue: initialValue,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex)
+    }
+    
+    @MainActor
+    func assignReferences(node: NodeViewModel) {
+        self.nodeDelegate = node
+    }
+    
+    @MainActor
+    func initializeFieldGroupsIfEmptyAndUpdatePortAddress(initialValue: PortValue,
+                                                          unpackedPortParentFieldGroupType: FieldGroupType?,
+                                                          unpackedPortIndex: Int?) {
         if self.cachedFieldGroups.isEmpty {
             self.initializeValues(
                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
