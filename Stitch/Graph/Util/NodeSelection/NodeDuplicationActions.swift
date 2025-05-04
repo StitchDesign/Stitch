@@ -412,7 +412,7 @@ extension GraphState {
                 switch nodeEntity.nodeTypeEntity {
                     
                 case .patch, .group, .component:
-                    if let canvasItem = self.getNodeViewModel(nodeEntity.id)?.nonLayerCanvasItem {
+                    if let canvasItem = self.getNode(nodeEntity.id)?.nonLayerCanvasItem {
                         self.selectCanvasItem(canvasItem.id)
                     }
                     

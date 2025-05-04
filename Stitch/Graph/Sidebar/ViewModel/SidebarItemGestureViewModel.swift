@@ -99,7 +99,7 @@ extension SidebarItemGestureViewModel {
     }
     
     @MainActor var name: String {
-        self.graphDelegate?.getNodeViewModel(self.id)?.getDisplayTitle() ?? ""
+        self.graphDelegate?.getNode(self.id)?.getDisplayTitle() ?? ""
     }
     
     @MainActor var layerFullName: String {
@@ -119,7 +119,7 @@ extension SidebarItemGestureViewModel {
     func didLabelEdit(to newString: String,
                       isCommitting: Bool,
                       graph: GraphState) {
-        guard let node = graph.getNodeViewModel(self.id) else {
+        guard let node = graph.getNode(self.id) else {
             fatalErrorIfDebug()
             return
         }

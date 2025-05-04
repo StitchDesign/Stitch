@@ -217,7 +217,7 @@ extension CanvasItemViewModel {
         self.nodeDelegate = node
         
         self.inputViewModels.forEach {
-            // Note: assumes the row view model as already have its underling row observer delegate assigned
+            // Note: assumes the row view model as already have its underlying row observer delegate assigned
             if let rowObserver = $0.rowDelegate {
                 $0.initializeDelegate(
                     node,

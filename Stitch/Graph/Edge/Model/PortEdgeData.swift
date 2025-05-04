@@ -50,7 +50,7 @@ extension NodeIOCoordinate {
             return .node(self.nodeId)
         }
         
-        let isLayer = graph.getNodeViewModel(self.nodeId)?.kind.isLayer ?? false
+        let isLayer = graph.getNode(self.nodeId)?.kind.isLayer ?? false
         
         if isLayer {
             return .layerOutput(LayerOutputCoordinate(node: self.nodeId,

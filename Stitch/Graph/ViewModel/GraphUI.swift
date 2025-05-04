@@ -114,7 +114,7 @@ extension GraphState {
     func getSelectedNodeEntities(for ids: NodeIdSet) -> [NodeEntity] {
         ids.flatMap { (nodeId: NodeId) -> [NodeEntity] in
                         
-            guard let stitchViewModel: NodeViewModel = self.getNodeViewModel(nodeId) else {
+            guard let stitchViewModel: NodeViewModel = self.getNode(nodeId) else {
                 return []
             }
             
@@ -143,7 +143,7 @@ extension GraphState {
                 let allNestedChildren: [NodeEntity] = sidebarChildrenData.flattenedItems
                     .map(\.id)
                     .compactMap { id in
-                        guard let node = self.getNodeViewModel(id) else {
+                        guard let node = self.getNode(id) else {
                             fatalErrorIfDebug()
                             return nil
                         }

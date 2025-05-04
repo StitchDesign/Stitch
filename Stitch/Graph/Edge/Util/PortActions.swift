@@ -97,7 +97,7 @@ extension GraphState {
     
     @MainActor
     func removeEdgeAt(input: InputCoordinate) {
-        guard let downstreamNode = self.getNodeViewModel(input.nodeId) else {
+        guard let downstreamNode = self.getNode(input.nodeId) else {
             return
         }
 

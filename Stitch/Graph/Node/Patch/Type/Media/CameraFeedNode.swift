@@ -87,7 +87,7 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 func createCameraFeedManager(document: StitchDocumentViewModel,
                              graph: GraphState,
                              nodeId: NodeId) {
-    let _node = graph.getNodeViewModel(nodeId)
+    let _node = graph.getNode(nodeId)
     
     // breaks test
 //    assertInDebug(_node != nil)

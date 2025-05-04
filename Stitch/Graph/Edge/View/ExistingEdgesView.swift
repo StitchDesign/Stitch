@@ -28,7 +28,7 @@ struct GraphConnectedEdgesView: View {
     }
     
     var body: some View {
-        ForEach(graph.connectedEdges) { (edgeData: ConnectedEdgeData) in
+        ForEach(graph.cachedConnectedEdges) { (edgeData: ConnectedEdgeData) in
             // Filter out animated edges enables keyboard shortcut animation
             if !self.isEdgeAnimating(edgeData) {
                 ConnectedEdgeView(data: edgeData,

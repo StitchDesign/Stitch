@@ -258,7 +258,7 @@ extension StitchDocumentViewModel {
         // Save node positions
         self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
             if let action = action as? StepActionAddNode,
-               let node = graph.getNodeViewModel(action.nodeId) {
+               let node = graph.getNode(action.nodeId) {
                 let canvasItems = node.getAllCanvasObservers()
 
                 canvasItems.forEach { canvasItem in
@@ -333,7 +333,7 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
         // and adjust their positions
         let createdNodesAtThisLevel = createdNodes.compactMap {
             if depthMap.get($0) == depthLevel {
-                return nodes.getViewModel($0)
+                return nodes.getNode($0)
             }
             log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
             return nil

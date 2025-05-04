@@ -25,6 +25,8 @@ protocol GraphReader {
     
     @MainActor func getOutputRowObserver(_ id: OutputCoordinate) -> OutputNodeRowObserver?
     
+    @MainActor var nodes: NodesViewModelDict { get }
+    
     @MainActor func layerNodes() -> LayerNodes
     
     @MainActor func layerNodesDict() -> LayerNodesDict

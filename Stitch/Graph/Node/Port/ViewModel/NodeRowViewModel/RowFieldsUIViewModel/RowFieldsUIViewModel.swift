@@ -34,7 +34,7 @@ extension InputNodeRowViewModel {
         }
     }
     
-    @MainActor var cachedFieldValueGroups: [FieldGroup] {
+    @MainActor var cachedFieldGroups: [FieldGroup] {
         get {
             self.fieldsUIViewModel.cachedFieldValueGroups
         } set(newValue) {
@@ -53,7 +53,7 @@ extension OutputNodeRowViewModel {
         }
     }
     
-    @MainActor var cachedFieldValueGroups: [FieldGroup] {
+    @MainActor var cachedFieldGroups: [FieldGroup] {
         get {
             self.fieldsUIViewModel.cachedFieldValueGroups
         } set(newValue) {
