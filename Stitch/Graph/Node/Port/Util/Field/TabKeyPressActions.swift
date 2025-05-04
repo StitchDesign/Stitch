@@ -75,8 +75,8 @@ extension Array where Element: InputNodeRowViewModel {
                 
                 // Note: PortValue.ShapeCommand is an interesting case where we have multiple field-groupings; the first field-grouping is just the dropdown, and then second is for the actual x-y fields
                 guard let fields = (input.cachedActiveValue.shapeCommand.isDefined
-                                    ?  input.cachedFieldValueGroups[safe: 1]?.fieldObservers
-                                    : input.cachedFieldValueGroups.first?.fieldObservers) else {
+                                    ?  input.cachedFieldGroups[safe: 1]?.fieldObservers
+                                    : input.cachedFieldGroups.first?.fieldObservers) else {
                     return []
                 }
 
@@ -348,7 +348,7 @@ extension LayerNodeViewModel {
         let port = self[keyPath: key.layerNodeKeyPath]
         
         return port.allInputData.flatMap { inputData in
-            inputData.inspectorRowViewModel.cachedFieldValueGroups.flatMap {
+            inputData.inspectorRowViewModel.cachedFieldGroups.flatMap {
                 $0.fieldObservers
             }
         }
@@ -468,6 +468,6 @@ extension NodeRowViewModel {
         // but this is [[field]] ?
         // is that because at one point we thought an input could have multiple rows?
         // Yeah, seems so.
-        (self.cachedFieldValueGroups.first?.fieldObservers.count ?? 1) - 1
+        (self.cachedFieldGroups.first?.fieldObservers.count ?? 1) - 1
     }
 }

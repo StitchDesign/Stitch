@@ -16,7 +16,7 @@ struct InputAddedAction: GraphEventWithResponse {
     func handle(state: GraphState) -> GraphResponse {
         log("InputAddedAction handle called")
 
-        if let node = state.getNodeViewModel(nodeId),
+        if let node = state.getNode(nodeId),
            let inputChanger = node.kind.getPatch?.inputCountChanged {
 
             // (node: node, added?: true)
@@ -38,7 +38,7 @@ struct InputRemovedAction: GraphEventWithResponse {
     func handle(state: GraphState) -> GraphResponse {
         log("InputRemovedAction handle called")
 
-        if let node = state.getNodeViewModel(nodeId),
+        if let node = state.getNode(nodeId),
            let inputChanger = node.kind.getPatch?.inputCountChanged,
            // It's always the last input that is removed.
            let lastObserver = node.getAllInputsObservers().last {

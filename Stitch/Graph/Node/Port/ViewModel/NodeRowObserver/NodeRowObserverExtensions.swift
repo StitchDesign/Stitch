@@ -159,7 +159,7 @@ func getLabelForRowObserver(useShortLabel: Bool = false,
      */
     if node.kind == .group {
         // Cached values which get underlying splitter node's title
-        guard let labelFromSplitter = graph.groupPortLabels.get(coordinate) else {
+        guard let labelFromSplitter = graph.cachedGroupPortLabels.get(coordinate) else {
             // Could be loading initially
 //                fatalErrorIfDebug()
             return ""

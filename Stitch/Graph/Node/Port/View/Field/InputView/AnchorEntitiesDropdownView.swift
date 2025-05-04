@@ -77,7 +77,7 @@ struct AnchorEntitiesDropdownView: View {
         // Ah, the idea is, wge
         .onChange(of: self.value, initial: true) { oldValue, newValue in
             guard let anchorEntityNodeId = newValue.anchorEntity,
-                  let node = self.graph.getNodeViewModel(anchorEntityNodeId) else {
+                  let node = self.graph.getNode(anchorEntityNodeId) else {
                 self.selection = .none
                 return
             }

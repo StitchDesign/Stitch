@@ -215,7 +215,7 @@ extension LayerInputObserver {
     @MainActor
     var fieldGroupsFromInspectorRowViewModels: [FieldGroup] {
         let allFields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
-            portData.inspectorRowViewModel.cachedFieldValueGroups
+            portData.inspectorRowViewModel.cachedFieldGroups
         }
         
         switch self.mode {
@@ -232,7 +232,7 @@ extension LayerInputObserver {
             // Groupings are gone in unpacked mode so we just need the fields
             let flattenedFields = allFields.flatMap { $0.fieldObservers }
             
-            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.cachedFieldValueGroups
+            let fieldGroupsFromPacked = self._packedData.inspectorRowViewModel.cachedFieldGroups
             
             // Create nested array for label groupings (used for 3D model)
             return groupings.enumerated().map { fieldGroupIndex, labelData in
@@ -404,7 +404,7 @@ extension LayerInputObserver {
                 
         let graph = document.visibleGraph
         
-        guard let node = graph.getNodeViewModel(self.nodeId),
+        guard let node = graph.getNode(self.nodeId),
               let layerNode = node.layerNode else {
             fatalErrorIfDebug()
             return

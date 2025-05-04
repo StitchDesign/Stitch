@@ -17,7 +17,7 @@ extension GraphState {
                                  value: PortValue?,
                                  activeIndex: ActiveIndex) {
         
-        guard let node = self.getNodeViewModel(input.nodeId),
+        guard let node = self.getNode(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
             log("mediaInputEditCommitted: node or input missing?: input: \(input)")
             return
@@ -48,7 +48,7 @@ extension GraphState {
                                   activeIndex: ActiveIndex,
                                   isFieldInsideLayerInspector: Bool,
                                   wasAdjustmentBarSelection: Bool = false) {
-        guard let node = self.getNodeViewModel(input.nodeId),
+        guard let node = self.getNode(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
             fatalErrorIfDebug()
             return

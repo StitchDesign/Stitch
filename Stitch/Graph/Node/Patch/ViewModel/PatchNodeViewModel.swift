@@ -147,8 +147,6 @@ extension PatchNodeViewModel {
             $0.initializeDelegate(node, graph: graph)
         }
         
-        // Assign weak for group canvas if group splitter node
-        
         self.canvasObserver.initializeDelegate(node,
                                                activeIndex: activeIndex,
                                                unpackedPortParentFieldGroupType: nil,

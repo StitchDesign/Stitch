@@ -28,7 +28,7 @@ final class StitchMasterComponent: Sendable {
         self.parentGraph = parentGraph
         
         if let parentGraph = parentGraph {
-            self.initializeDelegate(parentGraph: parentGraph)
+            self.assignReferences(parentGraph: parentGraph)
         }
     }
 }
@@ -56,7 +56,8 @@ extension StitchMasterComponent {
     
     func onPrototypeRestart(document: StitchDocumentViewModel) { }
     
-    @MainActor func initializeDelegate(parentGraph: GraphState) {
+    // fka `initializeDelegate`
+    @MainActor func assignReferences(parentGraph: GraphState) {
         self.parentGraph = parentGraph
         self.encoder.delegate = self
     }

@@ -81,7 +81,7 @@ final class GraphState: Sendable {
     // Tracks IDs for rows that need to be updated for the view. Cached here for perf so we can throttle view updates.
     @MainActor var portsToUpdate: NodePortCacheSet = .init()
     
-    @MainActor var visibleCanvasNodes: [CanvasItemViewModel] = .init()
+    @MainActor var cachedCanvasItemsAtThisTraversalLevel: [CanvasItemViewModel] = .init()
     
     // Set true / non-nil in methods or action handlers
     // Set false / nil in StitchUIScrollView
@@ -115,10 +115,10 @@ final class GraphState: Sendable {
     @MainActor var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
     
     // Tracks labels for group ports for perf
-    @MainActor var groupPortLabels = [Coordinate : String]()
+    @MainActor var cachedGroupPortLabels = [Coordinate : String]()
     
     // Visual edge data
-    @MainActor var connectedEdges = [ConnectedEdgeData]()
+    @MainActor var cachedConnectedEdges = [ConnectedEdgeData]()
     
     @MainActor var lastEncodedDocument: GraphEntity
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
@@ -196,53 +196,61 @@ extension GraphState {
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
         
-        self.layersSidebarViewModel.initializeDelegate(graph: self)
+        self.layersSidebarViewModel.assignReferences(graph: self)
         
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }
         
-        // Set up component graphs
-        self.components.values.forEach {
-            $0.initializeDelegate(parentGraph: self)
-        }
+        self.components.values.forEach { $0.assignReferences(parentGraph: self) }
         
         self.updateTopologicalData()
 
-        // Splitter data
-        var allGroupIds: [NodeId?] = self.nodes.values
-            .compactMap { node in
-                if node.kind.isGroup {
-                    return node.id
-                }
-                
-                return nil
-            }
+        let activeIndex = document.activeIndex
         
-        // add nil case
-        allGroupIds.append(nil)
+        // Note: this is not *just* ui-cache
+        self.refreshUICache(activeIndex: activeIndex,
+                            focusedGroupNode: document.groupNodeFocused?.groupNodeId,
+                            documentZoom: document.graphMovement.zoomData,
+                            documentFrame: document.frame,
+                            llmRecordingMode: document.llmRecording.mode)
         
-        self.visibleNodesViewModel
-            .visibleSplitterInputRows = allGroupIds.reduce(into: .init()) { result, groupId in
-                let inputs = self.visibleNodesViewModel.getSplitterInputRowObservers(for: groupId)
-                result.updateValue(inputs, forKey: groupId)
-            }
-        self.visibleNodesViewModel
-            .visibleSplitterOutputRows = allGroupIds.reduce(into: .init()) { result, groupId in
-                let outputs = self.visibleNodesViewModel.getSplitterOutputRowObservers(for: groupId)
-                result.updateValue(outputs, forKey: groupId)
-            }
+        guard !document.isDebugMode else {
+            // If we've opened the project in debug mode,
+            // update all fields (since graph eval is skipped)
+            // and exit early.
+            self.updatePortViews()
+            return
+        }
+        
+        // Update preview window contents
+        self.updateOrderedPreviewLayers(activeIndex: activeIndex)
+        
+        // Calculate graph
+        self.initializeGraphComputation()
+    }
+    
+    @MainActor
+    func refreshUICache(activeIndex: ActiveIndex,
+                        focusedGroupNode: NodeId?,
+                        documentZoom: CGFloat,
+                        documentFrame: CGRect,
+                        llmRecordingMode: LLMRecordingMode) {
+        
+        self.updateVisibleSplitterNodesCache()
         
         self.visibleNodesViewModel.updateNodesPagingDict(
-            documentZoomData: document.graphMovement.zoomData,
-            documentFrame: document.frame)
+            documentZoomData: documentZoom,
+            documentFrame: documentFrame)
         
         self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
-        self.visibleNodesViewModel.syncRowViewModels(activeIndex: document.activeIndex, graph: self)
+                
+        syncRowViewModels(activeIndex: activeIndex, graph: self)
         
         /// Updates port colors and port colors' cached data (connected-canvas-items)
         self.visibleNodesViewModel.nodes.values.forEach { node in
             // Update cache first:
             node.updateObserversConnectedItemsCache()
+            
             // Then calculate port colors:
             node.updateObserversPortColorsAndConnectedItemsPortColors(
                 selectedEdges: self.selectedEdges,
@@ -250,38 +258,60 @@ extension GraphState {
                 drawingObserver: self.edgeDrawingObserver)
         }
         
-        
         // Update edges after everything else
-        let newEdges = self.getVisualEdgeData(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
+        self.updateConnectedEdgesCache(focusedGroupNode: focusedGroupNode,
+                                       llmRecordingMode: llmRecordingMode)
+
+        // Update labels for group nodes
+        self.updateGroupPortLabelsCache()
+        
+        // Update visible canvas items
+        self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+            groupNodeFocused: focusedGroupNode)
+    }
+
+    @MainActor
+    func updateVisibleSplitterNodesCache() {
+        // Splitter data
+        let allGroupIds: [NodeId?] = self.nodes.values.compactMap { $0.kind.isGroup ? $0.id : nil }
+        // add the nil case
+        + [nil]
+        
+        self.visibleNodesViewModel.cachedVisibleSplitterInputRows = allGroupIds.reduce(into: .init()) { result, groupId in
+            result.updateValue(getSplitterInputRowObservers(for: groupId, from: self),
+                               forKey: groupId)
+        }
+        
+        self.visibleNodesViewModel.cachedVisibleSplitterOutputRows = allGroupIds.reduce(into: .init()) { result, groupId in
+            result.updateValue(getSplitterOutputRowObservers(for: groupId, from: self),
+                               forKey: groupId)
+        }
+    }
+    
+    @MainActor
+    func updateConnectedEdgesCache(focusedGroupNode: NodeId?,
+                                   llmRecordingMode: LLMRecordingMode) {
+        
+        
+        let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)
 
         // HOT FIX: when we reapply llm-actions, the old and new connected edges are equal per ConnectedEdge's == implementation,
         // so we don't re-render GraphConnectedEdgesView even though the input row view model's port color changed.
         // TODO: why is non-AI-augmentation mode okay here? This is the only place we change graph.connectedEdges, so `getVisualEdgeData` must be producing something different?
-        if document.llmRecording.mode == .augmentation {
-            self.connectedEdges = newEdges
+        if llmRecordingMode == .augmentation {
+            self.cachedConnectedEdges = newEdges
         } else {
-            if self.connectedEdges != newEdges {
-                self.connectedEdges = newEdges
+            if self.cachedConnectedEdges != newEdges {
+                self.cachedConnectedEdges = newEdges
             }
         }
-
-        // Update labels for group nodes
-        let newGroupLabels = self.getGroupPortLabels()
-        if self.groupPortLabels != newGroupLabels {
-            self.groupPortLabels = newGroupLabels
-        }
-        
-        // Update visible canvas items
-        self.visibleCanvasNodes = self.getCanvasItemsAtTraversalLevel(groupNodeFocused: document.groupNodeFocused?.groupNodeId)
-        
-        if !document.isDebugMode {
-            self.updateOrderedPreviewLayers(activeIndex: document.activeIndex)
-            
-            // Calculate graph
-            self.initializeGraphComputation()
-        } else {
-            // Update all fields since calculation is skipped
-            self.updatePortViews()
+    }
+    
+    @MainActor
+    func updateGroupPortLabelsCache() {
+        let newGroupLabels = Self.getGroupPortLabels(graph: self)
+        if self.cachedGroupPortLabels != newGroupLabels {
+            self.cachedGroupPortLabels = newGroupLabels
         }
     }
     
@@ -547,12 +577,12 @@ extension GraphState {
             
     @MainActor
     func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
-        self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)
+        self.getNode(id.nodeId)?.getInputRowObserver(for: id.portType)
     }
     
     @MainActor
     func getOutputRowObserver(_ id: NodeIOCoordinate) -> OutputNodeRowObserver? {
-        self.getNodeViewModel(id.nodeId)?.getOutputRowObserver(for: id.portType)
+        self.getNode(id.nodeId)?.getOutputRowObserver(for: id.portType)
     }
     
     @MainActor
@@ -588,15 +618,16 @@ extension GraphState {
         return zIndices.max() ?? 0
     }
     
-    @MainActor func getGroupPortLabels() -> [Coordinate : String] {
-        self.nodes.values.reduce(into: [Coordinate : String]()) { result, node in
+    @MainActor
+    static func getGroupPortLabels(graph: GraphReader) -> [Coordinate : String] {
+        graph.nodes.values.reduce(into: [Coordinate : String]()) { result, node in
             guard let patchNode = node.patchNodeViewModel,
                   let splitterNode = patchNode.splitterNode else {
                 return
             }
             
             let title = node.displayTitle
-                        
+            
             if splitterNode.type == .input,
                let input = patchNode.inputsObservers.first {
                 result.updateValue(title, forKey: .input(input.id))
@@ -696,14 +727,14 @@ extension GraphState {
     
     @MainActor
     func getInputValues(coordinate: InputCoordinate) -> PortValues? {
-        self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
+        self.visibleNodesViewModel.getNode(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)?
             .allLoopedValues
     }
     
     @MainActor
     func getInputObserver(coordinate: InputCoordinate) -> InputNodeRowObserver? {
-        self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
+        self.visibleNodesViewModel.getNode(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)
     }
         
@@ -714,7 +745,7 @@ extension GraphState {
     }
     
     @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        guard let node = self.getNodeViewModel(rowId.nodeId) else {
+        guard let node = self.getNode(rowId.nodeId) else {
             return nil
         }
         
@@ -722,23 +753,19 @@ extension GraphState {
     }
     
     @MainActor func getOutputRowViewModel(for rowId: NodeRowViewModelId) -> OutputNodeRowViewModel? {
-        guard let node = self.getNodeViewModel(rowId.nodeId) else {
+        guard let node = self.getNode(rowId.nodeId) else {
             return nil
         }
         
         return node.getOutputRowViewModel(for: rowId)
     }
     
-    @MainActor
-    func getNode(_ id: NodeId) -> NodeViewModel? {
-        self.getNodeViewModel(id)
-    }
     
     @MainActor
     func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel? {
         switch id {
         case .node(let x):
-            return self.getNodeViewModel(x)?
+            return self.getNode(x)?
                 .getAllCanvasObservers()
                 .first { $0.id == id }
         case .layerInput(let x):
@@ -750,7 +777,7 @@ extension GraphState {
     
     @MainActor
     func getCanvasItem(inputId: NodeIOCoordinate) -> CanvasItemViewModel? {
-        guard let node = self.getNodeViewModel(inputId.nodeId) else {
+        guard let node = self.getNode(inputId.nodeId) else {
             return nil
         }
         
@@ -767,7 +794,7 @@ extension GraphState {
     
     @MainActor
     func getCanvasItem(outputId: NodeIOCoordinate) -> CanvasItemViewModel? {
-        guard let node = self.getNodeViewModel(outputId.nodeId) else {
+        guard let node = self.getNode(outputId.nodeId) else {
             return nil
         }
         
@@ -785,7 +812,7 @@ extension GraphState {
     // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
     @MainActor
     func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel? {
-        guard let canvasItem = self.getNodeViewModel(id.node)?.layerNode?[keyPath: id.keyPath.layerNodeKeyPath].canvasObserver else {
+        guard let canvasItem = self.getNode(id.node)?.layerNode?[keyPath: id.keyPath.layerNodeKeyPath].canvasObserver else {
             return nil
         }
         
@@ -796,7 +823,7 @@ extension GraphState {
     
     @MainActor
     func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel? {
-        guard let canvasItem = self.getNodeViewModel(id.node)?.layerNode?.outputPorts[safe: id.portId]?.canvasObserver else {
+        guard let canvasItem = self.getNode(id.node)?.layerNode?.outputPorts[safe: id.portId]?.canvasObserver else {
             return nil
         }
         
@@ -805,16 +832,11 @@ extension GraphState {
                                                      portId: 0))
     }
     
-    @MainActor
-    func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {
-        self.visibleNodesViewModel.getViewModel(id)
-    }
-    
     /// Gets all possible canvas observers for some node.
     /// For patches there is always one canvas observer. For layers there are 0 to many observers.
     @MainActor
     func getCanvasNodeViewModels(from nodeId: NodeId) -> [CanvasItemViewModel] {
-        guard let node = self.getNodeViewModel(nodeId) else {
+        guard let node = self.getNode(nodeId) else {
             return []
         }
         

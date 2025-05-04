@@ -131,7 +131,7 @@ struct OutputFieldValueView: View {
         case .layerDropdown(let layerNodeId):
             // Cannot use default readOnly logic due to logic needed to fetch selected node
             if let layerNodeId = layerNodeId,
-               let name = self.graph.getNodeViewModel(layerNodeId.asNodeId)?
+               let name = self.graph.getNode(layerNodeId.asNodeId)?
                 .getDisplayTitle() {
                 readOnlyView(name)
             } else {

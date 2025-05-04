@@ -73,7 +73,7 @@ extension NodeViewModel {
         let loopCount = getLongestLoopLength(inputsValues)
 
         guard let interactionLayerId = inputs.first?.first?.getInteractionId,
-              let layerNode = graphState.getNodeViewModel(interactionLayerId.id)?.layerNode else {
+              let layerNode = graphState.getNode(interactionLayerId.id)?.layerNode else {
 //            log("loopedEval: could not retrieve interactive layer id and layer node")
             return [0..<loopCount].map { _ in
                 return .init(from: self.defaultOutputs)
@@ -116,7 +116,7 @@ extension NodeViewModel {
         let inputsValues = self.inputs
         let loopCount = getLongestLoopLength(inputsValues)
 
-        guard let layerNode = graphState.getNodeViewModel(layerNodeId)?.layerNode else {
+        guard let layerNode = graphState.getNode(layerNodeId)?.layerNode else {
             return [0..<loopCount].map { _ in
                 return .init(from: self.defaultOutputs)
             }
