@@ -166,7 +166,7 @@ struct RealityLayerView: View {
                     .onAppear {
                         // Cannot accidentally call this multiple times!
                         if isPinnedViewRendering {
-                            let nodeId = self.layerViewModel.id.layerNodeId.id
+                            let nodeId = self.layerViewModel.previewCoordinate.layerNodeId.id
                             document.realityViewCreatedWithoutCamera(graph: graph,
                                                                      nodeId: nodeId,
                                                                      realityCameraDirection: self.cameraDirection)
