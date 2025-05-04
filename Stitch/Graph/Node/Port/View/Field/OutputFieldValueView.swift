@@ -162,28 +162,28 @@ struct OutputFieldValueView: View {
                            isForLayerInspector: isForLayerInspector,
                            isFieldInMultifieldInput: isFieldInMultifieldInput)
         
-        .overlay(content: {
-            
-            if isHovering {
-                StitchTextView(string: displayName,
-                               fontColor: STITCH_FONT_GRAY_COLOR)
-                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH + hoveringAdjustment,
-                           alignment: .leading) // Always leading
-                    .padding([.leading, .top, .bottom], 2)
-
-                    .background {
-                        // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(isHovering ? Color.EXTENDED_FIELD_BACKGROUND_COLOR : Color.clear)
-                    }
-                     .offset(x: hoveringAdjustment / 2)
-            }
-        })
-        .onHover { isHovering in
-            if isCanvas {
-                self.isHovering = isHovering
-            }
-            
-        }
+        // TODO: (1) smarter hit area for output's port (triggering edge-edit-mode) vs output field's extended-view; (2) visual border around or better background on extended canvas-input and -output fields, since extended output field can go over onto the canvas's color
+//        .overlay(content: {
+//            
+//            if isHovering {
+//                StitchTextView(string: displayName,
+//                               fontColor: STITCH_FONT_GRAY_COLOR)
+//                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH + hoveringAdjustment,
+//                           alignment: .leading) // Always leading
+//                    .padding([.leading, .top, .bottom], 2)
+//
+//                    .background {
+//                        // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
+//                        RoundedRectangle(cornerRadius: 4)
+//                            .fill(isHovering ? Color.EXTENDED_FIELD_BACKGROUND_COLOR : Color.clear)
+//                    }
+//                     .offset(x: hoveringAdjustment / 2)
+//            }
+//        })
+//        .onHover { isHovering in
+//            if isCanvas {
+//                self.isHovering = isHovering
+//            }
+//        }
     }
 }
