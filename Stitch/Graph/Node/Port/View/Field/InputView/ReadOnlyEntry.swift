@@ -34,15 +34,6 @@ struct ReadOnlyValueEntry: View {
             return NODE_INPUT_OR_OUTPUT_WIDTH
         }
     }
-
-    // TODO: implement "extended view on hover" for individual output fields
-    @State var isHovering: Bool = false
-    
-    static let HOVER_EXTRA_LENGTH: CGFloat = 52
-    
-    var hoveringAdjustment: CGFloat {
-        isHovering ? Self.HOVER_EXTRA_LENGTH : 0
-    }
     
     var body: some View {
         StitchTextView(string: value,
