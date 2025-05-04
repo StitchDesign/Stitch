@@ -96,7 +96,8 @@ extension NodeViewModelType {
                                                    activeIndex: activeIndex,
                                                    // Not relevant
                                                    unpackedPortParentFieldGroupType: nil,
-                                                   unpackedPortIndex: nil)
+                                                   unpackedPortIndex: nil,
+                                                   graph: graph)
         case .component(let componentViewModel):
             componentViewModel.initializeDelegate(node: node,
                                                   components: components,

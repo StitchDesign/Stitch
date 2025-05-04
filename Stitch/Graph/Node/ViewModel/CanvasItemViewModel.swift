@@ -212,14 +212,16 @@ extension CanvasItemViewModel {
     func initializeDelegate(_ node: NodeViewModel,
                             activeIndex: ActiveIndex,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?) {
+                            unpackedPortIndex: Int?,
+                            graph: GraphReader) {
         
         self.assignReferences(node: node)
         
         self.inputViewModels.forEach {
             // Note: assumes the row view model as already have its underlying row observer delegate assigned
             // TODO: can we pass down graph and retrieve the relevant row observer, so we don't rely on the assumption that we've set the row-observer delegate already ? Careful: row view model's row observer might be for a different one than the id that's specified ?
-            if let rowObserver = $0.rowDelegate {
+//            if let rowObserver = $0.rowDelegate {
+            if let rowObserver = graph.getInputRowObserver($0.id.asNodeIOCoordinate) {
                 $0.initializeDelegate(
                     node,
                     initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
@@ -229,7 +231,8 @@ extension CanvasItemViewModel {
         }
         
         self.outputViewModels.forEach {
-            if let rowObserver = $0.rowDelegate {
+//            if let rowObserver = $0.rowDelegate {
+            if let rowObserver = graph.getOutputRowObserver($0.id.asNodeIOCoordinate) {
                 $0.initializeDelegate(
                     node,
                     initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),

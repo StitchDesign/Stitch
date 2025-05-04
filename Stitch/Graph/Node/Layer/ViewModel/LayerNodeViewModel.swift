@@ -412,7 +412,9 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Process output canvases
         self.updateOutputData(from: schema.outputCanvasPorts,
-                              activeIndex: document.activeIndex)
+                              activeIndex: document.activeIndex,
+                              // Has to be visible graph, since used to retrieve a row view model's row observer's activeValue
+                              graph: document.visibleGraph)
         
         // Updates canvas item counts
         self.resetInputCanvasItemsCache()
@@ -428,7 +430,8 @@ extension LayerNodeViewModel: SchemaObserver {
     
     @MainActor
     func updateOutputData(from canvases: [CanvasNodeEntity?],
-                          activeIndex: ActiveIndex) {
+                          activeIndex: ActiveIndex,
+                          graph: GraphReader) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
             guard let outputData = self.outputPorts[safe: portIndex],
                   let node = self.nodeDelegate else {
@@ -454,7 +457,8 @@ extension LayerNodeViewModel: SchemaObserver {
                         activeIndex: activeIndex,
                         // Not relevant
                         unpackedPortParentFieldGroupType: nil,
-                        unpackedPortIndex: nil)
+                        unpackedPortIndex: nil,
+                        graph: graph)
                 }
                 return
             }

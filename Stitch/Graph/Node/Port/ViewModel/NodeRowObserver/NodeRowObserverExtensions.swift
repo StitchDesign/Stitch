@@ -128,6 +128,7 @@ extension NodeRowObserver {
     
     @MainActor
     func getActiveValue(activeIndex: ActiveIndex) -> PortValue {
+        // TODO: remove the use of `PortValue.none` here? Should default to a sensible value?
         self.allLoopedValues[safe: activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
             

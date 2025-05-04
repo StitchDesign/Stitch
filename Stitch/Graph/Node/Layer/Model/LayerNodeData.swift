@@ -148,7 +148,8 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
                                                 activeIndex: activeIndex,
                                                 // Not relevant for output
                                                 unpackedPortParentFieldGroupType: nil,
-                                                unpackedPortIndex: nil)
+                                                unpackedPortIndex: nil,
+                                                graph: graph)
                         
         self.inspectorRowViewModel.initializeDelegate(
             node, // for setting NodeViewModel on NodeRowViewModel
@@ -170,7 +171,8 @@ extension LayerNodeRowData {
         self.canvasObserver?.initializeDelegate(node,
                                                 activeIndex: activeIndex,
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex)
+                                                unpackedPortIndex: unpackedPortIndex,
+                                                graph: graph)
         
         let rowDelegate = self.rowObserver
         

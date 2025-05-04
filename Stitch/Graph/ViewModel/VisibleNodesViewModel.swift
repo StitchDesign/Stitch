@@ -328,7 +328,8 @@ func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
                                            activeIndex: activeIndex,
                                            // Layer inputs can never be inputs for group nodes
                                            unpackedPortParentFieldGroupType: nil,
-                                           unpackedPortIndex: nil)
+                                           unpackedPortIndex: nil,
+                                           graph: graph)
                             
         case .component(let componentViewModel):
             // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component

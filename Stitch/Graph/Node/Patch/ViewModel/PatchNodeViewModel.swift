@@ -150,7 +150,8 @@ extension PatchNodeViewModel {
         self.canvasObserver.initializeDelegate(node,
                                                activeIndex: activeIndex,
                                                unpackedPortParentFieldGroupType: nil,
-                                               unpackedPortIndex: nil)
+                                               unpackedPortIndex: nil,
+                                               graph: graph)
     }
     
     // Other inits better for public accesss

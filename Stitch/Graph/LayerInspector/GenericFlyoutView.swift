@@ -270,7 +270,7 @@ extension StitchDocumentViewModel {
         
         
         // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
-        
+                
         // First field-group grabbed since layers don't have differing groups within one input
         guard let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
             .getDefaultValue(for: layerNode.layer)
@@ -294,7 +294,8 @@ extension StitchDocumentViewModel {
             node,
             activeIndex: document.activeIndex,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-            unpackedPortIndex: fieldIndex)
+            unpackedPortIndex: fieldIndex,
+            graph: graph)
         
         unpackedPort.canvasObserver = canvasObserver
         

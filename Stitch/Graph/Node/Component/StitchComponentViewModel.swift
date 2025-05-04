@@ -184,7 +184,8 @@ extension StitchComponentViewModel {
         self.canvas.initializeDelegate(node,
                                        activeIndex: document.activeIndex,
                                        unpackedPortParentFieldGroupType: nil,
-                                       unpackedPortIndex: nil)
+                                       unpackedPortIndex: nil,
+                                       graph: graph)
         
         self.graph.initializeDelegate(document: document,
                                       documentEncoderDelegate: masterComponent.encoder)
