@@ -17,7 +17,9 @@ final class StitchComponentViewModel: Sendable {
     @MainActor var outputsObservers: [OutputNodeRowObserver] = []
     
     let canvas: CanvasItemViewModel
-    let graph: GraphState
+    
+    // One for each loop index
+    var graphs: [GraphState]
     
     @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var componentDelegate: StitchMasterComponent?
@@ -184,10 +186,13 @@ extension StitchComponentViewModel {
                                        activeIndex: document.activeIndex,
                                        unpackedPortParentFieldGroupType: nil,
                                        unpackedPortIndex: nil)
-        self.graph.initializeDelegate(document: document,
-                                      documentEncoderDelegate: masterComponent.encoder)
+        self.graphs.forEach {
+            $0.initializeDelegate(document: document,
+                                    documentEncoderDelegate: masterComponent.encoder)
+        }
         
         // Updates inputs and outputs
+        // TODO: how does this work if input observers have one graph?
         self.inputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
         self.outputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
         
@@ -214,7 +219,9 @@ extension StitchComponentViewModel {
             return
         }
         
-        self.graph.update(from: masterComponent.lastEncodedDocument.graph)
+        self.graphs.forEach {
+            $0.update(from: masterComponent.lastEncodedDocument.graph)
+        }
         
         // Refresh after graph update
         self.canvas.update(from: schema.canvasEntity)
@@ -256,17 +263,56 @@ extension StitchComponentViewModel {
     }
     
     @MainActor func evaluate() -> EvalResult? {
-        // Update splitters
-        let splitterInputs = Self.getInputSplitters(graph: self.graph)
-        
-        assertInDebug(splitterInputs.count == self.inputsObservers.count)
-        
-        // Update graph's inputs before calculating full graph
-        zip(splitterInputs, self.inputsObservers).forEach { splitter, input in
-            splitter.updateValuesInInput(input.allLoopedValues)
+        guard let firstGraphState = self.graphs.first else {
+            fatalErrorIfDebug()
+            return nil
         }
         
-        self.graph.runGraphAndUpdateUI(from: self.graph.allNodesToCalculate)
+        let sampleGraphEntity = firstGraphState.lastEncodedDocument
+
+        // Loop of components is equal to the longest loop length of incoming values
+        let loopLength = self.inputsObservers.reduce(into: 1) { result, inputObserver in
+            result = max(result, inputObserver.allLoopedValues.count)
+        }
+        
+        // Make sure graph counts match loop length
+        self.graphs.adjustArrayLength(to: loopLength) {
+            var nodes = NodesViewModelDict()
+            for nodeEntity in sampleGraphEntity.nodes {
+                // TODO: need to test if the GraphState in nested component gets created in this call
+                let nodeType = NodeViewModelType(from: nodeEntity.nodeTypeEntity,
+                                                 nodeId: nodeEntity.id)
+                
+                let newNode = NodeViewModel(from: nodeEntity,
+                                         nodeType: nodeType)
+                
+                nodes.updateValue(newNode, forKey: newNode.id)
+            }
+            
+            let graph = GraphState(from: sampleGraphEntity,
+                                   localPosition: ABSOLUTE_GRAPH_CENTER,
+                                   nodes: nodes,
+                                   components: firstGraphState.components,
+                                   mediaFiles: [],  // copy this in next call
+                                   saveLocation: firstGraphState.saveLocation)
+            graph.mediaLibrary = firstGraphState.mediaLibrary
+            return graph
+        }
+        
+        for graph in self.graphs {
+            // Update splitters
+            let splitterInputs = Self.getInputSplitters(graph: graph)
+            
+            assertInDebug(splitterInputs.count == self.inputsObservers.count)
+            
+            // Update graph's inputs before calculating full graph
+            zip(splitterInputs, self.inputsObservers).forEach { splitter, input in
+                splitter.updateValuesInInput(input.allLoopedValues)
+            }
+            
+            graph.runGraphAndUpdateUI(from: graph.allNodesToCalculate)
+        }
+        
         
         return self.evaluateOutputSplitters()
     }
@@ -274,12 +320,30 @@ extension StitchComponentViewModel {
     @MainActor
     /// Used in capacities where output splitters may have been updated, allowing us to start eval again from this graph.
     func evaluateOutputSplitters() -> EvalResult {
-        let splitterOutputs = Self.getOutputSplitters(graph: self.graph)
-        assertInDebug(splitterOutputs.count == self.outputsObservers.count)
+        // Returns [[[PortValue]]], or a list of PortValuesList, of all the splitter output values in each graph (which we'll remap after)
+        let allSplitterOutputs = self.graphs.map { graph in
+            Self.getOutputSplitters(graph: graph).values
+        }
+        
+        let splittersCount = allSplitterOutputs.first?.count ?? 0
+        let splitterOutputsValues = (0..<splittersCount).reduce(into: PortValuesList()) { result, index in
+            // Get all values at this port and then flatten
+            let outputValuesAtPort = allSplitterOutputs.flatMap { $0[index] }
+            result.append(outputValuesAtPort)
+        }
+        
+        assertInDebug(splitterOutputsValues.count == self.outputsObservers.count)
+        assertInDebug(splitterOutputsValues.count == self.graphs.count)
         
         // Update outputs here after graph calculation
-        zip(splitterOutputs, self.outputsObservers).forEach { splitter, output in
-            output.updateValuesInOutput(splitter.allLoopedValues, graph: self.graph)
+        zip(splitterOutputsValues, self.outputsObservers).enumerated().forEach { index, data in
+            let (splitterValues, outputObserver) = data
+            guard let graph = self.graphs[safe: index] else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            outputObserver.updateValuesInOutput(splitterValues, graph: graph)
         }
         
         return .init(outputsValues: self.outputsObservers.map(\.allLoopedValues))
