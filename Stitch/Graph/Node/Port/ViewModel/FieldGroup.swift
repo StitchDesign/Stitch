@@ -139,11 +139,11 @@ extension NodeRowType {
 
 extension NodeRowViewModel {
     @MainActor
-    func createFieldValueTypes(initialValue: PortValue,
-                               nodeIO: NodeIO, // from node row observer
-                               unpackedPortParentFieldGroupType: FieldGroupType?,
-                               unpackedPortIndex: Int?) -> [FieldGroup] {
-        getFieldValueTypes(
+    func createFieldGroups(initialValue: PortValue,
+                           nodeIO: NodeIO, // from node row observer
+                           unpackedPortParentFieldGroupType: FieldGroupType?,
+                           unpackedPortIndex: Int?) -> [FieldGroup] {
+        getFieldGroups(
             rowId: self.id,
             value: initialValue,
             nodeIO: nodeIO,
@@ -156,13 +156,13 @@ extension NodeRowViewModel {
 
 // Creates the FieldViewModels with the correct data (based on PortValue) and correct row view model delegate reference
 @MainActor
-func getFieldValueTypes(rowId: NodeRowViewModelId,
-                        value: PortValue,
-                        nodeIO: NodeIO,
-                        unpackedPortParentFieldGroupType: FieldGroupType?,
-                        unpackedPortIndex: Int?,
-                        layerInput: LayerInputPort?,
-                        isLayerInspector: Bool) -> [FieldGroup] {
+func getFieldGroups(rowId: NodeRowViewModelId,
+                    value: PortValue,
+                    nodeIO: NodeIO,
+                    unpackedPortParentFieldGroupType: FieldGroupType?,
+                    unpackedPortIndex: Int?,
+                    layerInput: LayerInputPort?,
+                    isLayerInspector: Bool) -> [FieldGroup] {
     
     let fieldValuesList: [FieldValues] = value.createFieldValuesList(
         nodeIO: nodeIO,

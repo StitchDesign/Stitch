@@ -30,7 +30,6 @@ protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
 
     
     // MARK: delegates, weak references to parents
-    
     @MainActor var nodeDelegate: NodeViewModel? { get set }
     @MainActor var rowDelegate: RowObserver? { get set }
     @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
@@ -72,21 +71,21 @@ func getNewAnchorPoint(canvasPosition: CGPoint,
 extension NodeRowViewModel {
 
     @MainActor
-    func initializeDelegate(_ node: NodeViewModel,
-                            initialValue: PortValue,
-                            unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?) {
+    func updateFieldGroupsIfEmptyAndUpdatePortAddress(
+        node: NodeViewModel,
+        initialValue: PortValue,
+        unpackedPortParentFieldGroupType: FieldGroupType?,
+        unpackedPortIndex: Int?
+    ) {
+        self.updateActiveValueAndFieldGroupsCaches(
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex,
+            initialValue: initialValue)
         
-        // Why must we set the delegate
         self.nodeDelegate = node
         
-        if self.cachedFieldGroups.isEmpty {
-            self.initializeValues(
-                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                unpackedPortIndex: unpackedPortIndex,
-                initialValue: initialValue)
-        }
-                
+        // TODO: can this really change across the lifetime of a node row view model ?
+        
         /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
         if let canvasId = self.id.graphItemType.getCanvasItemId {
             let newPortAddress: PortUI.PortAddressType = .init(portId: self.id.portId,
@@ -96,16 +95,22 @@ extension NodeRowViewModel {
             }
         }
     }
-        
+     
     @MainActor
-    func initializeValues(unpackedPortParentFieldGroupType: FieldGroupType?,
-                          unpackedPortIndex: Int?,
-                          initialValue: PortValue) {
+    func updateActiveValueAndFieldGroupsCaches(unpackedPortParentFieldGroupType: FieldGroupType?,
+                                               unpackedPortIndex: Int?,
+                                               initialValue: PortValue) {
+        
+        // TODO: confusing? `isEmpty` is a check like "we've never set field groups here", but we have logic down below for "if field groups count changed"; this is all just from re-arranging existing code that was called `initializeXYZ`
+        guard self.cachedFieldGroups.isEmpty else {
+            return
+        }
+            
         if initialValue != self.cachedActiveValue {
             self.cachedActiveValue = initialValue
         }
         
-        let fields = self.createFieldValueTypes(
+        let fields = self.createFieldGroups(
             initialValue: initialValue,
             nodeIO: Self.nodeIO,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,

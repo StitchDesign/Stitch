@@ -145,6 +145,7 @@ extension CanvasItemViewModel {
         nodes.getCanvasItemsAtTraversalLevel(at: focusedGroupId)
             .flatMap { canvasItem -> [InputPortIdAddress] in
                 
+                // TODO: just retrieve the node from nodes, `nodes.get`
                 guard let nodeId = self.nodeDelegate?.id,
                       let canvasItemNodeId = canvasItem.nodeDelegate?.id,
                       nodeId == canvasItemNodeId else {

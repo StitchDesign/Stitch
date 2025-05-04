@@ -84,6 +84,7 @@ extension PatchNodeViewModel: SchemaObserver {
         self.init(from: entity)
     }
 
+    @MainActor
     func update(from schema: PatchNodeEntity) {
         self.inputsObservers.sync(with: schema.inputs)
         self.canvasObserver.update(from: schema.canvasEntity)
@@ -140,17 +141,19 @@ extension PatchNodeViewModel {
         self.delegate = node
         
         self.inputsObservers.forEach {
-            $0.initializeDelegate(node, graph: graph)
+            $0.assignNodeReferenceAndHandleValueChange(node, graph: graph)
         }
         
         self.outputsObservers.forEach {
-            $0.initializeDelegate(node, graph: graph)
+            $0.assignNodeReferenceAndHandleValueChange(node, graph: graph)
         }
         
-        self.canvasObserver.initializeDelegate(node,
-                                               activeIndex: activeIndex,
-                                               unpackedPortParentFieldGroupType: nil,
-                                               unpackedPortIndex: nil)
+        self.canvasObserver.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+            node,
+            activeIndex: activeIndex,
+            unpackedPortParentFieldGroupType: nil,
+            unpackedPortIndex: nil,
+            graph: graph)
     }
     
     // Other inits better for public accesss

@@ -62,6 +62,7 @@ final class StitchComponentViewModel: Sendable {
                                       activeIndex: activeIndex)
     }
     
+    // TODO: what is this ?
     @MainActor
     func refreshInputs(schemaInputs: [NodeConnectionType]) -> [InputNodeRowObserver] {
         Self.refreshInputs(schemaInputs: schemaInputs,
@@ -180,16 +181,20 @@ extension StitchComponentViewModel {
         }
         
         self.componentDelegate = masterComponent
-        self.canvas.initializeDelegate(node,
-                                       activeIndex: document.activeIndex,
-                                       unpackedPortParentFieldGroupType: nil,
-                                       unpackedPortIndex: nil)
+        
+        self.canvas.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+            node,
+            activeIndex: document.activeIndex,
+            unpackedPortParentFieldGroupType: nil,
+            unpackedPortIndex: nil,
+            graph: graph)
+        
         self.graph.initializeDelegate(document: document,
                                       documentEncoderDelegate: masterComponent.encoder)
         
         // Updates inputs and outputs
-        self.inputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
-        self.outputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
+        self.inputsObservers.forEach { $0.assignNodeReferenceAndHandleValueChange(node, graph: self.graph) }
+        self.outputsObservers.forEach { $0.assignNodeReferenceAndHandleValueChange(node, graph: self.graph) }
         
         // Refresh port data
         self.refreshPorts(activeIndex: document.activeIndex)
