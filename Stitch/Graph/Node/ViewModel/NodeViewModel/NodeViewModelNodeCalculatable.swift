@@ -189,10 +189,15 @@ extension NodeViewModel: NodeCalculatable {
                                           mediaList: mediaList,
                                           observerType: NodeTimerEphemeralObserver.self)
                 
-            case .loopSelect, .loopShuffle, .loopRemove:
+            case .loopSelect, .loopShuffle:
                 self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
                                           mediaList: mediaList,
                                           observerType: MediaReferenceObserver.self)
+                
+            case .soundImport:
+                self.defaultZipInputMedia(inputCoordinate: inputCoordinate,
+                                          mediaList: mediaList,
+                                          observerType: SoundImportMediaEvalOpObserver.self)
                 
             default:
                 if let _ = self.createEphemeralObserver() as? MediaEvalOpViewable {
