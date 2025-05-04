@@ -116,7 +116,7 @@ struct CanvasItemTitleWirelessReceiverMenuView: View {
     let nodeName: String
     
     func updateBroadcasterNode() {
-        self.broadcasterNode = graph.getNodeViewModel(choice.id)
+        self.broadcasterNode = graph.getNode(choice.id)
     }
     
     var currentBroadcastChoiceNodeId: NodeId? {

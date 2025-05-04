@@ -55,7 +55,7 @@ func convertPositionEval(node: PatchNode,
         // log("convertPositionEval: op: values: \(values)")
         
         let layerViewModelAtIndex = { (layerNodeId: LayerNodeId) -> LayerViewModel? in
-            let layerNode = graphState.getNodeViewModel(layerNodeId.asNodeId)?.layerNode
+            let layerNode = graphState.getNode(layerNodeId.asNodeId)?.layerNode
             return layerNode?.previewLayerViewModels[safe: loopIndex] ?? layerNode?.previewLayerViewModels.first
         }
         

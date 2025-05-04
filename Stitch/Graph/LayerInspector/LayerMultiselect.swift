@@ -96,7 +96,7 @@ extension LayerInputPort {
         let selectedLayers = graph.sidebarSelectionState.primary
         
         let observers: [LayerInputObserver] = selectedLayers.compactMap {
-            if let layerNode = graph.getNodeViewModel($0)?.layerNode {
+            if let layerNode = graph.getNode($0)?.layerNode {
                 let observer: LayerInputObserver = layerNode[keyPath: self.layerNodeKeyPath]
                 return observer
             }

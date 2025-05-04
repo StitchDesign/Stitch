@@ -37,7 +37,7 @@ extension NodeViewModel {
                 portObserver.allInputData.map { $0.rowObserver }
             }
         case .group(let canvas):
-            return graph.visibleNodesViewModel.getSplitterInputRowObservers(for: self.id)
+            return GraphState.getSplitterInputRowObservers(for: self.id, from: graph)
         case .component(let component):
             return component.inputsObservers
         }
@@ -72,7 +72,7 @@ extension NodeViewModel {
         case .layer(let layer):
             return layer.outputPorts.map { $0.rowObserver }
         case .group:
-            return graph.visibleNodesViewModel.getSplitterOutputRowObservers(for: self.id)
+            return GraphState.getSplitterOutputRowObservers(for: self.id, from: graph)
         case .component(let component):
             return component.outputsObservers
         }

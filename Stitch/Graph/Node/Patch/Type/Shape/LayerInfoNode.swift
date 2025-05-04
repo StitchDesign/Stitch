@@ -164,7 +164,7 @@ func layerInfoEval(node: PatchNode,
     // Like other 'interaction nodes', we ignore loops and look only at the inputs' first values.
     // This is because the assigned layer's node may hve a loop of its own, and we cannot have a loop of loops.
     guard let assignedLayerId: LayerNodeId = node.inputs.first?.first?.getInteractionId,
-          let assignedLayerNode = state.getNodeViewModel(assignedLayerId.id),
+          let assignedLayerNode = state.getNode(assignedLayerId.id),
           let assignedLayerNodeViewModel: LayerNodeViewModel = assignedLayerNode.layerNode else {
         log("layerInfoEval: no assignedLayerId, assignedLayerNode and/or assignedLayerNodeViewModel for \(node.id)")
         return .init(outputsValues: LayerInfoNodeEvalHelpers.defaultOutputs)

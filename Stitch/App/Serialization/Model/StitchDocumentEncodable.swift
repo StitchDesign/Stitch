@@ -160,7 +160,7 @@ extension [StitchComponent] {
             
             // We can initialize delegates from copy/paste actions
             if let parentGraph = parentGraph {
-                newComponent.initializeDelegate(parentGraph: parentGraph)
+                newComponent.assignReferences(parentGraph: parentGraph)
             }
             
             result.updateValue(newComponent, forKey: newComponent.id)

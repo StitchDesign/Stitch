@@ -200,7 +200,7 @@ extension GraphState {
             self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
 
             // Can now be patch- OR layer-node
-            guard let existingNode = self.getNodeViewModel(nodeId) else {
+            guard let existingNode = self.getNode(nodeId) else {
                 dispatch(DisplayError(error: .mediaCopiedFailed))
                 return
             }
@@ -259,7 +259,7 @@ extension GraphState {
     func recalculateGraphForMedia<MediaEvalResult>(result: MediaEvalResult,
                                                    nodeId: NodeId,
                                                    loopIndex: Int) where MediaEvalResult: MediaEvalResultable{
-        guard let node = self.getNodeViewModel(nodeId) else {
+        guard let node = self.getNode(nodeId) else {
             log("recalculateGraph: AsyncMediaImpureEvalOpResult: could not retrieve node \(nodeId)")
             return
         }

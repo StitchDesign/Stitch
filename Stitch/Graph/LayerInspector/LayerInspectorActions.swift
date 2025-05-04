@@ -76,7 +76,7 @@ extension StitchDocumentViewModel {
     func addLayerInputToGraph(nodeId: NodeId,
                               layerInput: LayerInputPort) {
         
-        guard let node = self.visibleGraph.getNodeViewModel(nodeId) else {
+        guard let node = self.visibleGraph.getNode(nodeId) else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
             return
@@ -167,7 +167,7 @@ struct LayerOutputAddedToGraph: StitchDocumentEvent {
         // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
         let graph = state.visibleGraph
         
-        guard let node = graph.getNodeViewModel(nodeId),
+        guard let node = graph.getNode(nodeId),
               let layerNode = node.layerNode,
               let outputPort = layerNode.outputPorts[safe: portId] else {
             log("LayerOutputAddedToGraph: could not add Layer Output to graph")

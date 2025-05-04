@@ -21,7 +21,7 @@ struct JumpToWirelessBroadcaster: StitchDocumentEvent {
     let wirelessReceiverNodeId: NodeId
     
     func handle(state: StitchDocumentViewModel) {
-        if let assignedBroadcaster = state.visibleGraph.getNodeViewModel(wirelessReceiverNodeId)?.currentBroadcastChoiceId {
+        if let assignedBroadcaster = state.visibleGraph.getNode(wirelessReceiverNodeId)?.currentBroadcastChoiceId {
             state.panGraphToNodeLocation(id: .node(assignedBroadcaster))
         }
     }

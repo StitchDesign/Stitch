@@ -404,7 +404,7 @@ extension LayerInputObserver {
                 
         let graph = document.visibleGraph
         
-        guard let node = graph.getNodeViewModel(self.nodeId),
+        guard let node = graph.getNode(self.nodeId),
               let layerNode = node.layerNode else {
             fatalErrorIfDebug()
             return

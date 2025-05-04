@@ -17,7 +17,7 @@ extension GraphState {
         }
         return selections.allSatisfy { id in
             // does `id` have a parent, and is that parent the same as the random parent?
-            self.getNodeViewModel(id)?.layerNode?.layerGroupId == parentId
+            self.getNode(id)?.layerNode?.layerGroupId == parentId
         }
     }
 

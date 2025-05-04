@@ -42,7 +42,7 @@
 ////    let nodeId = currentInputCoordinate.nodeId
 ////    
 ////    // Retrieve the node view model,
-////    guard let node = state.getNodeViewModel(nodeId),
+////    guard let node = state.getNode(nodeId),
 ////          // actually, want to look at the activeValue?
 ////          // but that won't matter
 ////            let input = node.getInputRowObserver(for: currentInputCoordinate.portType) else {
@@ -194,7 +194,7 @@
 //    let currentInputCoordinate = focusedField.input
 //    let nodeId = currentInputCoordinate.nodeId
 //    
-//    guard let node = state.getNodeViewModel(nodeId),
+//    guard let node = state.getNode(nodeId),
 //          // actually, want to look at the activeValue?
 //          // but that won't matter
 //            let input = node.getInputRowObserver(for: currentInputCoordinate.portType) else {

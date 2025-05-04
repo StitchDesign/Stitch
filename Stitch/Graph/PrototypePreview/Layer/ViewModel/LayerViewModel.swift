@@ -415,7 +415,7 @@ extension LayerViewModel: InteractiveLayerDelegate {
 extension LayerViewModel {
     @MainActor var mediaRowObserver: InputNodeRowObserver? {
         guard let layerNode = self.nodeDelegate?.graphDelegate?
-            .getNodeViewModel(self.previewCoordinate.layerNodeId.asNodeId)?.layerNode else {
+            .getNode(self.previewCoordinate.layerNodeId.asNodeId)?.layerNode else {
             return nil
         }
                 

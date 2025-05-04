@@ -63,7 +63,7 @@ struct NodeWirelessBroadcastSubmenuView: View {
                 
                 // logInView("NodeBroadcastSubmenuView: choice: \(choice)")
                 
-                if let broadcasterNode = graph.getNodeViewModel(choice.id) {
+                if let broadcasterNode = graph.getNode(choice.id) {
                     @Bindable var node = broadcasterNode
                     StitchTextView(string: node.displayTitle)
                         .tag(choice)

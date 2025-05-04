@@ -34,7 +34,12 @@ extension GraphState: GraphCalculatable {
     
     @MainActor
     func getNode(id: UUID) -> NodeViewModel? {
-        self.getNodeViewModel(id)
+        self.getNode(id)
+    }
+    
+    @MainActor
+    func getNode(_ id: UUID) -> NodeViewModel? {
+        self.visibleNodesViewModel.getNode(id)
     }
 }
 

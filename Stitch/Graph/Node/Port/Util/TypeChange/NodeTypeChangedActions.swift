@@ -42,7 +42,7 @@ extension GraphState {
                          newNodeType: UserVisibleType,
                          activeIndex: ActiveIndex) -> NodeIdSet? {
 
-        guard let node = self.getNodeViewModel(nodeId) else {
+        guard let node = self.getNode(nodeId) else {
             log("NodeTypeChangedAction: no change...")
             return nil
         }

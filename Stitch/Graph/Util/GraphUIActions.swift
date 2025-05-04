@@ -93,7 +93,7 @@ extension GraphState {
 extension GraphState {
     @MainActor
     func getGroupNodeType(for nodeId: NodeId) -> GroupNodeType? {
-        guard let node = self.getNodeViewModel(nodeId) else {
+        guard let node = self.getNode(nodeId) else {
             fatalErrorIfDebug()
             return nil
         }
