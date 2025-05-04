@@ -276,8 +276,8 @@ struct StepActionConnectionAdded: StepActionable {
         let _ = document.visibleGraph.edgeAdded(edge: edge)
         
         // Create canvas node if destination is layer
-        if let fromNodeLocation = document.visibleGraph.getNodeViewModel(self.fromNodeId)?.nonLayerCanvasItem?.position,
-           let destinationNode = document.visibleGraph.getNodeViewModel(self.toNodeId),
+        if let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position,
+           let destinationNode = document.visibleGraph.getNode(self.toNodeId),
             destinationNode.kind.isLayer {
                 guard let layerInput = self.port.keyPath?.layerInput else {
                     // fatalErrorIfDebug()

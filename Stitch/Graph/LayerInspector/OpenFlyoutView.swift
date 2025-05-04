@@ -15,7 +15,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
     
     var body: some View {
         if let flyoutState = graph.propertySidebar.flyoutState,
-           let node: NodeViewModel = graph.getNodeViewModel(flyoutState.flyoutNode),
+           let node: NodeViewModel = graph.getNode(flyoutState.flyoutNode),
            let layerNode: LayerNodeViewModel = node.layerNode,
            let entry = graph.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
             

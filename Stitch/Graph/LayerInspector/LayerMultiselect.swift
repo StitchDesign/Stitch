@@ -96,7 +96,7 @@ extension LayerInputPort {
         let selectedLayers = graph.sidebarSelectionState.primary
         
         let observers: [LayerInputObserver] = selectedLayers.compactMap {
-            if let layerNode = graph.getNodeViewModel($0)?.layerNode {
+            if let layerNode = graph.getNode($0)?.layerNode {
                 let observer: LayerInputObserver = layerNode[keyPath: self.layerNodeKeyPath]
                 return observer
             }
@@ -119,7 +119,7 @@ extension LayerInputPort {
             observer
                 ._packedData // TODO: do not assume packed
                 .inspectorRowViewModel // Only interested in inspector view models
-                .cachedFieldValueGroups.first? // .first = ignore the shape command case
+                .cachedFieldGroups.first? // .first = ignore the shape command case
             
             // "Does every multi-selected layer have the same value at this input-field?"
             // (Note: NOT "Does every field in this input have same value?")

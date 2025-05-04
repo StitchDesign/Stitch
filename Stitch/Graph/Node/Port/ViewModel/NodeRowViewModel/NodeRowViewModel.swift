@@ -21,7 +21,7 @@ protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
     // MARK: cached ui-data derived from underlying row observer
     
     @MainActor var cachedActiveValue: PortValue { get set }
-    @MainActor var cachedFieldValueGroups: [FieldGroup] { get set } // fields
+    @MainActor var cachedFieldGroups: [FieldGroup] { get set } // fields
     
     // MARK: data specific to a draggable port on the canvas; not derived from underlying row observer and not applicable to row view models in the inspector
     
@@ -80,7 +80,7 @@ extension NodeRowViewModel {
         // Why must we set the delegate
         self.nodeDelegate = node
         
-        if self.cachedFieldValueGroups.isEmpty {
+        if self.cachedFieldGroups.isEmpty {
             self.initializeValues(
                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                 unpackedPortIndex: unpackedPortIndex,
@@ -88,9 +88,9 @@ extension NodeRowViewModel {
         }
                 
         /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
-        if let canvasId = self.canvasItemDelegate?.id {
+        if let canvasId = self.id.graphItemType.getCanvasItemId {
             let newPortAddress: PortUI.PortAddressType = .init(portId: self.id.portId,
-                                                        canvasId: canvasId)
+                                                               canvasId: canvasId)
             if self.portUIViewModel.portAddress != newPortAddress {
                 self.portUIViewModel.portAddress = newPortAddress
             }
@@ -111,10 +111,10 @@ extension NodeRowViewModel {
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: unpackedPortIndex)
         
-        let didFieldsChange = !zip(self.cachedFieldValueGroups, fields).allSatisfy { $0.id == $1.id }
+        let didFieldsChange = !zip(self.cachedFieldGroups, fields).allSatisfy { $0.id == $1.id }
         
-        if self.cachedFieldValueGroups.isEmpty || didFieldsChange {
-            self.cachedFieldValueGroups = fields
+        if self.cachedFieldGroups.isEmpty || didFieldsChange {
+            self.cachedFieldGroups = fields
         }
     }
     

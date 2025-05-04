@@ -73,7 +73,7 @@ extension LayerData: Identifiable {
     @MainActor
     func getLayer(graph: GraphState) -> LayerViewModel? {
         let id = self.previewCoordinate
-        return graph.getNodeViewModel(id.layerNodeId.asNodeId)?.layerNode?.previewLayerViewModels[safe: id.loopIndex]
+        return graph.getNode(id.layerNodeId.asNodeId)?.layerNode?.previewLayerViewModels[safe: id.loopIndex]
     }
     
     @MainActor

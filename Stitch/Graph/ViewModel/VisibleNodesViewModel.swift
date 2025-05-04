@@ -21,9 +21,9 @@ final class VisibleNodesViewModel: Sendable {
     
     @MainActor var visibleCanvasIds = CanvasItemIdSet()
     
-    // Caches visual splitter input/output by group node data for perf
-    @MainActor var visibleSplitterInputRows = [NodeId? : [InputNodeRowObserver]]()
-    @MainActor var visibleSplitterOutputRows = [NodeId? : [OutputNodeRowObserver]]()
+    // PERF: Caches visual splitter input/output by group node data
+    @MainActor var cachedVisibleSplitterInputRows = [NodeId? : [InputNodeRowObserver]]()
+    @MainActor var cachedVisibleSplitterOutputRows = [NodeId? : [OutputNodeRowObserver]]()
     
     // Signals to SwiftUI layout when new sizing data is needed;
     // tracked here to fix stutter that exists if we reset cache before
@@ -78,15 +78,10 @@ extension VisibleNodesViewModel {
         self.nodesByPage.get(groupNodeFocused.nodePageType)
     }
 
-    @MainActor
-    func getViewModel(_ id: NodeId) -> NodeViewModel? {
-        self.nodes.get(id)
-    }
-    
     // Provide an API more consistent with GraphState, GraphState
     @MainActor
     func getNode(_ id: NodeId) -> NodeViewModel? {
-        self.getViewModel(id)
+        self.nodes.get(id)
     }
 
     @MainActor
@@ -141,56 +136,7 @@ extension VisibleNodesViewModel {
         }
     }
     
-    // traditionally called in `updateNodesPagingDict`, after `updateNodeRowObserversUpstreamAndDownstreamReferences`
-    @MainActor
-    func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
-        // Sync port view models for applicable nodes
-        self.nodes.values.forEach { node in
-            switch node.nodeType {
-            case .patch(let patchNode):
-                // Syncs ports if nodes had inputs added/removed
-                patchNode.canvasObserver.syncRowViewModels(inputRowObservers: patchNode.inputsObservers,
-                                                           outputRowObservers: patchNode.outputsObservers,
-                                                           activeIndex: activeIndex)
-                
-            case .group(let canvasGroup):
-                // Create port view models for group nodes once row observers have been established
-                let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
-                let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
-                // Note: What is `syncRowViewModels` vs `NodeRowViewModel.initialize`?
-                canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
-                                              outputRowObservers: outputRowObservers,
-                                              activeIndex: activeIndex)
-                
-                // Initializes view models for canvas
-                guard let node = canvasGroup.nodeDelegate else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                assertInDebug(node.kind == .group)
-                
-                // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
-                // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
-                canvasGroup.initializeDelegate(node,
-                                               activeIndex: activeIndex,
-                                               // Layer inputs can never be inputs for group nodes
-                                               unpackedPortParentFieldGroupType: nil,
-                                               unpackedPortIndex: nil)
-                                
-            case .component(let componentViewModel):
-                // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
-                componentViewModel.canvas.syncRowViewModels(inputRowObservers: componentViewModel.inputsObservers,
-                                                            outputRowObservers: componentViewModel.outputsObservers,
-                                                            activeIndex: activeIndex)
-
-            case .layer(let layerNode):
-                // We must refresh all the blocked layer inputs
-                layerNode.refreshBlockedInputs(graph: graph,
-                                               activeIndex: activeIndex)
-            }
-        }
-    }
+    
     
     @MainActor
     func buildUpstreamReferences(nodeViewModel: NodeViewModel) {
@@ -243,97 +189,19 @@ extension VisibleNodesViewModel {
 
     @MainActor
     func getSplitterInputRowObserverIds(for groupNodeId: NodeId?) -> CanvasItemIdSet {
-        self.visibleSplitterInputRows.get(groupNodeId)?
+        self.cachedVisibleSplitterInputRows.get(groupNodeId)?
             .reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) } ?? .init()
     }
-    
-    /// Obtains input row observers directly from splitter patch nodes given its parent group node.
-    @MainActor
-    func getSplitterInputRowObservers(for groupNodeId: NodeId?) -> [InputNodeRowObserver] {
-        // find splitters inside this group node
-        let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
-            .compactMap { $0.patchNode }
-            .filter {
-                $0.splitterType == .input
-            }
-
-        // filter splitters relevant to this group node
-        let splittersInThisGroup = allSplitterNodes
-            .filter { splitterNode in
-                splitterNode.canvasObserver.parentGroupNodeId == groupNodeId
-            }
-            // sort new inputs/inputs by the date the splitter was created
-            .sorted {
-                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
-                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
-            }
-
-        // get the first (and only) row observer for this splitter node
-        let splitterRowObservers: [InputNodeRowObserver] = splittersInThisGroup
-            // get the NodeViewModel for this splitter
-            .compactMap { self.nodes.get($0.id) }
-            .compactMap { node in
-                switch node.splitterType {
-                case .input:
-                    return node.getInputRowObserver(0)
-                default:
-                    // Shouldn't be called
-                    fatalErrorIfDebug()
-                    return nil
-                }
-            }
-
-        return splitterRowObservers
-    }
-    
+            
     @MainActor
     func getSplitterOutputRowObserverIds(for groupNodeId: NodeId?) -> CanvasItemIdSet {
-        self.visibleSplitterOutputRows.get(groupNodeId)?
+        self.cachedVisibleSplitterOutputRows.get(groupNodeId)?
             .reduce(into: CanvasItemIdSet()) { $0.insert(.node($1.id.nodeId)) } ?? .init()
     }
     
-    /// Obtains output row observers directly from splitter patch nodes given its parent group node.
-    @MainActor
-    func getSplitterOutputRowObservers(for groupNodeId: NodeId?) -> [OutputNodeRowObserver] {
-        // find splitters inside this group node
-        let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
-            .compactMap { $0.patchNode }
-            .filter {
-                $0.splitterType == .output
-            }
-
-        // filter splitters relevant to this group node
-        let splittersInThisGroup = allSplitterNodes
-            .filter { splitterNode in
-                splitterNode.canvasObserver.parentGroupNodeId == groupNodeId
-            }
-            // sort new inputs/outputs by the date the splitter was created
-            .sorted {
-                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
-                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
-            }
-
-        // get the first (and only) row observer for this splitter node
-        let splitterRowObservers: [OutputNodeRowObserver] = splittersInThisGroup
-            // get the NodeViewModel for this splitter
-            .compactMap { self.nodes.get($0.id) }
-            .compactMap { node in
-                switch node.splitterType {
-                case .output:
-                    return node.getOutputRowObserver(for: 0)
-                default:
-                    // Shouldn't be called
-                    fatalErrorIfDebug()
-                    return nil
-                }
-            }
-
-        return splitterRowObservers
-    }
-
     @MainActor
     func isGroupNode(_ id: NodeId) -> Bool {
-        self.getViewModel(id)?.kind.isGroup ?? false
+        self.getNode(id)?.kind.isGroup ?? false
     }
     
     @MainActor
@@ -377,6 +245,102 @@ extension VisibleNodesViewModel {
         for node in self.nodes.values {
             // NOTE: what about layer canvas inputs' ?
             node.nonLayerCanvasItem?.updateAnchorPoints()
+        }
+    }
+}
+
+@MainActor
+func getGroupSplitters(for groupNodeId: NodeId?,
+                       node: NodeViewModel,
+                       ofType: SplitterType) -> SplitterNodeEntity? {
+    guard let patchNode = node.patchNode,
+          let splitterNode = patchNode.splitterNode,
+          patchNode.splitterType == ofType,
+          patchNode.canvasObserver.parentGroupNodeId == groupNodeId else {
+        return nil
+    }
+    return splitterNode
+}
+
+@MainActor
+func getSplitterInputRowObservers(for groupNodeId: NodeId?,
+                                  from graph: GraphReader) -> [InputNodeRowObserver] {
+    graph.nodes.values
+    // retrieve only the input splitters for this group
+        .compactMap { getGroupSplitters(for: groupNodeId, node: $0, ofType: .input) }
+    // sort by splitter's creation data
+        .sorted { $0.lastModifiedDate < $1.lastModifiedDate }
+    // retrieve the input row observers
+        .compactMap {
+            graph.getInputRowObserver(.init(portId: 0, // always first input
+                                            nodeId: $0.id))
+        }
+}
+
+/// Obtains output row observers directly from splitter patch nodes given its parent group node.
+@MainActor
+func getSplitterOutputRowObservers(for groupNodeId: NodeId?,
+                                   from graph: GraphReader) -> [OutputNodeRowObserver] {
+    graph.nodes.values
+    // retrieve only the output splitters for this group
+        .compactMap { getGroupSplitters(for: groupNodeId, node: $0, ofType: .output) }
+    // sort by splitter's creation data
+        .sorted { $0.lastModifiedDate < $1.lastModifiedDate }
+    // retrieve the output row observers
+        .compactMap {
+            graph.getOutputRowObserver(.init(portId: 0, // always first output
+                                             nodeId: $0.id))
+        }
+}
+
+// traditionally called in `updateNodesPagingDict`, after `updateNodeRowObserversUpstreamAndDownstreamReferences`
+@MainActor
+func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
+    // Sync port view models for applicable nodes
+    graph.nodes.values.forEach { node in
+        switch node.nodeType {
+        case .patch(let patchNode):
+            // Syncs ports if nodes had inputs added/removed
+            patchNode.canvasObserver.syncRowViewModels(inputRowObservers: patchNode.inputsObservers,
+                                                       outputRowObservers: patchNode.outputsObservers,
+                                                       activeIndex: activeIndex)
+            
+        case .group(let canvasGroup):
+            // Create port view models for group nodes once row observers have been established
+            let inputRowObservers = getSplitterInputRowObservers(for: node.id, from: graph)
+            let outputRowObservers = getSplitterOutputRowObservers(for: node.id, from: graph)
+            // Note: What is `syncRowViewModels` vs `NodeRowViewModel.initialize`?
+            canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
+                                          outputRowObservers: outputRowObservers,
+                                          activeIndex: activeIndex)
+            
+            // Initializes view models for canvas
+            guard let node = canvasGroup.nodeDelegate else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            assertInDebug(node.kind == .group)
+            
+            // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
+            // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
+            canvasGroup.initializeDelegate(node,
+                                           activeIndex: activeIndex,
+                                           // Layer inputs can never be inputs for group nodes
+                                           unpackedPortParentFieldGroupType: nil,
+                                           unpackedPortIndex: nil)
+                            
+        case .component(let componentViewModel):
+            // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component
+            componentViewModel.canvas.syncRowViewModels(
+                inputRowObservers: componentViewModel.inputsObservers,
+                outputRowObservers: componentViewModel.outputsObservers,
+                activeIndex: activeIndex)
+
+        case .layer(let layerNode):
+            // We must refresh all the blocked layer inputs
+            layerNode.refreshBlockedInputs(graph: graph,
+                                           activeIndex: activeIndex)
         }
     }
 }

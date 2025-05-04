@@ -285,11 +285,9 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         // Tracks manual edits
         let manualEdits: [PortValue] = allInputsObservers
             .compactMap {
-                guard $0.upstreamOutputCoordinate == nil else {
-                    return nil
-                }
-                
-                return $0.getActiveValue(activeIndex: self.activeIndex)
+                $0.upstreamOutputCoordinate.isDefined
+                ? nil // If we have an edge, then we can't have a manual edit
+                : $0.getActiveValue(activeIndex: self.activeIndex)
             }
         
         // Track group node ID, which fixes edges when traversing
@@ -299,7 +297,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         let aiActions = self.llmRecording.actions
         
         // Labels for splitter nodes
-        let splitterLabels = graph.getGroupPortLabels()
+        let splitterLabels = GraphState.getGroupPortLabels(graph: graph)
         
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)

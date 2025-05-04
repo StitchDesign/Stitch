@@ -16,7 +16,7 @@ extension StitchDocumentViewModel {
     //
     //        // If we're LLM-recording, add an `LLMAddNode` action
     //        if self.llmRecording.isRecording,
-    //           let node = self.graph.getNodeViewModel(nodeId) {
+    //           let node = self.graph.getNode(nodeId) {
     //
     //            let output = OutputCoordinate(portId: portId, nodeId: nodeId)
     //            let port = output.asLLMPort(nodeKind: node.kind,

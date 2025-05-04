@@ -64,7 +64,7 @@ struct Preview3DModelLayer: View {
 
     @MainActor
     var layerNode: LayerNodeViewModel? {
-        self.graph.getNodeViewModel(layerViewModel.previewCoordinate.layerNodeId.asNodeId)?
+        self.graph.getNode(layerViewModel.previewCoordinate.layerNodeId.asNodeId)?
             .layerNode
     }
 
@@ -198,7 +198,7 @@ struct ModelEntityLayerViewModifier: ViewModifier {
     
     func getAnchor(for nodeId: UUID) -> AnchorEntity? {
         // TODO: support looping in reality view
-        guard let observer = self.graph.getNodeViewModel(nodeId)?.ephemeralObservers?.first as? ARAnchorObserver else {
+        guard let observer = self.graph.getNode(nodeId)?.ephemeralObservers?.first as? ARAnchorObserver else {
             return nil
         }
         

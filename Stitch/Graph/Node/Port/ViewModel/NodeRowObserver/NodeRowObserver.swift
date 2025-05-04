@@ -93,7 +93,7 @@ extension NodeRowViewModel {
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.cachedFieldValueGroups = self.createFieldValueTypes(
+            self.cachedFieldGroups = self.createFieldValueTypes(
                 initialValue: newValue,
                 nodeIO: nodeIO,
                 // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
@@ -119,12 +119,12 @@ extension NodeRowViewModel {
             isLayerInspector: self.isLayerInspector)
         
         // Assert equal array counts
-        guard newFieldsByGroup.count == self.cachedFieldValueGroups.count else {
+        guard newFieldsByGroup.count == self.cachedFieldGroups.count else {
             log("NodeRowObserver error: incorrect counts of groups.")
             return
         }
         
-        zip(self.cachedFieldValueGroups, newFieldsByGroup).forEach { fieldObserverGroup, newFields in
+        zip(self.cachedFieldGroups, newFieldsByGroup).forEach { fieldObserverGroup, newFields in
             
             // If existing field observer group's count does not match the new fields count,
             // reset the fields on this input/output.
@@ -136,7 +136,7 @@ extension NodeRowViewModel {
             let willUpdateFieldsCount = newFields.count != fieldObserversCount // || isMediaField
             
             if willUpdateFieldsCount {
-                self.cachedFieldValueGroups = self.createFieldValueTypes(
+                self.cachedFieldGroups = self.createFieldValueTypes(
                     initialValue: newValue,
                     nodeIO: nodeIO,
                     // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.

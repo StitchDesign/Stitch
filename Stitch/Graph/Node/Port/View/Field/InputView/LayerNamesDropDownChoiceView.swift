@@ -100,7 +100,7 @@ extension GraphState {
                 // Note: should be fine to populate the cache here? Worst case we have several different layer-dropdowns that run in parallel when rendering?
                 if let cachedChoice = self.visibleNodesViewModel.layerDropdownChoiceCache.get(layerId) {
                     return cachedChoice
-                } else if let newChoice = self.getNodeViewModel(layerId)?.asLayerDropdownChoice {
+                } else if let newChoice = self.getNode(layerId)?.asLayerDropdownChoice {
                     self.visibleNodesViewModel.layerDropdownChoiceCache[layerId] = newChoice
                     return newChoice
                 } else {

@@ -13,7 +13,7 @@ struct NodesOnlyView: View {
     @Bindable var graph: GraphState
     
     var canvasNodes: [CanvasItemViewModel] {
-        graph.visibleCanvasNodes
+        graph.cachedCanvasItemsAtThisTraversalLevel
     }
     
     var selection: GraphUISelectionState {
@@ -59,7 +59,7 @@ struct NodesOnlyView: View {
                 // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
                 // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
                 
-                if let node = graph.getNodeViewModel(canvasNode.id.nodeId) {                    
+                if let node = graph.getNode(canvasNode.id.nodeId) {                    
                     NodeView(node: canvasNode,
                              stitch: node,
                              document: document,

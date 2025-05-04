@@ -95,7 +95,7 @@ extension GraphState {
         
         case .layerInput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            guard let layerNode = self.getNodeViewModel(x.node)?.layerNode else {
+            guard let layerNode = self.getNode(x.node)?.layerNode else {
                 fatalErrorIfDebug()
                 return
             }
@@ -116,7 +116,7 @@ extension GraphState {
             
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            guard let layerNode = self.getNodeViewModel(x.node)?.layerNode,
+            guard let layerNode = self.getNode(x.node)?.layerNode,
                   let outputData: OutputLayerNodeRowData = layerNode.outputPorts[safe: x.portId] else {
                 fatalErrorIfDebug()
                 return
@@ -138,7 +138,7 @@ extension GraphState {
 
         //    log("deleteNode called, will delete node \(id)")
         
-        guard let node = self.getNodeViewModel(id),
+        guard let node = self.getNode(id),
               let graph = node.graphDelegate else {
             log("deleteNode: node not found")
             return
@@ -188,7 +188,7 @@ extension GraphState {
         case .patch(let patch) where patch == .splitter:
             // Resize group node given new fields
             if let groupNodeId = node.nonLayerCanvasItem?.parentGroupNodeId,
-               let groupCanvasNode = self.getNodeViewModel(groupNodeId)?.nonLayerCanvasItem {
+               let groupCanvasNode = self.getNode(groupNodeId)?.nonLayerCanvasItem {
                 groupCanvasNode.resetViewSizingCache()
             }
             

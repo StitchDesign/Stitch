@@ -103,7 +103,7 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let node = graph.getNodeViewModel(input.nodeId),
+        guard let node = graph.getNode(input.nodeId),
               node.kind.usesCamera else {
             log("CameraOrientationUpdated: the updated input was not on a camera node; will exit early")
             return
@@ -167,7 +167,7 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let node = graph.getNodeViewModel(input.nodeId),
+        guard let node = graph.getNode(input.nodeId),
               node.kind.usesCamera else {
             log("CameraDirectionUpdated: the updated input was not on a camera node; will exit early")
             return
