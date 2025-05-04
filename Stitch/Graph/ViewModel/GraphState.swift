@@ -196,7 +196,7 @@ extension GraphState {
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
         
-        self.layersSidebarViewModel.initializeDelegate(graph: self)
+        self.layersSidebarViewModel.assignReferences(graph: self)
         
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }
@@ -205,42 +205,14 @@ extension GraphState {
         
         self.updateTopologicalData()
 
-        self.updateVisibleSplitterNodesCache()
-        
-        self.visibleNodesViewModel.updateNodesPagingDict(
-            documentZoomData: document.graphMovement.zoomData,
-            documentFrame: document.frame)
-        
-        self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
-        
         let activeIndex = document.activeIndex
         
-        self.visibleNodesViewModel.syncRowViewModels(activeIndex: activeIndex, graph: self)
-        
-        /// Updates port colors and port colors' cached data (connected-canvas-items)
-        self.visibleNodesViewModel.nodes.values.forEach { node in
-            // Update cache first:
-            node.updateObserversConnectedItemsCache()
-            
-            // Then calculate port colors:
-            node.updateObserversPortColorsAndConnectedItemsPortColors(
-                selectedEdges: self.selectedEdges,
-                selectedCanvasItems: self.selection.selectedCanvasItems,
-                drawingObserver: self.edgeDrawingObserver)
-        }
-        
-        let focusedGroupNode = document.groupNodeFocused?.groupNodeId
-        
-        // Update edges after everything else
-        self.updateConnectedEdgesCache(focusedGroupNode: focusedGroupNode,
-                                       llmRecordingMode: document.llmRecording.mode)
-
-        // Update labels for group nodes
-        self.updateGroupPortLabelsCache()
-        
-        // Update visible canvas items
-        self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
-            groupNodeFocused: focusedGroupNode)
+        // Note: this is not *just* ui-cache
+        self.refreshUICache(activeIndex: activeIndex,
+                            focusedGroupNode: document.groupNodeFocused?.groupNodeId,
+                            documentZoom: document.graphMovement.zoomData,
+                            documentFrame: document.frame,
+                            llmRecordingMode: document.llmRecording.mode)
         
         guard !document.isDebugMode else {
             // If we've opened the project in debug mode,
@@ -257,6 +229,46 @@ extension GraphState {
         self.initializeGraphComputation()
     }
     
+    @MainActor
+    func refreshUICache(activeIndex: ActiveIndex,
+                        focusedGroupNode: NodeId?,
+                        documentZoom: CGFloat,
+                        documentFrame: CGRect,
+                        llmRecordingMode: LLMRecordingMode) {
+        
+        self.updateVisibleSplitterNodesCache()
+        
+        self.visibleNodesViewModel.updateNodesPagingDict(
+            documentZoomData: documentZoom,
+            documentFrame: documentFrame)
+        
+        self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
+                
+        syncRowViewModels(activeIndex: activeIndex, graph: self)
+        
+        /// Updates port colors and port colors' cached data (connected-canvas-items)
+        self.visibleNodesViewModel.nodes.values.forEach { node in
+            // Update cache first:
+            node.updateObserversConnectedItemsCache()
+            
+            // Then calculate port colors:
+            node.updateObserversPortColorsAndConnectedItemsPortColors(
+                selectedEdges: self.selectedEdges,
+                selectedCanvasItems: self.selection.selectedCanvasItems,
+                drawingObserver: self.edgeDrawingObserver)
+        }
+        
+        // Update edges after everything else
+        self.updateConnectedEdgesCache(focusedGroupNode: focusedGroupNode,
+                                       llmRecordingMode: llmRecordingMode)
+
+        // Update labels for group nodes
+        self.updateGroupPortLabelsCache()
+        
+        // Update visible canvas items
+        self.cachedCanvasItemsAtThisTraversalLevel = self.getCanvasItemsAtTraversalLevel(
+            groupNodeFocused: focusedGroupNode)
+    }
 
     @MainActor
     func updateVisibleSplitterNodesCache() {
@@ -266,12 +278,12 @@ extension GraphState {
         + [nil]
         
         self.visibleNodesViewModel.cachedVisibleSplitterInputRows = allGroupIds.reduce(into: .init()) { result, groupId in
-            result.updateValue(Self.getSplitterInputRowObservers(for: groupId, from: self),
+            result.updateValue(getSplitterInputRowObservers(for: groupId, from: self),
                                forKey: groupId)
         }
         
         self.visibleNodesViewModel.cachedVisibleSplitterOutputRows = allGroupIds.reduce(into: .init()) { result, groupId in
-            result.updateValue(Self.getSplitterOutputRowObservers(for: groupId, from: self),
+            result.updateValue(getSplitterOutputRowObservers(for: groupId, from: self),
                                forKey: groupId)
         }
     }

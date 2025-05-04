@@ -43,7 +43,7 @@ struct CanvasLayerInputView: View {
                                  node: node,
                                  rowObserver: inputRowObserver,
                                  rowViewModel: inputRowViewModel,
-                                 fieldValueTypes: inputRowViewModel.cachedFieldValueGroups,
+                                 fieldValueTypes: inputRowViewModel.cachedFieldGroups,
                                  layerInputObserver: layerInputObserver,
                                  isNodeSelected: isNodeSelected)
         }

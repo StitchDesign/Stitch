@@ -235,12 +235,12 @@ extension StitchComponentViewModel {
     
     @MainActor
     static func getInputSplitters(graph: GraphState) -> [InputNodeRowObserver] {
-        GraphState.getSplitterInputRowObservers(for: nil, from: graph)
+        getSplitterInputRowObservers(for: nil, from: graph)
     }
     
     @MainActor
     static func getOutputSplitters(graph: GraphState) -> [OutputNodeRowObserver] {
-        GraphState.getSplitterOutputRowObservers(for: nil, from: graph)
+        getSplitterOutputRowObservers(for: nil, from: graph)
     }
 }
 

@@ -65,12 +65,9 @@ extension ProjectSidebarObservable {
     }
     
     @MainActor
-    func initializeDelegate(graph: GraphState) {
+    func assignReferences(graph: GraphState) {
         self.graphDelegate = graph
-        
-        self.items.recursiveForEach {
-            $0.sidebarDelegate = self
-        }
+        self.items.recursiveForEach { $0.sidebarDelegate = self }
     }
     
     @MainActor func persistSidebarChanges(encodedData: [Self.EncodedItemData]? = nil) {
