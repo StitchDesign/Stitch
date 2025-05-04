@@ -346,7 +346,6 @@
 		EC0093DE26D6F39A000EAE08 /* RoundNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0093DD26D6F39A000EAE08 /* RoundNode.swift */; };
 		EC0093E026D6F648000EAE08 /* ProgressNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0093DF26D6F648000EAE08 /* ProgressNode.swift */; };
 		EC00D80526FAC4E50024AAF6 /* GraphActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00D80426FAC4E50024AAF6 /* GraphActions.swift */; };
-		EC014FED2BED3A0100E6C51B /* NodeRowObserverUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC014FEC2BED3A0100E6C51B /* NodeRowObserverUtil.swift */; };
 		EC014FEF2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */; };
 		EC035BF828A56E84005FA607 /* ClassicAnimationFormulae.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */; };
 		EC067CE82BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */; };
@@ -1344,7 +1343,6 @@
 		EC0093DD26D6F39A000EAE08 /* RoundNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundNode.swift; sourceTree = "<group>"; };
 		EC0093DF26D6F648000EAE08 /* ProgressNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressNode.swift; sourceTree = "<group>"; };
 		EC00D80426FAC4E50024AAF6 /* GraphActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphActions.swift; sourceTree = "<group>"; };
-		EC014FEC2BED3A0100E6C51B /* NodeRowObserverUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverUtil.swift; sourceTree = "<group>"; };
 		EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverColorUtil.swift; sourceTree = "<group>"; };
 		EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationFormulae.swift; sourceTree = "<group>"; };
 		EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationPoint4D.swift; sourceTree = "<group>"; };
@@ -3624,7 +3622,6 @@
 				B55500B92C1B993F0081C3F1 /* Field */,
 				B55501222C1BF8D30081C3F1 /* InputEdit */,
 				B55501232C1BF92B0081C3F1 /* TypeChange */,
-				EC014FEC2BED3A0100E6C51B /* NodeRowObserverUtil.swift */,
 				EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */,
 				EC4D959C26B48F7900AD5AB4 /* PulseActions.swift */,
 				EC2DD177289B6BF80089D501 /* NodeInputChangedActions.swift */,
@@ -5020,7 +5017,6 @@
 				ECA3915D29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift in Sources */,
 				ECAFD08E2D4878CC00101226 /* LLMActionHelpers.swift in Sources */,
 				ECA3915B29A6C3C9005C10A8 /* StitchProjectView.swift in Sources */,
-				EC014FED2BED3A0100E6C51B /* NodeRowObserverUtil.swift in Sources */,
 				ECC2BCDB2B9B747A00D5F942 /* SidebarListLabelView.swift in Sources */,
 				EC1B41B826BCB1630016C2C2 /* NodeMovedAction.swift in Sources */,
 				B5E50E1A28B9A3B3000E50B9 /* DeviceInfo.swift in Sources */,

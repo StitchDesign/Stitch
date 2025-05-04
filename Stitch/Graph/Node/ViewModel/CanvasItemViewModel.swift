@@ -208,19 +208,22 @@ extension CanvasItemViewModel {
     
     func onPrototypeRestart(document: StitchDocumentViewModel) { }
     
+    // `fka `initializeDelegate`
     @MainActor
-    func initializeDelegate(_ node: NodeViewModel,
-                            activeIndex: ActiveIndex,
-                            unpackedPortParentFieldGroupType: FieldGroupType?,
-                            unpackedPortIndex: Int?) {
+    func assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+        _ node: NodeViewModel,
+        activeIndex: ActiveIndex,
+        unpackedPortParentFieldGroupType: FieldGroupType?,
+        unpackedPortIndex: Int?,
+        graph: GraphReader
+    ) {
         
-        self.nodeDelegate = node
+        self.assignReference(node: node)
         
         self.inputViewModels.forEach {
-            // Note: assumes the row view model as already have its underlying row observer delegate assigned
-            if let rowObserver = $0.rowDelegate {
-                $0.initializeDelegate(
-                    node,
+            if let rowObserver = graph.getInputRowObserver($0.id.asNodeIOCoordinate) {
+                $0.updateFieldGroupsIfEmptyAndUpdatePortAddress(
+                    node: node,
                     initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                     unpackedPortIndex: unpackedPortIndex)
@@ -228,9 +231,9 @@ extension CanvasItemViewModel {
         }
         
         self.outputViewModels.forEach {
-            if let rowObserver = $0.rowDelegate {
-                $0.initializeDelegate(
-                    node,
+            if let rowObserver = graph.getOutputRowObserver($0.id.asNodeIOCoordinate) {
+                $0.updateFieldGroupsIfEmptyAndUpdatePortAddress(
+                    node: node,
                     initialValue: rowObserver.getActiveValue(activeIndex: activeIndex),
                     // Not relevant for output row view models
                     unpackedPortParentFieldGroupType: nil,
@@ -240,6 +243,11 @@ extension CanvasItemViewModel {
         
         // Reset cache data--fixes scenarios like undo
 //        self.viewCache?.needsUpdating = true
+    }
+    
+    @MainActor
+    func assignReference(node: NodeViewModel) {
+        self.nodeDelegate = node
     }
 
     @MainActor

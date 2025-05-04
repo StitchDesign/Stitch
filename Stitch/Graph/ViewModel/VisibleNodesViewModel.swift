@@ -298,7 +298,9 @@ func getSplitterOutputRowObservers(for groupNodeId: NodeId?,
 func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
     // Sync port view models for applicable nodes
     graph.nodes.values.forEach { node in
+        
         switch node.nodeType {
+            
         case .patch(let patchNode):
             // Syncs ports if nodes had inputs added/removed
             patchNode.canvasObserver.syncRowViewModels(inputRowObservers: patchNode.inputsObservers,
@@ -324,11 +326,13 @@ func syncRowViewModels(activeIndex: ActiveIndex, graph: GraphReader) {
             
             // Note: A Group Node's inputs and outputs are actually underlying input-splitters and output-splitters.
             // TODO: shouldn't the row view models already have been initialized when we initialized patch nodes?
-            canvasGroup.initializeDelegate(node,
-                                           activeIndex: activeIndex,
-                                           // Layer inputs can never be inputs for group nodes
-                                           unpackedPortParentFieldGroupType: nil,
-                                           unpackedPortIndex: nil)
+            canvasGroup.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+                node,
+                activeIndex: activeIndex,
+                // Layer inputs can never be inputs for group nodes
+                unpackedPortParentFieldGroupType: nil,
+                unpackedPortIndex: nil,
+                graph: graph)
                             
         case .component(let componentViewModel):
             // Similar logic to patch nodes, where we have inputs/outputs observers stored directly in component

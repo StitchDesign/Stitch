@@ -137,10 +137,12 @@ extension StitchDocumentViewModel {
             inputRowObservers: [input.rowObserver],
             outputRowObservers: [])
                 
-        canvasItem.initializeDelegate(node,
-                                      activeIndex: self.activeIndex,
-                                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                      unpackedPortIndex: unpackedPortIndex)
+        canvasItem.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+            node,
+            activeIndex: self.activeIndex,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex,
+            graph: self.visibleGraph)
         
         input.canvasObserver = canvasItem
         
@@ -209,10 +211,11 @@ extension GraphState {
             inputRowObservers: [],
             outputRowObservers: [output.rowObserver])
         
-        output.canvasObserver?.initializeDelegate(node,
+        output.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(node,
                                                   activeIndex: activeIndex,
                                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                  unpackedPortIndex: unpackedPortIndex)
+                                                  unpackedPortIndex: unpackedPortIndex,
+                                                  graph: self)
         
         // Subscribe inspector row ui data to the row data's canvas item
         output.inspectorRowViewModel.canvasItemDelegate = output.canvasObserver

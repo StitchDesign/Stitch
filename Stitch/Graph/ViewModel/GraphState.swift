@@ -193,26 +193,32 @@ extension GraphState {
     func initializeDelegate(document: StitchDocumentViewModel,
                             documentEncoderDelegate: any DocumentEncodable) {
         
-        self.documentDelegate = document
-        self.documentEncoderDelegate = documentEncoderDelegate
         
-        self.layersSidebarViewModel.assignReferences(graph: self)
+        // MARK: Assign references to self and children
         
+        self.assignReferences(document: document,
+                              documentEncoderDelegate: documentEncoderDelegate)
+                
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }
-        
-        self.components.values.forEach { $0.assignReferences(parentGraph: self) }
-        
+                
+        // TODO: can this be done after we've refreshed UI-caches ?
         self.updateTopologicalData()
 
+        
+        // MARK: refresh UI caches
+        
         let activeIndex = document.activeIndex
         
-        // Note: this is not *just* ui-cache
+        // TODO: this is not *just* ui-cache; what should we call `NodesPagingDict` etc. ?
         self.refreshUICache(activeIndex: activeIndex,
                             focusedGroupNode: document.groupNodeFocused?.groupNodeId,
                             documentZoom: document.graphMovement.zoomData,
                             documentFrame: document.frame,
                             llmRecordingMode: document.llmRecording.mode)
+        
+        
+        // MARK: evaluate the graph
         
         guard !document.isDebugMode else {
             // If we've opened the project in debug mode,
@@ -221,6 +227,8 @@ extension GraphState {
             self.updatePortViews()
             return
         }
+
+        // TODO: `updateGraphData` is called in many places -- are we always sure we want to update the preview window and recalc the graph in those places?
         
         // Update preview window contents
         self.updateOrderedPreviewLayers(activeIndex: activeIndex)
@@ -228,6 +236,24 @@ extension GraphState {
         // Calculate graph
         self.initializeGraphComputation()
     }
+    
+    @MainActor
+    func assignReferences(document: StitchDocumentViewModel,
+                          documentEncoderDelegate: any DocumentEncodable) {
+        // Graph's references to document
+        self.documentDelegate = document
+        self.documentEncoderDelegate = documentEncoderDelegate
+        
+        // Sidebar's references to graph
+        self.layersSidebarViewModel.graphDelegate = self
+        self.layersSidebarViewModel.items.recursiveForEach {
+            $0.sidebarDelegate = self.layersSidebarViewModel
+        }
+        
+        // Components' references to graph
+        self.components.values.forEach { $0.assignReferences(parentGraph: self) }
+    }
+    
     
     @MainActor
     func refreshUICache(activeIndex: ActiveIndex,

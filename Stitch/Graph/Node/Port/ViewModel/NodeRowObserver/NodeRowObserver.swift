@@ -93,7 +93,7 @@ extension NodeRowViewModel {
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.cachedFieldGroups = self.createFieldValueTypes(
+            self.cachedFieldGroups = self.createFieldGroups(
                 initialValue: newValue,
                 nodeIO: nodeIO,
                 // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
@@ -136,7 +136,7 @@ extension NodeRowViewModel {
             let willUpdateFieldsCount = newFields.count != fieldObserversCount // || isMediaField
             
             if willUpdateFieldsCount {
-                self.cachedFieldGroups = self.createFieldValueTypes(
+                self.cachedFieldGroups = self.createFieldGroups(
                     initialValue: newValue,
                     nodeIO: nodeIO,
                     // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
@@ -151,9 +151,9 @@ extension NodeRowViewModel {
 
         
         // Whenever we update ui-fields' values, we need to potentially block or unblock the same/other fields.
-        if let node = self.nodeDelegate,
+        if let graph = self.rowDelegate?.nodeDelegate?.graphDelegate,
+           let node = graph.getNode(self.id.nodeId),
            let layerNode = node.layerNodeReader,
-           let graph = node.graphDelegate,
            let activeIndex = graph.documentDelegate?.activeIndex {
             
             layerNode.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)
@@ -171,12 +171,25 @@ extension NodeRowObserver {
         self.init(values: values,
                   id: id,
                   upstreamOutputCoordinate: upstreamOutputCoordinate)
-        self.initializeDelegate(nodeDelegate, graph: graph)
+        self.assignNodeReferenceAndHandleValueChange(nodeDelegate, graph: graph)
+    }
+    
+    // fks `initializeDelegate`
+    @MainActor
+    func assignNodeReferenceAndHandleValueChange(_ node: NodeViewModel, graph: GraphState) {
+        self.assignReferences(node)
+        
+        // TODO: why are we calling `post-processing` here ? is it for initialization -- or is it for "we had some schema update, so refresh xyz" ?
+        self.handlePortValueChange(graph: graph)
     }
     
     @MainActor
-    func initializeDelegate(_ node: NodeViewModel, graph: GraphState) {
+    private func assignReferences(_ node: NodeViewModel) {
         self.nodeDelegate = node
+    }
+    
+    @MainActor
+    private func handlePortValueChange(graph: GraphState) {
         
         // TODO: why do we handle post-processing when we've assigned the nodeDelegate? ... is it just because post-processing requires a nodeDelegate?
         switch Self.nodeIOType {

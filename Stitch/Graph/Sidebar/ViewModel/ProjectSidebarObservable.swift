@@ -64,12 +64,6 @@ extension ProjectSidebarObservable {
         return self.items.get(currentItemDragged)?.parentDelegate
     }
     
-    @MainActor
-    func assignReferences(graph: GraphState) {
-        self.graphDelegate = graph
-        self.items.recursiveForEach { $0.sidebarDelegate = self }
-    }
-    
     @MainActor func persistSidebarChanges(encodedData: [Self.EncodedItemData]? = nil) {
         // Create new encodable data
         let encodedData: [Self.EncodedItemData] = encodedData ?? self.createdOrderedEncodedData()
