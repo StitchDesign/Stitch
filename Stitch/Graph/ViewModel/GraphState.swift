@@ -206,7 +206,6 @@ extension GraphState {
         self.updateTopologicalData()
 
         
-        
         // MARK: refresh UI caches
         
         let activeIndex = document.activeIndex
@@ -253,11 +252,7 @@ extension GraphState {
         
         // Components' references to graph
         self.components.values.forEach { $0.assignReferences(parentGraph: self) }
-        
-        
     }
-    
-    
     
     
     @MainActor

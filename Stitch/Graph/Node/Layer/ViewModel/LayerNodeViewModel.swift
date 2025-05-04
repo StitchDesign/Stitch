@@ -452,7 +452,7 @@ extension LayerNodeViewModel: SchemaObserver {
                         inputRowObservers: [],
                         outputRowObservers: [outputData.rowObserver])
                     
-                    outputData.canvasObserver?.initializeDelegate(
+                    outputData.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
                         node,
                         activeIndex: activeIndex,
                         // Not relevant

@@ -290,7 +290,7 @@ extension StitchDocumentViewModel {
             inputRowObservers: [unpackedPort.rowObserver],
             outputRowObservers: [])
         
-        canvasObserver.initializeDelegate(
+        canvasObserver.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
             activeIndex: document.activeIndex,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,

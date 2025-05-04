@@ -93,7 +93,7 @@ extension NodeRowViewModel {
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.cachedFieldGroups = self.createFieldValueTypes(
+            self.cachedFieldGroups = self.createFieldGroups(
                 initialValue: newValue,
                 nodeIO: nodeIO,
                 // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
@@ -136,7 +136,7 @@ extension NodeRowViewModel {
             let willUpdateFieldsCount = newFields.count != fieldObserversCount // || isMediaField
             
             if willUpdateFieldsCount {
-                self.cachedFieldGroups = self.createFieldValueTypes(
+                self.cachedFieldGroups = self.createFieldGroups(
                     initialValue: newValue,
                     nodeIO: nodeIO,
                     // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
@@ -151,9 +151,9 @@ extension NodeRowViewModel {
 
         
         // Whenever we update ui-fields' values, we need to potentially block or unblock the same/other fields.
-        if let node = self.nodeDelegate,
+        if let graph = self.rowDelegate?.nodeDelegate?.graphDelegate,
+           let node = graph.getNode(self.id.nodeId),
            let layerNode = node.layerNodeReader,
-           let graph = node.graphDelegate,
            let activeIndex = graph.documentDelegate?.activeIndex {
             
             layerNode.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)

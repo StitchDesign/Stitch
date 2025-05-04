@@ -144,15 +144,16 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
         self.rowObserver.assignNodeReferenceAndHandleValueChange(node, graph: graph)
         let rowDelegate = self.rowObserver
         
-        self.canvasObserver?.initializeDelegate(node,
-                                                activeIndex: activeIndex,
-                                                // Not relevant for output
-                                                unpackedPortParentFieldGroupType: nil,
-                                                unpackedPortIndex: nil,
-                                                graph: graph)
+        self.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+            node,
+            activeIndex: activeIndex,
+            // Not relevant for output
+            unpackedPortParentFieldGroupType: nil,
+            unpackedPortIndex: nil,
+            graph: graph)
                         
-        self.inspectorRowViewModel.initializeDelegate(
-            node, // for setting NodeViewModel on NodeRowViewModel
+        self.inspectorRowViewModel.updateFieldGroupsIfEmptyAndUpdatePortAddress(
+            node: node,
             initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
             // Not relevant for output
             unpackedPortParentFieldGroupType: nil,
@@ -167,17 +168,20 @@ extension LayerNodeRowData {
                             unpackedPortIndex: Int?,
                             activeIndex: ActiveIndex,
                             graph: GraphState) {
+        
         self.rowObserver.assignNodeReferenceAndHandleValueChange(node, graph: graph)
-        self.canvasObserver?.initializeDelegate(node,
-                                                activeIndex: activeIndex,
-                                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                unpackedPortIndex: unpackedPortIndex,
-                                                graph: graph)
+        
+        self.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+            node,
+            activeIndex: activeIndex,
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex,
+            graph: graph)
         
         let rowDelegate = self.rowObserver
         
-        self.inspectorRowViewModel.initializeDelegate(
-            node,
+        self.inspectorRowViewModel.updateFieldGroupsIfEmptyAndUpdatePortAddress(
+            node: node,
             initialValue: rowDelegate.getActiveValue(activeIndex: activeIndex),
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: unpackedPortIndex)
