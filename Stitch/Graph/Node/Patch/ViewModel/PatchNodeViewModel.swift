@@ -140,11 +140,11 @@ extension PatchNodeViewModel {
         self.delegate = node
         
         self.inputsObservers.forEach {
-            $0.initializeDelegate(node, graph: graph)
+            $0.assignNodeReferenceAndHandleValueChange(node, graph: graph)
         }
         
         self.outputsObservers.forEach {
-            $0.initializeDelegate(node, graph: graph)
+            $0.assignNodeReferenceAndHandleValueChange(node, graph: graph)
         }
         
         self.canvasObserver.initializeDelegate(node,

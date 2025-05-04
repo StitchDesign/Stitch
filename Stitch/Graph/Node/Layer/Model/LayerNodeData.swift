@@ -141,7 +141,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData, Identifiable {
     func initializeDelegate(_ node: NodeViewModel,
                             graph: GraphState,
                             activeIndex: ActiveIndex) {
-        self.rowObserver.initializeDelegate(node, graph: graph)
+        self.rowObserver.assignNodeReferenceAndHandleValueChange(node, graph: graph)
         let rowDelegate = self.rowObserver
         
         self.canvasObserver?.initializeDelegate(node,
@@ -167,7 +167,7 @@ extension LayerNodeRowData {
                             unpackedPortIndex: Int?,
                             activeIndex: ActiveIndex,
                             graph: GraphState) {
-        self.rowObserver.initializeDelegate(node, graph: graph)
+        self.rowObserver.assignNodeReferenceAndHandleValueChange(node, graph: graph)
         self.canvasObserver?.initializeDelegate(node,
                                                 activeIndex: activeIndex,
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,

@@ -191,8 +191,8 @@ extension StitchComponentViewModel {
                                       documentEncoderDelegate: masterComponent.encoder)
         
         // Updates inputs and outputs
-        self.inputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
-        self.outputsObservers.forEach { $0.initializeDelegate(node, graph: self.graph) }
+        self.inputsObservers.forEach { $0.assignNodeReferenceAndHandleValueChange(node, graph: self.graph) }
+        self.outputsObservers.forEach { $0.assignNodeReferenceAndHandleValueChange(node, graph: self.graph) }
         
         // Refresh port data
         self.refreshPorts(activeIndex: document.activeIndex)
