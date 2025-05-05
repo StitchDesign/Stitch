@@ -125,8 +125,6 @@ struct StitchCustomColorPickerView: View {
                 AlphaSliderView(chosenColor: $chosenColor,
                                 graph: graph)
             }
-            //            Spacer()
-            //            AlphaSliderView(chosenColor: $chosenColor)
         }
         .frame(width: 150)
         .id(sliderId)
@@ -136,7 +134,7 @@ struct StitchCustomColorPickerView: View {
 
     // https://developer.apple.com/documentation/swiftui/grid
 
-    func suggestedColorsArray() -> [Color] {
+    static var suggestedColorsArray: [Color] {
         [
             .red, .orange, .yellow
             , .green, .cyan, .blue
@@ -163,21 +161,20 @@ struct StitchCustomColorPickerView: View {
     @MainActor
     func colorGridItem(_ color: Color) -> some View {
         Circle().fill(color)
-            //            .stroke(.black)
             .frame(width: 50)
             .modifier(ColorOrbWrapperModifier())
             .onTapGesture {
 
-                // When user manually clicks a pre-selected color,
-                // we should persist that change.
                 if let rowObserver = rowObserver,
                    self.chosenColor.asHexDisplay != color.asHexDisplay {
+                    
                     graph.pickerOptionSelected(
                         rowObserver: rowObserver,
                         choice: .color(color),
                         activeIndex: activeIndex,
                         isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                        // Lots of small changes so don't persist everything
+                        // When user manually clicks a pre-selected color,
+                        // we should persist that change.
                         isPersistence: true)
                 }
 
@@ -190,7 +187,7 @@ struct StitchCustomColorPickerView: View {
     @MainActor
     var colorGrid: some View {
 
-        let colors = suggestedColorsArray()
+        let colors = Self.suggestedColorsArray
 
         return Grid(alignment: .center) {
 
