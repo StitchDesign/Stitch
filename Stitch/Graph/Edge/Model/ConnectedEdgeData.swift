@@ -28,15 +28,15 @@ struct ConnectedEdgeData: Equatable, Identifiable {
     // TODO: can this initializer *really* fail? It must be called with at least one upstream row view model and one downstream row view model
     @MainActor
     init?(upstreamCanvasItem: CanvasItemViewModel,
-                       upstreamOutputPortUIViewModel: OutputPortUIViewModel,
-                       downstreamInput: InputNodeRowViewModel) {
+          upstreamOutputPortUIViewModel: OutputPortUIViewModel,
+          downstreamInput: InputNodeRowViewModel,
+          downstreamInputNode: NodeViewModel) {
         
-        guard let downstreamNode = downstreamInput.nodeDelegate,
-              let inputData = EdgeAnchorDownstreamData(from: downstreamInput,
+        guard let inputData = EdgeAnchorDownstreamData(from: downstreamInput,
                                                        upstreamNodeId: upstreamCanvasItem.id),
               let outputData = EdgeAnchorUpstreamData(from: upstreamCanvasItem.outputPortUIViewModels,
                                                       upstreamNodeId: upstreamCanvasItem.id.nodeId,
-                                                      inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels) else {
+                                                      inputRowViewModelsOnDownstreamNode: downstreamInputNode.allInputViewModels) else {
             return nil
         }
         
