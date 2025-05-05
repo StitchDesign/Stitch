@@ -141,8 +141,7 @@ final class GraphState: Sendable {
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
         
-        // Sync nodes and cached data
-        self.syncNodes(nodesDict: nodes)
+        self.visibleNodesViewModel.nodes = nodesDict
         
         if let stringWarning = schema.migrationWarning {
             self.migrationWarning = .init(rawValue: stringWarning)
@@ -211,11 +210,11 @@ extension GraphState {
         let activeIndex = document.activeIndex
         
         // TODO: this is not *just* ui-cache; what should we call `NodesPagingDict` etc. ?
-        self.refreshUICache(activeIndex: activeIndex,
-                            focusedGroupNode: document.groupNodeFocused?.groupNodeId,
-                            documentZoom: document.graphMovement.zoomData,
-                            documentFrame: document.frame,
-                            llmRecordingMode: document.llmRecording.mode)
+        self.refreshUICaches(activeIndex: activeIndex,
+                             focusedGroupNode: document.groupNodeFocused?.groupNodeId,
+                             documentZoom: document.graphMovement.zoomData,
+                             documentFrame: document.frame,
+                             llmRecordingMode: document.llmRecording.mode)
         
         
         // MARK: evaluate the graph
@@ -256,7 +255,7 @@ extension GraphState {
     
     
     @MainActor
-    func refreshUICache(activeIndex: ActiveIndex,
+    func refreshUICaches(activeIndex: ActiveIndex,
                         focusedGroupNode: NodeId?,
                         documentZoom: CGFloat,
                         documentFrame: CGRect,
@@ -267,6 +266,8 @@ extension GraphState {
         self.visibleNodesViewModel.updateNodesPagingDict(
             documentZoomData: documentZoom,
             documentFrame: documentFrame)
+        
+        self.updateLayerDropdownChoiceCache()
         
         self.visibleNodesViewModel.updateNodeRowObserversUpstreamAndDownstreamReferences()
                 
@@ -536,15 +537,9 @@ extension GraphState {
                                  nodeType: nodeType)
         }
         
-        self.syncNodes(nodesDict: newDictionary)
-    }
-    
-    @MainActor
-    func syncNodes(nodesDict: NodesViewModelDict) {
         self.visibleNodesViewModel.nodes = nodesDict
-        self.updateLayerDropdownChoiceCache()
     }
-    
+        
     @MainActor
     func updateLayerDropdownChoiceCache() {
         // Cache layer node info for perf
