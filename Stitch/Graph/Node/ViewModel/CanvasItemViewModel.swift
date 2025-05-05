@@ -178,8 +178,14 @@ extension CanvasItemViewModel {
     @MainActor
     func updateAnchorPoints() {
         
+        if self.id.nodeId.uuidString.contains("16B5FF") {
+            log("updating anchor points for group node: self.sizeByLocalBounds: \(self.sizeByLocalBounds)")
+            log("updating anchor points for group node: self.position: \(self.position)")
+        }
+        
         guard let canvasSize = self.sizeByLocalBounds else {
             // Nothing to do if no size for canvas item yet
+            log("updateAnchorPoints: no canvas size for canvas item \(self.id)")
             return
         }
         

@@ -180,7 +180,7 @@ final class StitchDocumentViewModel: Sendable {
         }
         
         self.graph.assignReferencesAndUpdateUICaches(document: self,
-                                      documentEncoderDelegate: documentEncoder)
+                                                     documentEncoderDelegate: documentEncoder)
         
         // Start graph if not in debug mode
         if !self.isDebugMode {

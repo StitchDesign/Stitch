@@ -445,6 +445,9 @@ extension GraphState {
         self.assignReferencesAndUpdateUICaches(document: document,
                                                documentEncoderDelegate: documentEncoder)
         
+//        self.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
+        self.visibleNodesViewModel.infiniteCanvasCache = .init()
+        
         // TODO: `document.updateVisibleCanvasItems()` updates the cache of "which canvas items are visible in the view port?", so why do we then immediately reset that cache down here? Do we need it for the portLocation updates?
         // Updates node visibility data
         // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level

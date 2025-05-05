@@ -28,7 +28,9 @@ struct InfiniteCanvas: Layout {
     typealias Cache = [CanvasItemId: CGRect]
     
     var willUpdateCache: Bool {
-        self.needsInfiniteCanvasCacheReset && !self.isUpdatingCache
+//        self.needsInfiniteCanvasCacheReset && !self.isUpdatingCache
+//        self.needsInfiniteCanvasCacheReset && !self.isUpdatingCache
+        true
     }
     
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {

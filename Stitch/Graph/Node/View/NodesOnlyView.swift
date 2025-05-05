@@ -87,7 +87,8 @@ struct NodesOnlyView: View {
             }
         }
         // Also do this on `initial: true` ?
-        .onChange(of: self.focusedGroup) {
+//        .onChange(of: self.focusedGroup) {
+        .onChange(of: self.focusedGroup, initial: true) {
             // Update node locations
             self.graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset = true
         }
