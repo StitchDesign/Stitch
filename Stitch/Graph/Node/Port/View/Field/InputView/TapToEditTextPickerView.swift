@@ -27,7 +27,7 @@ extension TapToEditTextView {
             Rectangle().fill(.clear).frame(width: 1, height: 1)
                 .overlay {
                     pickerView(choices)
-                        .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
+                        .offset(x: -.COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
                         .offset(x: -2) // "padding"
                 }
         }
@@ -45,8 +45,8 @@ extension TapToEditTextView {
         } label: {
             Image(systemName: "chevron.down")
                 .resizable()
-                .frame(width: COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH,
-                       height: COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT)
+                .frame(width: .COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH,
+                       height: .COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT)
                 .padding(8) // increase hit area
         }
         

@@ -20,7 +20,8 @@ struct InputFieldFrameAndPadding: ViewModifier {
     let hasPicker: Bool
         
     var widthAdjustedForDropdown: CGFloat {
-        width - (hasPicker ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
+        // +1 for keeping the text slightly away from the picker caret
+        width - (hasPicker ? (.COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 1) : 0.0)
     }
     
     func body(content: Content) -> some View {
@@ -28,6 +29,9 @@ struct InputFieldFrameAndPadding: ViewModifier {
             .frame(width: widthAdjustedForDropdown, alignment: .leading)
             .frame(width: width, alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
+        
+        // accounts for 1x1 rectangle used for properly placing picker
+            .padding(.leading, hasPicker ? 1 : 0)
     }
 }
 
@@ -79,6 +83,7 @@ struct InputFieldBackgroundColorView: ViewModifier {
             .background {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(self.color)
+                    .stroke((isHovering && !isFocused) ? Color.gray : .clear, lineWidth: 2)
             }
         #if !targetEnvironment(macCatalyst)
             .background {

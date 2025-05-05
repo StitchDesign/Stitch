@@ -32,7 +32,7 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .overlay {
+            .background {
                 UnevenRoundedRectangle(cornerRadii: .init(topLeading: 8.0,
                                                           bottomLeading: 8.0,
                                                           bottomTrailing: 0,
@@ -52,10 +52,7 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
             }
 
             .onHover { isHovering in
-                guard let graphMovement = graph.documentDelegate?.graphMovement else {
-                    fatalErrorIfDebug()
-                    return
-                }
+                let graphMovement = document.graphMovement
                 
                 // Make sure the graph isn't in movement
                 guard !graphMovement.graphIsDragged,
