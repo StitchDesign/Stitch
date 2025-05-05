@@ -405,8 +405,10 @@ extension LayerNodeViewModel: SchemaObserver {
         }
         
         // Process output canvases
-        self.updateOutputData(from: schema.outputCanvasPorts,
+        Self.updateOutputData(from: schema.outputCanvasPorts,
                               activeIndex: document.activeIndex,
+                              layerNodeOutputs: self.outputPorts,
+                              layerNodeId: self.id,
                               // Has to be visible graph, since used to retrieve a row view model's row observer's activeValue
                               graph: document.visibleGraph)
         
@@ -424,18 +426,20 @@ extension LayerNodeViewModel: SchemaObserver {
     }
     
     @MainActor
-    func updateOutputData(from canvases: [CanvasNodeEntity?],
-                          activeIndex: ActiveIndex,
-                          graph: GraphReader) {
+    static func updateOutputData(from canvases: [CanvasNodeEntity?],
+                                 activeIndex: ActiveIndex,
+                                 layerNodeOutputs: [OutputLayerNodeRowData],
+                                 layerNodeId: NodeId,
+                                 graph: GraphReader) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
-            guard let outputData = self.outputPorts[safe: portIndex],
-                  let node = graph.getNode(self.id) else {
+            guard let outputData = layerNodeOutputs[safe: portIndex],
+                  let node = graph.getNode(layerNodeId) else {
                 fatalErrorIfDebug()
                 return
             }
             
             let canvasViewModel = outputData.canvasObserver
-            let coordinate = LayerOutputCoordinate(node: self.id,
+            let coordinate = LayerOutputCoordinate(node: layerNodeId,
                                                    portId: portIndex)
             
             // Create view model if not yet created (and should)
@@ -524,8 +528,7 @@ extension LayerNodeViewModel {
     func resetInputCanvasItemsCache(graph: GraphState,
                                     activeIndex: ActiveIndex) {
         guard let node = graph.getNode(self.id) else {
-            fatalErrorIfDebug()
-            return
+            return // this can happen in some cases?
         }
         
         // Set up inputs
