@@ -189,9 +189,10 @@ extension GraphState {
                   saveLocation: saveLocation)
     }
     
+    // fka `initializeDelegate`
     @MainActor
-    func initializeDelegate(document: StitchDocumentViewModel,
-                            documentEncoderDelegate: any DocumentEncodable) {
+    func assignReferencesAndUpdateUICaches(document: StitchDocumentViewModel,
+                                           documentEncoderDelegate: any DocumentEncodable) {
         
         
         // MARK: Assign references to self and children
@@ -201,7 +202,7 @@ extension GraphState {
                 
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }
-                
+        
         // TODO: can this be done after we've refreshed UI-caches ?
         self.updateTopologicalData()
 
@@ -434,7 +435,33 @@ extension GraphState {
             parentGraph._updateGraphData(document,
                                          documentEncoder: documentEncoder)
         }
+        
+        // Important: before we assign references and update UI-caches, make sure we know which traversal level we're on (could change e.g. from undoing the creation of a GroupNode) and which canvas items are within the viewport.
+        self.updateTraversalLevelData(document: document)
                 
+        // TODO: really, this only makes sense to do for the current visible-graph; how do we know we aren't calling `updateGraphData` from within a nested graph (non-visible) component?
+        document.updateVisibleCanvasItems()
+        
+        self.assignReferencesAndUpdateUICaches(document: document,
+                                               documentEncoderDelegate: documentEncoder)
+        
+        // TODO: `document.updateVisibleCanvasItems()` updates the cache of "which canvas items are visible in the view port?", so why do we then immediately reset that cache down here? Do we need it for the portLocation updates?
+        // Updates node visibility data
+        // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
+        self.visibleNodesViewModel.resetVisibleCanvasItemsCache()
+    }
+    
+    @MainActor
+    private func updateTraversalLevelData(document: StitchDocumentViewModel) {
+        
+        // If we were inside of a group that no longer exists (e.g. because of undo),
+        // just jump back to the root.
+        if let nonRootTraversalLevel: NodeId = document.groupNodeFocused?.groupNodeId,
+           !document.graph.getNode(nonRootTraversalLevel).isDefined {
+            
+            document.groupNodeBreadcrumbs = .init([])
+        }
+        
         // Update position data in case focused group node changed
         if let nodePageData = self.visibleNodesViewModel.nodePageDataAtThisTraversalLevel(document.groupNodeFocused?.groupNodeId) {
             
@@ -446,19 +473,8 @@ extension GraphState {
                 self.canvasPageZoomScaleChanged = nodePageData.zoomData
             }
         }
-                
-        // TODO: really, this only makes sense to do for the current visible-graph; how do we know we aren't calling `updateGraphData` from within a nested graph (non-visible) component?
-        document.updateVisibleCanvasItems()
-        
-        self.initializeDelegate(document: document,
-                                documentEncoderDelegate: documentEncoder)
-        
-        // TODO: `document.updateVisibleCanvasItems()` updates the cache of "which canvas items are visible in the view port?", so why do we then immediately reset that cache down here? Do we need it for the portLocation updates?
-        // Updates node visibility data
-        // Set all nodes visible so that input/output fields' UI update if we enter a new traversal level
-        self.visibleNodesViewModel.resetVisibleCanvasItemsCache()
     }
-        
+    
     @MainActor
     func getVisualEdgeData(groupNodeFocused: NodeId?) -> [ConnectedEdgeData] {
         let canvasItemsAtThisTraversalLevel = self
