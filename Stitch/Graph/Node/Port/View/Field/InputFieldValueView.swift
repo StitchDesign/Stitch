@@ -78,18 +78,18 @@ struct InputFieldValueView: View {
         switch fieldValue {
         case .string:
             CommonEditingView(document: document,
-                                     inputField: inputField,
-                                     layerInput: layerInputPort,
-                                     choices: nil,
-                                     // TODO: was not being used?
-                                     isLargeString: false,
-                                     isForLayerInspector: isForLayerInspector,
-                                     isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
-                                     hasHeterogenousValues: hasHeterogenousValues,
-                                     isFieldInMultifieldInput: isFieldInMultifieldInput,
-                                     isForFlyout: isForFlyout,
-                                     isSelectedInspectorRow: isSelectedInspectorRow,
-                                     nodeKind: nodeKind)
+                              inputField: inputField,
+                              layerInput: layerInputPort,
+                              choices: nil,
+                              // TODO: was not being used?
+                              isLargeString: false,
+                              isForLayerInspector: isForLayerInspector,
+                              isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
+                              hasHeterogenousValues: hasHeterogenousValues,
+                              isFieldInMultifieldInput: isFieldInMultifieldInput,
+                              isForFlyout: isForFlyout,
+                              isSelectedInspectorRow: isSelectedInspectorRow,
+                              nodeKind: nodeKind)
             
         case .number:
             FieldValueNumberView(graph: graph,
