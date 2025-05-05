@@ -55,11 +55,16 @@ struct SetBroadcastForWirelessReceiver: StitchDocumentEvent {
         let broadcasterOutput = OutputCoordinate(portId: 0, nodeId: broadcasterNodeId)
 
         graph.edgeAdded(edge: .init(from: broadcasterOutput,
-                                         to: receiverNodeInputObserver.id))
-
+                                    to: receiverNodeInputObserver.id))
+        
         // Need to also change type of the wireless receiver node to be same as broadcaster's:
+        guard let broadcasterNodeType = broadcasterNode.userVisibleType else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         receiverNode.updateNodeTypeAndInputs(
-            newType: broadcasterNode.userVisibleType!,
+            newType: broadcasterNodeType,
             currentGraphTime: graphTime,
             activeIndex: state.activeIndex,
             graph: graph)

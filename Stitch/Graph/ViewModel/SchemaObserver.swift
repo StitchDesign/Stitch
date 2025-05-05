@@ -32,18 +32,6 @@ protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: Codable
 
 typealias CodableIdentifiable = StitchVersionedCodable & Identifiable
 
-extension Dictionary where Value: SchemaObserverIdentifiable, Key == Value.ID {
-    @MainActor
-    mutating func sync(with newEntities: [Value.CodableSchema]) {
-        var values = Array(self.values)
-        values.sync(with: newEntities)
-        
-        self = values.reduce(into: Self.init()) { result, observer in
-            result.updateValue(observer, forKey: observer.id)
-        }
-    }
-}
-
 extension Array where Element: SchemaObserverIdentifiable {
     @MainActor
     mutating func sync(with newEntities: [Element.CodableSchema]) {
