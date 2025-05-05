@@ -53,7 +53,7 @@ extension GraphReader {
     @MainActor
     func children(of parent: NodeId) -> LayerNodes {
         self.layerNodes().filter { layerNode in
-            layerNode.layerGroupId == parent
+            layerNode.layerGroupId(self.layersSidebarViewModel) == parent
         }
     }
 }

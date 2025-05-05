@@ -181,13 +181,14 @@ final class LayerNodeViewModel {
     }
 
     @MainActor
-    var layerGroupId: NodeId? {
-        guard let graph = self.nodeDelegate?.graphDelegate else {
-            // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
-            return nil
-        }
-        
-        guard let sidebarItem: SidebarItemGestureViewModel = graph.layersSidebarViewModel.items.get(self.id) else {
+    func layerGroupId(_ layersSidebarViewModel: LayersSidebarViewModel) -> NodeId? {
+//        guard let graph = self.nodeDelegate?.graphDelegate else {
+//            // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
+//            return nil
+//        }
+//        
+        guard let sidebarItem: SidebarItemGestureViewModel = // graph.
+                layersSidebarViewModel.items.get(self.id) else {
             // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
             return nil
         }
@@ -417,7 +418,8 @@ extension LayerNodeViewModel: SchemaObserver {
                               graph: document.visibleGraph)
         
         // Updates canvas item counts
-        self.resetInputCanvasItemsCache()
+        self.resetInputCanvasItemsCache(graph: document.visibleGraph,
+                                        activeIndex: document.activeIndex)
     }
     
     /// Helper which discovers a layer node's inputs and passes its port into a callback.
@@ -434,7 +436,7 @@ extension LayerNodeViewModel: SchemaObserver {
                           graph: GraphReader) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
             guard let outputData = self.outputPorts[safe: portIndex],
-                  let node = self.nodeDelegate else {
+                  let node = graph.getNode(self.id) else {
                 fatalErrorIfDebug()
                 return
             }
@@ -476,10 +478,13 @@ extension LayerNodeViewModel: SchemaObserver {
     }
 
     func createSchema() -> LayerNodeEntity {
+        
+        let sidebarLayers: LayersSidebarViewModel = self.nodeDelegate?.graphDelegate?.layersSidebarViewModel ?? .init()
+        
         var schema = LayerNodeEntity(nodeId: self.id,
                                      layer: layer,
                                      hasSidebarVisibility: hasSidebarVisibility,
-                                     layerGroupId: layerGroupId)
+                                     layerGroupId: layerGroupId(sidebarLayers))
         
         // Only encode keypaths used by this layer
         self.layer.layerGraphNode.inputDefinitions.forEach { inputType in
@@ -513,18 +518,18 @@ extension LayerNodeViewModel {
         
         // Set up outputs
         self.outputPorts.forEach {
-            $0.initializeDelegate(node, graph: graph,
+            $0.initializeDelegate(node,
+                                  graph: graph,
                                   activeIndex: activeIndex)
         }
         
-        self.resetInputCanvasItemsCache()
+        self.resetInputCanvasItemsCache(graph: graph, activeIndex: activeIndex)
     }
     
     @MainActor
-    func resetInputCanvasItemsCache() {
-        guard let node = self.nodeDelegate,
-              let graph = node.graphDelegate,
-              let activeIndex = graph.documentDelegate?.activeIndex else {
+    func resetInputCanvasItemsCache(graph: GraphState,
+                                    activeIndex: ActiveIndex) {
+        guard let node = graph.getNode(self.id) else {
             fatalErrorIfDebug()
             return
         }

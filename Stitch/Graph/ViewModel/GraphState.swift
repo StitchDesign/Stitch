@@ -907,7 +907,9 @@ extension GraphState {
     @MainActor
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
-            .filter { $0.layerNode?.layerGroupId == groupId }
+            .filter {
+                $0.layerNode?.layerGroupId(self.layersSidebarViewModel) == groupId
+            }
             .map { $0.id }
             .toSet
     }

@@ -36,7 +36,7 @@ extension GraphState {
         if layerNode.layer == .group {
             // Find all nodes with this group
             let childrenLayerNodes = self.layerNodes()
-                .filter { $0.layerGroupId == layerNode.id }
+                .filter { $0.layerGroupId(self.layersSidebarViewModel) == layerNode.id }
                 .compactMap { layerNode -> SidebarLayerData? in
                     // Recursively build sidebar items for childen
                     return self.createSidebarLayerType(layerNode: layerNode)
