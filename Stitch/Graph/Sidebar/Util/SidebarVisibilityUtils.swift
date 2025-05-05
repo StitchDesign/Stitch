@@ -39,7 +39,7 @@ extension GraphReader {
     
     @MainActor
     func isUpstreamNodeInvisible(for layerNode: LayerNodeViewModel) -> Bool {
-        guard let layerGroupId = layerNode.layerGroupId,
+        guard let layerGroupId = layerNode.layerGroupId(self.layersSidebarViewModel),
               let layerGroupNode = self.getLayerNode(layerGroupId) else {
             return false
         }

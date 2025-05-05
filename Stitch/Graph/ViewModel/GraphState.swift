@@ -470,7 +470,7 @@ extension GraphState {
             }
         
         let connectedInputs: [InputNodeRowViewModel] = newInputs.filter { input in
-            guard input.nodeDelegate?.patchNodeViewModel?.patch != .wirelessReceiver else {
+            guard self.getPatchNode(id: input.id.nodeId)?.patch != .wirelessReceiver else {
                 return false
             }
             return input.rowDelegate?.containsUpstreamConnection ?? false
@@ -478,7 +478,8 @@ extension GraphState {
         
         return connectedInputs.compactMap { (downstreamInput: InputNodeRowViewModel) in
             
-            guard let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
+            guard let downstreamInputNode = self.getNode(downstreamInput.id.nodeId),
+                  let upstreamOutputObserver = downstreamInput.rowDelegate?.upstreamOutputObserver,
                   let upstreamOutputPortUIViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.portUIViewModel,
                   let upstreamCanvasItem: CanvasItemViewModel = upstreamOutputObserver.rowViewModelForCanvasItemAtThisTraversalLevel?.canvasItemDelegate else {
                 // log("no connected edge data for downstreamInput \(downstreamInput.id)")
@@ -487,7 +488,8 @@ extension GraphState {
             
             return ConnectedEdgeData(upstreamCanvasItem: upstreamCanvasItem,
                                      upstreamOutputPortUIViewModel: upstreamOutputPortUIViewModel,
-                                     downstreamInput: downstreamInput)
+                                     downstreamInput: downstreamInput,
+                                     downstreamInputNode: downstreamInputNode)
         }
     }
 }
@@ -907,7 +909,9 @@ extension GraphState {
     @MainActor
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
-            .filter { $0.layerNode?.layerGroupId == groupId }
+            .filter {
+                $0.layerNode?.layerGroupId(self.layersSidebarViewModel) == groupId
+            }
             .map { $0.id }
             .toSet
     }

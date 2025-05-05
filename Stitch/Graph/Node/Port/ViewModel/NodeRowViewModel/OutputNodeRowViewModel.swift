@@ -21,7 +21,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor var portUIViewModel: OutputPortUIViewModel
     
     // Delegates, weak references to parents
-    @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: OutputNodeRowObserver?
     
     /*
@@ -43,7 +42,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
                                        // TODO: just make fieldValueGroups here?
                                        cachedFieldValueGroups: .init())
         
-        self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
     }

@@ -88,8 +88,10 @@ extension StitchDocumentViewModel {
 
 extension GraphState {
     @MainActor
-    func resetLayerInputsCache(layerNode: LayerNodeViewModel) {
-        layerNode.resetInputCanvasItemsCache()
+    func resetLayerInputsCache(layerNode: LayerNodeViewModel,
+                               activeIndex: ActiveIndex) {
+        layerNode.resetInputCanvasItemsCache(graph: self,
+                                             activeIndex: activeIndex)
 
         // Reset graph cache to get new nodes to appear
         // Dispatch needed for fix
@@ -151,7 +153,8 @@ extension StitchDocumentViewModel {
         
         // TODO: why do we have to do this?
         if let layerNode = node.layerNode {
-            self.visibleGraph.resetLayerInputsCache(layerNode: layerNode)
+            self.visibleGraph.resetLayerInputsCache(layerNode: layerNode,
+                                                    activeIndex: self.activeIndex)
         }
         
         self.visibleGraph.propertySidebar.selectedProperty = nil

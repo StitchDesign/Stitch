@@ -36,7 +36,8 @@ extension LayerNodeReader {
             node.getLayerInputObserver(port).getActiveValue(activeIndex: activeIndex)
         }
                         
-        let parentGroupOrientation: StitchOrientation? = self.layerGroupId
+        let parentGroupOrientation: StitchOrientation? = self
+            .layerGroupId(graph.layersSidebarViewModel)
             .map { graph.getLayerNodeReader($0) }?
             .map { getValue($0, .orientation) }?
             .getOrientation
