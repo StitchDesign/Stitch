@@ -46,7 +46,6 @@ Bug Fixes
  - Prototype restarts no longer mute Sound Import nodes
  - Edge-animation glitches resolved outside edit mode
  - Loop insert and remove operations no longer stall graph execution
- - Failing unit tests resolved
  - Copying layers no longer leaves behind invalid traversal edges
  - Input parsing now validates node type before updating fields
  - Numerous stability fixes across graph and layer memory handling
