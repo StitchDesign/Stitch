@@ -68,7 +68,7 @@ extension PreviewWindowSizing {
         previewWindowDeviceSize.height
     }
     
-    // faka `grayWidth`
+    // fka `grayWidth`
     @MainActor var previewBorderWidth: CGFloat {
         dimensions.width + PREVIEW_WINDOW_BORDER_WIDTH * 2
     }
@@ -79,17 +79,17 @@ extension PreviewWindowSizing {
     }
     
     @MainActor func getDimensions(_ newActiveAdjustedTranslation: CGSize) -> CGSize {
-        let fullWidth: Double = previewWindowDeviceSize.width * previewWindowContentScale
-        let fullHeight: Double = previewWindowDeviceSize.height * previewWindowContentScale
-   
+        // Ratio of prototype's size vs device-running-stitch's size; applied to the content within the preview window
+        let contentScale = previewWindowContentScale
+
+        // We treat accumulated-translation as an addition to the preview window device size's own dimensions ...
+        let width = (previewWindowDeviceSize.width + self.accumulatedAdjustedTranslation.width) * contentScale
+        let height = (previewWindowDeviceSize.height + self.accumulatedAdjustedTranslation.height) * contentScale
+        
         return CGSize(
-            width: fullWidth
-            + self.accumulatedAdjustedTranslation.width
-            + newActiveAdjustedTranslation.width,
-            
-            height: fullHeight
-            + self.accumulatedAdjustedTranslation.height
-            + newActiveAdjustedTranslation.height
+            // ... But treat *active* translation gestures as fresh and outside of the established dimenions
+            width: width + newActiveAdjustedTranslation.width,
+            height: height + newActiveAdjustedTranslation.height
         )
     }
     
