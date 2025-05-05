@@ -23,13 +23,10 @@ protocol SchemaObserver: AnyObject, Identifiable {
      
      We seem to call `createSchema` on specific types, never from this generic. 
      */
-//    /// Encode view model.
-//    @MainActor
-//    func createSchema() -> CodableSchema
+    /// Encode view model.
+    @MainActor
+    func createSchema() -> CodableSchema
     
-    /*
-     Also a bit broad -- lots of view models are implementing this
-     */
     @MainActor
     func onPrototypeRestart(document: StitchDocumentViewModel)
 }
@@ -129,12 +126,5 @@ extension Array where Element: Identifiable & AnyObject {
         }
         
         return newValues
-    }
-}
-
-extension Array where Element: SchemaObserver {
-    @MainActor
-    func onPrototypeRestart(document: StitchDocumentViewModel) {
-        self.forEach { $0.onPrototypeRestart(document: document) }
     }
 }
