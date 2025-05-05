@@ -1,44 +1,64 @@
 New Features
  - Hold Option to duplicate sidebar items during drag
  - Copy layer nodes for easier reuse
- - Added new color arithmetic operations: multiply, divide, add, subtract, length, and mod
+ - Added color arithmetic operations: multiply, divide, add, subtract, length, and mod
  - Expanded math patches to support loops and extra inputs
  - Mac device info node support
- - DeviceMotion node uses default outputs if no motion manager is found
- - Updated zoom shortcuts (0.1 step) and mouse zoom (0.04 step), ignoring borders during zoom
- - “Exit prototype” replaces “exit fullscreen” on iPhone
+ - DeviceMotion node uses sensible defaults when no motion manager is present
+ - Updated zoom shortcuts (0.1 key step, 0.04 mouse step) while ignoring borders during zoom
+ - Screen sharing lets you share prototype recordings
+ - Bulk node editing: change multiple selected patches' node types or splitter types at once
+ - Drag the bottom edge of a patch node to add or remove inputs instantly
+ - Hover a canvas field to reveal its full value for quick checks
+ - Inside a project, CMD + N now creates a new project instead of opening the node menu
 
 Improvements
- - Updated row view models so fields refresh when items become visible
- - Layer multiselect editing is more consistent, especially when fields appear on the canvas
- - No shadow input displayed for 3D layers in the inspector
- - Disabled hit-testing on hidden preview windows
- - Text layers default to “auto” sizing
- - Improved UI fields updates on group hierarchy changes
- - Port preview popovers close only when the graph is tapped
- - Graph items now persist when cut
- - Layer “ephemeral” states reset on graph reset
- - Canvas paste positions adjust based on visibility
- - Removed pinch gestures from the graph for smoother interaction
- - Preview layers regenerate when orientation inputs change
- - Outputs start empty on graph reset or open, avoiding unintended carryovers
+ - Row view models refresh fields when items scroll into view
+ - Layer multiselect editing behaves consistently when fields are on the canvas
+ - Inspector no longer shows shadow inputs for 3D layers
+ - Text layers default to “auto” sizing for smoother layout
+ - UI field updates keep pace with group hierarchy changes
+ - Port preview popovers close only when the graph itself is tapped
+ - Graph items persist correctly after a cut operation
+ - Layer “ephemeral” states reset on graph reset for a clean slate
+ - Preview layers regenerate whenever orientation inputs change
+ - Outputs start empty on graph reset or project open, avoiding carry-over values
  - Projects open centered on the canvas
- - Preview window sizing is updated when importing new projects
- - Zooming out is smoother near the max limit
- - Projects begin at their animation goal when opened
+ - Preview window sizing is updated when importing projects
+ - Zooming out is smoother near the maximum limit
+ - Copy-paste logic respects groups, keeps relative positions, and removes invalid edges
+ - Splitter positioning and staggering are smarter
+ - Classic animations finish correctly even with very short durations
+ - Friendlier port preview on iPad
+ - Distinct icons for Text versus TextField layers
+ - Wider dropdowns and better flyout padding
+ - Pack and Unpack patches hide redundant fields for a cleaner canvas
+ - Numerous visual polish tweaks to z-ordering, hit areas, and field labels
+ - Sound Import nodes restart reliably when prototypes reload
 
 Bug Fixes
- - Fixed time zone handling in Time Formatter node
- - Ensured patch connections never loop back to the same layer or patch
- - Corrected JSON subarray ranges of length one
- - Fixed camera mirroring on Catalyst builds
- - Default camera orientation is now consistent
- - Properly handled unpacked Margin and Padding in the Layer Inspector
- - Microphone node now works as intended
+ - Time-zone handling corrected in the Time Formatter node
+ - Patch connections can no longer loop back to the same layer or patch
+ - JSON subarray ranges of length one now decode correctly
+ - Camera mirroring fixed on Catalyst builds and orientation is consistent
+ - Unpacked Margin and Padding values render correctly in the Layer Inspector
+ - Microphone node functions as intended during graph playback
+ - Prototype restarts no longer mute Sound Import nodes
+ - Edge-animation glitches resolved outside edit mode
+ - Loop insert and remove operations no longer stall graph execution
+ - Copying layers no longer leaves behind invalid traversal edges
+ - Input parsing now validates node type before updating fields
+ - Numerous stability fixes across graph and layer memory handling
+ - Hidden preview window no longer blocks areas on canvas
 
 Performance
- - Reduced redundant rendering from fields, nodes, layers, edges, and sidebars
- - Lowered unneeded render cycles in project titles, ports, node titles, edges, and navigation
- - Improved performance with StitchEngine media handling
- - Decreased graph “jumpiness” by removing extra momentum code
- - Simplified graph initialization for faster responsiveness
+ - Reduced redundant rendering across fields, nodes, layers, edges, and sidebars
+ - Lowered render cycles for project titles, ports, node titles, edges, and navigation elements
+ - Improved media handling performance with StitchEngine
+ - Decreased graph “jumpiness” by removing excess momentum code
+ - Faster graph initialization for snappier responsiveness
+ - Fewer render passes when only on-screen ports change
+ - Safer identity handling and lower memory overhead for layers
+ - Smaller app footprint thanks to fewer demo prototypes in the gallery
+ - Additional optimizations to field updates, flyouts, and copy-paste for smoother editing
+ 
