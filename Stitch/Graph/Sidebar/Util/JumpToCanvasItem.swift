@@ -109,9 +109,7 @@ extension StitchDocumentViewModel {
         if let canvasItemTraversalLevel = canvasItemTraversalLevel,
            currentTraversalLevel != canvasItemTraversalLevel {
             // TODO: need panning logic for component
-            self
-                .groupNodeBreadcrumbs
-                .append(.groupNode(canvasItemTraversalLevel))
+            self.groupNodeBreadcrumbs.append(.groupNode(canvasItemTraversalLevel))
         }
     }
     
