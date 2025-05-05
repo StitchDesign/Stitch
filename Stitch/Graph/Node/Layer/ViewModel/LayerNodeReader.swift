@@ -9,7 +9,7 @@ import Foundation
 
 protocol LayerNodeReader {
     @MainActor func getLayerInputObserver(_ layerInput: LayerInputPort) -> LayerInputObserver
-    @MainActor var layerGroupId: NodeId? { get }
+    @MainActor func layerGroupId(_ layersSidebarViewModel: LayersSidebarViewModel) -> NodeId?
     @MainActor var allLayerInputObservers: [LayerInputObserver] { get }
 }
 

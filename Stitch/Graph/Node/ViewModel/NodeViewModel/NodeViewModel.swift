@@ -97,10 +97,28 @@ final class NodeViewModel: Sendable {
 }
 
 
+struct UpdateNodeEphemeralObserversUponNodeTypeChange: GraphEvent {
+    let id: NodeId
+    let oldType: UserVisibleType
+    let newType: UserVisibleType
+    
+    @MainActor
+    func handle(state: GraphState) {
+        guard let node = state.getNode(id) else {
+            log("UserVisibleTypeChanged: could not retrieve node \(id)")
+            return
+        }
+        
+        node.updateEphemeralObserversUponNodeTypeChange(
+            oldType: oldType,
+            newType: newType)
+    }
+}
+
 extension NodeViewModel {
     @MainActor
-    func userVisibleTypeChanged(oldType: UserVisibleType,
-                                newType: UserVisibleType) {
+    func updateEphemeralObserversUponNodeTypeChange(oldType: UserVisibleType,
+                                                    newType: UserVisibleType) {
         self.ephemeralObservers?.forEach {
             $0.nodeTypeChanged(oldType: oldType,
                                newType: newType,

@@ -329,7 +329,7 @@ extension GraphState {
             // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
         case .parent:
             if let layerNode = self.getNode(pinnedLayerViewModel.previewCoordinate.layerNodeId.asNodeId)?.layerNode,
-               let parent = layerNode.layerGroupId {
+               let parent = layerNode.layerGroupId(self.layersSidebarViewModel) {
                 return self.getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
                                                for: pinnedLayerViewModel)
             } else {
@@ -405,7 +405,7 @@ extension PinToId {
             }
             return x
         case .parent:
-            return graph.getNode(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
+            return graph.getNode(pinnedViewId.asNodeId)?.layerNode?.layerGroupId(graph.layersSidebarViewModel)?.asLayerNodeId
         }
     }
 }

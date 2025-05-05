@@ -159,7 +159,7 @@ struct LayerInfoNodeEvalHelpers {
 
 @MainActor
 func layerInfoEval(node: PatchNode,
-                    state: GraphState) -> EvalResult {
+                   state: GraphState) -> EvalResult {
     
     // Like other 'interaction nodes', we ignore loops and look only at the inputs' first values.
     // This is because the assigned layer's node may hve a loop of its own, and we cannot have a loop of loops.
@@ -173,7 +173,7 @@ func layerInfoEval(node: PatchNode,
     let layerViewModels = assignedLayerNodeViewModel.previewLayerViewModels
     
     let layerEnabled = assignedLayerNodeViewModel.hasSidebarVisibility
-    let layerGroupParent = assignedLayerNodeViewModel.layerGroupId?.asLayerNodeId
+    let layerGroupParent = assignedLayerNodeViewModel.layerGroupId(state.layersSidebarViewModel)?.asLayerNodeId
     
     var enabledLoop = PortValues()
     var positionLoop = PortValues()

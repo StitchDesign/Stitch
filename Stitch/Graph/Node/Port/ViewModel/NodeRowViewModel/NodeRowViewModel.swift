@@ -30,7 +30,6 @@ protocol NodeRowViewModel: Observable, Identifiable, AnyObject, Sendable {
 
     
     // MARK: delegates, weak references to parents
-    @MainActor var nodeDelegate: NodeViewModel? { get set }
     @MainActor var rowDelegate: RowObserver? { get set }
     @MainActor var canvasItemDelegate: CanvasItemViewModel? { get set }
     
@@ -81,9 +80,7 @@ extension NodeRowViewModel {
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: unpackedPortIndex,
             initialValue: initialValue)
-        
-        self.nodeDelegate = node
-        
+                
         // TODO: can this really change across the lifetime of a node row view model ?
         
         /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
