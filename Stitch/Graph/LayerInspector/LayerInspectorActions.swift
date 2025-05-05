@@ -87,6 +87,7 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphState {
+    // Only used when a layer node's input or input-field added to the canvas
     @MainActor
     func resetLayerInputsCache(layerNode: LayerNodeViewModel,
                                activeIndex: ActiveIndex) {
