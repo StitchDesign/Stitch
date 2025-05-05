@@ -11,14 +11,25 @@ import StitchSchemaKit
 protocol SchemaObserver: AnyObject, Identifiable {
     associatedtype CodableSchema: StitchVersionedCodable
 
+    // TODO: some view models (e.g. LayerNodeViewModel, PatchNodeViewModel) seem to need more context, e.g. GraphState or StitchDocument; would be preferable to pass those down explicitly and make the dependencies clear
     /// Update view model.
     @MainActor
     func update(from schema: CodableSchema)
-
-    /// Encode view model.
-    @MainActor
-    func createSchema() -> CodableSchema
     
+    /*
+     This API might be too broad?, e.g `LayerInputUnpackedObserver`'s `createSchema` is not actually used.
+     
+     Can we create a separate `SchemaObserverCreateSchema` protocol and apply that only where needed?
+     
+     We seem to call `createSchema` on specific types, never from this generic. 
+     */
+//    /// Encode view model.
+//    @MainActor
+//    func createSchema() -> CodableSchema
+    
+    /*
+     Also a bit broad -- lots of view models are implementing this
+     */
     @MainActor
     func onPrototypeRestart(document: StitchDocumentViewModel)
 }

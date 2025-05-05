@@ -121,6 +121,7 @@ extension PatchNodeViewModel: SchemaObserver {
         }
     }
 
+    @MainActor
     func createSchema() -> PatchNodeEntity {
         PatchNodeEntity(id: self.id,
                         patch: self.patch,

@@ -182,18 +182,10 @@ final class LayerNodeViewModel {
 
     @MainActor
     func layerGroupId(_ layersSidebarViewModel: LayersSidebarViewModel) -> NodeId? {
-//        guard let graph = self.nodeDelegate?.graphDelegate else {
-//            // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no node or graph delegate?")
-//            return nil
-//        }
-//        
-        guard let sidebarItem: SidebarItemGestureViewModel = // graph.
-                layersSidebarViewModel.items.get(self.id) else {
+        guard let sidebarItem: SidebarItemGestureViewModel = layersSidebarViewModel.items.get(self.id) else {
             // log("LayerNodeViewModel: layerGroupId for layer \(self.id): no sidebar item")
             return nil
         }
-        
-        // log("LayerNodeViewModel: layerGroupId for layer \(self.id): sidebarItem.parentId: \(sidebarItem.parentId)")
         
         return sidebarItem.parentId
     }
@@ -385,6 +377,7 @@ extension LayerNodeViewModel: SchemaObserver {
         .init(from: entity)
     }
 
+    @MainActor
     func update(from schema: LayerNodeEntity) {
         assertInDebug(self.layer == schema.layer)
         
@@ -477,6 +470,7 @@ extension LayerNodeViewModel: SchemaObserver {
         }
     }
 
+    @MainActor
     func createSchema() -> LayerNodeEntity {
         
         let sidebarLayers: LayersSidebarViewModel = self.nodeDelegate?.graphDelegate?.layersSidebarViewModel ?? .init()
