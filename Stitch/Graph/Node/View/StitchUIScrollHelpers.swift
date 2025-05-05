@@ -45,6 +45,7 @@ struct GraphScrollDataUpdated: StitchDocumentEvent {
             nodePage.zoomData = newZoom
         }
         
+        // TODO: what's the perf cost here? Should this be staggered, e.g. only called on every other scroll-updated method, and always called when scrolling/deceleration ends ?
         // Update which nodes are visible in frame
         state.updateVisibleCanvasItems()
     }

@@ -49,10 +49,13 @@ func createNewEmptyProject(store: StitchStore) throws -> (ProjectLoader, StitchD
     
     // After both GraphState and StitchDocumentViewModel have been created,
     // initialize the delegates on node view models
-    document.graph.nodes.values.forEach { (node: NodeViewModel) in
-        node.initializeDelegate(graph: graph, document: document)
-    }
+//    document.graph.nodes.values.forEach { (node: NodeViewModel) in
+//        node.initializeDelegate(graph: graph, document: document)
+//    }
 
+    // Initialize the whole graph
+    document.graph.updateGraphData(document)
+    
     
     projectLoader.documentViewModel = document
     

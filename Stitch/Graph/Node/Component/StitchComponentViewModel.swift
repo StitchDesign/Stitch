@@ -189,7 +189,7 @@ extension StitchComponentViewModel {
             unpackedPortIndex: nil,
             graph: graph)
         
-        self.graph.initializeDelegate(document: document,
+        self.graph.assignReferencesAndUpdateUICaches(document: document,
                                       documentEncoderDelegate: masterComponent.encoder)
         
         // Updates inputs and outputs
