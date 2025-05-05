@@ -224,21 +224,13 @@ struct DefaultNodeOutputsView: View {
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
                                      isSelectedInspectorRow: false)
-                    .zIndex(-98)
+                    .zIndex(-98) // Place below fields
                     
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
-
-                    // TODO: how to handle "hover to show more of output" vs "hover to enter edge edit mode" ?
-//                    .modifier(EdgeEditModeOutputHoverViewModifier(
-//                        graph: graph,
-//                        document: document,
-//                        outputCoordinate: .init(portId: rowViewModel.id.portId,
-//                                                canvasId: canvas.id)))
-                    
-                    .zIndex(-99)
+                    .zIndex(-99) // Place below fields and label
                 }
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graph,
