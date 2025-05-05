@@ -154,13 +154,8 @@ struct FloatingWindowView: View {
 
     var catalystFloatingWindowHandleView: some View {
         Circle()
-            
-//        #if DEV_DEBUG
-//            .fill(Color.cyan.opacity(0.6)) // easier debug
-//        #else
             // Note: cannot use .clear
             .fill(Color.PREVIEW_WINDOW_BORDER_COLOR.opacity(0.001))
-//        #endif
             .onChange(of: self.isDragging) { _, newValue in
                 log(".onChange(of: self.isDragging): newValue: \(newValue)")
                 if newValue {
@@ -212,26 +207,23 @@ struct FloatingWindowView: View {
             }
             .onEnded({ _ in
                 self.isDragging = false
-                self.previewWindowSizing.accumulatedAdjustedTranslation.width += self.previewWindowSizing.activeAdjustedTranslation.width
-                self.previewWindowSizing.accumulatedAdjustedTranslation.height += self.previewWindowSizing.activeAdjustedTranslation.height
+
+                // Note: apply (factor out?) contentScale to the active-translation,
+                // since it will now be part of the accumulated-translation which is
+                // treated part of preview window device's size.
+                let contentScale = self.previewWindowSizing.previewWindowContentScale
+                
+                self.previewWindowSizing.accumulatedAdjustedTranslation.width += (self.previewWindowSizing.activeAdjustedTranslation.width * 1/contentScale)
+                
+                self.previewWindowSizing.accumulatedAdjustedTranslation.height += (self.previewWindowSizing.activeAdjustedTranslation.height * 1/contentScale)
+                
+                // Reset active translation
                 self.previewWindowSizing.activeAdjustedTranslation = .zero
             })
     }
     
     var finalXOffset: CGFloat {
-        
-        return store.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
-        
-        //        if showPreviewWindow {
-        //            // Original
-        //            return document.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
-        //        } else {
-        //            log("self.previewWindowSizing.dimensions.width.magnitude: \(self.previewWindowSizing.dimensions.width.magnitude)")
-        //            // TODO: Why divide by 2?
-        ////            return self.previewWindowSizing.dimensions.width.magnitude / 2
-        //            return self.previewWindowSizing.dimensions.width.magnitude / 4
-        //        }
-        
+        store.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
     }
 }
 
