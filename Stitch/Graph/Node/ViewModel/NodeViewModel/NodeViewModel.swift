@@ -560,7 +560,7 @@ extension NodeViewModel {
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
-        self.getAllInputsObservers().onPrototypeRestart(document: document)
+        self.getAllInputsObservers().forEach { $0.onPrototypeRestart(document: document) }
         self.getAllOutputsObservers().forEach { $0.onPrototypeRestart(document: document) }
         
         // Reset properties specific to the node's actual type (patch vs layer vs component vs group)
