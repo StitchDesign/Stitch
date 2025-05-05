@@ -30,6 +30,8 @@ protocol GraphReader {
     @MainActor func layerNodes() -> LayerNodes
     
     @MainActor func layerNodesDict() -> LayerNodesDict
+    
+    @MainActor var layersSidebarViewModel: LayersSidebarViewModel { get }
 }
 
 extension GraphState: GraphReader {

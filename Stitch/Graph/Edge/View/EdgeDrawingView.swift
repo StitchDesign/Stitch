@@ -27,7 +27,7 @@ struct EdgeDrawingView: View {
 struct EdgeFromDraggedOutputView: View {
     
     @Environment(\.appTheme) var theme
-    let graph: GraphState
+    @Bindable var graph: GraphState
     
     // ie cursor position
     let outputDrag: OutputDragGesture
@@ -64,7 +64,7 @@ struct EdgeFromDraggedOutputView: View {
     
     var body: some View {
         Group {
-            if let downstreamNode = outputDrag.output.nodeDelegate,
+            if let downstreamNode = graph.getNode(outputDrag.output.id.nodeId),
                let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
                 let outputAnchorData = EdgeAnchorUpstreamData(
                     from: upstreamCanvasItem.outputPortUIViewModels,

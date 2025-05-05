@@ -60,7 +60,8 @@ extension EdgeAnchorUpstreamData {
         inputRowViewModelsOnDownstreamNode.forEach { downstreamInput in
             
             if let upstreamToThisInput = downstreamInput.rowDelegate?.upstreamOutputObserver?.rowViewModelForCanvasItemAtThisTraversalLevel,
-               upstreamToThisInput.nodeDelegate?.id == upstreamNodeId {
+//               upstreamToThisInput.nodeDelegate?.id == upstreamNodeId {
+               upstreamToThisInput.id.nodeId == upstreamNodeId {
                 
                 if firstConnectedUpstreamOutput != nil {
                     // If already a highest input found, overwrite lowest input

@@ -96,7 +96,7 @@ extension GraphState {
          var parentId: NodeId?
          selections.forEach { layerId in
              if let layerNode = self.getLayerNode(layerId),
-                let parent = layerNode.layerGroupId {
+                let parent = layerNode.layerGroupId(self.layersSidebarViewModel) {
                  parentId = parent
              }
          }

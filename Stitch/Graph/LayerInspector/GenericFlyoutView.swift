@@ -281,6 +281,8 @@ extension StitchDocumentViewModel {
             return
         }
         
+        let activeIndex = document.activeIndex
+        
         let canvasObserver = CanvasItemViewModel(
             id: CanvasItemId.layerInput(LayerInputCoordinate(node: nodeId,
                                                              keyPath: unpackedPort.id)),
@@ -292,7 +294,7 @@ extension StitchDocumentViewModel {
         
         canvasObserver.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
             node,
-            activeIndex: document.activeIndex,
+            activeIndex: activeIndex,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
             unpackedPortIndex: fieldIndex,
             graph: graph)
@@ -311,7 +313,8 @@ extension StitchDocumentViewModel {
         
         // MARK: RESET CACHE
         
-        graph.resetLayerInputsCache(layerNode: layerNode) // Why?
+        graph.resetLayerInputsCache(layerNode: layerNode,
+                                    activeIndex: activeIndex) // Why?
     }
 }
 

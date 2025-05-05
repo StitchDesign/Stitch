@@ -22,12 +22,14 @@ final class PatchNodeViewModel: Sendable {
     
     @MainActor
     var userVisibleType: UserVisibleType? {
+        // TODO: can we simply update the node ephemeral observers' types when we change the userVisibleType itself ?
         didSet(oldValue) {
             if let oldValue = oldValue,
                let newValue = self.userVisibleType {
-                self.delegate?
-                    .userVisibleTypeChanged(oldType: oldValue,
-                                            newType: newValue)
+                dispatch(UpdateNodeEphemeralObserversUponNodeTypeChange(
+                    id: self.id,
+                    oldType: oldValue,
+                    newType: newValue))
             }
         }
     }
@@ -43,9 +45,7 @@ final class PatchNodeViewModel: Sendable {
     
     // Splitter types are for group input, output, or inline nodes
     @MainActor var splitterNode: SplitterNodeEntity?
-    
-    @MainActor weak var delegate: NodeViewModel?
-    
+        
     @MainActor
     init(from schema: PatchNodeEntity) {
         let kind = NodeKind.patch(schema.patch)
@@ -87,6 +87,7 @@ extension PatchNodeViewModel: SchemaObserver {
     @MainActor
     func update(from schema: PatchNodeEntity) {
         self.inputsObservers.sync(with: schema.inputs)
+        
         self.canvasObserver.update(from: schema.canvasEntity)
         
         assertInDebug(self.id == schema.id)
@@ -103,8 +104,8 @@ extension PatchNodeViewModel: SchemaObserver {
             
             self.userVisibleType = newType
             
-            if let node = self.delegate,
-               let graph = node.graphDelegate {
+            if let graph = self.inputsObservers.first?.nodeDelegate?.graphDelegate,
+               let node = graph.getNode(self.id) {
                 // Ensures fields correctly update on events like undo which wouldn't otherwise
                 // call the changeType helper
                 let _ = graph.changeType(for: node,
@@ -120,6 +121,7 @@ extension PatchNodeViewModel: SchemaObserver {
         }
     }
 
+    @MainActor
     func createSchema() -> PatchNodeEntity {
         PatchNodeEntity(id: self.id,
                         patch: self.patch,
@@ -138,7 +140,6 @@ extension PatchNodeViewModel {
     func initializeDelegate(_ node: NodeViewModel,
                             graph: GraphState,
                             activeIndex: ActiveIndex) {
-        self.delegate = node
         
         self.inputsObservers.forEach {
             $0.assignNodeReferenceAndHandleValueChange(node, graph: graph)
@@ -176,7 +177,6 @@ extension PatchNodeViewModel {
                                      mathExpression: mathExpression)
         self.init(from: entity)
         self.initializeDelegate(delegate, graph: graph, activeIndex: activeIndex)
-        self.delegate = delegate
         self.splitterNode = splitterNode
     }
 
