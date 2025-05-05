@@ -6,38 +6,33 @@ New Features
  - Mac device info node support
  - DeviceMotion node uses sensible defaults when no motion manager is present
  - Updated zoom shortcuts (0.1 key step, 0.04 mouse step) while ignoring borders during zoom
- - “Exit prototype” replaces “exit fullscreen” on iPhone
  - Screen sharing lets you share prototype recordings
- - Improved PortValues output view
- - Bulk node editing: change multiple selected patch or splitter types at once
+ - Bulk node editing: change multiple selected patches' node types or splitter types at once
  - Drag the bottom edge of a patch node to add or remove inputs instantly
  - Hover a canvas field to reveal its full value for quick checks
- - Inside a project, CMD + N now creates a nested project instead of opening the node menu
+ - Inside a project, CMD + N now creates a new project instead of opening the node menu
 
 Improvements
  - Row view models refresh fields when items scroll into view
  - Layer multiselect editing behaves consistently when fields are on the canvas
  - Inspector no longer shows shadow inputs for 3D layers
- - Hidden preview windows ignore hit-testing to prevent accidental taps
  - Text layers default to “auto” sizing for smoother layout
  - UI field updates keep pace with group hierarchy changes
  - Port preview popovers close only when the graph itself is tapped
  - Graph items persist correctly after a cut operation
  - Layer “ephemeral” states reset on graph reset for a clean slate
- - Pasted items adjust position based on what is visible on screen
- - Pinch gestures removed from the graph for smoother interaction
  - Preview layers regenerate whenever orientation inputs change
  - Outputs start empty on graph reset or project open, avoiding carry-over values
- - Projects open centered on the canvas and begin at their animation goal
+ - Projects open centered on the canvas
  - Preview window sizing is updated when importing projects
  - Zooming out is smoother near the maximum limit
  - Copy-paste logic respects groups, keeps relative positions, and removes invalid edges
- - Splitter positioning and staggering are smarter; multiple splitters can be updated together
- - Classic animations finish correctly even with very short or zero durations
- - Friendlier port preview on iPad; focusing a field deselects other items for clarity
- - Distinct icons and separate inputs for Text versus TextField layers
- - Wider dropdowns, better flyout padding, and clearer progress loaders improve daily workflows
- - Pack and Unpack patches hide unused fields for a cleaner canvas
+ - Splitter positioning and staggering are smarter
+ - Classic animations finish correctly even with very short durations
+ - Friendlier port preview on iPad
+ - Distinct icons for Text versus TextField layers
+ - Wider dropdowns and better flyout padding
+ - Pack and Unpack patches hide redundant fields for a cleaner canvas
  - Numerous visual polish tweaks to z-ordering, hit areas, and field labels
  - Sound Import nodes restart reliably when prototypes reload
 
@@ -51,11 +46,11 @@ Bug Fixes
  - Prototype restarts no longer mute Sound Import nodes
  - Edge-animation glitches resolved outside edit mode
  - Loop insert and remove operations no longer stall graph execution
- - iPad compilation issues and failing unit tests resolved
+ - Failing unit tests resolved
  - Copying layers no longer leaves behind invalid traversal edges
  - Input parsing now validates node type before updating fields
- - Classic animation completes properly when duration is zero
- - Numerous stability fixes across graph, layer memory handling, and paste operations
+ - Numerous stability fixes across graph and layer memory handling
+ - Hidden preview window no longer blocks areas on canvas
 
 Performance
  - Reduced redundant rendering across fields, nodes, layers, edges, and sidebars
