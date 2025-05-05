@@ -22,7 +22,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor var portUIViewModel: InputPortUIViewModel
     
     // Delegates, weak references to parents
-    @MainActor weak var nodeDelegate: NodeViewModel?
     @MainActor weak var rowDelegate: InputNodeRowObserver?
     
     // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
@@ -40,10 +39,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
                                        cachedActiveValue: initialValue,
                                        // TODO: just make fieldValueGroups here?
                                        cachedFieldValueGroups: .init())
-        
-        // This is referencing the object itself, already ?
-        self.nodeDelegate = nodeDelegate
-        
+                
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
     }
