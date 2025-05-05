@@ -34,11 +34,11 @@ final class LayerNodeViewModel {
     // Gets updated when upstream nodes pass down media
     @MainActor var mediaList = [GraphMediaValue?]()
     
-    // Some layer nodes contain outputs
+    // Some layer nodes contain outputs (e.g. Canvas Sketch, Text Field)
     @MainActor var outputPorts: [OutputLayerNodeRowData] = []
     
-    // Cached property to efficiently identify locations of input canvas nodes, if any created
-    @MainActor var _inputCanvasIds = Set<CanvasItemId>()
+    // Cached property to identify which of this layer node's inputs/input-fields are on the canvas
+    @MainActor var cachedInputCanvasIds = Set<CanvasItemId>()
     
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
@@ -392,11 +392,11 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Process input data
         self.layer.layerGraphNode.inputDefinitions.forEach {
-            self[keyPath: $0.layerNodeKeyPath]
-                .update(from: schema[keyPath: $0.schemaPortKeyPath],
-                        layerInputType: $0,
-                        layerNode: self,
-                        nodeId: schema.id)
+            self[keyPath: $0.layerNodeKeyPath].update(
+                from: schema[keyPath: $0.schemaPortKeyPath],
+                layerInputType: $0,
+                layerNode: self,
+                nodeId: schema.id)
         }
         
         guard let document = self.nodeDelegate?.graphDelegate?.documentDelegate else {
@@ -416,15 +416,7 @@ extension LayerNodeViewModel: SchemaObserver {
         self.resetInputCanvasItemsCache(graph: document.visibleGraph,
                                         activeIndex: document.activeIndex)
     }
-    
-    /// Helper which discovers a layer node's inputs and passes its port into a callback.
-    @MainActor
-    func forEachInput(_ callback: @escaping ((LayerInputObserver) -> ())) {
-        self.allLayerInputObservers.forEach {
-            callback($0)
-        }
-    }
-    
+        
     @MainActor
     static func updateOutputData(from canvases: [CanvasNodeEntity?],
                                  activeIndex: ActiveIndex,
@@ -451,13 +443,14 @@ extension LayerNodeViewModel: SchemaObserver {
                         inputRowObservers: [],
                         outputRowObservers: [outputData.rowObserver])
                     
-                    outputData.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
-                        node,
-                        activeIndex: activeIndex,
-                        // Not relevant
-                        unpackedPortParentFieldGroupType: nil,
-                        unpackedPortIndex: nil,
-                        graph: graph)
+                    // updateGraphData should take care of this ?
+//                    outputData.canvasObserver?.assignNodeReferenceAndUpdateFieldGroupsOnRowViewModels(
+//                        node,
+//                        activeIndex: activeIndex,
+//                        // Not relevant
+//                        unpackedPortParentFieldGroupType: nil,
+//                        unpackedPortIndex: nil,
+//                        graph: graph)
                 }
                 return
             }
@@ -471,7 +464,7 @@ extension LayerNodeViewModel: SchemaObserver {
             else {
                 outputData.canvasObserver = nil
             }
-        }
+        } // canvas.enumerated()
     }
 
     @MainActor
@@ -512,7 +505,7 @@ extension LayerNodeViewModel {
         self.nodeDelegate = node
         
         // Reset known input canvas items
-        self._inputCanvasIds = .init()
+        self.cachedInputCanvasIds = .init()
         
         // Set up outputs
         self.outputPorts.forEach {
@@ -532,12 +525,10 @@ extension LayerNodeViewModel {
         }
         
         // Set up inputs
-        self.forEachInput { layerInput in
+        self.allLayerInputObservers.forEach { layerInput in
             // Locate input canvas items for perf cache
-            let inputCanvasItems = layerInput.getAllCanvasObservers()
-                .map(\.id)
-                .toSet
-            self._inputCanvasIds = self._inputCanvasIds.union(inputCanvasItems)
+            let inputCanvasItems = layerInput.getAllCanvasObservers().map(\.id).toSet
+            self.cachedInputCanvasIds = self.cachedInputCanvasIds.union(inputCanvasItems)
             
             layerInput.initializeDelegate(node,
                                           layer: self.layer,
@@ -545,14 +536,15 @@ extension LayerNodeViewModel {
                                           graph: graph)
         }
         
-        // TODO: why is this necessary?
-        self.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)
+        // TODO: MAY 5: should not be necessary
+//        // TODO: why is this necessary?
+//        self.refreshBlockedInputs(graph: graph, activeIndex: activeIndex)
     }
         
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
         // Use cache for inputs for perf
-        let inputs: [CanvasItemViewModel] = self._inputCanvasIds.compactMap { canvasItemId -> CanvasItemViewModel? in
+        let inputs: [CanvasItemViewModel] = self.cachedInputCanvasIds.compactMap { canvasItemId -> CanvasItemViewModel? in
             guard let keyPath = canvasItemId.layerInputCase?.keyPath.layerNodeKeyPath else {
                 fatalErrorIfDebug()
                 return nil
