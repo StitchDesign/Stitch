@@ -39,6 +39,7 @@ final class GraphState: Sendable {
     let visibleNodesViewModel: VisibleNodesViewModel
     @MainActor let edgeDrawingObserver = EdgeDrawingObserver()
     
+    // TODO: Move to `SelectionState` ?
     @MainActor var selectedEdges = Set<PortEdgeUI>()
     
     // Hackiness for handling edge case in our UI where somehow

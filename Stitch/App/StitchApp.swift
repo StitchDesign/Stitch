@@ -32,12 +32,14 @@ struct StitchApp: App {
     }
     
     private static func configureFirebaseIfPossible() {
+        #if !DEV_DEBUG
         guard FirebaseApp.app() == nil else { return }
         guard isFirebaseConfigValid else {
             print("⚠️  Firebase configuration skipped – incomplete GoogleService-Info.plist")
             return
         }
         FirebaseApp.configure()
+        #endif
     }
     
     var body: some Scene {
@@ -60,7 +62,7 @@ struct StitchApp: App {
                         options.debug = false
                     }
                     
-                    #if !DEBUG
+                    #if !DEBUG && !DEV_DEBUG
                     Self.configureFirebaseIfPossible()
                     #endif
 

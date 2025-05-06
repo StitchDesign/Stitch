@@ -216,7 +216,12 @@ extension NodeKind {
            customName != "" {
             return customName
         }
-
+        
+        return self.defaultDisplayTitle
+    }
+    
+    var defaultDisplayTitle: String {
+        
         switch self {
         case .patch(let x):
             return x.defaultDisplayTitle()

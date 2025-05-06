@@ -148,17 +148,8 @@ final class StitchDocumentViewModel: Sendable {
         self.projectLoader = projectLoader
         self.isDebugMode = isDebugMode
         
-        // Handles Stitch AI if enabled
-//#if STITCH_AI
-        do {
-            self.aiManager = try StitchAIManager()
-        } catch {
-            self.aiManager = nil
-            log("StitchStore error: could not init secrets file with error: \(error)")
-        }
-//#else
-//        self.aiManager = nil
-//#endif
+        self.aiManager = try? StitchAIManager()
+        assertInDebug(self.aiManager.isDefined)
 
         self.lastEncodedDocument = schema
         
@@ -180,7 +171,7 @@ final class StitchDocumentViewModel: Sendable {
         }
         
         self.graph.assignReferencesAndUpdateUICaches(document: self,
-                                      documentEncoderDelegate: documentEncoder)
+                                                     documentEncoderDelegate: documentEncoder)
         
         // Start graph if not in debug mode
         if !self.isDebugMode {

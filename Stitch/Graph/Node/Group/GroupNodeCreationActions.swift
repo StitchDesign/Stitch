@@ -110,11 +110,8 @@ extension GraphState {
                          componentId: UUID?,
                          center: CGPoint,
                          // If current focused group is component, make parent node ID nil as we're creating a new graph state
-                         focusedGroupNodeId: NodeId?) async -> NodeViewModel {
-        guard let document = self.documentDelegate else {
-            fatalErrorIfDebug()
-            return .createEmpty()
-        }
+                         focusedGroupNodeId: NodeId?,
+                         document: StitchDocumentViewModel) async -> NodeViewModel {
         
         let canvasEntity = CanvasNodeEntity(position: center,
                                             zIndex: self.highestZIndex + 1,
@@ -131,13 +128,18 @@ extension GraphState {
             nodeType = .group(canvasEntity)
         }
         
-        let schema = NodeEntity(id: newGroupNodeId,
-                                nodeTypeEntity: nodeType,
-                                title: NodeKind.group.getDisplayTitle(customName: nil))
         
-        let newGroupNode = await NodeViewModel(from: schema,
-                                               graphDelegate: self,
-                                               document: document)
+        // Delegates will be initialized when updateGraphData runs
+        let newGroupNode = await NodeViewModel(
+            from: NodeEntity(id: newGroupNodeId,
+                             nodeTypeEntity: nodeType,
+                             title: NodeKind.group.defaultDisplayTitle),
+            components: self.components,
+            parentGraphPath: self.saveLocation)
+        
+        // Not needed? The delegate will be initialized when updateGraphData runs
+        //        newGroupNode.initializeDelegate(graph: self,
+        //                                        document: document)
         
         self.visibleNodesViewModel.nodes.updateValue(newGroupNode, 
                                                      forKey: newGroupNode.id)
@@ -196,23 +198,17 @@ extension StitchDocumentViewModel {
         // Update selected canvas items with new parent id
         // Components are set with nil because of new graph state
         selectedCanvasItems.forEach { $0.parentGroupNodeId = isComponent ? nil : newGroupNodeId }
-
-        // Encode component files if specified
-        if isComponent {
-            // MARK: must create component before calling createGroupNode below
-            self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
-                                          componentId: newComponentId)
-        }
         
         // Create the actual GroupNode itself
         let newGroupNode = await self.visibleGraph
             .createGroupNode(newGroupNodeId: newGroupNodeId,
                              componentId: isComponent ? newComponentId : nil,
                              center: center,
-                             focusedGroupNodeId: self.groupNodeFocused?.groupNodeId)
+                             focusedGroupNodeId: self.groupNodeFocused?.groupNodeId,
+                             document: self)
         
         // input splitters need to be west of the `to` node for the `edge`
-        graph.createSplitterForNewGroup(splitterType: .input,
+        graph.createSplittersForNewGroup(splitterType: .input,
                                         selectedCanvasItems: selectedCanvasItems,
                                         edges: edges,
                                         newGroupNodeId: newGroupNodeId,
@@ -221,7 +217,7 @@ extension StitchDocumentViewModel {
                                         activeIndex: self.activeIndex)
         
         // output edge = an edge going FROM a node in the group, TO a node outside the group
-        graph.createSplitterForNewGroup(splitterType: .output,
+        graph.createSplittersForNewGroup(splitterType: .output,
                                         selectedCanvasItems: selectedCanvasItems,
                                         edges: edges,
                                         newGroupNodeId: newGroupNodeId,
@@ -229,19 +225,7 @@ extension StitchDocumentViewModel {
                                         center: center,
                                         activeIndex: self.activeIndex)
         
-        // Delete items from original graph since selected items have been copied
-        // to new component graph
-        if isComponent {
-            selectedCanvasItems.forEach {
-                guard let node = $0.nodeDelegate else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                graph.deleteNode(id: node.id, document: self)
-            }
-        }
-
+        
         // wipe selected edges and canvas items
         graph.selection = GraphUISelectionState()
         graph.selectedEdges = .init()
@@ -259,7 +243,29 @@ extension StitchDocumentViewModel {
         self.graph.updateGraphData(self)
         
         self.visibleGraph.encodeProjectInBackground()
+        
+        // MARK: component specific logic
+        
+        // Encode component files if specified
+        if isComponent {
+            // MARK: must create component before calling createGroupNode below
+            self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
+                                          componentId: newComponentId)
+        }
+        
+        // Delete items from original graph since selected items have been copied
+        // to new component graph
+        if isComponent {
+            selectedCanvasItems.forEach {
+                guard let node = self.visibleGraph.getNode($0.id.nodeId) else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                graph.deleteNode(id: node.id, document: self)
+            }
+        }
     }
+    
     
     /// Updates graph state with brand new component, not yet creating a node view model.
     @MainActor
@@ -296,13 +302,13 @@ extension GraphState {
      
      But would want the ordering to match still, don't want a bunch of crossed edges.
      */
-    @MainActor func createSplitterForNewGroup(splitterType: SplitterType,
-                                              selectedCanvasItems: CanvasItemViewModels,
-                                              edges: [PortEdgeData],
-                                              newGroupNodeId: NodeId,
-                                              isComponent: Bool,
-                                              center: CGPoint,
-                                              activeIndex: ActiveIndex) {
+    @MainActor func createSplittersForNewGroup(splitterType: SplitterType,
+                                               selectedCanvasItems: CanvasItemViewModels,
+                                               edges: [PortEdgeData],
+                                               newGroupNodeId: NodeId,
+                                               isComponent: Bool,
+                                               center: CGPoint,
+                                               activeIndex: ActiveIndex) {
         let (inputEdgesToUpdate,
              outputEdgesToUpdate) = self.getEdgesToUpdate(
                 selectedCanvasItems: selectedCanvasItems.map(\.id).toSet,
