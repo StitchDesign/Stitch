@@ -218,6 +218,9 @@ struct CatalystTopBarGraphButtons: View {
             TopBarSharingButtonsView(document: document)
                 .modifier(CatalystTopBarButtonStyle())
             
+            TopBarFeedbackButtonsView()
+                .modifier(CatalystTopBarButtonStyle())
+            
             CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
                 PROJECT_SETTINGS_ACTION()
             }

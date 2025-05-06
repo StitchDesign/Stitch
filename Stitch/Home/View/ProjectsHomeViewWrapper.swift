@@ -50,6 +50,10 @@ struct ProjectsHomeViewWrapper: View {
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
+                        TopBarFeedbackButtonsView()
+                            .modifier(CatalystTopBarButtonStyle())
+                            .id(UUID())
+                        
                         CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                                        iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
                         .id(UUID())
