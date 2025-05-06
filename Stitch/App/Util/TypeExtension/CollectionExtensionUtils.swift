@@ -64,6 +64,16 @@ extension Dictionary where Key == NodeId {
     }
 }
 
+extension Dictionary {
+    func get(_ id: Self.Key?) -> Self.Value? {
+        guard let id = id else {
+            return nil
+        }
+
+        return self.get(id)
+    }
+}
+
 // Works for sorting GroupNodeId, which conforms to
 extension Dictionary where Key: Identifiable {
     func merge(with secondDict: Self) -> Self {

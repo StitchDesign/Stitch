@@ -222,18 +222,24 @@ extension GraphState {
                                 encoder: encoder,
                                 copiedFiles: copiedComponentResult.copiedSubdirectoryFiles,
                                 isCopyPaste: isCopyPaste,
+                                originGraphOutputValuesMap: copiedComponentResult.originGraphOutputValuesMap,
                                 document: document)
     }
 
     @MainActor
-    static func insertNodesAndSidebarLayersIntoDestinationGraph(destinationGraph: GraphEntity,
-                                                                graphToInsert: GraphEntity,
-                                                                // originalSidebarLayers: [SidebarLayerData],
-                                                                focusedGroupNode: NodeId?,
-                                                                // Copy-paste only; not for duplication
-                                                                destinationGraphInfo: CopyPasteGraphDestinationInfo?,
-                                                                // Option+Drag of a sidebar layer only
-                                                                originalOptionDraggedLayer: SidebarListItemId?) -> (GraphEntity, NodeEntities, NodeIdMap) {
+    static func insertNodesAndSidebarLayersIntoDestinationGraph(
+        destinationGraph: GraphEntity,
+        graphToInsert: GraphEntity,
+        focusedGroupNode: NodeId?,
+        
+        // Copy-paste only; not for duplication
+        destinationGraphInfo: CopyPasteGraphDestinationInfo?,
+
+        originGraphOutputValuesMap: OriginGraphOutputValueMap,
+        
+        // Option+Drag of a sidebar layer only
+        originalOptionDraggedLayer: SidebarListItemId?
+    ) -> (GraphEntity, NodeIdSet, NodeIdMap) {
             
         // We want to keep everything about the destination graph (e.g. its id, rootUrl etc.)
         // and just add to its nodes and sidebar-layers
@@ -243,13 +249,20 @@ extension GraphState {
         
         // Change all IDs (nodes, sidebar layers)
         let (newGraphEntity, nodeIdMap) = graphToInsert.changeIds()
-                
-        let newNodeEntities = Self.updateCopiedNodesPositions(
-            // Important: update the nodes-to-insert parent ids first,
-            // since position update relies on checking "is this node at the destination graph's traversal level?"
-            nodeEntities: Self.updateNodesParentIds(nodeEntities: newGraphEntity.nodes,
-                                                    focusedGroupNode: focusedGroupNode),
+        
+        // The new node entities, with update parentIds and positions
+        let _newNodeEntities = Self.updateNodesParentIdsAndPositions(
+            nodeEntities: newGraphEntity.nodes,
+            focusedGroupNode: focusedGroupNode,
             destinationGraphInfo: destinationGraphInfo)
+        
+        // If a pasted input's upstream output's node is neither among the destination graph's current nodes nor among pasted-nasted,
+        // set its value to be its origin graph's output's flattened value.
+        let newNodeEntities = updateInputEntitiesValues(
+            nodeEntities: _newNodeEntities,
+            // ALL the nodes, whether already on the destination graph or being-pasted
+            allNodes: (destinationGraph.nodes.map(\.id) + graphToInsert.nodes.map(\.id)).toSet,
+            originGraphOutputValuesMap: originGraphOutputValuesMap)
         
         // Update nodes-to-insert and set them in the destination graph entity
         destinationGraphEntity.nodes += newNodeEntities
@@ -265,8 +278,55 @@ extension GraphState {
         // TODO: handle comment boxes
         
         return (destinationGraphEntity,
-                newNodeEntities, // needed for updating just these pasted/duplicated nodes later
+                newNodeEntities.map(\.id).toSet, // needed for updating just these pasted/duplicated nodes later
                 nodeIdMap)
+    }
+    
+    // See note for `OriginGraphOutputValueMap`
+    // https://github.com/StitchDesign/Stitch--Old/issues/7140
+    @MainActor
+    static func updateInputEntitiesValues(nodeEntities: NodeEntities,
+                                          allNodes: NodeIdSet,
+                                          originGraphOutputValuesMap: OriginGraphOutputValueMap) -> NodeEntities {
+        
+        nodeEntities.map { (nodeEntity: NodeEntity) in
+        
+            var nodeEntity = nodeEntity
+            
+            switch nodeEntity.nodeTypeEntity {
+                
+            case .patch(let patchNodeEntity):
+                
+                var patchNodeEntity = patchNodeEntity
+                patchNodeEntity.inputs = patchNodeEntity.inputs.map { input in
+                    var input = input
+                    input.portData = input.portData.updateValueOnPaste(
+                        allNodes: allNodes,
+                        originGraphOutputValuesMap: originGraphOutputValuesMap)
+                    return input
+                }
+                nodeEntity.nodeTypeEntity = .patch(patchNodeEntity)
+                return nodeEntity
+                
+                
+            case .layer(let layerNodeEntity):
+                
+                var layerNodeEntity: LayerNodeEntity = layerNodeEntity
+                layerNodeEntity.layer.layerGraphNode.inputDefinitions.forEach {
+                    layerNodeEntity[keyPath: $0.schemaPortKeyPath] = layerNodeEntity[keyPath: $0.schemaPortKeyPath]
+                        .updateValuesUponPaste(
+                            allNodes: allNodes,
+                            originGraphOutputValuesMap: originGraphOutputValuesMap)
+                }
+                nodeEntity.nodeTypeEntity = .layer(layerNodeEntity)
+                return nodeEntity
+                
+                
+            case .group, .component:
+                // No inputs stored
+                return nodeEntity
+            }
+        }
     }
     
     // Can we use this all the time now?
@@ -280,6 +340,8 @@ extension GraphState {
                                
                                // Option + Dragging a layer in the sidebar
                                originalOptionDraggedLayer: SidebarListItemId? = nil,
+                               
+                               originGraphOutputValuesMap: OriginGraphOutputValueMap,
                                
                                // Destination document, just like `self` is destination graph
                                document: StitchDocumentViewModel) where T: StitchComponentable {
@@ -295,6 +357,7 @@ extension GraphState {
             graphToInsert: component.graphEntity,
             focusedGroupNode: document.groupNodeFocused?.groupNodeId,
             destinationGraphInfo: isCopyPaste ? document.copyPasteGraphDestinationInfo : nil,
+            originGraphOutputValuesMap: originGraphOutputValuesMap,
             originalOptionDraggedLayer: nil)
         
         // MARK: create master component if any imported
@@ -304,7 +367,7 @@ extension GraphState {
         // MARK: actually 'insert' ("apply") the node entities and sidebar layer data to the this graph
         self.update(from: destinationGraphEntity)
         
-        self.updateGraphAfterPaste(newNodes: newNodes,
+        self.updateGraphAfterPaste(pastedNodes: newNodes,
                                    document: document,
                                    nodeIdMap: nodeIdMap,
                                    isOptionDragInSidebar: false)
@@ -369,9 +432,10 @@ extension GraphState {
     }
             
     @MainActor
-    static func updateNodesParentIds(nodeEntities: NodeEntities,
-                                     focusedGroupNode: NodeId?) -> [NodeEntity] {
-        nodeEntities.map {
+    static func updateNodesParentIdsAndPositions(nodeEntities: NodeEntities,
+                                                 focusedGroupNode: NodeId?,
+                                                 destinationGraphInfo: CopyPasteGraphDestinationInfo?) -> [NodeEntity] {
+        let updatedParents = nodeEntities.map {
             $0.canvasEntityMap { (canvasEntity: CanvasNodeEntity) in
                 var canvasEntity = canvasEntity
                 // Note: suppose that the canvas item we copied from the origin project was actually in a group node, but we did not copy that group node.
@@ -385,10 +449,21 @@ extension GraphState {
                 }
             }
         }
+        
+        // Important: update the nodes-to-insert parent ids first,
+        // since position update relies on checking "is this node at the destination graph's traversal level?"
+        return Self.updateCopiedNodesPositions(nodeEntities: updatedParents,
+                                               destinationGraphInfo: destinationGraphInfo)
     }
     
+    
+    
+
+//    @MainActor
+//    static func updateInputsValuesIfOriginalUpstreamConnect
+    
     @MainActor
-    func updateGraphAfterPaste(newNodes: [NodeEntity],
+    func updateGraphAfterPaste(pastedNodes: NodeIdSet,
                                document: StitchDocumentViewModel,
                                nodeIdMap: NodeIdMap,
                                isOptionDragInSidebar: Bool) {
@@ -398,6 +473,12 @@ extension GraphState {
         // Reset edit mode selections + inspector focus and actively-selected
         
         // We only want to do this if we actually copied a sidebar item
+        
+        let newNodes = pastedNodes.compactMap { self.getNode($0) }
+        
+        assertInDebug(newNodes.count == pastedNodes.count)
+        
+        
         let copiedAtleastOneLayer = newNodes.contains { $0.kind.isLayer }
         if copiedAtleastOneLayer {
             self.sidebarSelectionState.resetEditModeSelections()
@@ -407,37 +488,38 @@ extension GraphState {
         
         // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes
-        newNodes
-            .forEach { nodeEntity in
-                switch nodeEntity.nodeTypeEntity {
+        for node in newNodes {
+                                
+            let nodeId = node.id
+            
+            switch node.nodeType {
                     
                 case .patch, .group, .component:
-                    if let canvasItem = self.getNode(nodeEntity.id)?.nonLayerCanvasItem {
+                    if let canvasItem = self.getNode(nodeId)?.nonLayerCanvasItem {
                         self.selectCanvasItem(canvasItem.id)
                     }
                     
                 case .layer(let layerNode):
-                    
+
                     // Actively-select the new layer node
-                    let id = nodeEntity.id
                     
                     // If option dupe-dragging in the sidebar, only select the copied layers that correspond to the originally-primarily-selected layers.
                     // e.g. if we option dupe-dragged just a LayerGroup, primarily-select the LayerGroup and NOT all its children.
                     if isOptionDragInSidebar {
                         
                         // Note: nodeIdMap is `key: oldNode,  value: newNode`, so must do a reverse dictionary look up.
-                        if let originalLayerNodeId = nodeIdMap.first(where: { $0.value == id })?.key,
+                        if let originalLayerNodeId = nodeIdMap.first(where: { $0.value == nodeId })?.key,
                         self.sidebarSelectionState.originalLayersPrimarilySelectedAtStartOfOptionDrag.contains(originalLayerNodeId) {
                             
-                            self.sidebarSelectionState.primary.insert(id)
-                            self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                            self.sidebarSelectionState.primary.insert(nodeId)
+                            self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(nodeId)
                         }
                     }
                     
                     // If not doing an sidebar option dupe-drag, just primarily-select the copied layer.
                     else {
-                        self.sidebarSelectionState.primary.insert(id)
-                        self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(id)
+                        self.sidebarSelectionState.primary.insert(nodeId)
+                        self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(nodeId)
                     }
                     
                     
@@ -446,8 +528,7 @@ extension GraphState {
                     
                     // TODO: what is this?
                     layerNode.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-                        
-                        let portData = layerNode[keyPath: inputType.schemaPortKeyPath]
+                        let portData = layerNode.getLayerInputObserver(inputType)
                         
                         let isPacked = portData.mode == .packed
                         
@@ -459,8 +540,8 @@ extension GraphState {
                             
                             let portType: LayerInputKeyPathType = isPacked ? .packed : .unpacked(unpackedId ?? .port0)
                             let layerId = LayerInputType(layerInput: inputType, portType: portType)
-                            if inputData.canvasItem != nil,
-                               let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
+                            if inputData.canvasObserver != nil,
+                               let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeId,
                                                                                      keyPath: layerId))) {
                                 self.selectCanvasItem(canvasItem.id)
                             }
