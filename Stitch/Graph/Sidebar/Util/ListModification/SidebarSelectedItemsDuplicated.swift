@@ -33,16 +33,17 @@ extension GraphState {
         let copyResult = self.createCopiedComponent(groupNodeFocused: groupNodeFocused,
                                                     selectedNodeIds: selectedNodeIds)
         
-        let (destinationGraphEntity, newNodes, nodeIdMap) = Self.insertNodesAndSidebarLayersIntoDestinationGraph(
+        let (destinationGraphEntity, pastedNodes, nodeIdMap) = Self.insertNodesAndSidebarLayersIntoDestinationGraph(
             destinationGraph: self.createSchema(),
             graphToInsert: copyResult.component.graphEntity,
             focusedGroupNode: groupNodeFocused?.groupNodeId,
             destinationGraphInfo: nil,
+            originGraphOutputValuesMap: copyResult.originGraphOutputValuesMap,
             originalOptionDraggedLayer: originalOptionDraggedLayer)
             
         self.update(from: destinationGraphEntity, rootUrl: rootUrl)
 
-        self.updateGraphAfterPaste(newNodes: newNodes,
+        self.updateGraphAfterPaste(pastedNodes: pastedNodes,
                                    document: document,
                                    nodeIdMap: nodeIdMap,
                                    isOptionDragInSidebar: originalOptionDraggedLayer.isDefined)

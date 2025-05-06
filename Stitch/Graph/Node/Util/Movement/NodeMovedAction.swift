@@ -109,17 +109,18 @@ extension GraphState {
             groupNodeFocused: document.groupNodeFocused,
             selectedNodeIds: state.selectedCanvasItems.compactMap(\.nodeCase).toSet)
                 
-        let (destinationGraphEntity, newNodes, nodeIdMap) = Self.insertNodesAndSidebarLayersIntoDestinationGraph(
+        let (destinationGraphEntity, pastedNodes, nodeIdMap) = Self.insertNodesAndSidebarLayersIntoDestinationGraph(
             destinationGraph: self.createSchema(),
             graphToInsert: copyResult.component.graphEntity,
             focusedGroupNode: document.groupNodeFocused?.groupNodeId,
             destinationGraphInfo: nil,
+            originGraphOutputValuesMap: .init(), // irrelevant for duplication cases
             originalOptionDraggedLayer: nil)
         
         // TODO: should we provide an explicit `rootUrl` here too? See `sidebarSelectedItemsDuplicated`
         self.update(from: destinationGraphEntity)
         
-        self.updateGraphAfterPaste(newNodes: newNodes,
+        self.updateGraphAfterPaste(pastedNodes: pastedNodes,
                                    document: document,
                                    nodeIdMap: nodeIdMap,
                                    isOptionDragInSidebar: false)
