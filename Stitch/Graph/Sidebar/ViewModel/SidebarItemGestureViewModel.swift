@@ -130,7 +130,7 @@ extension SidebarItemGestureViewModel {
                              isCommitting: isCommitting,
                              graph: graph)
         
-        // Recreate the layer drop down choices, since labels have changed
+        // Recreate the layer drop down choices
         graph.updateLayerDropdownChoiceCache()
     }
     
