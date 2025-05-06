@@ -71,8 +71,7 @@ struct SelectedGraphItemsCopied: StitchDocumentEvent {
     }
 }
 
-// "Paste" = past shortcut, which pastes BOTH nodes AND comments
-// struct SelectedGraphNodesPasted: AppEnvironmentEvent {
+// "Paste" = paste shortcut, which pastes BOTH nodes AND comments
 struct SelectedGraphItemsPasted: StitchDocumentEvent {
 
     func handle(state: StitchDocumentViewModel) {
@@ -85,16 +84,17 @@ struct SelectedGraphItemsPasted: StitchDocumentEvent {
         let pasteboardUrl = StitchClipboardContent.rootUrl
 
         do {
-            let componentData = try Data(contentsOf: pasteboardUrl.appendingVersionedSchemaPath())
-            let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
+            let componentData: Data = try Data(contentsOf: pasteboardUrl.appendingVersionedSchemaPath())
+            let newComponent: StitchClipboardContent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
             let importedFiles = try ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
 
             let graph = state.visibleGraph
-
+            
             graph.insertNewComponent(component: newComponent,
                                      encoder: graph.documentEncoderDelegate,
                                      copiedFiles: importedFiles,
                                      isCopyPaste: true,
+                                     originGraphOutputValuesMap: newComponent.originGraphOutputValuesMap,
                                      document: state)
             state.encodeProjectInBackground()
         } catch {
