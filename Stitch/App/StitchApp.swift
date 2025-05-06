@@ -47,6 +47,8 @@ struct StitchApp: App {
                 .onAppear {
 //                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
                     
+                    
+                    
                     dispatch(DirectoryUpdated())
                     
                     SentrySDK.start { options in

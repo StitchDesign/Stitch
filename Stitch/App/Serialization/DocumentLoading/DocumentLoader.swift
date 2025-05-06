@@ -16,7 +16,7 @@ struct StitchDirectoryResponse {
 }
 
 final actor DocumentLoader {
-    var storage: [URL: ProjectLoader] = [:]
+    var userProjects: [URL: ProjectLoader] = [:]
 
     func directoryUpdated() async -> StitchDirectoryResponse? {
         switch StitchFileManager
@@ -29,20 +29,20 @@ final actor DocumentLoader {
             let systemUrls = urls
                 .filter { $0.pathExtension == UTType.stitchSystemUnzipped.preferredFilenameExtension }
 
-            var newStorage = [URL: ProjectLoader]()
+            var updatedUserProjects = [URL: ProjectLoader]()
             
             // Update data
             for url in documentUrls {
-                guard let existingData = self.storage.get(url) else {
+                guard let existingData = self.userProjects.get(url) else {
                     let data = await ProjectLoader(url: url)
-                    newStorage.updateValue(data, forKey: url)
+                    updatedUserProjects.updateValue(data, forKey: url)
                     continue
                 }
 
                 let updatedDate = url.getLastModifiedDate(fileManager: FileManager.default)
                 let existingModifiedDate = await existingData.modifiedDate
                 let wasDocumentUpdated = updatedDate != existingModifiedDate
-                newStorage.updateValue(existingData, forKey: url)
+                updatedUserProjects.updateValue(existingData, forKey: url)
                 
                 if wasDocumentUpdated {
                     Task { @MainActor [weak existingData] in
@@ -67,19 +67,19 @@ final actor DocumentLoader {
 
             // Remove deleted documents
             let incomingSet = Set(urls)
-            let deletedUrls = Set(storage.keys).subtracting(incomingSet)
+            let deletedUrls = Set(userProjects.keys).subtracting(incomingSet)
             deletedUrls.forEach {
-                newStorage.removeValue(forKey: $0)
+                updatedUserProjects.removeValue(forKey: $0)
             }
 
-            let sortedProjects = newStorage
+            let sortedProjects = updatedUserProjects
                 .sorted {
                     $0.key.getLastModifiedDate(fileManager: FileManager.default) >
                     $1.key.getLastModifiedDate(fileManager: FileManager.default)
                 }
                 .map { $0.value }
             
-            self.storage = newStorage
+            self.userProjects = updatedUserProjects
             
             return .init(projects: sortedProjects,
                          systems: systems)
@@ -92,7 +92,7 @@ final actor DocumentLoader {
     
     func updateStorage(with projectLoader: ProjectLoader,
                        url: URL) {
-        self.storage.updateValue(projectLoader, forKey: url)
+        self.userProjects.updateValue(projectLoader, forKey: url)
     }
 
     nonisolated func loadDocument(from url: URL, 
@@ -136,7 +136,7 @@ final actor DocumentLoader {
     }
     
     func refreshDocument(url: URL) async {
-        guard let projectLoader = self.storage.get(url) else { return }
+        guard let projectLoader = self.userProjects.get(url) else { return }
         
         await projectLoader.resetData()
         await self.loadDocument(projectLoader)
@@ -195,7 +195,7 @@ extension DocumentLoader {
             projectLoader?.loadingDocument = .loaded(document, nil)
         }
 
-        self.storage.updateValue(projectLoader,
+        self.userProjects.updateValue(projectLoader,
                                  forKey: rootUrl)
         return projectLoader
     }
