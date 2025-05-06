@@ -56,7 +56,7 @@ struct TopBarFeedbackButtonsView: View {
                 }
             } label: {
                 Text("Email Us")
-                Image(systemName: "mail")
+                Image(systemName: "mail.fill")
             }
             
             // Launches the system browser and navigates to your site
@@ -67,6 +67,9 @@ struct TopBarFeedbackButtonsView: View {
             } label: {
                 Text("Post to GitHub")
                 Image("github")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 16, height: 16)
             }
         } label: {
 #if !targetEnvironment(macCatalyst)
@@ -75,6 +78,5 @@ struct TopBarFeedbackButtonsView: View {
             
             Image(systemName: "square.and.pencil")
         }
-        .menuStyle(.borderlessButton) // remove if default style preferred
     }
 }
