@@ -11,24 +11,40 @@ import UniformTypeIdentifiers
 import StitchSchemaKit
 import StitchViewKit
 
-// TODO: Move and version this
+
+typealias AsyncCallback = @Sendable () async -> Void
+
+struct StitchComponentCopiedResult<T: Sendable>: Sendable where T: StitchComponentable {
+    var component: T
+    let copiedSubdirectoryFiles: StitchDocumentDirectory
+    
+    /*
+     Needed because, if we paste an input into a graph where its original upstream output is no longer present (i.e. pasted into a completley different graph), then we will need to use the origin graph's output's flattened value.
+     
+     This is a decision made at "paste-time", but we need to gather the relevant information at "copy-time."
+     
+     https://github.com/StitchDesign/Stitch--Old/issues/7140
+     */
+    let originGraphOutputValuesMap: OriginGraphOutputValueMap
+}
+
+// Maps `origin graph's output coordinate -> that output's flattened values-loop`
+typealias OriginGraphOutputValueMap = [OutputCoordinate: PortValue]
+
+// Maps original ids -> copied ids
+typealias NodeIdMap = [NodeId: NodeId]
+
+
 typealias NodeEntities = [NodeEntity]
 
+// Too broad, and some functions don't actually use all the passed-in parameters;
+// Also, we NEVER use the generic version of this;
+// We have to remember which entities need to be copied and make them conform to this
 protocol GraphCopyable {
     @MainActor
     func createCopy(newId: NodeId,
                     mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> Self
-}
-
-extension Dictionary {
-    func get(_ id: Self.Key?) -> Self.Value? {
-        guard let id = id else {
-            return nil
-        }
-
-        return self.get(id)
-    }
 }
 
 extension NodeEntity: GraphCopyable {
@@ -154,6 +170,14 @@ extension SplitterNodeEntity: GraphCopyable {
 }
 
 extension LayerInputDataEntity: GraphCopyable {
+    func updateValuesUponPaste(allNodes: NodeIdSet,
+                               originGraphOutputValuesMap: OriginGraphOutputValueMap) -> Self {
+        .init(inputPort: self.inputPort.updateValueOnPaste(allNodes: allNodes,
+                                                           originGraphOutputValuesMap: originGraphOutputValuesMap),
+              // canvas item unchanged
+              canvasItem: self.canvasItem)
+    }
+    
     func createCopy(newId: NodeId,
                     mappableData: [NodeId : NodeId],
                     copiedNodeIds: NodeIdSet) -> LayerInputDataEntity {
@@ -167,6 +191,14 @@ extension LayerInputDataEntity: GraphCopyable {
 }
 
 extension LayerInputEntity: GraphCopyable {
+    func updateValuesUponPaste(allNodes: NodeIdSet,
+                               originGraphOutputValuesMap: OriginGraphOutputValueMap) -> Self {
+        .init(packedData: self.packedData.updateValuesUponPaste(allNodes: allNodes,
+                                                                originGraphOutputValuesMap: originGraphOutputValuesMap),
+              unpackedData: self.unpackedData.map { $0.updateValuesUponPaste(allNodes: allNodes, originGraphOutputValuesMap: originGraphOutputValuesMap)
+        })
+    }
+    
     func createCopy(newId: NodeId,
                     mappableData: [NodeId : NodeId],
                     copiedNodeIds: NodeIdSet) -> LayerInputEntity {
@@ -203,6 +235,26 @@ extension LayerNodeEntity: GraphCopyable {
 }
 
 extension NodeConnectionType: GraphCopyable {
+    
+    func updateValueOnPaste(allNodes: NodeIdSet,
+                            originGraphOutputValuesMap: OriginGraphOutputValueMap) -> Self {
+        
+        switch self {
+        case .upstreamConnection(let upstreamOutputCoordinate):
+            if allNodes.contains(upstreamOutputCoordinate.nodeId) {
+                return self
+            } else if let originGraphOutputValue: PortValue = originGraphOutputValuesMap.get(upstreamOutputCoordinate) {
+                return .values([originGraphOutputValue])
+            } else {
+                return self
+            }
+            
+        case .values:
+            return self // no change
+        }
+        
+    }
+    
     func createCopy(newId: NodeId,
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> NodeConnectionType {
@@ -219,6 +271,7 @@ extension NodeConnectionType: GraphCopyable {
             } else {
                 // Do not change upstream ID if node was not copied--this retains edges for copied nodes
                 // pasted in the same project
+                // See note about `originGraphOutputValuesMap`
                 return .upstreamConnection(upstreamOutputCoordinate)
             }
             
@@ -238,15 +291,15 @@ extension NodeEntities {
     @MainActor
     func createCopy(mappableData: NodeIdMap,
                     copiedNodeIds: NodeIdSet) -> NodeEntities {
-        self.compactMap { node in
-            guard let newId = mappableData.get(node.id) else {
+        self.compactMap {
+            guard let newId = mappableData.get($0.id) else {
                 fatalErrorIfDebug()
                 return nil
             }
 
-            let nodeCopy = node.createCopy(newId: newId,
-                                           mappableData: mappableData,
-                                           copiedNodeIds: copiedNodeIds)
+            let nodeCopy = $0.createCopy(newId: newId,
+                                         mappableData: mappableData,
+                                         copiedNodeIds: copiedNodeIds)
             return nodeCopy
         }
     }
@@ -268,25 +321,6 @@ extension SidebarLayerList {
         }
     }
 }
-
-typealias AsyncCallback = @Sendable () async -> Void
-typealias AsyncCallbackList = [AsyncCallback]
-
-struct StitchComponentCopiedResult<T: Sendable>: Sendable where T: StitchComponentable {
-    var component: T
-    let copiedSubdirectoryFiles: StitchDocumentDirectory
-}
-
-extension Array where Element == AsyncCallback {
-    func processEffects() async {
-        for effect in self {
-            await effect()
-        }
-    }
-}
-
-// maps original ids -> copied ids
-typealias NodeIdMap = [NodeId: NodeId]
 
 extension GraphEntity {
     /// Creates fresh IDs for OrderedSidebarLayers, all data in NodeEntities etc.
@@ -330,16 +364,21 @@ extension NodeTypeEntity {
     /// Resets canvases in focused group to nil. Used for node copy/pasting.
     @MainActor
     mutating func resetGroupId(_ focusedGroupId: GroupNodeType?) {
+        
         switch self {
+        
         case .patch(var patchNode):
             patchNode.canvasEntity.resetGroupId(focusedGroupId)
             self = .patch(patchNode)
+        
         case .group(var canvas):
             canvas.resetGroupId(focusedGroupId)
             self = .group(canvas)
+        
         case .component(var component):
             component.canvasEntity.resetGroupId(focusedGroupId)
             self = .component(component)
+        
         case .layer(var layerNode):
             // Reset groups for inputs
             layerNode.layer.layerGraphNode.inputDefinitions.forEach {
@@ -382,12 +421,6 @@ extension CanvasNodeEntity {
     }
 }
 
-/*
- Notes:
- - only patch nodes can be duplicated via the canvas
- - only layer nodes can be duplicated via the sidebar
- - we can NEVER duplicate both patch nodes AND layer nodes AT THE SAME TIME
- */
 extension StitchDocumentViewModel {
     @MainActor func createNewStitchComponent(componentId: UUID,
                                              groupNodeFocused: GroupNodeType?,
@@ -395,7 +428,7 @@ extension StitchDocumentViewModel {
         // Get path from root
         self.visibleGraph.createComponent(componentId: componentId,
                                           groupNodeFocused: groupNodeFocused,
-                                          selectedNodeIds: selectedNodeIds) { graph in
+                                          selectedNodeIds: selectedNodeIds) { graph, _ in
             let newPath = GraphDocumentPath(docId: self.id.value,
                                             componentId: componentId,
                                             componentsPath: self.visibleGraph.saveLocation)
@@ -412,8 +445,9 @@ extension GraphState {
                                selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
         self.createComponent(componentId: .init(),
                              groupNodeFocused: groupNodeFocused,
-                             selectedNodeIds: selectedNodeIds) { graph in
-            StitchClipboardContent(graphEntity: graph)
+                             selectedNodeIds: selectedNodeIds) { graph, originGraphOutputValueMap  in
+            StitchClipboardContent(graphEntity: graph,
+                                   originGraphOutputValuesMap: originGraphOutputValueMap)
         }
     }
     
@@ -423,10 +457,10 @@ extension GraphState {
     func createComponent<Data>(componentId: UUID,
                                groupNodeFocused: GroupNodeType?,
                                selectedNodeIds: NodeIdSet,
-                               createComponentable: @escaping (GraphEntity) -> Data) -> StitchComponentCopiedResult<Data> where Data: StitchComponentable {
+                               createComponentable: @escaping (GraphEntity, OriginGraphOutputValueMap) -> Data) -> StitchComponentCopiedResult<Data> where Data: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
-            .map { node in
-                var node = node
+            .map {
+                var node = $0
                 node.nodeTypeEntity.resetGroupId(groupNodeFocused)
                 return node
             }
@@ -444,7 +478,20 @@ extension GraphState {
                                    orderedSidebarLayers: selectedSidebarLayers,
                                    commentBoxes: [])
 
-        let copiedComponent = createComponentable(newGraph)
+        let originGraphOutputValueMap: OriginGraphOutputValueMap = newGraph.nodes.reduce(into: OriginGraphOutputValueMap()) { partialResult, nodeEntity in
+            nodeEntity.inputs.forEach { (inputEntity: NodeConnectionType) in
+                if let upstreamOutputCoordinate = inputEntity.upstreamConnection,
+                   let upstreamObserver = self.getOutputRowObserver(upstreamOutputCoordinate),
+                   let flattenedValue = upstreamObserver.allLoopedValues.first {
+                    partialResult.updateValue(flattenedValue,
+                                              forKey: upstreamOutputCoordinate)
+                }
+            }
+        }
+        
+        log("originGraphOutputValueMap: \(originGraphOutputValueMap)")
+        
+        let copiedComponent = createComponentable(newGraph, originGraphOutputValueMap)
         
         let portValuesList: [PortValues?] = selectedNodes
             .flatMap { nodeEntity in
@@ -472,7 +519,24 @@ extension GraphState {
 
         return .init(component: copiedComponent,
                      copiedSubdirectoryFiles: .init(importedMediaUrls: mediaUrls,
-                                                    componentDirs: componentUrls))
+                                                    componentDirs: componentUrls),
+                     originGraphOutputValuesMap: originGraphOutputValueMap)
+    }
+}
+
+extension NodeEntities {
+    @MainActor
+    func originGraphOutputValueMap(graph: GraphReader) -> OriginGraphOutputValueMap {
+        self.reduce(into: OriginGraphOutputValueMap()) { partialResult, nodeEntity in
+            nodeEntity.inputs.forEach { (inputEntity: NodeConnectionType) in
+                if let upstreamOutputCoordinate = inputEntity.upstreamConnection,
+                   let upstreamObserver = graph.getOutputRowObserver(upstreamOutputCoordinate),
+                   let flattenedValue = upstreamObserver.allLoopedValues.first {
+                    partialResult.updateValue(flattenedValue,
+                                              forKey: upstreamOutputCoordinate)
+                }
+            }
+        }
     }
 }
 
