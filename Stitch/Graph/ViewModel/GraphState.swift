@@ -142,7 +142,7 @@ final class GraphState: Sendable {
         self.components = components
         
         // Sync nodes and cached data
-        self.syncNodes(nodesDict: nodes)
+        self.visibleNodesViewModel.nodes = nodes
         
         if let stringWarning = schema.migrationWarning {
             self.migrationWarning = .init(rawValue: stringWarning)
@@ -212,7 +212,7 @@ extension GraphState {
         let activeIndex = document.activeIndex
         
         // TODO: this is not *just* ui-cache; what should we call `NodesPagingDict` etc. ?
-        self.refreshUICache(activeIndex: activeIndex,
+        self.refreshUICaches(activeIndex: activeIndex,
                             focusedGroupNode: document.groupNodeFocused?.groupNodeId,
                             documentZoom: document.graphMovement.zoomData,
                             documentFrame: document.frame,
@@ -257,13 +257,15 @@ extension GraphState {
     
     
     @MainActor
-    func refreshUICache(activeIndex: ActiveIndex,
-                        focusedGroupNode: NodeId?,
-                        documentZoom: CGFloat,
-                        documentFrame: CGRect,
-                        llmRecordingMode: LLMRecordingMode) {
+    func refreshUICaches(activeIndex: ActiveIndex,
+                         focusedGroupNode: NodeId?,
+                         documentZoom: CGFloat,
+                         documentFrame: CGRect,
+                         llmRecordingMode: LLMRecordingMode) {
         
         self.updateVisibleSplitterNodesCache()
+        
+        self.updateLayerDropdownChoiceCache()
         
         self.visibleNodesViewModel.updateNodesPagingDict(
             documentZoomData: documentZoom,
@@ -552,13 +554,7 @@ extension GraphState {
                                  nodeType: nodeType)
         }
         
-        self.syncNodes(nodesDict: newDictionary)
-    }
-    
-    @MainActor
-    func syncNodes(nodesDict: NodesViewModelDict) {
-        self.visibleNodesViewModel.nodes = nodesDict
-        self.updateLayerDropdownChoiceCache()
+        self.visibleNodesViewModel.nodes = newDictionary
     }
     
     @MainActor
