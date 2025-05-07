@@ -20,7 +20,7 @@ struct StitchAIRequest: OpenAIRequestable {
     init(secrets: Secrets,
          userPrompt: String,
          systemPrompt: String,
-         stream: Bool = false
+         stream: Bool = true
     ) throws {
         let responseFormat = StitchAIResponseFormat()
         let structuredOutputs = responseFormat.json_schema.schema
