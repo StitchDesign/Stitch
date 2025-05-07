@@ -37,7 +37,7 @@ struct SampleProjectsView: View {
         VStack {
             titleView
             
-            SampleProjectsView(store: store)
+            SampleProjectsList(store: store)
                 .transition(.slide)
                 .padding()
         }
