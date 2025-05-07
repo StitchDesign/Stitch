@@ -29,23 +29,39 @@ struct TemporaryDirectoryURL: Equatable, Codable, Hashable {
 
 struct TemporaryURL: Equatable, Codable, Hashable {
     let value: URL
-    
-    // Creating a temp-url requires a temporary directory.
-    init?(url: URL,
-          _ temporaryDirectoryURL: TemporaryDirectoryURL) {
+}
+
+extension TemporaryURL {
+
+    // Helpful in cases where we need to download the file, e.g. HTTPS
+    // TODO: create a method that checks whether URL is local vs https and copies vs downloads ?
+    static func pathOnly(url: URL,
+                         _ temporaryDirectoryURL: TemporaryDirectoryURL) -> Self {
         
-        // MARK: due to async logic of dispatched effects, the provided temporary URL has a tendancy to expire, so a new URL is created.
         let tempURL = temporaryDirectoryURL.value
             .appendingPathComponent(url.filename)
             .appendingPathExtension(url.pathExtension)
         
+        return .init(value: tempURL)
+    }
+        
+    // Assumes we've already downloaded the URL, so e.g. a local URL, not an HTTPS
+    // Used for drops of local files
+    static func pathAndCopy(url: URL,
+                            _ temporaryDirectoryURL: TemporaryDirectoryURL) -> Self? {
+        
+        // MARK: due to async logic of dispatched effects, the provided temporary URL has a tendancy to expire, so a new URL is created.
+        let tempURL = Self.pathOnly(url: url,
+                                    temporaryDirectoryURL)
+        
         let _ = url.startAccessingSecurityScopedResource()
         
+        // TODO: this logic is not acceptable if the URL is one that needs to be downloaded first, e.g. `http://...`
         // Default FileManager ok here given we just need a temp URL
         do {
-            try FileManager.default.copyItem(at: url, to: tempURL)
+            try FileManager.default.copyItem(at: url, to: tempURL.value)
             url.stopAccessingSecurityScopedResource()
-            self.value = tempURL
+            return tempURL
         } catch {
             url.stopAccessingSecurityScopedResource()
             fatalErrorIfDebug("handleOnDrop error: \(error)")
@@ -59,55 +75,3 @@ extension URL {
         self.pathExtension == UTType.stitchDocument.preferredFilenameExtension
     }
 }
-
-
-// Used by modal that imports a single sample project;
-// prepares the temporary-directory etc.
-func importStitchSampleProjectSideEffect(sampleProjectURL: URL,
-                                         store: StitchStore) {
-        
-    guard let tempURL = TemporaryURL(url: sampleProjectURL,
-                                     TemporaryDirectoryURL()) else {
-        fatalErrorIfDebug()
-        return
-    }
-    
-    importStitchProjectSideEffect(tempURL: tempURL, store: store)
-}
-
-
-// ASSUMES WE'VE ALREADY "PREPARED" THE TEMP-DIRECTORY URL AND TEMP-URL
-func importStitchProjectSideEffect(tempURL: TemporaryURL,
-                                   store: StitchStore) {
-    
-    guard tempURL.value.isStitchDocumentExtension else {
-        fatalErrorIfDebug() // called incorrectly
-        return
-    }
-    
-    Task(priority: .high) { [weak store] in
-        do {
-            switch await store?.documentLoader.loadDocument(from: tempURL.value,
-                                                            isImport: true) {
-                
-            case .loaded(let data, _):
-                await store?.createNewProjectSideEffect(from: data, isProjectImport: true)
-                
-            default:
-                DispatchQueue.main.async {
-                    dispatch(DisplayError(error: .unsupportedProject))
-                }
-                return
-            }
-        }
-    }
-}
-
-func importMediaFileToStitch(tempURL: TemporaryURL) {
-    let _ = tempURL.value.startAccessingSecurityScopedResource()
-    DispatchQueue.main.async {
-        dispatch(ImportFileToNewNode(url: tempURL.value))
-    }
-    tempURL.value.stopAccessingSecurityScopedResource()
-}
-

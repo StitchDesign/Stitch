@@ -47,9 +47,12 @@ struct StitchApp: App {
                 .onAppear {
 //                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
                     
+                    dispatch(DirectoryUpdatedOnAppOpen())
                     
-                    
-                    dispatch(DirectoryUpdated())
+                    // Has the user been onboarded yet? If not, immediately open the Sample Projects modal
+                    if !hasUserBeenOnboarded() {
+                        store.showsSampleProjectModal = true
+                    }
                     
                     SentrySDK.start { options in
                         guard let secrets = try? Secrets() else {

@@ -7,6 +7,30 @@
 
 import Foundation
 
+struct DirectoryUpdatedOnAppOpen: StitchStoreEvent {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        let isHomeScreenOpen = store.currentDocument == nil
+        
+        // if we have no projects, then open the sample projects modal
+        switch StitchFileManager
+            .readDirectoryContents(StitchFileManager.documentsURL) {
+        case .success(let urls):
+            if urls.isEmpty {
+                store.showsSampleProjectModal = true
+                store.isBeingOnboardedAfterAppOpenedWithNoProjects = true
+            }
+        default:
+            break
+        }
+        
+        Task.detached(priority: isHomeScreenOpen ? .high : .low) { [weak store] in
+            await store?.directoryUpdated()
+        }
+        
+        return .noChange
+    }
+}
+
 struct DirectoryUpdated: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         let isHomeScreenOpen = store.currentDocument == nil

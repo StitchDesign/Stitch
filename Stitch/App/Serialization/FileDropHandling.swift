@@ -23,7 +23,7 @@ func handleOnDrop(providers: [NSItemProvider],
     for provider in providers {
         provider.loadFileRepresentation(forTypeIdentifier: UTType.item.identifier) { url, _ in
             guard let url = url,
-                  let tempURL = TemporaryURL(url: url, temporaryDirectoryURL) else {
+                  let tempURL = TemporaryURL.pathAndCopy(url: url, temporaryDirectoryURL) else {
                 DispatchQueue.main.async {
                     // TODO: cannot assume we dropped a media file; could have dropped e.g. a Stitch project
                     dispatch(ReceivedStitchFileError(error: .droppedMediaFileFailed))
@@ -43,12 +43,31 @@ func handleDroppedFile(tempURL: TemporaryURL,
  
     // importing a Stitch project
     if tempURL.value.isStitchDocumentExtension {
-        importStitchProjectSideEffect(tempURL: tempURL, store: store)
+        Task(priority: .high) { [weak store] in
+            do {
+                switch await store?.documentLoader.loadDocument(from: tempURL.value,
+                                                                isImport: true) {
+                    
+                case .loaded(let data, _):
+                    await store?.createNewProjectSideEffect(from: data, isProjectImport: true)
+                    
+                default:
+                    DispatchQueue.main.async {
+                        dispatch(DisplayError(error: .unsupportedProject))
+                    }
+                    return
+                }
+            }
+        }
     }
     
     // importing a media file
     else {
-        importMediaFileToStitch(tempURL: tempURL)
+        let _ = tempURL.value.startAccessingSecurityScopedResource()
+        DispatchQueue.main.async {
+            dispatch(ImportFileToNewNode(url: tempURL.value))
+        }
+        tempURL.value.stopAccessingSecurityScopedResource()
     }
 }
 

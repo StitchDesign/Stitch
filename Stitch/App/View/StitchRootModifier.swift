@@ -33,7 +33,7 @@ struct StitchRootModifier: ViewModifier {
                             log("CampiteURL error: \(error)")
                         }
                     }
-                    }
+                }
                 
                 else if url.pathExtension == UTType.stitchDocument.preferredFilenameExtension {
                     Task { [weak store] in
