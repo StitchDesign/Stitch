@@ -929,6 +929,8 @@
 		ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */; };
 		ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */; };
 		ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */; };
+		ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53112DCAC10700C3A09D /* SampleProjects.swift */; };
+		ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */; };
 		ECEA600A28E610C7002D7F4F /* NodeEphemeralObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */; };
 		ECEA600E28E611AD002D7F4F /* NodeTypeChangedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */; };
 		ECEACE8C2A8587C3007ACDE2 /* StitchFPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */; };
@@ -1916,6 +1918,8 @@
 		ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericFlyoutView.swift; sourceTree = "<group>"; };
+		ECEA53112DCAC10700C3A09D /* SampleProjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjects.swift; sourceTree = "<group>"; };
+		ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjectsView.swift; sourceTree = "<group>"; };
 		ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeEphemeralObservable.swift; sourceTree = "<group>"; };
 		ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedHelpers.swift; sourceTree = "<group>"; };
 		ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFPS.swift; sourceTree = "<group>"; };
@@ -2929,6 +2933,7 @@
 				B530D5062C18ABEB0005C6A9 /* DirectoryObserverActions.swift */,
 				B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */,
 				EC688E322DCAA73300C6737D /* FileImportHelpers.swift */,
+				ECEA53112DCAC10700C3A09D /* SampleProjects.swift */,
 				ECB1B7AF26FB9D46006D9C95 /* SerializationUtils.swift */,
 				B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */,
 				B5E0DDFB28DBF6770080BE71 /* DocumentEncodableUtil.swift */,
@@ -4633,6 +4638,7 @@
 				B55501372C1C05430081C3F1 /* ProjectItem */,
 				ECA3915C29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift */,
 				EC28E4B426F92AA0006D20CB /* ProjectsHomeView.swift */,
+				ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */,
 				B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */,
 				B544D3A5283B4EE4000A24E2 /* SampleAppsSheet.swift */,
 			);
@@ -4974,6 +4980,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */,
 				ECF387CB280B5C650075F0E5 /* PortValuesPreviewView.swift in Sources */,
 				ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */,
 				EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */,
@@ -5553,6 +5560,7 @@
 				B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */,
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
+				ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
 				EC98326B2B69D324003F9462 /* PossibleEdgesView.swift in Sources */,
 				ECA929FC260A693800281B52 /* DragInteractionPatchNode.swift in Sources */,

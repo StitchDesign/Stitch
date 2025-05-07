@@ -53,6 +53,14 @@ struct ProjectsHomeViewWrapper: View {
                         CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                                        iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
                         .id(UUID())
+                        
+                        CatalystHomescreenNavBarButton(action: { [weak store] in
+                            store?.showsSampleProjectModal = true
+                        },
+                                                       iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                        .id(UUID())
+                        
 #else
                         iPadNavBarButton(action: { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)

@@ -43,6 +43,9 @@ final class StitchStore: Sendable {
     // MARK: must be stored here to prevent inspector retain cycle
     @MainActor var showsLayerInspector = false
     
+    @MainActor var showsSampleProjectModal = false
+    @MainActor var isBeingOnboardedAfterAppOpenedWithNoProjects = false
+    
     // Tracks ID of project which has a title that's currently getting modified
     @MainActor var projectIdForTitleEdit: GraphId?
     

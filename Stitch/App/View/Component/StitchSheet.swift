@@ -14,10 +14,10 @@ extension View {
                               titleLabel: String,
                               hideAction: @escaping () -> (),
                               @ViewBuilder sheetBody: () -> T) -> some View {
-        return self.modifier(SheetViewModifier(isPresented: isPresented,
-                                               titleLabel: titleLabel,
-                                               hideAction: hideAction,
-                                               sheetBody: sheetBody))
+        self.modifier(SheetViewModifier(isPresented: isPresented,
+                                        titleLabel: titleLabel,
+                                        hideAction: hideAction,
+                                        sheetBody: sheetBody))
     }
 }
 

@@ -111,7 +111,6 @@ final actor DocumentLoader {
             // thumbnail loading not needed for import
             let thumbnail = isImport ? nil : DocumentEncoder.getProjectThumbnailImage(rootUrl: url)
             
-            
             return .loaded(document, thumbnail)
         } catch {
             log("DocumentLoader.loadDocument error: \(error)")
@@ -122,7 +121,6 @@ final actor DocumentLoader {
     nonisolated func loadDocument(_ projectLoader: ProjectLoader,
                                   isImport: Bool = false) async {
         let newLoading = await self.loadDocument(from: projectLoader.url, isImport: isImport)
-
         
         await MainActor.run { [weak projectLoader] in
             // Create an encoder if not yet created
@@ -147,6 +145,7 @@ extension DocumentLoader {
     @MainActor
     func createNewProject(from document: StitchDocument = .init(),
                           isProjectImport: Bool,
+                          enterProjectImmediately: Bool = true,
                           store: StitchStore) async throws {
         let projectLoader = try await self.installDocument(document: document)
         
@@ -180,8 +179,10 @@ extension DocumentLoader {
             documentViewModel.previewWindowSize = previewDevice.previewWindowDimensions
         }
         
-        projectLoader.documentViewModel = documentViewModel
-        store.navPath = [projectLoader]
+        if enterProjectImmediately {
+            projectLoader.documentViewModel = documentViewModel
+            store.navPath = [projectLoader]
+        }
     }
 
     func installDocument(document: StitchDocument) async throws -> ProjectLoader {
