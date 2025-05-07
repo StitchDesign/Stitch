@@ -61,3 +61,19 @@ func importStitchSampleProject(sampleProjectURL: URL,
         fatalErrorIfDebug()
     }
 }
+
+extension StitchStore {
+    /// Conditionally show modal if project URLs are non-empty. Else, we show the empty projects experience.
+    @MainActor
+    func conditionallToggleSampleProjectsModal() {
+        let containsProjects = !(self.allProjectUrls?.isEmpty ?? true)
+        
+        // Always allow toggling to false
+        if self.showsSampleProjectModal {
+            self.showsSampleProjectModal = false
+            return
+        }
+        
+        self.showsSampleProjectModal = containsProjects
+    }
+}

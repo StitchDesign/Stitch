@@ -329,7 +329,7 @@ struct ProjectsHomeCommands: Commands {
             SwiftUIShortcutView(title: "New Project from Sample",
                                 key: NEW_PROJECT_SHORTCUT,
                                 eventModifiers: [.command, .shift]) {
-                store.showsSampleProjectModal.toggle()
+                store.conditionallToggleSampleProjectsModal()
             }
 
             // NOTE: we already get CMD + W in Catalyst

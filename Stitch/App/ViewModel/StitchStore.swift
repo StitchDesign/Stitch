@@ -18,7 +18,7 @@ final class StitchStore: Sendable {
     
     @MainActor var llmRecordingModeEnabled: Bool = false
     
-    @MainActor var allProjectUrls = [ProjectLoader]()
+    @MainActor var allProjectUrls: [ProjectLoader]?
     let documentLoader = DocumentLoader()
     let clipboardEncoder = ClipboardEncoder()
     

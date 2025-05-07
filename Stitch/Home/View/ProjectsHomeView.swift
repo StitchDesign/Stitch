@@ -20,14 +20,14 @@ struct ProjectsHomeView: View {
 
     var filteredProjects: [ProjectLoader] {
         if searchQuery.isEmpty {
-            return store.allProjectUrls
+            return store.allProjectUrls ?? []
         } else {
-            return store.allProjectUrls.filter { projectLoader in
+            return store.allProjectUrls?.filter { projectLoader in
                 if case .loaded(let document, _) = projectLoader.loadingDocument {
                     return document.name.localizedCaseInsensitiveContains(searchQuery)
                 }
                 return false
-            }
+            } ?? []
         }
     }
 
@@ -44,8 +44,13 @@ struct ProjectsHomeView: View {
         store.undoDeleteProject(projectId: deletedGraphId)
     }
     
-    var showSampleModal: Bool {
-        !isPhoneDevice && store.showsSampleProjectModal
+    var showWelcomeExperience: Bool {
+        // Only show welcome UX once we confirm user has no projects
+        guard let allProjectUrls = store.allProjectUrls else {
+            return false
+        }
+        
+        return !isPhoneDevice && allProjectUrls.isEmpty
     }
 
     var body: some View {
@@ -59,7 +64,7 @@ struct ProjectsHomeView: View {
                 ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
             }
 
-            if self.showSampleModal {
+            if showWelcomeExperience {
                 SampleProjectsView(store: store)
                     .transition(.opacity)
             }
@@ -76,10 +81,17 @@ struct ProjectsHomeView: View {
                      titleLabel: "Settings",
                      hideAction: store.hideAppSettingsSheet,
                      sheetBody: { AppSettingsView() })
+        .stitchSheet(isPresented: store.showsSampleProjectModal,
+                     titleLabel: "Sample Projects",
+                     hideAction: { store.showsSampleProjectModal = false }) {
+            SampleProjectsView(store: store)
+            // increases usable space
+                .presentationDetents([.fraction(0.66)])
+        }
         .onTapGesture {
             store.projectIdForTitleEdit = nil
         }
-        .animation(.stitchAnimation, value: showSampleModal)
+        .animation(.stitchAnimation, value: showWelcomeExperience)
     }
     
     @ViewBuilder
@@ -125,17 +137,6 @@ struct ProjectsHomeView: View {
                 Text("Redo")
             }
         }
-    }
-}
-
-struct SampleProjectsModalClosed: StitchStoreEvent {
-    
-    @MainActor
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        // close modal
-        store.showsSampleProjectModal = false
-        
-        return .noChange
     }
 }
 

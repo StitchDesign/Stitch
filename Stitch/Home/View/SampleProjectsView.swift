@@ -34,7 +34,7 @@ struct SampleProjectsView: View {
     @Bindable var store: StitchStore
     
     var isEmptyState: Bool {
-        store.allProjectUrls.isEmpty
+        store.allProjectUrls?.isEmpty ?? false
     }
     
     var body: some View {
