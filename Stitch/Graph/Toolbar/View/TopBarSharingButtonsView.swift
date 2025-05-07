@@ -55,7 +55,7 @@ struct TopBarFeedbackButtonsView: View {
                     openURL(url)
                 }
             } label: {
-                Text("Email Us")
+                Text("Email")
                 Image(systemName: "mail.fill")
             }
             
@@ -76,7 +76,7 @@ struct TopBarFeedbackButtonsView: View {
             }
         } label: {
 #if !targetEnvironment(macCatalyst)
-            Text("Contact Us")
+            Text("Contact Stitch")
 #endif
             
             Image(systemName: "square.and.pencil")
