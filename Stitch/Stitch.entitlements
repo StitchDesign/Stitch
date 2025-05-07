@@ -15,7 +15,7 @@
 	</array>
 	<key>com.apple.developer.ubiquity-container-identifiers</key>
 	<array>
-		<string>iCloud.app.stitchdesign.stitch</string>
+		<string>iCloud.app.dev.stitchdesign.stitch</string>
 	</array>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
