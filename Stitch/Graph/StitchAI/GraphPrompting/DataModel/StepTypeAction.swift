@@ -15,6 +15,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case connectNodes(StepActionConnectionAdded)
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
+    case sidebarGroupCreated(StepActionSidebarGroupCreated)
     
     var stepType: StepType {
         switch self {
@@ -26,6 +27,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionChangeValueType.stepType
         case .setInput:
             return StepActionSetInput.stepType
+        case .sidebarGroupCreated:
+            return StepActionSidebarGroupCreated.stepType
         }
     }
     
@@ -38,6 +41,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .changeValueType(let x):
             return x.toStep
         case .setInput(let x):
+            return x.toStep
+        case .sidebarGroupCreated(let x):
             return x.toStep
         }
     }
@@ -61,7 +66,73 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .setInput:
             let x = try StepActionSetInput.fromStep(action)
             return .setInput(x)
+            
+        case .sidebarGroupCreated:
+            let x = try StepActionSidebarGroupCreated.fromStep(action)
+            return .sidebarGroupCreated(x)
         }
+    }
+}
+
+struct StepActionSidebarGroupCreated: StepActionable {
+    static let stepType: StepType = .sidebarGroupCreated
+    
+    var nodeId: NodeId
+    var groupName: String
+    
+    var toStep: Step {
+        Step(stepType: Self.stepType,
+             nodeId: nodeId,
+             groupName: groupName)
+    }
+    
+    static func fromStep(_ action: Step) throws -> Self {
+        if let nodeId = action.nodeId?.value,
+           let groupName = action.groupName {
+            return .init(nodeId: nodeId,
+                        groupName: groupName)
+        }
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
+    }
+    
+    static func createStructuredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .sidebarGroupCreated,
+              nodeId: OpenAISchema(type: .string))
+    }
+    
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .groupName]
+    
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
+        let layersSidebar = document.visibleGraph.layersSidebarViewModel
+        
+        // Get selected nodes from the graph
+        let selectedCanvasItems = document.visibleGraph.selection.selectedCanvasItems
+        let nodeIds = selectedCanvasItems.compactMap { canvasId -> UUID? in
+            switch canvasId {
+            case .node(let nodeId):
+                return nodeId
+            case .layerInput(let coord):
+                return coord.node
+            case .layerOutput(let coord):
+                return coord.node
+            }
+        }
+        
+        // Set the selection
+        layersSidebar.primary = Set(nodeIds)
+        
+        // Create the group
+        layersSidebar.sidebarGroupCreated()
+    }
+    
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
+        graph.layersSidebarViewModel.sidebarGroupUncreated()
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        // No specific validation needed as this is creating a new group
+        // The group will be created from currently selected nodes
     }
 }
 
@@ -81,6 +152,8 @@ extension Step {
         
         case .setInput:
             return try StepActionSetInput.fromStep(self)
+        case .sidebarGroupCreated:
+            return try StepActionSidebarGroupCreated.fromStep(self)
         }
     }
 }
