@@ -122,7 +122,6 @@ struct SampleProjectsModalClosed: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         // close modal
         store.showsSampleProjectModal = false
-        store.isBeingOnboardedAfterAppOpenedWithNoProjects = false
         
         return .noChange
     }

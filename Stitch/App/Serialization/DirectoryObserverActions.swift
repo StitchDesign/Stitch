@@ -17,7 +17,6 @@ struct DirectoryUpdatedOnAppOpen: StitchStoreEvent {
         case .success(let urls):
             if urls.isEmpty {
                 store.showsSampleProjectModal = true
-                store.isBeingOnboardedAfterAppOpenedWithNoProjects = true
             }
         default:
             break
