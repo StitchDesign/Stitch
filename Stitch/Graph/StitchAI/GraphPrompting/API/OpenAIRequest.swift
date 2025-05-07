@@ -344,8 +344,9 @@ extension StitchAIManager {
         log(" Storing Original AI Generated Actions ")
         document.llmRecording.promptState.prompt = originalPrompt
         
-        // Enable edit mode for actions after succsesful request
-        document.llmRecording.mode = .augmentation
+        // Enable edit mode for actions after successful request
+//        document.llmRecording.mode = .augmentation
+        document.llmRecording.mode = .normal
         
         try document.validateAndApplyActions(steps)
     }
