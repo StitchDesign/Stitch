@@ -45,7 +45,7 @@ struct SampleProjectsView: View {
     
     @ViewBuilder
     var titleView: some View {
-        HStack {
+        HStack(spacing: .zero) {
             Image("AppIconV2Sample")
                 .resizable()
                 .scaledToFit()
@@ -57,10 +57,9 @@ struct SampleProjectsView: View {
                     .font(.largeTitle)
                     .fontWeight(.heavy)
 
-                Text("Start prototyping from an existing project below or from a blank slate.")
+                Text("Prototype from a project below or from scratch.")
                     .font(.title3)
             }
-            .frame(maxWidth: .infinity)
             
             Spacer()
         }
