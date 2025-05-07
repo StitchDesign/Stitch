@@ -146,6 +146,8 @@ extension GraphState {
         // since pulse inputs are skipped whenever the upstream output's values "did not change"
         // (the skipping is how we avoid e.g. the down output on a Press node from constantly triggering a downstream pulse).
         if downstreamInputObserver.allLoopedValues.first?.getPulse.isDefined ?? false {
+            assertInDebug(!upstreamOutputObserver.allLoopedValues.isEmpty)
+            
             downstreamInputObserver.setValuesInInput(upstreamOutputObserver.allLoopedValues)
         }
         
