@@ -197,11 +197,19 @@ extension StitchAIManager {
         do {
             // Create data task and store it
             let startTime = Date()
-            let result = try await URLSession.shared.data(for: urlRequest)
+            
+            if config.stream {
+                let result = try await self.streamData(for: urlRequest)
+                data = result.0
+                response = result.1
+            } else {
+                let result = try await URLSession.shared.data(for: urlRequest)
+                data = result.0
+                response = result.1
+            }
+            
             let responseTime = Date().timeIntervalSince(startTime)
             log("OpenAI request completed in \(responseTime) seconds")
-            data = result.0
-            response = result.1
         } catch {
             log("OpenAI request failed: \(error)")
             
@@ -253,6 +261,12 @@ extension StitchAIManager {
                                                        currentAttempts: attempt,
                                                        lastError: StitchAIManagerError.apiResponseError.description)
             }
+        }
+        
+        // If we streamed the response, we are currently **not** processing it further.
+        // Simply return an empty Step list so the caller can decide what to do next.
+        if config.stream {
+            return []
         }
         
         return try await self.convertResponseToStepActions(request,
@@ -352,6 +366,43 @@ extension StitchAIManager {
         document.llmRecording.mode = .normal
         
         try document.validateAndApplyActions(steps)
+    }
+    
+    // MARK: - Streaming helpers
+    /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
+    private func streamData(for urlRequest: URLRequest) async throws -> (Data, URLResponse) {
+        var accumulatedData = Data()
+        
+        // `bytes(for:)` returns an `AsyncSequence` of individual `UInt8`s
+        let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
+        
+        var currentChunk: [UInt8] = []
+        
+        for try await byte in bytes {
+            accumulatedData.append(byte)
+            currentChunk.append(byte)
+            
+            // Print when we hit a newline, which typically delimits server-sent events.
+            if byte == 10 { // '\n'
+                if !currentChunk.isEmpty {
+                    let chunkData = Data(currentChunk)
+                    if let str = String(data: chunkData, encoding: .utf8) {
+                        print("OpenAI Stream Chunk: \(str)")
+                    }
+                    currentChunk.removeAll(keepingCapacity: true)
+                }
+            }
+        }
+        
+        // Print any trailing bytes that weren't newline-terminated
+        if !currentChunk.isEmpty {
+            let chunkData = Data(currentChunk)
+            if let str = String(data: chunkData, encoding: .utf8) {
+                print("OpenAI Stream Chunk: \(str)")
+            }
+        }
+        
+        return (accumulatedData, response)
     }
 }
 
