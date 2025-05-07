@@ -13,21 +13,21 @@ let PROJECTSVIEW_ITEM_WIDTH: CGFloat = 200
 /// Wrapper view for projects scroll view that also includes toolbar.
 /// Used by both Catalyst and iPad.
 struct ProjectsHomeView: View {
-
+    
     @Bindable var store: StitchStore
     let namespace: Namespace.ID
     @State private var searchQuery: String = ""
 
     var filteredProjects: [ProjectLoader] {
         if searchQuery.isEmpty {
-            return store.allProjectUrls
+            return store.allProjectUrls ?? []
         } else {
-            return store.allProjectUrls.filter { projectLoader in
+            return store.allProjectUrls?.filter { projectLoader in
                 if case .loaded(let document, _) = projectLoader.loadingDocument {
                     return document.name.localizedCaseInsensitiveContains(searchQuery)
                 }
                 return false
-            }
+            } ?? []
         }
     }
 
@@ -43,59 +43,33 @@ struct ProjectsHomeView: View {
         }
         store.undoDeleteProject(projectId: deletedGraphId)
     }
+    
+    var showWelcomeExperience: Bool {
+        // Only show welcome UX once we confirm user has no projects
+        guard let allProjectUrls = store.allProjectUrls else {
+            return false
+        }
+        
+        return !isPhoneDevice && allProjectUrls.isEmpty
+    }
 
     var body: some View {
-        VStack {
-            
-            
+        ZStack {
+            VStack {
+                
 #if DEV_DEBUG
-            // Search Bar
-            TextField("Search Projects...", text: $searchQuery)
-                .padding()
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal)
-            
-            HStack {
-                
-                let activelySelectingProjects = store.homescreenProjectSelectionState.isSelecting
-                let selectedProjectCount = store.homescreenProjectSelectionState.selections.count
-                
-                Button {
-                    dispatch(HomescreenProjectSelectionToggled())
-                } label: {
-                    Text(store.homescreenProjectSelectionState.isSelecting ? "Stop Selecting" : "Select Projects")
-                }
-                
-                Button {
-                    dispatch(DeleteHomescreenSelectedProjects())
-                } label: {
-                    Text("Delete \(selectedProjectCount) selected projected")
-                }
-                .opacity(activelySelectingProjects ? 1 : 0)
-
-
-                // Some spacing
-                Rectangle().fill(.clear).frame(width: 32, height: 8)
-                
-                // Undo and Redo buttons
-                
-                Button {
-                    UNDO_ACTION()
-                } label: {
-                    Text("Undo")
-                }
-                Button {
-                    REDO_ACTION()
-                } label: {
-                    Text("Redo")
-                }
-            }
+                debugView
 #endif
-            
-            ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
+                
+                ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
+            }
+
+            if showWelcomeExperience {
+                SampleProjectsView(store: store)
+                    .transition(.opacity)
+            }
         }
-        .modifier(SampleAppsSheet(showSampleAppsSheet: alertState.showSampleAppsSheet,
-                                  namespace: namespace))
+        
         // Shows undo delete toast when GraphUI state has recenetly deleted project ID
         // Should onExpireAction only fire an action if alertState.deletedGraphId still defined ?
         .toast(willShow: alertState.deletedGraphId.isDefined,
@@ -105,11 +79,61 @@ struct ProjectsHomeView: View {
                onExpireAction: store.projectDeleteToastExpired)
         .stitchSheet(isPresented: alertState.showAppSettings,
                      titleLabel: "Settings",
-                     hideAction: store.hideAppSettingsSheet) {
-            AppSettingsView()
+                     hideAction: store.hideAppSettingsSheet,
+                     sheetBody: { AppSettingsView() })
+        .stitchSheet(isPresented: store.showsSampleProjectModal,
+                     titleLabel: "Sample Projects",
+                     hideAction: { store.showsSampleProjectModal = false }) {
+            SampleProjectsList(store: store)
         }
         .onTapGesture {
             store.projectIdForTitleEdit = nil
+        }
+        .animation(.stitchAnimation, value: showWelcomeExperience)
+    }
+    
+    @ViewBuilder
+    var debugView: some View {
+        // Search Bar
+        TextField("Search Projects...", text: $searchQuery)
+            .padding()
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .padding(.horizontal)
+        
+        HStack {
+            
+            let activelySelectingProjects = store.homescreenProjectSelectionState.isSelecting
+            let selectedProjectCount = store.homescreenProjectSelectionState.selections.count
+            
+            Button {
+                dispatch(HomescreenProjectSelectionToggled())
+            } label: {
+                Text(store.homescreenProjectSelectionState.isSelecting ? "Stop Selecting" : "Select Projects")
+            }
+            
+            Button {
+                dispatch(DeleteHomescreenSelectedProjects())
+            } label: {
+                Text("Delete \(selectedProjectCount) selected projected")
+            }
+            .opacity(activelySelectingProjects ? 1 : 0)
+
+
+            // Some spacing
+            Rectangle().fill(.clear).frame(width: 32, height: 8)
+            
+            // Undo and Redo buttons
+            
+            Button {
+                UNDO_ACTION()
+            } label: {
+                Text("Undo")
+            }
+            Button {
+                REDO_ACTION()
+            } label: {
+                Text("Redo")
+            }
         }
     }
 }

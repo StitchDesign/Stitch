@@ -94,7 +94,6 @@
 		B541060028694AD7000688CA /* MediaUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54105FF28694AD7000688CA /* MediaUtil.swift */; };
 		B5410608286D66F3000688CA /* NodeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5410607286D66F3000688CA /* NodeUtils.swift */; };
 		B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5432D1F276A57800052E59F /* ScrollAnimation.swift */; };
-		B544D3A6283B4EE4000A24E2 /* SampleAppsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544D3A5283B4EE4000A24E2 /* SampleAppsSheet.swift */; };
 		B544D3A8283C3F90000A24E2 /* StitchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B544D3A7283C3F90000A24E2 /* StitchSheet.swift */; };
 		B548533729371E3900C43828 /* RealityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B548533629371E3900C43828 /* RealityView.swift */; };
 		B548533929371E7B00C43828 /* ARUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B548533829371E7B00C43828 /* ARUtils.swift */; };
@@ -606,6 +605,7 @@
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
 		EC68590B2DB078B7004BF315 /* ArrayUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68590A2DB078B7004BF315 /* ArrayUtils.swift */; };
+		EC688E332DCAA73300C6737D /* FileImportHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC688E322DCAA73300C6737D /* FileImportHelpers.swift */; };
 		EC68A6FC288B311A00689F92 /* SplitterTypeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FB288B311A00689F92 /* SplitterTypeActions.swift */; };
 		EC68A6FE288B314A00689F92 /* GroupNodeCreationActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FD288B314A00689F92 /* GroupNodeCreationActions.swift */; };
 		EC68A700288B31A000689F92 /* GroupNodeDestructionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */; };
@@ -928,6 +928,8 @@
 		ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */; };
 		ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */; };
 		ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */; };
+		ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53112DCAC10700C3A09D /* SampleProjects.swift */; };
+		ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */; };
 		ECEA600A28E610C7002D7F4F /* NodeEphemeralObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */; };
 		ECEA600E28E611AD002D7F4F /* NodeTypeChangedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */; };
 		ECEACE8C2A8587C3007ACDE2 /* StitchFPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */; };
@@ -1105,7 +1107,6 @@
 		B54105FF28694AD7000688CA /* MediaUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaUtil.swift; sourceTree = "<group>"; };
 		B5410607286D66F3000688CA /* NodeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUtils.swift; sourceTree = "<group>"; };
 		B5432D1F276A57800052E59F /* ScrollAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollAnimation.swift; sourceTree = "<group>"; };
-		B544D3A5283B4EE4000A24E2 /* SampleAppsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleAppsSheet.swift; sourceTree = "<group>"; };
 		B544D3A7283C3F90000A24E2 /* StitchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSheet.swift; sourceTree = "<group>"; };
 		B548533629371E3900C43828 /* RealityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityView.swift; sourceTree = "<group>"; };
 		B548533829371E7B00C43828 /* ARUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARUtils.swift; sourceTree = "<group>"; };
@@ -1599,6 +1600,7 @@
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
 		EC68590A2DB078B7004BF315 /* ArrayUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayUtils.swift; sourceTree = "<group>"; };
+		EC688E322DCAA73300C6737D /* FileImportHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImportHelpers.swift; sourceTree = "<group>"; };
 		EC68A6FB288B311A00689F92 /* SplitterTypeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterTypeActions.swift; sourceTree = "<group>"; };
 		EC68A6FD288B314A00689F92 /* GroupNodeCreationActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeCreationActions.swift; sourceTree = "<group>"; };
 		EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeDestructionActions.swift; sourceTree = "<group>"; };
@@ -1914,6 +1916,8 @@
 		ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericFlyoutView.swift; sourceTree = "<group>"; };
+		ECEA53112DCAC10700C3A09D /* SampleProjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjects.swift; sourceTree = "<group>"; };
+		ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjectsView.swift; sourceTree = "<group>"; };
 		ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeEphemeralObservable.swift; sourceTree = "<group>"; };
 		ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedHelpers.swift; sourceTree = "<group>"; };
 		ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFPS.swift; sourceTree = "<group>"; };
@@ -2926,6 +2930,8 @@
 				B55501292C1BFB590081C3F1 /* Util */,
 				B530D5062C18ABEB0005C6A9 /* DirectoryObserverActions.swift */,
 				B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */,
+				EC688E322DCAA73300C6737D /* FileImportHelpers.swift */,
+				ECEA53112DCAC10700C3A09D /* SampleProjects.swift */,
 				ECB1B7AF26FB9D46006D9C95 /* SerializationUtils.swift */,
 				B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */,
 				B5E0DDFB28DBF6770080BE71 /* DocumentEncodableUtil.swift */,
@@ -4630,8 +4636,8 @@
 				B55501372C1C05430081C3F1 /* ProjectItem */,
 				ECA3915C29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift */,
 				EC28E4B426F92AA0006D20CB /* ProjectsHomeView.swift */,
+				ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */,
 				B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */,
-				B544D3A5283B4EE4000A24E2 /* SampleAppsSheet.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -4971,6 +4977,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */,
 				ECF387CB280B5C650075F0E5 /* PortValuesPreviewView.swift in Sources */,
 				ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */,
 				EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */,
@@ -5476,6 +5483,7 @@
 				EC5043A52874CDDB00590D07 /* RGBA.swift in Sources */,
 				B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */,
 				B5770BA32D3ACF1D0013AD09 /* Model3DView.swift in Sources */,
+				EC688E332DCAA73300C6737D /* FileImportHelpers.swift in Sources */,
 				B5EC61FB2A5F5713002A639F /* NodeViewModel.swift in Sources */,
 				EC17ACC226B4BC5900137EA5 /* StitchAudio.swift in Sources */,
 				ECFA5D4A287DEE580037CD59 /* PulseColor.swift in Sources */,
@@ -5498,7 +5506,6 @@
 				EC08D559289887BF00FEE846 /* LogUtils.swift in Sources */,
 				ECDC622026583B0C00F67ED8 /* GrayscaleNode.swift in Sources */,
 				ECE35EE627CEE80B00CB8F5C /* FieldValue.swift in Sources */,
-				B544D3A6283B4EE4000A24E2 /* SampleAppsSheet.swift in Sources */,
 				EC4D95A626B4911700AD5AB4 /* MediaActions.swift in Sources */,
 				EC2DD172289B6BA50089D501 /* NodeDuplicationActions.swift in Sources */,
 				EC4D959D26B48F7900AD5AB4 /* PulseActions.swift in Sources */,
@@ -5549,6 +5556,7 @@
 				B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */,
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
+				ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
 				EC98326B2B69D324003F9462 /* PossibleEdgesView.swift in Sources */,
 				ECA929FC260A693800281B52 /* DragInteractionPatchNode.swift in Sources */,

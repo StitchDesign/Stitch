@@ -52,6 +52,10 @@ struct StitchProjectView: View {
                                                  projectName: graphState.name,
                                                  projectId: graphState.projectId,
                                                  isFullScreen: $isFullScreen))
+            .onAppear {
+                // Hide sample projects modal
+                store.showsSampleProjectModal = false
+            }
             .onDisappear {
                 // Create new thumbnail image
                 store.createThumbnail(from: document)

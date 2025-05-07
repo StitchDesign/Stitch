@@ -20,7 +20,7 @@ extension Color {
 }
 
 struct ProjectsListItemIconView: View {
-
+    
     let projectThumbnail: UIImage?
     
     let previewWindowBackgroundColor: Color?
@@ -42,30 +42,39 @@ struct ProjectsListItemIconView: View {
     var body: some View {
         // TODO: why did AsyncImage cause problems even when modifiedDate is passed in?
         Image(uiImage: image)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-        // The original ~size of the old project icon; needed for contentShape
-        // TODO: will be updated after small redesign?
-            .padding([.top, .bottom], 8)
-            .frame(width: PROJECTSVIEW_ITEM_WIDTH,
-                   height: PROJECTSVIEW_ITEM_WIDTH - (PROJECTSVIEW_ITEM_WIDTH/3))
-             .background {
-                 if projectThumbnail.isDefined,
-                    let previewWindowBackgroundColor = previewWindowBackgroundColor {
-                     previewWindowBackgroundColor.overlay {
-                         (previewWindowBackgroundColor.isDarkBackground ? Color.white : .black).opacity(0.2)
-                     }
+            .projectThumbnailRatio(hasThumbnail: projectThumbnail.isDefined,
+                                   previewWindowBackgroundColor: previewWindowBackgroundColor)
+            .projectItemBlur(willBlur: isLoading)
+            .overlay {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
                 }
             }
-             .cornerRadius(8)
-             .contentShape(Rectangle()) // for consistent tappable thumbnail area
-             .projectItemBlur(willBlur: isLoading)
-             .overlay {
-                 if isLoading {
-                     ProgressView()
-                         .progressViewStyle(.circular)
-                 }
-             }
+    }
+}
+
+extension View where Self == Image {
+    
+    func projectThumbnailRatio(width: CGFloat = PROJECTSVIEW_ITEM_WIDTH,
+                               hasThumbnail: Bool,
+                               previewWindowBackgroundColor: Color?) -> some View {
+        self
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .padding([.top, .bottom], 8)
+            .frame(width: width, height: width - (width/3))
+            .background {
+                if hasThumbnail,
+                   let previewWindowBackgroundColor = previewWindowBackgroundColor {
+                    previewWindowBackgroundColor.overlay {
+                        (previewWindowBackgroundColor.isDarkBackground ? Color.white : .black)
+                            .opacity(0.2)
+                    }
+                }
+            }
+            .cornerRadius(8)
+            .contentShape(Rectangle()) // for consistent tappable thumbnail area
     }
 }
 
@@ -124,7 +133,9 @@ struct ProjectsListItemView: View {
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
             case .loaded(let document, let thumbnail):
-                // logInView("LOADED: \(document.name) \(document.id)")
+                logInView("LOADED: \(document.name) \(document.id)")
+                logInView("LOADED: thumbnailURL: \(DocumentEncoder.getProjectThumbnailURL(rootUrl: document.rootUrl))")
+                
                 ProjectsListItemIconView(
                     projectThumbnail: thumbnail,
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,

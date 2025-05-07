@@ -14,10 +14,10 @@ extension View {
                               titleLabel: String,
                               hideAction: @escaping () -> (),
                               @ViewBuilder sheetBody: () -> T) -> some View {
-        return self.modifier(SheetViewModifier(isPresented: isPresented,
-                                               titleLabel: titleLabel,
-                                               hideAction: hideAction,
-                                               sheetBody: sheetBody))
+        self.modifier(SheetViewModifier(isPresented: isPresented,
+                                        titleLabel: titleLabel,
+                                        hideAction: hideAction,
+                                        sheetBody: sheetBody))
     }
 }
 
@@ -44,25 +44,23 @@ struct SheetViewModifier<T: View>: ViewModifier {
                 hideAction()
             }
         }
-
+        
         content
             .sheet(isPresented: isPresentedBinding) {
-                StitchHostingControllerView(ignoreKeyCommands: false,
-                                            inputTextFieldFocused: false, // TODO: should this be provided to the sheet view?
-                                            name: .sheetView) {
-                    VStack(alignment: .leading) {
-                        titleView
-                        sheetBody
-                            .padding()
-                        Spacer()
-                    }
-                    .padding()
-                    .background(
-                        Color(uiColor: .systemGray5)
-                            // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
-                            .ignoresSafeArea([.all, .keyboard])
-                    )
-                }.ignoresSafeArea([.all, .keyboard])
+                VStack(alignment: .leading) {
+                    titleView
+                    
+                    sheetBody
+                        .padding()
+                    
+                    Spacer()
+                }
+                .padding()
+                .background(
+                    Color(uiColor: .systemGray5)
+                    // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
+                        .ignoresSafeArea([.all, .keyboard])
+                )
             }
     }
 

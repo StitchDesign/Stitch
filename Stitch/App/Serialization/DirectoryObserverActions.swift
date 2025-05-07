@@ -7,6 +7,18 @@
 
 import Foundation
 
+struct DirectoryUpdatedOnAppOpen: StitchStoreEvent {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        let isHomeScreenOpen = store.currentDocument == nil
+        
+        Task.detached(priority: isHomeScreenOpen ? .high : .low) { [weak store] in
+            await store?.directoryUpdated()
+        }
+        
+        return .noChange
+    }
+}
+
 struct DirectoryUpdated: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         let isHomeScreenOpen = store.currentDocument == nil
@@ -48,7 +60,7 @@ extension StitchStore: DirectoryObserverDelegate {
                 store.systems = newSystems
                 
                 store.allProjectUrls = response.projects
-            }            
+            }
         }
     }
 }
