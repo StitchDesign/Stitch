@@ -83,7 +83,7 @@ struct TopBarFeedbackButtonsView: View {
             }
 #endif
             
-            Image(systemName: "square.and.pencil")
+            Image(systemName: "bubble.left.and.text.bubble.right")
         }
     }
 }
