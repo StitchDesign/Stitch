@@ -25,42 +25,39 @@ func downloadFile(from url: URL,
 }
 
 // Used by modal that imports a single sample project.
-// `SideEffect` because async but signature does not indicate as such
-func importStitchSampleProjectSideEffect(sampleProjectURL: URL,
-                                         store: StitchStore) {
+func importStitchSampleProject(sampleProjectURL: URL,
+                                         store: StitchStore) async {
     
     log("importStitchSampleProjectSideEffect: sampleProjectURL: \(sampleProjectURL)")
         
-    Task {
-        do {
-            let tempURL = TemporaryURL.pathOnly(url: sampleProjectURL, TemporaryDirectoryURL())
-            
-            let savedURL = try await downloadFile(from: sampleProjectURL, to: tempURL.value)
-            log("savedURL: \(savedURL)")
-            
-            let openedDocument = try await StitchDocument.openDocument(
-                from: savedURL,
-                isImport: true,
-                // i.e. do not attempt ubiquitous-download
-                isNonICloudDocumentsFile: true)
-            
-            guard let openedDocument = openedDocument else {
-                DispatchQueue.main.async {
-                    log("importStitchSampleProjectSideEffect: unsupported project")
-                    dispatch(DisplayError(error: .unsupportedProject))
-                }
-                return
+    do {
+        let tempURL = TemporaryURL.pathOnly(url: sampleProjectURL, TemporaryDirectoryURL())
+        
+        let savedURL = try await downloadFile(from: sampleProjectURL, to: tempURL.value)
+        log("savedURL: \(savedURL)")
+        
+        let openedDocument = try await StitchDocument.openDocument(
+            from: savedURL,
+            isImport: true,
+            // i.e. do not attempt ubiquitous-download
+            isNonICloudDocumentsFile: true)
+        
+        guard let openedDocument = openedDocument else {
+            DispatchQueue.main.async {
+                log("importStitchSampleProjectSideEffect: unsupported project")
+                dispatch(DisplayError(error: .unsupportedProject))
             }
-                
-            log("importStitchSampleProjectSideEffect: will open project from document")
-            await store.createNewProject(
-                from: openedDocument,
-                isProjectImport: true,
-                enterProjectImmediately: true)
-            
-        } catch {
-            log("importStitchSampleProjectSideEffect: Download failed: \(error)")
-            fatalErrorIfDebug()
+            return
         }
+        
+        log("importStitchSampleProjectSideEffect: will open project from document")
+        await store.createNewProject(
+            from: openedDocument,
+            isProjectImport: true,
+            enterProjectImmediately: true)
+        
+    } catch {
+        log("importStitchSampleProjectSideEffect: Download failed: \(error)")
+        fatalErrorIfDebug()
     }
 }

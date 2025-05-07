@@ -52,6 +52,7 @@ struct SampleProjectsView: View {
                                   projectAssetName: "ARRobot")
             }
         }
+        .padding(.horizontal)
     }
 }
 
@@ -71,8 +72,16 @@ struct SampleProjectView: View {
     var body: some View {
         if let sampleURL = sampleURL {
             Button {
-                importStitchSampleProjectSideEffect(sampleProjectURL: sampleURL,
-                                                    store: self.store)
+                Task(priority: .high) { [weak store] in
+                    if let store = store {
+                        await importStitchSampleProject(sampleProjectURL: sampleURL,
+                                                        store: store)
+
+                        await MainActor.run { [weak store] in
+                            store?.showsSampleProjectModal = false
+                        }
+                    }
+                }
                 
             } label: {
                 VStack {
