@@ -50,19 +50,27 @@ struct ProjectsHomeViewWrapper: View {
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        // TODO: fix incorrect color issue for feedback button which uses underlying menu
-//                        TopBarFeedbackButtonsView()
-//                            .modifier(CatalystTopBarButtonStyle())
-//                            .id(UUID())
+                        CatalystHomescreenNavBarButton(action: { [weak store] in
+                            store?.conditionallToggleSampleProjectsModal()
+                        },
+                                                       iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                        .id(UUID())
                         
                         CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                                        iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
                         .id(UUID())
+                        
 #else
                         iPadNavBarButton(action: { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
                         },
                                          iconName: NEW_PROJECT_ICON_NAME)
+                        
+                        iPadNavBarButton(action: { [weak store] in
+                            store?.conditionallToggleSampleProjectsModal()
+                        },
+                                         iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
                         
                         // TODO: disabling feedback button on home screen for consistency with Catalyst due to color issue
 //                        TopBarFeedbackButtonsView(showLabel: false)

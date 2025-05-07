@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "Music_Player_projectThumbnail.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Music_Player_projectThumbnail 1.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "Music_Player_projectThumbnail 2.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -47,7 +47,7 @@ struct DeleteHomescreenSelectedProjects: StitchStoreEvent {
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         store.homescreenProjectSelectionState.selections.forEach { (selectedProject: GraphId) in
-            if let project = store.allProjectUrls.first(where: { $0.loadedDocument?.0.id == selectedProject.value }),
+            if let project = store.allProjectUrls?.first(where: { $0.loadedDocument?.0.id == selectedProject.value }),
                let (loadedDocument, _) = project.loadedDocument {
                 
                 store.deleteProject(document: loadedDocument)

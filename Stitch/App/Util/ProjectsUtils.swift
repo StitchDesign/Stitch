@@ -12,8 +12,3 @@ import UIKit
 
 @MainActor
 let isPhoneDevice = UIDevice.current.userInterfaceIdiom == .phone
-
-enum SampleApp: String, CaseIterable {
-    case MusicPlayer = "Music Player"
-    case MicRecorder = "Microphone Recorder"
-}
