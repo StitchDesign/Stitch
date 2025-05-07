@@ -20,13 +20,15 @@ struct OpenAIRequestConfig {
     let timeoutInterval: TimeInterval   // Request timeout duration in seconds
     let retryDelay: TimeInterval       // Delay between retry attempts
     let maxTimeoutErrors: Int  // Maximum number of timeout errors before showing alert
+    let stream: Bool           // Whether to stream the response
     
     /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
         maxRetries: 3,
         timeoutInterval: 60,
         retryDelay: 2,
-        maxTimeoutErrors: 4
+        maxTimeoutErrors: 4,
+        stream: true
     )
 }
 
@@ -174,7 +176,8 @@ extension StitchAIManager {
         // Construct request payload
         let payload = try StitchAIRequest(secrets: secrets,
                                           userPrompt: prompt,
-                                          systemPrompt: systemPrompt)
+                                          systemPrompt: systemPrompt,
+                                          stream: config.stream)
         
         // Serialize and send request
         do {
