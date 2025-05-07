@@ -43,3 +43,47 @@ struct TopBarSharingButtonsView: View {
         }
     }
 }
+
+struct TopBarFeedbackButtonsView: View {
+    @Environment(\.openURL) private var openURL
+    
+    var showLabel: Bool = true
+    
+    var body: some View {
+        Menu {
+            // Opens the user’s default mail client with a pre-filled address
+            StitchButton {
+                if let url = URL(string: "mailto:hello@stitchdesign.app") {
+                    openURL(url)
+                }
+            } label: {
+                Text("Email")
+                Image(systemName: "mail.fill")
+            }
+            
+            // Launches the system browser and navigates to your site
+            StitchButton {
+                if let url = URL(string: "https://github.com/StitchDesign/Stitch/issues/new") {
+                    openURL(url)
+                }
+            } label: {
+                Label {
+                    Text("Post to GitHub")
+                } icon: {
+                    Image("github")
+                        .resizable()
+                        .scaledToFit()
+                }
+                .labelStyle(.titleAndIcon)
+            }
+        } label: {
+#if !targetEnvironment(macCatalyst)
+            if showLabel {
+                Text("Contact Stitch")                
+            }
+#endif
+            
+            Image(systemName: "bubble.left.and.text.bubble.right")
+        }
+    }
+}
