@@ -13,8 +13,6 @@ let PROJECTSVIEW_ITEM_WIDTH: CGFloat = 200
 /// Wrapper view for projects scroll view that also includes toolbar.
 /// Used by both Catalyst and iPad.
 struct ProjectsHomeView: View {
-
-    @AppStorage(USER_HAS_BEEN_ONBOARDED_KEY_NAME) private var hasBeenOnboarded: String = "false"
     
     @Bindable var store: StitchStore
     let namespace: Namespace.ID
@@ -109,7 +107,7 @@ struct ProjectsHomeView: View {
                      hideAction: store.hideAppSettingsSheet,
                      sheetBody: { AppSettingsView() })
         .stitchSheet(isPresented: store.showsSampleProjectModal,
-                     titleLabel: hasUserBeenOnboarded() ? "Sample Projects" : "Welcome to Stitch!",
+                     titleLabel: "Sample Projects",
                      hideAction: { dispatch(SampleProjectsModalClosed()) },
                      sheetBody: { SampleProjectsView(store: store) })
         .onTapGesture {
@@ -122,29 +120,12 @@ struct SampleProjectsModalClosed: StitchStoreEvent {
     
     @MainActor
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        // TODO: why isn't this setting the UserDefault ?
-//        // set user as onboarded
-//        UserDefaults.standard.set(
-//            true,
-//            forKey: USER_HAS_BEEN_ONBOARDED_KEY_NAME)
-//        
         // close modal
         store.showsSampleProjectModal = false
         store.isBeingOnboardedAfterAppOpenedWithNoProjects = false
         
         return .noChange
     }
-}
-
-func hasUserBeenOnboarded() -> Bool {
-    let k = UserDefaults.standard
-        .string(forKey: USER_HAS_BEEN_ONBOARDED_KEY_NAME)
-        .flatMap { Bool.init($0) }
-    
-    // if not found, assume not yet onboarded
-    ?? false
-    log("hasUserBeenOnboarded: \(k)")
-    return k
 }
 
 extension GraphId {

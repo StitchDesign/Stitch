@@ -139,7 +139,6 @@ let DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME = "DefaultPreviewWindowDevice"
 let SAVED_APP_THEME_KEY_NAME = "SavedAppTheme"
 let SAVED_EDGE_STYLE_KEY_NAME = "SavedEdgeStyle"
 let LLM_RECORDING_MODE_KEY_NAME = "LLMRecordingMode"
-let USER_HAS_BEEN_ONBOARDED_KEY_NAME = "UserHasBeenOnboarded"
 
 struct AppSettingsView: View {
     // Obtains last camera preference setting, if any
