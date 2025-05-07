@@ -33,66 +33,27 @@ extension SampleProjectData: Identifiable {
 struct SampleProjectsView: View {
     @Bindable var store: StitchStore
     
-    var isEmptyState: Bool {
-        store.allProjectUrls?.isEmpty ?? false
-    }
-    
     var body: some View {
         VStack {
             titleView
             
-            sampleProjectsList
+            SampleProjectsView(store: store)
                 .transition(.slide)
                 .padding()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay {
-            // No reason to show close button if no projects
-            if !isEmptyState {
-                xButton
-            }
-        }
-        .background(.ultraThinMaterial)
-    }
-    
-    @ViewBuilder
-    var xButton: some View {
-        HStack(alignment: .top) {
-            Spacer()
-        
-            VStack {
-                Button(action: {
-                    withAnimation {
-                        store.showsSampleProjectModal = false
-                    }
-                }, label: {
-                    HStack {
-                        Image(systemName: "xmark")
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                    }
-                })
-                .buttonStyle(.borderless)
-                
-                Spacer()
-            }
-        }
-        .padding()
     }
     
     @ViewBuilder
     var titleView: some View {
         HStack {
-            if isEmptyState {
-                Image("AppIconV2Sample")
-                    .resizable()
-                    .scaledToFit()
-                    .cornerRadius(12)
-                    .padding(.trailing)
-            }
+            Image("AppIconV2Sample")
+                .resizable()
+                .scaledToFit()
+                .cornerRadius(12)
+                .padding(.trailing)
             
-            VStack(alignment: isEmptyState ? .leading : .center) {
-                Text(isEmptyState ? "Let's Get Started" : "Sample Projects")
+            VStack(alignment: .leading) {
+                Text("Let's Get Started")
                     .font(.largeTitle)
                     .fontWeight(.heavy)
 
@@ -101,14 +62,16 @@ struct SampleProjectsView: View {
             }
             .frame(maxWidth: .infinity)
             
-            if isEmptyState {
-                Spacer()
-            }
+            Spacer()
         }
         .frame(width: 620, height: 60)
     }
+}
+
+struct SampleProjectsList: View {
+    @Bindable var store: StitchStore
     
-    var sampleProjectsList: some View {
+    var body: some View {
         VStack {
             HStack {
                 SampleProjectView(store: store,

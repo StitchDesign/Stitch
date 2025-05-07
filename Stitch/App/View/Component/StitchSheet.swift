@@ -13,10 +13,12 @@ extension View {
     func stitchSheet<T: View>(isPresented: Bool,
                               titleLabel: String,
                               hideAction: @escaping () -> (),
+                              willCenterAlignBody: Bool = false,
                               @ViewBuilder sheetBody: () -> T) -> some View {
         self.modifier(SheetViewModifier(isPresented: isPresented,
                                         titleLabel: titleLabel,
                                         hideAction: hideAction,
+                                        willCenterAlignBody: willCenterAlignBody,
                                         sheetBody: sheetBody))
     }
 }
@@ -25,15 +27,18 @@ struct SheetViewModifier<T: View>: ViewModifier {
     let isPresented: Bool
     let titleLabel: String
     let hideAction: () -> ()
+    let willCenterAlignBody: Bool
     let sheetBody: T
 
     init(isPresented: Bool,
          titleLabel: String,
          hideAction: @escaping () -> (),
+         willCenterAlignBody: Bool = true,
          @ViewBuilder sheetBody: () -> T) {
         self.isPresented = isPresented
         self.titleLabel = titleLabel
         self.hideAction = hideAction
+        self.willCenterAlignBody = willCenterAlignBody
         self.sheetBody = sheetBody()
     }
 
@@ -44,25 +49,27 @@ struct SheetViewModifier<T: View>: ViewModifier {
                 hideAction()
             }
         }
-
+        
         content
             .sheet(isPresented: isPresentedBinding) {
-                StitchHostingControllerView(ignoreKeyCommands: false,
-                                            inputTextFieldFocused: false, // TODO: should this be provided to the sheet view?
-                                            name: .sheetView) {
-                    VStack(alignment: .leading) {
-                        titleView
-                        sheetBody
-                            .padding()
+                VStack(alignment: .leading) {
+                    titleView
+                    
+                    if willCenterAlignBody {
                         Spacer()
                     }
-                    .padding()
-                    .background(
-                        Color(uiColor: .systemGray5)
-                            // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
-                            .ignoresSafeArea([.all, .keyboard])
-                    )
-                }.ignoresSafeArea([.all, .keyboard])
+                    
+                    sheetBody
+                        .padding()
+                    
+                    Spacer()
+                }
+                .padding()
+                .background(
+                    Color(uiColor: .systemGray5)
+                    // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
+                        .ignoresSafeArea([.all, .keyboard])
+                )
             }
     }
 

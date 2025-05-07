@@ -83,10 +83,9 @@ struct ProjectsHomeView: View {
                      sheetBody: { AppSettingsView() })
         .stitchSheet(isPresented: store.showsSampleProjectModal,
                      titleLabel: "Sample Projects",
-                     hideAction: { store.showsSampleProjectModal = false }) {
-            SampleProjectsView(store: store)
-            // increases usable space
-                .presentationDetents([.fraction(0.66)])
+                     hideAction: { store.showsSampleProjectModal = false },
+                     willCenterAlignBody: true) {
+            SampleProjectsList(store: store)
         }
         .onTapGesture {
             store.projectIdForTitleEdit = nil
