@@ -31,6 +31,7 @@ enum StitchAIManagerError: Error {
     case apiResponseError
     case portTypeDecodingError(String)
     case actionValidationError(String)
+    case invalidStreamingData
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -80,6 +81,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Could not decode node's port from: \(port)"
         case .actionValidationError(let string):
             return "Action validation error: \(string)"
+        case .invalidStreamingData:
+            return "Invalid streaming data received from OpenAI"
         }
     }
 }

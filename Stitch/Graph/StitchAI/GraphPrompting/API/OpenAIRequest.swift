@@ -32,6 +32,34 @@ struct OpenAIRequestConfig {
     )
 }
 
+/// Helper struct to process streaming chunks
+private struct StreamingChunkProcessor {
+    /// Process a chunk of data from the stream
+    static func processChunk(_ chunk: String) throws -> [Step]? {
+        // Remove "data: " prefix if present
+        let jsonString = chunk.hasPrefix("data: ") ?
+            String(chunk.dropFirst(6)) : chunk
+            
+        // Skip "[DONE]" message
+        guard jsonString != "[DONE]" else {
+            return nil
+        }
+        
+        // Decode the chunk
+        guard let data = jsonString.data(using: .utf8) else {
+            throw StitchAIManagerError.invalidStreamingData
+        }
+        
+        let response = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+        guard let choice = response.choices.first,
+              let content = try? choice.message.parseContent() else {
+            return nil
+        }
+        
+        return content.steps
+    }
+}
+
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
 struct OpenAIRequest {
@@ -79,6 +107,71 @@ extension Array where Element == Step {
 }
 
 extension StitchAIManager {
+    enum StitchAIManagerError: Error {
+        case documentNotFound(OpenAIRequest)
+        case jsonEncodingError(OpenAIRequest, Error)
+        case invalidURL(OpenAIRequest)
+        case requestCancelled(OpenAIRequest)
+        case internetConnectionFailed(OpenAIRequest)
+        case other(OpenAIRequest, Error)
+        case apiResponseError
+        case maxRetriesError(Int, String)
+        case multipleTimeoutErrors(OpenAIRequest, String)
+        case emptySuccessfulResponse
+        case nodeTypeParsing(String)
+        case portTypeDecodingError(String)
+        case actionValidationError(String)
+        case invalidStreamingData
+        
+        var description: String {
+            switch self {
+            case .documentNotFound(let request):
+                return "Document not found for request: \(request.prompt)"
+            case .jsonEncodingError(let request, let error):
+                return "JSON encoding error for request: \(request.prompt), error: \(error.localizedDescription)"
+            case .invalidURL(let request):
+                return "Invalid URL for request: \(request.prompt)"
+            case .requestCancelled(let request):
+                return "Request cancelled for prompt: \(request.prompt)"
+            case .internetConnectionFailed(let request):
+                return "Internet connection failed for request: \(request.prompt)"
+            case .other(let request, let error):
+                return "Other error for request: \(request.prompt), error: \(error.localizedDescription)"
+            case .apiResponseError:
+                return "API response error"
+            case .maxRetriesError(let maxRetries, let lastError):
+                return "Max retries exceeded (\(maxRetries)) with last error: \(lastError)"
+            case .multipleTimeoutErrors(let request, let lastError):
+                return "Multiple timeout errors for request: \(request.prompt), last error: \(lastError)"
+            case .emptySuccessfulResponse:
+                return "Empty successful response"
+            case .nodeTypeParsing(let nodeType):
+                return "Invalid node type: \(nodeType)"
+            case .portTypeDecodingError(let port):
+                return "Invalid port type: \(port)"
+            case .actionValidationError(let msg):
+                return "Action validation failed: \(msg)"
+            case .invalidStreamingData:
+                return "Invalid streaming data received from OpenAI"
+            }
+        }
+        
+        var shouldDisplayModal: Bool {
+            switch self {
+            case .documentNotFound,
+                 .requestCancelled,
+                 .internetConnectionFailed,
+                 .maxRetriesError,
+                 .multipleTimeoutErrors,
+                 .emptySuccessfulResponse,
+                 .invalidStreamingData:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+    
     @MainActor func handleRequest(_ request: OpenAIRequest) {
         guard let currentDocument = self.documentDelegate else {
             return
@@ -199,9 +292,12 @@ extension StitchAIManager {
             let startTime = Date()
             
             if config.stream {
+                // NEW: stream data and print chunks as they arrive
                 let result = try await self.streamData(for: urlRequest)
                 data = result.0
                 response = result.1
+                // When streaming, use the parsed steps directly
+                return result.2
             } else {
                 let result = try await URLSession.shared.data(for: urlRequest)
                 data = result.0
@@ -263,15 +359,9 @@ extension StitchAIManager {
             }
         }
         
-        // If we streamed the response, we are currently **not** processing it further.
-        // Simply return an empty Step list so the caller can decide what to do next.
-        if config.stream {
-            return []
-        }
-        
-        return try await self.convertResponseToStepActions(request,
-                                                           data: data,
-                                                           currentAttempt: attempt)
+         return try await self.convertResponseToStepActions(request,
+                                                            data: data,
+                                                            currentAttempt: attempt)
     }
     
     // Convert data to decoded Step actions
@@ -282,43 +372,17 @@ extension StitchAIManager {
         // Try to parse request
         // log raw JSON response
         let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-        log("OpenAIRequestCompleted: Full JSON Response:")
-        log("----------------------------------------")
-        log(jsonResponse)
-        log("----------------------------------------")
-        log("OpenAIRequestCompleted: JSON RESPONSE: \(jsonResponse)")
+        log("StitchAI Parsing JSON")
         
-        do {
-            let steps = try data.getOpenAISteps()
-            return steps
-        } catch let error as StitchAIManagerError {
-            log("StitchAIManager error parsing steps: \(error.description)")
-            
-            let availableNodeTypes = NodeType.allCases
-                .filter { $0 != .none }
-                .map { $0.display }
-                .joined(separator: ", ")
-            
-            let errorMessage = switch error {
-            case .nodeTypeParsing(let nodeType):
-                "Invalid node type '\(nodeType)'. Available types are: [\(availableNodeTypes)]"
-            case .portTypeDecodingError(let port):
-                "Invalid port type '\(port)'. Check node's available port types in schema."
-            case .actionValidationError(let msg):
-                "Action validation failed: \(msg). Ensure actions match schema specifications."
-            default:
-                error.description
-            }
-            
-            return try await self.retryMakeRequest(request,
-                                                   currentAttempts: currentAttempt,
-                                                   lastError: "Try again, there were failures parsing the result. \(errorMessage)")
-        } catch {
-            log("StitchAIManager unknown error parsing steps: \(error.localizedDescription)")
-            return try await self.retryMakeRequest(request,
-                                                   currentAttempts: currentAttempt,
-                                                   lastError: "Try again, there were failures parsing the result. You may have tried to add incorrect nodes or port types. Available node types: [\(NodeType.allCases.filter { $0 != .none }.map { $0.display }.joined(separator: ", "))]")
+        let response = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+        
+        guard let firstChoice = response.choices.first else {
+            throw StitchAIManagerError.emptySuccessfulResponse
         }
+        
+        let contentJSON = try firstChoice.message.parseContent()
+        log("StitchAI JSON parsing succeeded")
+        return contentJSON.steps
     }
     
     private func retryMakeRequest(_ request: OpenAIRequest,
@@ -370,24 +434,44 @@ extension StitchAIManager {
     
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
-    private func streamData(for urlRequest: URLRequest) async throws -> (Data, URLResponse) {
+    private func streamData(for urlRequest: URLRequest) async throws -> (Data, URLResponse, [Step]) {
         var accumulatedData = Data()
-        
+        var accumulatedSteps: [Step] = []
+            var accumulatedString = ""
+         
         // `bytes(for:)` returns an `AsyncSequence` of individual `UInt8`s
         let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
-        
+         
         var currentChunk: [UInt8] = []
-        
+         
         for try await byte in bytes {
             accumulatedData.append(byte)
             currentChunk.append(byte)
-            
+             
             // Print when we hit a newline, which typically delimits server-sent events.
             if byte == 10 { // '\n'
                 if !currentChunk.isEmpty {
                     let chunkData = Data(currentChunk)
                     if let str = String(data: chunkData, encoding: .utf8) {
                         print("OpenAI Stream Chunk: \(str)")
+                        // Add to accumulated string
+                        accumulatedString += str
+                         
+                        // Try to parse accumulated string if it looks like complete JSON
+                        // We look for closing braces/brackets to guess if JSON is complete
+                        if accumulatedString.contains("}") || accumulatedString.contains("]") {
+                            print("Attempting to parse accumulated JSON:")
+                            print(accumulatedString)
+                            if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
+                                print(" Successfully parsed actions:")
+                                steps.forEach { step in
+                                    print("  → \(step.description)")
+                                }
+                                accumulatedSteps.append(contentsOf: steps)
+                                // Clear accumulated string since we successfully parsed it
+                                accumulatedString = ""
+                            }
+                        }
                     }
                     currentChunk.removeAll(keepingCapacity: true)
                 }
@@ -399,10 +483,21 @@ extension StitchAIManager {
             let chunkData = Data(currentChunk)
             if let str = String(data: chunkData, encoding: .utf8) {
                 print("OpenAI Stream Chunk: \(str)")
+                // Add final chunk to accumulated string
+                accumulatedString += str
+                 
+                // Try to parse any remaining accumulated JSON
+                if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
+                    print(" Final chunk actions:")
+                    steps.forEach { step in
+                        print("  → \(step.description)")
+                    }
+                    accumulatedSteps.append(contentsOf: steps)
+                }
             }
         }
-        
-        return (accumulatedData, response)
+         
+        return (accumulatedData, response, accumulatedSteps)
     }
 }
 
