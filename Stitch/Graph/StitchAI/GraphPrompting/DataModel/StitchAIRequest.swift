@@ -15,10 +15,13 @@ struct StitchAIRequest: OpenAIRequestable {
     let temperature: Double
     let response_format: StitchAIResponseFormat
     let messages: [OpenAIMessage]
-    
+    let stream: Bool
+
     init(secrets: Secrets,
          userPrompt: String,
-         systemPrompt: String) throws {
+         systemPrompt: String,
+         stream: Bool = false
+    ) throws {
         let responseFormat = StitchAIResponseFormat()
         let structuredOutputs = responseFormat.json_schema.schema
         
@@ -32,6 +35,7 @@ struct StitchAIRequest: OpenAIRequestable {
             .init(role: .user,
                   content: userPrompt)
         ]
+        self.stream = stream
     }
 }
 
