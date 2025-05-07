@@ -13,12 +13,10 @@ extension View {
     func stitchSheet<T: View>(isPresented: Bool,
                               titleLabel: String,
                               hideAction: @escaping () -> (),
-                              willCenterAlignBody: Bool = false,
                               @ViewBuilder sheetBody: () -> T) -> some View {
         self.modifier(SheetViewModifier(isPresented: isPresented,
                                         titleLabel: titleLabel,
                                         hideAction: hideAction,
-                                        willCenterAlignBody: willCenterAlignBody,
                                         sheetBody: sheetBody))
     }
 }
@@ -27,18 +25,15 @@ struct SheetViewModifier<T: View>: ViewModifier {
     let isPresented: Bool
     let titleLabel: String
     let hideAction: () -> ()
-    let willCenterAlignBody: Bool
     let sheetBody: T
 
     init(isPresented: Bool,
          titleLabel: String,
          hideAction: @escaping () -> (),
-         willCenterAlignBody: Bool = true,
          @ViewBuilder sheetBody: () -> T) {
         self.isPresented = isPresented
         self.titleLabel = titleLabel
         self.hideAction = hideAction
-        self.willCenterAlignBody = willCenterAlignBody
         self.sheetBody = sheetBody()
     }
 
@@ -54,10 +49,6 @@ struct SheetViewModifier<T: View>: ViewModifier {
             .sheet(isPresented: isPresentedBinding) {
                 VStack(alignment: .leading) {
                     titleView
-                    
-                    if willCenterAlignBody {
-                        Spacer()
-                    }
                     
                     sheetBody
                         .padding()

@@ -57,7 +57,7 @@ struct SampleProjectsView: View {
                     .font(.largeTitle)
                     .fontWeight(.heavy)
 
-                Text("Prototype from a project below or from scratch.")
+                Text("Start with an example project or from scratch.")
                     .font(.title3)
             }
             

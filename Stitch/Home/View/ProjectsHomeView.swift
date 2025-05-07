@@ -83,8 +83,7 @@ struct ProjectsHomeView: View {
                      sheetBody: { AppSettingsView() })
         .stitchSheet(isPresented: store.showsSampleProjectModal,
                      titleLabel: "Sample Projects",
-                     hideAction: { store.showsSampleProjectModal = false },
-                     willCenterAlignBody: true) {
+                     hideAction: { store.showsSampleProjectModal = false }) {
             SampleProjectsList(store: store)
         }
         .onTapGesture {
