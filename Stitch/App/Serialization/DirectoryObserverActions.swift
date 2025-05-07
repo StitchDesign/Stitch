@@ -72,7 +72,12 @@ extension StitchStore: DirectoryObserverDelegate {
                 store.systems = newSystems
                 
                 store.allProjectUrls = response.projects
-            }            
+                
+                // Show sample projects modal if no projects found
+                if response.projects.isEmpty {
+                    store.showsSampleProjectModal = true
+                }
+            }
         }
     }
 }
