@@ -47,9 +47,13 @@ struct SheetViewModifier<T: View>: ViewModifier {
 
         content
             .sheet(isPresented: isPresentedBinding) {
-                StitchHostingControllerView(ignoreKeyCommands: false,
-                                            inputTextFieldFocused: false, // TODO: should this be provided to the sheet view?
-                                            name: .sheetView) {
+                
+                
+                
+                
+//                StitchHostingControllerView(ignoreKeyCommands: false,
+//                                            inputTextFieldFocused: false, // TODO: should this be provided to the sheet view?
+//                                            name: .sheetView) {
                     VStack(alignment: .leading) {
                         titleView
                         sheetBody
@@ -62,7 +66,10 @@ struct SheetViewModifier<T: View>: ViewModifier {
                             // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
                             .ignoresSafeArea([.all, .keyboard])
                     )
-                }.ignoresSafeArea([.all, .keyboard])
+                    .presentationDetents([.fraction(0.66)])
+//                }
+//            .ignoresSafeArea([.all, .keyboard])
+                
             }
     }
 
