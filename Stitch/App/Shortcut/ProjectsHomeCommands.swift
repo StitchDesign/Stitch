@@ -10,7 +10,8 @@ import SwiftUI
 import StitchSchemaKit
 
 struct ProjectsHomeCommands: Commands {
-
+    @Environment(\.openURL) private var openURL
+    
     @Bindable var store: StitchStore
     @FocusedValue(\.focusedField) private var focusedField
 
@@ -294,6 +295,30 @@ struct ProjectsHomeCommands: Commands {
             } // if activeProject
 
         } // CommandMenu
+        
+        CommandGroup(after: .appInfo) {
+            Menu {
+                // Opens the user’s default mail client with a pre-filled address
+                Button {
+                    if let url = URL(string: "mailto:hello@stitchdesign.app") {
+                        openURL(url)
+                    }
+                } label: {
+                    Text("Email")
+                }
+                
+                // Launches the system browser and navigates to your site
+                Button {
+                    if let url = URL(string: "https://github.com/StitchDesign/Stitch/issues/new") {
+                        openURL(url)
+                    }
+                } label: {
+                    Text("Post to GitHub")
+                }
+            } label: {
+                Text("Contact Us")
+            }
+        }
 
         CommandGroup(replacing: .newItem) {
             SwiftUIShortcutView(title: "New Project",
