@@ -49,7 +49,9 @@ func handleDroppedFile(tempURL: TemporaryURL,
                                                                 isImport: true) {
                     
                 case .loaded(let data, _):
-                    await store?.createNewProjectSideEffect(from: data, isProjectImport: true)
+                    await store?.createNewProject(from: data,
+                                                  isProjectImport: true,
+                                                  enterProjectImmediately: true)
                     
                 default:
                     DispatchQueue.main.async {

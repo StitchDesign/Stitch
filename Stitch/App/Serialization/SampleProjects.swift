@@ -53,11 +53,10 @@ func importStitchSampleProjectSideEffect(sampleProjectURL: URL,
             }
                 
             log("importStitchSampleProjectSideEffect: will open project from document")
-            await store.createNewProjectSideEffect(
+            await store.createNewProject(
                 from: openedDocument,
                 isProjectImport: true,
-                // Import the project but do not navigate to it
-                enterProjectImmediately: false)
+                enterProjectImmediately: true)
             
         } catch {
             log("importStitchSampleProjectSideEffect: Download failed: \(error)")
