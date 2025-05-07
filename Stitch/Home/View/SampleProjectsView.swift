@@ -174,6 +174,8 @@ struct SampleProjectsView: View {
 }
 
 struct SampleProjectView: View {
+    // displays loading screen when tapped
+    @State private var isLoadingForPresentation = false
     
     @Bindable var store: StitchStore
     
@@ -182,6 +184,8 @@ struct SampleProjectView: View {
     var body: some View {
         if let data = data {
             Button {
+                self.isLoadingForPresentation = true
+                
                 Task(priority: .high) { [weak store] in
                     if let store = store {
                         await importStitchSampleProject(sampleProjectURL: data.url,
@@ -203,6 +207,12 @@ struct SampleProjectView: View {
                 }
             }
             .buttonStyle(.borderless)
+            .overlay {
+                if isLoadingForPresentation {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                }
+            }
         }
     }
 }
