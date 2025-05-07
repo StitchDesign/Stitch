@@ -47,6 +47,8 @@ struct TopBarSharingButtonsView: View {
 struct TopBarFeedbackButtonsView: View {
     @Environment(\.openURL) private var openURL
     
+    var showLabel: Bool = true
+    
     var body: some View {
         Menu {
             // Opens the user’s default mail client with a pre-filled address
@@ -76,7 +78,9 @@ struct TopBarFeedbackButtonsView: View {
             }
         } label: {
 #if !targetEnvironment(macCatalyst)
-            Text("Contact Stitch")
+            if showLabel {
+                Text("Contact Stitch")                
+            }
 #endif
             
             Image(systemName: "square.and.pencil")

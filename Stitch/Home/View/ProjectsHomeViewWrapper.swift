@@ -63,6 +63,9 @@ struct ProjectsHomeViewWrapper: View {
                         },
                                          iconName: NEW_PROJECT_ICON_NAME)
                         
+                        TopBarFeedbackButtonsView(showLabel: false)
+                            .modifier(iPadTopBarButtonStyle())
+                        
                         iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                          iconName: PROJECT_SETTINGS_ICON_NAME)
 #endif
