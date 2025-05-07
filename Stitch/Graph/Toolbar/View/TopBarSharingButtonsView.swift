@@ -65,11 +65,14 @@ struct TopBarFeedbackButtonsView: View {
                     openURL(url)
                 }
             } label: {
-                Text("Post to GitHub")
-                Image("github")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 16, height: 16)
+                Label {
+                    Text("Post to GitHub")
+                } icon: {
+                    Image("github")
+                        .resizable()
+                        .scaledToFit()
+                }
+                .labelStyle(.titleAndIcon)
             }
         } label: {
 #if !targetEnvironment(macCatalyst)
