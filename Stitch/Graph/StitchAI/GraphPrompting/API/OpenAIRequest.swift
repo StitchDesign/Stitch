@@ -276,14 +276,31 @@ extension StitchAIManager {
             return steps
         } catch let error as StitchAIManagerError {
             log("StitchAIManager error parsing steps: \(error.description)")
+            
+            let availableNodeTypes = NodeType.allCases
+                .filter { $0 != .none }
+                .map { $0.display }
+                .joined(separator: ", ")
+            
+            let errorMessage = switch error {
+            case .nodeTypeParsing(let nodeType):
+                "Invalid node type '\(nodeType)'. Available types are: [\(availableNodeTypes)]"
+            case .portTypeDecodingError(let port):
+                "Invalid port type '\(port)'. Check node's available port types in schema."
+            case .actionValidationError(let msg):
+                "Action validation failed: \(msg). Ensure actions match schema specifications."
+            default:
+                error.description
+            }
+            
             return try await self.retryMakeRequest(request,
                                                    currentAttempts: currentAttempt,
-                                                   lastError: error.description)
+                                                   lastError: "Try again, there were failures parsing the result. \(errorMessage)")
         } catch {
             log("StitchAIManager unknown error parsing steps: \(error.localizedDescription)")
             return try await self.retryMakeRequest(request,
                                                    currentAttempts: currentAttempt,
-                                                   lastError: error.localizedDescription)
+                                                   lastError: "Try again, there were failures parsing the result. You may have tried to add incorrect nodes or port types. Available node types: [\(NodeType.allCases.filter { $0 != .none }.map { $0.display }.joined(separator: ", "))]")
         }
     }
     
