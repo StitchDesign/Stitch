@@ -309,7 +309,9 @@ func loopedEval<EvalOpResult>(inputsValues: PortValuesList,
     let allValues = areOutputsEmpty ? lengthenedInputs : lengthenedInputs + lengthenedOutputs
 
     let results = (0..<longestLoopLength).map { (index: Int) in
-        let callArgs: PortValues = allValues.map { $0[index] }
+        let callArgs: PortValues = allValues.map { array in
+            array.indices.contains(index) ? array[index] : PortValue.none
+        }
         return evalOp(callArgs, index)
     }
 
