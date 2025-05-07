@@ -33,7 +33,6 @@ struct MediaCopiedToExistingNode: StitchDocumentEvent {
 
 struct ImportFileToNewNode: GraphEventWithResponse {
     let url: URL
-    let droppedLocation: CGPoint
     
     func handle(state: GraphState) -> GraphResponse {
         let center = state.documentDelegate?.viewPortCenter ?? .zero

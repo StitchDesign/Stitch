@@ -13,21 +13,25 @@ extension StitchStore {
     // fka `createNewProject`; but we need to indicate in some way, if not by type signature, that this is a side-effect
     @MainActor
     func createNewProjectSideEffect(from document: StitchDocument = .init(),
-                                    isProjectImport: Bool) {
+                                    isProjectImport: Bool,
+                                    enterProjectImmediately: Bool = true) {
 
         Task(priority: .high) { [weak self] in
             guard let store = self else { return }
             await store.createNewProject(from: document,
-                                         isProjectImport: isProjectImport)
+                                         isProjectImport: isProjectImport,
+                                         enterProjectImmediately: enterProjectImmediately)
         }
     }
     
     func createNewProject(from document: StitchDocument = .init(),
-                          isProjectImport: Bool) async {
+                          isProjectImport: Bool,
+                          enterProjectImmediately: Bool) async {
         do {
             try await self.documentLoader.createNewProject(
                 from: document,
                 isProjectImport: isProjectImport,
+                enterProjectImmediately: enterProjectImmediately,
                 store: self)
         } catch {
             log("StitchStore.createNewProject error: \(error.localizedDescription)")

@@ -47,7 +47,7 @@ struct StitchApp: App {
                 .onAppear {
 //                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
                     
-                    dispatch(DirectoryUpdated())
+                    dispatch(DirectoryUpdatedOnAppOpen())
                     
                     SentrySDK.start { options in
                         guard let secrets = try? Secrets() else {

@@ -46,7 +46,7 @@ struct StitchNavStack: View {
                     
                     // Remove references to other StitchDocuments to release them from memory
                     // Logic here needed for drag-and-drop import with existing document open
-                    store.allProjectUrls.forEach { projectLoader in
+                    store.allProjectUrls?.forEach { projectLoader in
                         if projectLoader.id != currentGraphId &&
                             projectLoader.documentViewModel != nil {
                             // In case references are stored here (but probably not)

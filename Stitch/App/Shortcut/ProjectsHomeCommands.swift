@@ -319,11 +319,17 @@ struct ProjectsHomeCommands: Commands {
                 Text("Contact Us")
             }
         }
-
+    
         CommandGroup(replacing: .newItem) {
             SwiftUIShortcutView(title: "New Project",
                                 key: NEW_PROJECT_SHORTCUT) {
                 store.createNewProjectSideEffect(isProjectImport: false)
+            }
+
+            SwiftUIShortcutView(title: "New Project from Sample",
+                                key: NEW_PROJECT_SHORTCUT,
+                                eventModifiers: [.command, .shift]) {
+                store.conditionallToggleSampleProjectsModal()
             }
 
             // NOTE: we already get CMD + W in Catalyst

@@ -134,6 +134,7 @@ struct PreviewWindowDeviceSelectionView: View {
 
 }
 
+// TODO: make these an enum,
 let DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME = "DefaultPreviewWindowDevice"
 let SAVED_APP_THEME_KEY_NAME = "SavedAppTheme"
 let SAVED_EDGE_STYLE_KEY_NAME = "SavedEdgeStyle"
@@ -162,11 +163,9 @@ struct AppSettingsView: View {
             themePicker
             edgeStylePicker
             defaultPreviewWindowDevicePicker
-// #if DEBUG || DEV_DEBUG || STITCH_AI
             if !StitchDocumentViewModel.isPhoneDevice {
                 llmRecordingModePicker
             }
-// #endif
         }
     }
 

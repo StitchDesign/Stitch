@@ -122,7 +122,8 @@ extension String {
     static let GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME = "arrow.turn.left.up"
     static let FIND_NODE_ON_GRAPH = "location.viewfinder"
     static let ADD_NODE_SF_SYMBOL_NAME = "plus.rectangle"
-    static let NEW_PROJECT_SF_SYMBOL_NAME = "doc.badge.plus" // SKIP
+    static let NEW_PROJECT_SF_SYMBOL_NAME = "doc.badge.plus"
+    static let OPEN_SAMPLE_PROJECTS_MODAL = "arrow.down.document"
 
     // Hide = arrow to the right,
     // Show = arrow to the left

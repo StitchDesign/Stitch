@@ -10,90 +10,66 @@ import SwiftUI
 import UniformTypeIdentifiers
 import StitchSchemaKit
 
+// On drop of a file (media, Stitch project etc.) onto the Stitch app window
 @MainActor
 func handleOnDrop(providers: [NSItemProvider],
+                  // TODO: converting provided `location` to canvas' coordinate-space
                   location: CGPoint,
                   store: StitchStore) -> Bool {
-
-    let tempURLDir = StitchFileManager.importedFilesDir
-    let incrementSize = CGFloat(NODE_POSITION_STAGGER_SIZE)
-    var droppedLocation = location
     
-    // Clear previous data
-    try? FileManager.default.removeItem(at: tempURLDir)
-    
-    // Create imported folder if not yet made
-    try? FileManager.default.createDirectory(at: tempURLDir, withIntermediateDirectories: true)
-
-    // handles MULTIPLE ACTIONS ETC.
+    let temporaryDirectoryURL = TemporaryDirectoryURL()
+        
+    // handles files being dropped
     for provider in providers {
-        let finalDroppedLocation = droppedLocation
-
         provider.loadFileRepresentation(forTypeIdentifier: UTType.item.identifier) { url, _ in
-            guard let url = url else {
+            guard let url = url,
+                  let tempURL = TemporaryURL.pathAndCopy(url: url, temporaryDirectoryURL) else {
                 DispatchQueue.main.async {
+                    // TODO: cannot assume we dropped a media file; could have dropped e.g. a Stitch project
                     dispatch(ReceivedStitchFileError(error: .droppedMediaFileFailed))
                 }
                 return
             }
-
-            // MARK: due to async logic of dispatched effects, the provided temporary URL has a tendancy to expire, so a new URL is created.
-            let tempURL = tempURLDir
-                .appendingPathComponent(url.filename)
-                .appendingPathExtension(url.pathExtension)
-
-            let _ = url.startAccessingSecurityScopedResource()
-
-            // Default FileManager ok here given we just need a temp URL
-            do {
-                try FileManager.default.copyItem(at: url, to: tempURL)
-                url.stopAccessingSecurityScopedResource()
-            } catch {
-                url.stopAccessingSecurityScopedResource()
-                fatalErrorIfDebug("handleOnDrop error: \(error)")
-                return
-            }
-
-            // Opens stitch documents
-            guard tempURL.pathExtension != UTType.stitchDocument.preferredFilenameExtension else {
-                Task(priority: .high) { [weak store] in
-                    do {
-                        switch await store?.documentLoader.loadDocument(from: tempURL,
-                                                                        isImport: true) {
-                        case .loaded(let data, _):
-                            await store?.createNewProjectSideEffect(from: data, isProjectImport: true)
-                       default:
-                            DispatchQueue.main.async {
-                                dispatch(DisplayError(error: .unsupportedProject))
-                            }
-                            return
-                        }
-                    }
-                }
-                return
-            } // guard
-
-            // TODO: concurrency issues, ignoring for now
-//            #if targetEnvironment(macCatalyst)
-//            // Fixes issue on Catalyst where dropped location is mysteriously too high (visually) on screen
-//            droppedLocation.y += 50
-//            #endif
-
-            let _ = tempURL.startAccessingSecurityScopedResource()
-
-            DispatchQueue.main.async {
-                dispatch(ImportFileToNewNode(url: tempURL, 
-                                             droppedLocation: finalDroppedLocation))
-            }
-
-            tempURL.stopAccessingSecurityScopedResource()
+            
+            handleDroppedFile(tempURL: tempURL, store: store)
         }
-        
-        // Increment dropped location so items don't stack directly
-        // ontop of each other
-        droppedLocation.x += incrementSize
-        droppedLocation.y += incrementSize
     }
-
+    
     return true
 }
+
+func handleDroppedFile(tempURL: TemporaryURL,
+                       store: StitchStore) {
+ 
+    // importing a Stitch project
+    if tempURL.value.isStitchDocumentExtension {
+        Task(priority: .high) { [weak store] in
+            do {
+                switch await store?.documentLoader.loadDocument(from: tempURL.value,
+                                                                isImport: true) {
+                    
+                case .loaded(let data, _):
+                    await store?.createNewProject(from: data,
+                                                  isProjectImport: true,
+                                                  enterProjectImmediately: true)
+                    
+                default:
+                    DispatchQueue.main.async {
+                        dispatch(DisplayError(error: .unsupportedProject))
+                    }
+                    return
+                }
+            }
+        }
+    }
+    
+    // importing a media file
+    else {
+        let _ = tempURL.value.startAccessingSecurityScopedResource()
+        DispatchQueue.main.async {
+            dispatch(ImportFileToNewNode(url: tempURL.value))
+        }
+        tempURL.value.stopAccessingSecurityScopedResource()
+    }
+}
+
