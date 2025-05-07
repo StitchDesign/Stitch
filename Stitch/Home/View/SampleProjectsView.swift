@@ -36,7 +36,6 @@ struct SampleProjectsView: View {
     var body: some View {
         VStack {
             titleView
-            
             SampleProjectsList(store: store)
                 .transition(.slide)
                 .padding()
@@ -71,7 +70,7 @@ struct SampleProjectsList: View {
     @Bindable var store: StitchStore
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack {
                 SampleProjectView(store: store,
                                   data: .init(projectName: "Monthly Stays (Josh Pekera)",
@@ -102,7 +101,7 @@ struct SampleProjectsList: View {
                                               projectAssetName: "ARRobot")
                 )
                 
-                newProjectButton
+                //                    newProjectButton
             }
         }
     }
@@ -117,7 +116,6 @@ struct SampleProjectsList: View {
                     store?.showsSampleProjectModal = false
                 }
             }
-            
         } label: {
             VStack {
                 VStack {
@@ -132,6 +130,7 @@ struct SampleProjectsList: View {
             }
         }
         .buttonStyle(.borderless)
+        .foregroundColor(STITCH_TITLE_FONT_COLOR)
     }
 }
 
@@ -163,8 +162,8 @@ struct SampleProjectView: View {
                 VStack {
                     Image(data.imageName)
                         .projectThumbnailRatio(hasThumbnail: true,
-                                               // Assume gray?
-                                               previewWindowBackgroundColor: .gray)
+                                               // white seems best assumptions? most prototypes have white backgrounds; looks best?
+                                               previewWindowBackgroundColor: .white)
                     StitchTextView(string: data.projectName)
                 }
             }
