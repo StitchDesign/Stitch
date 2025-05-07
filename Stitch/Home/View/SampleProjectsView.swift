@@ -33,10 +33,64 @@ extension SampleProjectData: Identifiable {
 struct SampleProjectsView: View {
     @Bindable var store: StitchStore
     
+    var isEmptyState: Bool {
+        store.allProjectUrls.isEmpty
+    }
+    
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
+        VStack {
+            if isEmptyState {
+                emptyProjectMessage
+            }
+            
             sampleProjectsList
+                .transition(.slide)
+                .padding()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay {
+            // No reason to show close button if no projects
+            if !isEmptyState {
+                xButton
+            }
+        }
+        .background(.ultraThinMaterial)
+    }
+    
+    @ViewBuilder
+    var xButton: some View {
+        HStack(alignment: .top) {
+            Spacer()
+        
+            VStack {
+                Button(action: {
+                    withAnimation {
+                        store.showsSampleProjectModal = false
+                    }
+                }, label: {
+                    HStack {
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                    }
+                    .frame(width: PROJECTSVIEW_ITEM_WIDTH, height: PROJECTSVIEW_ITEM_WIDTH)
+                })
+                .buttonStyle(.borderless)
+                
+                Spacer()
+            }
+        }
+        .padding()
+    }
+    
+    @ViewBuilder
+    var emptyProjectMessage: some View {
+        Text("Let's Get Started")
+            .font(.largeTitle)
+            .fontWeight(.bold)
+        
+        Text("Start prototyping from an existing project below or from a blank slate.")
+            .font(.title3)
     }
     
     var sampleProjectsList: some View {
@@ -89,10 +143,17 @@ struct SampleProjectsView: View {
             
         } label: {
             VStack {
-                Image(systemName: "document.badge.plus.fill")
-                    .projectThumbnailRatio(hasThumbnail: false,
-                                           // Assume gray?
-                                           previewWindowBackgroundColor: .gray)
+                HStack {
+                    Image(systemName: "document.badge.plus.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100,
+                               height: 100)
+                }
+                .frame(width: PROJECTSVIEW_ITEM_WIDTH)
+//                    .projectThumbnailRatio(hasThumbnail: false,
+//                                           // Assume gray?
+//                                           previewWindowBackgroundColor: .gray)
                 StitchTextView(string: "Blank project")
             }
         }

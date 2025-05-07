@@ -45,54 +45,20 @@ struct ProjectsHomeView: View {
     }
 
     var body: some View {
-        VStack {
-            
-            
+        ZStack {
+            VStack {
+                
 #if DEV_DEBUG
-            // Search Bar
-            TextField("Search Projects...", text: $searchQuery)
-                .padding()
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal)
-            
-            HStack {
-                
-                let activelySelectingProjects = store.homescreenProjectSelectionState.isSelecting
-                let selectedProjectCount = store.homescreenProjectSelectionState.selections.count
-                
-                Button {
-                    dispatch(HomescreenProjectSelectionToggled())
-                } label: {
-                    Text(store.homescreenProjectSelectionState.isSelecting ? "Stop Selecting" : "Select Projects")
-                }
-                
-                Button {
-                    dispatch(DeleteHomescreenSelectedProjects())
-                } label: {
-                    Text("Delete \(selectedProjectCount) selected projected")
-                }
-                .opacity(activelySelectingProjects ? 1 : 0)
-
-
-                // Some spacing
-                Rectangle().fill(.clear).frame(width: 32, height: 8)
-                
-                // Undo and Redo buttons
-                
-                Button {
-                    UNDO_ACTION()
-                } label: {
-                    Text("Undo")
-                }
-                Button {
-                    REDO_ACTION()
-                } label: {
-                    Text("Redo")
-                }
-            }
+                debugView
 #endif
-            
-            ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
+                
+                ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
+            }
+
+            if !isPhoneDevice && store.showsSampleProjectModal {
+                SampleProjectsView(store: store)
+                    .transition(.opacity)
+            }
         }
         
         // Shows undo delete toast when GraphUI state has recenetly deleted project ID
@@ -106,12 +72,57 @@ struct ProjectsHomeView: View {
                      titleLabel: "Settings",
                      hideAction: store.hideAppSettingsSheet,
                      sheetBody: { AppSettingsView() })
-        .stitchSheet(isPresented: store.showsSampleProjectModal,
-                     titleLabel: "Sample Projects",
-                     hideAction: { dispatch(SampleProjectsModalClosed()) },
-                     sheetBody: { SampleProjectsView(store: store) })
+//        .stitchSheet(isPresented: store.showsSampleProjectModal,
+//                     titleLabel: "Sample Projects",
+//                     hideAction: { dispatch(SampleProjectsModalClosed()) },
+//                     sheetBody: { SampleProjectsView(store: store) })
         .onTapGesture {
             store.projectIdForTitleEdit = nil
+        }
+    }
+    
+    @ViewBuilder
+    var debugView: some View {
+        // Search Bar
+        TextField("Search Projects...", text: $searchQuery)
+            .padding()
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .padding(.horizontal)
+        
+        HStack {
+            
+            let activelySelectingProjects = store.homescreenProjectSelectionState.isSelecting
+            let selectedProjectCount = store.homescreenProjectSelectionState.selections.count
+            
+            Button {
+                dispatch(HomescreenProjectSelectionToggled())
+            } label: {
+                Text(store.homescreenProjectSelectionState.isSelecting ? "Stop Selecting" : "Select Projects")
+            }
+            
+            Button {
+                dispatch(DeleteHomescreenSelectedProjects())
+            } label: {
+                Text("Delete \(selectedProjectCount) selected projected")
+            }
+            .opacity(activelySelectingProjects ? 1 : 0)
+
+
+            // Some spacing
+            Rectangle().fill(.clear).frame(width: 32, height: 8)
+            
+            // Undo and Redo buttons
+            
+            Button {
+                UNDO_ACTION()
+            } label: {
+                Text("Undo")
+            }
+            Button {
+                REDO_ACTION()
+            } label: {
+                Text("Redo")
+            }
         }
     }
 }

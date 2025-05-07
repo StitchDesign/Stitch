@@ -123,7 +123,7 @@ extension String {
     static let FIND_NODE_ON_GRAPH = "location.viewfinder"
     static let ADD_NODE_SF_SYMBOL_NAME = "plus.rectangle"
     static let NEW_PROJECT_SF_SYMBOL_NAME = "doc.badge.plus"
-    static let OPEN_SAMPLE_PROJECTS_MODAL = "arrow.down.document.fill"
+    static let OPEN_SAMPLE_PROJECTS_MODAL = "arrow.down.document"
 
     // Hide = arrow to the right,
     // Show = arrow to the left
