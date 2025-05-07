@@ -43,6 +43,10 @@ struct ProjectsHomeView: View {
         }
         store.undoDeleteProject(projectId: deletedGraphId)
     }
+    
+    var showSampleModal: Bool {
+        !isPhoneDevice && store.showsSampleProjectModal
+    }
 
     var body: some View {
         ZStack {
@@ -55,7 +59,7 @@ struct ProjectsHomeView: View {
                 ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
             }
 
-            if !isPhoneDevice && store.showsSampleProjectModal {
+            if self.showSampleModal {
                 SampleProjectsView(store: store)
                     .transition(.opacity)
             }
@@ -72,13 +76,10 @@ struct ProjectsHomeView: View {
                      titleLabel: "Settings",
                      hideAction: store.hideAppSettingsSheet,
                      sheetBody: { AppSettingsView() })
-//        .stitchSheet(isPresented: store.showsSampleProjectModal,
-//                     titleLabel: "Sample Projects",
-//                     hideAction: { dispatch(SampleProjectsModalClosed()) },
-//                     sheetBody: { SampleProjectsView(store: store) })
         .onTapGesture {
             store.projectIdForTitleEdit = nil
         }
+        .animation(.stitchAnimation, value: showSampleModal)
     }
     
     @ViewBuilder

@@ -39,9 +39,7 @@ struct SampleProjectsView: View {
     
     var body: some View {
         VStack {
-            if isEmptyState {
-                emptyProjectMessage
-            }
+            titleView
             
             sampleProjectsList
                 .transition(.slide)
@@ -73,7 +71,6 @@ struct SampleProjectsView: View {
                             .resizable()
                             .frame(width: 20, height: 20)
                     }
-                    .frame(width: PROJECTSVIEW_ITEM_WIDTH, height: PROJECTSVIEW_ITEM_WIDTH)
                 })
                 .buttonStyle(.borderless)
                 
@@ -84,13 +81,31 @@ struct SampleProjectsView: View {
     }
     
     @ViewBuilder
-    var emptyProjectMessage: some View {
-        Text("Let's Get Started")
-            .font(.largeTitle)
-            .fontWeight(.bold)
-        
-        Text("Start prototyping from an existing project below or from a blank slate.")
-            .font(.title3)
+    var titleView: some View {
+        HStack {
+            if isEmptyState {
+                Image("AppIconV2Sample")
+                    .resizable()
+                    .scaledToFit()
+                    .cornerRadius(12)
+                    .padding(.trailing)
+            }
+            
+            VStack(alignment: isEmptyState ? .leading : .center) {
+                Text(isEmptyState ? "Let's Get Started" : "Sample Projects")
+                    .font(.largeTitle)
+                    .fontWeight(.heavy)
+
+                Text("Start prototyping from an existing project below or from a blank slate.")
+                    .font(.title3)
+            }
+            .frame(maxWidth: .infinity)
+            
+            if isEmptyState {
+                Spacer()
+            }
+        }
+        .frame(width: 620, height: 60)
     }
     
     var sampleProjectsList: some View {
@@ -143,17 +158,14 @@ struct SampleProjectsView: View {
             
         } label: {
             VStack {
-                HStack {
+                VStack {
                     Image(systemName: "document.badge.plus.fill")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 100,
                                height: 100)
                 }
-                .frame(width: PROJECTSVIEW_ITEM_WIDTH)
-//                    .projectThumbnailRatio(hasThumbnail: false,
-//                                           // Assume gray?
-//                                           previewWindowBackgroundColor: .gray)
+                .frame(width: PROJECTSVIEW_ITEM_WIDTH, height: 132)
                 StitchTextView(string: "Blank project")
             }
         }
