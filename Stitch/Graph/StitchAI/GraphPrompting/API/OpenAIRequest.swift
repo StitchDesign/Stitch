@@ -23,7 +23,7 @@ struct OpenAIRequestConfig {
     
     /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
-        maxRetries: 5,
+        maxRetries: 3,
         timeoutInterval: 60,
         retryDelay: 2,
         maxTimeoutErrors: 4
