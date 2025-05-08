@@ -26,7 +26,8 @@ Part of the benifit of being all in on the Apple ecosystem is that we get severa
 
 ## Community
 
-We're just starting our [Discord](https://discord.gg/B4EPfGjk) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
+We're just starting our [Discord](https://discord.gg/eRk7D8jsD7) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
+
 
 ## Who We Are
 
