@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 let actionSheetHeaderString = "Preview Window Actions"
 let changeScaleString = "Change Scale"
@@ -15,9 +16,19 @@ let iPhoneExitString = "Exit Prototype"
 let appResetString = "Reset Prototype"
 let cancelString = "Cancel"
 
+struct FullScreenPhoneExitTip: Tip {
+    var title: Text {
+        Text("Full Screen Previewer Tips")
+    }
+    var message: Text? {
+        Text("Three-finger tap opens the menu; three-finger double-tap exits.")
+    }
+}
+
 struct FullScreenPreviewViewWrapper: View {
     @Bindable var document: StitchDocumentViewModel
     @State private var showDeleteAlert: Bool = false
+    private let exitTip = FullScreenPhoneExitTip()
     
     let previewWindowSizing: PreviewWindowSizing
     
@@ -67,7 +78,8 @@ struct FullScreenPreviewViewWrapper: View {
             dispatch(PrototypeRestartedAction())
         }
 
-        FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
+        FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet,
+                                        fullScreenExitTip: self.exitTip) {
             ZStack {
                 previewView
 
@@ -76,6 +88,14 @@ struct FullScreenPreviewViewWrapper: View {
                     RecordingView()
                 }
                 #endif
+                
+                if isPhoneDevice {
+                    VStack {
+                        TipView(self.exitTip)
+                            .padding()
+                        Spacer()
+                    }
+                }
             }
         }
         .matchedGeometryEffect(id: document.id, in: routerNamespace)
