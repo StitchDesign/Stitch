@@ -657,6 +657,7 @@
 		EC8605B8269E1A23007B8ED3 /* JSONArrayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8605B7269E1A23007B8ED3 /* JSONArrayNode.swift */; };
 		EC8605BA269E1A2B007B8ED3 /* ArrayAppendNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8605B9269E1A2B007B8ED3 /* ArrayAppendNode.swift */; };
 		EC865B8429E7584F0030FD89 /* TopBarButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */; };
+		EC86AD572DCC1E7700E9B00E /* OpenAIRequestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */; };
 		EC8891A32C82387A002390F8 /* CommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A22C82387A002390F8 /* CommonEditingView.swift */; };
 		EC8891A52C82388D002390F8 /* TapToEditReadOnlyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */; };
 		EC8967002B4E1C8E0066879B /* CurveLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8966FF2B4E1C8E0066879B /* CurveLine.swift */; };
@@ -1651,6 +1652,7 @@
 		EC8605B7269E1A23007B8ED3 /* JSONArrayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONArrayNode.swift; sourceTree = "<group>"; };
 		EC8605B9269E1A2B007B8ED3 /* ArrayAppendNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayAppendNode.swift; sourceTree = "<group>"; };
 		EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarButtonView.swift; sourceTree = "<group>"; };
+		EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequestHelpers.swift; sourceTree = "<group>"; };
 		EC8891A22C82387A002390F8 /* CommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingView.swift; sourceTree = "<group>"; };
 		EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToEditReadOnlyView.swift; sourceTree = "<group>"; };
 		EC8966FF2B4E1C8E0066879B /* CurveLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveLine.swift; sourceTree = "<group>"; };
@@ -4009,6 +4011,7 @@
 			children = (
 				B5FF449D2D5D0AF70083B34E /* StitchAIManagerError.swift */,
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
+				EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */,
 				E48A07912D38C528002E8A98 /* SupabaseManager.swift */,
 				E42CFD472D4414F10034CCFF /* Secrets.swift */,
 				E42CFD452D4413F90034CCFF /* secrets.json */,
@@ -5010,6 +5013,7 @@
 				B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */,
 				E48A07922D38C528002E8A98 /* SupabaseManager.swift in Sources */,
 				B5EFD5B82D5E69C1006A68FB /* StitchAINodeSection.swift in Sources */,
+				EC86AD572DCC1E7700E9B00E /* OpenAIRequestHelpers.swift in Sources */,
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
 				EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */,
 				B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */,

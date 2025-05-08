@@ -11,26 +11,9 @@ import Foundation
 @preconcurrency import SwiftyJSON
 import SwiftUI
 import Sentry
+import SwiftyJSON
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
-
-/// Configuration settings for OpenAI API requests
-struct OpenAIRequestConfig {
-    let maxRetries: Int        // Maximum number of retry attempts for failed requests
-    let timeoutInterval: TimeInterval   // Request timeout duration in seconds
-    let retryDelay: TimeInterval       // Delay between retry attempts
-    let maxTimeoutErrors: Int  // Maximum number of timeout errors before showing alert
-    let stream: Bool           // Whether to stream the response
-    
-    /// Default configuration with optimized retry settings
-    static let `default` = OpenAIRequestConfig(
-        maxRetries: 3,
-        timeoutInterval: 60,
-        retryDelay: 2,
-        maxTimeoutErrors: 4,
-        stream: true
-    )
-}
 
 /// Helper struct to process streaming chunks
 private struct StreamingChunkProcessor {
@@ -60,27 +43,6 @@ private struct StreamingChunkProcessor {
     }
 }
 
-// Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
-/// Main event handler for initiating OpenAI API requests
-struct OpenAIRequest {
-    private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
-    let prompt: String             // User's input prompt
-    let systemPrompt: String       // System-level instructions loaded from file
-    let config: OpenAIRequestConfig // Request configuration settings
-    
-    /// Initialize a new request with prompt and optional configuration
-    @MainActor
-    init(prompt: String,
-         config: OpenAIRequestConfig = .default,
-         graph: GraphState) throws {
-        self.prompt = prompt
-        self.config = config
-        
-        // Load system prompt from bundled file
-        let loadedPrompt = try StitchAIManager.systemPrompt(graph: graph)
-        self.systemPrompt = loadedPrompt
-    }
-}
 
 extension Array where Element == Step {
     func convertSteps() throws -> [any StepActionable] {
@@ -444,39 +406,106 @@ extension StitchAIManager {
          
         var currentChunk: [UInt8] = []
          
+        var jsons = [JSON]()
+        var contentValuesOnly = [String]()
+        
         for try await byte in bytes {
             accumulatedData.append(byte)
             currentChunk.append(byte)
-             
-            // Print when we hit a newline, which typically delimits server-sent events.
-            if byte == 10 { // '\n'
-                if !currentChunk.isEmpty {
-                    let chunkData = Data(currentChunk)
-                    if let str = String(data: chunkData, encoding: .utf8) {
-                        print("OpenAI Stream Chunk: \(str)")
-                        // Add to accumulated string
-                        accumulatedString += str
-                         
-                        // Try to parse accumulated string if it looks like complete JSON
-                        // We look for closing braces/brackets to guess if JSON is complete
-                        if accumulatedString.contains("}") || accumulatedString.contains("]") {
-                            print("Attempting to parse accumulated JSON:")
-                            print(accumulatedString)
-                            if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
-                                print(" Successfully parsed actions:")
-                                steps.forEach { step in
-                                    print("  → \(step.description)")
-                                }
-                                accumulatedSteps.append(contentsOf: steps)
-                                // Clear accumulated string since we successfully parsed it
-                                accumulatedString = ""
-                            }
-                        }
-                    }
-                    currentChunk.removeAll(keepingCapacity: true)
-                }
+            
+            let chunkData = Data(currentChunk)
+            
+            // Probably want to decode this as an object or dictionary, or json, and access keys
+            let str = String(data: chunkData, encoding: .utf8)
+            log("OpenAI Stream Chunk: str: \(str)")
+            
+            if let str = str,
+               let json = parseJSON(str) {
+                
+                log("OpenAI Stream Chunk: json: \(json)")
+                jsons.append(json)
+                
+                let choices = json["choices"]
+                log("OpenAI Stream Chunk: choices: \(choices)")
+                
+                let delta = json["choices"]["delta"]
+                log("OpenAI Stream Chunk: delta: \(delta)")
+                
+                let content = json["choices"]["delta"]["content"].stringValue
+                log("OpenAI Stream Chunk: content: \(content)")
+                
+                contentValuesOnly.append(content)
+                
+            } else {
+                log("could not parse chunk")
             }
+            
+            
+            
+//            // Print when we hit a newline, which typically delimits server-sent events.
+//            if byte == 10 { // '\n'
+//                if !currentChunk.isEmpty {
+//                    let chunkData = Data(currentChunk)
+//                    //if let str = String(data: chunkData, encoding: .utf8) {
+//                    
+//                    // Probably want to decode this as an object or dictionary, or json, and access keys
+//                    
+//                    let str = String(data: chunkData, encoding: .utf8)
+//                    log("OpenAI Stream Chunk: str: \(str)")
+//                    
+//                    if let str = str,
+////                       let json = try? SwiftyJSON.JSON(data: chunkData) {
+//                       let json = parseJSON(str) {
+//                        
+//                        log("OpenAI Stream Chunk: json: \(json)")
+//                        jsons.append(json)
+//                        
+//                        let choices = json["choices"]
+//                        log("OpenAI Stream Chunk: choices: \(choices)")
+//                        
+//                        let delta = json["choices"]["delta"]
+//                        log("OpenAI Stream Chunk: delta: \(delta)")
+//                        
+//                        let content = json["choices"]["delta"]["content"].stringValue
+//                        log("OpenAI Stream Chunk: content: \(content)")
+//                        
+//                        contentValuesOnly.append(content)
+//                        
+//                    } else {
+//                        log("could not parse chunk")
+//                    }
+//                    
+////                    if let str = JSON {
+////                        
+////                        print("OpenAI Stream Chunk: \(str)")
+////                        // Add to accumulated string
+////                        accumulatedString += str
+////                         
+////                        // Try to parse accumulated string if it looks like complete JSON
+////                        // We look for closing braces/brackets to guess if JSON is complete
+////                        if accumulatedString.contains("}") || accumulatedString.contains("]") {
+////                            print("Attempting to parse accumulated JSON:")
+////                            print(accumulatedString)
+////                            if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
+////                                print(" Successfully parsed actions:")
+////                                steps.forEach { step in
+////                                    print("  → \(step.description)")
+////                                }
+////                                accumulatedSteps.append(contentsOf: steps)
+////                                // Clear accumulated string since we successfully parsed it
+////                                accumulatedString = ""
+////                            }
+////                        } // if accumulated
+////                        
+////                    } // if let str
+//                    
+////                    currentChunk.removeAll(keepingCapacity: true)
+//                }
+//            }
         }
+        
+        log("DONE: all chunk jsons: \(jsons)")
+        log("DONE: all chunk contentValuesOnly: \(contentValuesOnly)")
         
         // Print any trailing bytes that weren't newline-terminated
         if !currentChunk.isEmpty {
