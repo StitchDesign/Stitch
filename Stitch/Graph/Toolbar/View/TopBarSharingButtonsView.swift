@@ -35,12 +35,9 @@ struct TopBarSharingButtonsView: View {
                 Image(systemName: "inset.filled.rectangle.badge.record")
             }
         } label: {
-            #if !targetEnvironment(macCatalyst)
-            Text("Share")
-            #endif
-            
-            Image(systemName: .SHARE_ICON_SF_SYMBOL_NAME)
+            Label("Share", systemImage: .SHARE_ICON_SF_SYMBOL_NAME)
         }
+        .help("Share")
     }
 }
 
@@ -77,13 +74,8 @@ struct TopBarFeedbackButtonsView: View {
                 .labelStyle(.titleAndIcon)
             }
         } label: {
-#if !targetEnvironment(macCatalyst)
-            if showLabel {
-                Text("Contact Stitch")                
-            }
-#endif
-            
-            Image(systemName: "bubble.left.and.text.bubble.right")
+            Label("Contact Stitch", systemImage: "bubble.left.and.text.bubble.right")
         }
+        .help("Contact Stitch")
     }
 }
