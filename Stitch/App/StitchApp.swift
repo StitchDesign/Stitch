@@ -10,6 +10,7 @@ import StitchSchemaKit
 import Sentry
 import FirebaseCore
 import FirebaseAnalytics
+import TipKit
 
 @main @MainActor
 struct StitchApp: App {
@@ -46,6 +47,12 @@ struct StitchApp: App {
             StitchRootView(store: self.store)
                 .onAppear {
 //                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
+                    
+                    // Load and configure the state of all the tips of the app
+                    try? Tips.configure()
+                    
+                    // For testing
+//                    try? Tips.resetDatastore()
                     
                     dispatch(DirectoryUpdatedOnAppOpen())
                     

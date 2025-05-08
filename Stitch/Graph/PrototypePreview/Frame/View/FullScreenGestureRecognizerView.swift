@@ -11,6 +11,7 @@ import UIKit
 struct FullScreenGestureRecognizerView<Content: View>: UIViewControllerRepresentable {
 
     let showFullScreenPreviewSheet: Bool
+    let fullScreenExitTip: FullScreenPhoneExitTip
     @ViewBuilder var content: () -> Content
 
     func makeUIViewController(context: Context) -> GestureHostingController<Content> {
@@ -62,22 +63,33 @@ struct FullScreenGestureRecognizerView<Content: View>: UIViewControllerRepresent
     }
 
     func makeCoordinator() -> FullScreenGestureCoordinator {
-        FullScreenGestureCoordinator()
+        FullScreenGestureCoordinator(exitTip: self.fullScreenExitTip)
     }
 }
 
 // Enables simultaneous gestures with SwiftUI gesture handlers
-class FullScreenGestureCoordinator: NSObject, UIGestureRecognizerDelegate {
+final class FullScreenGestureCoordinator: NSObject, UIGestureRecognizerDelegate {
+    let exitTip: FullScreenPhoneExitTip
+    
+    init(exitTip: FullScreenPhoneExitTip) {
+        self.exitTip = exitTip
+    }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         true
     }
 
     @objc func threeFingerTapInView(_ gestureRecognizer: UITapGestureRecognizer) {
+        // guarantees tip won't show again (iphone only)
+        exitTip.invalidate(reason: .actionPerformed)
+        
         dispatch(ToggleFullScreenPreviewSheet())
     }
 
     @objc func threeFingerDoubleTapInView(_ gestureRecognizer: UITapGestureRecognizer) {
+        // guarantees tip won't show again (iphone only)
+        exitTip.invalidate(reason: .actionPerformed)
+        
         if Stitch.isPhoneDevice {
             // iPhone never persists a project
             dispatch(CloseGraph())
