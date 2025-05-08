@@ -21,7 +21,7 @@ struct FatalErrorIfDebugView: View {
 }
 
 func fatalErrorIfDebug(_ message: String = "") {
-#if DEBUG || DEV_DEBUG || STITCH_AI
+#if DEBUG || DEV_DEBUG
     fatalError(message)
 #else
     log(message)
@@ -39,7 +39,7 @@ func fatalErrorIfDebugOnly(_ message: String = "") {
 
 
 func assertInDebug(_ conditional: Bool) {
-#if DEBUG || DEV_DEBUG || STITCH_AI
+#if DEBUG || DEV_DEBUG
     assert(conditional)
 #endif
 }
@@ -54,7 +54,7 @@ enum LoggingAction: Equatable {
 
 // For debug printing from within SwiftUI views
 func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
-    #if DEBUG || DEV_DEBUG || STITCH_AI
+    #if DEBUG || DEV_DEBUG
     print("** \(message)")
 
     switch loggingAction {
@@ -81,7 +81,7 @@ func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
 }
 
 func logInView(_ message: String) -> EmptyView {
-    #if DEBUG || DEV_DEBUG || STITCH_AI
+    #if DEBUG || DEV_DEBUG
     print("** \(message)")
     #endif
     return EmptyView()
