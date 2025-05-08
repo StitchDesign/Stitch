@@ -1,4 +1,6 @@
-# Stitch (Beta)
+# Stitch [![Beta](https://img.shields.io/badge/status-beta-orange?style=flat-square)](#)
+
+[![Join our Discord](https://img.shields.io/discord/1332128366723203158?color=blue&label=Discord&logo=discord&cacheSeconds=3600)](https://discord.gg/eRk7D8jsD7) [![Follow us on X (Twitter)](https://img.shields.io/twitter/follow/stitchdesignapp?style=social)](https://x.com/stitchdesignapp)
 
 ![header](README_Assets/airbnb-monthystays.png)
 
