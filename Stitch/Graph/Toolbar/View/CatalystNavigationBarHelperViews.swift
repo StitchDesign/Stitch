@@ -175,7 +175,7 @@ struct CatalystTopBarGraphButtons: View {
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
         
-// #if DEBUG || DEV_DEBUG || STITCH_AI
+// #if DEBUG || DEV_DEBUG
             
             if llmRecordingModeEnabled {
                 CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
