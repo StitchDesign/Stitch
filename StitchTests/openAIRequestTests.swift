@@ -12,7 +12,6 @@ import StitchSchemaKit
 import SwiftyJSON
 
 class OpenAIRequestTests: XCTestCase {
-//#if STITCH_AI
     func testSecretsNotNil() throws {
         do {
             let secrets = try Secrets()
@@ -23,7 +22,6 @@ class OpenAIRequestTests: XCTestCase {
             XCTFail("testSecretsNotNil failed with error: \(error)\njson: \(contents)")
         }
     }
-//#endif
     
     /// Tests conversions to and from decoded state. StitchAI sometimes uses different types, this ensures types are compatible.
     func testStitchAICodables() {
