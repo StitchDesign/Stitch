@@ -43,22 +43,19 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
-                        CatalystHomescreenNavBarButton(action: { [weak store] in
+                        CatalystHomescreenNavBarButton(title: "New Project", iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME)) { [weak store] in
                                store?.createNewProjectSideEffect(isProjectImport: false)
-                        },
-                                                       iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME))
+                        }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystHomescreenNavBarButton(action: { [weak store] in
+                        CatalystHomescreenNavBarButton(title: "Open Sample Project", iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL)) { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
-                        },
-                                                       iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
-                                                       iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
+                        CatalystHomescreenNavBarButton(title: "Settings", iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME), tooltip: "Open Settings", action: SHOW_APP_SETTINGS_ACTION)
                         .id(UUID())
                         
 #else
@@ -88,15 +85,22 @@ struct ProjectsHomeViewWrapper: View {
 
 // Note: the UIKitTap modifier messes up ONLY the homescreen catalyst buttons ?
 struct CatalystHomescreenNavBarButton: View {
-    let action: () -> Void
+    let title: LocalizedStringKey
     let iconName: IconName
+    var tooltip: LocalizedStringKey? = nil
+    let action: () -> Void
 
     var body: some View {
         Button(action: action ) {
-            iconName.image
+            Label {
+                Text(title)
+            } icon: {
+                iconName.image
+            }
         }
         .buttonStyle(.borderless)
         .foregroundColor(TOP_BAR_IMAGE_BUTTON_FOREGROUND_COLOR)
+        .help(tooltip ?? title)
         // .hoverEffect() // ignored on Catalyst?
     }
 }
