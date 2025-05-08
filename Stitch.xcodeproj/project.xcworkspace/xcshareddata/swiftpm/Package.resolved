@@ -1,5 +1,5 @@
 {
-  "originHash" : "9e165734ead499e7e0eeef385a8613539873df54cf2db7c5dbd5b819fd5dbee3",
+  "originHash" : "a79286c26ff1140f47e0d94ac925b0d24c994c33a7c803acbf6ddc4ad3d1ce99",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -115,6 +115,15 @@
       "state" : {
         "revision" : "040d087ac2267d2ddd4cca36c757d1c6a05fdbfe",
         "version" : "101.0.0"
+      }
+    },
+    {
+      "identity" : "json-stream",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Topolyte/json-stream.git",
+      "state" : {
+        "revision" : "703a39ce871e97c4c3831ad8f681d26f4d884559",
+        "version" : "1.0.3"
       }
     },
     {

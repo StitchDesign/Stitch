@@ -42,6 +42,12 @@ struct StitchApp: App {
     
     var body: some Scene {
         WindowGroup {
+            JsonStreamTest()
+        }
+    }
+    
+    var _body: some Scene {
+        WindowGroup {
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
@@ -86,16 +92,16 @@ struct StitchApp: App {
         //        .windowStyle(HiddenTitleBarWindowStyle())
         //        .windowStyle(.hiddenTitleBar)
         //        #endif
-        .commands {
-            StitchCommands(store: store,
-                           activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
-          
-        }
+//        .commands {
+//            StitchCommands(store: store,
+//                           activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
+//          
+//        }
         
-        #if targetEnvironment(macCatalyst)
-        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
-            MacScreenSharingView(store: store)
-        }
-        #endif
+//        #if targetEnvironment(macCatalyst)
+//        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
+//            MacScreenSharingView(store: store)
+//        }
+//        #endif
     }
 }
