@@ -26,7 +26,7 @@ func downloadFile(from url: URL,
 
 // Used by modal that imports a single sample project.
 func importStitchSampleProject(sampleProjectURL: URL,
-                                         store: StitchStore) async {
+                               store: StitchStore) async throws {
     
     log("importStitchSampleProjectSideEffect: sampleProjectURL: \(sampleProjectURL)")
         
@@ -58,7 +58,7 @@ func importStitchSampleProject(sampleProjectURL: URL,
         
     } catch {
         log("importStitchSampleProjectSideEffect: Download failed: \(error)")
-        fatalErrorIfDebug()
+        throw error
     }
 }
 

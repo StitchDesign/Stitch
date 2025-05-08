@@ -67,22 +67,28 @@ struct SampleProjectsView: View {
 }
 
 struct SampleProjectsList: View {
+    // displays loading screen when tapped
+    @State private var urlLoadingForPresentation: URL?
+    
     @Bindable var store: StitchStore
     
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
                 SampleProjectView(store: store,
+                                  urlLoadingForPresentation: $urlLoadingForPresentation,
                                   data: .init(projectName: "Monthly Stays (Josh Pekera)",
                                               projectURL: "Monthly_Stays/Monthly%20Stays%20(Josh%20Pekera).stitch",
                                               projectAssetName: "MonthlyStays")
                 )
                 SampleProjectView(store: store,
+                                  urlLoadingForPresentation: $urlLoadingForPresentation,
                                   data: .init(projectName: "Music Player (GK3)",
                                               projectURL: "Music_Player/Music%20Player%20(GK3).stitch",
                                               projectAssetName: "MusicPlayer")
                 )
                 SampleProjectView(store: store,
+                                  urlLoadingForPresentation: $urlLoadingForPresentation,
                                   data: .init(projectName: "Hello World",
                                               projectURL: "Hello_World/Hello%20World.stitch",
                                               projectAssetName: "HelloWorld")
@@ -91,11 +97,13 @@ struct SampleProjectsList: View {
             
             HStack {
                 SampleProjectView(store: store,
+                                  urlLoadingForPresentation: $urlLoadingForPresentation,
                                   data: .init(projectName: "Wallet",
                                               projectURL: "Wallet/Wallet%20(Wayne%20Sang).stitch",
                                               projectAssetName: "Wallet")
                 )
                 SampleProjectView(store: store,
+                                  urlLoadingForPresentation: $urlLoadingForPresentation,
                                   data: .init(projectName: "AR Robot (Elliot)",
                                               projectURL:"AR_Robot/AR%20Robot%20(Elliot).stitch",
                                               projectAssetName: "ARRobot")
@@ -135,25 +143,41 @@ struct SampleProjectsList: View {
 }
 
 struct SampleProjectView: View {
-    // displays loading screen when tapped
-    @State private var isLoadingForPresentation = false
     
     @Bindable var store: StitchStore
     
+    // displays loading screen when tapped
+    @Binding var urlLoadingForPresentation: URL?
+    
     let data: SampleProjectData?
+    
+    var isLoadingForPresentation: Bool {
+        urlLoadingForPresentation == data?.url
+    }
     
     var body: some View {
         if let data = data {
             Button {
-                self.isLoadingForPresentation = true
+                // Only load project if another isn't loading
+                guard !self.isLoadingForPresentation else {
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    self.urlLoadingForPresentation = data.url                    
+                }
                 
                 Task(priority: .high) { [weak store] in
                     if let store = store {
-                        await importStitchSampleProject(sampleProjectURL: data.url,
-                                                        store: store)
-                        
-                        await MainActor.run { [weak store] in
-                            store?.showsSampleProjectModal = false
+                        do {
+                            try await importStitchSampleProject(sampleProjectURL: data.url,
+                                                                store: store)
+
+                            await MainActor.run { [weak store] in
+                                store?.showsSampleProjectModal = false
+                            }
+                        } catch {
+                            store.displayError(error: .customError("Sample project could not load, please check your internet connection and try again."))
                         }
                     }
                 }
