@@ -149,11 +149,15 @@ struct SampleProjectView: View {
                 
                 Task(priority: .high) { [weak store] in
                     if let store = store {
-                        await importStitchSampleProject(sampleProjectURL: data.url,
-                                                        store: store)
-                        
-                        await MainActor.run { [weak store] in
-                            store?.showsSampleProjectModal = false
+                        do {
+                            try await importStitchSampleProject(sampleProjectURL: data.url,
+                                                                store: store)
+
+                            await MainActor.run { [weak store] in
+                                store?.showsSampleProjectModal = false
+                            }
+                        } catch {
+                            store.displayError(error: .customError("Sample project could not load, please check your internet connection and try again."))
                         }
                     }
                 }
