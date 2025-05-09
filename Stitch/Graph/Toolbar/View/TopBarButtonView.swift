@@ -34,27 +34,25 @@ struct iPadTopBarButtonStyle: ViewModifier {
 
 // Hack: use `Menu(primaryAction:)` to get native size and hover effect on iPad
 struct iPadNavBarButton: View {
-    let action: () -> Void
+    let title: LocalizedStringKey
     let iconName: IconName
-    var rotationZ: CGFloat = 0 // some icons stay the same but just get rotated
+    var tooltip: LocalizedStringKey? = nil
+    let action: () -> Void
 
     var body: some View {
         Menu {
             // 'Empty menu' so that nothing happens when we tap the Menu's label
             EmptyView()
         } label: {
-            Button(action: {}) {
-                // TODO: any .resizable(), .fixedSize() etc. needed?
+            Label {
+                Text(title)
+            } icon: {
                 iconName.image
-                // TODO: why is this rotation changes sometimes animated, sometimes not?
-                //                    .rotation3DEffect(Angle(degrees: rotationZ),
-                //                                      axis: (x: 0, y: 0, z: rotationZ))
             }
         } primaryAction: {
             action()
         }
-        .rotation3DEffect(Angle(degrees: rotationZ),
-                          axis: (x: 0, y: 0, z: rotationZ))
+        .help(tooltip ?? title)
     }
 }
 
@@ -107,26 +105,33 @@ struct iPadGraphTopBarButtons: View {
         Group {
             
             // go up a traversal level
-            iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
-                             iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
-            .opacity(hasActiveGroupFocused ? 1 : 0)
-            
+            iPadNavBarButton(title: "Go Up", iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME), tooltip: "") { dispatch(GoUpOneTraversalLevel())
+            }
+            .disabled(!hasActiveGroupFocused)
+
             if !isDebugMode {
                 // toggle preview window
                 iPadNavBarButton(
-                    action: PREVIEW_SHOW_TOGGLE_ACTION,
-                    iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+                    title: "Toggle Preview",
+                    iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME),
+                    action: PREVIEW_SHOW_TOGGLE_ACTION
+                )
                 
                 // refresh prototype
-                iPadNavBarButton(action: RESTART_PROTOTYPE_ACTION,
-                                 iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
-                                 rotationZ: restartPrototypeWindowIconRotationZ)
-                
+                iPadNavBarButton(
+                    title: "Restart Prototype",
+                    iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
+                    action: RESTART_PROTOTYPE_ACTION
+                )
+
                 // full screen
                 iPadNavBarButton(
-                    action: PREVIEW_FULL_SCREEN_ACTION,
-                    //                iconName: .sfSymbol(.EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
-                    iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+                    title: "Toggle Fullscreen Preview",
+                    iconName: .sfSymbol(
+                        isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME
+                    ),
+                    action: PREVIEW_FULL_SCREEN_ACTION
+                )
             }
 
             // TODO: implement
@@ -140,9 +145,14 @@ struct iPadGraphTopBarButtons: View {
                 llmRecordingModeActive: llmRecordingModeActive,
                 llmRecordingModeEnabled: llmRecordingModeEnabled)
             
-            iPadNavBarButton(action: {
-                dispatch(LayerInspectorToggled())
-            }, iconName: .sfSymbol("sidebar.right"))
+            iPadNavBarButton(
+                title: "Toggle Inspector",
+                iconName: .sfSymbol("sidebar.right")
+            ) {
+                dispatch(
+                    LayerInspectorToggled()
+                )
+            }
         }
     }
 }

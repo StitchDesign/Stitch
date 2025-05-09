@@ -337,7 +337,6 @@ extension CatalystNavBarButton {
 
     init(_ title: LocalizedStringKey,
          systemName: String,
-         rotationZ: CGFloat = 0,
          tooltip: LocalizedStringKey? = nil,
          _ action: @escaping () -> Void) {
         self.title = title
@@ -345,19 +344,16 @@ extension CatalystNavBarButton {
         self.tooltip = tooltip
         self.action = action
         self.id = systemName
-        self.rotationZ = rotationZ
     }
 
     init(action: @escaping () -> Void,
          title: LocalizedStringKey,
          iconName: IconName,
-         tooltip: LocalizedStringKey? = nil,
-         rotationZ: CGFloat = 0) {
+         tooltip: LocalizedStringKey? = nil) {
         self.title = title
         self.image = iconName.image
         self.tooltip = tooltip
         self.action = action
         self.id = iconName.name
-        self.rotationZ = rotationZ
     }
 }

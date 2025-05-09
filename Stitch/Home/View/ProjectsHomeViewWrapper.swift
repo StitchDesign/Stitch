@@ -59,22 +59,19 @@ struct ProjectsHomeViewWrapper: View {
                         .id(UUID())
                         
 #else
-                        iPadNavBarButton(action: { [weak store] in
+                        iPadNavBarButton(title: "New Project", iconName: NEW_PROJECT_ICON_NAME) { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
-                        },
-                                         iconName: NEW_PROJECT_ICON_NAME)
+                        }
                         
-                        iPadNavBarButton(action: { [weak store] in
+                        iPadNavBarButton(title: "Open Sample Project", iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL)) { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
-                        },
-                                         iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        }
                         
                         // TODO: disabling feedback button on home screen for consistency with Catalyst due to color issue
 //                        TopBarFeedbackButtonsView(showLabel: false)
 //                            .modifier(iPadTopBarButtonStyle())
                         
-                        iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
-                                         iconName: PROJECT_SETTINGS_ICON_NAME)
+                        iPadNavBarButton(title: "Settings", iconName: PROJECT_SETTINGS_ICON_NAME, tooltip: "Open Settings", action: SHOW_APP_SETTINGS_ACTION)
 #endif
                         
                     }
