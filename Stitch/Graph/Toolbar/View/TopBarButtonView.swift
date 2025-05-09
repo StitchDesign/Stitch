@@ -178,7 +178,7 @@ struct iPadGraphTopBarMiscMenu: View {
             
             iPadTopBarButton(action: { dispatch(FindSomeCanvasItemOnGraph())},
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
-                             label: "Find Node")
+                             label: "Go to Node")
             
             iPadTopBarButton(action: UNDO_ACTION,
                              iconName: UNDO_ICON_NAME,
