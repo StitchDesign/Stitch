@@ -22,6 +22,8 @@ extension StitchAIManager {
             return
         }
         
+        currentDocument.requestState = OpenAIRequestState.makingRequest
+        
         // Set the flag to indicate a request is in progress
         currentDocument.insertNodeMenuState.isGeneratingAINode = true
         
@@ -34,18 +36,34 @@ extension StitchAIManager {
             }
             
             do {
+                await MainActor.run {
+                    currentDocument.requestState = OpenAIRequestState.makingRequest
+                }
+
                 let steps = try await manager.makeRequest(request, graph: currentDocument.visibleGraph)
                 
                 log("OpenAI Request succeeded")
+
+                await MainActor.run {
+                    currentDocument.requestState = OpenAIRequestState.creatingGraphActions
+                }
                 
                 // Handle successful response
                 try manager.openAIRequestCompleted(steps: steps,
                                                    originalPrompt: request.prompt)
+                                                   
+                await MainActor.run {
+                    currentDocument.requestState = OpenAIRequestState.completed
+                }
+                
             } catch {
                 log("StitchAI handleRequest error: \(error.localizedDescription)", .logToServer)
                 
                 await MainActor.run { [weak self] in
                     guard let state = self?.documentDelegate else { return }
+                    
+                    // Set failed state with error message
+                    state.requestState = OpenAIRequestState.failed(error.localizedDescription)
                     
                     // Reset recording state
                     state.llmRecording = .init()
@@ -88,10 +106,12 @@ extension StitchAIManager {
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
         
-        guard let _ = self.documentDelegate else {
+        guard let document = self.documentDelegate else {
             throw StitchAIManagerError.documentNotFound(request)
         }
-//        document.llmRecording.recentOpenAIRequestCompleted = false
+        
+        // Update state to parsingJSON when processing response
+        document.requestState = OpenAIRequestState.parsingJSON
         
         // Check if we've exceeded retry attempts
         guard attempt <= config.maxRetries else {
@@ -207,7 +227,7 @@ extension StitchAIManager {
             }
         }
         
-         return try await self.convertResponseToStepActions(request,
+        return try await self.convertResponseToStepActions(request,
                                                             data: data,
                                                             currentAttempt: attempt)
     }
@@ -281,4 +301,5 @@ extension StitchAIManager {
         
         try document.validateAndApplyActions(steps)
     }
+    
 }

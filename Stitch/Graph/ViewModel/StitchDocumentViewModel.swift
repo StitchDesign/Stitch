@@ -37,6 +37,12 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var isGeneratingProjectThumbnail = false
     
+    @MainActor var requestState: OpenAIRequestState = .idle {
+        didSet {
+            log("requestState changed to \(requestState)")
+        }
+    }
+    
     // The raw size we pass to GeneratePreview
     @MainActor var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
     
