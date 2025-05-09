@@ -51,6 +51,26 @@ struct OpenAIRequest {
 
 /// Helper struct to process streaming chunks
 struct StreamingChunkProcessor {
+    
+    
+    static func getStepsFromJoinedString(message: String) throws -> [Step]? {
+        // Decode the chunk
+        guard let data = message.data(using: .utf8) else {
+            throw StitchAIManagerError.invalidStreamingData
+        }
+        
+        let response: ContentJSON = try JSONDecoder().decode(ContentJSON.self, from: data)
+        return response.steps
+//        
+////        guard let choice =
+////              let content = try? choice.message.parseContent() else {
+////        
+////            return nil
+////        }
+//        
+//        return content.steps
+    }
+    
     /// Process a chunk of data from the stream
     static func processChunk(_ chunk: String) throws -> [Step]? {
         // Remove "data: " prefix if present

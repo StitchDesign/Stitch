@@ -157,7 +157,7 @@ struct JsonStreamTest: View {
                 var contentFromAllChunks = [[String]]()
                 
                 for chunk in chunks {
-                    if let contentValue = try? self.getContentKey(chunk) {
+                    if let contentValue = try? getContentKey(chunk) {
                         log("getValueForContentKey: contentValue: \(contentValue)")
                         contentFromAllChunks.append(contentValue)
                     }
@@ -189,62 +189,7 @@ struct JsonStreamTest: View {
             }
     }
     
-    static let contentToken: JsonKey = .name("content")
     
-    func getContentKey(_ data: Data) throws -> [String]? {
-        
-        let dataAsString = String(data: data, encoding: .utf8)
-        log("getContentKey: called for \(dataAsString)")
-        
-        guard let stream = try? JsonInputStream(data: data) else {
-            log("getContentKey: could not get stream from data")
-            return nil
-        }
-        
-        // // For if the JSON has multiple `content` keys at various levels
-        // let path = jis.pathMatch(.name("choices"), .index(0), .name("delta"), .name("content"))
-        
-        /*
-         Questions:
-         1. Should there only be *one* `content` key per chunk?
-         2. Can the value change? e.g. be a string vs a number vs ...; and how do we combine those again later?
-         ... try to get all strings, and combine those into a single string which we then parse as a json?
-         */
-        
-        var contentStrings: [String] = []
-        
-        while let token: JsonToken = try stream.read() {
-            switch token {
-                
-            case .string(Self.contentToken, let value):
-                log("getContentKey: found string token: \(value)")
-                contentStrings.append(value)
-                
-            case .bool(Self.contentToken, let value):
-                log("getContentKey: found bool token: \(value)")
-                contentStrings.append(value.description)
-                
-            case .number(Self.contentToken, let .int(value)):
-                log("getContentKey: found number int token: \(value)")
-                contentStrings.append(value.description)
-                
-            case .number(Self.contentToken, let .double(value)):
-                log("getContentKey: found number double token: \(value)")
-                contentStrings.append(value.description)
-                
-            case .number(Self.contentToken, let .decimal(value)):
-                log("getContentKey: found number decimal token: \(value)")
-                contentStrings.append(value.description)
-                
-            default:
-                log("getContentKey: some token other than string, bool, int, double or decimal")
-                continue
-            }
-        }
-        
-        log("getContentKey: returning contentStrings: \(contentStrings)")
-        return contentStrings
-    }
     
     func getValueForContentKey() throws {
         let jis = try JsonInputStream(filePath: countriesPath)
@@ -305,6 +250,65 @@ struct JsonStreamTest: View {
     
 }
 
+
+
+func getContentKey(_ data: Data) throws -> [String]? {
+    
+//    let dataAsString = String(data: data, encoding: .utf8)
+//    log("getContentKey: called for \(dataAsString)")
+    
+    guard let stream = try? JsonInputStream(data: data) else {
+        log("getContentKey: could not get stream from data")
+        return nil
+    }
+    
+    // // For if the JSON has multiple `content` keys at various levels
+    // let path = jis.pathMatch(.name("choices"), .index(0), .name("delta"), .name("content"))
+    
+    /*
+     Questions:
+     1. Should there only be *one* `content` key per chunk?
+     2. Can the value change? e.g. be a string vs a number vs ...; and how do we combine those again later?
+     ... try to get all strings, and combine those into a single string which we then parse as a json?
+     */
+    
+    let contentToken: JsonKey = .name("content")
+    
+    var contentStrings: [String] = []
+    
+    while let token: JsonToken = try stream.read() {
+        switch token {
+            
+        case .string(contentToken, let value):
+            log("getContentKey: found string token: \(value)")
+            contentStrings.append(value)
+            
+        case .bool(contentToken, let value):
+            log("getContentKey: found bool token: \(value)")
+            contentStrings.append(value.description)
+            
+        case .number(contentToken, let .int(value)):
+            log("getContentKey: found number int token: \(value)")
+            contentStrings.append(value.description)
+            
+        case .number(contentToken, let .double(value)):
+            log("getContentKey: found number double token: \(value)")
+            contentStrings.append(value.description)
+            
+        case .number(contentToken, let .decimal(value)):
+            log("getContentKey: found number decimal token: \(value)")
+            contentStrings.append(value.description)
+            
+        default:
+            log("getContentKey: some token other than string, bool, int, double or decimal: token: \(token)")
+            continue
+        }
+    }
+    
+    // log("getContentKey: returning contentStrings: \(contentStrings)")
+    return contentStrings
+}
+
 /*
  steps with actual data:
  
@@ -327,99 +331,92 @@ extension StitchAIManager {
         
         var currentChunk: [UInt8] = []
         
+        var allContentVals = [[String]]()
+        
+        // this is every single little character;
+        // whereas we only want to try to read the individual json objects;
+        // but not sure if we can rely on e.g. `}` for determining what that bracket closed
+        
+        // Maye
+        
+//        for try await byte in bytes {
+//            accumulatedData.append(byte)
+//            currentChunk.append(byte)
+//            
+//            let chunkData = Data(currentChunk)
+//            
+//            if let contentVals = try? getContentKey(chunkData) {
+//                log("found contentVals: \(contentVals)")
+//                allContentVals.append(contentVals)
+//            }
+//        }
+//
+        
         for try await byte in bytes {
             accumulatedData.append(byte)
             currentChunk.append(byte)
             
-            let chunkData = Data(currentChunk)
-            
-            // For debug
-            let str = String(data: chunkData, encoding: .utf8)
-            log("OpenAI Stream Chunk: str: \(str)")
-            
-            
-            
-            //            // Print when we hit a newline, which typically delimits server-sent events.
-            //            if byte == 10 { // '\n'
-            //                if !currentChunk.isEmpty {
-            //                    let chunkData = Data(currentChunk)
-            //                    //if let str = String(data: chunkData, encoding: .utf8) {
-            //
-            //                    // Probably want to decode this as an object or dictionary, or json, and access keys
-            //
-            //                    let str = String(data: chunkData, encoding: .utf8)
-            //                    log("OpenAI Stream Chunk: str: \(str)")
-            //
-            //                    if let str = str,
-            ////                       let json = try? SwiftyJSON.JSON(data: chunkData) {
-            //                       let json = parseJSON(str) {
-            //
-            //                        log("OpenAI Stream Chunk: json: \(json)")
-            //                        jsons.append(json)
-            //
-            //                        let choices = json["choices"]
-            //                        log("OpenAI Stream Chunk: choices: \(choices)")
-            //
-            //                        let delta = json["choices"]["delta"]
-            //                        log("OpenAI Stream Chunk: delta: \(delta)")
-            //
-            //                        let content = json["choices"]["delta"]["content"].stringValue
-            //                        log("OpenAI Stream Chunk: content: \(content)")
-            //
-            //                        contentValuesOnly.append(content)
-            //
-            //                    } else {
-            //                        log("could not parse chunk")
-            //                    }
-            //
-            ////                    if let str = JSON {
-            ////
-            ////                        print("OpenAI Stream Chunk: \(str)")
-            ////                        // Add to accumulated string
-            ////                        accumulatedString += str
-            ////
-            ////                        // Try to parse accumulated string if it looks like complete JSON
-            ////                        // We look for closing braces/brackets to guess if JSON is complete
-            ////                        if accumulatedString.contains("}") || accumulatedString.contains("]") {
-            ////                            print("Attempting to parse accumulated JSON:")
-            ////                            print(accumulatedString)
-            ////                            if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
-            ////                                print(" Successfully parsed actions:")
-            ////                                steps.forEach { step in
-            ////                                    print("  → \(step.description)")
-            ////                                }
-            ////                                accumulatedSteps.append(contentsOf: steps)
-            ////                                // Clear accumulated string since we successfully parsed it
-            ////                                accumulatedString = ""
-            ////                            }
-            ////                        } // if accumulated
-            ////
-            ////                    } // if let str
-            //
-            ////                    currentChunk.removeAll(keepingCapacity: true)
-            //                }
-            //            }
-        }
-        
-        // Print any trailing bytes that weren't newline-terminated
-        if !currentChunk.isEmpty {
-            let chunkData = Data(currentChunk)
-            if let str = String(data: chunkData, encoding: .utf8) {
-                print("OpenAI Stream Chunk: \(str)")
-                // Add final chunk to accumulated string
-                accumulatedString += str
-                
-                // Try to parse any remaining accumulated JSON
-                if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
-                    print(" Final chunk actions:")
-                    steps.forEach { step in
-                        print("  → \(step.description)")
+            // Print when we hit a newline, which typically delimits server-sent events.
+            if byte == 10 { // '\n'
+                if !currentChunk.isEmpty {
+                    let chunkData = Data(currentChunk)
+                    
+                    
+                    if let str = String(data: chunkData, encoding: .utf8) {
+                        
+                        // the data prefix is preventing us from recognizing the streamed-json object ?
+                        let jsonString = str.hasPrefix("data: ")
+                        ? String(str.dropFirst(6))
+                        : str
+                        
+                        print("OpenAI Stream Chunk, had newline character: \(str)")
+                        
+                        if let jsonStrAsData: Data = jsonString.data(using: .utf8),
+                           let contentVals = try? getContentKey(jsonStrAsData) {
+                            log("found contentVals: \(contentVals)")
+                            allContentVals.append(contentVals)
+                        } else {
+                            log("could not get ContentKey from chunkData")
+                        }
                     }
-                    accumulatedSteps.append(contentsOf: steps)
+                    
+                    currentChunk.removeAll(keepingCapacity: true)
                 }
             }
         }
         
-        return (accumulatedData, response, accumulatedSteps)
+        log("DONE: allContentVals: \(allContentVals)")
+        let message = allContentVals.map { $0.joined() }.joined()
+        log("final message: \(message)")
+        
+        if let parsedSteps = try? StreamingChunkProcessor.getStepsFromJoinedString(message: message) {
+            log("parsedSteps: \(parsedSteps)")
+            return (accumulatedData, response, parsedSteps)
+        } else {
+            log("could not parse steps")
+            return (accumulatedData, response, accumulatedSteps)
+        }
+        
+        
+//        // Print any trailing bytes that weren't newline-terminated
+//        if !currentChunk.isEmpty {
+//            let chunkData = Data(currentChunk)
+//            if let str = String(data: chunkData, encoding: .utf8) {
+////                print("OpenAI Stream Chunk: \(str)")
+//                // Add final chunk to accumulated string
+//                accumulatedString += str
+//                
+//                // Try to parse any remaining accumulated JSON
+//                if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
+//                    print(" Final chunk actions:")
+//                    steps.forEach { step in
+//                        print("  → \(step.description)")
+//                    }
+//                    accumulatedSteps.append(contentsOf: steps)
+//                }
+//            }
+//        }
+        
+//        return (accumulatedData, response, accumulatedSteps)
     }
 }
