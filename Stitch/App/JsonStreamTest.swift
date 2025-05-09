@@ -257,7 +257,7 @@ func getContentKey(_ data: Data) throws -> [String]? {
 //    log("getContentKey: called for \(dataAsString)")
     
     guard let stream = try? JsonInputStream(data: data) else {
-        log("getContentKey: could not get stream from data")
+        // log("getContentKey: could not get stream from data")
         return nil
     }
     
@@ -279,27 +279,27 @@ func getContentKey(_ data: Data) throws -> [String]? {
         switch token {
             
         case .string(contentToken, let value):
-            log("getContentKey: found string token: \(value)")
+            // log("getContentKey: found string token: \(value)")
             contentStrings.append(value)
             
         case .bool(contentToken, let value):
-            log("getContentKey: found bool token: \(value)")
+            // log("getContentKey: found bool token: \(value)")
             contentStrings.append(value.description)
             
         case .number(contentToken, let .int(value)):
-            log("getContentKey: found number int token: \(value)")
+            // log("getContentKey: found number int token: \(value)")
             contentStrings.append(value.description)
             
         case .number(contentToken, let .double(value)):
-            log("getContentKey: found number double token: \(value)")
+            // log("getContentKey: found number double token: \(value)")
             contentStrings.append(value.description)
             
         case .number(contentToken, let .decimal(value)):
-            log("getContentKey: found number decimal token: \(value)")
+            // log("getContentKey: found number decimal token: \(value)")
             contentStrings.append(value.description)
             
         default:
-            log("getContentKey: some token other than string, bool, int, double or decimal: token: \(token)")
+            // log("getContentKey: some token other than string, bool, int, double or decimal: token: \(token)")
             continue
         }
     }
@@ -348,8 +348,9 @@ extension StitchAIManager {
         var currentChunk: [UInt8] = []
             
         var allContentTokens = [[String]]()
-        var contentTokensSinceLastStep = [[String]]()
         
+        var contentTokensSinceLastStep = [[String]]()
+        // var contentTokensSinceLastStep = [[String]]()
         
         for try await byte in bytes {
             accumulatedData.append(byte)
@@ -360,63 +361,18 @@ extension StitchAIManager {
             }
             
             let chunkData = Data(currentChunk)
-            guard let str = String(data: chunkData, encoding: .utf8) else {
-                continue
+            if let chunkDataString = String(data: chunkData, encoding: .utf8),
+               let contentToken = getContentToken(chunkDataString: chunkDataString) {
+                
+                allContentTokens.append(contentToken)
+                
+                contentTokensSinceLastStep = streamDataHelper(
+                    contentToken: contentToken,
+                    contentTokensThisSession: contentTokensSinceLastStep)
             }
             
-            // Remove te "data: " prefix OpenAI inserts
-            let jsonString = str.hasPrefix("data: ") ? String(str.dropFirst(6)) : str
-            guard let jsonStrAsData: Data = jsonString.data(using: .utf8) else {
-                continue
-            }
-            
-            // Retrieve the token from the deeply-nested `content` key
-            guard let jsonStrAsData: Data = jsonString.data(using: .utf8),
-                  let valueForContentKey = try? getContentKey(jsonStrAsData) else {
-                continue
-            }
-            log("found valueForContentKey: \(valueForContentKey)")
-            
-            allContentTokens.append(valueForContentKey)
-            log("allContentTokens is now: \(allContentTokens)")
-            
-            contentTokensSinceLastStep.append(valueForContentKey)
-            log("contentTokensSinceLastStep is now: \(contentTokensSinceLastStep)")
-            
-            // If we have enough tokens for a string that starts like `steps`,
-            // then we can eagerly attempt to decode a step.
-            // TODO: can use JsonInputStream's `.arrayStarts(.name("steps"))` ?
-            var messageSoFar = contentTokensSinceLastStep.megajoin()
-            guard let range = messageSoFar.range(of: #"{"steps":["#) else {
-                continue
-            }
-            
-            log("messageSoFar was: \(messageSoFar)")
-            messageSoFar.removeSubrange(range)
-            log("messageSoFar is now: \(messageSoFar)")
-            
-            // TODO: handle cases where we have multiple actions received
-            // TODO: really, only need to iterate through 3 or so characters? Meant to handle case where a contentToken was e.g. ", {" and so we have to remove more than just 1 char
-            for number in (0...6) {
-                var messageToEdit = messageSoFar
-                messageToEdit = String(messageToEdit.dropLast(number))
-                log("messageToEdit is now number \(number): \(messageToEdit)")
-                
-                guard let dataFromMessageSoFar: Data = messageToEdit.data(using: .utf8) else {
-                    continue
-                }
-                
-                guard let step = try? JSONDecoder().decode(Step.self, from: dataFromMessageSoFar) else {
-                    continue
-                }
-                log("found step: \(step)")
-                
-                DispatchQueue.main.async {
-                    dispatch(ChunkProcessed(newStep: step))
-                }
-                
-                
-            } // for number in ...
+            // Clear the current chunk
+            currentChunk.removeAll(keepingCapacity: true)
             
         } // for byte in bytes
         
@@ -457,4 +413,84 @@ extension StitchAIManager {
         
 //        return (accumulatedData, response, accumulatedSteps)
     }
+}
+
+// Make these private methods on StitchAIManager
+extension String {
+    func removeDataPrefix() -> String {
+        self.hasPrefix("data: ") ? String(self.dropFirst(6)) : self
+    }
+    
+    func removeStepsPrefix() -> String {
+        var str = self
+        if let range = str.range(of: #"{"steps":["#) {
+            str.removeSubrange(range)
+            return str
+        } else {
+            return str
+        }
+    }
+}
+
+
+// nil = could not retrieve `content` key's value
+func getContentToken(chunkDataString: String) -> [String]? {
+    // Remove the "data: " prefix OpenAI inserts
+    guard let jsonStrAsData: Data = chunkDataString.removeDataPrefix().data(using: .utf8) else {
+        return nil
+    }
+    
+    // Retrieve the token from the deeply-nested `content` key
+    guard let valueForContentKey = try? getContentKey(jsonStrAsData) else {
+        return nil
+    }
+    
+    log("found valueForContentKey: \(valueForContentKey)")
+    return valueForContentKey
+}
+
+
+func streamDataHelper(contentToken: [String],
+                      // i.e. "since last discovered step"
+                      contentTokensThisSession: [[String]]) -> [[String]] {
+            
+    var contentTokensThisSession = contentTokensThisSession
+    
+    contentTokensThisSession.append(contentToken)
+    log("contentTokensThisSession is now: \(contentTokensThisSession)")
+        
+    // If we have enough tokens for a string that starts like `steps`,
+    // then we can eagerly attempt to decode a step.
+    // TODO: can use JsonInputStream's `.arrayStarts(.name("steps"))` ?
+    let messageSoFar = contentTokensThisSession
+        .megajoin()
+        .removeStepsPrefix()
+        
+    log("messageSoFar: \(messageSoFar)")
+    
+    // TODO: handle cases where we have multiple actions received
+    // TODO: really, only need to iterate through 3 or so characters? Meant to handle case where a contentToken was e.g. ", {" and so we have to remove more than just 1 char
+    for number in (0...4) {
+        var messageToEdit = messageSoFar
+        messageToEdit = String(messageToEdit.dropLast(number))
+        log("messageToEdit is now number \(number): \(messageToEdit)")
+        
+        guard let dataFromMessageSoFar: Data = messageToEdit.data(using: .utf8) else {
+            continue
+        }
+        
+        guard let step = try? JSONDecoder().decode(Step.self, from: dataFromMessageSoFar) else {
+            continue
+        }
+        log("found step: \(step)")
+        
+        DispatchQueue.main.async {
+            dispatch(ChunkProcessed(newStep: step))
+        }
+        
+        // Return immediately if we found a step
+        return .init()
+    } // for number in ...
+    
+    return contentTokensThisSession
 }
