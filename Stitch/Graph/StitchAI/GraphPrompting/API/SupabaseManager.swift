@@ -10,10 +10,7 @@ import UIKit
 import SwiftUI
 import SwiftyJSON
 import Sentry
-
-struct LLMRecordingPayload: Encodable, Sendable {
-    let actions: String
-}
+import OpenAI
 
 struct Payload: Codable {
     let user_id: String
@@ -26,21 +23,31 @@ struct RecordingWrapper: Codable {
     var actions: [LLMStepAction]
 }
 
+// TODO: why is this an actor? So it can operate on a separate thread? But many of our methods are marked `@MainActor` ?
 final actor StitchAIManager {
     let secrets: Secrets
 
     var postgrest: PostgrestClient
     var tableName: String
     
+    // Specifically for streaming
+    @MainActor var openAI: OpenAI
+    
     @MainActor var currentTask: Task<Void, Never>?
+    
+    @MainActor var currentStream: CancellableRequest?
+    
+    // Should not need to pass this down?
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
 
     init?() throws {
-        guard let secrets = try Secrets() else {
+        guard let secretsJSON = try Secrets() else {
             return nil
         }
         
-        self.secrets = secrets
+        self.openAI = OpenAI(apiToken: secretsJSON.openAIAPIKey)
+        
+        self.secrets = secretsJSON
         
         // Initialize with empty values first
         self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""),
@@ -49,9 +56,9 @@ final actor StitchAIManager {
         self.tableName = ""
         
         // Extract required environment variables
-        let supabaseURL = secrets.supabaseURL
-        let supabaseAnonKey = secrets.supabaseAnonKey
-        let tableName = secrets.tableName
+        let supabaseURL = secretsJSON.supabaseURL
+        let supabaseAnonKey = secretsJSON.supabaseAnonKey
+        let tableName = secretsJSON.tableName
         
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
@@ -74,6 +81,8 @@ final actor StitchAIManager {
 }
 
 extension StitchAIManager {
+    
+    // For canceling an in-progress request when node menu is closed
     @MainActor
     func cancelCurrentRequest() {
         guard let currentTask = self.currentTask else {
@@ -84,7 +93,9 @@ extension StitchAIManager {
         self.currentTask = nil
     }
     
-    @MainActor static func getDeviceUUID() throws -> String? {
+    // For Supasebase logging
+    @MainActor
+    static func getDeviceUUID() throws -> String? {
         guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {
             log("Unable to retrieve device UUID", .logToServer)
 #if DEV_DEBUG || DEBUG

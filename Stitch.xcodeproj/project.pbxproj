@@ -661,6 +661,8 @@
 		EC86AD572DCC1E7700E9B00E /* OpenAIRequestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */; };
 		EC8826CD2DCD04AD003529BA /* JsonStream in Frameworks */ = {isa = PBXBuildFile; productRef = EC8826CC2DCD04AD003529BA /* JsonStream */; };
 		EC8826CF2DCD2EAC003529BA /* JsonStreamTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8826CE2DCD2EAC003529BA /* JsonStreamTest.swift */; };
+		EC8826F32DCE67FB003529BA /* OpenAISwiftAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8826F22DCE67FB003529BA /* OpenAISwiftAPI.swift */; };
+		EC8826F62DCE683D003529BA /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = EC8826F52DCE683D003529BA /* OpenAI */; };
 		EC8891A32C82387A002390F8 /* CommonEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A22C82387A002390F8 /* CommonEditingView.swift */; };
 		EC8891A52C82388D002390F8 /* TapToEditReadOnlyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */; };
 		EC8967002B4E1C8E0066879B /* CurveLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8966FF2B4E1C8E0066879B /* CurveLine.swift */; };
@@ -1658,6 +1660,7 @@
 		EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarButtonView.swift; sourceTree = "<group>"; };
 		EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequestHelpers.swift; sourceTree = "<group>"; };
 		EC8826CE2DCD2EAC003529BA /* JsonStreamTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonStreamTest.swift; sourceTree = "<group>"; };
+		EC8826F22DCE67FB003529BA /* OpenAISwiftAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAISwiftAPI.swift; sourceTree = "<group>"; };
 		EC8891A22C82387A002390F8 /* CommonEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingView.swift; sourceTree = "<group>"; };
 		EC8891A42C82388D002390F8 /* TapToEditReadOnlyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToEditReadOnlyView.swift; sourceTree = "<group>"; };
 		EC8966FF2B4E1C8E0066879B /* CurveLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveLine.swift; sourceTree = "<group>"; };
@@ -2014,6 +2017,7 @@
 				B5380E312CF8E51600E6D801 /* StitchEngine in Frameworks */,
 				B5B8105C2D77E1C90095DA9D /* StitchEngine in Frameworks */,
 				B560CE812CF1C93100F31905 /* StitchEngine in Frameworks */,
+				EC8826F62DCE683D003529BA /* OpenAI in Frameworks */,
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
 				E4A848AB2D32FCFA0029AFDE /* PostgREST in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
@@ -3084,6 +3088,7 @@
 			children = (
 				200BD85A254F66EB00692903 /* StitchApp.swift */,
 				EC8826CE2DCD2EAC003529BA /* JsonStreamTest.swift */,
+				EC8826F22DCE67FB003529BA /* OpenAISwiftAPI.swift */,
 				8B2A221826A3B5BE002D08BA /* FeatureFlags.swift */,
 				B5617A7C2C175C5500B53DAF /* Resources */,
 				B56FFB392C18F23000623CC7 /* Shortcut */,
@@ -4819,6 +4824,7 @@
 				ECE5857B2DB6D39C00749ED3 /* StitchEngine */,
 				E42B46DB2DC55B4F009C6890 /* FirebaseAnalytics */,
 				EC8826CC2DCD04AD003529BA /* JsonStream */,
+				EC8826F52DCE683D003529BA /* OpenAI */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4909,6 +4915,7 @@
 				ECE5857A2DB6D39C00749ED3 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 				E42B46DA2DC55B4F009C6890 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */,
+				EC8826F42DCE683D003529BA /* XCRemoteSwiftPackageReference "OpenAI" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5500,6 +5507,7 @@
 				B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */,
 				B5770BA32D3ACF1D0013AD09 /* Model3DView.swift in Sources */,
 				EC688E332DCAA73300C6737D /* FileImportHelpers.swift in Sources */,
+				EC8826F32DCE67FB003529BA /* OpenAISwiftAPI.swift in Sources */,
 				B5EC61FB2A5F5713002A639F /* NodeViewModel.swift in Sources */,
 				EC17ACC226B4BC5900137EA5 /* StitchAudio.swift in Sources */,
 				ECFA5D4A287DEE580037CD59 /* PulseColor.swift in Sources */,
@@ -6871,6 +6879,14 @@
 				minimumVersion = 1.0.3;
 			};
 		};
+		EC8826F42DCE683D003529BA /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MacPaw/OpenAI.git";
+			requirement = {
+				kind = exactVersion;
+				version = 0.4.2;
+			};
+		};
 		EC91034829109DF3007C548E /* XCRemoteSwiftPackageReference "SoulverCore" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soulverteam/SoulverCore.git";
@@ -7037,6 +7053,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */;
 			productName = JsonStream;
+		};
+		EC8826F52DCE683D003529BA /* OpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EC8826F42DCE683D003529BA /* XCRemoteSwiftPackageReference "OpenAI" */;
+			productName = OpenAI;
 		};
 		EC91034929109DF3007C548E /* SoulverCore */ = {
 			isa = XCSwiftPackageProductDependency;

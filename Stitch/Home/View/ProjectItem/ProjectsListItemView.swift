@@ -133,8 +133,8 @@ struct ProjectsListItemView: View {
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
             case .loaded(let document, let thumbnail):
-                logInView("LOADED: \(document.name) \(document.id)")
-                logInView("LOADED: thumbnailURL: \(DocumentEncoder.getProjectThumbnailURL(rootUrl: document.rootUrl))")
+                // logInView("LOADED: \(document.name) \(document.id)")
+                // logInView("LOADED: thumbnailURL: \(DocumentEncoder.getProjectThumbnailURL(rootUrl: document.rootUrl))")
                 
                 ProjectsListItemIconView(
                     projectThumbnail: thumbnail,

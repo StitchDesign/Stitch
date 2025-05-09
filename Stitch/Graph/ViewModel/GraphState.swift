@@ -14,11 +14,26 @@ import StitchSchemaKit
 import StitchEngine
 import SwiftUI
 import Vision
+import OrderedCollections
+
+
+struct OpenAIRawTokenReceived: GraphEvent {
+    let tokenReceived: String
+    
+    func handle(state: GraphState) {
+        log("OpenAIRawTokenReceived: tokenReceived: \(tokenReceived)")
+        state.rawTokenStream.append(tokenReceived)
+        log("OpenAIRawTokenReceived: state.rawTokenStream is now: \(state.rawTokenStream)")
+    }
+}
 
 @Observable
 final class GraphState: Sendable {
     
-    @MainActor var streamedSteps: [Step] = .init()
+    @MainActor var rawTokenStream: [String] = .init()
+    
+//    @MainActor var streamedSteps: [Step] = .init()
+    @MainActor var streamedSteps: OrderedSet<Step> = .init()
     
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>

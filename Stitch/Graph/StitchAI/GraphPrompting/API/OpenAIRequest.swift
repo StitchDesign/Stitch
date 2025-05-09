@@ -17,7 +17,8 @@ let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 
 extension StitchAIManager {
     
-    @MainActor func handleRequest(_ request: OpenAIRequest) {
+    @MainActor
+    func handleRequest(_ request: OpenAIRequest) {
         guard let currentDocument = self.documentDelegate else {
             return
         }
@@ -159,6 +160,10 @@ extension StitchAIManager {
             let startTime = Date()
             
             if config.stream {
+                
+                // TODO: a little more work is required to use Structured Outputs etc.
+                 // try await self.makeOpenAIStreamingRequest(openAIRequest: request)
+                
                 // NEW: stream data and print chunks as they arrive
                 let result = try await self.streamData(for: urlRequest, graph: graph)
                 data = result.0
