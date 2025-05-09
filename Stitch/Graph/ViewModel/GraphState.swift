@@ -14,11 +14,12 @@ import StitchSchemaKit
 import StitchEngine
 import SwiftUI
 import Vision
+import OrderedCollections
 
 @Observable
 final class GraphState: Sendable {
     
-    @MainActor var streamedSteps: [Step] = .init()
+    @MainActor var streamedSteps: OrderedSet<Step> = .init()
     
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
