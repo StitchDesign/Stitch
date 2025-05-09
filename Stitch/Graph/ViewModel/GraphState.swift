@@ -18,6 +18,8 @@ import Vision
 @Observable
 final class GraphState: Sendable {
     
+    @MainActor var streamedSteps: [Step] = .init()
+    
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     

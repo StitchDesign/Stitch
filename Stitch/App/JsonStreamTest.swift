@@ -147,7 +147,6 @@ let chunk5 = """
 
 let chunks = [chunk1, chunk2, chunk3, chunk4, chunk5]
 
-
 struct JsonStreamTest: View {
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
@@ -166,26 +165,26 @@ struct JsonStreamTest: View {
                 log("final contentFromAllChunks: \(contentFromAllChunks)")
                 
                 
-//                if let _ = try? countries.write(to: countriesURL) {
-//                    log("wrote successfully")
-//                    
-////                    if let _ = try? self.example1a() {
-////                        log("did example 1a successfully")
-////                    }
-////                    
-////                    if let _ = try? self.example7() {
-////                        log("did example 7 successfully")
-////                    }
-////                    
-////                    if let _ = try? self.getValueForContentKey() {
-////                    }
-//                    
-//                   
-//                    
-//                    
-//                } else {
-//                    log("could not write")
-//                }
+                let messageProgress =  [[""], ["{\""], ["steps"], ["\":["], ["{\""], ["node"], ["_id"], ["\":\""], ["A"], ["1"], ["B"], ["2"], ["C"], ["3"], ["D"], ["4"], ["-E"], ["5"], ["F"], ["6"], ["-"], ["789"], ["0"], ["-"]]
+                                        
+                var message = messageProgress.megajoin()
+                
+                
+                let toRemove = #"{"steps":["#
+                if let range = message.range(of: toRemove) {
+                    log("message was: \(message)")
+                    message.removeSubrange(range)
+                    log("message is now: \(message)")
+                }
+                
+                
+                let _message = messageProgress.megajoin()
+                
+                if let messageData = _message.data(using: .utf8) {
+                    let stepsKey = try? getStepsKey(messageData)
+                    log("getValueForContentKey: stepsKey: \(stepsKey)")
+                }
+                
             }
     }
     
@@ -309,26 +308,43 @@ func getContentKey(_ data: Data) throws -> [String]? {
     return contentStrings
 }
 
-/*
- steps with actual data:
- 
- makeRequest calls `streamData(URLRequest) -> (Data, URLResponse, [Step])`
- 
- 
- 
- */
+
+func getStepsKey(_ data: Data) throws -> String? {
+    guard let stream = try? JsonInputStream(data: data) else {
+        log("getStepsKey: could not get stream from data")
+        return nil
+    }
+    
+    while let token: JsonToken = try stream.read() {
+        switch token {
+        case .string(.name("steps"), let value):
+            // will
+            log("getStepsKey: found string token: \(value)")
+            return value
+//        case .startArray(.name("steps")):
+            
+        default:
+            log("getStepsKey: some token other than string, bool, int, double or decimal: token: \(token)")
+            continue
+        }
+    }
+    
+    return nil
+}
+
 
 extension StitchAIManager {
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
-    func streamData(for urlRequest: URLRequest) async throws -> (Data, URLResponse, [Step]) {
+    func streamData(for urlRequest: URLRequest,
+                    graph: GraphState) async throws -> (Data, URLResponse, [Step]) {
         var accumulatedData = Data()
         var accumulatedSteps: [Step] = []
         var accumulatedString = ""
         
         // `bytes(for:)` returns an `AsyncSequence` of individual `UInt8`s
         let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
-        
+                
         var currentChunk: [UInt8] = []
         
         var allContentVals = [[String]]()
@@ -336,57 +352,124 @@ extension StitchAIManager {
         // this is every single little character;
         // whereas we only want to try to read the individual json objects;
         // but not sure if we can rely on e.g. `}` for determining what that bracket closed
-        
-        // Maye
+                
+        for try await byte in bytes {
+            accumulatedData.append(byte)
+            currentChunk.append(byte)
+            
+//            let byteData = Data(byte)
+            let currentChunkData = Data(currentChunk)
+            
+            
+//            let byteDataString = String(data: byteData, encoding: .utf8)
+            let currentChunkDataString = String(data: currentChunkData, encoding: .utf8)
+            
+//            log("byteDataString: \(byteDataString)")
+            log("currentChunkDataString: \(String(describing: currentChunkDataString))")
+            
+            if let contentVals = try? getContentKey(currentChunkData) {
+                log("found contentVals: \(contentVals)")
+                allContentVals.append(contentVals)
+            }
+        }
+//
         
 //        for try await byte in bytes {
 //            accumulatedData.append(byte)
 //            currentChunk.append(byte)
 //            
-//            let chunkData = Data(currentChunk)
-//            
-//            if let contentVals = try? getContentKey(chunkData) {
-//                log("found contentVals: \(contentVals)")
-//                allContentVals.append(contentVals)
+//            // Print when we hit a newline, which typically delimits server-sent events.
+//            if byte == 10 { // '\n'
+//                if !currentChunk.isEmpty {
+//                    let chunkData = Data(currentChunk)
+//                    
+//                    if let str = String(data: chunkData, encoding: .utf8) {
+//
+//                        // TODO: why or how is `data: ` getting prefixed here?
+//                        
+//                        // the data prefix is preventing us from recognizing the streamed-json object ?
+//                        let jsonString = str.hasPrefix("data: ")
+//                        ? String(str.dropFirst(6))
+//                        : str
+//                        
+//                        print("OpenAI Stream Chunk, had newline character: \(str)")
+//                        
+//                        if let jsonStrAsData: Data = jsonString.data(using: .utf8),
+//                           
+//                            let contentVals = try? getContentKey(jsonStrAsData) {
+//                            
+//                            log("found contentVals: \(contentVals)")
+//                            allContentVals.append(contentVals)
+//                            log("allContentVals is now: \(allContentVals)")
+//                            
+//                            // If we can chop off the "{steps:[" part and turn
+////                            allContentVals.megajoin().
+//                            var messageSoFar = allContentVals.megajoin()
+//                            
+//                            // if we can remove the "steps" part:
+//                            let toRemove = #"{"steps":["#
+//                            if let range = messageSoFar.range(of: toRemove) {
+//                                log("messageSoFar was: \(messageSoFar)")
+//                                messageSoFar.removeSubrange(range)
+//                                log("messageSoFar is now: \(messageSoFar)")
+//
+//                                
+//                                for number in (0...10) {
+//                                    var messageToEdit = messageSoFar
+//                                    messageToEdit = String(messageToEdit.dropLast(number))
+//                                    log("messageToEdit is now number \(number): \(messageToEdit)")
+//                                    
+//                                    if let dataFromMessageSoFar: Data = messageToEdit.data(using: .utf8) {
+//                                        
+//                                        if let responses: [Step] = try? JSONDecoder().decode([Step].self, from: dataFromMessageSoFar) {
+//                                            log("responses from message so far: \(responses)")
+//                                            DispatchQueue.main.async {
+//                                                for response in responses {
+//                                                    dispatch(ChunkProcessed(newStep: response))
+//                                                }
+//                                            }
+//                                            // allContentVals = .init()
+//                                            break
+//                                        }
+//                                        
+//                                        if let response: Step = try? JSONDecoder().decode(Step.self, from: dataFromMessageSoFar) {
+//                                            log("response from message so far: \(response)")
+//                                            
+//                                            let alreadySeen = await graph.streamedSteps.contains { $0 == response }
+//                                            log("response from message so far: alreadySeen ?: \(alreadySeen)")
+//                                            if !alreadySeen {
+//                                                DispatchQueue.main.async {
+//                                                    dispatch(ChunkProcessed(newStep: response))
+//                                                }
+//                                            }
+//                                            
+////                                            DispatchQueue.main.async {
+////                                                dispatch(ChunkProcessed(newStep: response))
+////                                            }
+//                                            // allContentVals = .init()
+//                                            break
+//                                        }
+//                                    }
+//                                }
+//                                
+//                                
+//                               
+//                            }
+//                            
+//                            
+//                        } else {
+//                            log("could not get ContentKey from chunkData")
+//                        }
+//                    }
+//                    
+//                    currentChunk.removeAll(keepingCapacity: true)
+//                }
 //            }
 //        }
-//
-        
-        for try await byte in bytes {
-            accumulatedData.append(byte)
-            currentChunk.append(byte)
-            
-            // Print when we hit a newline, which typically delimits server-sent events.
-            if byte == 10 { // '\n'
-                if !currentChunk.isEmpty {
-                    let chunkData = Data(currentChunk)
-                    
-                    
-                    if let str = String(data: chunkData, encoding: .utf8) {
-                        
-                        // the data prefix is preventing us from recognizing the streamed-json object ?
-                        let jsonString = str.hasPrefix("data: ")
-                        ? String(str.dropFirst(6))
-                        : str
-                        
-                        print("OpenAI Stream Chunk, had newline character: \(str)")
-                        
-                        if let jsonStrAsData: Data = jsonString.data(using: .utf8),
-                           let contentVals = try? getContentKey(jsonStrAsData) {
-                            log("found contentVals: \(contentVals)")
-                            allContentVals.append(contentVals)
-                        } else {
-                            log("could not get ContentKey from chunkData")
-                        }
-                    }
-                    
-                    currentChunk.removeAll(keepingCapacity: true)
-                }
-            }
-        }
         
         log("DONE: allContentVals: \(allContentVals)")
-        let message = allContentVals.map { $0.joined() }.joined()
+//        let message = allContentVals.map { $0.joined() }.joined()
+        let message = allContentVals.megajoin()
         log("final message: \(message)")
         
         if let parsedSteps = try? StreamingChunkProcessor.getStepsFromJoinedString(message: message) {

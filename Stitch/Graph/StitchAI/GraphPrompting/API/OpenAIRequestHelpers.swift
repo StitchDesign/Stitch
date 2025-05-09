@@ -49,6 +49,23 @@ struct OpenAIRequest {
     }
 }
 
+
+extension [[String]] {
+    func megajoin() -> String {
+        self.map { $0.joined() }.joined()
+    }
+}
+
+struct ChunkProcessed: GraphEvent {
+    let newStep: Step
+    
+    func handle(state: GraphState) {
+        log("ChunkProcessed: newStep: \(newStep)")
+        state.streamedSteps.append(newStep)
+        log("ChunkProcessed: state.streamedSteps is now: \(state.streamedSteps)")
+    }
+}
+
 /// Helper struct to process streaming chunks
 struct StreamingChunkProcessor {
     

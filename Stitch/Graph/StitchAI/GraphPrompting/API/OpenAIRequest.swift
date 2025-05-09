@@ -34,7 +34,7 @@ extension StitchAIManager {
             }
             
             do {
-                let steps = try await manager.makeRequest(request)
+                let steps = try await manager.makeRequest(request, graph: currentDocument.visibleGraph)
                 
                 log("OpenAI Request succeeded")
                 
@@ -80,8 +80,10 @@ extension StitchAIManager {
     /// Execute the API request with retry logic
     @MainActor
     func makeRequest(_ request: OpenAIRequest,
-                             attempt: Int = 1,
-                             lastCapturedError: String? = nil) async throws -> [Step] {
+                     attempt: Int = 1,
+                     lastCapturedError: String? = nil,
+                     graph: GraphState) async throws -> [Step] {
+        
         let config = request.config
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
@@ -138,7 +140,7 @@ extension StitchAIManager {
             
             if config.stream {
                 // NEW: stream data and print chunks as they arrive
-                let result = try await self.streamData(for: urlRequest)
+                let result = try await self.streamData(for: urlRequest, graph: graph)
                 data = result.0
                 response = result.1
                 // When streaming, use the parsed steps directly
@@ -173,7 +175,7 @@ extension StitchAIManager {
                     log("Retrying in \(config.retryDelay) seconds")
                     
                     return try await self.retryMakeRequest(request,
-                                                           currentAttempts: attempt,
+                                                           currentAttempts: attempt, graph: graph,
                                                            lastError: error.localizedDescription)
                 }
                 
@@ -200,6 +202,7 @@ extension StitchAIManager {
                 
                 return try await self.retryMakeRequest(request,
                                                        currentAttempts: attempt,
+                                                       graph: graph,
                                                        lastError: StitchAIManagerError.apiResponseError.description)
             }
         }
@@ -232,6 +235,7 @@ extension StitchAIManager {
     
     private func retryMakeRequest(_ request: OpenAIRequest,
                                   currentAttempts: Int,
+                                  graph: GraphState,
                                   lastError: String) async throws -> [Step] {
         let config = request.config
         // Calculate exponential backoff delay: 2^attempt * base delay
@@ -244,7 +248,8 @@ extension StitchAIManager {
         
         return try await self.makeRequest(request,
                                           attempt: currentAttempts + 1,
-                                          lastCapturedError: lastError)
+                                          lastCapturedError: lastError,
+                                          graph: graph)
     }
     
     /// Process successfully parsed response data
