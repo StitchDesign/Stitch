@@ -24,6 +24,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
     
     @Bindable var portUIViewModel: PortUIViewModelType
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     
     let rowId: NodeRowViewModelId
     let nodeIO: NodeIO
@@ -52,6 +53,14 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                     .fill(self.portColor)
                     .frame(width: 8)
                     .offset(x: nodeIO == .input ? -4 : 4)
+            }
+            .overlay {
+                if document.selectedInput == rowId.asNodeIOCoordinate {
+                    UnevenRoundedRectangle(cornerRadii: .init(topLeft: 0, topRight: 8, bottomRight: 8, bottomLeft: 0))
+                        .fill(Color.red)
+                        .frame(width: 8)
+                        .offset(x: nodeIO == .input ? -4 : 4)
+                }
             }
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
                                              nodeIO: nodeIO,

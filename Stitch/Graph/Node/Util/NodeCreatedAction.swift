@@ -22,14 +22,21 @@ struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
         
         // Find the input
         guard let selectedInput = state.selectedInput,
+              var selectedInputLocation = graph.getNode(selectedInput.nodeId)?.nonLayerCanvasItem?.locationOfInputs,
               let selectedInputObserver = state.visibleGraph.getInputRowObserver(selectedInput),
               let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
             fatalErrorIfDebug()
             return
         }
+        
+        // Insert the created node further to the east
+        selectedInputLocation.x -= (NODE_POSITION_STAGGER_SIZE * 2)
                 
         // Create the node that corresponds to the shortcut/key pressed
-        guard let node = state.nodeInserted(choice: .patch(patch)) else {
+        guard let node = state.nodeInserted(
+            choice: .patch(patch),
+            canvasLocation: selectedInputLocation) else {
+            
             fatalErrorIfDebug()
             return
         }
@@ -45,21 +52,22 @@ struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
                                           activeIndex: state.activeIndex)
         }
         
+        let indexOfInputToChange = patch.graphNode?
+            .rowDefinitions(for: selectedInputType).inputs
+            .firstIndex(where: { !$0.isTypeStatic })
+        // Else default to first input
+        ?? 0
         
         // Put the selected input's values into the created-node's first non-type-static-input
         
         // NOTE: all shortcut/key-insertable nodes should have NodeDefinitions now
         // TODO: write a test for this ?
-        guard let firstNonTypeStaticInput: InputNodeRowObserver = patch.graphNode?
-            .rowDefinitions(for: selectedInputType).inputs
-            .firstIndex(where: { !$0.isTypeStatic })
-            .flatMap({ index in node.inputsObservers[safe: index] }) else {
-            
+        guard let inputOnCreatedNode: InputNodeRowObserver = node.inputsObservers[safe: indexOfInputToChange] else {
             fatalErrorIfDebug()
             return
         }
         
-        firstNonTypeStaticInput.setValuesInInput(selectedInputObserver.values)
+        inputOnCreatedNode.setValuesInInput(selectedInputObserver.values)
         
         guard let firstOutput = node.outputsObservers.first else {
             fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(patch): did not have output") // should never be called for
@@ -151,9 +159,10 @@ extension StitchDocumentViewModel {
     @MainActor
     func nodeInserted(choice: NodeKind,
                       // For LLMStep Actions
-                      nodeId: UUID? = nil) -> NodeViewModel? {
+                      nodeId: UUID? = nil,
+                      canvasLocation: CGPoint? = nil) -> NodeViewModel? {
 
-        let nodeCenter = self.newCanvasItemInsertionLocation
+        let nodeCenter = canvasLocation ?? self.newCanvasItemInsertionLocation
         
         guard let node = self.visibleGraph.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,

@@ -16,6 +16,7 @@ import StitchSchemaKit
 
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
@@ -29,6 +30,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     var body: some View {
         PortEntryView(portUIViewModel: rowViewModel.portUIViewModel,
                       graph: graph,
+                      document: document,
                       rowId: rowViewModel.id,
                       nodeIO: nodeIO)
         .onTapGesture {
