@@ -8,74 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-extension StitchAIManager {
-    enum StitchAIManagerError: Error {
-        case documentNotFound(OpenAIRequest)
-        case jsonEncodingError(OpenAIRequest, Error)
-        case invalidURL(OpenAIRequest)
-        case requestCancelled(OpenAIRequest)
-        case internetConnectionFailed(OpenAIRequest)
-        case other(OpenAIRequest, Error)
-        case apiResponseError
-        case maxRetriesError(Int, String)
-        case multipleTimeoutErrors(OpenAIRequest, String)
-        case emptySuccessfulResponse
-        case nodeTypeParsing(String)
-        case portTypeDecodingError(String)
-        case actionValidationError(String)
-        case invalidStreamingData
-        
-        var description: String {
-            switch self {
-            case .documentNotFound(let request):
-                return "Document not found for request: \(request.prompt)"
-            case .jsonEncodingError(let request, let error):
-                return "JSON encoding error for request: \(request.prompt), error: \(error.localizedDescription)"
-            case .invalidURL(let request):
-                return "Invalid URL for request: \(request.prompt)"
-            case .requestCancelled(let request):
-                return "Request cancelled for prompt: \(request.prompt)"
-            case .internetConnectionFailed(let request):
-                return "Internet connection failed for request: \(request.prompt)"
-            case .other(let request, let error):
-                return "Other error for request: \(request.prompt), error: \(error.localizedDescription)"
-            case .apiResponseError:
-                return "API response error"
-            case .maxRetriesError(let maxRetries, let lastError):
-                return "Max retries exceeded (\(maxRetries)) with last error: \(lastError)"
-            case .multipleTimeoutErrors(let request, let lastError):
-                return "Multiple timeout errors for request: \(request.prompt), last error: \(lastError)"
-            case .emptySuccessfulResponse:
-                return "Empty successful response"
-            case .nodeTypeParsing(let nodeType):
-                return "Invalid node type: \(nodeType)"
-            case .portTypeDecodingError(let port):
-                return "Invalid port type: \(port)"
-            case .actionValidationError(let msg):
-                return "Action validation failed: \(msg)"
-            case .invalidStreamingData:
-                return "Invalid streaming data received from OpenAI"
-            }
-        }
-        
-        var shouldDisplayModal: Bool {
-            switch self {
-            case .documentNotFound,
-                 .requestCancelled,
-                 .internetConnectionFailed,
-                 .maxRetriesError,
-                 .multipleTimeoutErrors,
-                 .emptySuccessfulResponse,
-                 .invalidStreamingData:
-                return true
-            default:
-                return false
-            }
-        }
-    }
-}
-
-
 enum StitchAIManagerError: Error {
     case documentNotFound(OpenAIRequest)
     case requestInProgress(OpenAIRequest)
@@ -160,9 +92,19 @@ extension StitchAIManagerError {
         switch self {
         case .requestCancelled:
             return false
-            
-        default:
+        case .documentNotFound,
+             .internetConnectionFailed,
+             .maxRetriesError,
+             .multipleTimeoutErrors,
+             .emptySuccessfulResponse,
+             .invalidStreamingData,
+             .apiResponseError,
+             .jsonEncodingError,
+             .invalidURL,
+             .other:
             return true
+        default:
+            return false
         }
     }
 }
