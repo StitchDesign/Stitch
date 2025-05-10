@@ -10,6 +10,9 @@ import JsonStream
 import SwiftyJSON
 
 extension StitchAIManager {
+    
+    // TODO: streamData opens a stream; the stream sends us events (from the server) that we respond to
+    
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
     func streamData(for urlRequest: URLRequest,
@@ -46,6 +49,10 @@ extension StitchAIManager {
                 
                 if let (newStep, newTokens) = parseStepFromTokenStream(tokens: contentTokensSinceLastStep) {
                     contentTokensSinceLastStep = newTokens
+                    
+                    DispatchQueue.main.async {
+                        dispatch(ChunkProcessed(newStep: newStep))
+                    }
                 }
             }
             

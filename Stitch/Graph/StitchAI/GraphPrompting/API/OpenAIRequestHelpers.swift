@@ -56,13 +56,19 @@ extension [[String]] {
     }
 }
 
-struct ChunkProcessed: GraphEvent {
+struct ChunkProcessed: StitchDocumentEvent {
     let newStep: Step
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         log("ChunkProcessed: newStep: \(newStep)")
-        state.streamedSteps.append(newStep)
-        log("ChunkProcessed: state.streamedSteps is now: \(state.streamedSteps)")
+        state.visibleGraph.streamedSteps.append(newStep)
+        log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
+        
+        if let _ = try? state.validateAndApplyActions(state.visibleGraph.streamedSteps.elements) {
+            
+        } else {
+            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS")
+        }
     }
 }
 
