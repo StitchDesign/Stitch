@@ -216,6 +216,10 @@ extension GraphState {
         if document.openPortPreview != nil {
             document.openPortPreview = nil
         }
+        
+        if document.selectedInput != nil {
+            document.selectedInput = nil
+        }
     }
 }
 

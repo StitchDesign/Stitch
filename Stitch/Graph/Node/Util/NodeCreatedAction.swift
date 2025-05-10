@@ -10,6 +10,71 @@ import StitchSchemaKit
 import SwiftUI
 import CoreMotion
 
+
+struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
+    
+    // Determined by the shortcut or key that was pressed while the input was selected
+    let patch: Patch // Always a patch node?
+    
+    func handle(state: StitchDocumentViewModel) {
+            
+        let graph = state.visibleGraph
+        
+        // Find the input
+        guard let selectedInput = state.selectedInput,
+              let selectedInputObserver = state.visibleGraph.getInputRowObserver(selectedInput),
+              let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
+            fatalErrorIfDebug()
+            return
+        }
+                
+        // Create the node that corresponds to the shortcut/key pressed
+        guard let node = state.nodeInserted(choice: .patch(patch)) else {
+            fatalErrorIfDebug()
+            return
+        }
+                
+        // TODO: is this really needed? Mostly for undo/redo ?
+        graph.persistNewNode(node)
+
+        
+        // Update the created-node's type if node supports the selected input's type
+        if patch.availableNodeTypes.contains(selectedInputType) {
+            let _ = graph.nodeTypeChanged(nodeId: node.id,
+                                          newNodeType: selectedInputType,
+                                          activeIndex: state.activeIndex)
+        }
+        
+        
+        // Put the selected input's values into the created-node's first non-type-static-input
+        
+        // NOTE: all shortcut/key-insertable nodes should have NodeDefinitions now
+        // TODO: write a test for this ?
+        guard let firstNonTypeStaticInput: InputNodeRowObserver = patch.graphNode?
+            .rowDefinitions(for: selectedInputType).inputs
+            .firstIndex(where: { !$0.isTypeStatic })
+            .flatMap({ index in node.inputsObservers[safe: index] }) else {
+            
+            fatalErrorIfDebug()
+            return
+        }
+        
+        firstNonTypeStaticInput.setValuesInInput(selectedInputObserver.values)
+        
+        guard let firstOutput = node.outputsObservers.first else {
+            fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(patch): did not have output") // should never be called for
+            return
+        }
+        
+        // Create an edge from the node's output to the selected input
+        graph.addEdgeWithoutGraphRecalc(from: firstOutput.id,
+                                        to: selectedInput)
+        
+        // TODO: calculate a smaller portion of the graph?
+        graph.calculateFullGraph()
+    }
+}
+
 struct NodeCreatedEvent: StitchDocumentEvent {
     
     let choice: NodeKind

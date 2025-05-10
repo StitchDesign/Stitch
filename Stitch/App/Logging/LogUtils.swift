@@ -24,19 +24,11 @@ func fatalErrorIfDebug(_ message: String = "") {
 #if DEBUG || DEV_DEBUG
     fatalError(message)
 #else
-    log(message)
+    // When we encounter a "crash if developing locally" while we're running on production,
+    // we should log to Sentry.
+    log(message, .logToServer)
 #endif
 }
-
-// Crash helpers intended only for local developer use
-func fatalErrorIfDebugOnly(_ message: String = "") {
-#if DEBUG || DEV_DEBUG
-    fatalError(message)
-#else
-    log(message)
-#endif
-}
-
 
 func assertInDebug(_ conditional: Bool) {
 #if DEBUG || DEV_DEBUG

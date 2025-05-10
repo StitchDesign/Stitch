@@ -17,16 +17,19 @@ struct PressInteractionNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [interactionIdDefault],
-                    label: "Layer"
+                    label: "Layer",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.bool(true)],
-                    label: "Enabled"
+                    label: "Enabled",
+                    isTypeStatic: true
                 ),
                 // TODO: remove this input? (We rely on SwiftUI's double-tap timing). Requires a migration
                 .init(
                     defaultValues: [.number(0.3)],
-                    label: "Delay"
+                    label: "Delay",
+                    isTypeStatic: true
                 )
             ],
             outputs: [

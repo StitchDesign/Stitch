@@ -37,6 +37,10 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
                 return
             }
 
+            if nodeIO == .input {
+                dispatch(InputSelected(tappedInput: rowObserver.id))
+            }
+            
             // Do nothing when input/output doesn't contain a loop
             if rowObserver.hasLoopedValues {
                 dispatch(PortPreviewOpened(port: self.rowObserver.id,
@@ -45,5 +49,13 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
                 
             }
         }
+    }
+}
+
+struct InputSelected: StitchDocumentEvent {
+    let tappedInput: InputCoordinate
+    
+    func handle(state: StitchDocumentViewModel) {
+        state.selectedInput = tappedInput
     }
 }

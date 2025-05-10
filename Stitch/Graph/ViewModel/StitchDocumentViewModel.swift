@@ -121,6 +121,9 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var openPortPreview: OpenedPortPreview?
     
+    // TODO: technically, we could allow for multiple inputs to be selected at a given time?
+    @MainActor var selectedInput: InputCoordinate?
+    
     // Screen sharing UX
     @MainActor var isScreenRecording = false
     
