@@ -88,8 +88,13 @@ struct InsertNodeMenuView: View {
         .compositingGroup()
         // Add onDisappear to cancel any in-progress request
         .onDisappear {
-            document.aiManager?.cancelCurrentRequest()
-            document.insertNodeMenuState.isGeneratingAINode = false
+            // Only cancel if not auto-hiding
+            if !document.insertNodeMenuState.isAutoHiding {
+                document.aiManager?.cancelCurrentRequest()
+                document.insertNodeMenuState.isGeneratingAINode = false
+            }
+            // Reset the flag
+            document.insertNodeMenuState.isAutoHiding = false
         }
     }
     

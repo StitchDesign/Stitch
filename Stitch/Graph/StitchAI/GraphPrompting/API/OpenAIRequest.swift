@@ -269,6 +269,9 @@ extension StitchAIManager {
         // we should close the insert-node-menu,
         // since we're not doing any retries.
         document.reduxFocusedField = nil
+        
+        // Set auto-hiding flag before hiding menu
+        document.insertNodeMenuState.isAutoHiding = true
         document.insertNodeMenuState.show = false
         document.insertNodeMenuState.isGeneratingAINode = false
 

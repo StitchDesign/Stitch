@@ -177,6 +177,9 @@ struct GenerateAINode: StitchDocumentEvent {
         
         let graph = state.visibleGraph
         
+        // Clear previous streamed steps
+        graph.streamedSteps = .init()
+        
         // Set loading state
         state.insertNodeMenuState.isGeneratingAINode = true
         

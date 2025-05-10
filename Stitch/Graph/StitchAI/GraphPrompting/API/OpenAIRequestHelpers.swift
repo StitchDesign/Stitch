@@ -61,6 +61,12 @@ struct ChunkProcessed: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         log("ChunkProcessed: newStep: \(newStep)")
+        
+        if state.visibleGraph.streamedSteps.isEmpty {
+            state.insertNodeMenuState.isAutoHiding = true // Set flag before hiding
+            state.insertNodeMenuState.show = false
+        }
+        
         state.visibleGraph.streamedSteps.append(newStep)
         log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
         

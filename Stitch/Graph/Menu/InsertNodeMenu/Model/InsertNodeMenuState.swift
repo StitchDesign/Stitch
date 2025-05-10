@@ -46,6 +46,7 @@ struct InsertNodeMenuState: Hashable {
             }
         }
     }
+    var isAutoHiding: Bool = false
     
     static let startingActiveSelection = allSearchOptions.first
     // TODO: needs to be dynamic, since we now must load in custom components
