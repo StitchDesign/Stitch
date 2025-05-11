@@ -67,20 +67,9 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                                                               // a circle on the right side
                                                               bottomTrailing: 80,
                                                               topTrailing: 80))
-                    
-//                    .fill(self.portColor)
-//                    .fill(Color.green)
-//                    .fill(Color.black)
-//                    .fill(.clear)
-                    
-//                    .stroke(.green)
-                    .fill(Color.BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE)
+                    .fill(STITCH_TITLE_FONT_COLOR)
                     .frame(PORT_ENTRY_NON_EXTENDED_BORDER_SIZE)
                     .offset(x: 1)
-//                    .padding()
-                    
-                    
-                    
                 }
             }
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
