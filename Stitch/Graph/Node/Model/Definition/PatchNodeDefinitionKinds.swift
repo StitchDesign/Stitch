@@ -42,7 +42,7 @@ extension Patch {
         case .multiply:
             return nil
         case .optionPicker:
-            return nil
+            return OptionPickerPatchNode.self
         case .loop:
             return nil
         case .time:
