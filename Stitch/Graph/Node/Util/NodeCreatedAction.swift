@@ -30,7 +30,7 @@ struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
         }
         
         // Insert the created node further to the east
-        selectedInputLocation.x -= (NODE_POSITION_STAGGER_SIZE * 2)
+        selectedInputLocation.x -= (NODE_POSITION_STAGGER_SIZE * 6)
                 
         // Create the node that corresponds to the shortcut/key pressed
         guard let node = state.nodeInserted(

@@ -331,6 +331,11 @@ extension GraphState {
         if self.layersSidebarViewModel.isSidebarFocused {
             self.layersSidebarViewModel.isSidebarFocused = false
         }
+        
+        // De-select input
+        if self.documentDelegate?.selectedInput.isDefined ?? false {
+            self.documentDelegate?.selectedInput = nil
+        }
     }
     
     // TODO: signature could be tighter, e.g. method on `SelectionState` rather than `GraphState`

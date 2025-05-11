@@ -17,6 +17,11 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
+let PORT_ENTRY_NON_EXTENDED_BORDER_SIZE = CGSize(
+    width: PORT_VISIBLE_LENGTH + 2,
+    height: NODE_ROW_HEIGHT + 4)
+
+
 let NODE_PORT_HEIGHT: CGFloat = 8
 
 struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
@@ -54,12 +59,28 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                     .frame(width: 8)
                     .offset(x: nodeIO == .input ? -4 : 4)
             }
-            .overlay {
-                if document.selectedInput == rowId.asNodeIOCoordinate {
-                    UnevenRoundedRectangle(cornerRadii: .init(topLeft: 0, topRight: 8, bottomRight: 8, bottomLeft: 0))
-                        .fill(Color.red)
-                        .frame(width: 8)
-                        .offset(x: nodeIO == .input ? -4 : 4)
+            .background {
+                if nodeIO == .input,
+                   document.selectedInput == rowId.asNodeIOCoordinate {
+                    UnevenRoundedRectangle(cornerRadii: .init(topLeading: 0,
+                                                              bottomLeading: 0,
+                                                              // a circle on the right side
+                                                              bottomTrailing: 80,
+                                                              topTrailing: 80))
+                    
+//                    .fill(self.portColor)
+//                    .fill(Color.green)
+//                    .fill(Color.black)
+//                    .fill(.clear)
+                    
+//                    .stroke(.green)
+                    .fill(Color.BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE)
+                    .frame(PORT_ENTRY_NON_EXTENDED_BORDER_SIZE)
+                    .offset(x: 1)
+//                    .padding()
+                    
+                    
+                    
                 }
             }
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
@@ -135,7 +156,8 @@ struct PortEntryExtendedHitBox: View {
              */
             //            .gesture(DragGesture(minimumDistance: 0,
             // if minDistance = 0, then taps cause immediate appearance of an edge
-            .gesture(DragGesture(minimumDistance: 0.05,
+//            .gesture(DragGesture(minimumDistance: 0.05,
+            .gesture(DragGesture(minimumDistance: 0.5,
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
