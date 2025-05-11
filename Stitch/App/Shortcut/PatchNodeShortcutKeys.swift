@@ -32,10 +32,12 @@ let POP_ANIMATION_NODE_SHORTCUT: KeyEquivalent = "A"
 let SWITCH_NODE_SHORTCUT: KeyEquivalent = "S"
 let DELAY_NODE_SHORTCUT: KeyEquivalent = "D"
 let KEYBOARD_NODE_SHORTCUT: KeyEquivalent = "K"
-// let SCROLL_NODE_SHORTCUT: KeyEquivalent = "Q"
 let EQUALS_NODE_SHORTCUT: KeyEquivalent = "E"
 let REVERSE_PROGRESS_NODE_SHORTCUT: KeyEquivalent = "R"
 let TRANSITION_NODE_SHORTCUT: KeyEquivalent = "T"
 let PULSE_NODE_SHORTCUT: KeyEquivalent = "U"
 let PRESS_INTERACTION_NODE_SHORTCUT: KeyEquivalent = "I"
 let OPTION_PICKER_NODE_SHORTCUT: KeyEquivalent = "O"
+
+
+// let SCROLL_NODE_SHORTCUT: KeyEquivalent = "Q"

@@ -17,7 +17,15 @@ struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
     let patch: Patch // Always a patch node?
     
     func handle(state: StitchDocumentViewModel) {
-            
+        state.nodeCreatedWhileInputSelected(patch: patch)
+    }
+}
+
+extension StitchDocumentViewModel {
+    
+    @MainActor
+    func nodeCreatedWhileInputSelected(patch: Patch) {
+        let state = self
         let graph = state.visibleGraph
         
         // Find the input
@@ -52,8 +60,9 @@ struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
                                           activeIndex: state.activeIndex)
         }
         
-        let indexOfInputToChange = patch.graphNode?
-            .rowDefinitions(for: selectedInputType).inputs
+        // TODO: use Patch's .graphNode method; right now, however, NodeKind.rowDefinitions properly retrieves row definitions whether new or old style
+        let indexOfInputToChange = node.kind.rowDefinitions(for: selectedInputType).inputs
+         // patch.graphNode?.rowDefinitions(for: selectedInputType).inputs
             .firstIndex(where: { !$0.isTypeStatic })
         // Else default to first input
         ?? 0

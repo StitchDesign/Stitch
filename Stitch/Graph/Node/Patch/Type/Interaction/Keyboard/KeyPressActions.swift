@@ -157,14 +157,63 @@ extension StitchStore {
         if graph.edgeEditingState.isDefined {
             graph.keyCharPressedDuringEdgeEditingMode(char: char,
                                                       activeIndex: document.activeIndex)
-        }
-
-        // Not in edge-edit-mode, so recalc the keyboard patch nodes
-        else {
+        } else if document.selectedInput.isDefined,
+                let patch = char.patchFromShortcutKey() {
+            document.nodeCreatedWhileInputSelected(patch: patch)
+        } else {
             document.calculateAllKeyboardNodes()
         }
     }
 }
+
+extension Character {
+    func patchFromShortcutKey() -> Patch? {
+        switch self {
+        case ADD_NODE_SHORTCUT.character:
+            return .add
+        case SUBTRACT_NODE_SHORTCUT.character:
+            return .subtract
+        case MULTIPLY_NODE_SHORTCUT.character:
+            return .multiply
+        case DIVIDE_NODE_SHORTCUT.character:
+            return .divide
+        case POWER_NODE_SHORTCUT.character:
+            return .power
+        case MOD_NODE_SHORTCUT.character:
+            return .mod
+        case LESS_THAN_NODE_SHORTCUT.character:
+            return .lessThan
+        case GREATER_THAN_NODE_SHORTCUT.character:
+            return .greaterThan
+        case CLASSIC_ANIMATION_NODE_SHORTCUT.character:
+            return .classicAnimation
+        case POP_ANIMATION_NODE_SHORTCUT.character:
+            return .popAnimation
+        case SWITCH_NODE_SHORTCUT.character:
+            return .flipSwitch
+        case DELAY_NODE_SHORTCUT.character:
+            return .delay
+        case KEYBOARD_NODE_SHORTCUT.character:
+            return .keyboard
+        case EQUALS_NODE_SHORTCUT.character:
+            return .equals
+        case REVERSE_PROGRESS_NODE_SHORTCUT.character:
+            return .reverseProgress
+        case TRANSITION_NODE_SHORTCUT.character:
+            return .transition
+        case PULSE_NODE_SHORTCUT.character:
+            return .pulse
+        case PRESS_INTERACTION_NODE_SHORTCUT.character:
+            return .pressInteraction
+        case OPTION_PICKER_NODE_SHORTCUT.character:
+            return .optionPicker
+        default:
+            return nil
+        }
+    }
+    
+}
+
 
 struct KeyCharacterPressEnded: StitchDocumentEvent {
     let char: Character
