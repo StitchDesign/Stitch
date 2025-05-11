@@ -169,43 +169,43 @@ extension StitchStore {
 extension Character {
     func patchFromShortcutKey() -> Patch? {
         switch self {
-        case ADD_NODE_SHORTCUT.character:
+        case ADD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .add
-        case SUBTRACT_NODE_SHORTCUT.character:
+        case SUBTRACT_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .subtract
-        case MULTIPLY_NODE_SHORTCUT.character:
+        case MULTIPLY_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .multiply
-        case DIVIDE_NODE_SHORTCUT.character:
+        case DIVIDE_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .divide
-        case POWER_NODE_SHORTCUT.character:
+        case POWER_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .power
-        case MOD_NODE_SHORTCUT.character:
+        case MOD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .mod
-        case LESS_THAN_NODE_SHORTCUT.character:
+        case LESS_THAN_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .lessThan
-        case GREATER_THAN_NODE_SHORTCUT.character:
+        case GREATER_THAN_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .greaterThan
-        case CLASSIC_ANIMATION_NODE_SHORTCUT.character:
+        case CLASSIC_ANIMATION_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .classicAnimation
-        case POP_ANIMATION_NODE_SHORTCUT.character:
+        case POP_ANIMATION_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .popAnimation
-        case SWITCH_NODE_SHORTCUT.character:
+        case SWITCH_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .flipSwitch
-        case DELAY_NODE_SHORTCUT.character:
+        case DELAY_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .delay
-        case KEYBOARD_NODE_SHORTCUT.character:
+        case KEYBOARD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .keyboard
-        case EQUALS_NODE_SHORTCUT.character:
+        case EQUALS_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .equals
-        case REVERSE_PROGRESS_NODE_SHORTCUT.character:
+        case REVERSE_PROGRESS_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .reverseProgress
-        case TRANSITION_NODE_SHORTCUT.character:
+        case TRANSITION_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .transition
-        case PULSE_NODE_SHORTCUT.character:
+        case PULSE_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .pulse
-        case PRESS_INTERACTION_NODE_SHORTCUT.character:
+        case PRESS_INTERACTION_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .pressInteraction
-        case OPTION_PICKER_NODE_SHORTCUT.character:
+        case OPTION_PICKER_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .optionPicker
         default:
             return nil
