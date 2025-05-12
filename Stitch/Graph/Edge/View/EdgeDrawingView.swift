@@ -29,8 +29,10 @@ struct EdgeFromDraggedOutputView: View {
     @Environment(\.appTheme) var theme
     @Bindable var graph: GraphState
     
-    // ie cursor position
+    // Technically either a dragged output OR a dragged input?
+    // i.e. cursor position
     let outputDrag: OutputDragGesture
+    
     let nearestEligibleInput: InputNodeRowViewModel?
 
     var outputRowViewModel: OutputNodeRowViewModel {

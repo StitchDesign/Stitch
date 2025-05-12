@@ -150,7 +150,7 @@ struct PortEntryExtendedHitBox: View {
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
-                            
+                            log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
                             switch nodeIO {
                             case .input:
                                 graph.inputDragged(gesture: gesture, rowId: rowId)
@@ -159,7 +159,7 @@ struct PortEntryExtendedHitBox: View {
                             }
                         } // .onChanged
                         .onEnded { _ in
-                            //                    log("PortEntry: onEnded")
+                            log("PortEntry: NodesView coordinate space: onEnded")
                             switch nodeIO {
                             case .input:
                                 graph.inputDragEnded()
@@ -167,6 +167,13 @@ struct PortEntryExtendedHitBox: View {
                                 graph.outputDragEnded()
                             }
                         }
+            )
+            .simultaneousGesture(DragGesture(minimumDistance: 0.5,
+                                             coordinateSpace: .named(GraphBaseView.coordinateNamespace))
+                .onChanged({ gesture in
+                    log("PortEntry: GraphBaseView coordinate space: onChanged: gesture.location: \(gesture.location)")
+//                    graph.edgeDrawingObserver.drawingGesture?.dragLocation
+                })
             )
     }
 }
