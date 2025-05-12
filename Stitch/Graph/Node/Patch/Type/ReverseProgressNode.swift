@@ -44,39 +44,6 @@ struct ReverseProgressNode: PatchNodeDefinition {
     }
 }
 
-//// TODO?: origami's style?
-//@MainActor
-//func reverseProgressNode(id: NodeId,
-//                         n: Double = 50,
-//                         start: Double = 0,
-//                         end: Double = 100,
-//                         position: CGPoint = .zero,
-//                         zIndex: Double = 0) -> PatchNode {
-//
-//    let inputs = toInputs(
-//        id: id,
-//        values:
-//            ("Value", [.number(n)]),
-//        ("Start", [.number(start)]),
-//        ("End", [.number(end)])
-//    )
-//
-//    let outputs = toOutputs(
-//        id: id,
-//        offset: inputs.count,
-//        values:
-//            (nil, [.number(reverseProgress(n, start: start, end: end))])
-//    )
-//
-//    return PatchNode(
-//        position: position,
-//        zIndex: zIndex,
-//        id: id,
-//        patchName: .reverseProgress,
-//        inputs: inputs,
-//        outputs: outputs)
-//}
-
 @MainActor
 func reverseProgressEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValuesList {
     //    log("reverseProgressEval called")
