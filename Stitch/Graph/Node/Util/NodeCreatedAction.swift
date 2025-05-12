@@ -10,6 +10,87 @@ import StitchSchemaKit
 import SwiftUI
 import CoreMotion
 
+
+struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
+    
+    // Determined by the shortcut or key that was pressed while the input was selected
+    let patch: Patch // Always a patch node?
+    
+    func handle(state: StitchDocumentViewModel) {
+        state.nodeCreatedWhileInputSelected(patch: patch)
+    }
+}
+
+extension StitchDocumentViewModel {
+    
+    @MainActor
+    func nodeCreatedWhileInputSelected(patch: Patch) {
+        let state = self
+        let graph = state.visibleGraph
+        
+        // Find the input
+        guard let selectedInput = state.selectedInput,
+              var selectedInputLocation = graph.getNode(selectedInput.nodeId)?.nonLayerCanvasItem?.locationOfInputs,
+              let selectedInputObserver = state.visibleGraph.getInputRowObserver(selectedInput),
+              let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        // Insert the created node further to the east
+        selectedInputLocation.x -= (NODE_POSITION_STAGGER_SIZE * 6)
+                
+        // Create the node that corresponds to the shortcut/key pressed
+        guard let node = state.nodeInserted(
+            choice: .patch(patch),
+            canvasLocation: selectedInputLocation) else {
+            
+            fatalErrorIfDebug()
+            return
+        }
+                
+        // TODO: is this really needed? Mostly for undo/redo ?
+        graph.persistNewNode(node)
+        
+        // Update the created-node's type if node supports the selected input's type
+        if patch.availableNodeTypes.contains(selectedInputType) {
+            let _ = graph.nodeTypeChanged(nodeId: node.id,
+                                          newNodeType: selectedInputType,
+                                          activeIndex: state.activeIndex)
+        }
+        
+        // TODO: use Patch's .graphNode method; right now, however, NodeKind.rowDefinitions properly retrieves row definitions whether new or old style
+        let indexOfInputToChange = node.kind.rowDefinitions(for: selectedInputType).inputs
+         // patch.graphNode?.rowDefinitions(for: selectedInputType).inputs
+            .firstIndex(where: { !$0.isTypeStatic })
+        // Else default to first input
+        ?? 0
+        
+        // Put the selected input's values into the created-node's first non-type-static-input
+        
+        // NOTE: all shortcut/key-insertable nodes should have NodeDefinitions now
+        // TODO: write a test for this ?
+        guard let inputOnCreatedNode: InputNodeRowObserver = node.inputsObservers[safe: indexOfInputToChange] else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        inputOnCreatedNode.setValuesInInput(selectedInputObserver.values)
+        
+        guard let firstOutput = node.outputsObservers.first else {
+            fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(patch): did not have output") // should never be called for
+            return
+        }
+        
+        // Create an edge from the node's output to the selected input
+        graph.addEdgeWithoutGraphRecalc(from: firstOutput.id,
+                                        to: selectedInput)
+        
+        // TODO: calculate a smaller portion of the graph?
+        graph.calculateFullGraph()
+    }
+}
+
 struct NodeCreatedEvent: StitchDocumentEvent {
     
     let choice: NodeKind
@@ -86,9 +167,10 @@ extension StitchDocumentViewModel {
     @MainActor
     func nodeInserted(choice: NodeKind,
                       // For LLMStep Actions
-                      nodeId: UUID? = nil) -> NodeViewModel? {
+                      nodeId: UUID? = nil,
+                      canvasLocation: CGPoint? = nil) -> NodeViewModel? {
 
-        let nodeCenter = self.newCanvasItemInsertionLocation
+        let nodeCenter = canvasLocation ?? self.newCanvasItemInsertionLocation
         
         guard let node = self.visibleGraph.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,

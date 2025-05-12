@@ -216,6 +216,10 @@ extension GraphState {
         if document.openPortPreview != nil {
             document.openPortPreview = nil
         }
+        
+        if document.selectedInput != nil {
+            document.selectedInput = nil
+        }
     }
 }
 
@@ -326,6 +330,11 @@ extension GraphState {
         // Unfocus sidebar
         if self.layersSidebarViewModel.isSidebarFocused {
             self.layersSidebarViewModel.isSidebarFocused = false
+        }
+        
+        // De-select input
+        if self.documentDelegate?.selectedInput.isDefined ?? false {
+            self.documentDelegate?.selectedInput = nil
         }
     }
     

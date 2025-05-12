@@ -48,8 +48,6 @@ extension Patch {
             node = multiplyPatchNode(id: id, position: position, zIndex: zIndex)
         case .divide:
             node = dividePatchNode(id: id, position: position, zIndex: zIndex)
-        case .optionPicker:
-            node = optionPickerPatchNode(id: id, nodePosition: position, nodeZIndex: zIndex)
         case .loop:
             node = loopStartNode(id: id, position: position, zIndex: zIndex)
         case .time:
@@ -68,8 +66,6 @@ extension Patch {
             node = andNode(id: id, position: position, zIndex: zIndex)
         case .optionSwitch:
             node = optionSwitchPatchNode(id: id, position: position, zIndex: zIndex)
-        //        case .soundKit:
-        //            node = soundKitNode(id: id, position: position, zIndex: zIndex)
         case .curve:
             node = curveNode(id: id, position: position, zIndex: zIndex)
         case .cubicBezierCurve:
@@ -114,10 +110,6 @@ extension Patch {
             node = absoluteValueNode(id: id, position: position, zIndex: zIndex)
         case .round:
             node = roundNode(id: id, position: position, zIndex: zIndex)
-        case .progress:
-            node = progressNode(id: id, position: position, zIndex: zIndex)
-        case .reverseProgress:
-            node = reverseProgressNode(id: id, position: position, zIndex: zIndex)
         case .rgba:
             node = rgbaNode(id: id, position: position, zIndex: zIndex)
         case .lessThanOrEqual:
