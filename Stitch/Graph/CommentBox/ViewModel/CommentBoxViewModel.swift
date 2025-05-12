@@ -107,7 +107,7 @@ extension CommentBoxesDict {
     mutating func sync(from commentBoxesData: [CommentBoxData]) {
         commentBoxesData.forEach { data in
             if let _ = self.get(.init(data.id)) {
-                fatalErrorIfDebugOnly("Not implemented?")
+                fatalErrorIfDebug("Not implemented?")
             }
         }
     }

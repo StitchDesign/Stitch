@@ -70,59 +70,73 @@ struct ScrollInteractionNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [interactionIdDefault],
-                    label: "Layer"
+                    label: "Layer",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [scrollModeDefault],
-                    label: "Scroll X"
+                    label: "Scroll X",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [scrollModeDefault],
-                    label: "Scroll Y"
+                    label: "Scroll Y",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.size(.zero)],
-                    label: "Content Size"
+                    label: "Content Size",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.bool(false)],
-                    label: "Direction Locking"
+                    label: "Direction Locking",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.size(.zero)],
-                    label: "Page Size"
+                    label: "Page Size",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.size(.zero)],
-                    label: "Page Padding"
+                    label: "Page Padding",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.scrollJumpStyle(.scrollJumpStyleDefault)],
-                    label: "Jump Style X"
+                    label: "Jump Style X",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.pulse(0)],
-                    label: "Jump to X"
+                    label: "Jump to X",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.number(0)],
-                    label: "Jump Position X"
+                    label: "Jump Position X",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.scrollJumpStyle(.scrollJumpStyleDefault)],
-                    label: "Jump Style Y"
+                    label: "Jump Style Y",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.pulse(0)],
-                    label: "Jump to Y"
+                    label: "Jump to Y",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.number(0)],
-                    label: "Jump Position Y"
+                    label: "Jump Position Y",
+                    isTypeStatic: true
                 ),
                 .init(
                     defaultValues: [.scrollDecelerationRate(.scrollDecelerationRateDefault)],
-                    label: "Deceleration Rate"
+                    label: "Deceleration Rate",
+                    isTypeStatic: true
                 )
             ],
             outputs: [

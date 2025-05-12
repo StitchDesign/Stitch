@@ -58,6 +58,9 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     let ignoresSafeArea: Bool
     let ignoreKeyCommands: Bool
     
+    // i.e. only intended for Tab, Shift + Tab, Arrow Keys; just for flyouts at the moment
+    let isOnlyForTextFieldHelp: Bool
+    
     // TODO: better to just pass `weak var graph: GraphState` here? Avoids having to update this variable in the various `updateUIView` functions of views that consume SHC
     var inputTextFieldFocused: Bool
     
@@ -67,11 +70,13 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     init(rootView: T,
          ignoresSafeArea: Bool,
          ignoreKeyCommands: Bool,
+         isOnlyForTextFieldHelp: Bool,
          inputTextFieldFocused: Bool,
          usesArrowKeyBindings: Bool = false,
          name: KeyListenerName) {
         self.ignoresSafeArea = ignoresSafeArea
         self.ignoreKeyCommands = ignoreKeyCommands
+        self.isOnlyForTextFieldHelp = isOnlyForTextFieldHelp
         self.inputTextFieldFocused = inputTextFieldFocused
         self.usesArrowKeyBindings = usesArrowKeyBindings
         self.name = name
@@ -194,7 +199,9 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
         if let modifiers = key.asStitchKeyModifiers {
             dispatch(KeyModifierPressBegan(name: self.name, modifiers: modifiers))
-        } else if let keyPress = key.characters.first {
+        } else if let keyPress = key.characters.first,
+                  // Don't listen to random char presses if we're only in the flyout or search bar etc.
+                    !self.isOnlyForTextFieldHelp {
             dispatch(KeyCharacterPressBegan(char: keyPress))
         }
     }
@@ -204,7 +211,8 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         // // log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
         if let modifiers = key.asStitchKeyModifiers {
             dispatch(KeyModifierPressEnded(modifiers: modifiers))
-        } else if let keyPress = key.characters.first {
+        } else if let keyPress = key.characters.first,
+                    !self.isOnlyForTextFieldHelp {
             dispatch(KeyCharacterPressEnded(char: keyPress))
         }
     }
@@ -344,6 +352,7 @@ struct StitchHostingControllerViewRepresentable<T: View>: UIViewControllerRepres
         StitchHostingController(rootView: view,
                                 ignoresSafeArea: false,
                                 ignoreKeyCommands: ignoreKeyCommands,
+                                isOnlyForTextFieldHelp: false, // Actually should be true, since this is only for node menu ?
                                 inputTextFieldFocused: inputTextFieldFocused,
                                 usesArrowKeyBindings: usesArrowKeyBindings,
                                 name: name)

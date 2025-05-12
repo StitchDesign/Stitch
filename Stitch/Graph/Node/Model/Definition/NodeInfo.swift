@@ -71,7 +71,6 @@ extension NodeInfo {
 struct NodeInputDefinition: Encodable {
     var defaultValues: PortValues
     let label: String
-//    var shortLabel: String? = nil // for property sidebar
     var isTypeStatic = false
     
     // Specifically for layers
