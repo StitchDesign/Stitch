@@ -71,6 +71,7 @@ struct PreviewContent: View {
         Group {
             if shouldRenderPreview {
                 UIKitWrapper(ignoresKeyCommands: false,
+                             isOnlyForTextFieldHelp: false,
                              inputTextFieldFocused: inputTextFieldFocused,
                              name: .previewWindow) {
                     RecordingWatermarkView(isVisible: document.isScreenRecording) {
@@ -88,6 +89,7 @@ struct PreviewContent: View {
                 }
             } else {
                 UIKitWrapper(ignoresKeyCommands: false,
+                             isOnlyForTextFieldHelp: false,
                              inputTextFieldFocused: inputTextFieldFocused,
                              name: .previewWindow) {
                     EmptyView()

@@ -32,6 +32,7 @@ struct CanvasLayerInputViewWrapper: View {
             
             HStack {
                 NodeRowPortView(graph: graph,
+                                document: document,
                                 node: node,
                                 rowObserver: rowObserver,
                                 rowViewModel: rowViewModel)
@@ -115,6 +116,7 @@ struct DefaultNodeInputsView: View {
                 
                 HStack(alignment: .center) {
                     NodeRowPortView(graph: graph,
+                                    document: document,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
@@ -227,6 +229,7 @@ struct DefaultNodeOutputsView: View {
                     .zIndex(-98) // Place below fields
                     
                     NodeRowPortView(graph: graph,
+                                    document: document,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)

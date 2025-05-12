@@ -69,6 +69,9 @@ extension StitchDocumentViewModel {
         if let canvasItemId = focusedField.canvasFieldId {
             graph.selectSingleCanvasItem(canvasItemId)
         }
+        
+        // Selected input gets reset when we focus a text field
+        self.selectedInput = nil
     }
     
     @MainActor

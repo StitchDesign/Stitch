@@ -236,6 +236,8 @@ extension GraphState {
 
         self.selectedEdges = .init()
         
+        self.documentDelegate?.selectedInput = nil
+        
         // log("handleTrackpadDragStarted: self.selection.isFingerOnScreenSelection is now: \(self.selection.isFingerOnScreenSelection)")
     }
 

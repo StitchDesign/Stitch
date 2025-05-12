@@ -15,7 +15,9 @@ struct KeyboardNode: PatchNodeDefinition {
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             inputs: [
-                .init(defaultValues: [.string(.init("a"))], label: "Key")
+                .init(defaultValues: [.string(.init("a"))],
+                      label: "Key",
+                     isTypeStatic: true) // always a string
             ],
             outputs: [
                 .init(label: "Down",
