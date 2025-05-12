@@ -189,7 +189,7 @@ extension Character {
             return .classicAnimation
         case POP_ANIMATION_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .popAnimation
-        case SWITCH_NODE_SHORTCUT.character.lowercased().toCharacter:
+        case FLIP_SWITCH_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .flipSwitch
         case DELAY_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .delay

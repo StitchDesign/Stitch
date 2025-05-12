@@ -110,10 +110,6 @@ extension Patch {
             node = absoluteValueNode(id: id, position: position, zIndex: zIndex)
         case .round:
             node = roundNode(id: id, position: position, zIndex: zIndex)
-        case .progress:
-            node = progressNode(id: id, position: position, zIndex: zIndex)
-        case .reverseProgress:
-            node = reverseProgressNode(id: id, position: position, zIndex: zIndex)
         case .rgba:
             node = rgbaNode(id: id, position: position, zIndex: zIndex)
         case .lessThanOrEqual:

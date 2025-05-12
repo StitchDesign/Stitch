@@ -51,7 +51,6 @@ extension StitchDocumentViewModel {
                 
         // TODO: is this really needed? Mostly for undo/redo ?
         graph.persistNewNode(node)
-
         
         // Update the created-node's type if node supports the selected input's type
         if patch.availableNodeTypes.contains(selectedInputType) {

@@ -284,7 +284,7 @@ struct ProjectsHomeCommands: Commands {
                 }
                 
                 SwiftUIShortcutView(title: "Insert Switch Node",
-                                    key: SWITCH_NODE_SHORTCUT,
+                                    key: FLIP_SWITCH_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
                     if hasSelectedInput {

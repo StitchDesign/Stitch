@@ -178,9 +178,9 @@ extension Patch {
         case .round:
             return nil
         case .progress:
-            return nil
+            return ProgressNode.self
         case .reverseProgress:
-            return nil
+            return ReverseProgressNode.self
         case .wirelessBroadcaster:
             return WirelessBroadcasterPatchNode.self
         case .wirelessReceiver:

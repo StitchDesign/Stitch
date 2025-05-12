@@ -44,6 +44,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
             rootView: view,
             ignoresSafeArea: false,
             ignoreKeyCommands: true,
+            isOnlyForTextFieldHelp: false, // N/A ?
             inputTextFieldFocused: false, // N/A
             name: .sidebarListItem)
 
