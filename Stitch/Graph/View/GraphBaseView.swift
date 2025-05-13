@@ -143,8 +143,48 @@ struct GraphBaseView: View {
             EdgeDrawingView(graph: graph,
                             edgeDrawingObserver: graph.edgeDrawingObserver)
             
-                
         } // ZStack
+        
+        // TODO: MAY 12: ONLY ACTIVE WHEN WE
+        // this fires everytime we have a change ?
+        .overlayPreferenceValue(ViewFramePreferenceKey.self) { preferences in
+            GeometryReader { proxy in
+                if let draggedOutput = preferences[String.DRAGGED_OUTPUT].map({ proxy[$0] }),
+                   let sizeInput = preferences[String.SIZE_INPUT].map({ proxy[$0] }) {
+                    
+                    let intersects = draggedOutput.intersects(sizeInput)
+                    
+                    logInView("preference: draggedOutput.mid.x: \(draggedOutput.mid.x)")
+                    logInView("preference: draggedOutput.mid.y: \(draggedOutput.mid.y)")
+                    logInView("preference: draggedOutput.size: \(draggedOutput.size)")
+                    
+                    logInView("preference: sizeInput.mid.x: \(sizeInput.mid.x)")
+                    logInView("preference: sizeInput.mid.y: \(sizeInput.mid.y)")
+                    logInView("preference: sizeInput.size: \(sizeInput.size)")
+                    
+                    logInView("preference: Intersection: \(intersects)")
+                    
+                    CurveLine(from: draggedOutput.mid,
+                              to: sizeInput.mid)
+                    .stroke(.green,
+                            style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH,
+                                               lineCap: .round,
+                                               lineJoin: .round))
+//
+//                    EdgeDrawingView(graph: graph,
+//                                    edgeDrawingObserver: graph.edgeDrawingObserver)
+//                    
+                } else {
+                    EmptyView()
+                }
+//
+//                Color.clear
+//                    .onAppear {
+//                        print("on appear: Intersection: \(intersects)")
+//                    }
+            }
+        }
+        
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
             GeometryReader { geometry in
@@ -162,6 +202,43 @@ struct GraphBaseView: View {
         } // .background
     }
 }
+
+extension String {
+    static let DRAGGED_OUTPUT = "DRAGGED_OUTPUT"
+    static let SIZE_INPUT = "SIZE_INPUT"
+}
+
+struct ViewFramePreferenceKey: PreferenceKey {
+    static let defaultValue: [String: Anchor<CGRect>] = [:]
+
+    static func reduce(value: inout [String: Anchor<CGRect>],
+                       nextValue: () -> [String: Anchor<CGRect>]) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
+    }
+}
+
+extension View {
+    func trackFrame(id: String) -> some View {
+        self.anchorPreference(key: ViewFramePreferenceKey.self,
+                              value: .bounds) {
+            [id: $0]
+        }
+    }
+}
+
+
+struct IfIsOutput: ViewModifier {
+    let isOutput: Bool
+    
+    func body(content: Content) -> some View {
+        if isOutput {
+            content.trackFrame(id: String.DRAGGED_OUTPUT)
+        } else {
+            content
+        }
+    }
+}
+
 
 struct GraphHoverViewModifier: ViewModifier {
     @Binding var spaceHeld: Bool
