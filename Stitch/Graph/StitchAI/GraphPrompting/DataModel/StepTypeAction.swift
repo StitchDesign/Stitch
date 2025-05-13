@@ -161,6 +161,9 @@ protocol StepActionable: Hashable, Codable {
     func removeAction(graph: GraphState, document: StitchDocumentViewModel)
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws
+    
+    /// Maps IDs to some new value.
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self
 }
 
 // See `createLLMStepAddNode`
@@ -174,6 +177,12 @@ struct StepActionAddNode: StepActionable {
         Step(stepType: Self.stepType,
              nodeId: nodeId,
              nodeName: nodeName)
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {
@@ -220,10 +229,10 @@ struct StepActionConnectionAdded: StepActionable {
     
     // effectively the 'to port'
     let port: NodeIOPortType // integer or key path
-    let toNodeId: NodeId
+    var toNodeId: NodeId
     
     let fromPort: Int //NodeIOPortType // integer or key path
-    let fromNodeId: NodeId
+    var fromNodeId: NodeId
     
     var toStep: Step {
         Step(
@@ -233,6 +242,15 @@ struct StepActionConnectionAdded: StepActionable {
             fromNodeId: fromNodeId,
             toNodeId: toNodeId
         )
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        
+        copy.toNodeId = nodeIdMap.get(self.toNodeId) ?? self.toNodeId
+        copy.fromNodeId = nodeIdMap.get(self.fromNodeId) ?? self.fromNodeId
+
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {
@@ -331,6 +349,14 @@ struct StepActionChangeValueType: StepActionable {
              valueType: valueType)
     }
     
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+
+        return copy
+    }
+    
     static func fromStep(_ action: Step) throws -> Self {
         if let nodeId = action.nodeId?.value,
            let valueType = action.valueType {
@@ -379,7 +405,7 @@ struct StepActionChangeValueType: StepActionable {
 struct StepActionSetInput: StepActionable {
     static let stepType = StepType.setInput
     
-    let nodeId: NodeId
+    var nodeId: NodeId
     let port: NodeIOPortType // integer or key path
     let value: PortValue
     let valueType: NodeType
@@ -391,6 +417,14 @@ struct StepActionSetInput: StepActionable {
              port: port,
              value: value,
              valueType: value.toNodeType)
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {

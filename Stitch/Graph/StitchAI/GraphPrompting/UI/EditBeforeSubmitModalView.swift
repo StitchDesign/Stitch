@@ -25,7 +25,7 @@ struct EditBeforeSubmitModalView: View {
                 .padding(.top)
             
             List {
-                ForEach(self.recordingState.actions, id: \.hashValue) { action in
+                ForEach(self.recordingState.actions) { action in
                     LLMActionCorrectionView(action: action,
                                             graph: graph)
                 }
