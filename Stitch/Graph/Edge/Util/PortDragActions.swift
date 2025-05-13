@@ -140,10 +140,18 @@ extension GraphState {
             return
         }
 
-        // TODO: MAY 12
-        let dragLocation = gesture.location
-//        dragLocation.x += 258
-//        dragLocation.y += 125
+        // TODO: MAY 13: WHY IS IT NECESSARY TO SUBTRACT OUT THE GRAPH ORIGIN? WHICH COORDINATE SPACE CAN WE USE THAT AVOIDS THIS?
+        var dragLocation = gesture.location
+        log("dragLocation was: \(dragLocation)")
+        
+        let graphOrigin = self.graphPosition
+        
+        log("graphOrigin: \(graphOrigin)")
+        
+        dragLocation.x -= graphOrigin.x
+        dragLocation.y -= graphOrigin.y
+        
+        log("dragLocation is now: \(dragLocation)")
         
         // exit edge editing state
         self.edgeEditingState = nil
@@ -153,8 +161,8 @@ extension GraphState {
         // Starting port drag
         if !self.edgeDrawingObserver.drawingGesture.isDefined {
             
+            // TODO: MAY 12: resolve this, but with the updated gesture.location
 //            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
-
             
             let drag = OutputDragGesture(output: outputRowViewModel,
 //                                         dragLocation: gesture.location,

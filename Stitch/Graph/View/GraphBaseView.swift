@@ -224,7 +224,7 @@ struct GraphBaseView: View {
                     }
                     .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
                         // log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
-                        dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
+                        dispatch(SetGraphPosition(graphPosition: newValue.origin))
                         dispatch(SetSidebarWidth(frame: newValue))
                     }
             } // GeometryReader

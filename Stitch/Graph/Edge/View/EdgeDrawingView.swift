@@ -74,8 +74,7 @@ struct EdgeFromDraggedOutputView: View {
                     inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels),
                let outputPortViewData = outputRowViewModel.portUIViewModel.portAddress,
                let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
-//               let pointFrom = outputRowViewModel.portUIViewModel.anchorPoint {
-               let pointFrom = graph.drawnEdgeOrigin {
+               let pointFrom = outputRowViewModel.portUIViewModel.anchorPoint {
                 
                 logInView("EdgeFromDraggedOutputView: pointFrom: \(pointFrom)")
                 logInView("EdgeFromDraggedOutputView: pointTo: \(pointTo)")
