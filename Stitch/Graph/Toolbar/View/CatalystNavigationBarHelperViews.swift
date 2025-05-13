@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
@@ -156,6 +157,9 @@ extension String {
 
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
+    @State private var shouldDisplayTrainingTip = false
+    private let stitchAITrainingTip = StitchAITrainingTip()
+    
     @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
@@ -166,10 +170,30 @@ struct CatalystTopBarGraphButtons: View {
     let llmRecordingModeActive: Bool
 
     var body: some View {
+        buttons
+            .onChange(of: self.document.insertNodeMenuState.isGeneratingAINode) { oldValue, newValue in
+                if oldValue != newValue && !newValue {
+                    self.shouldDisplayTrainingTip = true
+                }
+            }
+    }
+    
+    @ViewBuilder
+    var aiTrainingButton: some View {
+        CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+            dispatch(LLMRecordingToggled())
+            
+            if self.shouldDisplayTrainingTip {
+                self.shouldDisplayTrainingTip = false
+                self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
+            }
+        }
+    }
+    
+    var buttons: some View {
 
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
-                        
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
                 dispatch(GoUpOneTraversalLevel())
             }
@@ -178,8 +202,12 @@ struct CatalystTopBarGraphButtons: View {
 // #if DEBUG || DEV_DEBUG
             
             if llmRecordingModeEnabled {
-                CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                    dispatch(LLMRecordingToggled())
+                if shouldDisplayTrainingTip {
+                    aiTrainingButton
+                    // TODO: ipad
+                        .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+                } else {
+                    aiTrainingButton
                 }
             }
 // #endif
