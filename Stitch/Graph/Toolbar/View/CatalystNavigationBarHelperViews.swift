@@ -163,7 +163,6 @@ struct CatalystTopBarGraphButtons: View {
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
     
-    let llmRecordingModeEnabled: Bool
     let llmRecordingModeActive: Bool
     let stitchAITrainingTip: StitchAITrainingTip
     @Binding var shouldDisplayTrainingTip: Bool
@@ -188,17 +187,12 @@ struct CatalystTopBarGraphButtons: View {
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
         
-// #if DEBUG || DEV_DEBUG
-            
-            if llmRecordingModeEnabled {
-                if shouldDisplayTrainingTip {
-                    aiTrainingButton
-                        .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
-                } else {
-                    aiTrainingButton
-                }
+            if shouldDisplayTrainingTip {
+                aiTrainingButton
+                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+            } else {
+                aiTrainingButton
             }
-// #endif
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())
