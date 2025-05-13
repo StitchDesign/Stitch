@@ -23,9 +23,10 @@ struct InsertNodeMenuSearchBar: View {
     @Environment(StitchStore.self) private var store
     
     @State private var queryString = ""
-    @State private var isLoadingStitchAI = false
     @FocusState private var isFocused: Bool
     private let launchTip = StitchAILaunchTip()
+
+    @Binding var isLoadingStitchAI: Bool
     
     var isAIMode: Bool {
         let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
