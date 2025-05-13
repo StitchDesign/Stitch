@@ -296,7 +296,7 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
 }
 
 // TODO: 'toggle preview window' icon needs to change between hide vs show
-// Hacky view to get hover effect on Catalyst topbar buttons
+// Hacky view to get hover effect on Catalyst topbar buttons and to enforce gray tint
 struct CatalystNavBarButton: View, Identifiable {
 
     // let systemName: String  for `Image(systemName:)`
