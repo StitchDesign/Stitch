@@ -46,6 +46,7 @@
 		B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B501920B2C6D144D00A048ED /* StitchEngine */; };
 		B504CFD12D2F953F00E245DA /* DebugModePopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B504CFD02D2F953C00E245DA /* DebugModePopover.swift */; };
 		B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */; };
+		B5072B882DD2FD0500C4597B /* StitchAITips.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5072B872DD2FCFB00C4597B /* StitchAITips.swift */; };
 		B50AD530292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */; };
 		B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */; };
 		B50AD536292C9F69003CC61E /* InsertNodeMenuSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD535292C9F69003CC61E /* InsertNodeMenuSearchBar.swift */; };
@@ -1062,6 +1063,7 @@
 		B50192082C6D100E00A048ED /* LayerInputObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputObserver.swift; sourceTree = "<group>"; };
 		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
+		B5072B872DD2FCFB00C4597B /* StitchAITips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITips.swift; sourceTree = "<group>"; };
 		B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuNodeDescriptionView.swift; sourceTree = "<group>"; };
 		B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchResults.swift; sourceTree = "<group>"; };
 		B50AD535292C9F69003CC61E /* InsertNodeMenuSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchBar.swift; sourceTree = "<group>"; };
@@ -2680,6 +2682,7 @@
 		B55501102C1BD3CF0081C3F1 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B5072B872DD2FCFB00C4597B /* StitchAITips.swift */,
 				ECE2AFEB2C0A475F00F5FE87 /* InsertNodeMenuState.swift */,
 				ECD7FA8A29D73C010073ACAC /* InsertNodeMenuOption.swift */,
 			);
@@ -5397,6 +5400,7 @@
 				ECDC622226584F8400F67ED8 /* PHPickerView.swift in Sources */,
 				B5C53FB12CED20AE0069612E /* InfiniteCanvas.swift in Sources */,
 				ECDFF6322A0EA0CF00729D2A /* CommandsToShapeNode.swift in Sources */,
+				B5072B882DD2FD0500C4597B /* StitchAITips.swift in Sources */,
 				B5AC74F9283701E5002A5D01 /* ProjectsListView.swift in Sources */,
 				EC2614472B89607300BEB066 /* Point3DPackNode.swift in Sources */,
 				ECE35EF027CEE99300CB8F5C /* InputEditedActions.swift in Sources */,
