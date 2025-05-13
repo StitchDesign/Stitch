@@ -56,13 +56,7 @@ struct GraphBaseView: View {
         #endif
     }
 
-    @MainActor
-    var selectionState: GraphUISelectionState {
-        graph.selection
-    }
-
-    @ViewBuilder
-    @MainActor
+    @ViewBuilder @MainActor
     var nodesView: some View {
         NodesView(document: document,
                   graph: graph,
@@ -104,10 +98,15 @@ struct GraphBaseView: View {
         }
     }
 
-    @ViewBuilder
-    @MainActor
+    @ViewBuilder @MainActor
     var nodesAndCursor: some View {
         ZStack {
+            
+            // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
+//            Stitch.APP_BACKGROUND_COLOR
+//                .edgesIgnoringSafeArea(.all)
+                // .zIndex(-10)
+            
             #if DEV_DEBUG
             // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
             // to get in exact screen center.
@@ -115,21 +114,30 @@ struct GraphBaseView: View {
                 .frame(width: 60, height: 60)
             #endif
 
+            
+            // lets us draw edge over it, but canvas items also go over
+//            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
+//                .frame(width: 1, height: 1)
+//                .inspector(isPresented: $store.showsLayerInspector) {
+//                    
+//                    LayerInspectorView(graph: graph,
+//                                       document: document)
+//                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+//                }
+            
             nodesView
 
-            // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
-            Stitch.APP_BACKGROUND_COLOR
-                .edgesIgnoringSafeArea(.all).zIndex(-10)
+          
                 
-            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
-            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
-                .frame(width: 1, height: 1)
-                .inspector(isPresented: $store.showsLayerInspector) {
-                    
-                    LayerInspectorView(graph: graph,
-                                       document: document)
-                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                }
+//            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
+//            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
+//                .frame(width: 1, height: 1)
+//                .inspector(isPresented: $store.showsLayerInspector) {
+//                    
+//                    LayerInspectorView(graph: graph,
+//                                       document: document)
+//                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+//                }
         } // ZStack
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {

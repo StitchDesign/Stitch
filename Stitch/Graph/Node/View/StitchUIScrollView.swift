@@ -29,13 +29,13 @@ struct StitchUIScrollViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        StitchUIScrollView(document: document,
-                           graph: graph) {
+        StitchUIScrollView(document: document, graph: graph) {
             ZStack {
                 content
                     .ignoresSafeArea()
                 
                 APP_BACKGROUND_COLOR
+                    .opacity(0.2)
                     .zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
                     .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
@@ -74,14 +74,14 @@ struct StitchUIScrollViewModifier: ViewModifier {
             } // ZStack
         } // StitchUIScrollView
         
-        .background {
-#if DEV_DEBUG
-            Color.red
-#else
-            APP_BACKGROUND_COLOR
-#endif
-            
-        }
+//        .background {
+//#if DEV_DEBUG
+//            Color.red
+//#else
+//            APP_BACKGROUND_COLOR
+//#endif
+//            
+//        }
         .ignoresSafeArea()
     }
 }

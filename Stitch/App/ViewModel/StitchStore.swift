@@ -39,7 +39,8 @@ final class StitchStore: Sendable {
     @MainActor var appTheme: StitchTheme = .defaultTheme
     
     // MARK: must be stored here to prevent inspector retain cycle
-    @MainActor var showsLayerInspector = false
+//    @MainActor var showsLayerInspector = false
+    @MainActor var showsLayerInspector = true
     
     @MainActor var showsSampleProjectModal = false
     

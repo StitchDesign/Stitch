@@ -19,44 +19,28 @@ struct NodesView: View {
     // animation state for group node traversals
     let groupTraversedToChild: Bool
 
-
     private var visibleNodesViewModel: VisibleNodesViewModel {
         self.graph.visibleNodesViewModel
     }
-    
-    // Finds a group node's offset from center, used for animating
-    // group node traversals
-    // TODO: group node location for transition
-    var groupNodeLocation: CGPoint {
-        .zero
-        //        guard let groupNodeFocused = groupNodeFocused,
-        //              let groupNode: GroupNode = groupNodesState[groupNodeFocused] else {
-        //            return CGPoint.zero
-        //        }
-        //        return getNodeOffset(node: groupNode.schema,
-        //                             graphViewFrame: graphFrame,
-        //                             scale: zoom)
-    }
-    
+        
     var body: some View {
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
                        needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
-            
-            //                        commentBoxes
-            
-            nodesOnlyView()
+            // commentBoxes
+            NodesOnlyView(document: document, graph: graph)
         }
-           .modifier(CanvasEdgesViewModifier(document: document,
-                                             graph: graph))
+           .modifier(CanvasEdgesViewModifier(document: document, graph: graph))
         
+        // TODO: completely remove?
            .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
-                                      nodeLocation: groupNodeLocation,
+                                      nodeLocation: .zero,
                                       graphOffset: .zero))
         
+        // Can we move this ?
            .coordinateSpace(name: Self.coordinateNameSpace)
 
-        // should come after edges, so that edges are offset, scaled etc.
+        // Scales and offsets the nodes, edges etc.
            .modifier(StitchUIScrollViewModifier(document: document,
                                                 graph: graph))
     }
@@ -72,11 +56,6 @@ struct NodesView: View {
 //        }
 //    }
     
-    @MainActor
-    func nodesOnlyView() -> some View {
-        NodesOnlyView(document: document,
-                      graph: graph)
-    }
 }
 
 struct CanvasEdgesViewModifier: ViewModifier {
@@ -90,9 +69,38 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 GraphConnectedEdgesView(graph: graph)
                 CandidateEdgesView(graph: graph)
             }
+        
+//        // BAD: scaling the UIScrollView also moves the
+//            .overlay(alignment: .trailing) {
+//                // OPTION #1: don't use .inspector
+//                LayerInspectorView(graph: graph, document: document)
+//                    .frame(
+//                        width: LayerInspectorView.LAYER_INSPECTOR_WIDTH / self.document.graphMovement.zoomData,
+//                        height: 600 / self.document.graphMovement.zoomData
+//                    )
+//                    .position(
+//                        x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData,
+//                        y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData
+//                    )
+//                    .scaleEffect(1/self.document.graphMovement.zoomData)
+//            }
+//
             .overlay {
+                
                 EdgeDrawingView(graph: graph,
                                 edgeDrawingObserver: graph.edgeDrawingObserver)
+                
+//                // OPTION #1: don't use .inspector
+//                LayerInspectorView(graph: graph, document: document)
+//                    .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH / self.document.graphMovement.zoomData,
+//                           height: 600 / self.document.graphMovement.zoomData)
+//                    .position(
+//                        x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData,
+//                        y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData
+//                    )
+                //                    .zIndex(999999999999999)
+                
+               
                 
                 if let edgeEditingState = graph.edgeEditingState {
                     EdgeInputLabelsView(document: document,
@@ -100,7 +108,8 @@ struct CanvasEdgesViewModifier: ViewModifier {
                                         edgeEditingState: edgeEditingState)
                 }
                 
-
+                
+                
                 if let openPortPreview = document.openPortPreview,
                    let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
                     PortPreviewPopoverWrapperView(
@@ -109,5 +118,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
                         canvas: canvas)
                 }
             }
+
     }
 }
