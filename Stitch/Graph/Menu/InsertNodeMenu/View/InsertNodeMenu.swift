@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 
 let INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR: Color = Color(uiColor: UIColor(hex: "F3F3F3")!)
@@ -42,6 +43,7 @@ struct InsertNodeMenuView: View {
     @Environment(\.appTheme) var theme
     @State private var footerRect: CGRect = .zero
     @State private var isLoadingStitchAI = false
+    private let launchTip = StitchAILaunchTip()
 
     let document: StitchDocumentViewModel
     let insertNodeMenuState: InsertNodeMenuState
@@ -54,12 +56,19 @@ struct InsertNodeMenuView: View {
             .frame(width: InsertNodeMenuWrapper.menuWidth,
                    height: menuHeight)
             .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+            .overlay {
+                TipView(self.launchTip, arrowEdge: .bottom)
+                    .width(400)
+                    .fixedSize()
+                    .offset(y: -(menuHeight / 2) - 50)
+            }
     }
 
     @MainActor
     var sheetView: some View {
         VStack(spacing: 0) {
-            InsertNodeMenuSearchBar(isLoadingStitchAI: $isLoadingStitchAI)
+            InsertNodeMenuSearchBar(launchTip: self.launchTip,
+                                    isLoadingStitchAI: $isLoadingStitchAI)
 
             HStack(spacing: .zero) {
 

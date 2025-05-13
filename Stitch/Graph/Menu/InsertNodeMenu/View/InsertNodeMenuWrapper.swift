@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import TipKit
 
 struct InsertNodeMenuWrapper: View {
     static let menuWidth: CGFloat = INSERT_NODE_MENU_WIDTH
