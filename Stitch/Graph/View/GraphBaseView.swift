@@ -140,8 +140,8 @@ struct GraphBaseView: View {
             
             // Added: place "actively dragged edge" view here, so we can sit above the inspector
             // NEED TO SCALE AND OFFSET THE DRAGGED
-            EdgeDrawingView(graph: graph,
-                            edgeDrawingObserver: graph.edgeDrawingObserver)
+//            EdgeDrawingView(graph: graph,
+//                            edgeDrawingObserver: graph.edgeDrawingObserver)
             
         } // ZStack
         
@@ -167,9 +167,13 @@ struct GraphBaseView: View {
                     CurveLine(from: draggedOutput.mid,
                               to: sizeInput.mid)
                     .stroke(.green,
-                            style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH,
-                                               lineCap: .round,
-                                               lineJoin: .round))
+                            style: StrokeStyle(
+                                // scale DOWN when we're zoomed out, i.e. simply apply the graph scale
+                                lineWidth: LINE_EDGE_WIDTH * self.document.graphMovement.zoomData,
+                                
+                                lineCap: .round,
+                                lineJoin: .round))
+                    
 //
 //                    EdgeDrawingView(graph: graph,
 //                                    edgeDrawingObserver: graph.edgeDrawingObserver)
