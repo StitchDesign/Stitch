@@ -53,9 +53,7 @@ struct TopBarFeedbackButtonsView: View {
 
 """
     
-    private static func bodyString(containsEmailAttachment: Bool) -> String {
-"""
-\(containsEmailAttachment ? String(Self.emailCallout) : "")
+    private static let mainBodyString: String = """
 What were you trying to do?
 [Describe here]
 
@@ -72,6 +70,17 @@ Any feature you’d love to see?
 App version: \(Self.appVersion)
 Platform: \(Self.platform)
 """
+    
+    private static func bodyStringForAttachment() -> AttributedString {
+        var bold = AttributedString("Email to \(Self.to)")
+        bold.font = .system(size: 16, weight: .bold)
+        bold.backgroundColor = .systemYellow
+        
+        let rest = AttributedString(Self.mainBodyString)
+        
+        bold.append(AttributedString("\n\n"))
+        bold.append(rest)
+        return bold
     }
     
     @Environment(\.openURL) private var openURL
@@ -103,13 +112,13 @@ Platform: \(Self.platform)
     }
 
     private var feedbackURL: URL? {
-        URL(string: "mailto:\(Self.to)?subject=\(Self.encode(Self.subject))&body=\(Self.encode(Self.bodyString(containsEmailAttachment: false)))")
+        URL(string: "mailto:\(Self.to)?subject=\(Self.encode(Self.subject))&body=\(Self.encode(Self.mainBodyString))")
     }
     
     func shareWithDocumentButton(document: StitchDocumentViewModel) -> some View {
         ShareLink(item: document.lastEncodedDocument,
                   subject: Text(Self.subject),
-                  message: Text(.init(Self.bodyString(containsEmailAttachment: true))),
+                  message: Text(Self.bodyStringForAttachment()),
                   preview: SharePreview(document.projectName)) {
             Text("Share Document")
             Image(systemName: "document.fill")
