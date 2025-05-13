@@ -97,9 +97,20 @@ struct iPadGraphTopBarButtons: View {
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
     let restartPrototypeWindowIconRotationZ: CGFloat
-
     var llmRecordingModeEnabled: Bool
     var llmRecordingModeActive: Bool
+    let stitchAITrainingTip: StitchAITrainingTip
+    @Binding var shouldDisplayTrainingTip: Bool
+    
+    @ViewBuilder
+    var miscButton: some View {
+        iPadGraphTopBarMiscMenu(
+            document: document,
+            llmRecordingModeActive: llmRecordingModeActive,
+            llmRecordingModeEnabled: llmRecordingModeEnabled,
+            stitchAITrainingTip: stitchAITrainingTip,
+            shouldDisplayTrainingTip: $shouldDisplayTrainingTip)
+    }
     
     var body: some View {
 
@@ -135,10 +146,12 @@ struct iPadGraphTopBarButtons: View {
             //                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME))
 
             // the misc (...) button
-            iPadGraphTopBarMiscMenu(
-                document: document,
-                llmRecordingModeActive: llmRecordingModeActive,
-                llmRecordingModeEnabled: llmRecordingModeEnabled)
+            if shouldDisplayTrainingTip {
+                miscButton
+                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+            } else {
+                miscButton
+            }
             
             iPadNavBarButton(action: {
                 dispatch(LayerInspectorToggled())
@@ -151,14 +164,33 @@ struct iPadGraphTopBarMiscMenu: View {
     @Bindable var document: StitchDocumentViewModel
     let llmRecordingModeActive: Bool
     let llmRecordingModeEnabled: Bool
+    let stitchAITrainingTip: StitchAITrainingTip
+    @Binding var shouldDisplayTrainingTip: Bool
+    
+    @ViewBuilder
+    var aiTrainingButton: some View {
+        iPadTopBarButton(action: {
+            dispatch(LLMRecordingToggled())
+            
+            if self.shouldDisplayTrainingTip {
+                self.shouldDisplayTrainingTip = false
+                self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
+            }
+        },
+                         iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
+                         label: "AI Generation/Correction")
+    }
     
     var body: some View {
         Menu {
             
             if llmRecordingModeEnabled {
-                iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
-                                 iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
-                                 label: "AI Generation/Correction")
+                if shouldDisplayTrainingTip {
+                    aiTrainingButton
+                        .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+                } else {
+                    aiTrainingButton
+                }
             }
             
 //            // add node

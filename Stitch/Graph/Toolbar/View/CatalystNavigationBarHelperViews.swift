@@ -157,9 +157,6 @@ extension String {
 
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
-    @State private var shouldDisplayTrainingTip = false
-    private let stitchAITrainingTip = StitchAITrainingTip()
-    
     @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
@@ -168,15 +165,8 @@ struct CatalystTopBarGraphButtons: View {
     
     let llmRecordingModeEnabled: Bool
     let llmRecordingModeActive: Bool
-
-    var body: some View {
-        buttons
-            .onChange(of: self.document.insertNodeMenuState.isGeneratingAINode) { oldValue, newValue in
-                if oldValue != newValue && !newValue {
-                    self.shouldDisplayTrainingTip = true
-                }
-            }
-    }
+    let stitchAITrainingTip: StitchAITrainingTip
+    @Binding var shouldDisplayTrainingTip: Bool
     
     @ViewBuilder
     var aiTrainingButton: some View {
@@ -189,9 +179,8 @@ struct CatalystTopBarGraphButtons: View {
             }
         }
     }
-    
-    var buttons: some View {
 
+    var body: some View {
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
@@ -204,7 +193,6 @@ struct CatalystTopBarGraphButtons: View {
             if llmRecordingModeEnabled {
                 if shouldDisplayTrainingTip {
                     aiTrainingButton
-                    // TODO: ipad
                         .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
                 } else {
                     aiTrainingButton
