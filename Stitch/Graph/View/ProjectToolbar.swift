@@ -26,8 +26,6 @@ struct ProjectToolbarViewModifier: ViewModifier {
     let projectId: GraphId
     @Binding var isFullScreen: Bool
     
-    @AppStorage(LLM_RECORDING_MODE_KEY_NAME) private var llmRecordingMode: Bool = false
-
     // Note: Do NOT hide toolbar in Catalyst full screen mode
     @MainActor
     var hideToolbar: Bool {
@@ -138,7 +136,6 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,
-                        llmRecordingModeEnabled: self.llmRecordingMode,
                         llmRecordingModeActive: document.llmRecording.isRecording,
                         stitchAITrainingTip: self.stitchAITrainingTip,
                         shouldDisplayTrainingTip: self.$shouldDisplayTrainingTip)
