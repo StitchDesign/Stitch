@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodesView: View {
-    static let coordinateNameSpace = "NODESVIEW"
+    static let coordinateNamespace = "NODESVIEW"
     
     @Bindable var document: StitchDocumentViewModel
     
@@ -38,11 +38,12 @@ struct NodesView: View {
                                       graphOffset: .zero))
         
         // Can we move this ?
-           .coordinateSpace(name: Self.coordinateNameSpace)
+           .coordinateSpace(name: Self.coordinateNamespace)
 
         // Scales and offsets the nodes, edges etc.
            .modifier(StitchUIScrollViewModifier(document: document,
                                                 graph: graph))
+        
     }
     
     // TODO: better location for CommentBoxes?
@@ -87,8 +88,10 @@ struct CanvasEdgesViewModifier: ViewModifier {
 //
             .overlay {
                 
-                EdgeDrawingView(graph: graph,
-                                edgeDrawingObserver: graph.edgeDrawingObserver)
+                // Original
+//                EdgeDrawingView(graph: graph,
+//                                edgeDrawingObserver: graph.edgeDrawingObserver)
+                
                 
 //                // OPTION #1: don't use .inspector
 //                LayerInspectorView(graph: graph, document: document)

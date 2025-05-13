@@ -100,7 +100,8 @@ struct GraphBaseView: View {
 
     @ViewBuilder @MainActor
     var nodesAndCursor: some View {
-        ZStack {
+//        ZStack {
+        ZStack(alignment: .center) {
             
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
 //            Stitch.APP_BACKGROUND_COLOR
@@ -126,18 +127,23 @@ struct GraphBaseView: View {
 //                }
             
             nodesView
-
-          
+                          
+            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
+            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
+                .frame(width: 1, height: 1)
+                .inspector(isPresented: $store.showsLayerInspector) {
+                    
+                    LayerInspectorView(graph: graph,
+                                       document: document)
+                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                }
+            
+            // Added: place "actively dragged edge" view here, so we can sit above the inspector
+            // NEED TO SCALE AND OFFSET THE DRAGGED
+            EdgeDrawingView(graph: graph,
+                            edgeDrawingObserver: graph.edgeDrawingObserver)
+            
                 
-//            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
-//            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
-//                .frame(width: 1, height: 1)
-//                .inspector(isPresented: $store.showsLayerInspector) {
-//                    
-//                    LayerInspectorView(graph: graph,
-//                                       document: document)
-//                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-//                }
         } // ZStack
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {

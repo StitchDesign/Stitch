@@ -117,6 +117,22 @@ struct LayerInspectorRowButton: View {
         .opacity(showButton ? 1 : 0)
         
         .animation(.linear(duration: 0.1), value: showButton)
+        
+        // TODO: MAY 12: ONLY USE THIS WHEN ACTIVELY DRAGGING AN OUTPUT? ... OR REUSE LOGIC FOR POSITION OF FLYOUTS ?
+        .background {
+            if layerInputObserver?.port == .size {
+                GeometryReader { geometry in
+                    // let frame = geometry.frame(in: .named(GraphBaseView.coordinateNamespace))
+                    let frame = geometry.frame(in: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE))
+                    Color.clear.onChange(of: frame, initial: true) { oldValue, newValue in
+                        
+                        self.graph.sizeInputInspectorOrigin = newValue.origin
+                        log("self.graph.sizeInputInspectorOrigin: \(self.graph.sizeInputInspectorOrigin)")
+                        // does this overlap with
+                    }
+                }
+            }
+        }
     }
     
     @MainActor
