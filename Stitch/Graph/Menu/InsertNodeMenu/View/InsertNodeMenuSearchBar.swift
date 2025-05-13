@@ -23,7 +23,9 @@ struct InsertNodeMenuSearchBar: View {
     @Environment(StitchStore.self) private var store
     
     @State private var queryString = ""
+    @State private var isLoadingStitchAI = false
     @FocusState private var isFocused: Bool
+    private let launchTip = StitchAILaunchTip()
     
     var isAIMode: Bool {
         let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
@@ -33,6 +35,7 @@ struct InsertNodeMenuSearchBar: View {
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             TextField("Search or enter AI prompt...", text: $queryString)
+                .popoverTip(self.launchTip, arrowEdge: .bottom)
                 .focused($isFocused)
                 .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
                 .padding(.leading, 52)
@@ -48,6 +51,11 @@ struct InsertNodeMenuSearchBar: View {
                 .disableAutocorrection(true)
                 .onSubmit {
                     if self.isAIMode {
+                        // Invalidate tip in future once AI submission is completed
+                        self.launchTip.invalidate(reason: .actionPerformed)
+                        
+                        self.isLoadingStitchAI = true
+                        
                         dispatch(GenerateAINode(prompt: queryString))
                     } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection) != nil {
                         dispatch(AddNodeButtonPressed())

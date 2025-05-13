@@ -40,15 +40,13 @@ let INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING: CGFloat = INSERT_NODE_MENU_FOOT
 
 struct InsertNodeMenuView: View {
     @Environment(\.appTheme) var theme
+    @State private var footerRect: CGRect = .zero
 
     let document: StitchDocumentViewModel
     let insertNodeMenuState: InsertNodeMenuState
     let isPortraitMode: Bool
     let showMenu: Bool
-
     let menuHeight: CGFloat
-
-    @State var footerRect: CGRect = .zero
 
     var body: some View {
         sheetView
