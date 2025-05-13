@@ -37,8 +37,8 @@ func areNear(_ inputCenter: CGPoint, _ cursorCenter: CGPoint) -> Bool {
 
     let NEARNESS_ALLOWANCE: CGFloat = NODE_ROW_HEIGHT
 
-    //    log("areNear: inputCenter: \(inputCenter)")
-    //    log("areNear: cursorCenter: \(cursorCenter)")
+    log("areNear: inputCenter: \(inputCenter)")
+    log("areNear: cursorCenter: \(cursorCenter)")
 
     let range = CGSize(width: NEARNESS_ALLOWANCE * 3,
                        height: NEARNESS_ALLOWANCE)
@@ -52,11 +52,11 @@ func areNear(_ inputCenter: CGPoint, _ cursorCenter: CGPoint) -> Bool {
     let box2 = CGRect.init(origin: cursorCenter,
                            size: range)
 
-    //    log("areNear: box1: \(box1)")
-    //    log("areNear: box2: \(box2)")
+    log("areNear: box1: \(box1)")
+    log("areNear: box2: \(box2)")
 
     let k = isIntersecting(box1, box2)
-    //    log("areNear: k: \(k)")
+    log("areNear: k: \(k)")
     return k
 }
 

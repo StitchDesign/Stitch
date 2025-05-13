@@ -141,9 +141,9 @@ extension GraphState {
         }
 
         // TODO: MAY 12
-        var dragLocation = gesture.location
-        dragLocation.x += 258
-        dragLocation.y += 125
+        let dragLocation = gesture.location
+//        dragLocation.x += 258
+//        dragLocation.y += 125
         
         // exit edge editing state
         self.edgeEditingState = nil
