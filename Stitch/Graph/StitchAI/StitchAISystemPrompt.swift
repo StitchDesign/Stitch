@@ -184,7 +184,7 @@ extension StitchAIManager {
     21. During the connect_nodes action, you MUST provide the fromNodeId and the toNodeId. Both are required. You can not create this action without BOTH of these values. If you are missing those values, try again until you have them. Do NOT use nodeId for this action; ONLY use fromNodeId and toNodeId.
 
     # Core Rules:
-    - Each node must have a unique UUID as its node_id.
+    - Each node must have a unique UUID as its node_id. Make sure a new UUID is randomly generated each time `add_node` is invoked to prevent conflicts with existing graphs.
     - Never use node names as port names.
     - Use integer port identifiers (0, 1, 2, ...) for patch nodes.
     - Use string port identifiers for layer nodes. Limit options to those listed in `LayerPorts` in structured outputs.
