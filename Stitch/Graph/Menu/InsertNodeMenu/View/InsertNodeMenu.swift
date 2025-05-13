@@ -56,7 +56,8 @@ struct InsertNodeMenuView: View {
             .frame(width: InsertNodeMenuWrapper.menuWidth,
                    height: menuHeight)
             .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
-            .overlay {
+        // Background view guarantees focus state for search bar
+            .background {
                 TipView(self.launchTip, arrowEdge: .bottom)
                     .width(400)
                     .fixedSize()
