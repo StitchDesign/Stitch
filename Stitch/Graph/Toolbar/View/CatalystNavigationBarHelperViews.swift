@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
@@ -164,12 +165,24 @@ struct CatalystTopBarGraphButtons: View {
     
     let llmRecordingModeEnabled: Bool
     let llmRecordingModeActive: Bool
+    let stitchAITrainingTip: StitchAITrainingTip
+    @Binding var shouldDisplayTrainingTip: Bool
+    
+    @ViewBuilder
+    var aiTrainingButton: some View {
+        CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+            dispatch(LLMRecordingToggled())
+            
+            if self.shouldDisplayTrainingTip {
+                self.shouldDisplayTrainingTip = false
+                self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
+            }
+        }
+    }
 
     var body: some View {
-
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
-                        
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
                 dispatch(GoUpOneTraversalLevel())
             }
@@ -178,8 +191,11 @@ struct CatalystTopBarGraphButtons: View {
 // #if DEBUG || DEV_DEBUG
             
             if llmRecordingModeEnabled {
-                CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                    dispatch(LLMRecordingToggled())
+                if shouldDisplayTrainingTip {
+                    aiTrainingButton
+                        .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+                } else {
+                    aiTrainingButton
                 }
             }
 // #endif
