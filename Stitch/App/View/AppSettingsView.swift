@@ -138,7 +138,6 @@ struct PreviewWindowDeviceSelectionView: View {
 let DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME = "DefaultPreviewWindowDevice"
 let SAVED_APP_THEME_KEY_NAME = "SavedAppTheme"
 let SAVED_EDGE_STYLE_KEY_NAME = "SavedEdgeStyle"
-let LLM_RECORDING_MODE_KEY_NAME = "LLMRecordingMode"
 
 struct AppSettingsView: View {
     // Obtains last camera preference setting, if any
@@ -150,8 +149,6 @@ struct AppSettingsView: View {
 
     @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
     
-    @AppStorage(LLM_RECORDING_MODE_KEY_NAME) private var llmRecordingMode: Bool = false
-
     @Environment(\.appTheme) var theme
     @Environment(\.edgeStyle) var edgeStyle
         
@@ -163,9 +160,6 @@ struct AppSettingsView: View {
             themePicker
             edgeStylePicker
             defaultPreviewWindowDevicePicker
-            if !StitchDocumentViewModel.isPhoneDevice {
-                llmRecordingModePicker
-            }
         }
     }
 
@@ -264,24 +258,7 @@ struct AppSettingsView: View {
             StitchCaptionView("Set the default preview window device for new projects")
         }
     }
-        
-    @MainActor
-    var llmRecordingModePicker: some View {
-        VStack(alignment: .leading) {
-            HStack(alignment: .center) {
-                Text("LLM Recording Mode").fontWeight(.bold)
-                Image(systemName: self.llmRecordingMode ? "checkmark.square" : "square")
-                    .onTapGesture {
-                        // Toggle
-                        dispatch(LLMRecordingModeEnabledChanged(enabled: self.llmRecordingMode ? false : true))
-                    }
-                    .padding(.leading, 10)
-            } // HStack
-            StitchCaptionView("Enable or disable LLM Action Recording Mode")
-        } // VStack
-        .padding(.top, 8) // why is this necessary?
-    }
-    
+            
     func getCameraSelection(cameraID: String?) -> AVCaptureDevicePickerOption? {
         guard let cameraID = cameraID,
               cameraID != BUILT_IN_CAM_LABEL else {

@@ -45,9 +45,17 @@ extension StitchDocumentViewModel {
     func startLLMAugmentationMode() {
         
         log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
+        
+        
+        // TODO: these logs are telling us that self.llmRecording.actions is empty (we're not sure how or where they were made empty?); can we populate the actions again, before we open the "edit before submit" modal ?
+        
+        let derivedActions = self.deriveNewAIActions()
+        self.llmRecording.actions = derivedActions
+        
         // First store the current AI-generated actions
         let currentActions = self.llmRecording.actions
         log("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
+        
         
         // Set augmentation mode
         self.llmRecording.mode = .augmentation
@@ -135,22 +143,5 @@ extension StitchDocumentViewModel {
         }
         
         self.showLLMEditModal()
-    }
-}
-
-struct LLMRecordingModeEnabledChanged: StitchStoreEvent {
-    
-    let enabled: Bool
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        log("LLMRecordingModeSet: enabled: \(enabled)")
-        store.llmRecordingModeEnabled = enabled
-        
-        // Also update the UserDefaults:
-        UserDefaults.standard.setValue(
-            enabled,
-            forKey: LLM_RECORDING_MODE_KEY_NAME)
-        
-        return .noChange
     }
 }
