@@ -8,23 +8,18 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
+struct CatalystProjectTitleModalToggled: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        // log("CatalystProjectTitleModalOpened")
+        // log("CatalystProjectTitleModalToggled")
         withAnimation {
-            state.showCatalystProjectTitleModal = true
-        }
-        state.reduxFieldFocused(focusedField: .projectTitle)
-    }
-}
+            state.showCatalystProjectTitleModal.toggle()
 
-struct CatalystProjectTitleModalClosed: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
-        // log("CatalystProjectTitleModalClosed")
-        withAnimation {
-            state.showCatalystProjectTitleModal = false
+            if state.showCatalystProjectTitleModal {
+                state.reduxFieldFocused(focusedField: .projectTitle)
+            } else {
+                state.reduxFieldDefocused(focusedField: .projectTitle)
+            }
         }
-        state.reduxFieldDefocused(focusedField: .projectTitle)
     }
 }
 
@@ -65,7 +60,7 @@ struct CatalystProjectTitleModalView: View {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
                     graph.name = graph.name.validateProjectTitle()
                     dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
-                    dispatch(CatalystProjectTitleModalClosed())
+                    dispatch(CatalystProjectTitleModalToggled())
                     // Commit project name to disk
                     graph.encodeProjectInBackground()
                 }
@@ -78,14 +73,16 @@ struct CatalystNavBarProjectTitleDisplayView: View {
     @Bindable var graph: GraphState
     
     var body: some View {
-        Text(graph.name)
-            .modifier(NavigationTitleFontViewModifier())
-            .padding(6)
-            .frame(width: 260, height: 16, alignment: .leading)
-            .onTapGesture {
-                dispatch(CatalystProjectTitleModalOpened())
-            }
-    }    
+        Button {
+            dispatch(CatalystProjectTitleModalToggled())
+        } label: {
+            Text(graph.name)
+                .modifier(NavigationTitleFontViewModifier())
+                .padding(6)
+                .frame(width: 260, height: 16, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+    }
 }
 
 struct NavigationTitleFontViewModifier: ViewModifier {
