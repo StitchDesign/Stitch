@@ -115,7 +115,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                // Hack view to get proper placement
                ToolbarItem(placement: .secondaryAction) {
-                   Text("")
+                   Spacer()
                }
 
                 ToolbarItemGroup(placement: .primaryAction) {
