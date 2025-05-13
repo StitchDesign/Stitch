@@ -79,6 +79,26 @@ extension Array where Element == any StepActionable {
     }
 }
 
+extension Array where Element == any StepActionable {
+    /// Ensures newly created nodes won't overwrite the graph.
+    func remapNodeIdsForNewNodes() -> Self {
+        // Old : New pairings
+        var idMap = [NodeId : NodeId]()
+        
+        self.forEach {
+            if let addNodeAction = $0 as? StepActionAddNode {
+                idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
+            }
+        }
+        
+        let convertedIdSteps = self.map { step in
+            step.remapNodeIds(nodeIdMap: idMap)
+        }
+        
+        return convertedIdSteps
+    }
+}
+
 extension StitchDocumentViewModel {
     
     @MainActor
@@ -86,7 +106,10 @@ extension StitchDocumentViewModel {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        let convertedActions = try actions.convertSteps()
+        let convertedActions = try actions
+            .convertSteps()
+        // Change Ids for newly created nodes
+            .remapNodeIdsForNewNodes()
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
@@ -101,6 +124,11 @@ extension StitchDocumentViewModel {
         }
         
         for action in convertedActions {
+            if let addAction = action as? StepActionAddNode {
+                // add-node actions cannot re-use IDs
+                assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
+            }
+            
             do {
                 try self.applyAction(action)
             } catch let error as StitchFileError {
