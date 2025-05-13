@@ -9,23 +9,18 @@ import SwiftUI
 import StitchSchemaKit
 import TipKit
 
-struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
+struct CatalystProjectTitleModalToggled: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        // log("CatalystProjectTitleModalOpened")
+        // log("CatalystProjectTitleModalToggled")
         withAnimation {
-            state.showCatalystProjectTitleModal = true
-        }
-        state.reduxFieldFocused(focusedField: .projectTitle)
-    }
-}
+            state.showCatalystProjectTitleModal.toggle()
 
-struct CatalystProjectTitleModalClosed: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
-        // log("CatalystProjectTitleModalClosed")
-        withAnimation {
-            state.showCatalystProjectTitleModal = false
+            if state.showCatalystProjectTitleModal {
+                state.reduxFieldFocused(focusedField: .projectTitle)
+            } else {
+                state.reduxFieldDefocused(focusedField: .projectTitle)
+            }
         }
-        state.reduxFieldDefocused(focusedField: .projectTitle)
     }
 }
 
@@ -66,7 +61,7 @@ struct CatalystProjectTitleModalView: View {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
                     graph.name = graph.name.validateProjectTitle()
                     dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
-                    dispatch(CatalystProjectTitleModalClosed())
+                    dispatch(CatalystProjectTitleModalToggled())
                     // Commit project name to disk
                     graph.encodeProjectInBackground()
                 }
@@ -79,14 +74,16 @@ struct CatalystNavBarProjectTitleDisplayView: View {
     @Bindable var graph: GraphState
     
     var body: some View {
-        Text(graph.name)
-            .modifier(NavigationTitleFontViewModifier())
-            .padding(6)
-            .frame(width: 260, height: 16, alignment: .leading)
-            .onTapGesture {
-                dispatch(CatalystProjectTitleModalOpened())
-            }
-    }    
+        Button {
+            dispatch(CatalystProjectTitleModalToggled())
+        } label: {
+            Text(graph.name)
+                .modifier(NavigationTitleFontViewModifier())
+                .padding(6)
+                .frame(width: 260, height: 16, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+    }
 }
 
 struct NavigationTitleFontViewModifier: ViewModifier {
@@ -162,7 +159,7 @@ struct CatalystTopBarGraphButtons: View {
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
-    
+
     let llmRecordingModeEnabled: Bool
     let llmRecordingModeActive: Bool
     let stitchAITrainingTip: StitchAITrainingTip
@@ -181,77 +178,73 @@ struct CatalystTopBarGraphButtons: View {
     }
 
     var body: some View {
-        // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
-        HStack {
-            CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
-                dispatch(GoUpOneTraversalLevel())
-            }
-            .opacity(hasActiveGroupFocused ? 1 : 0)
-        
-// #if DEBUG || DEV_DEBUG
-            
-            if llmRecordingModeEnabled {
-                if shouldDisplayTrainingTip {
-                    aiTrainingButton
-                        .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
-                } else {
-                    aiTrainingButton
-                }
-            }
-// #endif
-            
-            CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
-                dispatch(ToggleInsertNodeMenu())
-            }
-            
-            // TODO: should be a toast only shows up when no nodes are on-screen?
-            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
-                dispatch(FindSomeCanvasItemOnGraph())
-            }
-
-            // TODO: implement
-            //            CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME) {
-            //                //                dispatch(ProjectCreated())
-            //                log("CatalystTopBarGraphButtons: to be implemented")
-            //            }
-
-//            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
-//                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
-            
-            if !isDebugMode {
-                CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
-                    dispatch(TogglePreviewWindow())
-                }
-                
-                CatalystNavBarButton(.RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
-                    dispatch(PrototypeRestartedAction())
-                }
-                
-                CatalystNavBarButton(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
-                    dispatch(ToggleFullScreenEvent())
-                }
-            }
-            
-            TopBarSharingButtonsView(document: document)
-                .modifier(CatalystTopBarButtonStyle())
-            
-            TopBarFeedbackButtonsView()
-                .modifier(CatalystTopBarButtonStyle())
-            
-            CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
-                PROJECT_SETTINGS_ACTION()
-            }
-
-            // TODO: implement
-            //            CatalystNavBarButton(.SHARE_ICON_SF_SYMBOL_NAME) {
-            //                // dispatch(ProjectShareButtonPressed(metadata: metadata))
-            //                log("CatalystTopBarGraphButtons: to be implemented")
-            //            }
-            
-            CatalystNavBarButton(action: {
-                dispatch(LayerInspectorToggled())
-            }, iconName: .sfSymbol("sidebar.right"))
+        CatalystNavBarButton("Go Up", systemName: .GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME, tooltip: "Go up one level in the graph hierarchy") {
+            dispatch(GoUpOneTraversalLevel())
         }
+        .disabled(!hasActiveGroupFocused)
+
+        // #if DEBUG || DEV_DEBUG
+        if llmRecordingModeEnabled {
+            if shouldDisplayTrainingTip {
+                aiTrainingButton
+                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+            } else {
+                aiTrainingButton
+            }
+        }
+        // #endif
+
+        CatalystNavBarButton("Add Node", systemName: .ADD_NODE_SF_SYMBOL_NAME) {
+            dispatch(ToggleInsertNodeMenu())
+        }
+
+        // TODO: should be a toast only shows up when no nodes are on-screen?
+        CatalystNavBarButton("Go to Node", systemName: .FIND_NODE_ON_GRAPH, tooltip: "Go to the selected node in the graph") {
+            dispatch(FindSomeCanvasItemOnGraph())
+        }
+
+        // TODO: implement
+        //            CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME) {
+        //                //                dispatch(ProjectCreated())
+        //                log("CatalystTopBarGraphButtons: to be implemented")
+        //            }
+
+        //            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+        //                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
+
+        if !isDebugMode {
+            CatalystNavBarButton("Toggle Preview", systemName: isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+                dispatch(TogglePreviewWindow())
+            }
+
+            CatalystNavBarButton("Restart", systemName: .RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
+                dispatch(PrototypeRestartedAction())
+            }
+
+            CatalystNavBarButton("Fullscreen", systemName: isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+                dispatch(ToggleFullScreenEvent())
+            }
+        }
+
+        TopBarSharingButtonsView(document: document)
+            .modifier(CatalystTopBarButtonStyle())
+
+        TopBarFeedbackButtonsView()
+            .modifier(CatalystTopBarButtonStyle())
+
+        CatalystNavBarButton("Project Settings", systemName: .SETTINGS_SF_SYMBOL_NAME) {
+            PROJECT_SETTINGS_ACTION()
+        }
+
+        // TODO: implement
+        //            CatalystNavBarButton(.SHARE_ICON_SF_SYMBOL_NAME) {
+        //                // dispatch(ProjectShareButtonPressed(metadata: metadata))
+        //                log("CatalystTopBarGraphButtons: to be implemented")
+        //            }
+
+        CatalystNavBarButton(action: {
+            dispatch(LayerInspectorToggled())
+        }, title: "Toggle Inspector", iconName: .sfSymbol("sidebar.right"))
     }
 }
 
@@ -306,7 +299,9 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
 struct CatalystNavBarButton: View, Identifiable {
 
     // let systemName: String  for `Image(systemName:)`
+    let title: LocalizedStringKey
     var image: Image
+    let tooltip: LocalizedStringKey?
     let action: () -> Void
     var rotationZ: CGFloat = 0 // some icons stay the same but just get rotated
 
@@ -317,9 +312,11 @@ struct CatalystNavBarButton: View, Identifiable {
             // 'Empty menu' so that nothing happens when we tap the Menu's label
             EmptyView()
         } label: {
-            Button(action: {}) {
-                // TODO: any .resizable(), .fixedSize() etc. needed?
+            Label {
+                Text(title)
+            } icon: {
                 image
+                    .padding(.horizontal)
             }
         }
         // rotation3DEffect must be applied here
@@ -330,6 +327,7 @@ struct CatalystNavBarButton: View, Identifiable {
         .simultaneousGesture(TapGesture().onEnded({ _ in
             action()
         }))
+        .help(tooltip ?? title)
 
         // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appearance, losing the hover-highlight effect etc.;
         // so we use UIKitOnTapModifier for proper callback.
@@ -341,31 +339,35 @@ struct CatalystTopBarButtonStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
         // Hides the little arrow on Catalyst
-        .menuIndicator(.hidden)
-        
+            .menuIndicator(.hidden)
+
         // TODO: find ideal button size?
         // Note: *must* provide explicit frame
-        .frame(width: 30, height: 30)
+        // .frame(width: 30, height: 30)
     }
 }
 
 extension CatalystNavBarButton {
 
-    init(_ systemName: String,
-         rotationZ: CGFloat = 0,
+    init(_ title: LocalizedStringKey,
+         systemName: String,
+         tooltip: LocalizedStringKey? = nil,
          _ action: @escaping () -> Void) {
+        self.title = title
         self.image = Image(systemName: systemName)
+        self.tooltip = tooltip
         self.action = action
         self.id = systemName
-        self.rotationZ = rotationZ
     }
 
     init(action: @escaping () -> Void,
+         title: LocalizedStringKey,
          iconName: IconName,
-         rotationZ: CGFloat = 0) {
+         tooltip: LocalizedStringKey? = nil) {
+        self.title = title
         self.image = iconName.image
+        self.tooltip = tooltip
         self.action = action
         self.id = iconName.name
-        self.rotationZ = rotationZ
     }
 }
