@@ -171,7 +171,7 @@ struct CatalystTopBarGraphButtons: View {
     var aiTrainingButton: some View {
         CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
             dispatch(LLMRecordingToggled())
-            
+//            
             if self.shouldDisplayTrainingTip {
                 self.shouldDisplayTrainingTip = false
                 self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
@@ -181,18 +181,21 @@ struct CatalystTopBarGraphButtons: View {
 
     var body: some View {
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
-        HStack {
+//        HStack {
+        Group {
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
                 dispatch(GoUpOneTraversalLevel())
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
         
-            if shouldDisplayTrainingTip {
-                aiTrainingButton
-                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
-            } else {
-                aiTrainingButton
-            }
+//            if shouldDisplayTrainingTip {
+            aiTrainingButton
+                .opacity(shouldDisplayTrainingTip ? 1 : 0)
+                .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+//                    .opacity(shouldDisplayTrainingTip ? 1 : 0)
+//            } else {
+//                aiTrainingButton
+//            }
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())
@@ -202,15 +205,6 @@ struct CatalystTopBarGraphButtons: View {
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
                 dispatch(FindSomeCanvasItemOnGraph())
             }
-
-            // TODO: implement
-            //            CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME) {
-            //                //                dispatch(ProjectCreated())
-            //                log("CatalystTopBarGraphButtons: to be implemented")
-            //            }
-
-//            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
-//                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
             
             if !isDebugMode {
                 CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
@@ -236,12 +230,6 @@ struct CatalystTopBarGraphButtons: View {
                 PROJECT_SETTINGS_ACTION()
             }
 
-            // TODO: implement
-            //            CatalystNavBarButton(.SHARE_ICON_SF_SYMBOL_NAME) {
-            //                // dispatch(ProjectShareButtonPressed(metadata: metadata))
-            //                log("CatalystTopBarGraphButtons: to be implemented")
-            //            }
-            
             CatalystNavBarButton(action: {
                 dispatch(LayerInspectorToggled())
             }, iconName: .sfSymbol("sidebar.right"))

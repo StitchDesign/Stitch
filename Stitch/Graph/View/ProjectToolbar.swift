@@ -46,7 +46,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
             }
             .toolbarRole(.editor) // no "Back" text on back button
 
-            #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
             .navigationTitle(self.$graph.name)
             .navigationBarTitleDisplayMode(.inline)
 
@@ -82,12 +82,12 @@ struct ProjectToolbarViewModifier: ViewModifier {
             #endif
 
             .toolbar {
-
-                #if !targetEnvironment(macCatalyst)
-
+                
+#if !targetEnvironment(macCatalyst)
+                
                 // Catalyst and iPad have same button layout,
                 // but use slightly different buttons:
-
+                
                 // .primaryAction = right side
                 // .secondaryAction = center
                 ToolbarItemGroup(placement: .primaryAction) {
@@ -103,32 +103,32 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         stitchAITrainingTip: self.stitchAITrainingTip,
                         shouldDisplayTrainingTip: self.$shouldDisplayTrainingTip)
                 }
-
-                #else
-               // on Mac, show project title name
-               ToolbarItem(placement: .navigationBarLeading) {
-                   CatalystNavBarProjectTitleDisplayView(graph: graph)
-               }
-
+                
+#else
+                // on Mac, show project title name
+                ToolbarItem(placement: .navigationBarLeading) {
+                    CatalystNavBarProjectTitleDisplayView(graph: graph)
+                }
+                
                 // Catalyst and iPad have same button layout,
                 // but use slightly different buttons:
                 // .primaryAction = right side
                 // .secondaryAction = center
-
+                
                 /*
                  On Catalyst:
                  - only .primaryAction = buttons on left
                  - only .secondaryAction = buttons in center
                  - both = .primaryAction buttons on the right, .secondaryAction buttons in center
-
+                 
                  Note: .navigationBarTrailing on Catalyst is apparently broken, always placed items on left-side ?
                  */
-
-               // Hack view to get proper placement
-               ToolbarItem(placement: .secondaryAction) {
-                   Text("")
-               }
-
+                
+                // Hack view to get proper placement
+                ToolbarItem(placement: .secondaryAction) {
+                    Text("")
+                }
+                
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
                         document: document,
@@ -140,7 +140,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         stitchAITrainingTip: self.stitchAITrainingTip,
                         shouldDisplayTrainingTip: self.$shouldDisplayTrainingTip)
                 }
-                #endif
+#endif
 
             }
             .animation(.spring, value: document.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here

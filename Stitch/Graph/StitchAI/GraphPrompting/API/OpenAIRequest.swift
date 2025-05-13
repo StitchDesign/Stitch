@@ -348,6 +348,8 @@ extension StitchAIManager {
 //        document.llmRecording.mode = .augmentation
         document.llmRecording.mode = .normal
         
+        
+        
         try document.validateAndApplyActions(steps)
     }
 }
