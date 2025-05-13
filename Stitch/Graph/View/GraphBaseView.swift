@@ -153,15 +153,23 @@ struct GraphBaseView: View {
                    let sizeInput = preferences[String.SIZE_INPUT].map({ proxy[$0] }),
                    let drawingGesture = graph.edgeDrawingObserver.drawingGesture {
                     
-//                    let intersects = draggedOutput.intersects(sizeInput)
                     
-                    let drawingGestureRect: CGRect = .init(origin: drawingGesture.dragLocation,
-                                                           size: .init(width: 24, height: 24))
+                    let drawingGestureRect: CGRect = .init(
+                        origin: drawingGesture.dragLocation,
+                        size: .init(width: 24, height: 24)
+                    )
                     
-//                    let intersects = draggedOutput.intersects()
+                    let expandedSizeInput: CGRect = .init(
+                        origin: sizeInput.origin,
+                        size: .init(width: sizeInput.size.width + 12,
+                                    height: sizeInput.size.height + 12)
+                    )
+                                        
+                    let intersects = areNear(drawingGestureRect.origin,
+                                             expandedSizeInput.origin)
                     
-                    let intersects = areNear(drawingGestureRect.mid,
-                                             sizeInput.mid)
+                    // if we intersect, add the size input to the canvas
+                    
                     
                     logInView("preference: drawingGesture.dragLocation.x: \(drawingGesture.dragLocation.x)")
                     logInView("preference: drawingGesture.dragLocation.y: \(drawingGesture.dragLocation.y)")
@@ -185,9 +193,7 @@ struct GraphBaseView: View {
                                 
                                 lineCap: .round,
                                 lineJoin: .round))
-                    
-                    
-                    
+                                        
                     CurveLine(from: draggedOutput.mid,
                               to: drawingGesture.dragLocation)
                     .stroke(.red,
@@ -198,19 +204,16 @@ struct GraphBaseView: View {
                                 lineCap: .round,
                                 lineJoin: .round))
                     
+                    if intersects {
+                        intersectedWithSize()
+                    }
+                    
                     
 //
 //                    EdgeDrawingView(graph: graph,
 //                                    edgeDrawingObserver: graph.edgeDrawingObserver)
 //                    
-                } else {
-                    EmptyView()
                 }
-//
-//                Color.clear
-//                    .onAppear {
-//                        print("on appear: Intersection: \(intersects)")
-//                    }
             }
         }
         
@@ -230,7 +233,20 @@ struct GraphBaseView: View {
             } // GeometryReader
         } // .background
     }
+    
+    func intersectedWithSize() -> EmptyView {
+        if let nodeId = self.graph.layerNodes().first?.id {
+            DispatchQueue.main.async {
+                dispatch(LayerInputAddedToGraph(nodeId: nodeId, layerInput: .size))
+            }
+        }
+        return EmptyView()
+    }
+    
+//    @State var draggedOutputIsNearSizeInput: Bool = false
 }
+
+//func responseToAnchorPreference
 
 extension String {
     static let DRAGGED_OUTPUT = "DRAGGED_OUTPUT"
