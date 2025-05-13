@@ -125,6 +125,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func deriveNewAIActions() -> [Step] {
         guard let oldGraphEntity = self.llmRecording.initialGraphState else {
+            log("No graph state found")
             return []
         }
         
