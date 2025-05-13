@@ -97,9 +97,18 @@ struct iPadGraphTopBarButtons: View {
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
     let restartPrototypeWindowIconRotationZ: CGFloat
-
     var llmRecordingModeEnabled: Bool
     var llmRecordingModeActive: Bool
+    let stitchAITrainingTip: StitchAITrainingTip
+    @Binding var shouldDisplayTrainingTip: Bool
+    
+    @ViewBuilder
+    var miscButton: some View {
+        iPadGraphTopBarMiscMenu(
+            document: document,
+            llmRecordingModeActive: llmRecordingModeActive,
+            llmRecordingModeEnabled: llmRecordingModeEnabled)
+    }
     
     var body: some View {
 
@@ -135,10 +144,12 @@ struct iPadGraphTopBarButtons: View {
             //                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME))
 
             // the misc (...) button
-            iPadGraphTopBarMiscMenu(
-                document: document,
-                llmRecordingModeActive: llmRecordingModeActive,
-                llmRecordingModeEnabled: llmRecordingModeEnabled)
+            if shouldDisplayTrainingTip {
+                miscButton
+                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+            } else {
+                miscButton
+            }
             
             iPadNavBarButton(action: {
                 dispatch(LayerInspectorToggled())

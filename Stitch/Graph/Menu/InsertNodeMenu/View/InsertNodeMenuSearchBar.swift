@@ -25,6 +25,9 @@ struct InsertNodeMenuSearchBar: View {
     @State private var queryString = ""
     @FocusState private var isFocused: Bool
     
+    let launchTip: StitchAILaunchTip
+    @Binding var isLoadingStitchAI: Bool
+    
     var isAIMode: Bool {
         let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
         return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
@@ -48,6 +51,11 @@ struct InsertNodeMenuSearchBar: View {
                 .disableAutocorrection(true)
                 .onSubmit {
                     if self.isAIMode {
+                        // Invalidate tip in future once AI submission is completed
+                        self.launchTip.invalidate(reason: .actionPerformed)
+                        
+                        self.isLoadingStitchAI = true
+                        
                         dispatch(GenerateAINode(prompt: queryString))
                     } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection) != nil {
                         dispatch(AddNodeButtonPressed())
