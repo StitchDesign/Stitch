@@ -42,6 +42,10 @@ struct Step: Hashable {
     }
 }
 
+extension Step: Identifiable {
+    var id: Int { self.hashValue }
+}
+
 extension Step: Codable {
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
