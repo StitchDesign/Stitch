@@ -107,9 +107,7 @@ struct iPadGraphTopBarButtons: View {
         iPadGraphTopBarMiscMenu(
             document: document,
             llmRecordingModeActive: llmRecordingModeActive,
-            llmRecordingModeEnabled: llmRecordingModeEnabled,
-            stitchAITrainingTip: stitchAITrainingTip,
-            shouldDisplayTrainingTip: $shouldDisplayTrainingTip)
+            llmRecordingModeEnabled: llmRecordingModeEnabled)
     }
     
     var body: some View {
@@ -164,33 +162,14 @@ struct iPadGraphTopBarMiscMenu: View {
     @Bindable var document: StitchDocumentViewModel
     let llmRecordingModeActive: Bool
     let llmRecordingModeEnabled: Bool
-    let stitchAITrainingTip: StitchAITrainingTip
-    @Binding var shouldDisplayTrainingTip: Bool
-    
-    @ViewBuilder
-    var aiTrainingButton: some View {
-        iPadTopBarButton(action: {
-            dispatch(LLMRecordingToggled())
-            
-            if self.shouldDisplayTrainingTip {
-                self.shouldDisplayTrainingTip = false
-                self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
-            }
-        },
-                         iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
-                         label: "AI Generation/Correction")
-    }
     
     var body: some View {
         Menu {
             
             if llmRecordingModeEnabled {
-                if shouldDisplayTrainingTip {
-                    aiTrainingButton
-                        .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
-                } else {
-                    aiTrainingButton
-                }
+                iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
+                                 iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
+                                 label: "AI Generation/Correction")
             }
             
 //            // add node

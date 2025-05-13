@@ -36,7 +36,6 @@ struct InsertNodeMenuSearchBar: View {
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             TextField("Search or enter AI prompt...", text: $queryString)
-//                .popoverTip(self.launchTip, arrowEdge: .bottom)
                 .focused($isFocused)
                 .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
                 .padding(.leading, 52)
