@@ -122,6 +122,13 @@ extension StitchDocumentViewModel {
         }
         
         let input: InputLayerNodeRowData = layerNode[keyPath: layerInput.packedLayerInputKeyPath]
+        
+        // If already on this canvas, do nothing
+        // (Can happen from dragging an edge onto the inspector)
+        guard !input.canvasObserver.isDefined else {
+            log("Input already on canvas")
+            return
+        }
                 
         // When adding an entire input to the graph, we don't worry about unpacked state etc.
         let unpackedPortParentFieldGroupType: FieldGroupType? = nil
