@@ -119,14 +119,14 @@ struct iPadGraphTopBarButtons: View {
                 
                 // refresh prototype
                 iPadNavBarButton(
-                    title: "Restart Prototype",
+                    title: "Restart",
                     iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
                     action: RESTART_PROTOTYPE_ACTION
                 )
 
                 // full screen
                 iPadNavBarButton(
-                    title: "Toggle Fullscreen Preview",
+                    title: "Fullscreen",
                     iconName: .sfSymbol(
                         isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME
                     ),

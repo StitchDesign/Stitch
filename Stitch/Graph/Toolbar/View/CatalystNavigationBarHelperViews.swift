@@ -203,11 +203,11 @@ struct CatalystTopBarGraphButtons: View {
                 dispatch(TogglePreviewWindow())
             }
 
-            CatalystNavBarButton("Restart Prototype", systemName: .RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
+            CatalystNavBarButton("Restart", systemName: .RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
                 dispatch(PrototypeRestartedAction())
             }
 
-            CatalystNavBarButton("Toggle Fullscreen Preview", systemName: isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+            CatalystNavBarButton("Fullscreen", systemName: isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
                 dispatch(ToggleFullScreenEvent())
             }
         }

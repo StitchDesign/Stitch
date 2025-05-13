@@ -74,8 +74,8 @@ struct TopBarFeedbackButtonsView: View {
                 .labelStyle(.titleAndIcon)
             }
         } label: {
-            Label("Contact Stitch", systemImage: "bubble.left.and.text.bubble.right")
+            Label("Contact", systemImage: "bubble.left.and.text.bubble.right")
         }
-        .help("Contact Stitch")
+        .help("Contact")
     }
 }
