@@ -40,6 +40,10 @@ struct ProjectsHomeCommands: Commands {
     var textFieldFocused: Bool {
         activeReduxFocusedField.isDefined || focusedField.isDefined
     }
+    
+    var hasSelectedInput: Bool {
+        self.store.currentDocument?.selectedInput.isDefined ?? false
+    }
 
     var body: some Commands {
 
@@ -79,6 +83,9 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(DeleteShortcutKeyPressed())
                 }
                 
+                
+                // MARK: copy paste, cut paste
+                
                 // Not shown in menu when no active project;
                 // Disabled when we have focused text input
                 //            if activeProject {
@@ -106,12 +113,18 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(SelectedGraphItemsPasted())
                 }
                 
+                // MARK: insert node shortcuts
+                
                 SwiftUIShortcutView(title: "Insert Unpack Node",
                                     key: ADD_UNPACK_NODE_SHORTCUT,
                                     // empty list = do not require CMD
                                     eventModifiers: CMD_MODIFIER,
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.sizeUnpack)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .sizeUnpack))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.sizeUnpack)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Pack Node",
@@ -119,7 +132,11 @@ struct ProjectsHomeCommands: Commands {
                                     // empty list = do not require CMD
                                     eventModifiers: CMD_MODIFIER,
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.sizePack)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .sizePack))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.sizePack)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Value Node",
@@ -127,7 +144,11 @@ struct ProjectsHomeCommands: Commands {
                                     // empty list = do not require CMD
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.splitter)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .splitter))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.splitter)))
+                    }
                 }
                 
                 // Option + W = add Broadcaster
@@ -156,141 +177,209 @@ struct ProjectsHomeCommands: Commands {
                                     key: ADD_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.add)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .add))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.add)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Subtract Node",
                                     key: SUBTRACT_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.subtract)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .subtract))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.subtract)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Multiply Node",
                                     key: MULTIPLY_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.multiply)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .multiply))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.multiply)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Divide Node",
                                     key: DIVIDE_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.divide)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .divide))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.divide)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Power Node",
                                     key: POWER_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.power)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .power))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.power)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Mod Node",
                                     key: MOD_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.mod)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .mod))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.mod)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Less Than Node",
                                     key: LESS_THAN_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.lessThan)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .lessThan))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.lessThan)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Greater Than Node",
                                     key: GREATER_THAN_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.greaterThan)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .greaterThan))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.greaterThan)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Classic Animation Node",
                                     key: CLASSIC_ANIMATION_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.classicAnimation)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .classicAnimation))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.classicAnimation)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Pop Animation Node",
                                     key: POP_ANIMATION_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.popAnimation)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .popAnimation))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.popAnimation)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Switch Node",
-                                    key: SWITCH_NODE_SHORTCUT,
+                                    key: FLIP_SWITCH_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.flipSwitch)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .flipSwitch))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.flipSwitch)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Delay Node",
                                     key: DELAY_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.delay)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .delay))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.delay)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Keyboard Node",
                                     key: KEYBOARD_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.keyboard)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .keyboard))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.keyboard)))
+                    }
                 }
-                
-                // NO LONGER SUPPORTED NOW THAT WE PREFER LAYER GROUPS FOR SCROLLING
-//                SwiftUIShortcutView(title: "Insert Scroll Node",
-//                                    key: SCROLL_NODE_SHORTCUT,
-//                                    eventModifiers: [.option],
-//                                    disabled: textFieldFocused) {
-//                    dispatch(NodeCreatedEvent(choice: .patch(.scrollInteraction)))
-//                }
-                
+        
                 SwiftUIShortcutView(title: "Insert Equals Node",
                                     key: EQUALS_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.equals)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .equals))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.equals)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Reverse Progress Node",
                                     key: REVERSE_PROGRESS_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.reverseProgress)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .reverseProgress))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.reverseProgress)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Transition Node",
                                     key: TRANSITION_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.transition)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .transition))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.transition)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Pulse Node",
                                     key: PULSE_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.pulse)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .pulse))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.pulse)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Press Interaction Node",
                                     key: PRESS_INTERACTION_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.pressInteraction)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .pressInteraction))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.pressInteraction)))
+                    }
                 }
                 
                 SwiftUIShortcutView(title: "Insert Option Picker Node",
                                     key: OPTION_PICKER_NODE_SHORTCUT,
                                     eventModifiers: [.option],
                                     disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.optionPicker)))
+                    if hasSelectedInput {
+                        dispatch(NodeCreatedWhileInputSelected(patch: .optionPicker))
+                    } else {
+                        dispatch(NodeCreatedEvent(choice: .patch(.optionPicker)))
+                    }
                 }
             } // if activeProject
 
@@ -407,6 +496,9 @@ struct ProjectsHomeCommands: Commands {
             }
         }
 
+        
+        // MARK: undo + redo
+        
         CommandGroup(replacing: .undoRedo) {
             SwiftUIShortcutView(title: "Undo",
                                 key: UNDO_SHORTCUT,

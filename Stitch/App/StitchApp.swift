@@ -52,7 +52,9 @@ struct StitchApp: App {
                     try? Tips.configure()
                     
                     // For testing
-//                    try? Tips.resetDatastore()
+                    #if DEV_DEBUG
+                    try? Tips.resetDatastore()
+                    #endif
                     
                     dispatch(DirectoryUpdatedOnAppOpen())
                     

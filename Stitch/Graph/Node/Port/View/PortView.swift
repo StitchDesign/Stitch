@@ -17,6 +17,11 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
+let PORT_ENTRY_NON_EXTENDED_BORDER_SIZE = CGSize(
+    width: PORT_VISIBLE_LENGTH + 2,
+    height: NODE_ROW_HEIGHT + 4)
+
+
 let NODE_PORT_HEIGHT: CGFloat = 8
 
 struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
@@ -24,6 +29,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
     
     @Bindable var portUIViewModel: PortUIViewModelType
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     
     let rowId: NodeRowViewModelId
     let nodeIO: NodeIO
@@ -52,6 +58,19 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                     .fill(self.portColor)
                     .frame(width: 8)
                     .offset(x: nodeIO == .input ? -4 : 4)
+            }
+            .background {
+                if nodeIO == .input,
+                   document.selectedInput == rowId.asNodeIOCoordinate {
+                    UnevenRoundedRectangle(cornerRadii: .init(topLeading: 0,
+                                                              bottomLeading: 0,
+                                                              // a circle on the right side
+                                                              bottomTrailing: 80,
+                                                              topTrailing: 80))
+                    .fill(STITCH_TITLE_FONT_COLOR)
+                    .frame(PORT_ENTRY_NON_EXTENDED_BORDER_SIZE)
+                    .offset(x: 1)
+                }
             }
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
                                              nodeIO: nodeIO,
@@ -126,7 +145,8 @@ struct PortEntryExtendedHitBox: View {
              */
             //            .gesture(DragGesture(minimumDistance: 0,
             // if minDistance = 0, then taps cause immediate appearance of an edge
-            .gesture(DragGesture(minimumDistance: 0.05,
+//            .gesture(DragGesture(minimumDistance: 0.05,
+            .gesture(DragGesture(minimumDistance: 0.5,
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in

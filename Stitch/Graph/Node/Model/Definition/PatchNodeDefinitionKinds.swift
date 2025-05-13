@@ -42,7 +42,7 @@ extension Patch {
         case .multiply:
             return nil
         case .optionPicker:
-            return nil
+            return OptionPickerPatchNode.self
         case .loop:
             return nil
         case .time:
@@ -178,9 +178,9 @@ extension Patch {
         case .round:
             return nil
         case .progress:
-            return nil
+            return ProgressNode.self
         case .reverseProgress:
-            return nil
+            return ReverseProgressNode.self
         case .wirelessBroadcaster:
             return WirelessBroadcasterPatchNode.self
         case .wirelessReceiver:

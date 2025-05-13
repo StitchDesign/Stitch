@@ -27,6 +27,7 @@ struct FullScreenGestureRecognizerView<Content: View>: UIViewControllerRepresent
             rootView: content(),
             ignoresSafeArea: ignoresSafeArea,
             ignoreKeyCommands: true,
+            isOnlyForTextFieldHelp: false,
             inputTextFieldFocused: false, // N/A
             name: .fullScreenGestureRecognzer)
         vc.delegate = delegate

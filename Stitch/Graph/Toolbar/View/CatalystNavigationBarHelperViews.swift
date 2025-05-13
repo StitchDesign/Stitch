@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 struct CatalystProjectTitleModalToggled: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
@@ -161,6 +162,20 @@ struct CatalystTopBarGraphButtons: View {
 
     let llmRecordingModeEnabled: Bool
     let llmRecordingModeActive: Bool
+    let stitchAITrainingTip: StitchAITrainingTip
+    @Binding var shouldDisplayTrainingTip: Bool
+    
+    @ViewBuilder
+    var aiTrainingButton: some View {
+        CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+            dispatch(LLMRecordingToggled())
+            
+            if self.shouldDisplayTrainingTip {
+                self.shouldDisplayTrainingTip = false
+                self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
+            }
+        }
+    }
 
     var body: some View {
         CatalystNavBarButton("Go Up", systemName: .GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME, tooltip: "Go up one level in the graph hierarchy") {
@@ -169,10 +184,12 @@ struct CatalystTopBarGraphButtons: View {
         .disabled(!hasActiveGroupFocused)
 
         // #if DEBUG || DEV_DEBUG
-
         if llmRecordingModeEnabled {
-            CatalystNavBarButton("Toggle LLM Recording", systemName: llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                dispatch(LLMRecordingToggled())
+            if shouldDisplayTrainingTip {
+                aiTrainingButton
+                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
+            } else {
+                aiTrainingButton
             }
         }
         // #endif
