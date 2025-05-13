@@ -50,14 +50,6 @@ struct InsertNodeMenuView: View {
     let isPortraitMode: Bool
     let showMenu: Bool
     let menuHeight: CGFloat
-
-    var tipViewOffset: CGFloat {
-        #if targetEnvironment(macCatalyst)
-        50
-        #else
-        60
-        #endif
-    }
     
     var body: some View {
         sheetView
@@ -69,7 +61,7 @@ struct InsertNodeMenuView: View {
                 TipView(self.launchTip, arrowEdge: .bottom)
                     .width(400)
                     .fixedSize()
-                    .offset(y: -(menuHeight / 2) - self.tipViewOffset)
+                    .offset(y: -(menuHeight / 2) - 64)
             }
     }
 

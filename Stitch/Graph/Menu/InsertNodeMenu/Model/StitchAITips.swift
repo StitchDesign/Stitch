@@ -8,12 +8,17 @@
 import TipKit
 
 struct StitchAILaunchTip: Tip {
+    private static let tipBody = """
+Search patches, layers, or simply ask Stitch AI. \
+[Click here](https://github.com/StitchDesign/Stitch/blob/development/StitchAI%20-%20UserGuide.md) for more info.
+"""
+    
     var title: Text {
         Text("Stitch AI")
     }
     
     var message: Text? {
-        Text("Search patches, layers, or simply ask Stitch AI.")
+        Text(.init(Self.tipBody))
     }
     
     var image: Image? {

@@ -140,6 +140,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         isPreviewWindowShown: document.showPreviewWindow,
                         llmRecordingModeEnabled: self.llmRecordingMode,
                         llmRecordingModeActive: document.llmRecording.isRecording,
+                        stitchAITrainingTip: self.stitchAITrainingTip,
                         shouldDisplayTrainingTip: self.$shouldDisplayTrainingTip)
                 }
                 #endif
