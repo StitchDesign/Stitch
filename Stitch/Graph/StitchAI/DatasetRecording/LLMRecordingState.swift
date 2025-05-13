@@ -101,6 +101,11 @@ extension StitchDocumentViewModel {
         }
         
         for action in convertedActions {
+            if let addAction = action as? StepActionAddNode {
+                // add-node actions cannot re-use IDs
+                assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
+            }
+            
             do {
                 try self.applyAction(action)
             } catch let error as StitchFileError {
