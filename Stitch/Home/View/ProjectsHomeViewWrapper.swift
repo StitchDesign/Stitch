@@ -57,7 +57,7 @@ struct ProjectsHomeViewWrapper: View {
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        TopBarFeedbackButtonsView()
+                        TopBarFeedbackButtonsView(document: nil)
                         // Hides the little arrow on Catalyst
                             .menuIndicator(.hidden)
                             .buttonStyle(.borderless)
@@ -78,7 +78,8 @@ struct ProjectsHomeViewWrapper: View {
                         },
                                          iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
                         
-                        TopBarFeedbackButtonsView(showLabel: false)
+                        TopBarFeedbackButtonsView(document: nil,
+                                                  showLabel: false)
                             .modifier(iPadTopBarButtonStyle())
                         
                         iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,

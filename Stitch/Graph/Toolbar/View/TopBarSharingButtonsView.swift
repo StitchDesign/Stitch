@@ -45,14 +45,17 @@ struct TopBarSharingButtonsView: View {
 }
 
 struct TopBarFeedbackButtonsView: View {
-    private let to = "hello@stitchdesign.app"
-    private let subject = "Stitch Feedback"
+    private static let to = "hello@stitchdesign.app"
+    private static let subject = "Stitch Feedback"
     
-    private var bodyString: String {
-"""
-App version: \(appVersion)
-Platform: \(platform)
+    private static let emailCallout: String = """
+**Email to \(Self.to)**
 
+"""
+    
+    private static func bodyString(containsEmailAttachment: Bool) -> String {
+"""
+\(containsEmailAttachment ? String(Self.emailCallout) : "")
 What were you trying to do?
 [Describe here]
 
@@ -66,21 +69,23 @@ Any feature you’d love to see?
 [Describe here]
 
 ---
-Reminder: Please include a link to your Stitch document so we can reproduce the issue.
+App version: \(Self.appVersion)
+Platform: \(Self.platform)
 """
     }
     
     @Environment(\.openURL) private var openURL
     
+    let document: StitchDocumentViewModel?
     var showLabel: Bool = true
     
-    private var appVersion: String {
+    private static var appVersion: String {
         let v  = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
         let b  = Bundle.main.infoDictionary?["CFBundleVersion"]            as? String ?? "?"
         return "\(v) (\(b))"
     }
 
-    private var platform: String {
+    private static var platform: String {
         #if os(iOS) || os(tvOS)
         return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
         #elseif os(macOS)
@@ -93,41 +98,61 @@ Reminder: Please include a link to your Stitch document so we can reproduce the 
         #endif
     }
     
-    private func encode(_ s: String) -> String {
+    private static func encode(_ s: String) -> String {
         s.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
     }
 
     private var feedbackURL: URL? {
-        URL(string: "mailto:\(to)?subject=\(encode(subject))&body=\(encode(bodyString))")
+        URL(string: "mailto:\(Self.to)?subject=\(Self.encode(Self.subject))&body=\(Self.encode(Self.bodyString(containsEmailAttachment: false)))")
+    }
+    
+    func shareWithDocumentButton(document: StitchDocumentViewModel) -> some View {
+        ShareLink(item: document.lastEncodedDocument,
+                  subject: Text(Self.subject),
+                  message: Text(.init(Self.bodyString(containsEmailAttachment: true))),
+                  preview: SharePreview(document.projectName)) {
+            Text("Share Document")
+            Image(systemName: "document.fill")
+        }
+    }
+    
+    var emailButton: some View {
+        // Opens the user’s default mail client with a pre-filled address
+        StitchButton {
+            if let url = self.feedbackURL {
+                openURL(url)
+            }
+        } label: {
+            Text("Email")
+            Image(systemName: "mail.fill")
+        }
+    }
+    
+    var gitHubButton: some View {
+        // Launches the system browser and navigates to your site
+        StitchButton {
+            if let url = URL(string: "https://github.com/StitchDesign/Stitch/issues/new") {
+                openURL(url)
+            }
+        } label: {
+            Label {
+                Text("Post to GitHub")
+            } icon: {
+                Image("github")
+                    .resizable()
+                    .scaledToFit()
+            }
+            .labelStyle(.titleAndIcon)
+        }
     }
     
     var body: some View {
         Menu {
-            // Opens the user’s default mail client with a pre-filled address
-            StitchButton {
-                if let url = self.feedbackURL {
-                    openURL(url)
-                }
-            } label: {
-                Text("Email")
-                Image(systemName: "mail.fill")
+            if let document = self.document {
+                shareWithDocumentButton(document: document)
             }
-            
-            // Launches the system browser and navigates to your site
-            StitchButton {
-                if let url = URL(string: "https://github.com/StitchDesign/Stitch/issues/new") {
-                    openURL(url)
-                }
-            } label: {
-                Label {
-                    Text("Post to GitHub")
-                } icon: {
-                    Image("github")
-                        .resizable()
-                        .scaledToFit()
-                }
-                .labelStyle(.titleAndIcon)
-            }
+            emailButton
+            gitHubButton
         } label: {
 #if !targetEnvironment(macCatalyst)
             if showLabel {
