@@ -18,6 +18,12 @@ import Vision
 @Observable
 final class GraphState: Sendable {
     
+    // Don't need AnchorPoint per se? Can just use this, read from the correct coordinate-space and overlay'd ?
+    @MainActor var drawnEdgeOrigin: CGPoint? = nil
+    
+    @MainActor var sizeInputInspectorOrigin: CGPoint? = nil
+    
+    
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     

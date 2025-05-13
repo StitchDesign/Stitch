@@ -229,7 +229,7 @@ struct FlyoutBackgroundColorModifier: ViewModifier {
                 // TODO: this isn't quite accurate; read-height doesn't seem tall enough?
                 GeometryReader { geometry in
                     Color.clear
-                        .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
+                        .onChange(of: geometry.frame(in: .named(NodesView.coordinateNamespace)),
                                   initial: true) { oldValue, newValue in
                             log("FlyoutBackgroundColorModifier size: \(newValue.size)")
                             self.height = newValue.size.height

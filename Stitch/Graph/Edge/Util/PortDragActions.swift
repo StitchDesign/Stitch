@@ -140,6 +140,11 @@ extension GraphState {
             return
         }
 
+        // TODO: MAY 12
+        var dragLocation = gesture.location
+        dragLocation.x += 258
+        dragLocation.y += 125
+        
         // exit edge editing state
         self.edgeEditingState = nil
 
@@ -148,11 +153,14 @@ extension GraphState {
         // Starting port drag
         if !self.edgeDrawingObserver.drawingGesture.isDefined {
             
-            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
+//            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
+
             
             let drag = OutputDragGesture(output: outputRowViewModel,
-                                         dragLocation: gesture.location,
-                                         startingDiffFromCenter: diffFromCenter)
+//                                         dragLocation: gesture.location,
+                                         dragLocation: dragLocation,
+//                                         startingDiffFromCenter: diffFromCenter)
+                                         startingDiffFromCenter: .zero)
 
             self.edgeDrawingObserver.drawingGesture = drag
 
@@ -179,7 +187,8 @@ extension GraphState {
 
             var drag: OutputDragGesture
             drag = existingDrag
-            drag.dragLocation = gesture.location
+//            drag.dragLocation = gesture.location
+            drag.dragLocation = dragLocation
 
             self.edgeDrawingObserver.drawingGesture = drag
         }

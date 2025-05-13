@@ -50,7 +50,42 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
         //                            .offset(x: coordinate.isInput ? 2 : -2)
         //                    }
         //                }
+        
+        // TODO: MAY 12
+        // TODO: use AnchorPreferences ?
+        // TODO: turn this reading-logic OFF when we
+            .background {
+                GeometryReader { geometry in
+                    // let frame = geometry.frame(in: .named(GraphBaseView.coordinateNamespace))
+//                    let frame = geometry.frame(in: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE))
+                    let frame = geometry.frame(in: .global)
+                    Color.clear.onChange(of: frame, initial: true) { oldValue, newValue in
+
+                        
+                        
+                        if let canvasId = rowId.graphItemType.getCanvasItemId,
+                           let canvasSize = self.graph.getCanvasItem(canvasId)?.sizeByLocalBounds {
+                            log("PortEntryView: canvasSize: \(canvasSize)")
+                            
+                            
+                            log("PortEntryView: newValue.size: \(newValue.size)")
+                            log("PortEntryView: newValue.origin: \(newValue.origin)")
+                            log("PortEntryView: newValue.mid: \(newValue.mid)")
+                            var modifiedOrigin = newValue.origin
+//                            modifiedOrigin.x -= canvasSize.width/2
+//                            modifiedOrigin.y -= canvasSize.height/2
+                            modifiedOrigin.x += canvasSize.width
+                            modifiedOrigin.y -= canvasSize.height/2
+                            log("PortEntryView: modifiedOrigin: \(modifiedOrigin)")
+                            self.graph.drawnEdgeOrigin = modifiedOrigin
+                            
+                        }
+                    }
+                }
+                
+            }
             .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
+           
         // TODO: use `UnevenRoundedRectangle` ?
             .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
             .background {
@@ -72,6 +107,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                     .offset(x: 1)
                 }
             }
+           
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
                                              nodeIO: nodeIO,
                                              rowId: rowId))
@@ -148,9 +184,12 @@ struct PortEntryExtendedHitBox: View {
 //            .gesture(DragGesture(minimumDistance: 0.05,
             .gesture(DragGesture(minimumDistance: 0.5,
                                  // .local = relative to this view
-                                 coordinateSpace: .named(NodesView.coordinateNameSpace))
+//                                 coordinateSpace: .named(NodesView.coordinateNamespace))
+//                                 coordinateSpace: .named(GraphBaseView.coordinateNamespace))
+//                                 coordinateSpace: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE))
+                                 coordinateSpace: .global)
                         .onChanged { gesture in
-                            log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
+                            log("PortEntry: StitchRootView coordinate space: onChanged: gesture.location: \(gesture.location)")
                             switch nodeIO {
                             case .input:
                                 graph.inputDragged(gesture: gesture, rowId: rowId)
@@ -159,7 +198,7 @@ struct PortEntryExtendedHitBox: View {
                             }
                         } // .onChanged
                         .onEnded { _ in
-                            log("PortEntry: NodesView coordinate space: onEnded")
+                            log("PortEntry: StitchRootView coordinate space: onEnded")
                             switch nodeIO {
                             case .input:
                                 graph.inputDragEnded()
@@ -168,12 +207,12 @@ struct PortEntryExtendedHitBox: View {
                             }
                         }
             )
-            .simultaneousGesture(DragGesture(minimumDistance: 0.5,
-                                             coordinateSpace: .named(GraphBaseView.coordinateNamespace))
-                .onChanged({ gesture in
-                    log("PortEntry: GraphBaseView coordinate space: onChanged: gesture.location: \(gesture.location)")
-//                    graph.edgeDrawingObserver.drawingGesture?.dragLocation
-                })
-            )
+//            .simultaneousGesture(DragGesture(minimumDistance: 0.5,
+//                                             coordinateSpace: .named(NodesView.coordinateNamespace))
+//                .onChanged({ gesture in
+//                    log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
+////                    graph.edgeDrawingObserver.drawingGesture?.dragLocation
+//                })
+//            )
     }
 }
