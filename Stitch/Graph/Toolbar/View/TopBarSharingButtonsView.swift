@@ -45,15 +45,67 @@ struct TopBarSharingButtonsView: View {
 }
 
 struct TopBarFeedbackButtonsView: View {
+    private let to = "hello@stitchdesign.app"
+    private let subject = "Stitch Feedback"
+    
+    private var bodyString: String {
+"""
+App version: \(appVersion)
+Platform: \(platform)
+
+What were you trying to do?
+[Describe here]
+
+What went well?
+[Describe here]
+
+What was confusing or didn’t work?
+[Describe here]
+
+Any feature you’d love to see?
+[Describe here]
+
+---
+Reminder: Please include a link to your Stitch document so we can reproduce the issue.
+"""
+    }
+    
     @Environment(\.openURL) private var openURL
     
     var showLabel: Bool = true
+    
+    private var appVersion: String {
+        let v  = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        let b  = Bundle.main.infoDictionary?["CFBundleVersion"]            as? String ?? "?"
+        return "\(v) (\(b))"
+    }
+
+    private var platform: String {
+        #if os(iOS) || os(tvOS)
+        return "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+        #elseif os(macOS)
+        let ver = ProcessInfo.processInfo.operatingSystemVersion
+        return "macOS \(ver.majorVersion).\(ver.minorVersion).\(ver.patchVersion)"
+        #elseif os(visionOS)
+        return "visionOS \(ProcessInfo.processInfo.operatingSystemVersionString)"
+        #else
+        return "Unknown"
+        #endif
+    }
+    
+    private func encode(_ s: String) -> String {
+        s.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+    }
+
+    private var feedbackURL: URL? {
+        URL(string: "mailto:\(to)?subject=\(encode(subject))&body=\(encode(bodyString))")
+    }
     
     var body: some View {
         Menu {
             // Opens the user’s default mail client with a pre-filled address
             StitchButton {
-                if let url = URL(string: "mailto:hello@stitchdesign.app") {
+                if let url = self.feedbackURL {
                     openURL(url)
                 }
             } label: {
