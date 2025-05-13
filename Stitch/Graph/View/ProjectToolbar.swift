@@ -113,10 +113,10 @@ struct ProjectToolbarViewModifier: ViewModifier {
                  Note: .navigationBarTrailing on Catalyst is apparently broken, always placed items on left-side ?
                  */
 
-               // Hack view to get proper placement
-               ToolbarItem(placement: .secondaryAction) {
-                   Spacer()
-               }
+                // Hack view to get proper placement
+                ToolbarItem(placement: .secondaryAction) {
+                    Spacer()
+                }
 
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
