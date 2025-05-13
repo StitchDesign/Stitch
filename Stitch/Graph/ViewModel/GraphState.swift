@@ -17,13 +17,6 @@ import Vision
 
 @Observable
 final class GraphState: Sendable {
-    
-    // Don't need AnchorPoint per se? Can just use this, read from the correct coordinate-space and overlay'd ?
-    @MainActor var drawnEdgeOrigin: CGPoint? = nil
-    
-    @MainActor var sizeInputInspectorOrigin: CGPoint? = nil
-    
-    
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     
@@ -114,7 +107,12 @@ final class GraphState: Sendable {
 
     // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
     // TODO: better?: just always look at `.global`
-    @MainActor var graphYPosition: CGFloat = .zero
+    @MainActor var graphPosition: CGPoint = .zero
+    
+    @MainActor
+    var graphYPosition: CGFloat {
+        graphPosition.y
+    }
     
     @MainActor var selection = GraphUISelectionState()
 

@@ -187,9 +187,7 @@ struct PortEntryExtendedHitBox: View {
 //            .gesture(DragGesture(minimumDistance: 0.05,
             .gesture(DragGesture(minimumDistance: 0.5,
                                  // .local = relative to this view
-//                                 coordinateSpace: .named(NodesView.coordinateNamespace))
-//                                 coordinateSpace: .named(GraphBaseView.coordinateNamespace))
-//                                 coordinateSpace: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE))
+                                 // TODO: why are the GraphBaseView and StitchRootView coordinate spaces so inaccurate here?
                                  coordinateSpace: .global)
                         .onChanged { gesture in
                             log("PortEntry: StitchRootView coordinate space: onChanged: gesture.location: \(gesture.location)")

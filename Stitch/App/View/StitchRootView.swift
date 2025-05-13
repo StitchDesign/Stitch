@@ -154,8 +154,9 @@ struct StitchRootView: View {
                 // Projects Home View <-> some Loaded Project;
                 // gives us proper back button etc.
                 StitchNavStack(store: store)
-                    .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
+//                    .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
             })
+        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
         
         
         // NOT NEEDED ANYMORE ?
