@@ -196,7 +196,7 @@ struct iPadGraphTopBarMiscMenu: View {
             TopBarSharingButtonsView(document: document)
                 .modifier(iPadTopBarButtonStyle())
 
-            TopBarFeedbackButtonsView()
+            TopBarFeedbackButtonsView(document: self.document)
                 .modifier(iPadTopBarButtonStyle())
             
             iPadTopBarButton(action: PROJECT_SETTINGS_ACTION,
