@@ -83,7 +83,6 @@ struct EdgeFromDraggedOutputView: View {
                 let edge = PortEdgeUI(from: outputPortViewData,
                                       to: .init(portId: -1, // Nonsense
                                                 canvasId: outputNodeId))
-                
                 EdgeView(edge: edge,
                          pointFrom: pointFrom,
                          pointTo: pointTo,

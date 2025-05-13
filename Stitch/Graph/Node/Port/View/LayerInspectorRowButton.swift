@@ -110,6 +110,8 @@ struct LayerInspectorRowButton: View {
                                                  portId: portId))
             }
         }
+        .modifier(IfSizeInput(isSize: layerInputObserver?.port == .size))
+        
         // Shrink down the dot view
         .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
         
@@ -146,5 +148,17 @@ struct LayerInspectorRowButton: View {
             .onTapGesture {
                 onTap()
             }
+    }
+}
+
+struct IfSizeInput: ViewModifier {
+    let isSize: Bool
+    
+    func body(content: Content) -> some View {
+        if isSize {
+            content.trackFrame(id: String.SIZE_INPUT)
+        } else {
+            content
+        }
     }
 }
