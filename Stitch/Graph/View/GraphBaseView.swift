@@ -150,9 +150,21 @@ struct GraphBaseView: View {
         .overlayPreferenceValue(ViewFramePreferenceKey.self) { preferences in
             GeometryReader { proxy in
                 if let draggedOutput = preferences[String.DRAGGED_OUTPUT].map({ proxy[$0] }),
-                   let sizeInput = preferences[String.SIZE_INPUT].map({ proxy[$0] }) {
+                   let sizeInput = preferences[String.SIZE_INPUT].map({ proxy[$0] }),
+                   let drawingGesture = graph.edgeDrawingObserver.drawingGesture {
                     
-                    let intersects = draggedOutput.intersects(sizeInput)
+//                    let intersects = draggedOutput.intersects(sizeInput)
+                    
+                    let drawingGestureRect: CGRect = .init(origin: drawingGesture.dragLocation,
+                                                           size: .init(width: 24, height: 24))
+                    
+//                    let intersects = draggedOutput.intersects()
+                    
+                    let intersects = areNear(drawingGestureRect.mid,
+                                             sizeInput.mid)
+                    
+                    logInView("preference: drawingGesture.dragLocation.x: \(drawingGesture.dragLocation.x)")
+                    logInView("preference: drawingGesture.dragLocation.y: \(drawingGesture.dragLocation.y)")
                     
                     logInView("preference: draggedOutput.mid.x: \(draggedOutput.mid.x)")
                     logInView("preference: draggedOutput.mid.y: \(draggedOutput.mid.y)")
@@ -173,6 +185,19 @@ struct GraphBaseView: View {
                                 
                                 lineCap: .round,
                                 lineJoin: .round))
+                    
+                    
+                    
+                    CurveLine(from: draggedOutput.mid,
+                              to: drawingGesture.dragLocation)
+                    .stroke(.red,
+                            style: StrokeStyle(
+                                // scale DOWN when we're zoomed out, i.e. simply apply the graph scale
+                                lineWidth: LINE_EDGE_WIDTH * self.document.graphMovement.zoomData,
+                                
+                                lineCap: .round,
+                                lineJoin: .round))
+                    
                     
 //
 //                    EdgeDrawingView(graph: graph,
