@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 struct CloseGraph: StitchStoreEvent {
     
@@ -22,6 +23,9 @@ struct CloseGraph: StitchStoreEvent {
 
         store.showsLayerInspector = false
         
+        // TODO: better place or way to make sure
+        StitchAITrainingTip.hasCompletedOpenAIRequest = false
+                
         // reset any project title edit;
         // the project-write-effect will update metadata for any in-progress title edit
         store.projectIdForTitleEdit = nil
