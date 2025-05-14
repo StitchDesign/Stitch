@@ -79,14 +79,42 @@ extension Array where Element == any StepActionable {
     }
 }
 
+extension Array where Element == any StepActionable {
+    /// Ensures newly created nodes won't overwrite the graph.
+    func remapNodeIdsForNewNodes() -> Self {
+        // Old : New pairings
+        var idMap = [NodeId : NodeId]()
+        
+        self.forEach {
+            if let addNodeAction = $0 as? StepActionAddNode {
+                idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
+            }
+        }
+        
+        let convertedIdSteps = self.map { step in
+            step.remapNodeIds(nodeIdMap: idMap)
+        }
+        
+        return convertedIdSteps
+    }
+}
+
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ actions: [Step]) throws {
+    func validateAndApplyActions(_ actions: [Step],
+                                 isNewRequest: Bool = false) throws {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        let convertedActions = try actions.convertSteps()
+        var convertedActions = try actions
+            .convertSteps()
+        
+        if isNewRequest {
+            // Change Ids for newly created nodes
+            convertedActions = convertedActions
+                .remapNodeIdsForNewNodes()
+        }
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
@@ -101,6 +129,11 @@ extension StitchDocumentViewModel {
         }
         
         for action in convertedActions {
+            if let addAction = action as? StepActionAddNode {
+                // add-node actions cannot re-use IDs
+                assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
+            }
+            
             do {
                 try self.applyAction(action)
             } catch let error as StitchFileError {
@@ -115,9 +148,6 @@ extension StitchDocumentViewModel {
         positionAIGeneratedNodes(convertedActions: convertedActions,
                                  nodes: self.visibleGraph.visibleNodesViewModel,
                                  viewPortCenter: self.newCanvasItemInsertionLocation)
-           
-        // Write to disk ONLY IF WE WERE SUCCESSFUL
-        self.encodeProjectInBackground()
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
     }
@@ -125,7 +155,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func deriveNewAIActions() -> [Step] {
         guard let oldGraphEntity = self.llmRecording.initialGraphState else {
-            fatalErrorIfDebug()
+            log("No graph state found")
             return []
         }
         
@@ -286,8 +316,6 @@ extension StitchDocumentViewModel {
                 canvas.previousPosition = canvasPosition
             }
         }
-        
-        self.encodeProjectInBackground()
         
         // Force update view
         self.graphUpdaterId = .randomId()

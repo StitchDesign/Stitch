@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 struct CatalystProjectTitleModalOpened: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
@@ -159,30 +160,22 @@ struct CatalystTopBarGraphButtons: View {
     @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
-    let isFullscreen: Bool // = false
-    let isPreviewWindowShown: Bool // = true
+    let isFullscreen: Bool
+    let isPreviewWindowShown: Bool
     
-    let llmRecordingModeEnabled: Bool
     let llmRecordingModeActive: Bool
-
+    
     var body: some View {
-
-        // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
-        HStack {
-                        
+        Group {
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
                 dispatch(GoUpOneTraversalLevel())
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
-        
-// #if DEBUG || DEV_DEBUG
             
-            if llmRecordingModeEnabled {
-                CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                    dispatch(LLMRecordingToggled())
-                }
+            CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+                dispatch(LLMRecordingToggled())
             }
-// #endif
+            .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())
@@ -192,15 +185,6 @@ struct CatalystTopBarGraphButtons: View {
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
                 dispatch(FindSomeCanvasItemOnGraph())
             }
-
-            // TODO: implement
-            //            CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME) {
-            //                //                dispatch(ProjectCreated())
-            //                log("CatalystTopBarGraphButtons: to be implemented")
-            //            }
-
-//            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
-//                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
             
             if !isDebugMode {
                 CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
@@ -219,18 +203,12 @@ struct CatalystTopBarGraphButtons: View {
             TopBarSharingButtonsView(document: document)
                 .modifier(CatalystTopBarButtonStyle())
             
-            TopBarFeedbackButtonsView()
+            TopBarFeedbackButtonsView(document: self.document)
                 .modifier(CatalystTopBarButtonStyle())
             
             CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
                 PROJECT_SETTINGS_ACTION()
             }
-
-            // TODO: implement
-            //            CatalystNavBarButton(.SHARE_ICON_SF_SYMBOL_NAME) {
-            //                // dispatch(ProjectShareButtonPressed(metadata: metadata))
-            //                log("CatalystTopBarGraphButtons: to be implemented")
-            //            }
             
             CatalystNavBarButton(action: {
                 dispatch(LayerInspectorToggled())
@@ -286,7 +264,7 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
 }
 
 // TODO: 'toggle preview window' icon needs to change between hide vs show
-// Hacky view to get hover effect on Catalyst topbar buttons
+// Hacky view to get hover effect on Catalyst topbar buttons and to enforce gray tint
 struct CatalystNavBarButton: View, Identifiable {
 
     // let systemName: String  for `Image(systemName:)`

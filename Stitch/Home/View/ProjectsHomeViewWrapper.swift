@@ -43,22 +43,28 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
-                        CatalystHomescreenNavBarButton(action: { [weak store] in
-                               store?.createNewProjectSideEffect(isProjectImport: false)
+                        CatalystNavBarButton(action: { [weak store] in
+                            store?.createNewProjectSideEffect(isProjectImport: false)
                         },
-                                                       iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME))
+                                             iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME))
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystHomescreenNavBarButton(action: { [weak store] in
+                        CatalystNavBarButton(action: { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
                         },
-                                                       iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                                             iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
-                                                       iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
+                        TopBarFeedbackButtonsView(document: nil)
+                        // Hides the little arrow on Catalyst
+                            .menuIndicator(.hidden)
+                            .buttonStyle(.borderless)
+                            .id(UUID())
+                        
+                        CatalystNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
+                                             iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
                         .id(UUID())
                         
 #else
@@ -72,9 +78,9 @@ struct ProjectsHomeViewWrapper: View {
                         },
                                          iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
                         
-                        // TODO: disabling feedback button on home screen for consistency with Catalyst due to color issue
-//                        TopBarFeedbackButtonsView(showLabel: false)
-//                            .modifier(iPadTopBarButtonStyle())
+                        TopBarFeedbackButtonsView(document: nil,
+                                                  showLabel: false)
+                            .modifier(iPadTopBarButtonStyle())
                         
                         iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
                                          iconName: PROJECT_SETTINGS_ICON_NAME)
@@ -83,21 +89,6 @@ struct ProjectsHomeViewWrapper: View {
                     }
                 }
             }
-    }
-}
-
-// Note: the UIKitTap modifier messes up ONLY the homescreen catalyst buttons ?
-struct CatalystHomescreenNavBarButton: View {
-    let action: () -> Void
-    let iconName: IconName
-
-    var body: some View {
-        Button(action: action ) {
-            iconName.image
-        }
-        .buttonStyle(.borderless)
-        .foregroundColor(TOP_BAR_IMAGE_BUTTON_FOREGROUND_COLOR)
-        // .hoverEffect() // ignored on Catalyst?
     }
 }
 
