@@ -14,6 +14,7 @@ import StitchSchemaKit
 let LLM_START_RECORDING_SF_SYMBOL = "inset.filled.rectangle.badge.record"
 let LLM_STOP_RECORDING_SF_SYMBOL = "stop.fill"
 
+// TODO: separate buttons (icons and actions) for generating training data vs correcting what the LLM just sent to us
 struct LLMRecordingToggled: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {

@@ -25,7 +25,7 @@ struct GraphUpdaterId: Equatable, Hashable, Sendable, Codable {
 
 @Observable
 final class StitchDocumentViewModel: Sendable {
-    // TODO: what kind of id is this? Per data flow, it's from StitchDocumentViewModel.id which is from document.graphId i.e. it's the id for the document's root
+    // TODO: what kind of id is this? Per data flow, it's from StitchDocumentViewModel.id which is from document.graphId i.e. it's the id for the document's root graph
     let rootId: UUID // Previously was just `UUID`, taken from StitchDocument.id which was from
     
     let isDebugMode: Bool
@@ -129,6 +129,8 @@ final class StitchDocumentViewModel: Sendable {
     
     /// Subscribed by view to trigger graph view update based on data changes.
     @MainActor var graphUpdaterId: GraphUpdaterId = .init(value: .zero)
+    
+    @MainActor var stitchAITrainingTip = StitchAITrainingTip()
     
     @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
