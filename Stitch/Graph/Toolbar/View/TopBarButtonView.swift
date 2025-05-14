@@ -94,7 +94,6 @@ struct iPadGraphTopBarButtons: View {
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
-    let restartPrototypeWindowIconRotationZ: CGFloat
     var llmRecordingModeEnabled: Bool
     var llmRecordingModeActive: Bool
     let stitchAITrainingTip: StitchAITrainingTip
