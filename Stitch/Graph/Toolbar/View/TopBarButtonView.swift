@@ -139,8 +139,12 @@ struct iPadGraphTopBarButtons: View {
             //                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME))
 
             // the misc (...) button
-            miscButton
-                .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
+            if FeatureFlags.AI_RECORDING_MODE {
+                miscButton
+                    .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
+            } else {
+                miscButton
+            }
             
             iPadNavBarButton(action: {
                 dispatch(LayerInspectorToggled())
@@ -155,10 +159,11 @@ struct iPadGraphTopBarMiscMenu: View {
     
     var body: some View {
         Menu {
-            
-            iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
-                             iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
-                             label: "AI Generation/Correction")
+            if FeatureFlags.AI_RECORDING_MODE {
+                iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
+                                 iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
+                                 label: "AI Generation/Correction")
+            }
             
             iPadTopBarButton(action: { dispatch(FindSomeCanvasItemOnGraph())},
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
