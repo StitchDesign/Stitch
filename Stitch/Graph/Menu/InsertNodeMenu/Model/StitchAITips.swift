@@ -26,7 +26,8 @@ Search patches, layers, or simply ask Stitch AI. \
     }
 }
 
-
+// TODO: since we're using a stateful static var + Rule, do we still need to call `.invalidate(reason:)` on a given instance of this tip?
+// https://fatbobman.com/en/posts/mastering-tipkit-advance/
 struct StitchAITrainingTip: Tip {
 
     var title: Text {
@@ -37,8 +38,7 @@ struct StitchAITrainingTip: Tip {
         Text("Click here to correct results from Stitch AI. Corrections can be submitted to Stitch for improving Stitch AI's accuracy.")
     }
     
-
-    
+    // Note: this is a *stateful* `static var`
     // https://www.createwithswift.com/displaying-tips-based-on-parameters-and-events-with-tipkit/
     @Parameter
     static var hasCompletedOpenAIRequest: Bool = false

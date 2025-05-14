@@ -160,11 +160,10 @@ struct CatalystTopBarGraphButtons: View {
     @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
-    let isFullscreen: Bool // = false
-    let isPreviewWindowShown: Bool // = true
+    let isFullscreen: Bool
+    let isPreviewWindowShown: Bool
     
     let llmRecordingModeActive: Bool
-    @Binding var shouldDisplayTrainingTip: Bool
     
     var body: some View {
         Group {
@@ -172,18 +171,11 @@ struct CatalystTopBarGraphButtons: View {
                 dispatch(GoUpOneTraversalLevel())
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
-        
+            
             CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                
                 dispatch(LLMRecordingToggled())
-                
-                if self.shouldDisplayTrainingTip {
-                    self.shouldDisplayTrainingTip = false
-                    document.stitchAITrainingTip.invalidate(reason: .actionPerformed)
-                    StitchAITrainingTip.hasCompletedOpenAIRequest = true
-                }
             }
-                .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
+            .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())

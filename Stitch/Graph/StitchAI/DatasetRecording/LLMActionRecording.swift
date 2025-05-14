@@ -54,19 +54,17 @@ extension StitchDocumentViewModel {
         self.llmRecording.actions = derivedActions
         
         // First store the current AI-generated actions
-        let currentActions = self.llmRecording.actions
-        log("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
+        log("🤖 💾 Storing AI-Generated Actions: \(self.llmRecording.actions)")
         
+        // Invalidate the StitchAI tip -- don't need to show it to the user again
+        self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
+        StitchAITrainingTip.hasCompletedOpenAIRequest = false
         
         // Set augmentation mode
         self.llmRecording.mode = .augmentation
         
         // Open the Edit-before-submit modal
         self.llmRecording.modal = .editBeforeSubmit
-        
-        // We keep the actions as they are - don't clear them
-        log("🤖 💾 Verified Actions Count: \(currentActions.count)")
-        log("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
         
         // Clear the AI generation flag AFTER we've secured the actions
         self.insertNodeMenuState.isFromAIGeneration = false
