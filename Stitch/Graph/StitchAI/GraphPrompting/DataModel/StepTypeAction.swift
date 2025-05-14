@@ -407,7 +407,7 @@ struct StepActionSetInput: StepActionable {
     
     var nodeId: NodeId
     let port: NodeIOPortType // integer or key path
-    let value: PortValue
+    var value: PortValue
     let valueType: NodeType
     
     // encoding
@@ -423,6 +423,11 @@ struct StepActionSetInput: StepActionable {
         var copy = self
         
         copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        
+        if let interactionId = copy.value.getInteractionId?.asNodeId {
+            let newId = nodeIdMap.get(interactionId) ?? interactionId
+            copy.value = .assignedLayer(LayerNodeId(newId))
+        }
 
         return copy
     }
