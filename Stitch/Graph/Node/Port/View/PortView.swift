@@ -38,7 +38,15 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
     var portColor: Color {
         portUIViewModel.portColor.color(theme)
     }
-        
+    
+    var nodeIOCoordinate: NodeIOCoordinate {
+        self.rowId.asNodeIOCoordinate
+    }
+    
+    var activelyDraggedOutputCoordinate: OutputCoordinate? {
+        graph.edgeDrawingObserver.drawingGesture?.output.nodeIOCoordinate
+    }
+    
     var body: some View {
         Rectangle().fill(self.portColor)
         //            Rectangle().fill(portBodyColor)
@@ -51,41 +59,11 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
         //                    }
         //                }
         
-        // TODO: MAY 12
-        // TODO: use AnchorPreferences ?
-        // TODO: turn this reading-logic OFF when we
-//            .background {
-//                GeometryReader { geometry in
-//                    // let frame = geometry.frame(in: .named(GraphBaseView.coordinateNamespace))
-////                    let frame = geometry.frame(in: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE))
-//                    let frame = geometry.frame(in: .global)
-//                    Color.clear.onChange(of: frame, initial: true) { oldValue, newValue in
-//
-//                        
-//                        
-//                        if let canvasId = rowId.graphItemType.getCanvasItemId,
-//                           let canvasSize = self.graph.getCanvasItem(canvasId)?.sizeByLocalBounds {
-//                            log("PortEntryView: canvasSize: \(canvasSize)")
-//                            
-//                            
-//                            log("PortEntryView: newValue.size: \(newValue.size)")
-//                            log("PortEntryView: newValue.origin: \(newValue.origin)")
-//                            log("PortEntryView: newValue.mid: \(newValue.mid)")
-//                            var modifiedOrigin = newValue.origin
-////                            modifiedOrigin.x -= canvasSize.width/2
-////                            modifiedOrigin.y -= canvasSize.height/2
-//                            modifiedOrigin.x += canvasSize.width
-//                            modifiedOrigin.y -= canvasSize.height/2
-//                            log("PortEntryView: modifiedOrigin: \(modifiedOrigin)")
-//                            self.graph.drawnEdgeOrigin = modifiedOrigin
-//                            
-//                        }
-//                    }
-//                }
-//                
-//            }
-            
-            .modifier(IfIsOutput(isOutput: nodeIO == .output))
+        // For perf reasons, we only populate `EdgeDraggedToInspectorPreferenceKey` if we're actively dragging an edge
+            .modifier(TrackDraggedOutput(
+                id: nodeIOCoordinate,
+                isActivelyDraggedOutput: nodeIOCoordinate == activelyDraggedOutputCoordinate
+            ))
         
             .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
            

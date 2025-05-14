@@ -10,6 +10,7 @@ import StitchSchemaKit
 
 @Observable
 final class EdgeDrawingObserver: Sendable {
+    @MainActor var nearestEligibleInspectorInputOrField: Layer
     @MainActor var nearestEligibleInput: InputNodeRowViewModel?
     @MainActor var drawingGesture: OutputDragGesture?
     @MainActor var recentlyDrawnEdge: PortEdgeUI?
