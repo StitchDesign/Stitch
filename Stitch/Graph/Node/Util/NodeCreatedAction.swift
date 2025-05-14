@@ -30,7 +30,8 @@ extension StitchDocumentViewModel {
         
         // Find the input
         guard let selectedInput = state.selectedInput,
-              var selectedInputLocation = graph.getNode(selectedInput.nodeId)?.nonLayerCanvasItem?.locationOfInputs,
+              var selectedInputLocation = graph.getCanvasItem(inputId: selectedInput)?
+            .locationOfInputs,
               let selectedInputObserver = state.visibleGraph.getInputRowObserver(selectedInput),
               let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
             fatalErrorIfDebug()
