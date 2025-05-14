@@ -23,7 +23,7 @@ struct CloseGraph: StitchStoreEvent {
 
         store.showsLayerInspector = false
         
-        // TODO: better place or way to make sure 
+        // TODO: better place or way to make sure
         StitchAITrainingTip.hasCompletedOpenAIRequest = false
                 
         // reset any project title edit;

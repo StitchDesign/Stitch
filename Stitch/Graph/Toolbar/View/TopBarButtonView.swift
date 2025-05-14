@@ -91,23 +91,18 @@ struct TopBarImageButton: View {
 
 struct iPadGraphTopBarButtons: View {
 
-    let document: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
     let restartPrototypeWindowIconRotationZ: CGFloat
-    var llmRecordingModeEnabled: Bool
     var llmRecordingModeActive: Bool
-    let stitchAITrainingTip: StitchAITrainingTip
-    @Binding var shouldDisplayTrainingTip: Bool
     
     @ViewBuilder
     var miscButton: some View {
-        iPadGraphTopBarMiscMenu(
-            document: document,
-            llmRecordingModeActive: llmRecordingModeActive,
-            llmRecordingModeEnabled: llmRecordingModeEnabled)
+        iPadGraphTopBarMiscMenu(document: document,
+                                llmRecordingModeActive: llmRecordingModeActive)
     }
     
     var body: some View {
@@ -144,12 +139,8 @@ struct iPadGraphTopBarButtons: View {
             //                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME))
 
             // the misc (...) button
-            if shouldDisplayTrainingTip {
-                miscButton
-                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
-            } else {
-                miscButton
-            }
+            miscButton
+                .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
             iPadNavBarButton(action: {
                 dispatch(LayerInspectorToggled())
@@ -161,21 +152,13 @@ struct iPadGraphTopBarButtons: View {
 struct iPadGraphTopBarMiscMenu: View {
     @Bindable var document: StitchDocumentViewModel
     let llmRecordingModeActive: Bool
-    let llmRecordingModeEnabled: Bool
     
     var body: some View {
         Menu {
             
-            if llmRecordingModeEnabled {
-                iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
-                                 iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
-                                 label: "AI Generation/Correction")
-            }
-            
-//            // add node
-//            iPadTopBarButton(action: INSERT_NODE_ACTION,
-//                             iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME),
-//                             label: "Insert Node")
+            iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
+                             iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
+                             label: "AI Generation/Correction")
             
             iPadTopBarButton(action: { dispatch(FindSomeCanvasItemOnGraph())},
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
