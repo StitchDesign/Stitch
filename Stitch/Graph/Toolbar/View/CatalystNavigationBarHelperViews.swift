@@ -172,10 +172,12 @@ struct CatalystTopBarGraphButtons: View {
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
             
-            CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-                dispatch(LLMRecordingToggled())
+            if FeatureFlags.AI_RECORDING_MODE {
+                CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+                    dispatch(LLMRecordingToggled())
+                }
+                .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             }
-            .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
                 dispatch(ToggleInsertNodeMenu())

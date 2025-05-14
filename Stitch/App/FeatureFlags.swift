@@ -12,5 +12,5 @@ import StitchSchemaKit
 struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
     static let USE_COMPONENTS = false
-    static let USE_AI_MODE = true
+    static let AI_RECORDING_MODE = false
 }
