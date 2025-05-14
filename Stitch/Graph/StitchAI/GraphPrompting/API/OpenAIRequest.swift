@@ -354,14 +354,6 @@ extension StitchAIManager {
 
 // MARK: - Extensions
 
-extension StitchDocumentViewModel {
-    @MainActor func handleError(_ error: Error) {
-        log("Error generating graph with StitchAI: \(error)", .logToServer)
-        self.insertNodeMenuState.show = false
-        self.insertNodeMenuState.isGeneratingAINode = false
-    }
-}
-
 extension Data {
     /// Parse OpenAI response data into step actions
     func getOpenAISteps() throws -> LLMStepActions {
