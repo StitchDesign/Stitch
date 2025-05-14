@@ -30,7 +30,7 @@ struct InsertNodeMenuSearchBar: View {
     
     var isAIMode: Bool {
         let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
-        return isAIMode && store.currentDocument?.aiManager?.secrets != nil
+        return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
     }
     
     var body: some View {

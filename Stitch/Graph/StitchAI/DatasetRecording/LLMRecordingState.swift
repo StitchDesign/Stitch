@@ -102,14 +102,19 @@ extension Array where Element == any StepActionable {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ actions: [Step]) throws {
+    func validateAndApplyActions(_ actions: [Step],
+                                 isNewRequest: Bool = false) throws {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        let convertedActions = try actions
+        var convertedActions = try actions
             .convertSteps()
-        // Change Ids for newly created nodes
-            .remapNodeIdsForNewNodes()
+        
+        if isNewRequest {
+            // Change Ids for newly created nodes
+            convertedActions = convertedActions
+                .remapNodeIdsForNewNodes()
+        }
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
@@ -143,9 +148,6 @@ extension StitchDocumentViewModel {
         positionAIGeneratedNodes(convertedActions: convertedActions,
                                  nodes: self.visibleGraph.visibleNodesViewModel,
                                  viewPortCenter: self.newCanvasItemInsertionLocation)
-           
-        // Write to disk ONLY IF WE WERE SUCCESSFUL
-        self.encodeProjectInBackground()
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
     }
@@ -314,8 +316,6 @@ extension StitchDocumentViewModel {
                 canvas.previousPosition = canvasPosition
             }
         }
-        
-        self.encodeProjectInBackground()
         
         // Force update view
         self.graphUpdaterId = .randomId()
