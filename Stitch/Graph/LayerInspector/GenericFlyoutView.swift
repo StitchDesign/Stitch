@@ -326,14 +326,25 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
     
     @MainActor
     func handle(state: StitchDocumentViewModel) {
-                
-        let graph = state.visibleGraph
+        state.handleLayerInputFieldAddedToCanvas(
+            layerInput: layerInput,
+            nodeId: nodeId,
+            fieldIndex: fieldIndex)
+    }
+}
+
+extension StitchDocumentViewModel {
+    @MainActor
+    func handleLayerInputFieldAddedToCanvas(layerInput: LayerInputPort,
+                                            nodeId: NodeId,
+                                            fieldIndex: Int) {
+        let graph = self.visibleGraph
         
         let addLayerField = { (nodeId: NodeId) in
-            state.addLayerFieldToGraph(layerInput: layerInput,
+            self.addLayerFieldToGraph(layerInput: layerInput,
                                        nodeId: nodeId,
                                        fieldIndex: fieldIndex,
-                                       groupNodeFocused: state.groupNodeFocused?.groupNodeId)
+                                       groupNodeFocused: self.groupNodeFocused?.groupNodeId)
         }
         
         if let multiselectInputs = graph.propertySidebar.inputsCommonToSelectedLayers,
@@ -346,6 +357,6 @@ struct LayerInputFieldAddedToGraph: StitchDocumentEvent {
             addLayerField(nodeId)
         }
         
-        state.encodeProjectInBackground()
+        self.encodeProjectInBackground()
     }
 }

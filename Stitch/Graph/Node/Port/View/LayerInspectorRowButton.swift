@@ -19,7 +19,7 @@ struct LayerInspectorRowButton: View {
     let packedInputCanvasItemId: CanvasItemId?
     let isHovered: Bool
     
-    // non-nil = this inspector row button is for a field, not a
+    // non-nil = this inspector row button is for a field, not an input
     var fieldIndex: Int? = nil
     
     @MainActor
@@ -110,7 +110,11 @@ struct LayerInspectorRowButton: View {
                                                  portId: portId))
             }
         }
-        .modifier(IfSizeInput(isSize: layerInputObserver?.port == .size))
+        .modifier(TrackInspectorInputOrField(
+            layerInputObserver: layerInputObserver,
+            // Technically, field index is just for use of flyout and irrelevant to "dragged edge onto inspector" ?
+            fieldIndex: self.fieldIndex,
+            hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
         
         // Shrink down the dot view
         .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
@@ -132,17 +136,5 @@ struct LayerInspectorRowButton: View {
             .onTapGesture {
                 onTap()
             }
-    }
-}
-
-struct IfSizeInput: ViewModifier {
-    let isSize: Bool
-    
-    func body(content: Content) -> some View {
-        if isSize {
-            content.trackFrame(id: String.SIZE_INPUT)
-        } else {
-            content
-        }
     }
 }

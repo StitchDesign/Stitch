@@ -32,7 +32,7 @@ extension GraphState {
                 return
             }
             
-            self.edgeDrawingObserver.nearestEligibleInput = inputRowViewModel
+            self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(inputRowViewModel)
 
             self.edgeDrawingObserver.drawingGesture = OutputDragGesture(output: upstreamObserver,
                                                                         dragLocation: dragLocation,
@@ -54,7 +54,7 @@ extension GraphState {
     func inputDragEnded() {
         guard let drawingGesture = self.edgeDrawingObserver.drawingGesture,
               let fromRowObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
-              let nearestEligibleInput = self.edgeDrawingObserver.nearestEligibleInput else {
+              let nearestEligibleInput = self.edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput else {
             log("InputDragEnded: drag ended, but could not create new edge")
             self.edgeDrawingObserver.reset()
             
@@ -72,7 +72,7 @@ extension GraphState {
 
         let sourceNodeId = fromRowObserver.id.nodeId
         
-        self.createEdgeFromEligibleInput(
+        self.createEdgeFromEligibleCanvasInput(
             from: from,
             to: to,
             sourceNodeId: sourceNodeId)
@@ -204,11 +204,20 @@ extension GraphState {
     
     @MainActor
     func outputDragEnded() {
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
         
-        guard let from = self.edgeDrawingObserver.drawingGesture?.output,
-              let to = self.edgeDrawingObserver.nearestEligibleInput,
-              let fromRowObserver = self.getOutputRowObserver(from.nodeIOCoordinate) else {
-            log("OutputDragEnded: No active output drag or eligible input ...")
+        // We could have had an eligible canvas input and/or inspector input/input-field.
+        // If we had both, prefer that inspector ?
+        
+        // We ought to have these if we were dragging an output
+        guard let draggedOutput = self.edgeDrawingObserver.drawingGesture?.output,
+              let draggedOutputObserver: OutputNodeRowObserver = self.getOutputRowObserver(draggedOutput.nodeIOCoordinate) else {
+            
+            fatalErrorIfDebug("Output drag ended but we did not have an edge drawing observer and/or could not retrieve the output row observer")
+            
             self.edgeDrawingObserver.reset()
             
             DispatchQueue.main.async { [weak self] in
@@ -217,19 +226,48 @@ extension GraphState {
             
             return
         }
+               
+        
+        switch self.edgeDrawingObserver.nearestEligibleEdgeDestination {
+        
+        case .none:
+            break // nothing to do
+            
+        case .canvasInput(let inputNodeRowViewModel):
+            
+            self.createEdgeFromEligibleCanvasInput(
+                from: draggedOutput.portUIViewModel.portAddress,
+                to: inputNodeRowViewModel.portUIViewModel.portAddress,
+                // TODO: is the below still necessary?
+                // Get node id from row observer, not row view model, in case edge drag is for group,
+                // we want the splitter node delegate not the group node delegate
+                sourceNodeId: draggedOutputObserver.id.nodeId)
+        
+        case .inspectorInputOrField(let layerInputType):
+
+            switch layerInputType.portType {
+            
+            case .packed:
+                // TODO: MAY 14: handle layer-sidebar-multiselect
+                if let nodeId = self.layerNodes().first?.id {
+                    document.handleLayerInputAdded(
+                        nodeId: nodeId,
+                        layerInput: layerInputType.layerInput)
+                } // if let nodeId
+                
+            // UnpackedPortType_V30.UnpackedPortType
+            case .unpacked(let unpackedPortType):
+                // TODO: MAY 14: handle layer-sidebar-multiselect
+                if let nodeId = self.layerNodes().first?.id {
+                    document.handleLayerInputFieldAddedToCanvas(
+                        layerInput: layerInputType.layerInput,
+                        nodeId: nodeId,
+                        fieldIndex: unpackedPortType.rawValue)
+                }
+            }
+        } // switch
         
         self.edgeDrawingObserver.reset()
-        
-        // TODO: is the below still necessary?
-        // Get node id from row observer, not row view model, in case edge drag is for group,
-        // we want the splitter node delegate not the group node delegate
-        let sourceNodeId = fromRowObserver.id.nodeId
-        
-        self.createEdgeFromEligibleInput(
-            from: from.portUIViewModel.portAddress,
-            to: to.portUIViewModel.portAddress,
-            sourceNodeId: sourceNodeId)
-        
         self.encodeProjectInBackground()
     }
 }
@@ -237,7 +275,7 @@ extension GraphState {
 
 extension GraphState {
     @MainActor
-    func createEdgeFromEligibleInput(from: OutputPortIdAddress?,
+    func createEdgeFromEligibleCanvasInput(from: OutputPortIdAddress?,
                                      to: InputPortIdAddress?,
                                      sourceNodeId: NodeId) {
         // Create visual edge if connecting two nodes

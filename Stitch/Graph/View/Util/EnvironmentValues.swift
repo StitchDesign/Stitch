@@ -25,6 +25,7 @@ struct SafeAreaInsetsEnvironmentKey: EnvironmentKey, Hashable {
 }
 
 extension EnvironmentValues {
+    // TODO: is this even used?
     var viewframe: CGRect {
         get { self[ViewFrameKey.self] }
         set { self[ViewFrameKey.self] = newValue }

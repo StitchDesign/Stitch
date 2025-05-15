@@ -41,11 +41,12 @@ func areNear(_ inputCenter: CGPoint, _ cursorCenter: CGPoint) -> Bool {
     log("areNear: cursorCenter: \(cursorCenter)")
 
     let range = CGSize(width: NEARNESS_ALLOWANCE * 3,
-                       height: NEARNESS_ALLOWANCE)
+//                       height: NEARNESS_ALLOWANCE)
+                       height: NEARNESS_ALLOWANCE * 3)
 
     // shift inward slightly
     let box1 = CGRect.init(
-        origin: .init(x: inputCenter.x + NEARNESS_ALLOWANCE,
+        origin: .init(x: inputCenter.x, // + NEARNESS_ALLOWANCE,
                       y: inputCenter.y),
         size: range)
 
@@ -68,8 +69,10 @@ extension GraphState {
      - cursor position is too far from other inputs,
      - ... etc.
      */
+    
+    // fka `findEligibleInput`
     @MainActor
-    func findEligibleInput(
+    func findEligibleCanvasInput(
         // The location of the user's output/input-dragged gesture
         cursorLocation: CGPoint,
         
@@ -78,8 +81,6 @@ extension GraphState {
         cursorNodeId: CanvasItemId
     ) {
         
-        var nearestInputs = [InputNodeRowViewModel]()
-        
         let canvasItemsAtThisTraversalLevel = self
             .getCanvasItemsAtTraversalLevel(groupNodeFocused: documentDelegate?.groupNodeFocused?.groupNodeId)
         
@@ -87,6 +88,8 @@ extension GraphState {
             .flatMap { canvasItem -> [InputNodeRowViewModel] in
                 canvasItem.inputViewModels
             }
+        
+        var nearestInputs = [InputNodeRowViewModel]()
         
         // Only look at pref-dict inputs' which are on this level
         for inputViewModel in eligibleInputs {
@@ -100,14 +103,16 @@ extension GraphState {
             }
         }
         
-        if nearestInputs.isEmpty {
-            self.edgeDrawingObserver.nearestEligibleInput = nil
-        } else if let nearestInput = nearestInputs.last {
-            // While dragging cursor from an output/input,
-            // we've detected that we're over an eligible input
-            // to which we could create a connection.
-            self.edgeDrawingObserver.nearestEligibleInput = nearestInput
-        }
+        // TODO: MAY 14: revisit
+//        if nearestInputs.isEmpty {
+//            log("resetting nearestEligibleEdgeDestination")
+//            self.edgeDrawingObserver.nearestEligibleEdgeDestination = nil
+//        } else if let nearestInput = nearestInputs.last {
+//            // While dragging cursor from an output/input,
+//            // we've detected that we're over an eligible input
+//            // to which we could create a connection.
+//            self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(nearestInput)
+//        }
         
         // After we've set or wiped the nearestEligible input,
         // *animate* the port color change:
