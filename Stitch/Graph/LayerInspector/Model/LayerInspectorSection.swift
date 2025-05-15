@@ -153,6 +153,7 @@ extension LayerInspectorSection {
         
         case .scrolling:
             return [
+                .isScrollAuto,
                 .scrollContentSize,
                 
                 .scrollXEnabled,
