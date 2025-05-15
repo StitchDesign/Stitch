@@ -85,7 +85,7 @@ struct DefaultNodeInputsView: View {
                        isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
                        isFieldInMultifieldInput: isMultiField,
                        isForFlyout: false,
-                       usesThemeColor: false,
+                       isSelectedInspectorRow: false,
                        useIndividualFieldLabel: true)
     }
     
@@ -213,7 +213,7 @@ struct DefaultNodeOutputsView: View {
                                                 node: node,
                                                 isForLayerInspector: false,
                                                 isFieldInMultifieldInput: isMultiField,
-                                                usesThemeColor: false)
+                                                isSelectedInspectorRow: false)
                                 .zIndex(-CGFloat(index))
                             }
                         }

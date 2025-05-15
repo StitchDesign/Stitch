@@ -12,7 +12,7 @@ struct LayerInspectorGridInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerInputObserver: LayerInputObserver
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     
     var allFieldObservers: [FieldViewModel] {
         layerInputObserver.fieldGroupsFromInspectorRowViewModels.flatMap(\.fieldObservers)
@@ -27,7 +27,7 @@ struct LayerInspectorGridInputView: View {
             LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
-                             usesThemeColor: false)
+                             usesThemeColor: isSelectedInspectorRow)
             
             Spacer()
             
@@ -61,7 +61,7 @@ struct LayerInspectorGridInputView: View {
                                    nodeId: node.id,
                                    layerInputObserver: layerInputObserver,
                                    fieldObserver: fieldObserver,
-                                   usesThemeColor: usesThemeColor)
+                                   usesThemeColor: isSelectedInspectorRow)
     }
 }
 

@@ -21,7 +21,7 @@ struct MediaPickerValueEntry: View {
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState // Doesn't need to be @Bindable, since not directly relied on in the UI for a render-cycle
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     let activeIndex: ActiveIndex
     let mediaType: NodeMediaSupport
     
@@ -41,7 +41,7 @@ struct MediaPickerValueEntry: View {
                                choices: [.importButton],
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                graph: graph,
-                               usesThemeColor: usesThemeColor,
+                               isSelectedInspectorRow: isSelectedInspectorRow,
                                activeIndex: activeIndex)
             
             // Only show the incoming value as an option if there's an incoming edge
@@ -52,7 +52,7 @@ struct MediaPickerValueEntry: View {
                                    choices: [],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    graph: graph,
-                                   usesThemeColor: usesThemeColor,
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
                                    activeIndex: activeIndex)
                 
             }
@@ -65,7 +65,7 @@ struct MediaPickerValueEntry: View {
                                    choices: [mediaValue],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                    graph: graph,
-                                   usesThemeColor: usesThemeColor,
+                                   isSelectedInspectorRow: isSelectedInspectorRow,
                                    activeIndex: activeIndex)
             }
             
@@ -76,7 +76,7 @@ struct MediaPickerValueEntry: View {
                                choices: defaultOptions,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                graph: graph,
-                               usesThemeColor: usesThemeColor,
+                               isSelectedInspectorRow: isSelectedInspectorRow,
                                activeIndex: activeIndex)
         },
                    
@@ -106,7 +106,7 @@ struct MediaPickerValueEntry: View {
             
             TruncatedTextView(isMultiselectInspectorInputWithHeterogenousValues ? .HETEROGENOUS_VALUES : label,
                               truncateAt: 30,
-                              color: usesThemeColor ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
+                              color: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
             
             // Note: truncation logic does not quite seem correct; we were truncating at ~5-10 characters, not 30
             // TODO: better to just set a single width for all media-labels, regardless of length or "None" etc.?

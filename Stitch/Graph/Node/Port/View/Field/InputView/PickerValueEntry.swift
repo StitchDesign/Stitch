@@ -28,7 +28,7 @@ struct MediaPickerButtons: View {
     let choices: [FieldValueMedia]
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     let activeIndex: ActiveIndex
 
     var body: some View {
@@ -45,7 +45,7 @@ struct MediaPickerButtons: View {
                 // We add a value for truncating text here to ensure that the title view in the picker does not stretch too long when importing a file with a long tiel
                 //                StitchTextView(string: choice.getName(mediaDict: mediaManager.mediaDict), truncateAt: 30)
                 StitchTextView(string: choice.name,
-                               fontColor: usesThemeColor ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
+                               fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
             }
         }
     }

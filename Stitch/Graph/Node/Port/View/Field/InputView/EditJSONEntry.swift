@@ -21,13 +21,13 @@ struct EditJSONEntry: View {
     let coordinate: FieldCoordinate
     let rowObserver: InputNodeRowObserver
     let json: StitchJSON? // nil helps with perf?
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     let activeIndex: ActiveIndex
     @Binding var isPressed: Bool
 
     var body: some View {
         FieldButtonImage(sfSymbolName: JSON_BRACKET_SF_SYMBOL,
-                         usesThemeColor: usesThemeColor)
+                         isSelectedInspectorRow: isSelectedInspectorRow)
             .popover(isPresented: $isOpen) {
                 TextEditor(text: $internalEditString)
                     .focusedValue(\.focusedField, .textInput(coordinate))

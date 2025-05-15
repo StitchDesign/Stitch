@@ -14,7 +14,7 @@ struct ValueJSONView: View {
     @FocusedValue(\.focusedField) private var focusedField
     let coordinate: OutputCoordinate
     let json: StitchJSON?
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
 
     var id: NodeId {
         coordinate.nodeId
@@ -24,7 +24,7 @@ struct ValueJSONView: View {
 
     var body: some View {
         FieldButtonImage(sfSymbolName: JSON_BRACKET_SF_SYMBOL,
-                         usesThemeColor: usesThemeColor)
+                         isSelectedInspectorRow: isSelectedInspectorRow)
             .popover(isPresented: $isPressed) {
                 /*
                  NOTE 1: TextEditor seems to be the best solution for a scrollable multiline text.

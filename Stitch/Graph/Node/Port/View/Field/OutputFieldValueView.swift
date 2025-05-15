@@ -26,7 +26,7 @@ struct OutputFieldValueView: View {
     
     // Note: only the CanvasSketch and TextField layers have outputs (Image, Text respectively),
     // so the vast majority of outputs *cannot* be 'selected in the inspector'
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     
     @Binding var isButtonPressed: Bool
 
@@ -67,7 +67,7 @@ struct OutputFieldValueView: View {
                              document: document,
                              value: bool,
                              isFieldInsideLayerInspector: false,
-                             usesThemeColor: usesThemeColor,
+                             isSelectedInspectorRow: isSelectedInspectorRow,
                              isMultiselectInspectorInputWithHeterogenousValues: false)
             
         case .dropdown(let choiceDisplay, _):
@@ -110,7 +110,7 @@ struct OutputFieldValueView: View {
         case .json(let json):
             ValueJSONView(coordinate: rowViewModel.id.asNodeIOCoordinate,
                           json: isButtonPressed ? json : nil,
-                          usesThemeColor: usesThemeColor,
+                          isSelectedInspectorRow: isSelectedInspectorRow,
                           isPressed: $isButtonPressed)
             
         case .anchorPopover(let anchor):
@@ -119,7 +119,7 @@ struct OutputFieldValueView: View {
                               document: document,
                               selection: anchor,
                               isFieldInsideLayerInspector: false,
-                              usesThemeColor: usesThemeColor,
+                              isSelectedInspectorRow: isSelectedInspectorRow,
                               hasHeterogenousValues: false)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
@@ -158,7 +158,7 @@ struct OutputFieldValueView: View {
         ReadOnlyValueEntry(value: displayName,
                            alignment: outputAlignment,
                            fontColor: STITCH_FONT_GRAY_COLOR,
-                           usesThemeColor: usesThemeColor,
+                           isSelectedInspectorRow: isSelectedInspectorRow,
                            isForLayerInspector: isForLayerInspector,
                            isFieldInMultifieldInput: isFieldInMultifieldInput)
         

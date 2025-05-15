@@ -39,11 +39,14 @@ extension FieldViewModel {
     // a field index that ignores packed vs. unpacked mode
     // so e.g. a field view model for a height field of a size input will have a fieldLabelIndex of 1, not 0
     @MainActor
-    func fieldLabelIndex(_ portType: NodeIOPortType) -> Int {
+    func fieldIndexWhichIgnoresPackedVsUnpacked() -> Int {
+        
+        let portType = self.id.rowId.portType
+        
         switch portType {
         case .portIndex:
             // leverage patch node definition to get label
-            return fieldIndex
+            return self.fieldIndex
 
         case .keyPath(let layerInputType):
 
@@ -51,7 +54,7 @@ extension FieldViewModel {
             case .packed:
                 // if it is packed, then field index is correct,
                 // so can use proper label list etc.
-                return fieldIndex
+                return self.fieldIndex
 
             case .unpacked(let unpackedPortType):
                 let index = unpackedPortType.rawValue
