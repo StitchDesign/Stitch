@@ -16,7 +16,8 @@ final class LayerViewModel: Sendable {
     private let mediaImportCoordinator = MediaLayerImportCoordinator()
     
     // Make unique ID for each layer view model so that a new creation can't use the same preview coordinate and confuse the view that nothing changed
-    let id = UUID()
+    let _id = UUID()
+    var id: PreviewCoordinate { self.previewCoordinate }
     let previewCoordinate: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer

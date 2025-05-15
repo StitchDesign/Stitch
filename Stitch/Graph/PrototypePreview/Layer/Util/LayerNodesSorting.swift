@@ -224,7 +224,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     if let children = layerData.children {
         let layerTypes: LayerTypeOrderedSet = layerNode.previewLayerViewModels
             .map { layerViewModel in
-                    .group(data: .init(id: layerViewModel.id,
+                    .group(data: .init(id: layerViewModel._id,
                                        previewCoordinate: layerViewModel.previewCoordinate,
                                        zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                        sidebarIndex: sidebarIndex,
@@ -242,7 +242,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
         let layerTypes: LayerTypeOrderedSet = layerNode.previewLayerViewModels
             .reversed() // Reverse loop's layer view models, for default "ZStack" case
             .map { layerViewModel in
-                    .nongroup(data: .init(id: layerViewModel.id,
+                    .nongroup(data: .init(id: layerViewModel._id,
                                           previewCoordinate: layerViewModel.previewCoordinate,
                                           zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                           sidebarIndex: sidebarIndex,

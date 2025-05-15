@@ -190,6 +190,7 @@ func nativeScrollInteractionEval(node: NodeViewModel,
         
         nativeScrollInteractionEvalOp(
             layerViewModel: layerViewModel,
+            loopIndex: loopIndex,
             interactiveLayer: interactiveLayer,
             // TODO: DEC 3: grab parentSize from readSize of `assignedLayerNodeViewModel.layerGroupdId` ?
             parentSize: interactiveLayer.parentSize,
@@ -199,11 +200,12 @@ func nativeScrollInteractionEval(node: NodeViewModel,
 }
 
 @MainActor
-func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the grop
+func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the group
+                                   loopIndex: Int,
                                    interactiveLayer: InteractiveLayer,
                                    parentSize: CGSize,
                                    currentGraphTime: TimeInterval,
-                                   currentGraphFrameCount: Int) -> ImpureEvalOpResult {
+                                   currentGraphFrameCount: Int) -> PortValues {
     
     // log("nativeScrollInteractionEvalOp: called")
     
@@ -231,10 +233,34 @@ func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the gr
     }
     
     let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
+
+    // TODO: previous auto functionality, decide if any of it is needed
+    //    let isScrollAuto = layerViewModel.isScrollAuto.getBool ?? false
+//    let graph = layerViewModel.nodeDelegate?.graphDelegate
     
-    return .init(outputs: [
+    // Auto scroll functionality
+//    if isScrollAuto,
+//       let graph = graph {
+//       // Find children layers
+//        let childrenLayerIds = graph.getLayerChildren(for: layerViewModel.id.layerNodeId.asNodeId)
+////        let indexForPreviewLayers = getAdjustedActiveIndex(activeIndex: loopIndex,
+////                                                           loopLength: childrenLayerIds.count)
+//        
+//        // Populate positions automatically
+//        childrenLayerIds.forEach { childId in
+//            if let childLayerNode = graph.getNode(childId)?.layerNode {
+//                childLayerNode.offsetInGroupPort
+//                    .updatePortValues([.position(offsetFromScrollView)])
+////               let previewLayer = childLayerNode.previewLayerViewModels[safe: indexForPreviewLayers] {
+////                previewLayer.offsetInGroup = .position(offsetFromScrollView)
+//                
+//            }
+//        }
+//    }
+    
+    return [
         .position(offsetFromScrollView)
-    ])
+    ]
 }
 
 
