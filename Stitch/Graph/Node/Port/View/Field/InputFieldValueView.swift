@@ -29,6 +29,7 @@ struct InputFieldValueView: View {
     let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
+    
     let usesThemeColor: Bool
     
     var hasIncomingEdge: Bool
@@ -104,7 +105,7 @@ struct InputFieldValueView: View {
                                  isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
-                                 usesThemeColor: usesThemeColor,
+                                 isSelectedInspectorRow: usesThemeColor,
                                  nodeKind: nodeKind)
             
         case .layerDimension(let layerDimensionField):
@@ -123,7 +124,7 @@ struct InputFieldValueView: View {
                                  isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
-                                 usesThemeColor: usesThemeColor,
+                                 isSelectedInspectorRow: usesThemeColor,
                                  isForLayerDimensionField: true,
                                  nodeKind: nodeKind)
             
@@ -140,7 +141,7 @@ struct InputFieldValueView: View {
                                  isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
-                                 usesThemeColor: usesThemeColor,
+                                 isSelectedInspectorRow: usesThemeColor,
                                  isForSpacingField: true,
                                  nodeKind: nodeKind)
             
@@ -150,7 +151,7 @@ struct InputFieldValueView: View {
                              document: document,
                              value: bool,
                              isFieldInsideLayerInspector: isForLayerInspector,
-                             usesThemeColor: usesThemeColor,
+                             isSelectedInspectorRow: usesThemeColor,
                              isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues)
             
         case .dropdown(let choiceDisplay, let choices):
@@ -159,7 +160,7 @@ struct InputFieldValueView: View {
                                choiceDisplay: choiceDisplay,
                                choices: choices,
                                isFieldInsideLayerInspector: isForLayerInspector,
-                               usesThemeColor: usesThemeColor,
+                               isSelectedInspectorRow: usesThemeColor,
                                hasHeterogenousValues: hasHeterogenousValues,
                                activeIndex: document.activeIndex)
             
@@ -168,7 +169,7 @@ struct InputFieldValueView: View {
                                graph: graph,
                                stitchFont: stitchFont,
                                isFieldInsideLayerInspector: isForLayerInspector,
-                               usesThemeColor: usesThemeColor,
+                               isSelectedInspectorRow: usesThemeColor,
                                hasHeterogenousValues: hasHeterogenousValues,
                                activeIndex: document.activeIndex)
             // need enough width for font design + font weight name
@@ -183,7 +184,7 @@ struct InputFieldValueView: View {
                 value: .assignedLayer(layerId),
                 isFieldInsideLayerInspector: isForLayerInspector,
                 isForPinTo: false,
-                usesThemeColor: usesThemeColor,
+                isSelectedInspectorRow: usesThemeColor,
                 choices: graph
                     .layerDropdownChoices(isForNode: node.id,
                                           isForLayerGroup: false,
@@ -288,7 +289,7 @@ struct InputFieldValueView: View {
                 value: .pinTo(pinToId),
                 isFieldInsideLayerInspector: isForLayerInspector,
                 isForPinTo: true,
-                usesThemeColor: usesThemeColor,
+                isSelectedInspectorRow: usesThemeColor,
                 choices: graph
                     .layerDropdownChoices(isForNode: node.id,
                                           isForLayerGroup: isForLayerGroup,
@@ -303,7 +304,7 @@ struct InputFieldValueView: View {
                               document: document,
                               selection: anchor,
                               isFieldInsideLayerInspector: isForLayerInspector,
-                              usesThemeColor: usesThemeColor,
+                              isSelectedInspectorRow: usesThemeColor,
                               hasHeterogenousValues: hasHeterogenousValues)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
@@ -325,7 +326,7 @@ struct InputFieldValueView: View {
                     isInput: true,
                     fieldIndex: fieldIndex,
                     isFieldInsideLayerInspector: isForLayerInspector,
-                    usesThemeColor: usesThemeColor,
+                    isSelectedInspectorRow: usesThemeColor,
                     isMultiselectInspectorInputWithHeterogenousValues: hasHeterogenousValues,
                     mediaType: mediaType,
                     graph: graph,
@@ -361,7 +362,7 @@ struct InputFieldValueView: View {
                           coordinate: fieldCoordinate,
                           rowObserver: rowObserver,
                           json: isButtonPressed ? json : nil,
-                          usesThemeColor: usesThemeColor,
+                          isSelectedInspectorRow: usesThemeColor,
                           activeIndex: document.activeIndex,
                           isPressed: $isButtonPressed)
             
@@ -371,7 +372,7 @@ struct InputFieldValueView: View {
             ReadOnlyValueEntry(value: string,
                                alignment: isForLayerInspector ? .trailing : .leading,
                                fontColor: STITCH_FONT_GRAY_COLOR,
-                               usesThemeColor: usesThemeColor,
+                               isSelectedInspectorRow: usesThemeColor,
                                isForLayerInspector: isForLayerInspector,
                                isFieldInMultifieldInput: isFieldInMultifieldInput)
         }

@@ -40,7 +40,7 @@ struct MediaInputFieldValueView: View {
     let isInput: Bool
     let fieldIndex: Int
     let isFieldInsideLayerInspector: Bool
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     let mediaType: NodeMediaSupport
     
@@ -73,7 +73,7 @@ struct MediaInputFieldValueView: View {
                                   isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                   graph: graph,
                                   isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
-                                  usesThemeColor: usesThemeColor,
+                                  isSelectedInspectorRow: isSelectedInspectorRow,
                                   activeIndex: document.activeIndex,
                                   mediaType: mediaType)
             

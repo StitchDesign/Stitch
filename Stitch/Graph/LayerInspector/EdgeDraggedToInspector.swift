@@ -9,7 +9,7 @@ import SwiftUI
 
 enum EdgeDraggedToInspector: Hashable, Equatable {
     
-    // TODO: MAY 13: also need for dragged input?
+    // TODO: MAY 13: NOT NEEDED?
     case draggedOutput(OutputCoordinate)
     
     // LayerInputType = could be for input or input-field

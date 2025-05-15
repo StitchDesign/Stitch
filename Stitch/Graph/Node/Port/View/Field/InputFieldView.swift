@@ -8,6 +8,8 @@
 import SwiftUI
 import StitchSchemaKit
 
+
+
 // For an individual field
 // fka `InputValueEntry`
 struct InputFieldView: View {
@@ -32,9 +34,24 @@ struct InputFieldView: View {
     let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     
     let useIndividualFieldLabel: Bool
+    
+    // Use theme color if entire inspector input/output-row is selected,
+    // or if this specific field is 'eligible' via drag-output.
+    var usesThemeColor: Bool {
+        
+        if isForLayerInspector, // only relevant for layer inspector
+           let layerInputPort = layerInputPort, // only relevant for layer inputs/fields
+           let eligibleInputOrField: LayerInputType = graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField,
+           eligibleInputOrField.layerInput == layerInputPort,
+           eligibleInputOrField.portType.getUnpacked?.rawValue == inputField.fieldIndexWhichIgnoresPackedVsUnpacked() {
+            return true
+        }
+        
+        return isSelectedInspectorRow
+    }
     
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.

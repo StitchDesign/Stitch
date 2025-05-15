@@ -131,7 +131,7 @@ struct LayerNamesDropDownChoiceView: View {
     let value: PortValue
     let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     let choices: LayerDropdownChoices
     let hasHeterogenousValues: Bool
     let activeIndex: ActiveIndex
@@ -176,7 +176,7 @@ struct LayerNamesDropDownChoiceView: View {
             }
         } label: {
             StitchTextView(string: selectionTitle,
-                           fontColor: usesThemeColor ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
+                           fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
         }
 #if targetEnvironment(macCatalyst)
         .buttonStyle(.plain)

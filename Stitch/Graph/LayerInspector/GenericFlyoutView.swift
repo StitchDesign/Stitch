@@ -130,7 +130,7 @@ struct GenericFlyoutRowView: View {
     }
     
     @MainActor
-    var usesThemeColor: Bool {
+    var isSelectedInspectorRow: Bool {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
@@ -167,7 +167,7 @@ struct GenericFlyoutRowView: View {
                                                                     nodeId: node.id),
                                          packedInputCanvasItemId: canvasItemId,
                                         isHovered: isHovered,
-                                        usesThemeColor: usesThemeColor,
+                                        isSelectedInspectorRow: isSelectedInspectorRow,
                                         fieldIndex: fieldIndex)
             }
                                     
@@ -189,7 +189,7 @@ struct GenericFlyoutRowView: View {
                                isFieldInMultifieldInput: isMultifield,
                                isForFlyout: true,
                                // Always false for flyout row
-                               usesThemeColor: false,
+                               isSelectedInspectorRow: false,
                                useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex:  document.activeIndex))
             }
             

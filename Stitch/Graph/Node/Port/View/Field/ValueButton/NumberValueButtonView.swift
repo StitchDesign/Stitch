@@ -13,7 +13,7 @@ struct FieldButtonImage: View {
     @Environment(\.appTheme) var theme
     
     let sfSymbolName: String
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     
     var body: some View {
         Image(systemName: sfSymbolName)
@@ -21,7 +21,7 @@ struct FieldButtonImage: View {
             // Better?: manually set a .frame
             //            .resizable()
             //            .scaledToFit()
-            .foregroundColor(usesThemeColor ? theme.fontColor : VALUE_FIELD_BODY_COLOR)
+            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : VALUE_FIELD_BODY_COLOR)
     }
 }
 
@@ -36,14 +36,14 @@ struct NumberValueButtonView: View {
     let rowObserver: InputNodeRowObserver
     let fieldValueNumberType: FieldValueNumberType
     let isFieldInsideLayerInspector: Bool
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     
     @Binding var isPressed: Bool
 
     var body: some View {
 
         FieldButtonImage(sfSymbolName: "ellipsis.circle",
-                         usesThemeColor: usesThemeColor)
+                         isSelectedInspectorRow: isSelectedInspectorRow)
             .rotationEffect(Angle(degrees: 90))
             .onTapGesture {
                 self.isPressed = true

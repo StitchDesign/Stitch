@@ -130,7 +130,13 @@ final class LayerInputObserver: Identifiable {
 
 extension LayerInputType {
     var getUnpackedPortType: UnpackedPortType? {
-        switch self.portType {
+        self.portType.getUnpacked
+    }
+}
+
+extension LayerInputKeyPathType {
+    var getUnpacked: UnpackedPortType? {
+        switch self {
         case .unpacked(let unpackedPortType):
             return unpackedPortType
         default:

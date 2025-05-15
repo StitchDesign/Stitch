@@ -18,14 +18,14 @@ struct AnchoringGridIconView: View {
     
     // nil when multiselect
     let anchor: Anchoring?
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
     
     //    let anchor: Anchoring = .init(y: 0.2, x: 0.7)
     //    let anchor: Anchoring = .topLeft
     //    let anchor: Anchoring = .bottomCenter
     
     private var finalColor: Color {
-        usesThemeColor ? theme.fontColor : color
+        isSelectedInspectorRow ? theme.fontColor : color
     }
     
     var body: some View {
