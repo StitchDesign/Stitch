@@ -234,30 +234,6 @@ func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the gr
     }
     
     let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
-
-    // TODO: previous auto functionality, decide if any of it is needed
-    //    let isScrollAuto = layerViewModel.isScrollAuto.getBool ?? false
-//    let graph = layerViewModel.nodeDelegate?.graphDelegate
-    
-    // Auto scroll functionality
-//    if isScrollAuto,
-//       let graph = graph {
-//       // Find children layers
-//        let childrenLayerIds = graph.getLayerChildren(for: layerViewModel.id.layerNodeId.asNodeId)
-////        let indexForPreviewLayers = getAdjustedActiveIndex(activeIndex: loopIndex,
-////                                                           loopLength: childrenLayerIds.count)
-//        
-//        // Populate positions automatically
-//        childrenLayerIds.forEach { childId in
-//            if let childLayerNode = graph.getNode(childId)?.layerNode {
-//                childLayerNode.offsetInGroupPort
-//                    .updatePortValues([.position(offsetFromScrollView)])
-////               let previewLayer = childLayerNode.previewLayerViewModels[safe: indexForPreviewLayers] {
-////                previewLayer.offsetInGroup = .position(offsetFromScrollView)
-//                
-//            }
-//        }
-//    }
     
     return [
         .position(offsetFromScrollView)
