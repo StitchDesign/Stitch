@@ -16,7 +16,7 @@ extension CGFloat {
     // TODO: needs to be smaller?
     static let layerFieldAssumedCanvasWidth: Self = 120
     
-    static let layerInputOrFieldAssumedCanvasHeight: Self = 160
+    static let layerInputOrFieldAssumedCanvasHeight: Self = 120
 }
 
 extension StitchDocumentViewModel {
@@ -26,7 +26,7 @@ extension StitchDocumentViewModel {
                                                      canvasHeightOffset: Int?,
                                                      position: CGPoint?) -> CGPoint {
         
-        let yOffset = CGFloat(canvasHeightOffset ?? 0) * .layerInputAssumedCanvasWidth
+        let yOffset = CGFloat(canvasHeightOffset ?? 0) * .layerInputOrFieldAssumedCanvasHeight
         
         if let positionFromLLM = position {
             return positionFromLLM

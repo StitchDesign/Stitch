@@ -100,32 +100,19 @@ struct GraphBaseView: View {
 
     @ViewBuilder @MainActor
     var nodesAndCursor: some View {
-//        ZStack {
-        ZStack(alignment: .center) {
-            
-            // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
-//            Stitch.APP_BACKGROUND_COLOR
-//                .edgesIgnoringSafeArea(.all)
-                // .zIndex(-10)
-            
-            #if DEV_DEBUG
-            // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
-            // to get in exact screen center.
-            Circle().fill(.cyan.opacity(0.5))
-                .frame(width: 60, height: 60)
-            #endif
+        ZStack {
 
+            // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
+            Stitch.APP_BACKGROUND_COLOR
+                .edgesIgnoringSafeArea(.all)
             
-            // lets us draw edge over it, but canvas items also go over
-//            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
-//                .frame(width: 1, height: 1)
-//                .inspector(isPresented: $store.showsLayerInspector) {
-//                    
-//                    LayerInspectorView(graph: graph,
-//                                       document: document)
-//                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-//                }
-            
+            //#if DEV_DEBUG
+            //            // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
+            //            // to get in exact screen center.
+            //            Circle().fill(.cyan.opacity(0.5))
+            //                .frame(width: 60, height: 60)
+            //#endif
+
             nodesView
                           
             // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
@@ -164,8 +151,6 @@ struct GraphBaseView: View {
             } // GeometryReader
         } // .background
     }
-    
-  
 }
 
 
@@ -173,15 +158,6 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
     
     @Bindable var graph: GraphState
     let scale: CGFloat
-    
-//    func intersectedWithSize() -> EmptyView {
-//        if let nodeId = self.graph.layerNodes().first?.id {
-//            DispatchQueue.main.async {
-//                dispatch(LayerInputAddedToGraph(nodeId: nodeId, layerInput: .size))
-//            }
-//        }
-//        return EmptyView()
-//    }
     
     @MainActor
     func findEligibleInspectorFieldOrRow(_ drawingGesture: EdgeDrawingObserver,
@@ -225,11 +201,7 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
     
     @MainActor @ViewBuilder
     func body(content: Content) -> some View {
-        // TODO: MAY 12: ONLY ACTIVE WHEN WE
-        // this fires everytime we have a change ?
-        
-        // For perf reasons, do not render this view unless we are actively dragging an
-//        if let drawingGesture = graph.edgeDrawingObserver.drawingGesture {
+        // TODO: is this acceptable for perf?
         content
             .overlayPreferenceValue(EdgeDraggedToInspectorPreferenceKey.self) { preferences in
                 GeometryReader { geometry in
@@ -259,42 +231,8 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
                     } // if let draggedOutputPref
                 } // GeometryReader
             } // overlayPreferenceValue
-//        }
-//        
-//        // i.e. not actively dragging a layer
-//        else {
-//            content
-//        }
     } // body(content:)
 }
-
-/*
-  
- logInView("preference: drawingGesture.dragLocation.x: \(drawingGesture.dragLocation.x)")
- logInView("preference: drawingGesture.dragLocation.y: \(drawingGesture.dragLocation.y)")
- 
- logInView("preference: draggedOutput.mid.x: \(draggedOutput.mid.x)")
- logInView("preference: draggedOutput.mid.y: \(draggedOutput.mid.y)")
- logInView("preference: draggedOutput.size: \(draggedOutput.size)")
- 
- logInView("preference: sizeInput.mid.x: \(sizeInput.mid.x)")
- logInView("preference: sizeInput.mid.y: \(sizeInput.mid.y)")
- logInView("preference: sizeInput.size: \(sizeInput.size)")
- 
- logInView("preference: Intersection: \(intersects)")
- 
-
- 
- CurveLine(from: draggedOutput.mid,
-           to: drawingGesture.dragLocation)
- .stroke(.red,
-         style: StrokeStyle(
-             // scale DOWN when we're zoomed out, i.e. simply apply the graph scale
-             lineWidth: LINE_EDGE_WIDTH * self.document.graphMovement.zoomData,
-             
-             lineCap: .round,
-             lineJoin: .round))
- */
 
 struct GraphHoverViewModifier: ViewModifier {
     @Binding var spaceHeld: Bool
