@@ -249,10 +249,23 @@ extension GraphState {
             
             case .packed:
                 // TODO: MAY 14: handle layer-sidebar-multiselect
-                if let nodeId = self.layerNodes().first?.id {
+                if let layerNode: LayerNodeViewModel = self.layerNodes().first {
+                    
+                    // Add the input to the canvas
                     document.handleLayerInputAdded(
-                        nodeId: nodeId,
+                        nodeId: layerNode.id,
                         layerInput: layerInputType.layerInput)
+                    
+                    // TODO: place near the dragged output 
+                    // And then create the edge:
+                    guard let canvasObserver = layerNode.getLayerInputObserver(layerInputType.layerInput).packedCanvasObserverOnlyIfPacked,
+                          let firstInputCoordinate = canvasObserver.inputViewModels.first?.nodeIOCoordinate else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    
+                    self.addEdgeWithoutGraphRecalc(from: draggedOutput.nodeIOCoordinate,
+                                                   to: firstInputCoordinate)
                 } // if let nodeId
                 
             // UnpackedPortType_V30.UnpackedPortType
