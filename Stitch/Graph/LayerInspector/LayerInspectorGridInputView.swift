@@ -12,7 +12,7 @@ struct LayerInspectorGridInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerInputObserver: LayerInputObserver
-    let isPropertyRowSelected: Bool
+    let usesThemeColor: Bool
     
     var allFieldObservers: [FieldViewModel] {
         layerInputObserver.fieldGroupsFromInspectorRowViewModels.flatMap(\.fieldObservers)
@@ -27,7 +27,7 @@ struct LayerInspectorGridInputView: View {
             LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
-                             isSelectedInspectorRow: false)
+                             usesThemeColor: false)
             
             Spacer()
             
@@ -61,7 +61,7 @@ struct LayerInspectorGridInputView: View {
                                    nodeId: node.id,
                                    layerInputObserver: layerInputObserver,
                                    fieldObserver: fieldObserver,
-                                   isPropertyRowSelected: isPropertyRowSelected)
+                                   usesThemeColor: usesThemeColor)
     }
 }
 
@@ -72,7 +72,7 @@ struct InspectorFieldReadOnlyView: View {
     let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
     let fieldObserver: FieldViewModel
-    let isPropertyRowSelected: Bool
+    let usesThemeColor: Bool
     
     // TODO: is `InputFieldValueView` ever used in the layer inspector now? ... vs flyout?
     @MainActor
@@ -91,7 +91,7 @@ struct InspectorFieldReadOnlyView: View {
             isForLayerInspector: true,
             hasPicker: false,
             fieldHasHeterogenousValues: hasHeterogenousValues,
-            isSelectedInspectorRow: isPropertyRowSelected,
+            usesThemeColor: usesThemeColor,
             onTap: {
                 // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout
                 if layerInputObserver.mode == .packed,

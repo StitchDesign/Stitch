@@ -46,7 +46,7 @@ struct LayerInspectorInputPortView: View {
         logInView("LayerInspectorInputPortView: graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput: \(graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput)")
         logInView("LayerInspectorInputPortView: isEligibleInspectorInput: \(isEligibleInspectorInput)")
         
-        let isPropertyRowSelected = isSelectedProperty || isEligibleInspectorInput
+        let usesThemeColor = isSelectedProperty || isEligibleInspectorInput
         
         // Does this inspector-row (the entire input) have a canvas item?
         let packedInputCanvasItemId: CanvasItemId? = layerInputObserver.packedCanvasObserverOnlyIfPacked?.id
@@ -60,7 +60,7 @@ struct LayerInspectorInputPortView: View {
             HStack {
                 if isShadowLayerInputRow {
                     ShadowInputInspectorRow(nodeId: node.id,
-                                            isPropertyRowSelected: isPropertyRowSelected)
+                                            usesThemeColor: usesThemeColor)
                 }
                 
                 // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
@@ -70,14 +70,14 @@ struct LayerInspectorInputPortView: View {
                                                        graph: graph,
                                                        nodeId: node.id,
                                                        layerInputObserver: layerInputObserver,
-                                                       isPropertyRowSelected: isPropertyRowSelected)
+                                                       usesThemeColor: usesThemeColor)
                 } else if layerInputObserver.usesGridMultifieldArrangement() {
                     // Multifields in the inspector are always "read-only" and "tap to open flyout"
                     LayerInspectorGridInputView(document: document,
                                                 graph: graph,
                                                 node: node,
                                                 layerInputObserver: layerInputObserver,
-                                                isPropertyRowSelected: isPropertyRowSelected)
+                                                usesThemeColor: usesThemeColor)
                 } else {
                     // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
                     InspectorLayerInputView(
@@ -86,7 +86,7 @@ struct LayerInspectorInputPortView: View {
                         node: node,
                         layerInputObserver: layerInputObserver,
                         forFlyout: false,
-                        isPropertyRowSelected: isPropertyRowSelected)
+                        usesThemeColor: usesThemeColor)
                 }
             }
         }
@@ -109,7 +109,7 @@ struct InspectorLayerInputView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     
     let forFlyout: Bool
-    let isPropertyRowSelected: Bool
+    let usesThemeColor: Bool
     
     var label: String {
         layerInputObserver.overallPortLabel(usesShortLabel: true)
@@ -149,7 +149,7 @@ struct InspectorLayerInputView: View {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: isPropertyRowSelected)
+                                 usesThemeColor: usesThemeColor)
             }
             Spacer()
             
@@ -203,7 +203,7 @@ struct InspectorLayerInputView: View {
                                     isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
                                     isFieldInMultifieldInput: self.usesMultifields,
                                     isForFlyout: false,
-                                    isSelectedInspectorRow: isPropertyRowSelected,
+                                    usesThemeColor: usesThemeColor,
                                     useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
                                 
                                 .modifier(
@@ -271,7 +271,7 @@ struct LayerInputFieldsView: View {
                            isPackedLayerInputAlreadyOnCanvas: true, // Always true for canvas layer input
                            isFieldInMultifieldInput: isMultifield,
                            isForFlyout: false,
-                           isSelectedInspectorRow: false, // Always false for canvas layer input
+                           usesThemeColor: false, // Always false for canvas layer input
                            useIndividualFieldLabel: true)
         }
     }
@@ -385,7 +385,7 @@ struct LayerInspectorOutputPortView: View {
                          node: node,
                          isForLayerInspector: true,
                          isFieldInMultifieldInput: isMultiField,
-                         isSelectedInspectorRow: propertyRowIsSelected)
+                        usesThemeColor: propertyRowIsSelected)
     }
     
     var body: some View {
@@ -405,7 +405,7 @@ struct LayerInspectorOutputPortView: View {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: propertyRowIsSelected)
+                                 usesThemeColor: propertyRowIsSelected)
                 Spacer()
                 
                 LayerOutputFieldsView(fieldGroups: rowViewModel.cachedFieldGroups,
@@ -436,7 +436,7 @@ struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
                     LabelDisplayView(label: fieldGroupLabel,
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
-                                     isSelectedInspectorRow: false)
+                                     usesThemeColor: false)
                     Spacer()
                 }
             }
@@ -491,7 +491,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         return isPaddingPortValueTypeRow ? .firstTextBaseline : .center
     }
     
-    var isSelectedInspectorRow: Bool {
+    var usesThemeColor: Bool {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
@@ -504,7 +504,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: packedInputCanvasItemId,
                                     isHovered: isHovered,
-                                    isSelectedInspectorRow: isSelectedInspectorRow)
+                                    usesThemeColor: usesThemeColor)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align
             // Alternatively, we want the height of the row-buton to be the same as the height of the input-row's label, e.g. specify a height in `LabelDisplayView`

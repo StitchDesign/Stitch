@@ -91,7 +91,7 @@ struct ShadowFlyoutRowView: View {
         return isShadowOffsetRow ? .firstTextBaseline : .center
     }
     
-    var isPropertyRowSelected: Bool {
+    var usesThemeColor: Bool {
         graph.propertySidebar.selectedProperty == .layerInput(
             LayerInputType(layerInput: layerInputObserver.port,
                            // Shadow is always packed
@@ -106,7 +106,7 @@ struct ShadowFlyoutRowView: View {
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: canvasItemId,
                                     isHovered: isHovered,
-                                    isSelectedInspectorRow: isPropertyRowSelected)
+                                    usesThemeColor: usesThemeColor)
             
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
             
@@ -115,7 +115,7 @@ struct ShadowFlyoutRowView: View {
                                     node: node,
                                     layerInputObserver: layerInputObserver,
                                     forFlyout: true,
-                                    isPropertyRowSelected: isPropertyRowSelected)
+                                    usesThemeColor: usesThemeColor)
         } // HStack
         
         .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)

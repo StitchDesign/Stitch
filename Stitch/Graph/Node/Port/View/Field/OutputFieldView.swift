@@ -23,7 +23,7 @@ struct OutputFieldView: View {
     
     let isFieldInMultifieldInput: Bool
     
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
@@ -33,7 +33,7 @@ struct OutputFieldView: View {
         LabelDisplayView(label: self.outputField.fieldLabel,
                          isLeftAligned: false,
                          fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: isSelectedInspectorRow)
+                         usesThemeColor: usesThemeColor)
     }
     
     var valueDisplay: some View {
@@ -45,7 +45,7 @@ struct OutputFieldView: View {
                              node: node,
                              isForLayerInspector: isForLayerInspector,
                              isFieldInMultifieldInput: isFieldInMultifieldInput,
-                             isSelectedInspectorRow: isSelectedInspectorRow,
+                             usesThemeColor: usesThemeColor,
                              isButtonPressed: $isButtonPressed)
         .font(STITCH_FONT)
         // Monospacing prevents jittery node widths if values change on graphstep

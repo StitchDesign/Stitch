@@ -85,7 +85,7 @@ struct DefaultNodeInputsView: View {
                        isPackedLayerInputAlreadyOnCanvas: false, // Always false for patch and group node inputs
                        isFieldInMultifieldInput: isMultiField,
                        isForFlyout: false,
-                       isSelectedInspectorRow: false,
+                       usesThemeColor: false,
                        useIndividualFieldLabel: true)
     }
     
@@ -128,7 +128,7 @@ struct DefaultNodeInputsView: View {
                                                                   graph: graph),
                                          isLeftAligned: false,
                                          fontColor: STITCH_FONT_GRAY_COLOR,
-                                         isSelectedInspectorRow: false)
+                                         usesThemeColor: false)
                         
                         if showsInputFields {
                             ForEach(rowViewModel.cachedFieldGroups) { fieldGroup in
@@ -213,7 +213,7 @@ struct DefaultNodeOutputsView: View {
                                                 node: node,
                                                 isForLayerInspector: false,
                                                 isFieldInMultifieldInput: isMultiField,
-                                                isSelectedInspectorRow: false)
+                                                usesThemeColor: false)
                                 .zIndex(-CGFloat(index))
                             }
                         }
@@ -225,7 +225,7 @@ struct DefaultNodeOutputsView: View {
                                graph: graph),
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
-                                     isSelectedInspectorRow: false)
+                                     usesThemeColor: false)
                     .zIndex(-98) // Place below fields
                     
                     NodeRowPortView(graph: graph,

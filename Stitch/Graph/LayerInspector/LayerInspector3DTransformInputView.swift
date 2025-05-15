@@ -14,7 +14,7 @@ struct LayerInspector3DTransformInputView: View {
     @Bindable var graph: GraphState
     let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
-    let isPropertyRowSelected: Bool
+    let usesThemeColor: Bool
     
     var body: some View {
         VStack {
@@ -25,7 +25,7 @@ struct LayerInspector3DTransformInputView: View {
                             LabelDisplayView(label: fieldGroupLabel,
                                              isLeftAligned: false,
                                              fontColor: STITCH_FONT_GRAY_COLOR,
-                                             isSelectedInspectorRow: isPropertyRowSelected)
+                                             usesThemeColor: usesThemeColor)
                             Spacer()
                         }
                     }
@@ -47,13 +47,13 @@ struct LayerInspector3DTransformInputView: View {
                 LabelDisplayView(label: fieldObserver.fieldLabel,
                                  isLeftAligned: true,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: isPropertyRowSelected)
+                                 usesThemeColor: usesThemeColor)
                 
                 InspectorFieldReadOnlyView(propertySidebar: graph.propertySidebar,
                                            nodeId: nodeId,
                                            layerInputObserver: layerInputObserver,
                                            fieldObserver: fieldObserver,
-                                           isPropertyRowSelected: isPropertyRowSelected)
+                                           usesThemeColor: usesThemeColor)
             }
         } // ForEach
     }

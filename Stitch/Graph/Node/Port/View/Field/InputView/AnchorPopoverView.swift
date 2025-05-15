@@ -29,7 +29,7 @@ struct AnchorPopoverView<RowObserver: NodeRowObserver>: View {
     let document: StitchDocumentViewModel
     let selection: Anchoring
     let isFieldInsideLayerInspector: Bool
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     let hasHeterogenousValues: Bool
 
     @State private var isOpen = false
@@ -37,7 +37,7 @@ struct AnchorPopoverView<RowObserver: NodeRowObserver>: View {
     var body: some View {
         AnchoringGridIconView(
             anchor: self.hasHeterogenousValues ? nil : selection,
-            isSelectedInspectorRow: isSelectedInspectorRow)
+            usesThemeColor: usesThemeColor)
             .onTapGesture {
                 self.isOpen.toggle()
             }
@@ -65,7 +65,7 @@ struct AnchorPopoverView<RowObserver: NodeRowObserver>: View {
 
         } label: {
             Image(systemName: (!self.hasHeterogenousValues && option == selection) ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)
-                .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
+                .foregroundColor(usesThemeColor ? theme.fontColor : .primary)
         }
         #if targetEnvironment(macCatalyst)
         .buttonStyle(.borderless)
