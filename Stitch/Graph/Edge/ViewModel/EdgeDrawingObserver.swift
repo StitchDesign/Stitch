@@ -15,16 +15,16 @@ enum EligibleEdgeDestination {
     var getCanvasInput: InputNodeRowViewModel? {
         switch self {
         case .canvasInput(let x):
-            return nil
+            return x
         default:
             return nil
         }
     }
     
-    var getInspectorInputOrField: InputNodeRowViewModel? {
+    var getInspectorInputOrField: LayerInputType? {
         switch self {
         case .inspectorInputOrField(let x):
-            return nil
+            return x
         default:
             return nil
         }

@@ -40,7 +40,13 @@ struct LayerInspectorInputPortView: View {
             portType: .keyPath(layerInputType),
             nodeId: node.id)
         
-        let isPropertyRowSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        let isSelectedProperty = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        let isEligibleInspectorInput = graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver.port
+        logInView("LayerInspectorInputPortView: layerInputObserver.port: \(layerInputObserver.port)")
+        logInView("LayerInspectorInputPortView: graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput: \(graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput)")
+        logInView("LayerInspectorInputPortView: isEligibleInspectorInput: \(isEligibleInspectorInput)")
+        
+        let isPropertyRowSelected = isSelectedProperty || isEligibleInspectorInput
         
         // Does this inspector-row (the entire input) have a canvas item?
         let packedInputCanvasItemId: CanvasItemId? = layerInputObserver.packedCanvasObserverOnlyIfPacked?.id
@@ -79,7 +85,8 @@ struct LayerInspectorInputPortView: View {
                         graph: graph,
                         node: node,
                         layerInputObserver: layerInputObserver,
-                        forFlyout: false)
+                        forFlyout: false,
+                        isPropertyRowSelected: isPropertyRowSelected)
                 }
             }
         }
@@ -102,6 +109,7 @@ struct InspectorLayerInputView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     
     let forFlyout: Bool
+    let isPropertyRowSelected: Bool
     
     var label: String {
         layerInputObserver.overallPortLabel(usesShortLabel: true)
@@ -126,12 +134,13 @@ struct InspectorLayerInputView: View {
         self.layerInputObserver.fieldGroupsFromInspectorRowViewModels
     }
     
-    // iPad-only?
-    var packedPropertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == .layerInput(
-            LayerInputType(layerInput: layerInputObserver.port,
-                           portType: .packed))
-    }
+//    // TODO: CAN YOU
+//    // iPad-only?
+//    var packedPropertyRowIsSelected: Bool {
+//        graph.propertySidebar.selectedProperty == .layerInput(
+//            LayerInputType(layerInput: layerInputObserver.port,
+//                           portType: .packed))
+//    }
     
     var blockedFields: LayerPortTypeSet {
         layerInputObserver.blockedFields
@@ -148,7 +157,7 @@ struct InspectorLayerInputView: View {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: packedPropertyRowIsSelected)
+                                 isSelectedInspectorRow: isPropertyRowSelected)
             }
             Spacer()
             
@@ -195,7 +204,7 @@ struct InspectorLayerInputView: View {
                                     isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
                                     isFieldInMultifieldInput: self.usesMultifields,
                                     isForFlyout: false,
-                                    isSelectedInspectorRow: packedPropertyRowIsSelected,
+                                    isSelectedInspectorRow: isPropertyRowSelected,
                                     useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
                             } // if let
                         }

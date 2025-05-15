@@ -91,6 +91,12 @@ struct ShadowFlyoutRowView: View {
         return isShadowOffsetRow ? .firstTextBaseline : .center
     }
     
+    var packedPropertyRowIsSelected: Bool {
+        graph.propertySidebar.selectedProperty == .layerInput(
+            LayerInputType(layerInput: layerInputObserver.port,
+                           portType: .packed))
+    }
+    
     var body: some View {
         HStack(alignment: hstackAlignment) {
             LayerInspectorRowButton(graph: graph,
@@ -106,7 +112,8 @@ struct ShadowFlyoutRowView: View {
                                     graph: graph,
                                     node: node,
                                     layerInputObserver: layerInputObserver,
-                                    forFlyout: true)
+                                    forFlyout: true,
+                                    isPropertyRowSelected: packedPropertyRowIsSelected)
         } // HStack
         
         .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
