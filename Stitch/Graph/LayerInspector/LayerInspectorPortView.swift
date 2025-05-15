@@ -162,7 +162,12 @@ struct InspectorLayerInputView: View {
                         PotentiallyBlockedFieldsView(fieldGroup: fieldGroup,
                                                      isMultifield: self.usesMultifields,
                                                      blockedFields: self.blockedFields) { (inputFieldViewModel: InputFieldViewModel,
-                                                                                           isMultifield: Bool) in
+                                                                                           isMultifield: Bool,
+                                                                                           fieldIndex: Int) in
+                            
+                            logInView("InspectorLayerInputView: layerInputObserver.port: \(layerInputObserver.port)")
+                            logInView("InspectorLayerInputView: fieldIndex: \(fieldIndex)")
+                            
                             /*
                              Overall, we are iterating through [[FieldGroup]], which abstracts over packed vs unpacked;
                              However, we need to retrieve the inspector row view model and the row observer for a given field view model.
@@ -198,6 +203,16 @@ struct InspectorLayerInputView: View {
                                     isForFlyout: false,
                                     isSelectedInspectorRow: isPropertyRowSelected,
                                     useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+                                
+                                .modifier(
+                                    TrackInspectorField(
+                                        layerInputObserver: layerInputObserver,
+                                        layerInputType: .init(
+                                            layerInput: layerInputObserver.port,
+                                            portType: .unpacked(fieldIndex.asUnpackedPortType)),
+                                        hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
+                                )
+                                
                             } // if let
                         }
                     } // HStack { ...
@@ -234,7 +249,8 @@ struct LayerInputFieldsView: View {
         
     @ViewBuilder
     func valueEntryView(_ inputFieldViewModel: InputFieldViewModel,
-                        _ isMultifield: Bool) -> some View {
+                        _ isMultifield: Bool,
+                        _ fieldIndex: Int) -> some View {
         
         switch layerInputFieldType {
                     
@@ -298,7 +314,11 @@ struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
     let isMultifield: Bool
     let blockedFields: LayerPortTypeSet
     
-    @ViewBuilder var valueEntryView: (InputFieldViewModel, Bool) -> ValueView
+    @ViewBuilder var valueEntryView: (
+        InputFieldViewModel,
+        Bool, // is multifield ?
+        Int // field index
+    ) -> ValueView
     
     var body: some View {
         let fields = fieldGroup.fieldObservers
@@ -306,7 +326,8 @@ struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
 //        ForEach(fieldGroup.fieldObservers) { fieldViewModel in
             let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
             if !isBlocked {
-                self.valueEntryView(fieldViewModel, isMultifield)
+                self.valueEntryView(fieldViewModel, isMultifield, index)
+//                self.valueEntryView(fieldViewModel, isMultifield)
                     .zIndex(-CGFloat(index))
             }
         }
