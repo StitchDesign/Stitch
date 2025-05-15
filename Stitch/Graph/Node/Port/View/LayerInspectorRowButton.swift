@@ -12,12 +12,12 @@ struct LayerInspectorRowButton: View {
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
-    @Bindable var document: StitchDocumentViewModel
     let layerInputObserver: LayerInputObserver?
     let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
     let packedInputCanvasItemId: CanvasItemId?
     let isHovered: Bool
+    let isSelectedInspectorRow: Bool
     
     // non-nil = this inspector row button is for a field, not an input
     var fieldIndex: Int? = nil
@@ -34,11 +34,7 @@ struct LayerInspectorRowButton: View {
         
         return false
     }
-    
-    var isPortSelected: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
-    }
-    
+        
     @MainActor
     var canBeAddedToCanvas: Bool {
         
@@ -59,7 +55,9 @@ struct LayerInspectorRowButton: View {
     
     @MainActor
     var showButton: Bool {
-        if packedInputCanvasItemId.isDefined || isWholeInputWithAtleastOneFieldAlreadyOnCanvas ||  isHovered || (canBeAddedToCanvas && isPortSelected) {
+        if packedInputCanvasItemId.isDefined || isWholeInputWithAtleastOneFieldAlreadyOnCanvas ||
+            isHovered ||
+            (canBeAddedToCanvas && isSelectedInspectorRow) {
             return true
         } else {
             return false
@@ -94,17 +92,16 @@ struct LayerInspectorRowButton: View {
                 if let fieldIndex = fieldIndex,
                    // Only for unpacked
                    layerInput.portType != .packed {
-                    dispatch(LayerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
-                                                         nodeId: nodeId,
+                    dispatch(LayerInputFieldAddedToCanvas(layerInput: layerInput.layerInput,
                                                          fieldIndex: fieldIndex))
                     
                 } else if layerInput.portType == .packed {
                     // Only for packed
-                    dispatch(LayerInputAddedToGraph(layerInput: layerInput.layerInput))
+                    dispatch(LayerInputAddedToCanvas(layerInput: layerInput.layerInput))
                 }
                 
             } else if let portId = coordinate.portId {
-                dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+                dispatch(LayerOutputAddedToCanvas(nodeId: nodeId,
                                                  portId: portId))
             }
         }
@@ -129,7 +126,7 @@ struct LayerInspectorRowButton: View {
                 onTap: @escaping () -> Void) -> some View {
         Image(systemName: imageString)
             .resizable()
-            .foregroundColor(isPortSelected ? theme.fontColor : .primary)
+            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
             .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                    height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
             .onTapGesture {

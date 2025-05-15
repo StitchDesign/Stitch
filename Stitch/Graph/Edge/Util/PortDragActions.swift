@@ -250,17 +250,15 @@ extension GraphState {
             case .packed:
                 // Add the input to the canvas
                 document.handleLayerInputAdded(layerInput: layerInputType.layerInput,
-                                               draggedOutput: draggedOutput.nodeIOCoordinate)
+                                               draggedOutput: draggedOutput.portUIViewModel)
                                 
             // UnpackedPortType_V30.UnpackedPortType
             case .unpacked(let unpackedPortType):
                 // TODO: MAY 14: handle layer-sidebar-multiselect
-                if let nodeId = self.layerNodes().first?.id {
-                    document.handleLayerInputFieldAddedToCanvas(
-                        layerInput: layerInputType.layerInput,
-                        nodeId: nodeId,
-                        fieldIndex: unpackedPortType.rawValue)
-                }
+                document.handleLayerInputFieldAddedToCanvas(
+                    layerInput: layerInputType.layerInput,
+                    fieldIndex: unpackedPortType.rawValue,
+                    draggedOutput: draggedOutput.portUIViewModel)
             }
         } // switch
         
