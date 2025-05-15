@@ -294,6 +294,8 @@ extension LayerInputPort {
             return .number(100)
         case .height3D:
             return .number(100)
+        case .isScrollAuto:
+            return .bool(true)
         }
     }
     
@@ -548,6 +550,8 @@ extension LayerInputPort {
             return \.radius3DPort
         case .height3D:
             return \.height3DPort
+        case .isScrollAuto:
+            return \.isScrollAutoPort
         }
     }
     
@@ -806,6 +810,8 @@ extension LayerViewModel {
             return self.radius3D
         case .height3D:
             return self.height3D
+        case .isScrollAuto:
+            return self.isScrollAuto
         }
     }
     
@@ -1062,6 +1068,8 @@ extension LayerViewModel {
             self.radius3D = value
         case .height3D:
             self.height3D = value
+        case .isScrollAuto:
+            self.isScrollAuto = value
         }
     }
 }
@@ -1306,6 +1314,8 @@ extension LayerInputPort {
             return \.radius3DPort
         case .height3D:
             return \.height3DPort
+        case .isScrollAuto:
+            return \.isScrollAutoPort
         }
     }
     
@@ -1724,6 +1734,8 @@ extension LayerInputPort {
             return "Radius"
         case .height3D:
             return "Height"
+        case .isScrollAuto:
+            return "Auto Scroll"
         }
     }
 

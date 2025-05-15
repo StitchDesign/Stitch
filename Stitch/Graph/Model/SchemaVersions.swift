@@ -204,6 +204,8 @@ extension StitchDocumentVersion {
             return StitchDocument_V29.StitchDocument.self
         case ._V30:
             return StitchDocument_V30.StitchDocument.self
+        case ._V31:
+            return StitchDocument_V31.StitchDocument.self
         }
     }
 }
@@ -226,6 +228,8 @@ extension StitchSystemVersion {
             return StitchSystem_V29.StitchSystem.self
         case ._V30:
             return StitchSystem_V30.StitchSystem.self
+        case ._V31:
+            return StitchSystem_V31.StitchSystem.self
         }
     }
 }
@@ -247,6 +251,8 @@ extension StitchComponentVersion {
         case ._V29:
             return StitchComponent_V29.StitchComponent.self
         case ._V30:
+            return StitchComponent_V30.StitchComponent.self
+        case ._V31:
             return StitchComponent_V30.StitchComponent.self
         }
     }
