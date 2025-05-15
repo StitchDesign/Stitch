@@ -188,6 +188,10 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
                                          geometry: GeometryProxy,
                                          preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) -> EmptyView {
         
+        guard let dragLocation = drawingGesture.drawingGesture?.dragLocation else {
+            return EmptyView()
+        }
+        
         var nearestInspectorInputs = [LayerInputType]()
         
         for preference in preferences {
@@ -195,7 +199,9 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
             if case let .inspectorInputOrField(layerInputType) = preference.key,
                
                 areNear(geometry[preference.value].origin,
-                       draggedOutputRect.origin) {
+//                       draggedOutputRect.origin
+                        dragLocation
+                ) {
                 
                 log("WAS NEAR: layerInputType: \(layerInputType)")
                 nearestInspectorInputs.append(layerInputType)
