@@ -21,7 +21,7 @@ struct ReadOnlyValueEntry: View {
     // right alignment for single-field outputs
     let alignment: Alignment // = .trailing
     var fontColor: Color = STITCH_FONT_GRAY_COLOR
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     
     let isForLayerInspector: Bool
     let isFieldInMultifieldInput: Bool

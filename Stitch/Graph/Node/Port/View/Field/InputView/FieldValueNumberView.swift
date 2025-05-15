@@ -30,7 +30,7 @@ struct FieldValueNumberView: View {
     let isFieldInMultifieldInput: Bool
     
     let isForFlyout: Bool
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     
     var isForSpacingField: Bool = false
     var isForLayerDimensionField: Bool = false
@@ -59,7 +59,7 @@ struct FieldValueNumberView: View {
                                       rowObserver: rowObserver,
                                       fieldValueNumberType: fieldValueNumberType,
                                       isFieldInsideLayerInspector: isForLayerInspector,
-                                      isSelectedInspectorRow: isSelectedInspectorRow,
+                                      usesThemeColor: usesThemeColor,
                                       isPressed: $isButtonPressed)
             }
             
@@ -74,7 +74,7 @@ struct FieldValueNumberView: View {
                                      hasHeterogenousValues: hasHeterogenousValues,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout, 
-                                     isSelectedInspectorRow: isSelectedInspectorRow,
+                                     usesThemeColor: usesThemeColor,
                                      isForLayerDimensionField: isForLayerDimensionField,
                                      nodeKind: nodeKind)
         }

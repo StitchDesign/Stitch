@@ -20,7 +20,7 @@ struct DropDownChoiceView: View {
     let choiceDisplay: String
     let choices: PortValues
     let isFieldInsideLayerInspector: Bool
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     let hasHeterogenousValues: Bool
     let activeIndex: ActiveIndex
 
@@ -39,7 +39,7 @@ struct DropDownChoiceView: View {
                              activeIndex: activeIndex)
         } label: {
             StitchTextView(string: finalChoiceDisplay,
-                           fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
+                           fontColor: usesThemeColor ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
             // Required to force picker's display to always be large enough to display full option
             // 2x our normal input width seems good enough for most dropdown options;
             // dropdowns never appear in multifield inputs, so this is relatively safe in terms of the final width of the node or the input in the inspector

@@ -89,7 +89,7 @@ struct FieldGroupLabelView: View {
                 LabelDisplayView(label: fieldGroupLabel,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: false)
+                                 usesThemeColor: false)
                 Spacer()
             }
         }
@@ -130,7 +130,7 @@ struct GenericFlyoutRowView: View {
     }
     
     @MainActor
-    var isSelectedInspectorRow: Bool {
+    var usesThemeColor: Bool {
         graph.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
@@ -167,7 +167,7 @@ struct GenericFlyoutRowView: View {
                                                                     nodeId: node.id),
                                          packedInputCanvasItemId: canvasItemId,
                                         isHovered: isHovered,
-                                        isSelectedInspectorRow: isSelectedInspectorRow,
+                                        usesThemeColor: usesThemeColor,
                                         fieldIndex: fieldIndex)
             }
                                     
@@ -182,15 +182,15 @@ struct GenericFlyoutRowView: View {
                                
                                // For input editing, however, we need the proper packed vs unpacked state
                                rowObserver: rowObserver,
-                                isCanvasItemSelected: false, // Always false
-                                hasIncomingEdge: false,
-                                isForLayerInspector: true,
-                                isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
-                                isFieldInMultifieldInput: isMultifield,
-                                isForFlyout: true,
-                                // Always false for flyout row
-                                isSelectedInspectorRow: isSelectedInspectorRow,
-                                useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex:  document.activeIndex))
+                               isCanvasItemSelected: false, // Always false
+                               hasIncomingEdge: false,
+                               isForLayerInspector: true,
+                               isPackedLayerInputAlreadyOnCanvas: canvasItemId.isDefined,
+                               isFieldInMultifieldInput: isMultifield,
+                               isForFlyout: true,
+                               // Always false for flyout row
+                               usesThemeColor: false,
+                               useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex:  document.activeIndex))
             }
             
         } // HStack

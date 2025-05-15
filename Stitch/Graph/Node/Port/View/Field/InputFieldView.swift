@@ -32,7 +32,7 @@ struct InputFieldView: View {
     let isPackedLayerInputAlreadyOnCanvas: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     
     let useIndividualFieldLabel: Bool
     
@@ -44,7 +44,7 @@ struct InputFieldView: View {
         LabelDisplayView(label: inputField.fieldLabel,
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: isSelectedInspectorRow)
+                         usesThemeColor: usesThemeColor)
     }
     
     @MainActor
@@ -62,7 +62,7 @@ struct InputFieldView: View {
                             isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                             isFieldInMultifieldInput: isFieldInMultifieldInput,
                             isForFlyout: isForFlyout,
-                            isSelectedInspectorRow: isSelectedInspectorRow,
+                            usesThemeColor: usesThemeColor,
                             hasIncomingEdge: hasIncomingEdge, // Only for pulse button and color orb; always false for inspector rows
                             isForLayerGroup: node.kind.getLayer == .group,
                             isButtonPressed: $isButtonPressed)

@@ -165,7 +165,7 @@ struct PortValuesPreviewValueView: View {
                                        alignment: .center)
 
         case .anchorPopover(let anchoring):
-            AnchoringGridIconView(anchor: anchoring, isSelectedInspectorRow: false)
+            AnchoringGridIconView(anchor: anchoring, usesThemeColor: false)
                 .scaleEffect(0.18)
                 .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                        height: NODE_ROW_HEIGHT)

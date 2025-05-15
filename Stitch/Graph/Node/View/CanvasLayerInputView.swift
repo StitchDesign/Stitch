@@ -23,7 +23,7 @@ struct CanvasLayerInputView: View {
             LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: false),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
-                             isSelectedInspectorRow: false)
+                             usesThemeColor: false)
             
             // Unpacked 3D Transform fields on the canvas are a special case;
             // e.g. they need "Position X" not just "X"
@@ -34,7 +34,7 @@ struct CanvasLayerInputView: View {
                 LabelDisplayView(label: rowLabel,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: false)
+                                 usesThemeColor: false)
             }
             
             LayerInputFieldsView(layerInputFieldType: .canvas(canvasNode),

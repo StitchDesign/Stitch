@@ -18,7 +18,7 @@ struct BoolCheckboxView: View {
     let document: StitchDocumentViewModel
     let value: Bool
     let isFieldInsideLayerInspector: Bool
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     @MainActor
@@ -40,11 +40,11 @@ struct BoolCheckboxView: View {
 
         // TODO: Why does `.animation(value: Bool)` not work for Image changes?
         Image(systemName: iconName)
-            .foregroundColor(isSelectedInspectorRow ? themeColor : .primary)
+            .foregroundColor(usesThemeColor ? themeColor : .primary)
         
         // TODO: how to "fill" the background of the checkbox symbol?
 //            .background {
-//                if isFieldInsideLayerInspector && isSelectedInspectorRow {
+//                if isFieldInsideLayerInspector && usesThemeColor {
 //                    return themeColor. //.INSPECTOR_FIELD_BACKGROUND_COLOR.overlay(themeColor.opacity(0.5))
 //                } else if isFieldInsideLayerInspector {
 //                    return .INSPECTOR_FIELD_BACKGROUND_COLOR
