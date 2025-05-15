@@ -920,12 +920,9 @@ extension GraphState {
     
     @MainActor
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
-        self.nodes.values
-            .filter {
-                $0.layerNode?.layerGroupId(self.layersSidebarViewModel) == groupId
-            }
-            .map { $0.id }
-            .toSet
+        self.layersSidebarViewModel.items.get(groupId)?
+            .children?.map(\.id)
+            .toSet ?? .init()
     }
     
     // The children of a ui group node are better described as 'canvas items',
