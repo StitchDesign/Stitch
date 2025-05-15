@@ -335,6 +335,23 @@ struct LayerInspectorOutputsSectionView: View {
 
 extension GraphState {
     
+    // i.e. "layers focused in the inspector" are just the primarily-selected layers in the sidebar
+    @MainActor
+    var inspectorFocusedLayers: NodeIdSet {
+        self.layersSidebarViewModel.selectionState.primary
+    }
+    
+    @MainActor
+    var inspectorFocusedLayerNodes: LayerNodes {
+        self.layersSidebarViewModel.selectionState.primary
+            .reduce(into: LayerNodes()) { acc, id in
+                if let layerNode: LayerNodeViewModel = self.getLayerNode(id) {
+                    acc.append(layerNode)
+                }
+            }
+    }
+    
+    
     // Note: just used for `LayerInspectorView`
     @MainActor
     func getLayerInspectorData() -> (header: String,
@@ -343,12 +360,11 @@ extension GraphState {
                                      outputs: [OutputLayerNodeRowData])? {
         // log("getLayerInspectorData called")
                 
-        // Any time orderedSidebarLayers changes, that will retrigger LayerInspector
         guard !self.orderedSidebarLayers.isEmpty else {
             return nil
         }
 
-        let inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
+        let inspectorFocusedLayers = self.inspectorFocusedLayers
         
         // log("getLayerInspectorData: inspectorFocusedLayers: \(inspectorFocusedLayers)")
                 
@@ -374,7 +390,7 @@ extension GraphState {
         
         // else had 0 or 1 layers selected:
         else {
-            guard let inspectedLayerId = self.layersSidebarViewModel.selectionState.primary.first,
+            guard let inspectedLayerId = inspectorFocusedLayers.first,
                   let node = self.getNode(inspectedLayerId),
                   let layerNode = node.layerNode else {
                 // log("getLayerInspectorData: No inspector-focused layers?:  \(inspectorFocusedLayers)")

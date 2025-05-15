@@ -307,6 +307,8 @@ struct StepActionConnectionAdded: StepActionable {
                 
                 document.layerInputAddedToGraph(node: destinationNode,
                                                 layerInput: layerInput,
+                                                draggedOutput: nil,
+                                                canvasHeightOffset: nil,
                                                 position: position)
             }
     }

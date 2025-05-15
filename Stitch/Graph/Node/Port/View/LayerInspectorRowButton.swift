@@ -100,9 +100,7 @@ struct LayerInspectorRowButton: View {
                     
                 } else if layerInput.portType == .packed {
                     // Only for packed
-                    dispatch(LayerInputAddedToGraph(
-                        nodeId: nodeId,
-                        layerInput: layerInput.layerInput))
+                    dispatch(LayerInputAddedToGraph(layerInput: layerInput.layerInput))
                 }
                 
             } else if let portId = coordinate.portId {
