@@ -105,7 +105,7 @@ struct LayerInspectorRowButton: View {
                                                  portId: portId))
             }
         }
-        .modifier(TrackInspectorInputOrField(
+        .modifier(TrackInspectorInput(
             layerInputObserver: layerInputObserver,
             // Technically, field index is just for use of flyout and irrelevant to "dragged edge onto inspector" ?
 //            fieldIndex: self.fieldIndex,

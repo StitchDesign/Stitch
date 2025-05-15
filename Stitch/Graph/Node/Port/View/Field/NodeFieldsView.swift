@@ -15,7 +15,7 @@ extension FieldViewModel {
     // TODO: instrument perf here?
     @MainActor
     func isBlocked(_ blockedFields: Set<LayerInputKeyPathType>) -> Bool {
-        blockedFields.blocks(.unpacked(self.fieldIndexWhichIgnoresPackedVsUnpacked().asUnpackedPortType))
+        blockedFields.blocks(.unpacked(self.fieldIndex.asUnpackedPortType))
     }
 }
 

@@ -109,6 +109,7 @@ struct InspectorLayerInputView: View {
     @Bindable var layerInputObserver: LayerInputObserver
     
     let forFlyout: Bool
+    
     let isSelectedInspectorRow: Bool
     
     var label: String {
@@ -167,6 +168,7 @@ struct InspectorLayerInputView: View {
                             
                             if layerInputObserver.port == .position {
                                 logInView("InspectorLayerInputView: layerInputObserver.port: \(layerInputObserver.port)")
+                                logInView("InspectorLayerInputView: inputFieldViewModel.fieldIndex: \(inputFieldViewModel.fieldIndex)")
                                 logInView("InspectorLayerInputView: fieldIndex: \(fieldIndex)")
                             }
                             
@@ -211,7 +213,7 @@ struct InspectorLayerInputView: View {
                                         layerInputObserver: layerInputObserver,
                                         layerInputType: .init(
                                             layerInput: layerInputObserver.port,
-                                            portType: .unpacked(fieldIndex.asUnpackedPortType)),
+                                            portType: .unpacked(inputFieldViewModel.fieldIndex.asUnpackedPortType)),
                                         hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
                                 )
                                 

@@ -46,7 +46,7 @@ struct InputFieldView: View {
            let layerInputPort = layerInputPort, // only relevant for layer inputs/fields
            let eligibleInputOrField: LayerInputType = graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField,
            eligibleInputOrField.layerInput == layerInputPort,
-           eligibleInputOrField.portType.getUnpacked?.rawValue == inputField.fieldIndexWhichIgnoresPackedVsUnpacked() {
+           eligibleInputOrField.portType.getUnpacked?.rawValue == inputField.fieldIndex {
             return true
         }
         
