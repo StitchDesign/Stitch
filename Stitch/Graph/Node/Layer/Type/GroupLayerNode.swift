@@ -91,6 +91,7 @@ struct GroupLayerNode: LayerNodeDefinition {
         
         // Layer scrolling via group layer
         .scrollContentSize,
+        .isScrollAuto,
         
         .scrollXEnabled,
         .scrollJumpToXStyle,
