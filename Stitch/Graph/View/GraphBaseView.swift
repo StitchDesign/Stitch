@@ -226,7 +226,7 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
                 } // GeometryReader
             } // overlayPreferenceValue
         
-        
+         
        
                         GeometryReader { proxy in
                     if let drawingGesture = graph.edgeDrawingObserver.drawingGesture,
@@ -242,8 +242,8 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
                         
                         let expandedSizeInput: CGRect = .init(
                             origin: sizeInput.origin,
-                            size: .init(width: sizeInput.size.width + 12,
-                                        height: sizeInput.size.height + 12)
+                            size: .init(width: sizeInput.size.width + 24,
+                                        height: sizeInput.size.height + 24)
                         )
                         
                         let intersects = areNear(drawingGestureRect.origin,
