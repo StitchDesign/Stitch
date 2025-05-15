@@ -133,15 +133,7 @@ struct InspectorLayerInputView: View {
     var fieldGroups: [FieldGroup] {
         self.layerInputObserver.fieldGroupsFromInspectorRowViewModels
     }
-    
-//    // TODO: CAN YOU
-//    // iPad-only?
-//    var packedPropertyRowIsSelected: Bool {
-//        graph.propertySidebar.selectedProperty == .layerInput(
-//            LayerInputType(layerInput: layerInputObserver.port,
-//                           portType: .packed))
-//    }
-    
+        
     var blockedFields: LayerPortTypeSet {
         layerInputObserver.blockedFields
     }

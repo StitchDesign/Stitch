@@ -248,26 +248,10 @@ extension GraphState {
             switch layerInputType.portType {
             
             case .packed:
-                // TODO: MAY 14: handle layer-sidebar-multiselect
-                if let layerNode: LayerNodeViewModel = self.layerNodes().first {
-                    
-                    // Add the input to the canvas
-                    document.handleLayerInputAdded(
-                        nodeId: layerNode.id,
-                        layerInput: layerInputType.layerInput)
-                    
-                    // TODO: place near the dragged output 
-                    // And then create the edge:
-                    guard let canvasObserver = layerNode.getLayerInputObserver(layerInputType.layerInput).packedCanvasObserverOnlyIfPacked,
-                          let firstInputCoordinate = canvasObserver.inputViewModels.first?.nodeIOCoordinate else {
-                        fatalErrorIfDebug()
-                        return
-                    }
-                    
-                    self.addEdgeWithoutGraphRecalc(from: draggedOutput.nodeIOCoordinate,
-                                                   to: firstInputCoordinate)
-                } // if let nodeId
-                
+                // Add the input to the canvas
+                document.handleLayerInputAdded(layerInput: layerInputType.layerInput,
+                                               draggedOutput: draggedOutput.nodeIOCoordinate)
+                                
             // UnpackedPortType_V30.UnpackedPortType
             case .unpacked(let unpackedPortType):
                 // TODO: MAY 14: handle layer-sidebar-multiselect
