@@ -165,8 +165,10 @@ struct InspectorLayerInputView: View {
                                                                                            isMultifield: Bool,
                                                                                            fieldIndex: Int) in
                             
-                            logInView("InspectorLayerInputView: layerInputObserver.port: \(layerInputObserver.port)")
-                            logInView("InspectorLayerInputView: fieldIndex: \(fieldIndex)")
+                            if layerInputObserver.port == .position {
+                                logInView("InspectorLayerInputView: layerInputObserver.port: \(layerInputObserver.port)")
+                                logInView("InspectorLayerInputView: fieldIndex: \(fieldIndex)")
+                            }
                             
                             /*
                              Overall, we are iterating through [[FieldGroup]], which abstracts over packed vs unpacked;
@@ -489,16 +491,20 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         return isPaddingPortValueTypeRow ? .firstTextBaseline : .center
     }
     
+    var isSelectedInspectorRow: Bool {
+        graph.propertySidebar.selectedProperty == layerInspectorRowId
+    }
+    
     var body: some View {
         HStack(alignment: hstackAlignment) {
             
             LayerInspectorRowButton(graph: graph,
-                                    document: document,
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: packedInputCanvasItemId,
-                                    isHovered: isHovered)
+                                    isHovered: isHovered,
+                                    isSelectedInspectorRow: isSelectedInspectorRow)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align
             // Alternatively, we want the height of the row-buton to be the same as the height of the input-row's label, e.g. specify a height in `LabelDisplayView`
@@ -520,11 +526,12 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             self.isHovered = isHovering
         })
         .contentShape(Rectangle())
-        .modifier(LayerInspectorPortViewTapModifier(graph: graph,
-                                                    document: document,
-                                                    isAutoLayoutRow: layerInputObserver?.port == .orientation,
-                                                    layerInspectorRowId: layerInspectorRowId,
-                                                    packedInputCanvasItemId: packedInputCanvasItemId))
+        .modifier(LayerInspectorPortViewTapModifier(
+            graph: graph,
+            document: document,
+            isAutoLayoutRow: layerInputObserver?.port == .orientation,
+            layerInspectorRowId: layerInspectorRowId,
+            packedInputCanvasItemId: packedInputCanvasItemId))
     }
 }
 
