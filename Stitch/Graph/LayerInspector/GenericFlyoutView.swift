@@ -64,7 +64,7 @@ struct GenericFlyoutView: View {
                 PotentiallyBlockedFieldsView(
                     fieldGroup: fieldGroup,
                     isMultifield: true, // generic flyout always multifield
-                    blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield in
+                    blockedFields: layerInputObserver.blockedFields) { inputFieldViewModel, isMultifield, _ in
                         GenericFlyoutRowView(
                             graph: graph,
                             document: document,

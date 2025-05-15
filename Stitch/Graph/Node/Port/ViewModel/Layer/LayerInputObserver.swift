@@ -219,15 +219,17 @@ extension LayerInputObserver {
         }
         
         switch self.mode {
+            
         case .packed:
             return allFields
             
         case .unpacked:
             // Vast majority of unpacked cases simply directly return inspector row view models
-            // Note:
             guard let groupings = self.port.transform3DLabelGroupings else {
                 return allFields
             }
+            
+            // Special case for 3D Transform
             
             // Groupings are gone in unpacked mode so we just need the fields
             let flattenedFields = allFields.flatMap { $0.fieldObservers }

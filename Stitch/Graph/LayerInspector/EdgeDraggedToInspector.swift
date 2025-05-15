@@ -89,3 +89,26 @@ struct TrackInspectorInputOrField: ViewModifier {
         }
     }
 }
+
+
+struct TrackInspectorField: ViewModifier {
+    
+    // Some inspector rows are for outputs, which we ignore
+    let layerInputObserver: LayerInputObserver
+    let layerInputType: LayerInputType
+    
+    // Are we actively dragging an input/output ?
+    let hasActivelyDrawnEdge: Bool
+    
+    func body(content: Content) -> some View {
+
+//        if hasActivelyDrawnEdge {
+        if true {
+            content.trackEdgeDraggedToInspectorAnchorPreference(
+                id: .inspectorInputOrField(layerInputType),
+                shouldTrack: hasActivelyDrawnEdge)
+        } else {
+            content
+        }
+    }
+}
