@@ -183,6 +183,7 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
 //        return EmptyView()
 //    }
     
+    @MainActor
     func findEligibleInspectorFieldOrRow(_ drawingGesture: EdgeDrawingObserver,
                                          draggedOutputRect: CGRect,
                                          geometry: GeometryProxy,
@@ -207,10 +208,14 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
         
         if nearestInspectorInputs.isEmpty {
             log("NO inspector inputs/fields")
-            drawingGesture.nearestEligibleEdgeDestination = nil
+            DispatchQueue.main.async {
+                drawingGesture.nearestEligibleEdgeDestination = nil
+            }
         } else if let nearestInspectorInput = nearestInspectorInputs.last {
             log("found inspector input/field: \(nearestInspectorInput)")
-            drawingGesture.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+            DispatchQueue.main.async {
+                drawingGesture.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+            }
         }
         
         // Note: unlike `findEligibleCanvasInput`, we don't need to update the port color etc.
@@ -218,7 +223,7 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
         return EmptyView()
     }
     
-    @ViewBuilder
+    @MainActor @ViewBuilder
     func body(content: Content) -> some View {
         // TODO: MAY 12: ONLY ACTIVE WHEN WE
         // this fires everytime we have a change ?
