@@ -115,6 +115,13 @@ struct NativeScrollGestureViewInner: ViewModifier {
     }
     
     var finalScrollOffset: CGPoint {
+        let isAutoScroll = self.layerViewModel.isScrollAuto.getBool ?? false
+        
+        guard !isAutoScroll else {
+            // Don't offset scroll view if auto is enabled
+            return .zero
+        }
+        
         if groupOrientation != .grid {
             return self.scrollOffset
         } else {

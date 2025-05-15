@@ -35,12 +35,15 @@ extension LayerNodeReader {
         let getValue = { (node: LayerNodeReader, port: LayerInputPort) -> PortValue in
             node.getLayerInputObserver(port).getActiveValue(activeIndex: activeIndex)
         }
-                        
-        let parentGroupOrientation: StitchOrientation? = self
-            .layerGroupId(graph.layersSidebarViewModel)
-            .map { graph.getLayerNodeReader($0) }?
-            .map { getValue($0, .orientation) }?
-            .getOrientation
+                      
+        let layerGroupNode = self.layerGroupId(graph.layersSidebarViewModel)
+            .map { graph.getLayerNodeReader($0) }
+        
+        let parentGroupOrientation: StitchOrientation? = layerGroupNode?
+            .map { getValue($0, .orientation) }?.getOrientation
+        
+        let isParentAutoScroll = layerGroupNode?
+            .map { getValue($0, .isScrollAuto) }?.getBool ?? false
 
         // TODO: perf-wise, is it better to avoid currying in high-intensity call sites? Could use the less concise `getActiveValueAt` method instead
         let fn = curry(getValue)(self)
@@ -48,6 +51,7 @@ extension LayerNodeReader {
         self.allLayerInputObservers.forEach { input in
             input.maybeBlockFields(isPinned: fn(.isPinned).getBool ?? false,
                                    parentGroupOrientation: parentGroupOrientation,
+                                   isParentAutoScroll: isParentAutoScroll,
                                    groupOrientation: fn(.orientation).getOrientation,
                                    scrollXEnabled: fn(.scrollXEnabled).getBool ?? false,
                                    scrollYEnabled: fn(.scrollYEnabled).getBool ?? false,
@@ -64,6 +68,7 @@ extension LayerInputObserver {
     func maybeBlockFields(
         isPinned: Bool,
         parentGroupOrientation: StitchOrientation?, // orientation of this layer's *parent*; nil if not the child of a group
+        isParentAutoScroll: Bool,
         groupOrientation: StitchOrientation?, // the orientation of *this* layer; nil if not a group
         scrollXEnabled: Bool,
         scrollYEnabled: Bool,
@@ -130,7 +135,8 @@ extension LayerInputObserver {
         // Offset-in-group is only for children in an HStack/VStack/Grid
         case .offsetInGroup:
             // Blocked if the layer either has no parent, or has a z-stack parent, or has a scrollable grid parent
-            if !hasParent || hasZStackParent || (hasGridParent && scrollEnabled) {
+            if !hasParent || hasZStackParent || (hasGridParent && scrollEnabled) ||
+                isParentAutoScroll {
                 blockFullInput()
             }
             
