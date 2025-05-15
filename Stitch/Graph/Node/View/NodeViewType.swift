@@ -86,7 +86,8 @@ struct DefaultNodeInputsView: View {
                        isFieldInMultifieldInput: isMultiField,
                        isForFlyout: false,
                        isSelectedInspectorRow: false,
-                       useIndividualFieldLabel: true)
+                       useIndividualFieldLabel: true,
+                       usesThemeColor: false)
     }
     
     @State var hoveredField: FieldCoordinate? = nil

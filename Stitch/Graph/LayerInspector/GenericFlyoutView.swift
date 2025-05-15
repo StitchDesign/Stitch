@@ -190,7 +190,8 @@ struct GenericFlyoutRowView: View {
                                isForFlyout: true,
                                // Always false for flyout row
                                isSelectedInspectorRow: false,
-                               useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex:  document.activeIndex))
+                               useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex:  document.activeIndex),
+                               usesThemeColor: false)
             }
             
         } // HStack
