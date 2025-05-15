@@ -32,32 +32,32 @@ func yDistance(_ from: CGPoint,
     abs(from.y - to.y)
 }
 
-// Are these two points within NEARNESS_ALLOWANCE of each other?
+// TODO: do we want different 'near-ness' for detecting eligible canvas inputs vs eligible inspector inputs/fields ?
+/// Are these two points within NEARNESS_ALLOWANCE of each other?
 func areNear(_ inputCenter: CGPoint, _ cursorCenter: CGPoint) -> Bool {
 
     let NEARNESS_ALLOWANCE: CGFloat = NODE_ROW_HEIGHT
 
-    log("areNear: inputCenter: \(inputCenter)")
-    log("areNear: cursorCenter: \(cursorCenter)")
+    // log("areNear: inputCenter: \(inputCenter)")
+    // log("areNear: cursorCenter: \(cursorCenter)")
 
     let range = CGSize(width: NEARNESS_ALLOWANCE * 3,
-//                       height: NEARNESS_ALLOWANCE)
-                       height: NEARNESS_ALLOWANCE * 3)
+                       height: NEARNESS_ALLOWANCE)
 
     // shift inward slightly
     let box1 = CGRect.init(
-        origin: .init(x: inputCenter.x, // + NEARNESS_ALLOWANCE,
+        origin: .init(x: inputCenter.x + NEARNESS_ALLOWANCE,
                       y: inputCenter.y),
         size: range)
 
     let box2 = CGRect.init(origin: cursorCenter,
                            size: range)
 
-    log("areNear: box1: \(box1)")
-    log("areNear: box2: \(box2)")
+    // log("areNear: box1: \(box1)")
+    // log("areNear: box2: \(box2)")
 
     let k = isIntersecting(box1, box2)
-    log("areNear: k: \(k)")
+    // log("areNear: k: \(k)")
     return k
 }
 
