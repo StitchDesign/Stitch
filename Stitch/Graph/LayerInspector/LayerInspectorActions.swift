@@ -38,7 +38,6 @@ struct LayerInputAddedToGraph: StitchDocumentEvent {
     // don't need two actions
     let nodeId: NodeId
     
-//    let coordinate: LayerInputType
     let layerInput: LayerInputPort
     
     func handle(state: StitchDocumentViewModel) {

@@ -61,7 +61,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
         
         // For perf reasons, we only populate `EdgeDraggedToInspectorPreferenceKey` if we're actively dragging an edge
             .modifier(TrackDraggedOutput(
-                id: nodeIOCoordinate,
+                id: nodeIO == .output ? nodeIOCoordinate : nil,
                 isActivelyDraggedOutput: nodeIOCoordinate == activelyDraggedOutputCoordinate
             ))
         
@@ -102,7 +102,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                 self.graph.maybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO)
             }
         
-        // Now handled in `findEligibleInput` instead
+        // Now handled in `findEligibleCanvasInput` instead
         //            .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { _, _ in
         //                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
         //            }

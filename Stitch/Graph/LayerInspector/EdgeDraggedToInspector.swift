@@ -32,22 +32,58 @@ struct EdgeDraggedToInspectorPreferenceKey: PreferenceKey {
 }
 
 extension View {
-    func trackEdgeDraggedToInspectorAnchorPreference(id: EdgeDraggedToInspector) -> some View {
+    func trackEdgeDraggedToInspectorAnchorPreference(id: EdgeDraggedToInspector,
+                                                     shouldTrack: Bool = false) -> some View {
         self.anchorPreference(key: EdgeDraggedToInspectorPreferenceKey.self,
                               value: .bounds) {
-            [id: $0]
+//            if shouldTrack {
+                return [id: $0]
+//            } else {
+//                return [:] // Will this still trigger GeometryPoints etc. ?
+//            }
         }
     }
 }
 
+// Only used in
 struct TrackDraggedOutput: ViewModifier {
     let id: OutputCoordinate? // nil = was for input
     let isActivelyDraggedOutput: Bool
     
     func body(content: Content) -> some View {
-        if let id = id,
-            isActivelyDraggedOutput {
-            content.trackEdgeDraggedToInspectorAnchorPreference(id: .draggedOutput(id))
+        if let id = id {
+            content.trackEdgeDraggedToInspectorAnchorPreference(id: .draggedOutput(id),
+                                                                shouldTrack: isActivelyDraggedOutput)
+        } else {
+            content
+        }
+    }
+}
+
+// Only used in inspector
+struct TrackInspectorInputOrField: ViewModifier {
+    
+    // Some inspector rows are for outputs, which we ignore
+    let layerInputObserver: LayerInputObserver?
+    
+    let fieldIndex: Int?
+    
+    // Are we actively dragging an input/output ?
+    let hasActivelyDrawnEdge: Bool
+    
+    func body(content: Content) -> some View {
+
+        if let layerInputObserver = layerInputObserver {
+            
+            let layerInputType: LayerInputType = fieldIndex
+                .map({ LayerInputType(layerInput: layerInputObserver.port,
+                                      portType: .unpacked($0.asUnpackedPortType)) })
+            ?? LayerInputType(layerInput: layerInputObserver.port,
+                              portType: .packed)
+            
+            content.trackEdgeDraggedToInspectorAnchorPreference(
+                id: .inspectorInputOrField(layerInputType),
+                shouldTrack: hasActivelyDrawnEdge)
         } else {
             content
         }

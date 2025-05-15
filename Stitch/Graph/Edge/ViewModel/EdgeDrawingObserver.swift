@@ -8,10 +8,35 @@
 import SwiftUI
 import StitchSchemaKit
 
+enum EligibleEdgeDestination {
+    case canvasInput(InputNodeRowViewModel)
+    case inspectorInputOrField(LayerInputType)
+    
+    var getCanvasInput: InputNodeRowViewModel? {
+        switch self {
+        case .canvasInput(let x):
+            return nil
+        default:
+            return nil
+        }
+    }
+    
+    var getInspectorInputOrField: InputNodeRowViewModel? {
+        switch self {
+        case .inspectorInputOrField(let x):
+            return nil
+        default:
+            return nil
+        }
+    }
+}
+
 @Observable
 final class EdgeDrawingObserver: Sendable {
-    @MainActor var nearestEligibleInspectorInputOrField: Layer
-    @MainActor var nearestEligibleInput: InputNodeRowViewModel?
+    
+    // TODO: should these be exclusive i.e. an enum ? Can have eligible canvas input OR eligible inspector input/field ?
+    @MainActor var nearestEligibleEdgeDestination: EligibleEdgeDestination?
+    
     @MainActor var drawingGesture: OutputDragGesture?
     @MainActor var recentlyDrawnEdge: PortEdgeUI?
     
@@ -23,8 +48,8 @@ extension EdgeDrawingObserver {
     func reset() {
         // MARK: we need equality checks to reduce render cycles
         
-        if self.nearestEligibleInput != nil {
-            self.nearestEligibleInput = nil
+        if self.nearestEligibleEdgeDestination != nil {
+            self.nearestEligibleEdgeDestination = nil
         }
         
         if self.drawingGesture != nil {

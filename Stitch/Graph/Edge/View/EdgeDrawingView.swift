@@ -8,21 +8,21 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct EdgeDrawingView: View {
-    let graph: GraphState
-    @Bindable var edgeDrawingObserver: EdgeDrawingObserver
-    
-    var body: some View {
-        if let outputDrag = edgeDrawingObserver.drawingGesture {
-            EdgeFromDraggedOutputView(
-                graph: graph,
-                outputDrag: outputDrag,
-                nearestEligibleInput: edgeDrawingObserver.nearestEligibleInput)
-        } else {
-            EmptyView()
-        }
-    }
-}
+//struct EdgeDrawingView: View {
+//    let graph: GraphState
+//    @Bindable var edgeDrawingObserver: EdgeDrawingObserver
+//    
+//    var body: some View {
+//        if let outputDrag = edgeDrawingObserver.drawingGesture {
+//            EdgeFromDraggedOutputView(
+//                graph: graph,
+//                outputDrag: outputDrag,
+//                nearestEligibleInput: edgeDrawingObserver.nearestEligibleCanvasInput)
+//        } else {
+//            EmptyView()
+//        }
+//    }
+//}
 
 struct EdgeFromDraggedOutputView: View {
     
@@ -104,7 +104,7 @@ struct EdgeFromDraggedOutputView: View {
         }
         .onChange(of: pointTo) {
             if let outputNodeId = outputRowViewModel.canvasItemDelegate?.id {
-                graph.findEligibleInput(
+                graph.findEligibleCanvasInput(
                     cursorLocation: pointTo,
                     cursorNodeId: outputNodeId)
             }

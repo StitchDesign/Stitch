@@ -144,6 +144,10 @@ struct GraphBaseView: View {
 //                            edgeDrawingObserver: graph.edgeDrawingObserver)
             
         } // ZStack
+        
+        .modifier(DetermineEligibleInspectorInputsAndFields(graph: graph,
+                                                            scale: document.graphMovement.zoomData))
+        
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
             GeometryReader { geometry in
@@ -170,34 +174,59 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
     @Bindable var graph: GraphState
     let scale: CGFloat
     
-    func intersectedWithSize() -> EmptyView {
-        if let nodeId = self.graph.layerNodes().first?.id {
-            DispatchQueue.main.async {
-                dispatch(LayerInputAddedToGraph(nodeId: nodeId, layerInput: .size))
+//    func intersectedWithSize() -> EmptyView {
+//        if let nodeId = self.graph.layerNodes().first?.id {
+//            DispatchQueue.main.async {
+//                dispatch(LayerInputAddedToGraph(nodeId: nodeId, layerInput: .size))
+//            }
+//        }
+//        return EmptyView()
+//    }
+    
+    func findEligibleInspectorFieldOrRow(_ drawingGesture: EdgeDrawingObserver,
+                                         draggedOutputRect: CGRect,
+                                         geometry: GeometryProxy,
+                                         preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) -> EmptyView {
+        
+        var nearestInspectorInputs = [LayerInputType]()
+        
+        for preference in preferences {
+            // Note: `areNear` *already* expands the 'hit area'
+            if case let .inspectorInputOrField(layerInputType) = preference.key,
+               
+                areNear(geometry[preference.value].origin,
+                       draggedOutputRect.origin) {
+                
+                log("WAS NEAR: layerInputType: \(layerInputType)")
+                nearestInspectorInputs.append(layerInputType)
             }
+        } // for preference in ...
+        
+        if nearestInspectorInputs.isEmpty {
+            log("NO inspector inputs/fields")
+            drawingGesture.nearestEligibleEdgeDestination = nil
+        } else if let nearestInspectorInput = nearestInspectorInputs.last {
+            log("found inspector input/field: \(nearestInspectorInput)")
+            drawingGesture.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
         }
+        
+        // Note: unlike `findEligibleCanvasInput`, we don't need to update the port color etc.
+                
         return EmptyView()
     }
     
-    func findEligibleInspectorFieldOrRow(_ drawingGesture: EdgeDrawingObserver) -> EmptyView {
-//        drawingGesture.nearestEligibleInspectorInputOrField
-        return EmptyView()
-    }
-    
+    @ViewBuilder
     func body(content: Content) -> some View {
         // TODO: MAY 12: ONLY ACTIVE WHEN WE
         // this fires everytime we have a change ?
         
         // For perf reasons, do not render this view unless we are actively dragging an
-        guard let drawingGesture = graph.edgeDrawingObserver.drawingGesture else {
-            return content
-        }
-        
-        // TODO: alternatively, we could
-        return content
+//        if let drawingGesture = graph.edgeDrawingObserver.drawingGesture {
+        content
             .overlayPreferenceValue(EdgeDraggedToInspectorPreferenceKey.self) { preferences in
                 GeometryReader { geometry in
-                    if let draggedOutputPref = preferences[.draggedOutput(drawingGesture.output.nodeIOCoordinate)] {
+                    if let drawingGesture = graph.edgeDrawingObserver.drawingGesture,
+                       let draggedOutputPref = preferences[.draggedOutput(drawingGesture.output.nodeIOCoordinate)] {
                         
                         // Location of dragged edge's end, i.e. user's cursor position
                         let draggedOutputRect: CGRect = geometry[draggedOutputPref]
@@ -212,62 +241,27 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
                                     lineCap: .round,
                                     lineJoin: .round))
                         
-                        
-                        
-                        
-//                        // Iterate through
-//                        preferences.forEach { (key: EdgeDraggedToInspector, value: Anchor<CGRect>) in
-//                            <#code#>
-//                        }
-                        
-                        
+                        findEligibleInspectorFieldOrRow(
+                            graph.edgeDrawingObserver,
+                            draggedOutputRect: draggedOutputRect,
+                            geometry: geometry,
+                            preferences: preferences
+                        )
                         
                     } // if let draggedOutputPref
                 } // GeometryReader
             } // overlayPreferenceValue
-        
-         
-       
-                        GeometryReader { proxy in
-                    if let drawingGesture = graph.edgeDrawingObserver.drawingGesture,
-                       let draggedOutput = preferences[.draggedOutput(drawingGesture.output.nodeIOCoordinate)].map({ proxy[$0] }),
-                       let sizeInput = preferences[String.SIZE_INPUT].map({ proxy[$0] }),
-                    {
-                        
-                        
-                        let drawingGestureRect: CGRect = .init(
-                            origin: drawingGesture.dragLocation,
-                            size: .init(width: 24, height: 24)
-                        )
-                        
-                        let expandedSizeInput: CGRect = .init(
-                            origin: sizeInput.origin,
-                            size: .init(width: sizeInput.size.width + 24,
-                                        height: sizeInput.size.height + 24)
-                        )
-                        
-                        let intersects = areNear(drawingGestureRect.origin,
-                                                 expandedSizeInput.origin)
-                        
-                        // if we intersect, add the size input to the canvas
-                      
-                        if intersects {
-                            intersectedWithSize()
-                        }
-                        
-                        //                    EdgeDrawingView(graph: graph,
-                        //                                    edgeDrawingObserver: graph.edgeDrawingObserver)
-                        //
-                    }
-                }
-            }
-    }
+//        }
+//        
+//        // i.e. not actively dragging a layer
+//        else {
+//            content
+//        }
+    } // body(content:)
 }
 
 /*
- 
- 
- 
+  
  logInView("preference: drawingGesture.dragLocation.x: \(drawingGesture.dragLocation.x)")
  logInView("preference: drawingGesture.dragLocation.y: \(drawingGesture.dragLocation.y)")
  
