@@ -61,7 +61,7 @@ struct TrackDraggedOutput: ViewModifier {
 }
 
 // Only used in inspector
-struct TrackInspectorInputOrField: ViewModifier {
+struct TrackInspectorInput: ViewModifier {
     
     // Some inspector rows are for outputs, which we ignore
     let layerInputObserver: LayerInputObserver?
