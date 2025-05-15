@@ -195,13 +195,10 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
         var nearestInspectorInputs = [LayerInputType]()
         
         for preference in preferences {
-            // Note: `areNear` *already* expands the 'hit area'
             if case let .inspectorInputOrField(layerInputType) = preference.key,
-               
+               // Note: `areNear` *already* expands the 'hit area'
                 areNear(geometry[preference.value].origin,
-//                       draggedOutputRect.origin
-                        dragLocation
-                ) {
+                        dragLocation) {
                 
                 log("WAS NEAR: layerInputType: \(layerInputType)")
                 nearestInspectorInputs.append(layerInputType)

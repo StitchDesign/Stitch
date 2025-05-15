@@ -143,7 +143,7 @@ struct LayerInspectorView: View {
     }
 }
 
-
+// TODO: can we reuse this for "edge dragged to inspector input / field" ?
 struct LayerPropertyRowOriginReader: ViewModifier {
     
     @Bindable var graph: GraphState
