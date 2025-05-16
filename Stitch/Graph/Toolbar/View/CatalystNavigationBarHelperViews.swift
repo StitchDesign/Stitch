@@ -167,7 +167,7 @@ struct CatalystTopBarGraphButtons: View {
     
     @ViewBuilder
     var aiTrainingButton: some View {
-        CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+        CatalystNavBarButton("AI Generation/Correction", systemName: llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
             dispatch(LLMRecordingToggled())
             
             if self.shouldDisplayTrainingTip {
