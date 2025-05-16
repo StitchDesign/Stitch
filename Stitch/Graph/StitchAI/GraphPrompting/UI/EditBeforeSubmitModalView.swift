@@ -163,7 +163,7 @@ struct LLMActionCorrectionView: View {
                 StitchTextView(string: "Value: \(x.value.display)")
                 
             case .sidebarGroupCreated(let x):
-                StitchTextView(string: "Create Group: \(x.groupName)")
+                StitchTextView(string: "Create Group)")
                 StitchTextView(string: "With Node: \(x.nodeId.debugFriendlyId)")
                 
             case .none:
