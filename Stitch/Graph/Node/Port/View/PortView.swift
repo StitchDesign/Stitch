@@ -186,18 +186,14 @@ struct PortEntryExtendedHitBox: View {
                     }
                 }
             )
-        
-        // Used for
             .simultaneousGesture(DragGesture(minimumDistance: 0.5,
                                              coordinateSpace: .named(NodesView.coordinateNamespace))
                 .onChanged { gesture in
                     log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
                     switch nodeIO {
                     case .input:
-                        // graph.inputDragged(gesture: gesture, rowId: rowId)
-                        break
+                        graph.dragLocationInNodesViewCoordinateSpace = gesture.location
                     case .output:
-//                        graph.outputDragged(gesture: gesture, rowId: rowId)
                         graph.dragLocationInNodesViewCoordinateSpace = gesture.location
                     }
                 } // .onChanged
@@ -205,10 +201,8 @@ struct PortEntryExtendedHitBox: View {
                     log("PortEntry: NodesView coordinate space: onEnded")
                     switch nodeIO {
                     case .input:
-                        // graph.inputDragEnded()
-                        break
+                        graph.dragLocationInNodesViewCoordinateSpace = nil
                     case .output:
-//                        graph.outputDragEnded()
                         graph.dragLocationInNodesViewCoordinateSpace = nil
                     }
                 }

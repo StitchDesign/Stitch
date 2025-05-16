@@ -97,10 +97,13 @@ extension GraphState {
                 continue
             }
             
+            log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
+            log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
+            
             if areNear(inputCenter, cursorLocation)
                 && inputViewModel.canvasItemDelegate?.id != cursorNodeId {
-                log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
-                log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
+//                log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
+//                log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
                 nearestInputs.append(inputViewModel)
             }
         }
@@ -109,12 +112,13 @@ extension GraphState {
         
         if nearestInputs.isEmpty,
            hadEligibleCanvasInput {
-            log("resetting nearestEligibleEdgeDestination")
+            log("findEligibleCanvasInput: wiping nearestEligibleEdgeDestination")
             self.edgeDrawingObserver.nearestEligibleEdgeDestination = nil
         } else if let nearestInput = nearestInputs.last {
             // While dragging cursor from an output/input,
             // we've detected that we're over an eligible input
             // to which we could create a connection.
+            log("findEligibleCanvasInput: found nearestEligibleEdgeDestination: \(nearestInput)")
             self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(nearestInput)
         }
         
