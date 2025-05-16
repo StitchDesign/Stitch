@@ -152,9 +152,10 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
     
     @Bindable var graph: GraphState
     let scale: CGFloat
-    
+        
+    // finds canvas input OR inspector input/field
     @MainActor
-    func findEligibleInspectorFieldOrRow(_ drawingObserver: EdgeDrawingObserver,
+    func findEligibleInput(_ drawingObserver: EdgeDrawingObserver,
                                          draggedOutputRect: CGRect,
                                          geometry: GeometryProxy,
                                          preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) -> EmptyView {
@@ -178,6 +179,7 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
             }
         } // for preference in ...
                 
+        
         DispatchQueue.main.async { [weak graph] in
             
             guard let graph = graph,
@@ -185,6 +187,14 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
                 log("findEligibleInspectorFieldOrRow: no longer have an output drag")
                 return
             }
+            
+            if let outputNodeId = drawingGesture.output.canvasItemDelegate?.id,
+               let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
+                graph.findEligibleCanvasInput(
+                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+                    cursorNodeId: outputNodeId)
+            }
+            
             
             let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
             
@@ -212,16 +222,12 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
     }
     
     @Environment(\.appTheme) var theme
-    
-    var eligibleInputOrField: LayerInputType? {
-        graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField
-    }
-    
+        
     // Note: the rules for the color of an actively dragged edge are simple:
     // gray if no eligible input, else highlighted-loop if a loop, else highlighted.
     @MainActor
     func color(_ outputRowViewModel: OutputNodeRowViewModel) -> PortColor {
-        if !eligibleInputOrField.isDefined {
+        if !graph.edgeDrawingObserver.nearestEligibleEdgeDestination.isDefined {
             return .noEdge
         } else if (outputRowViewModel.rowDelegate?.hasLoopedValues ?? false) {
             return .highlightedLoopEdge
@@ -322,17 +328,17 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
 //                                    lineCap: .round,
 //                                    lineJoin: .round))
                         
-                        findEligibleInspectorFieldOrRow(
+                        findEligibleInput(
                             graph.edgeDrawingObserver,
                             draggedOutputRect: draggedOutputRect,
                             geometry: geometry,
                             preferences: preferences
                         )
-                        
                     } // if let draggedOutputPref
                 } // GeometryReader
             } // overlayPreferenceValue
     } // body(content:)
+
 }
 
 struct GraphHoverViewModifier: ViewModifier {
