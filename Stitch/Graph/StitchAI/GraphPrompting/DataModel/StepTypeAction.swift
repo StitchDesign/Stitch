@@ -75,22 +75,24 @@ enum StepTypeAction: Equatable, Hashable, Codable {
 }
 
 struct StepActionSidebarGroupCreated: StepActionable {
+    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionSidebarGroupCreated {
+        var copy = self
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        return copy
+    }
+    
     static let stepType: StepType = .sidebarGroupCreated
     
     var nodeId: NodeId
-    var groupName: String
     
     var toStep: Step {
         Step(stepType: Self.stepType,
-             nodeId: nodeId,
-             groupName: groupName)
+             nodeId: nodeId)
     }
     
     static func fromStep(_ action: Step) throws -> Self {
-        if let nodeId = action.nodeId?.value,
-           let groupName = action.groupName {
-            return .init(nodeId: nodeId,
-                        groupName: groupName)
+        if let nodeId = action.nodeId?.value {
+            return .init(nodeId: nodeId)
         }
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }
@@ -100,7 +102,7 @@ struct StepActionSidebarGroupCreated: StepActionable {
               nodeId: OpenAISchema(type: .string))
     }
     
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .groupName]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId]
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) throws {
