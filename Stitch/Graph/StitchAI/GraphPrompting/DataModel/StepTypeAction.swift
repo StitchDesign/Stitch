@@ -142,8 +142,7 @@ struct StepActionLayerGroupCreated: StepActionable {
     }
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
-        // No specific validation needed as this is creating a new group
-        // The group will be created from currently selected nodes
+        createdNodes.updateValue(.layer(.group), forKey: self.nodeId)
     }
 }
 
