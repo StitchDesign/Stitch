@@ -34,19 +34,20 @@ func yDistance(_ from: CGPoint,
 
 // TODO: do we want different 'near-ness' for detecting eligible canvas inputs vs eligible inspector inputs/fields ?
 /// Are these two points within NEARNESS_ALLOWANCE of each other?
-func areNear(_ inputCenter: CGPoint, _ cursorCenter: CGPoint) -> Bool {
+func areNear(_ inputCenter: CGPoint,
+             _ cursorCenter: CGPoint,
+             nearnessAllowance: CGFloat = NODE_ROW_HEIGHT) -> Bool {
 
-    let NEARNESS_ALLOWANCE: CGFloat = NODE_ROW_HEIGHT
 
     // log("areNear: inputCenter: \(inputCenter)")
     // log("areNear: cursorCenter: \(cursorCenter)")
 
-    let range = CGSize(width: NEARNESS_ALLOWANCE * 3,
-                       height: NEARNESS_ALLOWANCE)
+    let range = CGSize(width: nearnessAllowance * 3,
+                       height: nearnessAllowance)
 
     // shift inward slightly
     let box1 = CGRect.init(
-        origin: .init(x: inputCenter.x + NEARNESS_ALLOWANCE,
+        origin: .init(x: inputCenter.x + nearnessAllowance,
                       y: inputCenter.y),
         size: range)
 
