@@ -163,7 +163,7 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
             return EmptyView()
         }
         
-        let dragLocation = drawingGesture.dragLocation
+        let dragLocation = drawingGesture.cursorLocationInGlobalCoordinateSpace
         
         var nearestInspectorInputs = [LayerInputType]()
         
@@ -181,17 +181,20 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
         DispatchQueue.main.async { [weak graph] in
             
             guard let graph = graph,
-                    graph.edgeDrawingObserver.drawingGesture.isDefined else {
+                  graph.edgeDrawingObserver.drawingGesture.isDefined else {
                 log("findEligibleInspectorFieldOrRow: no longer have an output drag")
                 return
             }
             
-            if nearestInspectorInputs.isEmpty {
+            let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
+            
+            if nearestInspectorInputs.isEmpty,
+               hadEligibleInspectorInputOrField {
                 log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
-                    drawingObserver.nearestEligibleEdgeDestination = nil
+                drawingObserver.nearestEligibleEdgeDestination = nil
             } else if let nearestInspectorInput = nearestInspectorInputs.last {
                 log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
-                    drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+                drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
             }
             
             // After we've set or wiped the nearestEligible input,
@@ -258,12 +261,13 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
                         // Location of dragged edge's end, i.e. user's cursor position
                         let draggedOutputRect: CGRect = geometry[draggedOutputPref]
                         
-                        let outputDrag = drawingGesture
-                        let outputRowViewModel = outputDrag.output
+                        let outputRowViewModel = drawingGesture.output
                         
-                        let pointTo = drawingGesture.dragLocation
+                        // Always draw the
+                        let pointTo = drawingGesture.cursorLocationInGlobalCoordinateSpace
                         
-                        if let downstreamNode = graph.getNode(outputDrag.output.id.nodeId),
+                        
+                        if let downstreamNode = graph.getNode(drawingGesture.output.id.nodeId),
                            let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
                             let outputAnchorData = EdgeAnchorUpstreamData(
                                 from: upstreamCanvasItem.outputPortUIViewModels,

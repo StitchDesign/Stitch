@@ -9,6 +9,7 @@ import Foundation
 
 typealias VisibleEdges = [PortEdgeUI]
 
+// TODO: make cleaner what PortEdgeUI is vs PortEdgeData; `PortEdgeData` is probably an older data form, from when InputCoordinate and OutputCoordinate were separate types
 // Better: `GraphEdge`
 struct PortEdgeUI: Equatable, Hashable {
     let from: OutputPortIdAddress // ie nodeId, portId

@@ -55,7 +55,7 @@ struct EdgeFromDraggedOutputView: View {
     }
 
     var pointTo: CGPoint {
-        outputDrag.dragLocation
+        outputDrag.cursorLocationInGlobalCoordinateSpace
     }
     
     @MainActor

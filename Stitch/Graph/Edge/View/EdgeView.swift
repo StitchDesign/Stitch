@@ -15,7 +15,9 @@ struct EdgeView: View {
     
     @Environment(\.appTheme) var theme
     
+    // TODO: optionally pass in the edge for actively-drawn cases
     let edge: PortEdgeUI
+    
     let pointFrom: CGPoint
     let pointTo: CGPoint
     let color: Color
@@ -30,6 +32,7 @@ struct EdgeView: View {
     
     // Used to calculate largest y distance
     // Optional for edge dragging from output
+    // TODO: are these really still optional for actively-dragged edge? or is it just "edge dragged from output"?
     var firstFromWithEdge: CGFloat?
     var lastFromWithEdge: CGFloat?
     var firstToWithEdge: CGFloat?

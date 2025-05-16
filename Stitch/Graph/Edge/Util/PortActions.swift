@@ -167,6 +167,7 @@ extension GraphState {
     
     @MainActor
     func edgeAdded(edge: PortEdgeUI) {
+        // TODO: Can this really fail ? ... Under what conditions can this fail ? ... Just seems to be retrieving the NodeIO
         guard let edgeData = PortEdgeData(viewData: edge, graph: self) else {
             return
         }

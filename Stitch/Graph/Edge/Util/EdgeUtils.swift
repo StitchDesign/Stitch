@@ -99,12 +99,16 @@ extension GraphState {
             
             if areNear(inputCenter, cursorLocation)
                 && inputViewModel.canvasItemDelegate?.id != cursorNodeId {
+                log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
+                log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
                 nearestInputs.append(inputViewModel)
             }
         }
         
-        // TODO: MAY 14: revisit
-        if nearestInputs.isEmpty {
+        let hadEligibleCanvasInput = self.edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput.isDefined ?? false
+        
+        if nearestInputs.isEmpty,
+           hadEligibleCanvasInput {
             log("resetting nearestEligibleEdgeDestination")
             self.edgeDrawingObserver.nearestEligibleEdgeDestination = nil
         } else if let nearestInput = nearestInputs.last {
