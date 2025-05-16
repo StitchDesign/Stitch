@@ -167,7 +167,7 @@ struct CatalystTopBarGraphButtons: View {
     
     @ViewBuilder
     var aiTrainingButton: some View {
-        CatalystNavBarButton("AI Generation/Correction", systemName: llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+        CatalystNavBarButton("AI Generation/Correction", systemIconName: llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
             dispatch(LLMRecordingToggled())
             
             if self.shouldDisplayTrainingTip {
@@ -178,7 +178,7 @@ struct CatalystTopBarGraphButtons: View {
     }
 
     var body: some View {
-        CatalystNavBarButton("Go Up", systemName: .GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME, tooltip: "Go up one level in the graph hierarchy") {
+        CatalystNavBarButton("Go Up", systemIconName: .GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME, tooltip: "Go up one level in the graph hierarchy") {
             dispatch(GoUpOneTraversalLevel())
         }
         .disabled(!hasActiveGroupFocused)
@@ -194,12 +194,12 @@ struct CatalystTopBarGraphButtons: View {
         }
         // #endif
 
-        CatalystNavBarButton("Add Node", systemName: .ADD_NODE_SF_SYMBOL_NAME) {
+        CatalystNavBarButton("Add Node", systemIconName: .ADD_NODE_SF_SYMBOL_NAME) {
             dispatch(ToggleInsertNodeMenu())
         }
 
         // TODO: should be a toast only shows up when no nodes are on-screen?
-        CatalystNavBarButton("Go to Node", systemName: .FIND_NODE_ON_GRAPH, tooltip: "Go to the selected node in the graph") {
+        CatalystNavBarButton("Go to Node", systemIconName: .FIND_NODE_ON_GRAPH, tooltip: "Go to the selected node in the graph") {
             dispatch(FindSomeCanvasItemOnGraph())
         }
 
@@ -213,15 +213,15 @@ struct CatalystTopBarGraphButtons: View {
         //                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
 
         if !isDebugMode {
-            CatalystNavBarButton("Toggle Preview", systemName: isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+            CatalystNavBarButton("Toggle Preview", systemIconName: isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
                 dispatch(TogglePreviewWindow())
             }
 
-            CatalystNavBarButton("Restart", systemName: .RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
+            CatalystNavBarButton("Restart", systemIconName: .RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
                 dispatch(PrototypeRestartedAction())
             }
 
-            CatalystNavBarButton("Fullscreen", systemName: isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+            CatalystNavBarButton("Fullscreen", systemIconName: isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
                 dispatch(ToggleFullScreenEvent())
             }
         }
@@ -232,7 +232,7 @@ struct CatalystTopBarGraphButtons: View {
         TopBarFeedbackButtonsView()
             .modifier(CatalystTopBarButtonStyle())
 
-        CatalystNavBarButton("Project Settings", systemName: .SETTINGS_SF_SYMBOL_NAME) {
+        CatalystNavBarButton("Project Settings", systemIconName: .SETTINGS_SF_SYMBOL_NAME) {
             PROJECT_SETTINGS_ACTION()
         }
 
@@ -349,16 +349,16 @@ struct CatalystTopBarButtonStyle: ViewModifier {
 extension CatalystNavBarButton {
 
     init(_ title: LocalizedStringKey,
-         systemName: String,
+         systemIconName: String,
          tooltip: LocalizedStringKey? = nil,
          rotationZ: CGFloat = 0,
          _ action: @escaping () -> Void) {
         self.title = title
-        self.image = Image(systemName: systemName)
+        self.image = Image(systemName: systemIconName)
         self.tooltip = tooltip
         self.rotationZ = rotationZ
         self.action = action
-        self.id = systemName
+        self.id = systemIconName
     }
 
     init(action: @escaping () -> Void,
