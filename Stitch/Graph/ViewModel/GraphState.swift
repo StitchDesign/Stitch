@@ -527,12 +527,11 @@ extension GraphState {
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
         
-        let graph = GraphEntity(id: self.projectId.value,
-                                name: self.name,
-                                nodes: nodes,
-                                orderedSidebarLayers: self.layersSidebarViewModel.createdOrderedEncodedData(),
-                                commentBoxes: commentBoxes)
-        return graph
+        return GraphEntity(id: self.projectId.value,
+                           name: self.name,
+                           nodes: nodes,
+                           orderedSidebarLayers: self.layersSidebarViewModel.createdOrderedEncodedData(),
+                           commentBoxes: commentBoxes)
     }
     
     @MainActor
