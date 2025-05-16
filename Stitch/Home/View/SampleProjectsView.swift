@@ -12,12 +12,12 @@ struct SampleProjectData {
     let imageName: String
     let url: URL
     
-    init?(projectName: String,
-          projectURL: String,
-          projectAssetName: String) {
+    init(projectName: String,
+         projectURL: String,
+         projectAssetName: String) throws {
         let urlString = SampleProjectResource.githubV30Base + projectURL
         guard let url = URL(string: urlString) else {
-            return nil
+            throw NSError()
         }
         
         self.projectName = projectName
@@ -67,23 +67,25 @@ struct SampleProjectsView: View {
 }
 
 struct SampleProjectsList: View {
-    let projects: [SampleProjectData] = [
-        .init(projectName: "Monthly Stays (Josh Pekera)",
-              projectURL: "Monthly_Stays/Monthly%20Stays%20(Josh%20Pekera).stitch",
-              projectAssetName: "MonthlyStays")!,
-        .init(projectName: "Music Player (GK3)",
-              projectURL: "Music_Player/Music%20Player%20(GK3).stitch",
-              projectAssetName: "MusicPlayer")!,
-        .init(projectName: "Hello World",
-              projectURL: "Hello_World/Hello%20World.stitch",
-              projectAssetName: "HelloWorld")!,
-        .init(projectName: "Wallet",
-              projectURL: "Wallet/Wallet%20(Wayne%20Sang).stitch",
-              projectAssetName: "Wallet")!,
-        .init(projectName: "AR Robot (Elliot)",
-              projectURL:"AR_Robot/AR%20Robot%20(Elliot).stitch",
-              projectAssetName: "ARRobot")!
-    ]
+    static func getProjects() throws -> [SampleProjectData] {
+        try [
+            .init(projectName: "Monthly Stays (Josh Pekera)",
+                  projectURL: "Monthly_Stays/Monthly%20Stays%20(Josh%20Pekera).stitch",
+                  projectAssetName: "MonthlyStays"),
+            .init(projectName: "Music Player (GK3)",
+                  projectURL: "Music_Player/Music%20Player%20(GK3).stitch",
+                  projectAssetName: "MusicPlayer"),
+            .init(projectName: "Hello World",
+                  projectURL: "Hello_World/Hello%20World.stitch",
+                  projectAssetName: "HelloWorld"),
+            .init(projectName: "Wallet",
+                  projectURL: "Wallet/Wallet%20(Wayne%20Sang).stitch",
+                  projectAssetName: "Wallet"),
+            .init(projectName: "AR Robot (Elliot)",
+                  projectURL:"AR_Robot/AR%20Robot%20(Elliot).stitch",
+                  projectAssetName: "ARRobot")
+        ]
+    }
     
     // Three fixed, flexible columns
     private let columns: [GridItem] = Array(
@@ -98,7 +100,7 @@ struct SampleProjectsList: View {
     
     var body: some View {
         LazyVGrid(columns: columns, alignment: .leading, spacing: 16) {
-            ForEach(self.projects) { item in
+            ForEach(try! Self.getProjects()) { item in
                 SampleProjectView(
                     store: store,
                     urlLoadingForPresentation: $urlLoadingForPresentation,
