@@ -71,8 +71,8 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 CandidateEdgesView(graph: graph)
             }
             .overlay {
-                EdgeDrawingView(graph: graph,
-                                edgeDrawingObserver: graph.edgeDrawingObserver)
+//                EdgeDrawingView(graph: graph,
+//                                edgeDrawingObserver: graph.edgeDrawingObserver)
                 
                 if let edgeEditingState = graph.edgeEditingState {
                     EdgeInputLabelsView(document: document,

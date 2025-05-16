@@ -201,13 +201,13 @@ extension GraphState {
 
             self.edgeDrawingObserver.drawingGesture = drag
             
-            if let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
-               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
-                log("outputDragged: dragLocationInNodesViewCoordinateSpace: \(dragLocationInNodesViewCoordinateSpace)")
-                self.findEligibleCanvasInput(
-                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-                    cursorNodeId: outputNodeId)
-            }
+//            if let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
+//               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
+//                log("outputDragged: dragLocationInNodesViewCoordinateSpace: \(dragLocationInNodesViewCoordinateSpace)")
+//                self.findEligibleCanvasInput(
+//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+//                    cursorNodeId: outputNodeId)
+//            }
             
         }
     }
