@@ -104,15 +104,15 @@ extension GraphState {
         }
         
         // TODO: MAY 14: revisit
-//        if nearestInputs.isEmpty {
-//            log("resetting nearestEligibleEdgeDestination")
-//            self.edgeDrawingObserver.nearestEligibleEdgeDestination = nil
-//        } else if let nearestInput = nearestInputs.last {
-//            // While dragging cursor from an output/input,
-//            // we've detected that we're over an eligible input
-//            // to which we could create a connection.
-//            self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(nearestInput)
-//        }
+        if nearestInputs.isEmpty {
+            log("resetting nearestEligibleEdgeDestination")
+            self.edgeDrawingObserver.nearestEligibleEdgeDestination = nil
+        } else if let nearestInput = nearestInputs.last {
+            // While dragging cursor from an output/input,
+            // we've detected that we're over an eligible input
+            // to which we could create a connection.
+            self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(nearestInput)
+        }
         
         // After we've set or wiped the nearestEligible input,
         // *animate* the port color change:

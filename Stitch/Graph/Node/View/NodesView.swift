@@ -70,48 +70,15 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 GraphConnectedEdgesView(graph: graph)
                 CandidateEdgesView(graph: graph)
             }
-        
-//        // BAD: scaling the UIScrollView also moves the
-//            .overlay(alignment: .trailing) {
-//                // OPTION #1: don't use .inspector
-//                LayerInspectorView(graph: graph, document: document)
-//                    .frame(
-//                        width: LayerInspectorView.LAYER_INSPECTOR_WIDTH / self.document.graphMovement.zoomData,
-//                        height: 600 / self.document.graphMovement.zoomData
-//                    )
-//                    .position(
-//                        x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData,
-//                        y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData
-//                    )
-//                    .scaleEffect(1/self.document.graphMovement.zoomData)
-//            }
-//
             .overlay {
-                
-                // Original
-//                EdgeDrawingView(graph: graph,
-//                                edgeDrawingObserver: graph.edgeDrawingObserver)
-                
-                
-//                // OPTION #1: don't use .inspector
-//                LayerInspectorView(graph: graph, document: document)
-//                    .frame(width: LayerInspectorView.LAYER_INSPECTOR_WIDTH / self.document.graphMovement.zoomData,
-//                           height: 600 / self.document.graphMovement.zoomData)
-//                    .position(
-//                        x: self.document.graphMovement.localPosition.x / self.document.graphMovement.zoomData,
-//                        y: self.document.graphMovement.localPosition.y / self.document.graphMovement.zoomData
-//                    )
-                //                    .zIndex(999999999999999)
-                
-               
+                EdgeDrawingView(graph: graph,
+                                edgeDrawingObserver: graph.edgeDrawingObserver)
                 
                 if let edgeEditingState = graph.edgeEditingState {
                     EdgeInputLabelsView(document: document,
                                         graph: graph,
                                         edgeEditingState: edgeEditingState)
                 }
-                
-                
                 
                 if let openPortPreview = document.openPortPreview,
                    let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
@@ -121,6 +88,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
                         canvas: canvas)
                 }
             }
-
+        
     }
 }

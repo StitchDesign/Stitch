@@ -39,6 +39,8 @@ struct EdgeView: View {
     let totalOutputs: Int
     
     let edgeAnimationEnabled: Bool
+    
+    let edgeScaleEffect: CGFloat
 
     var largestYDistance: CGFloat {        
         guard let firstFromWithEdge = firstFromWithEdge,
@@ -76,7 +78,8 @@ struct EdgeView: View {
                   fromIndex: edge.fromIndex,
                   totalOutputs: totalOutputs,
                   largestYDistance: largestYDistance,
-                  edgeAnimationEnabled: edgeAnimationEnabled)
+                  edgeAnimationEnabled: edgeAnimationEnabled,
+                  edgeScaleEffect: edgeScaleEffect)
         .onTapGesture {
             dispatch(EdgeTapped(edge: edge))
         }

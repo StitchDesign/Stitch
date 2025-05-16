@@ -8,21 +8,23 @@
 import SwiftUI
 import StitchSchemaKit
 
-//struct EdgeDrawingView: View {
-//    let graph: GraphState
-//    @Bindable var edgeDrawingObserver: EdgeDrawingObserver
-//    
-//    var body: some View {
-//        if let outputDrag = edgeDrawingObserver.drawingGesture {
-//            EdgeFromDraggedOutputView(
-//                graph: graph,
-//                outputDrag: outputDrag,
-//                nearestEligibleInput: edgeDrawingObserver.nearestEligibleCanvasInput)
-//        } else {
-//            EmptyView()
-//        }
-//    }
-//}
+struct EdgeDrawingView: View {
+    let graph: GraphState
+    @Bindable var edgeDrawingObserver: EdgeDrawingObserver
+    
+    var body: some View {
+        // TODO: MAY 14: fix this
+        if let outputDrag = edgeDrawingObserver.drawingGesture,
+           let elgibleCanvasInput = edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput {
+            EdgeFromDraggedOutputView(
+                graph: graph,
+                outputDrag: outputDrag,
+                nearestEligibleInput: elgibleCanvasInput)
+        } else {
+            EmptyView()
+        }
+    }
+}
 
 struct EdgeFromDraggedOutputView: View {
     
@@ -72,14 +74,14 @@ struct EdgeFromDraggedOutputView: View {
                     from: upstreamCanvasItem.outputPortUIViewModels,
                     upstreamNodeId: upstreamCanvasItem.id.nodeId,
                     inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels),
-               let outputPortViewData = outputRowViewModel.portUIViewModel.portAddress,
+               let outputPortAddress = outputRowViewModel.portUIViewModel.portAddress,
                let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
                let pointFrom = outputRowViewModel.portUIViewModel.anchorPoint {
                 
                 logInView("EdgeFromDraggedOutputView: pointFrom: \(pointFrom)")
                 logInView("EdgeFromDraggedOutputView: pointTo: \(pointTo)")
                 
-                let edge = PortEdgeUI(from: outputPortViewData,
+                let edge = PortEdgeUI(from: outputPortAddress,
                                       to: .init(portId: -1, // Nonsense
                                                 canvasId: outputNodeId))
                 EdgeView(edge: edge,
@@ -97,7 +99,8 @@ struct EdgeFromDraggedOutputView: View {
                          lastToWithEdge: inputAnchorData?.lastConectedInput.anchorPoint?.y,
                          totalOutputs: outputAnchorData.totalOutputs,
                          // we never animate the actively dragged edge
-                         edgeAnimationEnabled: false)
+                         edgeAnimationEnabled: false,
+                         edgeScaleEffect: .nonEdgeToInspectorScaleEffect)
                 .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
                            value: color)
             }
@@ -110,4 +113,12 @@ struct EdgeFromDraggedOutputView: View {
             }
         }
     }
+}
+
+extension CGFloat {
+    // For edges that are rendered within the UIScrollView,
+    // we always use scale = 1,
+    // since the UIScrollView itself will
+    // Only varies for those edges that can be drawn into the inspector.
+    static let nonEdgeToInspectorScaleEffect: Self = 1
 }

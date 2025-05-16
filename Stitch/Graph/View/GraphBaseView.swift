@@ -124,16 +124,11 @@ struct GraphBaseView: View {
                                        document: document)
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                 }
-            
-            // Added: place "actively dragged edge" view here, so we can sit above the inspector
-            // NEED TO SCALE AND OFFSET THE DRAGGED
-//            EdgeDrawingView(graph: graph,
-//                            edgeDrawingObserver: graph.edgeDrawingObserver)
-            
         } // ZStack
         
-        .modifier(DetermineEligibleInspectorInputsAndFields(graph: graph,
-                                                            scale: document.graphMovement.zoomData))
+        .modifier(ActivelyDrawnEdgeThatCanEnterInspector(
+            graph: graph,
+            scale: document.graphMovement.zoomData))
         
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
@@ -153,21 +148,22 @@ struct GraphBaseView: View {
     }
 }
 
-
-struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
+struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
     
     @Bindable var graph: GraphState
     let scale: CGFloat
     
     @MainActor
-    func findEligibleInspectorFieldOrRow(_ drawingGesture: EdgeDrawingObserver,
+    func findEligibleInspectorFieldOrRow(_ drawingObserver: EdgeDrawingObserver,
                                          draggedOutputRect: CGRect,
                                          geometry: GeometryProxy,
                                          preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) -> EmptyView {
         
-        guard let dragLocation = drawingGesture.drawingGesture?.dragLocation else {
+        guard let drawingGesture = drawingObserver.drawingGesture else {
             return EmptyView()
         }
+        
+        let dragLocation = drawingGesture.dragLocation
         
         var nearestInspectorInputs = [LayerInputType]()
         
@@ -181,22 +177,65 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
                 nearestInspectorInputs.append(layerInputType)
             }
         } // for preference in ...
-        
-        if nearestInspectorInputs.isEmpty {
-            log("NO inspector inputs/fields")
-            DispatchQueue.main.async {
-                drawingGesture.nearestEligibleEdgeDestination = nil
+                
+        DispatchQueue.main.async {
+            if nearestInspectorInputs.isEmpty {
+                log("NO inspector inputs/fields")
+                    drawingObserver.nearestEligibleEdgeDestination = nil
+            } else if let nearestInspectorInput = nearestInspectorInputs.last {
+                log("found inspector input/field: \(nearestInspectorInput)")
+                    drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
             }
-        } else if let nearestInspectorInput = nearestInspectorInputs.last {
-            log("found inspector input/field: \(nearestInspectorInput)")
-            DispatchQueue.main.async {
-                drawingGesture.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+            
+            // After we've set or wiped the nearestEligible input,
+            // *animate* the port color change:
+            withAnimation(.linear(duration: DrawnEdge.ANIMATION_DURATION)) {
+                graph
+                    .getOutputRowObserver(drawingGesture.output.id.asNodeIOCoordinate)?
+                    .updateRowViewModelsPortColor(selectedEdges: graph.selectedEdges,
+                                                  selectedCanvasItems: graph.selectedCanvasItems,
+                                                  drawingObserver: drawingObserver)
             }
         }
-        
-        // Note: unlike `findEligibleCanvasInput`, we don't need to update the port color etc.
                 
         return EmptyView()
+    }
+    
+    @Environment(\.appTheme) var theme
+    
+    var eligibleInputOrField: LayerInputType? {
+        graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField
+    }
+    
+    // Note: the rules for the color of an actively dragged edge are simple:
+    // gray if no eligible input, else highlighted-loop if a loop, else highlighted.
+    @MainActor
+    func color(_ outputRowViewModel: OutputNodeRowViewModel) -> PortColor {
+        if !eligibleInputOrField.isDefined {
+            return .noEdge
+        } else if (outputRowViewModel.rowDelegate?.hasLoopedValues ?? false) {
+            return .highlightedLoopEdge
+        } else {
+            return .highlightedEdge
+        }
+    }
+    
+    // TODO: is this really appropriate even for actively dragged circuit edges? ... there's no such thing as an an
+    @MainActor
+    var inputAnchorData: EdgeAnchorDownstreamData? {
+        return nil
+//        guard let firstFocusedLayer = graph.inspectorFocusedLayers.first,
+//              let eligibleInputOrField = self.eligibleInputOrField,
+//              let nearestEligibleInputOrFieldRowViewModel: InputNodeRowViewModel = graph.getInputRowViewModel(for:
+//                    .init(graphItemType: .layerInspector(.keyPath(eligibleInputOrField)),
+//                          nodeId: firstFocusedLayer.asLayerNodeId.asNodeId,
+//                          // All layer inputs/input-fields have 0
+//                          portId: 0)) else {
+//            return nil
+//        }
+//
+        // CRASHES BECAUSE THE INSPECTOR ROW VIEW MODEL DOES NOT HAVE A CANVAS ITEM
+//        return EdgeAnchorDownstreamData(from: nearestEligibleInputOrFieldRowViewModel)
     }
     
     @MainActor @ViewBuilder
@@ -206,20 +245,71 @@ struct DetermineEligibleInspectorInputsAndFields: ViewModifier {
             .overlayPreferenceValue(EdgeDraggedToInspectorPreferenceKey.self) { preferences in
                 GeometryReader { geometry in
                     if let drawingGesture = graph.edgeDrawingObserver.drawingGesture,
-                       let draggedOutputPref = preferences[.draggedOutput(drawingGesture.output.nodeIOCoordinate)] {
+                       // The output from which the currently-dragged edge originates
+                        let draggedOutputPref = preferences[.draggedOutput(drawingGesture.output.nodeIOCoordinate)] {
                         
                         // Location of dragged edge's end, i.e. user's cursor position
                         let draggedOutputRect: CGRect = geometry[draggedOutputPref]
                         
-                        // Render the actively-drawn-edge
-                        CurveLine(from: draggedOutputRect.mid,
-                                  to: drawingGesture.dragLocation)
-                        .stroke(.red,
-                                style: StrokeStyle(
-                                    // scale DOWN when we're zoomed out, i.e. simply apply the graph scale
-                                    lineWidth: LINE_EDGE_WIDTH * scale, //* self.document.graphMovement.zoomData,
-                                    lineCap: .round,
-                                    lineJoin: .round))
+                        let outputDrag = drawingGesture
+                        let outputRowViewModel = outputDrag.output
+                        
+                        let pointTo = drawingGesture.dragLocation
+                        
+                        if let downstreamNode = graph.getNode(outputDrag.output.id.nodeId),
+                           let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
+                            let outputAnchorData = EdgeAnchorUpstreamData(
+                                from: upstreamCanvasItem.outputPortUIViewModels,
+                                upstreamNodeId: upstreamCanvasItem.id.nodeId,
+                                inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels),
+                           let outputPortAddress = outputRowViewModel.portUIViewModel.portAddress,
+                           let outputNodeId = outputRowViewModel.canvasItemDelegate?.id
+//                            ,
+//                           let pointFrom = outputRowViewModel.portUIViewModel.anchorPoint
+                        {
+                            
+                            // Note:
+                            let pointFrom = draggedOutputRect.mid
+                            
+                            logInView("EdgeFromDraggedOutputView: pointFrom: \(pointFrom)")
+                            logInView("EdgeFromDraggedOutputView: pointTo: \(pointTo)")
+                            
+                            let edge = PortEdgeUI(from: outputPortAddress,
+                                                  to: .init(portId: -1, // Nonsense
+                                                            canvasId: outputNodeId))
+                            
+                            let color = self.color(outputRowViewModel)
+                            
+                            EdgeView(edge: edge,
+                                     pointFrom: pointFrom,
+                                     pointTo: pointTo,
+                                     color: color.color(theme),
+                                     isActivelyDragged: true, // always true for actively-dragged edge
+                                     firstFrom: outputAnchorData.firstUpstreamOutput.anchorPoint ?? .zero,
+                                     firstTo: inputAnchorData?.firstInput.anchorPoint ?? .zero,
+                                     lastFrom: outputAnchorData.lastUpstreamRowOutput.anchorPoint ?? .zero,
+                                     lastTo: inputAnchorData?.lastInput.anchorPoint ?? .zero,
+                                     firstFromWithEdge: outputAnchorData.firstConnectedUpstreamOutput?.anchorPoint?.y,
+                                     lastFromWithEdge: outputAnchorData.lastConnectedUpstreamOutput?.anchorPoint?.y,
+                                     firstToWithEdge: inputAnchorData?.firstConnectedInput.anchorPoint?.y,
+                                     lastToWithEdge: inputAnchorData?.lastConectedInput.anchorPoint?.y,
+                                     totalOutputs: outputAnchorData.totalOutputs,
+                                     // we never animate the actively dragged edge
+                                     edgeAnimationEnabled: false,
+                                     edgeScaleEffect: scale)
+                            .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
+                                       value: color)
+                        }
+                        
+//                        // Render the actively-drawn-edge
+//                        CurveLine(from: draggedOutputRect.mid,
+//                                  to: drawingGesture.dragLocation)
+//                        .stroke(.red,
+//                                style: StrokeStyle(
+//                                    // scale DOWN when we're zoomed out, i.e. simply apply the graph scale
+//                                    lineWidth: LINE_EDGE_WIDTH * scale, //* self.document.graphMovement.zoomData,
+//                                    lineCap: .round,
+//                                    lineJoin: .round))
                         
                         findEligibleInspectorFieldOrRow(
                             graph.edgeDrawingObserver,
