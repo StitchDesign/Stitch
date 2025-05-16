@@ -16,7 +16,10 @@ import SwiftUI
 import Vision
 
 @Observable
-final class GraphState: Sendable {    
+final class GraphState: Sendable {
+    
+    @MainActor var dragLocationInNodesViewCoordinateSpace: CGPoint?
+    
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     

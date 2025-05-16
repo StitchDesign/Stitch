@@ -34,9 +34,10 @@ extension GraphState {
             
             self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(inputRowViewModel)
 
-            self.edgeDrawingObserver.drawingGesture = OutputDragGesture(output: upstreamObserver,
-                                                                        dragLocation: dragLocation,
-                                                                        startingDiffFromCenter: .zero)
+            self.edgeDrawingObserver.drawingGesture = OutputDragGesture(
+                output: upstreamObserver,
+                cursorLocationInGlobalCoordinateSpace: dragLocation,
+                startingDiffFromCenter: .zero)
 
             inputRowObserver.removeUpstreamConnection(node: node)
             node.scheduleForNextGraphStep()
@@ -46,7 +47,7 @@ extension GraphState {
         }
 
         // Called when drag has already started
-        existingDrawingGesture.dragLocation = dragLocation
+        existingDrawingGesture.cursorLocationInGlobalCoordinateSpace = dragLocation
         self.edgeDrawingObserver.drawingGesture = existingDrawingGesture
     }
     
@@ -166,7 +167,7 @@ extension GraphState {
             
             let drag = OutputDragGesture(output: outputRowViewModel,
 //                                         dragLocation: gesture.location,
-                                         dragLocation: dragLocation,
+                                         cursorLocationInGlobalCoordinateSpace: dragLocation,
 //                                         startingDiffFromCenter: diffFromCenter)
                                          startingDiffFromCenter: .zero)
 
@@ -189,16 +190,25 @@ extension GraphState {
             
         } else {
             guard let existingDrag = self.edgeDrawingObserver.drawingGesture else {
-                // log("OutputDragged: output drag not yet initialized by SwiftUI handler; exiting early")
+                // log("OutputDragcreateEdgeFromEligibleCanvasInputged: output drag not yet initialized by SwiftUI handler; exiting early")
                 return
             }
 
             var drag: OutputDragGesture
             drag = existingDrag
 //            drag.dragLocation = gesture.location
-            drag.dragLocation = dragLocation
+            drag.cursorLocationInGlobalCoordinateSpace = dragLocation
 
             self.edgeDrawingObserver.drawingGesture = drag
+            
+            if let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
+               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
+                log("outputDragged: dragLocationInNodesViewCoordinateSpace: \(dragLocationInNodesViewCoordinateSpace)")
+                self.findEligibleCanvasInput(
+                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+                    cursorNodeId: outputNodeId)
+            }
+            
         }
     }
     
@@ -233,7 +243,6 @@ extension GraphState {
             break // nothing to do
             
         case .canvasInput(let inputNodeRowViewModel):
-            
             self.createEdgeFromEligibleCanvasInput(
                 from: draggedOutput.portUIViewModel.portAddress,
                 to: inputNodeRowViewModel.portUIViewModel.portAddress,
@@ -267,14 +276,14 @@ extension GraphState {
 extension GraphState {
     @MainActor
     func createEdgeFromEligibleCanvasInput(from: OutputPortIdAddress?,
-                                     to: InputPortIdAddress?,
-                                     sourceNodeId: NodeId) {
+                                           to: InputPortIdAddress?,
+                                           sourceNodeId: NodeId) {
         // Create visual edge if connecting two nodes
         if let from = from,
            let to = to {
             let newEdge = PortEdgeUI(from: from, to: to)
-            self.edgeDrawingObserver.recentlyDrawnEdge = newEdge
             
+            // Why is this async ?
             DispatchQueue.main.async { [weak self] in
                 self?.edgeDrawingObserver.reset()
             }
@@ -285,12 +294,6 @@ extension GraphState {
         // Then recalculate the graph again, with new edge,
         // starting at the 'from' node downward:
         self.scheduleForNextGraphStep(sourceNodeId)
-    }
-}
-
-struct ResetRecentlyDrawnEdge: GraphEvent {
-    func handle(state: GraphState) {
-        state.edgeDrawingObserver.reset()
     }
 }
 

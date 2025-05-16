@@ -159,40 +159,59 @@ struct PortEntryExtendedHitBox: View {
              PortGestureRecognizerView handles the heavy lifting,
              but UIKit pan gesture's location is inaccurate with high velocities,
              creating a noticeable gap between cursor and dragged out
+             
+             Note: if minDistance = 0, then taps cause immediate appearance of an edge:
+            `.gesture(DragGesture(minimumDistance: 0, ...)`
              */
-            //            .gesture(DragGesture(minimumDistance: 0,
-            // if minDistance = 0, then taps cause immediate appearance of an edge
-//            .gesture(DragGesture(minimumDistance: 0.05,
+        
             .gesture(DragGesture(minimumDistance: 0.5,
-                                 // .local = relative to this view
-                                 // TODO: why are the GraphBaseView and StitchRootView coordinate spaces so inaccurate here?
+                                 // TODO: why are the GraphBaseView and StitchRootView coordinate spaces so inaccurate vs .global ?
                                  coordinateSpace: .global)
-//                                 coordinateSpace: .named(NodesView.coordinateNamespace))
-                        .onChanged { gesture in
-                            log("PortEntry: StitchRootView coordinate space: onChanged: gesture.location: \(gesture.location)")
-                            switch nodeIO {
-                            case .input:
-                                graph.inputDragged(gesture: gesture, rowId: rowId)
-                            case .output:
-                                graph.outputDragged(gesture: gesture, rowId: rowId)
-                            }
-                        } // .onChanged
-                        .onEnded { _ in
-                            log("PortEntry: StitchRootView coordinate space: onEnded")
-                            switch nodeIO {
-                            case .input:
-                                graph.inputDragEnded()
-                            case .output:
-                                graph.outputDragEnded()
-                            }
-                        }
+                .onChanged { gesture in
+                    log("PortEntry: global coordinate space: onChanged: gesture.location: \(gesture.location)")
+                    switch nodeIO {
+                    case .input:
+                        graph.inputDragged(gesture: gesture, rowId: rowId)
+                    case .output:
+                        graph.outputDragged(gesture: gesture, rowId: rowId)
+                    }
+                } // .onChanged
+                .onEnded { _ in
+                    log("PortEntry: global coordinate space: onEnded")
+                    switch nodeIO {
+                    case .input:
+                        graph.inputDragEnded()
+                    case .output:
+                        graph.outputDragEnded()
+                    }
+                }
             )
-//            .simultaneousGesture(DragGesture(minimumDistance: 0.5,
-//                                             coordinateSpace: .named(NodesView.coordinateNamespace))
-//                .onChanged({ gesture in
-//                    log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
-////                    graph.edgeDrawingObserver.drawingGesture?.dragLocation
-//                })
-//            )
+        
+        // Used for
+            .simultaneousGesture(DragGesture(minimumDistance: 0.5,
+                                             coordinateSpace: .named(NodesView.coordinateNamespace))
+                .onChanged { gesture in
+                    log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
+                    switch nodeIO {
+                    case .input:
+                        // graph.inputDragged(gesture: gesture, rowId: rowId)
+                        break
+                    case .output:
+//                        graph.outputDragged(gesture: gesture, rowId: rowId)
+                        graph.dragLocationInNodesViewCoordinateSpace = gesture.location
+                    }
+                } // .onChanged
+                .onEnded { _ in
+                    log("PortEntry: NodesView coordinate space: onEnded")
+                    switch nodeIO {
+                    case .input:
+                        // graph.inputDragEnded()
+                        break
+                    case .output:
+//                        graph.outputDragEnded()
+                        graph.dragLocationInNodesViewCoordinateSpace = nil
+                    }
+                }
+            )
     }
 }
