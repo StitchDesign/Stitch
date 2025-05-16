@@ -99,6 +99,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,
+                        restartPrototypeWindowIconRotationZ: document.restartPrototypeWindowIconRotationZ,
                         llmRecordingModeEnabled: self.llmRecordingMode,
                         llmRecordingModeActive: document.llmRecording.isRecording,
                         stitchAITrainingTip: self.stitchAITrainingTip,
@@ -145,7 +146,8 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 #endif
 
             }
-           .toolbarBackground(.visible, for: .automatic)
-           .toolbar(hideToolbar ? .hidden : .automatic)
+            .animation(.spring, value: document.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
+            .toolbarBackground(.visible, for: .automatic)
+            .toolbar(hideToolbar ? .hidden : .automatic)
     }
 }

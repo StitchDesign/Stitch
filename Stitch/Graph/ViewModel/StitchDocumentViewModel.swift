@@ -64,6 +64,8 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var sidebarWidth: CGFloat = .zero // i.e. origin of graph from .global frame
 
     @MainActor var showCatalystProjectTitleModal: Bool = false
+    
+    @MainActor var restartPrototypeWindowIconRotationZ: CGFloat = .zero
 
     // nil = no field focused
     @MainActor var reduxFocusedField: FocusedUserEditField?
@@ -464,6 +466,9 @@ extension StitchDocumentViewModel {
         if self.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
             self.reduxFocusedField = nil
         }
+        
+        // Update animation value for restart-prototype icon;
+        self.restartPrototypeWindowIconRotationZ += 360
     }
     
     // TODO: this still doesn't quite have the correct projectLoader/encoderDelegate needed for all uses in the app

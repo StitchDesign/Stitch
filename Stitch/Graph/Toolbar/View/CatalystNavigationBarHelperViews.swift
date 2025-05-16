@@ -319,9 +319,8 @@ struct CatalystNavBarButton: View, Identifiable {
                     .padding(.horizontal)
             }
         }
-        // rotation3DEffect must be applied here
-        .rotation3DEffect(Angle(degrees: rotationZ),
-                          axis: (x: 0, y: 0, z: rotationZ))
+        // Icon rotation (for “Restart” button) does not work with `Label`
+        // .rotation3DEffect(Angle(degrees: rotationZ), axis: (x: 0, y: 0, z: rotationZ))
 
         .modifier(CatalystTopBarButtonStyle())
         .simultaneousGesture(TapGesture().onEnded({ _ in
@@ -352,10 +351,12 @@ extension CatalystNavBarButton {
     init(_ title: LocalizedStringKey,
          systemName: String,
          tooltip: LocalizedStringKey? = nil,
+         rotationZ: CGFloat = 0,
          _ action: @escaping () -> Void) {
         self.title = title
         self.image = Image(systemName: systemName)
         self.tooltip = tooltip
+        self.rotationZ = rotationZ
         self.action = action
         self.id = systemName
     }
@@ -363,10 +364,12 @@ extension CatalystNavBarButton {
     init(action: @escaping () -> Void,
          title: LocalizedStringKey,
          iconName: IconName,
-         tooltip: LocalizedStringKey? = nil) {
+         tooltip: LocalizedStringKey? = nil,
+         rotationZ: CGFloat = 0) {
         self.title = title
         self.image = iconName.image
         self.tooltip = tooltip
+        self.rotationZ = rotationZ
         self.action = action
         self.id = iconName.name
     }

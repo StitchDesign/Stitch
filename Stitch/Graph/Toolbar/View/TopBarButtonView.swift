@@ -37,6 +37,7 @@ struct iPadNavBarButton: View {
     let title: LocalizedStringKey
     let iconName: IconName
     var tooltip: LocalizedStringKey? = nil
+    var rotationZ: CGFloat = 0
     let action: () -> Void
 
     var body: some View {
@@ -52,6 +53,8 @@ struct iPadNavBarButton: View {
         } primaryAction: {
             action()
         }
+        // Icon rotation (for “Restart” button) does not work with `Label`
+        // .rotation3DEffect(Angle(degrees: rotationZ), axis: (x: 0, y: 0, z: rotationZ))
         .help(tooltip ?? title)
     }
 }
@@ -130,6 +133,7 @@ struct iPadGraphTopBarButtons: View {
                 iPadNavBarButton(
                     title: "Restart",
                     iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
+                    rotationZ: restartPrototypeWindowIconRotationZ,
                     action: RESTART_PROTOTYPE_ACTION
                 )
 
