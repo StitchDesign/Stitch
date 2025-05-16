@@ -188,12 +188,12 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
                 return
             }
             
-//            if let outputNodeId = drawingGesture.output.canvasItemDelegate?.id,
-//               let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
-//                graph.findEligibleCanvasInput(
-//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-//                    cursorNodeId: outputNodeId)
-//            }
+            if let outputNodeId = drawingGesture.output.canvasItemDelegate?.id,
+               let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
+                graph.findEligibleCanvasInput(
+                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+                    cursorNodeId: outputNodeId)
+            }
             
             let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
             

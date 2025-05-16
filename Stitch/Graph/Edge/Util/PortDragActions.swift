@@ -35,12 +35,12 @@ extension GraphState {
             existingDrawingGesture.cursorLocationInGlobalCoordinateSpace = dragLocation
             self.edgeDrawingObserver.drawingGesture = existingDrawingGesture
                         
-            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
-               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
-                self.findEligibleCanvasInput(
-                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-                    cursorNodeId: outputNodeId)
-            }
+//            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
+//               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
+//                self.findEligibleCanvasInput(
+//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+//                    cursorNodeId: outputNodeId)
+//            }
         }
         
         // Else, if we're starting a new input-drag:
@@ -185,13 +185,13 @@ extension GraphState {
 //            drag.dragLocation = gesture.location
             drag.cursorLocationInGlobalCoordinateSpace = cursorLocationInGlobalCoordinateSpace
             self.edgeDrawingObserver.drawingGesture = drag
-            
-            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
-               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
-                self.findEligibleCanvasInput(
-                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-                    cursorNodeId: outputNodeId)
-            }
+//            
+//            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
+//               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
+//                self.findEligibleCanvasInput(
+//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+//                    cursorNodeId: outputNodeId)
+//            }
         }
         
         // Starting new output-drag
