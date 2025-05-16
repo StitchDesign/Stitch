@@ -43,19 +43,19 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
-                        CatalystHomescreenNavBarButton(title: "New Project", iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME)) { [weak store] in
+                        CatalystNavBarButton("New Project", systemIconName: .NEW_PROJECT_SF_SYMBOL_NAME) { [weak store] in
                                store?.createNewProjectSideEffect(isProjectImport: false)
                         }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystHomescreenNavBarButton(title: "Open Sample Project", iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL)) { [weak store] in
+                        CatalystNavBarButton("Open Sample Project", systemIconName: .OPEN_SAMPLE_PROJECTS_MODAL) { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
                         }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystHomescreenNavBarButton(title: "Settings", iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME), tooltip: "Open Settings", action: SHOW_APP_SETTINGS_ACTION)
+                        CatalystNavBarButton("Settings", systemIconName: .SETTINGS_SF_SYMBOL_NAME, tooltip: "Open Settings", SHOW_APP_SETTINGS_ACTION)
                         .id(UUID())
                         
 #else
@@ -77,28 +77,6 @@ struct ProjectsHomeViewWrapper: View {
                     }
                 }
             }
-    }
-}
-
-// Note: the UIKitTap modifier messes up ONLY the homescreen catalyst buttons ?
-struct CatalystHomescreenNavBarButton: View {
-    let title: LocalizedStringKey
-    let iconName: IconName
-    var tooltip: LocalizedStringKey? = nil
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action ) {
-            Label {
-                Text(title)
-            } icon: {
-                iconName.image
-            }
-        }
-        .buttonStyle(.borderless)
-        .foregroundColor(TOP_BAR_IMAGE_BUTTON_FOREGROUND_COLOR)
-        .help(tooltip ?? title)
-        // .hoverEffect() // ignored on Catalyst?
     }
 }
 
