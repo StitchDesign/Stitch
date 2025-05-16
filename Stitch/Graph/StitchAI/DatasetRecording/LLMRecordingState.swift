@@ -177,17 +177,41 @@ extension StitchDocumentViewModel {
                 fatalErrorIfDebug()
                 return nil
             }
-            
             return nodeEntity
         }
         
+        /*
+         TODO: proper handling of arbitrarily nested layer groups
+         
+         We must always create all the *children* of a layer group, BEFORE we can create the layer group.
+         
+         Note: this is NOT as simple as applying the `StepActionAddNode` actions before the `StepActionsLayerGroupCreated`s actions, since a layer group's child may be another layer group (nested layer groups).
+         
+         Suppose a sidebar nested hierarchy like:
+         
+         Grandpa (group)
+            - Oval
+            - Papa (group)
+                - Rectangle
+         
+         Then our application/creation order is, from left to right:
+         
+         `[AddNode("Rectangle"), AddLayerGroup("Papa"), AddNode("Oval"), AddLayerGroup("Grandpa")]`
+         
+         i.e. create deepest level first, then work up a level ?
+         
+         FOR NOW, WE ASSUME NON-NESTED LAYER GROUPS, AND SO ALWAYS CREATE NON-LAYER-GROUP LAYERS / PATCHES BEFORE LAYER GROUPS.
+        */
         var newNodesSteps: [StepActionAddNode] = []
+        var newLayerGroupSteps: [StepActionLayerGroupCreated] = []
+        
         var newNodeTypesSteps: [StepActionChangeValueType] = []
         var newConnectionSteps: [StepActionConnectionAdded] = []
         var newSetInputSteps: [StepActionSetInput] = []
-        var newLayerGroupSteps: [StepActionLayerGroupCreated] = []
         
-        // Create steps
+        
+        // MARK: DERIVING THE ACTIONS
+        
         for nodeEntity in newNodes {
             guard let nodeName = PatchOrLayer.from(nodeKind: nodeEntity.kind) else {
                 fatalErrorIfDebug()
@@ -203,7 +227,6 @@ extension StitchDocumentViewModel {
                 
                 // let sidebarLayerViewModel = self.visibleGraph.layersSidebarViewModel
                 
-
                 // Find all the children of the LayerGroup
                 let children = self.visibleGraph.getLayerChildren(for: nodeEntity.id)
                 log("deriveNewAIActions: children for layer group \(nodeEntity.id) are: \(children)")
@@ -262,28 +285,39 @@ extension StitchDocumentViewModel {
             }
         }
         
+        
+        // MARK: SORTING THE DERIVED ACTIONS
+        
         // Sorting necessary for validation (just consistent ordering)
         let newNodesStepsSorted = newNodesSteps
             .sorted { $0.nodeId < $1.nodeId }
             .map { $0.toStep }
-        let newNodeTypesStepsSorted = newNodeTypesSteps
-            .sorted { $0.nodeId < $1.nodeId }
-            .map { $0.toStep }
-        let newConnectionStepsSorted = newConnectionSteps
-            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
-            .map { $0.toStep }
-        let newSetInputStepsSorted = newSetInputSteps
-            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
-            .map { $0.toStep }
+        
         let newLayerGroupStepsSorted = newLayerGroupSteps
             .sorted { $0.nodeId < $1.nodeId }
             .map { $0.toStep }
         
-        return newNodesStepsSorted +
-        newNodeTypesStepsSorted +
-        newConnectionStepsSorted +
-        newSetInputStepsSorted +
-        newLayerGroupStepsSorted
+        let newNodeTypesStepsSorted = newNodeTypesSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep }
+        
+        let newConnectionStepsSorted = newConnectionSteps
+            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
+            .map { $0.toStep }
+        
+        let newSetInputStepsSorted = newSetInputSteps
+            .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
+            .map { $0.toStep }
+
+        // TODO: see note above about properly handling nested layer groups
+        let creatingNodes = newNodesStepsSorted + newLayerGroupStepsSorted
+        
+        let updatingPatchNodesTypes = newNodeTypesStepsSorted
+        let creatingConnections = newConnectionStepsSorted
+        let settingInputs = newSetInputStepsSorted
+        
+        // This order is important! We want to create nodes first, then change their node types, etc.
+        return creatingNodes + updatingPatchNodesTypes + creatingConnections + settingInputs
     }
     
     private static func deriveNewInputActions(input: NodeConnectionType,
