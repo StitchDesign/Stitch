@@ -178,6 +178,7 @@ extension StitchDocumentViewModel {
         var newNodeTypesSteps: [StepActionChangeValueType] = []
         var newConnectionSteps: [StepActionConnectionAdded] = []
         var newSetInputSteps: [StepActionSetInput] = []
+        var newLayerGroupSteps: [StepActionLayerGroupCreated] = []
         
         // Create steps
         for nodeEntity in newNodes {
@@ -226,6 +227,11 @@ extension StitchDocumentViewModel {
                                                newConnectionSteps: &newConnectionSteps,
                                                newSetInputSteps: &newSetInputSteps)
                 }
+            
+                if layerNode.layer == .group {
+                    let layerGroupAction = StepActionLayerGroupCreated(nodeId: nodeEntity.id)
+                    newLayerGroupSteps.append(layerGroupAction)
+                }
                 
             default:
                 continue
@@ -245,11 +251,15 @@ extension StitchDocumentViewModel {
         let newSetInputStepsSorted = newSetInputSteps
             .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
             .map { $0.toStep }
+        let newLayerGroupStepsSorted = newLayerGroupSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep }
         
         return newNodesStepsSorted +
         newNodeTypesStepsSorted +
         newConnectionStepsSorted +
-        newSetInputStepsSorted
+        newSetInputStepsSorted +
+        newLayerGroupStepsSorted
     }
     
     private static func deriveNewInputActions(input: NodeConnectionType,

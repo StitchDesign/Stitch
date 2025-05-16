@@ -15,7 +15,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case connectNodes(StepActionConnectionAdded)
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
-    case sidebarGroupCreated(StepActionSidebarGroupCreated)
+    case sidebarGroupCreated(StepActionLayerGroupCreated)
     
     var stepType: StepType {
         switch self {
@@ -28,7 +28,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .setInput:
             return StepActionSetInput.stepType
         case .sidebarGroupCreated:
-            return StepActionSidebarGroupCreated.stepType
+            return StepActionLayerGroupCreated.stepType
         }
     }
     
@@ -68,14 +68,14 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return .setInput(x)
             
         case .sidebarGroupCreated:
-            let x = try StepActionSidebarGroupCreated.fromStep(action)
+            let x = try StepActionLayerGroupCreated.fromStep(action)
             return .sidebarGroupCreated(x)
         }
     }
 }
 
-struct StepActionSidebarGroupCreated: StepActionable {
-    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionSidebarGroupCreated {
+struct StepActionLayerGroupCreated: StepActionable {
+    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionLayerGroupCreated {
         var copy = self
         copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
         return copy
@@ -155,7 +155,7 @@ extension Step {
         case .setInput:
             return try StepActionSetInput.fromStep(self)
         case .sidebarGroupCreated:
-            return try StepActionSidebarGroupCreated.fromStep(self)
+            return try StepActionLayerGroupCreated.fromStep(self)
         }
     }
 }
