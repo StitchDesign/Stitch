@@ -75,12 +75,6 @@ enum StepTypeAction: Equatable, Hashable, Codable {
 }
 
 struct StepActionLayerGroupCreated: StepActionable {
-    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionLayerGroupCreated {
-        var copy = self
-        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
-        return copy
-    }
-    
     static let stepType: StepType = .sidebarGroupCreated
     
     var nodeId: NodeId
@@ -88,6 +82,12 @@ struct StepActionLayerGroupCreated: StepActionable {
     var toStep: Step {
         Step(stepType: Self.stepType,
              nodeId: nodeId)
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionLayerGroupCreated {
+        var copy = self
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {
@@ -108,21 +108,30 @@ struct StepActionLayerGroupCreated: StepActionable {
     func applyAction(document: StitchDocumentViewModel) throws {
         let layersSidebar = document.visibleGraph.layersSidebarViewModel
         
-        // Get selected nodes from the graph
-        let selectedCanvasItems = document.visibleGraph.selection.selectedCanvasItems
-        let nodeIds = selectedCanvasItems.compactMap { canvasId -> UUID? in
-            switch canvasId {
-            case .node(let nodeId):
-                return nodeId
-            case .layerInput(let coord):
-                return coord.node
-            case .layerOutput(let coord):
-                return coord.node
-            }
-        }
+        // NOTE: Can't be selected canvas nodes; needs to be selected sidebar-layers instead
         
+//        // Get selected nodes from the graph
+//        let selectedCanvasItems = document.visibleGraph.selection.selectedCanvasItems
+//        let nodeIds = selectedCanvasItems.compactMap { canvasId -> UUID? in
+//            switch canvasId {
+//            case .node(let nodeId):
+//                return nodeId
+//            case .layerInput(let coord):
+//                return coord.node
+//            case .layerOutput(let coord):
+//                return coord.node
+//            }
+//        }
+        
+        // TODO: MAY 16: REMOVE THIS ASSUMPTIONS AND INSTEAD USE this step's .children/.selectedSidebarLayers property; see note in `deriveNewAIActions`
+        // ASSUME FOR NOW: just select all non-layer-group sidebar items
+        let nonGroupLayers = document.visibleGraph.layerNodes()
+            .filter { $0.layer != .group }
+            .map(\.id)
+            .toSet
+                
         // Set the selection
-        layersSidebar.primary = Set(nodeIds)
+        layersSidebar.primary = Set(nonGroupLayers)
         
         // Create the group
         layersSidebar.sidebarGroupCreated()
@@ -154,6 +163,7 @@ extension Step {
         
         case .setInput:
             return try StepActionSetInput.fromStep(self)
+        
         case .sidebarGroupCreated:
             return try StepActionLayerGroupCreated.fromStep(self)
         }
@@ -293,6 +303,7 @@ struct StepActionAddNode: StepActionable {
                          willDeleteLayerGroupChildren: true)
     }
     
+    // TODO: what does `validate` mean here ? Are we "making x valid" or "determining whether x is valid" ?
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
         createdNodes.updateValue(self.nodeName, forKey: self.nodeId)
     }

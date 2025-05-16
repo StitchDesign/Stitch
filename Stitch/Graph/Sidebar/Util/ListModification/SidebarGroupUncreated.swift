@@ -37,7 +37,8 @@ extension ProjectSidebarObservable {
         self.sidebarGroupUncreatedViaEditMode(groupId: group,
                                               children: children.map(\.id))
 
-        graph.encodeProjectInBackground()
+        // TODO: MAY 16: we want to persist when we uncreate a group, but not when uncreate a group as part of removing/de-applying an LLMAction
+//        graph.encodeProjectInBackground()
     }
 }
 

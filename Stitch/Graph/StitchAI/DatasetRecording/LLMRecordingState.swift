@@ -89,6 +89,10 @@ extension Array where Element == any StepActionable {
             if let addNodeAction = $0 as? StepActionAddNode {
                 idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
             }
+            
+            if let addNodeAction = $0 as? StepActionLayerGroupCreated {
+                idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
+            }
         }
         
         let convertedIdSteps = self.map { step in
@@ -107,13 +111,11 @@ extension StitchDocumentViewModel {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        var convertedActions = try actions
-            .convertSteps()
+        var convertedActions = try actions.convertSteps()
         
         if isNewRequest {
             // Change Ids for newly created nodes
-            convertedActions = convertedActions
-                .remapNodeIdsForNewNodes()
+            convertedActions = convertedActions.remapNodeIdsForNewNodes()
         }
         
         // Are these steps valid?
@@ -129,7 +131,12 @@ extension StitchDocumentViewModel {
         }
         
         for action in convertedActions {
-            if let addAction = action as? StepActionAddNode {
+            if let addAction = (action as? StepActionAddNode) {
+                // add-node actions cannot re-use IDs
+                assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
+            }
+            
+            if let addAction = (action as? StepActionLayerGroupCreated) {
                 // add-node actions cannot re-use IDs
                 assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
             }
@@ -187,13 +194,31 @@ extension StitchDocumentViewModel {
                 continue
             }
             
-            let valueType = nodeEntity.nodeTypeEntity.patchNodeEntity?.userVisibleType
-            let defaultValueType = nodeEntity.kind.getPatch?.defaultNodeType
-            let stepAddNode = StepActionAddNode(nodeId: nodeEntity.id,
-                                                nodeName: nodeName)
-            newNodesSteps.append(stepAddNode)
+            // If we have a layer group, use the StepActionLayerGroupCreated instead of StepActionAddNode
+            if nodeName.asNodeKind.getLayer == .group {
+                // find all the sidebar items that have this layer group as their parent;
+                // those should be the sidebar items that were originally "selected"
+                // (ah, but maybe not *primarily* selected ?)
+                // ... should be okay
+                
+                // let sidebarLayerViewModel = self.visibleGraph.layersSidebarViewModel
+                
+
+                // Find all the children of the LayerGroup
+                let children = self.visibleGraph.getLayerChildren(for: nodeEntity.id)
+                log("deriveNewAIActions: children for layer group \(nodeEntity.id) are: \(children)")
+                
+                // TODO: MAY 16: add a `children` or `selectedSidebarLayers` property to `StepActionLayerGroupCreated` and use the `children` above
+                newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id))
+                
+            } else {
+                newNodesSteps.append(StepActionAddNode(nodeId: nodeEntity.id,
+                                                       nodeName: nodeName))
+            }
             
             // Value type change if different from default
+            let valueType = nodeEntity.nodeTypeEntity.patchNodeEntity?.userVisibleType
+            let defaultValueType = nodeEntity.kind.getPatch?.defaultNodeType
             if valueType != defaultValueType,
                let valueType = valueType {
                 newNodeTypesSteps.append(.init(nodeId: nodeEntity.id,
@@ -202,6 +227,7 @@ extension StitchDocumentViewModel {
             
             // Create actions for values and connections
             switch nodeEntity.nodeTypeEntity {
+                
             case .patch(let patchNode):
                 let defaultInputs = nodeEntity.kind.defaultInputs(for: valueType)
                 
@@ -220,25 +246,23 @@ extension StitchDocumentViewModel {
                                                 nodeId: nodeEntity.id)
                     let defaultInputValue = layerInput.getDefaultValue(for: layerNode.layer)
                     
-                    let input = layerNode[keyPath: layerInput.schemaPortKeyPath].inputConnections.first!
-                    Self.deriveNewInputActions(input: input,
-                                               port: port,
-                                               defaultInputs: [defaultInputValue],
-                                               newConnectionSteps: &newConnectionSteps,
-                                               newSetInputSteps: &newSetInputSteps)
+                    if let input = layerNode[keyPath: layerInput.schemaPortKeyPath].inputConnections.first {
+                        
+                        Self.deriveNewInputActions(input: input,
+                                                   port: port,
+                                                   defaultInputs: [defaultInputValue],
+                                                   newConnectionSteps: &newConnectionSteps,
+                                                   newSetInputSteps: &newSetInputSteps)
+                    }
                 }
-            
-                if layerNode.layer == .group {
-                    let layerGroupAction = StepActionLayerGroupCreated(nodeId: nodeEntity.id)
-                    newLayerGroupSteps.append(layerGroupAction)
-                }
-                
-            default:
+                        
+            case .group, .component:
+                // We currently do not support the creation of GroupNodes (ui-groupings) or Components via LLM Step Actions
                 continue
             }
         }
         
-        // Sorting necessary for validation
+        // Sorting necessary for validation (just consistent ordering)
         let newNodesStepsSorted = newNodesSteps
             .sorted { $0.nodeId < $1.nodeId }
             .map { $0.toStep }
@@ -291,7 +315,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func reapplyActions() throws {
         let oldActions = self.llmRecording.actions
-        let actions = try self.llmRecording.actions.convertSteps()
+        let actions: [any StepActionable] = try self.llmRecording.actions.convertSteps()
         let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
@@ -308,11 +332,12 @@ extension StitchDocumentViewModel {
             }
         }
         
+        // TODO: just do `actions.reversed().forEach { $0.removeAction(graph: graph, document: self) }`
         // Remove all actions before re-applying
         try self.llmRecording.actions
             .reversed()
             .forEach { action in
-                let step = try action.convertToType()
+                let step: any StepActionable = try action.convertToType()
                 step.removeAction(graph: graph, document: self)
             }
         

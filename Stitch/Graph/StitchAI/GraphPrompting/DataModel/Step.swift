@@ -20,7 +20,6 @@ struct Step: Hashable {
     var toNodeId: StitchAIUUID?     // Target node for connections
     var value: PortValue? // Associated value data
     var valueType: NodeType?     // Type of the node
-    var groupName: String?       // Group name for sidebar groups
     
     init(stepType: StepType,
          nodeId: UUID? = nil,
@@ -30,8 +29,7 @@ struct Step: Hashable {
          fromNodeId: UUID? = nil,
          toNodeId: UUID? = nil,
          value: PortValue? = nil,
-         valueType: NodeType? = nil,
-         groupName: String? = nil) {
+         valueType: NodeType? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
@@ -41,7 +39,6 @@ struct Step: Hashable {
         self.toNodeId = .init(value: toNodeId)
         self.value = value
         self.valueType = valueType
-        self.groupName = groupName
     }
 }
 
@@ -60,7 +57,6 @@ extension Step: Codable {
         case toNodeId = "to_node_id"
         case value
         case valueType = "value_type"
-        case groupName = "group_name"
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -70,7 +66,6 @@ extension Step: Codable {
         try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
-        try container.encodeIfPresent(groupName, forKey: .groupName)
         
         // Handle port encoding differently based on type
         if let portValue = port?.asLLMStepPort() {
@@ -105,7 +100,6 @@ extension Step: Codable {
         self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(Int.self, forKey: .fromPort)
-        self.groupName = try container.decodeIfPresent(String.self, forKey: .groupName)
         
         if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
             self.nodeName = try .fromLLMNodeName(nodeNameString)
