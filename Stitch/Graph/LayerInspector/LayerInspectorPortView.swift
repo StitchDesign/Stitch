@@ -198,7 +198,6 @@ struct InspectorLayerInputView: View {
                              
                              Alternatively: we could iterate through not just `[FieldGroup]`, but `[{FieldGroup, RowViewModel, RowObserver}]`
                              */
-                            
                             let fieldId: FieldCoordinate = inputFieldViewModel.id
                                                         
                             if let inputRowViewModel = node.getInputRowViewModel(for: fieldId.rowId),

@@ -63,7 +63,7 @@ extension OutputPortUIViewModel {
            // TODO: we had been comparing `drawnEdge.output.id == self.id`, but how were we able to compare `drawnEdge.output.id: NodeRowViewModelId` against `PortUIViewModel.id: NodeIOCoordinate` ?!
             drawnEdge.output.nodeIOCoordinate == self.id {
             
-            let hasEligibleInput = drawingObserver.nearestEligibleEdgeDestination?.getCanvasInput.isDefined ?? false
+            let hasEligibleInput = drawingObserver.nearestEligibleEdgeDestination.isDefined ?? false
             return PortColor(isSelected: hasEligibleInput,
                              hasEdge: hasEligibleInput,
                              hasLoop: hasLoop)
