@@ -17,7 +17,7 @@ struct LayerInspectorRowButton: View {
     let coordinate: NodeIOCoordinate
     let packedInputCanvasItemId: CanvasItemId?
     let isHovered: Bool
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     
     // non-nil = this inspector row button is for a field, not an input
     var fieldIndex: Int? = nil
@@ -55,13 +55,23 @@ struct LayerInspectorRowButton: View {
     
     @MainActor
     var showButton: Bool {
-        if packedInputCanvasItemId.isDefined || isWholeInputWithAtleastOneFieldAlreadyOnCanvas ||
-            isHovered ||
-            (canBeAddedToCanvas && isSelectedInspectorRow) {
+        if packedInputCanvasItemId.isDefined {
             return true
-        } else {
+        }
+        
+        if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
+            return true
+        }
+        
+        if isHovered {
+            return true
+        }
+        
+        if canBeAddedToCanvas, usesThemeColor {
             return false
         }
+        
+        return false
     }
     
     @MainActor
@@ -126,7 +136,7 @@ struct LayerInspectorRowButton: View {
                 onTap: @escaping () -> Void) -> some View {
         Image(systemName: imageString)
             .resizable()
-            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
+            .foregroundColor(usesThemeColor ? theme.fontColor : .primary)
             .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                    height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
             .onTapGesture {

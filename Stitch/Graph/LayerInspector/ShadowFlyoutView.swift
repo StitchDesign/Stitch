@@ -106,7 +106,8 @@ struct ShadowFlyoutRowView: View {
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: canvasItemId,
                                     isHovered: isHovered,
-                                    isSelectedInspectorRow: isSelectedInspectorRow)
+                                    // a flyout's use of a theme is determined only by whether it is the selected row (on iPad)
+                                    usesThemeColor: isSelectedInspectorRow)
             
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
             

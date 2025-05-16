@@ -165,9 +165,11 @@ struct GenericFlyoutRowView: View {
                                         // For layer inspector row button, provide a NodeIOCoordinate that assumes unpacked + field index
                                         coordinate: InputCoordinate(portType: .keyPath(layerInputType),
                                                                     nodeId: node.id),
-                                         packedInputCanvasItemId: canvasItemId,
+                                        packedInputCanvasItemId: canvasItemId,
                                         isHovered: isHovered,
-                                        isSelectedInspectorRow: isSelectedInspectorRow,
+                                        // use of color-theme on a flyout row is determined only by whether the row is selected,
+                                        // since we cannot drag an edge to it
+                                        usesThemeColor: isSelectedInspectorRow,
                                         fieldIndex: fieldIndex)
             }
                                     

@@ -85,7 +85,6 @@ struct InputFieldBackgroundColorView: ViewModifier {
                     .fill(self.color)
                     .stroke((isHovering && !isFocused) ? Color.gray : .clear, lineWidth: 2)
             }
-        #if !targetEnvironment(macCatalyst)
             .background {
                 if usesThemeColor {
                     RoundedRectangle(cornerRadius: 4)
@@ -96,7 +95,6 @@ struct InputFieldBackgroundColorView: ViewModifier {
                         }
                 }
             }
-        #endif
     }
 }
 
