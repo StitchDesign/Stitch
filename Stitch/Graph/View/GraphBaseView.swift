@@ -173,17 +173,24 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
                 areNear(geometry[preference.value].origin,
                         dragLocation) {
                 
-                log("WAS NEAR: layerInputType: \(layerInputType)")
+                log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
                 nearestInspectorInputs.append(layerInputType)
             }
         } // for preference in ...
                 
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak graph] in
+            
+            guard let graph = graph,
+                    graph.edgeDrawingObserver.drawingGesture.isDefined else {
+                log("findEligibleInspectorFieldOrRow: no longer have an output drag")
+                return
+            }
+            
             if nearestInspectorInputs.isEmpty {
-                log("NO inspector inputs/fields")
+                log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
                     drawingObserver.nearestEligibleEdgeDestination = nil
             } else if let nearestInspectorInput = nearestInspectorInputs.last {
-                log("found inspector input/field: \(nearestInspectorInput)")
+                log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
                     drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
             }
             

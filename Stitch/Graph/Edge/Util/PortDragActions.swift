@@ -227,7 +227,6 @@ extension GraphState {
             return
         }
                
-        
         switch self.edgeDrawingObserver.nearestEligibleEdgeDestination {
         
         case .none:
@@ -246,15 +245,12 @@ extension GraphState {
         case .inspectorInputOrField(let layerInputType):
 
             switch layerInputType.portType {
-            
+
             case .packed:
-                // Add the input to the canvas
                 document.handleLayerInputAdded(layerInput: layerInputType.layerInput,
                                                draggedOutput: draggedOutput.portUIViewModel)
-                                
-            // UnpackedPortType_V30.UnpackedPortType
+
             case .unpacked(let unpackedPortType):
-                // TODO: MAY 14: handle layer-sidebar-multiselect
                 document.handleLayerInputFieldAddedToCanvas(
                     layerInput: layerInputType.layerInput,
                     fieldIndex: unpackedPortType.rawValue,

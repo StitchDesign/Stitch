@@ -501,7 +501,8 @@ let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 
 struct LayerInspectorPortView<RowView>: View where RowView: View {
     
-    // This ought to be non-optional?
+    // Nil for layer *outputs* in the inspector
+    // Non-nil for layer inputs in the inspector
     let layerInputObserver: LayerInputObserver?
     
     // input or output
@@ -531,8 +532,10 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         return isPaddingPortValueTypeRow ? .firstTextBaseline : .center
     }
     
-    var isSelectedInspectorRow: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
+    var usesThemeColor: Bool {
+        let isEligibleLayerInput = graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver?.port
+        let isSelectedInspectorRow = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        return isEligibleLayerInput || isSelectedInspectorRow
     }
     
     var body: some View {
@@ -544,7 +547,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: packedInputCanvasItemId,
                                     isHovered: isHovered,
-                                    isSelectedInspectorRow: isSelectedInspectorRow)
+                                    usesThemeColor: usesThemeColor)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align
             // Alternatively, we want the height of the row-buton to be the same as the height of the input-row's label, e.g. specify a height in `LabelDisplayView`
