@@ -188,13 +188,12 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
                 return
             }
             
-            if let outputNodeId = drawingGesture.output.canvasItemDelegate?.id,
-               let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
-                graph.findEligibleCanvasInput(
-                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-                    cursorNodeId: outputNodeId)
-            }
-            
+//            if let outputNodeId = drawingGesture.output.canvasItemDelegate?.id,
+//               let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
+//                graph.findEligibleCanvasInput(
+//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+//                    cursorNodeId: outputNodeId)
+//            }
             
             let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
             
@@ -239,19 +238,29 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
     // TODO: is this really appropriate even for actively dragged circuit edges? ... there's no such thing as an an
     @MainActor
     var inputAnchorData: EdgeAnchorDownstreamData? {
-        return nil
-//        guard let firstFocusedLayer = graph.inspectorFocusedLayers.first,
-//              let eligibleInputOrField = self.eligibleInputOrField,
-//              let nearestEligibleInputOrFieldRowViewModel: InputNodeRowViewModel = graph.getInputRowViewModel(for:
-//                    .init(graphItemType: .layerInspector(.keyPath(eligibleInputOrField)),
-//                          nodeId: firstFocusedLayer.asLayerNodeId.asNodeId,
-//                          // All layer inputs/input-fields have 0
-//                          portId: 0)) else {
-//            return nil
-//        }
-//
-        // CRASHES BECAUSE THE INSPECTOR ROW VIEW MODEL DOES NOT HAVE A CANVAS ITEM
-//        return EdgeAnchorDownstreamData(from: nearestEligibleInputOrFieldRowViewModel)
+        
+        // just need the nearest eligible canvas/inspector's input node row view model
+        
+        switch graph.edgeDrawingObserver.nearestEligibleEdgeDestination {
+            
+        case .none:
+            return nil
+        
+        case .canvasInput(let inputNodeRowViewModel):
+            return EdgeAnchorDownstreamData(from: inputNodeRowViewModel)
+        
+        case .inspectorInputOrField(let layerInputType):
+            if let firstFocusedLayer = graph.inspectorFocusedLayers.first,
+               let nearestEligibleInputOrFieldRowViewModel: InputNodeRowViewModel = graph.getInputRowViewModel(for:
+                     .init(graphItemType: .layerInspector(.keyPath(layerInputType)),
+                           nodeId: firstFocusedLayer.asLayerNodeId.asNodeId,
+                           // All layer inputs/input-fields have 0
+                           portId: 0)) {
+                return EdgeAnchorDownstreamData(from: nearestEligibleInputOrFieldRowViewModel)
+            } else {
+                return nil
+            }
+        }
     }
     
     @MainActor @ViewBuilder

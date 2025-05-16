@@ -22,12 +22,29 @@ extension GraphState {
             return
         }
         
-        let dragLocation = gesture.location
+        var dragLocation = gesture.location
+        let graphOrigin = self.graphPosition
+        dragLocation.x -= graphOrigin.x
+        dragLocation.y -= graphOrigin.y
+        
         self.edgeAnimationEnabled = true
         
-        guard var existingDrawingGesture = self.edgeDrawingObserver.drawingGesture else {
-            log("InputDragged: started")
-            
+        // If we already have an active input-drag:
+        if var existingDrawingGesture = self.edgeDrawingObserver.drawingGesture {
+            // Called when drag has already started
+            existingDrawingGesture.cursorLocationInGlobalCoordinateSpace = dragLocation
+            self.edgeDrawingObserver.drawingGesture = existingDrawingGesture
+                        
+            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
+               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
+                self.findEligibleCanvasInput(
+                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+                    cursorNodeId: outputNodeId)
+            }
+        }
+        
+        // Else, if we're starting a new input-drag:
+        else {
             guard let upstreamObserver = inputRowObserver.upstreamOutputObserver?.rowViewModelForCanvasItemAtThisTraversalLevel else {
                 return
             }
@@ -42,20 +59,33 @@ extension GraphState {
             inputRowObserver.removeUpstreamConnection(node: node)
             node.scheduleForNextGraphStep()
             self.encodeProjectInBackground()
-            
-            return
         }
-
-        // Called when drag has already started
-        existingDrawingGesture.cursorLocationInGlobalCoordinateSpace = dragLocation
-        self.edgeDrawingObserver.drawingGesture = existingDrawingGesture
     }
     
     @MainActor
     func inputDragEnded() {
-        guard let drawingGesture = self.edgeDrawingObserver.drawingGesture,
-              let fromRowObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
-              let nearestEligibleInput = self.edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput else {
+        
+        if let drawingGesture = self.edgeDrawingObserver.drawingGesture,
+           let fromRowObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
+           let nearestEligibleInput = self.edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput {
+            
+            let to = nearestEligibleInput.portUIViewModel.portAddress
+            let from = drawingGesture.output.portUIViewModel.portAddress
+            
+            self.edgeDrawingObserver.reset()
+            
+            let sourceNodeId = fromRowObserver.id.nodeId
+            
+            self.createEdgeFromEligibleCanvasInput(
+                from: from,
+                to: to,
+                sourceNodeId: sourceNodeId)
+            
+            self.encodeProjectInBackground()
+        }
+        
+        // No eligible input
+        else {
             log("InputDragEnded: drag ended, but could not create new edge")
             self.edgeDrawingObserver.reset()
             
@@ -66,19 +96,7 @@ extension GraphState {
             return
         }
 
-        let to = nearestEligibleInput.portUIViewModel.portAddress
-        let from = drawingGesture.output.portUIViewModel.portAddress
-        
-        self.edgeDrawingObserver.reset()
-
-        let sourceNodeId = fromRowObserver.id.nodeId
-        
-        self.createEdgeFromEligibleCanvasInput(
-            from: from,
-            to: to,
-            sourceNodeId: sourceNodeId)
-                
-        self.encodeProjectInBackground()
+       
     }
 }
 
@@ -142,43 +160,60 @@ extension GraphState {
         }
 
         // TODO: MAY 13: WHY IS IT NECESSARY TO SUBTRACT OUT THE GRAPH ORIGIN? WHICH COORDINATE SPACE CAN WE USE THAT AVOIDS THIS?
-        var dragLocation = gesture.location
-        log("dragLocation was: \(dragLocation)")
+        var cursorLocationInGlobalCoordinateSpace = gesture.location
+        log("dragLocation was: \(cursorLocationInGlobalCoordinateSpace)")
         
         let graphOrigin = self.graphPosition
         
         log("graphOrigin: \(graphOrigin)")
         
-        dragLocation.x -= graphOrigin.x
-        dragLocation.y -= graphOrigin.y
+        cursorLocationInGlobalCoordinateSpace.x -= graphOrigin.x
+        cursorLocationInGlobalCoordinateSpace.y -= graphOrigin.y
         
-        log("dragLocation is now: \(dragLocation)")
+        log("dragLocation is now: \(cursorLocationInGlobalCoordinateSpace)")
         
         // exit edge editing state
         self.edgeEditingState = nil
 
         self.edgeAnimationEnabled = true
         
-        // Starting port drag
-        if !self.edgeDrawingObserver.drawingGesture.isDefined {
+        // If we already have an active output-drag
+        if let existingDrawingGesture = self.edgeDrawingObserver.drawingGesture {
+            
+            var drag: OutputDragGesture
+            drag = existingDrawingGesture
+//            drag.dragLocation = gesture.location
+            drag.cursorLocationInGlobalCoordinateSpace = cursorLocationInGlobalCoordinateSpace
+            self.edgeDrawingObserver.drawingGesture = drag
+            
+            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
+               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
+                self.findEligibleCanvasInput(
+                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
+                    cursorNodeId: outputNodeId)
+            }
+        }
+        
+        // Starting new output-drag
+        else {
             
             // TODO: MAY 12: resolve this, but with the updated gesture.location
-//            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
+            //            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
             
             let drag = OutputDragGesture(output: outputRowViewModel,
-//                                         dragLocation: gesture.location,
-                                         cursorLocationInGlobalCoordinateSpace: dragLocation,
-//                                         startingDiffFromCenter: diffFromCenter)
+                                         // dragLocation: gesture.location,
+                                         cursorLocationInGlobalCoordinateSpace: cursorLocationInGlobalCoordinateSpace,
+                                         // startingDiffFromCenter: diffFromCenter)
                                          startingDiffFromCenter: .zero)
-
+            
             self.edgeDrawingObserver.drawingGesture = drag
-
+            
             // Wipe selected edges, canvas items. etc.
             self.resetAlertAndSelectionState(document: document)
             
             if let outputRowObserver = self.getOutputRowObserver(outputRowViewModel.nodeIOCoordinate),
                let canvasItemId = outputRowViewModel.canvasItemDelegate?.id {
-                
+
                 outputRowViewModel.portUIViewModel.updatePortColor(
                     canvasItemId: canvasItemId,
                     hasEdge: outputRowObserver.hasEdge,
@@ -187,28 +222,6 @@ extension GraphState {
                     selectedCanvasItems: self.selectedCanvasItems,
                     drawingObserver: self.edgeDrawingObserver)
             }
-            
-        } else {
-            guard let existingDrag = self.edgeDrawingObserver.drawingGesture else {
-                // log("OutputDragcreateEdgeFromEligibleCanvasInputged: output drag not yet initialized by SwiftUI handler; exiting early")
-                return
-            }
-
-            var drag: OutputDragGesture
-            drag = existingDrag
-//            drag.dragLocation = gesture.location
-            drag.cursorLocationInGlobalCoordinateSpace = dragLocation
-
-            self.edgeDrawingObserver.drawingGesture = drag
-            
-//            if let outputNodeId = outputRowViewModel.canvasItemDelegate?.id,
-//               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
-//                log("outputDragged: dragLocationInNodesViewCoordinateSpace: \(dragLocationInNodesViewCoordinateSpace)")
-//                self.findEligibleCanvasInput(
-//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-//                    cursorNodeId: outputNodeId)
-//            }
-            
         }
     }
     
