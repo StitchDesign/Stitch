@@ -33,7 +33,6 @@ extension GraphState {
         if let existingDrawingGesture = self.edgeDrawingObserver.drawingGesture {
             // Called when drag has already started
             existingDrawingGesture.cursorLocationInGlobalCoordinateSpace = dragLocation
-            self.edgeDrawingObserver.drawingGesture = existingDrawingGesture
                         
 //            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
 //               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
@@ -181,7 +180,6 @@ extension GraphState {
             drag = existingDrawingGesture
 //            drag.dragLocation = gesture.location
             drag.cursorLocationInGlobalCoordinateSpace = cursorLocationInGlobalCoordinateSpace
-            self.edgeDrawingObserver.drawingGesture = drag
 //
 //            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
 //               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
@@ -256,10 +254,10 @@ extension GraphState {
                 sourceNodeId: draggedOutputObserver.id.nodeId,
                 dragOriginOutput: dragOriginOutput,
                 document: document)
+            self.encodeProjectInBackground()
         }
         
         self.edgeDrawingObserver.reset()
-        self.encodeProjectInBackground()
     }
     
     @MainActor
