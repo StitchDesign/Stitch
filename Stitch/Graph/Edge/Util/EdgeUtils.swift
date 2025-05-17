@@ -101,9 +101,10 @@ extension GraphState {
             guard let inputCenter = inputViewModel.portUIViewModel.anchorPoint else {
                 continue
             }
-            
-            log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
-            log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
+  
+            // Awful for perf
+//            log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
+//            log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
             
             if areNear(inputCenter,
                        cursorLocation,
