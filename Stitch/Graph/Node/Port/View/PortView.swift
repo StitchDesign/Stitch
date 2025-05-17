@@ -43,10 +43,6 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
         self.rowId.asNodeIOCoordinate
     }
     
-    var activelyDraggedOutputCoordinate: OutputCoordinate? {
-        graph.edgeDrawingObserver.drawingGesture?.outputId.asNodeIOCoordinate
-    }
-    
     var body: some View {
         Rectangle().fill(self.portColor)
         //            Rectangle().fill(portBodyColor)
@@ -61,9 +57,9 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
         
         // For perf reasons, we only populate `EdgeDraggedToInspectorPreferenceKey` if we're actively dragging an edge
             .modifier(TrackDraggedOutput(
-                id: nodeIO == .output ? nodeIOCoordinate : nil,
-                isActivelyDraggedOutput: nodeIOCoordinate == activelyDraggedOutputCoordinate
-            ))
+                graph: graph,
+                id: nodeIOCoordinate,
+                nodeIO: nodeIO))
         
             .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
            
