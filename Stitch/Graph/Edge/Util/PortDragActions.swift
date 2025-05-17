@@ -64,38 +64,34 @@ extension GraphState {
     
     @MainActor
     func inputDragEnded() {
+        guard let document = documentDelegate else {
+            return
+        }
         
         if let drawingGesture = self.edgeDrawingObserver.drawingGesture,
            let fromRowObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
-           let nearestEligibleInput = self.edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput {
+           let nearestEligible = self.edgeDrawingObserver.nearestEligibleEdgeDestination {
             
-            let to = nearestEligibleInput.portUIViewModel.portAddress
-            let from = drawingGesture.output.portUIViewModel.portAddress
-            
+            self.createEdgeAfterPortDragEnded(
+                nearestEligibleDestination: nearestEligible,
+                sourceNodeId: fromRowObserver.id.nodeId,
+                dragOriginOutput: drawingGesture.output,
+                document: document)
+
             self.edgeDrawingObserver.reset()
-            
-            let sourceNodeId = fromRowObserver.id.nodeId
-            
-            self.createEdgeFromEligibleCanvasInput(
-                from: from,
-                to: to,
-                sourceNodeId: sourceNodeId)
-            
             self.encodeProjectInBackground()
+            return
         }
         
         // No eligible input
         else {
             log("InputDragEnded: drag ended, but could not create new edge")
             self.edgeDrawingObserver.reset()
-            
             DispatchQueue.main.async { [weak self] in
                 self?.edgeAnimationEnabled = false
             }
-            
             return
         }
-
        
     }
 }
@@ -185,7 +181,7 @@ extension GraphState {
 //            drag.dragLocation = gesture.location
             drag.cursorLocationInGlobalCoordinateSpace = cursorLocationInGlobalCoordinateSpace
             self.edgeDrawingObserver.drawingGesture = drag
-//            
+//
 //            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
 //               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
 //                self.findEligibleCanvasInput(
@@ -236,8 +232,8 @@ extension GraphState {
         // If we had both, prefer that inspector ?
         
         // We ought to have these if we were dragging an output
-        guard let draggedOutput = self.edgeDrawingObserver.drawingGesture?.output,
-              let draggedOutputObserver: OutputNodeRowObserver = self.getOutputRowObserver(draggedOutput.nodeIOCoordinate) else {
+        guard let dragOriginOutput = self.edgeDrawingObserver.drawingGesture?.output,
+              let draggedOutputObserver: OutputNodeRowObserver = self.getOutputRowObserver(dragOriginOutput.nodeIOCoordinate) else {
             
             fatalErrorIfDebug("Output drag ended but we did not have an edge drawing observer and/or could not retrieve the output row observer")
             
@@ -249,44 +245,56 @@ extension GraphState {
             
             return
         }
-               
-        switch self.edgeDrawingObserver.nearestEligibleEdgeDestination {
-        
-        case .none:
-            break // nothing to do
-            
-        case .canvasInput(let inputNodeRowViewModel):
-            self.createEdgeFromEligibleCanvasInput(
-                from: draggedOutput.portUIViewModel.portAddress,
-                to: inputNodeRowViewModel.portUIViewModel.portAddress,
-                // TODO: is the below still necessary?
-                // Get node id from row observer, not row view model, in case edge drag is for group,
-                // we want the splitter node delegate not the group node delegate
-                sourceNodeId: draggedOutputObserver.id.nodeId)
-        
-        case .inspectorInputOrField(let layerInputType):
 
-            switch layerInputType.portType {
-
-            case .packed:
-                document.handleLayerInputAdded(layerInput: layerInputType.layerInput,
-                                               draggedOutput: draggedOutput.portUIViewModel)
-
-            case .unpacked(let unpackedPortType):
-                document.handleLayerInputFieldAddedToCanvas(
-                    layerInput: layerInputType.layerInput,
-                    fieldIndex: unpackedPortType.rawValue,
-                    draggedOutput: draggedOutput.portUIViewModel)
-            }
-        } // switch
+        if let nearestEligible = self.edgeDrawingObserver.nearestEligibleEdgeDestination {
+            self.createEdgeAfterPortDragEnded(
+                nearestEligibleDestination: nearestEligible,
+                sourceNodeId: draggedOutputObserver.id.nodeId,
+                dragOriginOutput: dragOriginOutput,
+                document: document)
+        }
         
         self.edgeDrawingObserver.reset()
         self.encodeProjectInBackground()
     }
-}
-
-
-extension GraphState {
+    
+    @MainActor
+    func createEdgeAfterPortDragEnded(nearestEligibleDestination: EligibleEdgeDestination,
+                                      sourceNodeId: NodeId,
+                                      dragOriginOutput: OutputNodeRowViewModel,
+                                      document: StitchDocumentViewModel) {
+        
+        let dragOriginOutputUI = dragOriginOutput.portUIViewModel
+        
+        switch nearestEligibleDestination {
+            
+        case .canvasInput(let inputNodeRowViewModel):
+            self.createEdgeFromEligibleCanvasInput(
+                from: dragOriginOutputUI.portAddress,
+                to: inputNodeRowViewModel.portUIViewModel.portAddress,
+                // TODO: is the below still necessary?
+                // Get node id from row observer, not row view model, in case edge drag is for group,
+                // we want the splitter node delegate not the group node delegate
+                sourceNodeId: sourceNodeId)
+            
+        case .inspectorInputOrField(let layerInputType):
+            
+            switch layerInputType.portType {
+                
+            case .packed:
+                document.handleLayerInputAdded(
+                    layerInput: layerInputType.layerInput,
+                    draggedOutput: dragOriginOutputUI)
+                
+            case .unpacked(let unpackedPortType):
+                document.handleLayerInputFieldAddedToCanvas(
+                    layerInput: layerInputType.layerInput,
+                    fieldIndex: unpackedPortType.rawValue,
+                    draggedOutput: dragOriginOutputUI)
+            }
+        } // switch
+    }
+    
     @MainActor
     func createEdgeFromEligibleCanvasInput(from: OutputPortIdAddress?,
                                            to: InputPortIdAddress?,

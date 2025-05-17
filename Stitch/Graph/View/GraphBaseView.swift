@@ -171,8 +171,10 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
         for preference in preferences {
             if case let .inspectorInputOrField(layerInputType) = preference.key,
                // Note: `areNear` *already* expands the 'hit area'
-                areNear(geometry[preference.value].origin,
-                        dragLocation) {
+//                areNear(geometry[preference.value].origin,
+                areNear(geometry[preference.value].mid,
+                        dragLocation,
+                        isInspectorInputOrFieldDetection: true) {
                 
                 log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
                 nearestInspectorInputs.append(layerInputType)

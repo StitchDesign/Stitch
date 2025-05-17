@@ -65,6 +65,7 @@ struct LayerInspectorInputPortView: View {
                                document: document,
                                packedInputCanvasItemId: packedInputCanvasItemId) {
             HStack {
+                // TODO: MAY 16: should never be eligible for 'edge dragged to inspector' connection
                 if isShadowLayerInputRow {
                     ShadowInputInspectorRow(nodeId: node.id,
                                             isSelectedInspectorRow: isSelectedInspectorRow)
@@ -77,7 +78,7 @@ struct LayerInspectorInputPortView: View {
                                                        graph: graph,
                                                        nodeId: node.id,
                                                        layerInputObserver: layerInputObserver,
-                                                       usesThemeColor: isSelectedInspectorRow)
+                                                       isSelectedInspectorRow: isSelectedInspectorRow)
                 } else if layerInputObserver.usesGridMultifieldArrangement() {
                     // Multifields in the inspector are always "read-only" and "tap to open flyout"
                     LayerInspectorGridInputView(document: document,
@@ -151,9 +152,9 @@ struct InspectorLayerInputView: View {
         layerInputObserver.usesMultifields
     }
     
-    var hasEligibleEdgeDrag: Bool {
-        graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver.port
-    }
+//    var hasEligibleEdgeDrag: Bool {
+//        graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver.port
+//    }
     
     // Use theme color if entire inspector input/output-row is selected,
     // or if this specific field is 'eligible' via drag-output.
@@ -170,7 +171,8 @@ struct InspectorLayerInputView: View {
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
                                  // Alternatively: only use theme color when 'whole input selected' ?
-                                 usesThemeColor: hasEligibleEdgeDrag)
+//                                 usesThemeColor: hasEligibleEdgeDrag)
+                                 usesThemeColor: isSelectedInspectorRow)
             }
             Spacer()
             
