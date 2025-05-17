@@ -17,11 +17,6 @@ enum EdgeDraggedToInspector: Hashable, Equatable {
     case inspectorInputOrField(LayerInputType)
 }
 
-extension String {
-    static let DRAGGED_OUTPUT = "DRAGGED_OUTPUT"
-    static let SIZE_INPUT = "SIZE_INPUT"
-}
-
 struct EdgeDraggedToInspectorPreferenceKey: PreferenceKey {
     static let defaultValue: [EdgeDraggedToInspector: Anchor<CGRect>] = [:]
     

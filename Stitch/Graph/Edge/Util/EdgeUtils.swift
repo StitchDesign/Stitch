@@ -36,6 +36,7 @@ func yDistance(_ from: CGPoint,
 /// Are these two points within NEARNESS_ALLOWANCE of each other?
 func areNear(_ inputCenter: CGPoint,
              _ cursorCenter: CGPoint,
+             isInspectorInputOrFieldDetection: Bool,
              nearnessAllowance: CGFloat = NODE_ROW_HEIGHT) -> Bool {
 
 
@@ -43,14 +44,17 @@ func areNear(_ inputCenter: CGPoint,
     // log("areNear: cursorCenter: \(cursorCenter)")
 
     let range = CGSize(width: nearnessAllowance * 3,
-                       height: nearnessAllowance)
+                       height: nearnessAllowance * (isInspectorInputOrFieldDetection ? 2 : 1))
 
     // shift inward slightly
     let box1 = CGRect.init(
         origin: .init(x: inputCenter.x + nearnessAllowance,
-                      y: inputCenter.y),
+                      y: inputCenter.y
+                      // + (isInspectorInputOrFieldDetection ? nearnessAllowance : 0)
+                     ),
         size: range)
 
+    // TODO: maybe better to expand the cursor's location ?
     let box2 = CGRect.init(origin: cursorCenter,
                            size: range)
 
@@ -101,7 +105,10 @@ extension GraphState {
             log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
             log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
             
-            if areNear(inputCenter, cursorLocation)
+            if areNear(inputCenter,
+                       cursorLocation,
+                       isInspectorInputOrFieldDetection: false)
+                
                 && inputViewModel.canvasItemDelegate?.id != cursorNodeId {
 //                log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
 //                log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")

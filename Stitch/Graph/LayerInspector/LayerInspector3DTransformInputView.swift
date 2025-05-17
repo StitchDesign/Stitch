@@ -14,7 +14,15 @@ struct LayerInspector3DTransformInputView: View {
     @Bindable var graph: GraphState
     let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
-    let usesThemeColor: Bool
+    let isSelectedInspectorRow: Bool
+    
+    // Use theme color if entire inspector input/output-row is selected,
+    // or if this specific field is 'eligible' via drag-output.
+    func usesThemeColor(_ field: InputFieldViewModel) -> Bool {
+        isSelectedInspectorRow ||
+        field.isEligibleForEdgeConnection(input: layerInputObserver.port,
+                                          graph.edgeDrawingObserver)
+    }
     
     var body: some View {
         VStack {
@@ -25,7 +33,7 @@ struct LayerInspector3DTransformInputView: View {
                             LabelDisplayView(label: fieldGroupLabel,
                                              isLeftAligned: false,
                                              fontColor: STITCH_FONT_GRAY_COLOR,
-                                             usesThemeColor: usesThemeColor)
+                                             usesThemeColor: isSelectedInspectorRow)
                             Spacer()
                         }
                     }
@@ -42,6 +50,8 @@ struct LayerInspector3DTransformInputView: View {
     func observerViews(_ fieldObservers: [FieldViewModel]) -> some View {
         
         ForEach(fieldObservers) { fieldObserver  in
+
+            let usesThemeColor = usesThemeColor(fieldObserver)
             
             HStack {
                 LabelDisplayView(label: fieldObserver.fieldLabel,
@@ -55,6 +65,14 @@ struct LayerInspector3DTransformInputView: View {
                                            fieldObserver: fieldObserver,
                                            usesThemeColor: usesThemeColor)
             }
+            .modifier(
+                TrackInspectorField(
+                    layerInputObserver: layerInputObserver,
+                    layerInputType: .init(
+                        layerInput: layerInputObserver.port,
+                        portType: .unpacked(fieldObserver.fieldIndex.asUnpackedPortType)),
+                    hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
+            )
         } // ForEach
     }
 }

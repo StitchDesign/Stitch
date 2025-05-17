@@ -18,6 +18,14 @@ struct LayerInspectorGridInputView: View {
         layerInputObserver.fieldGroupsFromInspectorRowViewModels.flatMap(\.fieldObservers)
     }
     
+    // Use theme color if entire inspector input/output-row is selected,
+    // or if this specific field is 'eligible' via drag-output.
+    func usesThemeColor(_ field: InputFieldViewModel) -> Bool {
+        isSelectedInspectorRow ||
+        field.isEligibleForEdgeConnection(input: layerInputObserver.port,
+                                          graph.edgeDrawingObserver)
+    }
+        
     var body: some View {
                         
         // Aligns fields with "padding" label's text baseline
@@ -61,7 +69,15 @@ struct LayerInspectorGridInputView: View {
                                    nodeId: node.id,
                                    layerInputObserver: layerInputObserver,
                                    fieldObserver: fieldObserver,
-                                   usesThemeColor: isSelectedInspectorRow)
+                                   usesThemeColor: usesThemeColor(fieldObserver))
+        .modifier(
+            TrackInspectorField(
+                layerInputObserver: layerInputObserver,
+                layerInputType: .init(
+                    layerInput: layerInputObserver.port,
+                    portType: .unpacked(fieldObserver.fieldIndex.asUnpackedPortType)),
+                hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
+        )
     }
 }
 
