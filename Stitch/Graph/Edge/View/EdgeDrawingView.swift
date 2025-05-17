@@ -15,11 +15,16 @@ struct EdgeDrawingView: View {
     var body: some View {
         // TODO: MAY 14: fix this
         if let outputDrag = edgeDrawingObserver.drawingGesture,
-           let elgibleCanvasInput = edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput {
+           let elgibleCanvasInput = edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput,
+           let outputRowViewModel = graph.getOutputRowViewModel(for: outputDrag.outputId),
+           let canvasId = outputDrag.outputId.graphItemType.getCanvasItemId,
+           let canvasItem = graph.getCanvasItem(canvasId) {
             EdgeFromDraggedOutputView(
                 graph: graph,
                 outputDrag: outputDrag,
-                nearestEligibleInput: elgibleCanvasInput)
+                nearestEligibleInput: elgibleCanvasInput,
+                outputRowViewModel: outputRowViewModel,
+                canvasItem: canvasItem)
         } else {
             EmptyView()
         }
@@ -37,9 +42,8 @@ struct EdgeFromDraggedOutputView: View {
     
     let nearestEligibleInput: InputNodeRowViewModel?
 
-    var outputRowViewModel: OutputNodeRowViewModel {
-        outputDrag.output
-    }
+    let outputRowViewModel: OutputNodeRowViewModel
+    let canvasItem: CanvasItemViewModel
     
     // Note: the rules for the color of an actively dragged edge are simple:
     // gray if no eligible input, else highlighted-loop if a loop, else highlighted.
@@ -68,7 +72,7 @@ struct EdgeFromDraggedOutputView: View {
     
     var body: some View {
         Group {
-            if let downstreamNode = graph.getNode(outputDrag.output.id.nodeId),
+            if let downstreamNode = graph.getNode(outputDrag.outputId.nodeId),
                let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
                 let outputAnchorData = EdgeAnchorUpstreamData(
                     from: upstreamCanvasItem.outputPortUIViewModels,

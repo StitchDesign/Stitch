@@ -42,11 +42,17 @@ extension View {
 
 // Only used in
 struct TrackDraggedOutput: ViewModifier {
-    let id: OutputCoordinate? // nil = was for input
-    let isActivelyDraggedOutput: Bool
+    let graph: GraphState
+    let id: NodeIOCoordinate
+    let nodeIO: NodeIO
+    
+    var isActivelyDraggedOutput: Bool {
+        let activeDrag = graph.edgeDrawingObserver.drawingGesture?.outputId.asNodeIOCoordinate
+        return self.id == activeDrag
+    }
     
     func body(content: Content) -> some View {
-        if let id = id {
+        if nodeIO == .output {
             content.trackEdgeDraggedToInspectorAnchorPreference(id: .draggedOutput(id),
                                                                 shouldTrack: isActivelyDraggedOutput)
         } else {

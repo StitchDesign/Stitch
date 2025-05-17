@@ -59,10 +59,10 @@ extension EdgeDrawingObserver {
     }
 }
 
-// TODO: technically this could also be a dragged input that we detached?
-struct OutputDragGesture {
+@Observable
+final class OutputDragGesture {
     // the output we started dragging from
-    let output: OutputNodeRowViewModel
+    var outputId: NodeRowViewModelId
     
     // fka `dragLocation`
     var cursorLocationInGlobalCoordinateSpace: CGPoint
@@ -72,4 +72,12 @@ struct OutputDragGesture {
     // since UIKit pan gesture gesture.location is inaccurate
     // for high velocities.
     var startingDiffFromCenter: CGSize
+    
+    init(outputId: NodeRowViewModelId,
+         cursorLocationInGlobalCoordinateSpace: CGPoint,
+         startingDiffFromCenter: CGSize) {
+        self.outputId = outputId
+        self.cursorLocationInGlobalCoordinateSpace = cursorLocationInGlobalCoordinateSpace
+        self.startingDiffFromCenter = startingDiffFromCenter
+    }
 }
