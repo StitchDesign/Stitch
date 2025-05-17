@@ -166,8 +166,11 @@ struct LLMActionCorrectionView: View {
                 StitchTextView(string: "Value: \(x.value.display)")
                 
             case .sidebarGroupCreated(let x):
-                StitchTextView(string: "Create Group)")
+                StitchTextView(string: "Create Group")
                 StitchTextView(string: "With Node: \(x.nodeId.debugFriendlyId)")
+                if !x.children.isEmpty {
+                    StitchTextView(string: "Children: \(x.children.map { $0.debugFriendlyId }.joined(separator: ", "))")
+                }
                 
             case .none:
                 FatalErrorIfDebugView()
