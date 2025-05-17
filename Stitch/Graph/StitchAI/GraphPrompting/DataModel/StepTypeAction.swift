@@ -82,7 +82,8 @@ struct StepActionLayerGroupCreated: StepActionable {
     
     var toStep: Step {
         Step(stepType: Self.stepType,
-             nodeId: nodeId)
+             nodeId: nodeId,
+             children: children)
     }
     
     func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionLayerGroupCreated {
