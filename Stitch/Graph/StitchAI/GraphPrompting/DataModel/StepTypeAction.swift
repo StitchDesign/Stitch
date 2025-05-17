@@ -134,7 +134,7 @@ struct StepActionLayerGroupCreated: StepActionable {
         layersSidebar.primary = Set(nonGroupLayers)
         
         // Create the group
-        layersSidebar.sidebarGroupCreated()
+        layersSidebar.sidebarGroupCreated(id: self.nodeId)
     }
     
     func removeAction(graph: GraphState, document: StitchDocumentViewModel) {

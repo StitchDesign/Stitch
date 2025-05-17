@@ -14,6 +14,11 @@ import SwiftUI
 extension LayersSidebarViewModel {
     @MainActor
     func sidebarGroupCreated() {
+        self.sidebarGroupCreated(id: .init())
+    }
+    
+    @MainActor
+    func sidebarGroupCreated(id: NodeId) {
         log("SidebarGroupCreated called")
         
         guard let graph = self.graphDelegate,
@@ -23,6 +28,7 @@ extension LayersSidebarViewModel {
         
         // Create node view model for the new Layer Group
         let newNode = Layer.group.layerGraphNode.createViewModel(
+            id: id,
             // TODO: remove the misleading `position` parameter; a layer node's inputs and outputs can have canvas-position but never the layer node itself
             position: state.newCanvasItemInsertionLocation,
             zIndex: graph.highestZIndex + 1,
