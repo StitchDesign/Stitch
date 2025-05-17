@@ -44,7 +44,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
     }
     
     var activelyDraggedOutputCoordinate: OutputCoordinate? {
-        graph.edgeDrawingObserver.drawingGesture?.output.nodeIOCoordinate
+        graph.edgeDrawingObserver.drawingGesture?.outputId.asNodeIOCoordinate
     }
     
     var body: some View {
