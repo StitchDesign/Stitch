@@ -78,6 +78,7 @@ struct StepActionLayerGroupCreated: StepActionable {
     static let stepType: StepType = .sidebarGroupCreated
     
     var nodeId: NodeId
+    var children: NodeIdSet
     
     var toStep: Step {
         Step(stepType: Self.stepType,
@@ -91,8 +92,8 @@ struct StepActionLayerGroupCreated: StepActionable {
     }
     
     static func fromStep(_ action: Step) throws -> Self {
-        if let nodeId = action.nodeId?.value {
-            return .init(nodeId: nodeId)
+        if let nodeId = action.nodeId?.value, let children = action.children {
+            return .init(nodeId: nodeId, children: children)
         }
         throw StitchAIManagerError.stepDecoding(Self.stepType, action)
     }

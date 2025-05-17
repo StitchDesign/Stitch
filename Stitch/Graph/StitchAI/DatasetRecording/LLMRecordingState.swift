@@ -232,7 +232,7 @@ extension StitchDocumentViewModel {
                 log("deriveNewAIActions: children for layer group \(nodeEntity.id) are: \(children)")
                 
                 // TODO: MAY 16: add a `children` or `selectedSidebarLayers` property to `StepActionLayerGroupCreated` and use the `children` above
-                newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id))
+                newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id, children: children))
                 
             } else {
                 newNodesSteps.append(StepActionAddNode(nodeId: nodeEntity.id,
