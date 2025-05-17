@@ -101,10 +101,11 @@ struct StepActionLayerGroupCreated: StepActionable {
     
     static func createStructuredOutputs() -> StitchAIStepSchema {
         .init(stepType: .sidebarGroupCreated,
-              nodeId: OpenAISchema(type: .string))
+              nodeId: OpenAISchema(type: .string),
+              children: OpenAISchemaRef(ref: "NodeIdSet"))
     }
     
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId]
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .children]
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) throws {
