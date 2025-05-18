@@ -33,14 +33,9 @@ enum EligibleEdgeDestination {
 
 @Observable
 final class EdgeDrawingObserver: Sendable {
-    
-    // TODO: should these be exclusive i.e. an enum ? Can have eligible canvas input OR eligible inspector input/field ?
     @MainActor var nearestEligibleEdgeDestination: EligibleEdgeDestination?
-//    @MainActor var nearestEligibleCanvasInput: InputNodeRowViewModel?
-//    @MainActor var nearestEligibleInspectorInputOrField: LayerInputType?
-    
     @MainActor var drawingGesture: OutputDragGesture?
-    
+
     @MainActor init() { }
 }
 
@@ -48,7 +43,6 @@ extension EdgeDrawingObserver {
     @MainActor
     func reset() {
         // MARK: we need equality checks to reduce render cycles
-        
         if self.nearestEligibleEdgeDestination != nil {
             self.nearestEligibleEdgeDestination = nil
         }

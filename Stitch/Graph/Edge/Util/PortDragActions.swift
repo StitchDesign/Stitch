@@ -33,13 +33,6 @@ extension GraphState {
         if let existingDrawingGesture = self.edgeDrawingObserver.drawingGesture {
             // Called when drag has already started
             existingDrawingGesture.cursorLocationInGlobalCoordinateSpace = dragLocation
-                        
-//            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
-//               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
-//                self.findEligibleCanvasInput(
-//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-//                    cursorNodeId: outputNodeId)
-//            }
         }
         
         // Else, if we're starting a new input-drag:
@@ -85,7 +78,7 @@ extension GraphState {
         
         // No eligible input
         else {
-            log("InputDragEnded: drag ended, but could not create new edge")
+            // log("InputDragEnded: drag ended, but could not create new edge")
             self.edgeDrawingObserver.reset()
             DispatchQueue.main.async { [weak self] in
                 self?.edgeAnimationEnabled = false
@@ -155,18 +148,11 @@ extension GraphState {
             return
         }
 
-        // TODO: MAY 13: WHY IS IT NECESSARY TO SUBTRACT OUT THE GRAPH ORIGIN? WHICH COORDINATE SPACE CAN WE USE THAT AVOIDS THIS?
+        // TODO: WHY IS IT NECESSARY TO SUBTRACT OUT THE GRAPH ORIGIN? WHICH COORDINATE SPACE CAN AVOID THIS?
         var cursorLocationInGlobalCoordinateSpace = gesture.location
-        log("dragLocation was: \(cursorLocationInGlobalCoordinateSpace)")
-        
         let graphOrigin = self.graphPosition
-        
-        log("graphOrigin: \(graphOrigin)")
-        
         cursorLocationInGlobalCoordinateSpace.x -= graphOrigin.x
         cursorLocationInGlobalCoordinateSpace.y -= graphOrigin.y
-        
-        log("dragLocation is now: \(cursorLocationInGlobalCoordinateSpace)")
         
         // exit edge editing state
         self.edgeEditingState = nil
@@ -175,31 +161,20 @@ extension GraphState {
         
         // If we already have an active output-drag
         if let existingDrawingGesture = self.edgeDrawingObserver.drawingGesture {
-            
             var drag: OutputDragGesture
             drag = existingDrawingGesture
-//            drag.dragLocation = gesture.location
             drag.cursorLocationInGlobalCoordinateSpace = cursorLocationInGlobalCoordinateSpace
-//
-//            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
-//               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
-//                self.findEligibleCanvasInput(
-//                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-//                    cursorNodeId: outputNodeId)
-//            }
         }
         
         // Starting new output-drag
         else {
-            
-            // TODO: MAY 12: resolve this, but with the updated gesture.location
-            //            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
+            var gesture = gesture
+            gesture.location = cursorLocationInGlobalCoordinateSpace
+            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
             
             let drag = OutputDragGesture(outputId: rowId,
-                                         // dragLocation: gesture.location,
                                          cursorLocationInGlobalCoordinateSpace: cursorLocationInGlobalCoordinateSpace,
-                                         // startingDiffFromCenter: diffFromCenter)
-                                         startingDiffFromCenter: .zero)
+                                         startingDiffFromCenter: diffFromCenter)
             
             self.edgeDrawingObserver.drawingGesture = drag
             

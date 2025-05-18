@@ -107,6 +107,7 @@ struct TrackInspectorField: ViewModifier {
     
     func body(content: Content) -> some View {
 
+        // TODO: can this help with perf, if we don't track unless we have an active edge drag?
 //        if hasActivelyDrawnEdge {
         if true {
             content.trackEdgeDraggedToInspectorAnchorPreference(

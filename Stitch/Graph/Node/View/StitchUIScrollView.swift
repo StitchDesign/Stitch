@@ -33,7 +33,6 @@ struct StitchUIScrollViewModifier: ViewModifier {
             ZStack {
                 
                 APP_BACKGROUND_COLOR
-                    .opacity(0.2)
                     .frame(WHOLE_GRAPH_SIZE)
                     .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
                     .ignoresSafeArea()
