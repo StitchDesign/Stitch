@@ -296,19 +296,21 @@ struct StepActionConnectionAdded: StepActionable {
         // Create canvas node if destination is layer
         if let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position,
            let destinationNode = document.visibleGraph.getNode(self.toNodeId),
-            destinationNode.kind.isLayer {
-                guard let layerInput = self.port.keyPath?.layerInput else {
-                    // fatalErrorIfDebug()
-                    throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
-                }
-                
-                var position = fromNodeLocation
-                position.x += 200
-                
-                document.layerInputAddedToGraph(node: destinationNode,
-                                                layerInput: layerInput,
-                                                position: position)
+           destinationNode.kind.isLayer {
+            guard let layerInput = self.port.keyPath?.layerInput else {
+                // fatalErrorIfDebug()
+                throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
             }
+            
+            var position = fromNodeLocation
+            position.x += 200
+            
+            document.addLayerInputToCanvas(node: destinationNode,
+                                           layerInput: layerInput,
+                                           draggedOutput: nil,
+                                           canvasHeightOffset: nil,
+                                           position: position)
+        }
     }
     
     func removeAction(graph: GraphState, document: StitchDocumentViewModel) {

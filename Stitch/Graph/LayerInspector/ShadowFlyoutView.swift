@@ -91,22 +91,32 @@ struct ShadowFlyoutRowView: View {
         return isShadowOffsetRow ? .firstTextBaseline : .center
     }
     
+    var isSelectedInspectorRow: Bool {
+        graph.propertySidebar.selectedProperty == .layerInput(
+            LayerInputType(layerInput: layerInputObserver.port,
+                           // Shadow is always packed
+                           portType: .packed))
+    }
+    
     var body: some View {
         HStack(alignment: hstackAlignment) {
             LayerInspectorRowButton(graph: graph,
-                                    document: document,
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: canvasItemId,
-                                    isHovered: isHovered)
+                                    isHovered: isHovered,
+                                    // a flyout's use of a theme is determined only by whether it is the selected row (on iPad)
+                                    usesThemeColor: isSelectedInspectorRow)
+            
             .offset(y: isShadowOffsetRow ? INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET : 0)
             
             InspectorLayerInputView(document: document,
                                     graph: graph,
                                     node: node,
                                     layerInputObserver: layerInputObserver,
-                                    forFlyout: true)
+                                    forFlyout: true,
+                                    isSelectedInspectorRow: isSelectedInspectorRow)
         } // HStack
         
         .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)

@@ -56,13 +56,7 @@ struct GraphBaseView: View {
         #endif
     }
 
-    @MainActor
-    var selectionState: GraphUISelectionState {
-        graph.selection
-    }
-
-    @ViewBuilder
-    @MainActor
+    @ViewBuilder @MainActor
     var nodesView: some View {
         NodesView(document: document,
                   graph: graph,
@@ -104,23 +98,23 @@ struct GraphBaseView: View {
         }
     }
 
-    @ViewBuilder
-    @MainActor
+    @ViewBuilder @MainActor
     var nodesAndCursor: some View {
         ZStack {
-            #if DEV_DEBUG
-            // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
-            // to get in exact screen center.
-            Circle().fill(.cyan.opacity(0.5))
-                .frame(width: 60, height: 60)
-            #endif
-
-            nodesView
 
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
-                .edgesIgnoringSafeArea(.all).zIndex(-10)
-                
+                .edgesIgnoringSafeArea(.all)
+            
+            //#if DEV_DEBUG
+            //            // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
+            //            // to get in exact screen center.
+            //            Circle().fill(.cyan.opacity(0.5))
+            //                .frame(width: 60, height: 60)
+            //#endif
+
+            nodesView
+                          
             // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
             Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
                 .frame(width: 1, height: 1)
@@ -131,6 +125,10 @@ struct GraphBaseView: View {
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                 }
         } // ZStack
+        
+        .modifier(ActivelyDrawnEdge(graph: graph,
+                                    scale: document.graphMovement.zoomData))
+        
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
             GeometryReader { geometry in
@@ -141,7 +139,7 @@ struct GraphBaseView: View {
                     }
                     .onChange(of: geometry.frame(in: .global), initial: true) { oldValue, newValue in
                         // log("SIZE READING: GraphBaseView: global frame: newValue: \(newValue)")
-                        dispatch(SetGraphYPosition(graphYPosition: newValue.origin.y))
+                        dispatch(SetGraphPosition(graphPosition: newValue.origin))
                         dispatch(SetSidebarWidth(frame: newValue))
                     }
             } // GeometryReader

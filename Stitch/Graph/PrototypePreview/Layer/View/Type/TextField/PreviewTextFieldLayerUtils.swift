@@ -71,7 +71,9 @@ extension StitchDocumentViewModel {
         }
         
         // Selected input gets reset when we focus a text field
-        self.selectedInput = nil
+        if self.selectedInput != nil {
+            self.selectedInput = nil            
+        }
     }
     
     @MainActor

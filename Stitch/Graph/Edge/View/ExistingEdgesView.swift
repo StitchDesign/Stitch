@@ -173,7 +173,8 @@ struct ConnectedEdgeView: View {
                      firstToWithEdge: firstToWithEdge,
                      lastToWithEdge: lastToWithEdge,
                      totalOutputs: upstreamAnchor.totalOutputs,
-                     edgeAnimationEnabled: edgeAnimationEnabled)
+                     edgeAnimationEnabled: edgeAnimationEnabled,
+                     edgeScaleEffect: .nonEdgeToInspectorScaleEffect)
             .zIndex(newZIndex)
             
         } else {

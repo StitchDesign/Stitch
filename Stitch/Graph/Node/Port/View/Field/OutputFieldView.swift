@@ -33,7 +33,7 @@ struct OutputFieldView: View {
         LabelDisplayView(label: self.outputField.fieldLabel,
                          isLeftAligned: false,
                          fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: isSelectedInspectorRow)
+                         usesThemeColor: isSelectedInspectorRow)
     }
     
     var valueDisplay: some View {

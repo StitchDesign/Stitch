@@ -86,6 +86,7 @@ struct StitchApp: App {
                 .environment(\.appTheme, self.store.appTheme)
                 .environment(\.edgeStyle, self.store.edgeStyle)
         }
+        
 
         // TODO: why does XCode complain about `.windowStyle not available on iOS` even when using `#if targetEnvironment(macCatalyst)`?
         // TODO: why do `!os(iOS)` or `os(macOS)` statements not seem to run?

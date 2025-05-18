@@ -51,6 +51,8 @@ struct DrawnEdge: View {
     let largestYDistance: CGFloat
 
     let edgeAnimationEnabled: Bool
+    
+    let edgeScaleEffect: CGFloat
 
     var shouldUseBackwardEdge: Bool {
         useBackwardEdge(from: from,
@@ -159,14 +161,14 @@ struct DrawnEdge: View {
         case .curve:
             CurveLine(from: from, to: to)
                 .stroke(color,
-                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH,
+                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,
                                            lineJoin: .round))
 
         case .line:
             StraightLine(from: from, to: to)
                 .stroke(color,
-                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH,
+                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,
                                            lineJoin: .round))
 
@@ -179,7 +181,7 @@ struct DrawnEdge: View {
                         toExtended: toExtended,
                         isBackward: shouldUseBackwardEdge)
                 .stroke(color,
-                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH,
+                        style: StrokeStyle(lineWidth: LINE_EDGE_WIDTH * edgeScaleEffect,
                                            lineCap: .round,
                                            lineJoin: .round))
 
