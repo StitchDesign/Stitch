@@ -359,6 +359,7 @@
 		EC08D55B28988C4D00FEE846 /* AdjustmentBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC08D55A28988C4D00FEE846 /* AdjustmentBarPopoverView.swift */; };
 		EC0957DC27208C1200B4027F /* GeneratePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0957DB27208C1200B4027F /* GeneratePreview.swift */; };
 		EC0A5ECD28E22A9900B00A9F /* WhenPrototypeStartsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */; };
+		EC0A7A452DDA8EC8004C1698 /* ActivelyDrawnEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */; };
 		EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */; };
 		EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */; };
 		EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */; };
@@ -1361,6 +1362,7 @@
 		EC08D55A28988C4D00FEE846 /* AdjustmentBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustmentBarPopoverView.swift; sourceTree = "<group>"; };
 		EC0957DB27208C1200B4027F /* GeneratePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratePreview.swift; sourceTree = "<group>"; };
 		EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenPrototypeStartsNode.swift; sourceTree = "<group>"; };
+		EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivelyDrawnEdge.swift; sourceTree = "<group>"; };
 		EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectanglePatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvalPatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePatchNode.swift; sourceTree = "<group>"; };
@@ -3476,6 +3478,7 @@
 				B55501182C1BD74E0081C3F1 /* EditMode */,
 				EC81043B2B714D5800AF7A20 /* LineShape */,
 				ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */,
+				EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */,
 				EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */,
 				EC98326A2B69D324003F9462 /* PossibleEdgesView.swift */,
 				EC98130E2AB247C600828A20 /* DrawnEdge.swift */,
@@ -5653,6 +5656,7 @@
 				E42CFD482D4414F10034CCFF /* Secrets.swift in Sources */,
 				ECB33C6226F15A1C0069885B /* ProjectsUtils.swift in Sources */,
 				EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */,
+				EC0A7A452DDA8EC8004C1698 /* ActivelyDrawnEdge.swift in Sources */,
 				ECA92A00260A694C00281B52 /* PressInteractionPatchNode.swift in Sources */,
 				ECF0B0EE28775FEA001D7CFC /* PulseNode.swift in Sources */,
 				ECA4D99927BED73C005CF4BC /* AdjustmentNumber.swift in Sources */,

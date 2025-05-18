@@ -44,14 +44,13 @@ func areNear(_ inputCenter: CGPoint,
     // log("areNear: cursorCenter: \(cursorCenter)")
 
     let range = CGSize(width: nearnessAllowance * 3,
+                       // Inspector rows have a little more space between them
                        height: nearnessAllowance * (isInspectorInputOrFieldDetection ? 2 : 1))
 
     // shift inward slightly
     let box1 = CGRect.init(
         origin: .init(x: inputCenter.x + nearnessAllowance,
-                      y: inputCenter.y
-                      // + (isInspectorInputOrFieldDetection ? nearnessAllowance : 0)
-                     ),
+                      y: inputCenter.y),
         size: range)
 
     // TODO: maybe better to expand the cursor's location ?
@@ -102,17 +101,11 @@ extension GraphState {
                 continue
             }
   
-            // Awful for perf
-//            log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
-//            log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
-            
             if areNear(inputCenter,
                        cursorLocation,
                        isInspectorInputOrFieldDetection: false)
-                
+                // i.e. don't create a connection to the output's node's own input!
                 && inputViewModel.canvasItemDelegate?.id != cursorNodeId {
-//                log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
-//                log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
                 nearestInputs.append(inputViewModel)
             }
         }
@@ -148,6 +141,54 @@ extension GraphState {
             }
         }
     }
+    
+    @MainActor
+    func findEligibleInspectorInputOrField(drawingObserver: EdgeDrawingObserver,
+                                           drawingGesture: OutputDragGesture,
+                                           geometry: GeometryProxy,
+                                           preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) {
+                
+        var nearestInspectorInputs = [LayerInputType]()
+        
+        for preference in preferences {
+            switch preference.key {
+            case .inspectorInputOrField(let layerInputType):
+                // Note: `areNear` *already* expands the 'hit area'
+                if areNear(geometry[preference.value].mid,
+                           drawingGesture.cursorLocationInGlobalCoordinateSpace,
+                           isInspectorInputOrFieldDetection: true) {
+                    
+                    // log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
+                    nearestInspectorInputs.append(layerInputType)
+                }
+                 
+            case .draggedOutput:
+                continue
+            }
+        } // for preference in ...
+        
+        let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
+        
+        if nearestInspectorInputs.isEmpty,
+           hadEligibleInspectorInputOrField {
+            // log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
+            drawingObserver.nearestEligibleEdgeDestination = nil
+        } else if let nearestInspectorInput = nearestInspectorInputs.last {
+            // log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
+            drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+        }
+        
+        // After we've set or wiped the nearestEligible input,
+        // *animate* the port color change:
+        withAnimation(.linear(duration: DrawnEdge.ANIMATION_DURATION)) {
+            self
+                .getOutputRowObserver(drawingGesture.outputId.asNodeIOCoordinate)?
+                .updateRowViewModelsPortColor(selectedEdges: self.selectedEdges,
+                                              selectedCanvasItems: self.selectedCanvasItems,
+                                              drawingObserver: drawingObserver)
+        }
+    }
+    
     
     /// Removes edges which root from some output coordinate.
     @MainActor

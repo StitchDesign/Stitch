@@ -8,29 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct EdgeDrawingView: View {
-    let graph: GraphState
-    @Bindable var edgeDrawingObserver: EdgeDrawingObserver
-    
-    var body: some View {
-        // TODO: MAY 14: fix this
-        if let outputDrag = edgeDrawingObserver.drawingGesture,
-           let elgibleCanvasInput = edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput,
-           let outputRowViewModel = graph.getOutputRowViewModel(for: outputDrag.outputId),
-           let canvasId = outputDrag.outputId.graphItemType.getCanvasItemId,
-           let canvasItem = graph.getCanvasItem(canvasId) {
-            EdgeFromDraggedOutputView(
-                graph: graph,
-                outputDrag: outputDrag,
-                nearestEligibleInput: elgibleCanvasInput,
-                outputRowViewModel: outputRowViewModel,
-                canvasItem: canvasItem)
-        } else {
-            EmptyView()
-        }
-    }
-}
-
 struct EdgeFromDraggedOutputView: View {
     
     @Environment(\.appTheme) var theme
