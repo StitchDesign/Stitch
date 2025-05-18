@@ -86,7 +86,8 @@ struct DefaultNodeInputsView: View {
                        isFieldInMultifieldInput: isMultiField,
                        isForFlyout: false,
                        isSelectedInspectorRow: false,
-                       useIndividualFieldLabel: true)
+                       useIndividualFieldLabel: true,
+                       usesThemeColor: false)
     }
     
     @State var hoveredField: FieldCoordinate? = nil
@@ -128,7 +129,7 @@ struct DefaultNodeInputsView: View {
                                                                   graph: graph),
                                          isLeftAligned: false,
                                          fontColor: STITCH_FONT_GRAY_COLOR,
-                                         isSelectedInspectorRow: false)
+                                         usesThemeColor: false)
                         
                         if showsInputFields {
                             ForEach(rowViewModel.cachedFieldGroups) { fieldGroup in
@@ -225,7 +226,7 @@ struct DefaultNodeOutputsView: View {
                                graph: graph),
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
-                                     isSelectedInspectorRow: false)
+                                     usesThemeColor: false)
                     .zIndex(-98) // Place below fields
                     
                     NodeRowPortView(graph: graph,

@@ -12,14 +12,14 @@ struct LayerInspectorRowButton: View {
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
-    @Bindable var document: StitchDocumentViewModel
     let layerInputObserver: LayerInputObserver?
     let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
     let packedInputCanvasItemId: CanvasItemId?
     let isHovered: Bool
+    let usesThemeColor: Bool
     
-    // non-nil = this inspector row button is for a field, not a
+    // non-nil = this inspector row button is for a field, not an input
     var fieldIndex: Int? = nil
     
     @MainActor
@@ -34,11 +34,7 @@ struct LayerInspectorRowButton: View {
         
         return false
     }
-    
-    var isPortSelected: Bool {
-        graph.propertySidebar.selectedProperty == layerInspectorRowId
-    }
-    
+        
     @MainActor
     var canBeAddedToCanvas: Bool {
         
@@ -59,11 +55,23 @@ struct LayerInspectorRowButton: View {
     
     @MainActor
     var showButton: Bool {
-        if packedInputCanvasItemId.isDefined || isWholeInputWithAtleastOneFieldAlreadyOnCanvas ||  isHovered || (canBeAddedToCanvas && isPortSelected) {
+        if packedInputCanvasItemId.isDefined {
             return true
-        } else {
+        }
+        
+        if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
+            return true
+        }
+        
+        if isHovered {
+            return true
+        }
+        
+        if canBeAddedToCanvas, usesThemeColor {
             return false
         }
+        
+        return false
     }
     
     @MainActor
@@ -94,22 +102,26 @@ struct LayerInspectorRowButton: View {
                 if let fieldIndex = fieldIndex,
                    // Only for unpacked
                    layerInput.portType != .packed {
-                    dispatch(LayerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
-                                                         nodeId: nodeId,
+                    dispatch(LayerInputFieldAddedToCanvas(layerInput: layerInput.layerInput,
                                                          fieldIndex: fieldIndex))
                     
                 } else if layerInput.portType == .packed {
                     // Only for packed
-                    dispatch(LayerInputAddedToGraph(
-                        nodeId: nodeId,
-                        layerInput: layerInput.layerInput))
+                    dispatch(LayerInputAddedToCanvas(layerInput: layerInput.layerInput))
                 }
                 
             } else if let portId = coordinate.portId {
-                dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+                dispatch(LayerOutputAddedToCanvas(nodeId: nodeId,
                                                  portId: portId))
             }
         }
+        .modifier(TrackInspectorInput(
+            layerInputObserver: layerInputObserver,
+            // Technically, field index is just for use of flyout and irrelevant to "dragged edge onto inspector" ?
+//            fieldIndex: self.fieldIndex,
+            fieldIndex: nil,
+            hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
+        
         // Shrink down the dot view
         .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
         
@@ -124,7 +136,7 @@ struct LayerInspectorRowButton: View {
                 onTap: @escaping () -> Void) -> some View {
         Image(systemName: imageString)
             .resizable()
-            .foregroundColor(isPortSelected ? theme.fontColor : .primary)
+            .foregroundColor(usesThemeColor ? theme.fontColor : .primary)
             .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                    height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
             .onTapGesture {

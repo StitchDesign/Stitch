@@ -359,6 +359,7 @@
 		EC08D55B28988C4D00FEE846 /* AdjustmentBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC08D55A28988C4D00FEE846 /* AdjustmentBarPopoverView.swift */; };
 		EC0957DC27208C1200B4027F /* GeneratePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0957DB27208C1200B4027F /* GeneratePreview.swift */; };
 		EC0A5ECD28E22A9900B00A9F /* WhenPrototypeStartsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */; };
+		EC0A7A452DDA8EC8004C1698 /* ActivelyDrawnEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */; };
 		EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */; };
 		EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */; };
 		EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */; };
@@ -427,6 +428,7 @@
 		EC24E37F28516D7D0078A9B7 /* animationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC24E37E28516D7D0078A9B7 /* animationTests.swift */; };
 		EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC252402269F5C71003ABF8F /* EditJSONEntry.swift */; };
 		EC252405269F5CB7003ABF8F /* PickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */; };
+		EC26023E2DD40465009C5FF1 /* EdgeDraggedToInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC26023D2DD40465009C5FF1 /* EdgeDraggedToInspector.swift */; };
 		EC2614432B895C3400BEB066 /* SizePackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614422B895C3400BEB066 /* SizePackNode.swift */; };
 		EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614442B89605700BEB066 /* PositionPackNode.swift */; };
 		EC2614472B89607300BEB066 /* Point3DPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614462B89607300BEB066 /* Point3DPackNode.swift */; };
@@ -886,6 +888,7 @@
 		ECD936542B714E4B008969E3 /* EdgeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD936532B714E4B008969E3 /* EdgeUtils.swift */; };
 		ECD936562B714E9E008969E3 /* AnimatableCurveLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD936552B714E9E008969E3 /* AnimatableCurveLine.swift */; };
 		ECD936582B714EFA008969E3 /* AnimatableStraightLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD936572B714EFA008969E3 /* AnimatableStraightLine.swift */; };
+		ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */; };
 		ECDBD8AB27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */; };
 		ECDBD8AD27A1D2E300F8DC91 /* GraphBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */; };
 		ECDC622026583B0C00F67ED8 /* GrayscaleNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */; };
@@ -1359,6 +1362,7 @@
 		EC08D55A28988C4D00FEE846 /* AdjustmentBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustmentBarPopoverView.swift; sourceTree = "<group>"; };
 		EC0957DB27208C1200B4027F /* GeneratePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratePreview.swift; sourceTree = "<group>"; };
 		EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenPrototypeStartsNode.swift; sourceTree = "<group>"; };
+		EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivelyDrawnEdge.swift; sourceTree = "<group>"; };
 		EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectanglePatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvalPatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePatchNode.swift; sourceTree = "<group>"; };
@@ -1425,6 +1429,7 @@
 		EC24E37E28516D7D0078A9B7 /* animationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = animationTests.swift; sourceTree = "<group>"; };
 		EC252402269F5C71003ABF8F /* EditJSONEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditJSONEntry.swift; sourceTree = "<group>"; };
 		EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerValueEntry.swift; sourceTree = "<group>"; };
+		EC26023D2DD40465009C5FF1 /* EdgeDraggedToInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDraggedToInspector.swift; sourceTree = "<group>"; };
 		EC2614422B895C3400BEB066 /* SizePackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizePackNode.swift; sourceTree = "<group>"; };
 		EC2614442B89605700BEB066 /* PositionPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionPackNode.swift; sourceTree = "<group>"; };
 		EC2614462B89607300BEB066 /* Point3DPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point3DPackNode.swift; sourceTree = "<group>"; };
@@ -1878,6 +1883,7 @@
 		ECD936532B714E4B008969E3 /* EdgeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeUtils.swift; sourceTree = "<group>"; };
 		ECD936552B714E9E008969E3 /* AnimatableCurveLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableCurveLine.swift; sourceTree = "<group>"; };
 		ECD936572B714EFA008969E3 /* AnimatableStraightLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableStraightLine.swift; sourceTree = "<group>"; };
+		ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPortAddedToCanvas.swift; sourceTree = "<group>"; };
 		ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenGestureRecognizerView.swift; sourceTree = "<group>"; };
 		ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBaseView.swift; sourceTree = "<group>"; };
 		ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscaleNode.swift; sourceTree = "<group>"; };
@@ -2159,8 +2165,10 @@
 			children = (
 				B53E0BED2D36E10A0072FD43 /* Model */,
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
+				ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 				ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */,
+				EC26023D2DD40465009C5FF1 /* EdgeDraggedToInspector.swift */,
 				ECAC6EF62DBC5FE0003D34C4 /* FlyoutHeader.swift */,
 				EC2C8C982C654D5300D067B8 /* OpenFlyoutView.swift */,
 				EC49069E2CCACF0100165554 /* ColorFlyoutView.swift */,
@@ -3470,6 +3478,7 @@
 				B55501182C1BD74E0081C3F1 /* EditMode */,
 				EC81043B2B714D5800AF7A20 /* LineShape */,
 				ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */,
+				EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */,
 				EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */,
 				EC98326A2B69D324003F9462 /* PossibleEdgesView.swift */,
 				EC98130E2AB247C600828A20 /* DrawnEdge.swift */,
@@ -5171,6 +5180,7 @@
 				EC83D89C2926E49800255311 /* GraphUIZoomedActions.swift in Sources */,
 				ECD83F0E2C19ED0800722AD7 /* LLMRecordingState.swift in Sources */,
 				EC226C692BD8862900411EB7 /* PreviewShadowModifier.swift in Sources */,
+				EC26023E2DD40465009C5FF1 /* EdgeDraggedToInspector.swift in Sources */,
 				EC8605B8269E1A23007B8ED3 /* JSONArrayNode.swift in Sources */,
 				EC8605B4269E15DF007B8ED3 /* SetValueForKeyNode.swift in Sources */,
 				B5B20BAD279095B9008A2B5A /* StitchSheetInput.swift in Sources */,
@@ -5561,6 +5571,7 @@
 				EC560E1B293A9C8400350046 /* LoopToArrayNode.swift in Sources */,
 				B544D3A8283C3F90000A24E2 /* StitchSheet.swift in Sources */,
 				B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */,
+				ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */,
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
 				ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */,
@@ -5645,6 +5656,7 @@
 				E42CFD482D4414F10034CCFF /* Secrets.swift in Sources */,
 				ECB33C6226F15A1C0069885B /* ProjectsUtils.swift in Sources */,
 				EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */,
+				EC0A7A452DDA8EC8004C1698 /* ActivelyDrawnEdge.swift in Sources */,
 				ECA92A00260A694C00281B52 /* PressInteractionPatchNode.swift in Sources */,
 				ECF0B0EE28775FEA001D7CFC /* PulseNode.swift in Sources */,
 				ECA4D99927BED73C005CF4BC /* AdjustmentNumber.swift in Sources */,

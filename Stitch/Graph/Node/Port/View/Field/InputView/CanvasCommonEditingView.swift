@@ -61,7 +61,7 @@ struct CanvasCommonEditingView: View {
                               hasPicker: false,
                               
                               fieldHasHeterogenousValues: false,
-                              isSelectedInspectorRow: false,
+                              usesThemeColor: false,
                               
                               // For canvas fields on iPad where hover may not be available (e.g. no trackpad),
                               // tap should focus the field.
@@ -84,7 +84,7 @@ struct CanvasCommonEditingView: View {
                                   // None of the inspector/flyout conditions apply
                                   isForLayerInspector: false,
                                   isPackedLayerInputAlreadyOnCanvas: false,
-                                  isSelectedInspectorRow: false,
+                                  usesThemeColor: false,
                                   hasHeterogenousValues: false,
                                   isFieldInMultifieldInspectorInputAndNotFlyout: false,
                                   

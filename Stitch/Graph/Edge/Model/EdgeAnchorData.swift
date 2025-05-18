@@ -90,7 +90,7 @@ extension EdgeAnchorDownstreamData {
           upstreamNodeId: CanvasItemId? = nil) {
         
         guard let canvas = inputRowViewModel.canvasItemDelegate else {
-            fatalErrorIfDebug()
+            // fatalErrorIfDebug() // No longer a fatal error, since can happen for inspector inputs
             return nil
         }
                 
