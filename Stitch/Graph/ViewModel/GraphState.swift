@@ -17,9 +17,7 @@ import Vision
 
 @Observable
 final class GraphState: Sendable {
-    
-    @MainActor var dragLocationInNodesViewCoordinateSpace: CGPoint?
-    
+        
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     
@@ -111,6 +109,9 @@ final class GraphState: Sendable {
     // Note: our device-screen reading logic uses `.local` coordinate space and so does not detect that items in the graph actually sit a little lower on the screen.
     // TODO: better?: just always look at `.global`
     @MainActor var graphPosition: CGPoint = .zero
+    
+    // TODO: move into edge-drawing-state ?
+    @MainActor var dragLocationInNodesViewCoordinateSpace: CGPoint?
     
     @MainActor
     var graphYPosition: CGFloat {
