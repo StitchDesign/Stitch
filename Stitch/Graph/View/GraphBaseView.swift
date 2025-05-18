@@ -190,7 +190,7 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
                 return
             }
             
-            if let outputNodeId = drawingGesture.output.canvasItemDelegate?.id,
+            if let outputNodeId = drawingGesture.outputId.graphItemType.getCanvasItemId,
                let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
                 graph.findEligibleCanvasInput(
                     cursorLocation: dragLocationInNodesViewCoordinateSpace,
@@ -212,7 +212,7 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
             // *animate* the port color change:
             withAnimation(.linear(duration: DrawnEdge.ANIMATION_DURATION)) {
                 graph
-                    .getOutputRowObserver(drawingGesture.output.id.asNodeIOCoordinate)?
+                    .getOutputRowObserver(drawingGesture.outputId.asNodeIOCoordinate)?
                     .updateRowViewModelsPortColor(selectedEdges: graph.selectedEdges,
                                                   selectedCanvasItems: graph.selectedCanvasItems,
                                                   drawingObserver: drawingObserver)
@@ -273,18 +273,17 @@ struct ActivelyDrawnEdgeThatCanEnterInspector: ViewModifier {
                 GeometryReader { geometry in
                     if let drawingGesture = graph.edgeDrawingObserver.drawingGesture,
                        // The output from which the currently-dragged edge originates
-                        let draggedOutputPref = preferences[.draggedOutput(drawingGesture.output.nodeIOCoordinate)] {
+                       let draggedOutputPref = preferences[.draggedOutput(drawingGesture.outputId.asNodeIOCoordinate)],
+                       let outputRowViewModel = self.graph.getOutputRowViewModel(for: drawingGesture.outputId) {
                         
                         // Location of dragged edge's end, i.e. user's cursor position
                         let draggedOutputRect: CGRect = geometry[draggedOutputPref]
-                        
-                        let outputRowViewModel = drawingGesture.output
                         
                         // Always draw the
                         let pointTo = drawingGesture.cursorLocationInGlobalCoordinateSpace
                         
                         
-                        if let downstreamNode = graph.getNode(drawingGesture.output.id.nodeId),
+                        if let downstreamNode = graph.getNode(drawingGesture.outputId.nodeId),
                            let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
                             let outputAnchorData = EdgeAnchorUpstreamData(
                                 from: upstreamCanvasItem.outputPortUIViewModels,

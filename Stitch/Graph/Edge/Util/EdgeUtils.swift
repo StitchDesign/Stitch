@@ -101,9 +101,10 @@ extension GraphState {
             guard let inputCenter = inputViewModel.portUIViewModel.anchorPoint else {
                 continue
             }
-            
-            log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
-            log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
+  
+            // Awful for perf
+//            log("findEligibleCanvasInput: inputCenter: \(inputCenter)")
+//            log("findEligibleCanvasInput: cursorLocation: \(cursorLocation)")
             
             if areNear(inputCenter,
                        cursorLocation,
@@ -134,9 +135,10 @@ extension GraphState {
         // *animate* the port color change:
         withAnimation(.linear(duration: DrawnEdge.ANIMATION_DURATION)) {
             if let drawingGesture = self.edgeDrawingObserver.drawingGesture,
-               let outputObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
-               let canvasItemId = drawingGesture.output.canvasItemDelegate?.id {
-                drawingGesture.output.portUIViewModel.updatePortColor(
+               let outputObserver = self.getOutputRowObserver(drawingGesture.outputId.asNodeIOCoordinate),
+               let canvasItemId = drawingGesture.outputId.graphItemType.getCanvasItemId,
+               let outputRowViewModel = self.getOutputRowViewModel(for: drawingGesture.outputId) {
+                outputRowViewModel.portUIViewModel.updatePortColor(
                     canvasItemId: canvasItemId,
                     hasEdge: outputObserver.hasEdge,
                     hasLoop: outputObserver.hasLoopedValues,

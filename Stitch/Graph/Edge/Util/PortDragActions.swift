@@ -30,10 +30,9 @@ extension GraphState {
         self.edgeAnimationEnabled = true
         
         // If we already have an active input-drag:
-        if var existingDrawingGesture = self.edgeDrawingObserver.drawingGesture {
+        if let existingDrawingGesture = self.edgeDrawingObserver.drawingGesture {
             // Called when drag has already started
             existingDrawingGesture.cursorLocationInGlobalCoordinateSpace = dragLocation
-            self.edgeDrawingObserver.drawingGesture = existingDrawingGesture
                         
 //            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
 //               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
@@ -52,7 +51,7 @@ extension GraphState {
             self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(inputRowViewModel)
 
             self.edgeDrawingObserver.drawingGesture = OutputDragGesture(
-                output: upstreamObserver,
+                outputId: upstreamObserver.id,
                 cursorLocationInGlobalCoordinateSpace: dragLocation,
                 startingDiffFromCenter: .zero)
 
@@ -69,13 +68,14 @@ extension GraphState {
         }
         
         if let drawingGesture = self.edgeDrawingObserver.drawingGesture,
-           let fromRowObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
-           let nearestEligible = self.edgeDrawingObserver.nearestEligibleEdgeDestination {
+           let fromRowObserver = self.getOutputRowObserver(drawingGesture.outputId.asNodeIOCoordinate),
+           let nearestEligible = self.edgeDrawingObserver.nearestEligibleEdgeDestination,
+           let dragOriginOutput = self.getOutputRowViewModel(for: drawingGesture.outputId) {
             
             self.createEdgeAfterPortDragEnded(
                 nearestEligibleDestination: nearestEligible,
                 sourceNodeId: fromRowObserver.id.nodeId,
-                dragOriginOutput: drawingGesture.output,
+                dragOriginOutput: dragOriginOutput,
                 document: document)
 
             self.edgeDrawingObserver.reset()
@@ -180,7 +180,6 @@ extension GraphState {
             drag = existingDrawingGesture
 //            drag.dragLocation = gesture.location
             drag.cursorLocationInGlobalCoordinateSpace = cursorLocationInGlobalCoordinateSpace
-            self.edgeDrawingObserver.drawingGesture = drag
 //
 //            if let outputNodeId = existingDrawingGesture.output.canvasItemDelegate?.id,
 //               let dragLocationInNodesViewCoordinateSpace = self.dragLocationInNodesViewCoordinateSpace {
@@ -196,7 +195,7 @@ extension GraphState {
             // TODO: MAY 12: resolve this, but with the updated gesture.location
             //            let diffFromCenter = OutputNodeRowViewModel.calculateDiffFromCenter(from: gesture)
             
-            let drag = OutputDragGesture(output: outputRowViewModel,
+            let drag = OutputDragGesture(outputId: rowId,
                                          // dragLocation: gesture.location,
                                          cursorLocationInGlobalCoordinateSpace: cursorLocationInGlobalCoordinateSpace,
                                          // startingDiffFromCenter: diffFromCenter)
@@ -228,11 +227,14 @@ extension GraphState {
             return
         }
         
+        let graph = document.visibleGraph
+        
         // We could have had an eligible canvas input and/or inspector input/input-field.
         // If we had both, prefer that inspector ?
         
         // We ought to have these if we were dragging an output
-        guard let dragOriginOutput = self.edgeDrawingObserver.drawingGesture?.output,
+        guard let dragGesture = self.edgeDrawingObserver.drawingGesture,
+              let dragOriginOutput = graph.getOutputRowViewModel(for: dragGesture.outputId),
               let draggedOutputObserver: OutputNodeRowObserver = self.getOutputRowObserver(dragOriginOutput.nodeIOCoordinate) else {
             
             fatalErrorIfDebug("Output drag ended but we did not have an edge drawing observer and/or could not retrieve the output row observer")
@@ -252,10 +254,10 @@ extension GraphState {
                 sourceNodeId: draggedOutputObserver.id.nodeId,
                 dragOriginOutput: dragOriginOutput,
                 document: document)
+            self.encodeProjectInBackground()
         }
         
         self.edgeDrawingObserver.reset()
-        self.encodeProjectInBackground()
     }
     
     @MainActor
