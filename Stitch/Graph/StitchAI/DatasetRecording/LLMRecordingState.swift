@@ -72,6 +72,8 @@ extension Array where Element == any StepActionable {
         let createdNodes = self.reduce(into: IdSet()) { partialResult, step in
             if let addNodeAction = step as? StepActionAddNode {
                 partialResult.insert(addNodeAction.nodeId)
+            } else if let layerGroupCreated = step as? StepActionLayerGroupCreated {
+                partialResult.insert(layerGroupCreated.nodeId)
             }
         }
         log("nodesCreatedByLLMActions: createdNodes: \(createdNodes)")
@@ -111,7 +113,7 @@ extension StitchDocumentViewModel {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        var convertedActions = try actions.convertSteps()
+        var convertedActions: [any StepActionable] = try actions.convertSteps()
         
         if isNewRequest {
             // Change Ids for newly created nodes
@@ -224,14 +226,10 @@ extension StitchDocumentViewModel {
                 // those should be the sidebar items that were originally "selected"
                 // (ah, but maybe not *primarily* selected ?)
                 // ... should be okay
-                
-                // let sidebarLayerViewModel = self.visibleGraph.layersSidebarViewModel
-                
+                                
                 // Find all the children of the LayerGroup
                 let children = self.visibleGraph.getLayerChildren(for: nodeEntity.id)
                 log("deriveNewAIActions: children for layer group \(nodeEntity.id) are: \(children)")
-                
-                // TODO: MAY 16: add a `children` or `selectedSidebarLayers` property to `StepActionLayerGroupCreated` and use the `children` above
                 newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id, children: children))
                 
             } else {
@@ -349,12 +347,13 @@ extension StitchDocumentViewModel {
     @MainActor
     func reapplyActions() throws {
         let oldActions = self.llmRecording.actions
-        let actions: [any StepActionable] = try self.llmRecording.actions.convertSteps()
+        let actions: [any StepActionable] = try oldActions.convertSteps()
         let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         // Save node positions
         self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
+            // TODO: MAY 18: save position for LayerGroup i.e. `StepActionLayerGroupCreated` as well?
             if let action = action as? StepActionAddNode,
                let node = graph.getNode(action.nodeId) {
                 let canvasItems = node.getAllCanvasObservers()
@@ -365,6 +364,9 @@ extension StitchDocumentViewModel {
                 }
             }
         }
+
+        // TODO: while `isApplyingActions = true`, we do not want any persistence-triggering methods to call `deriveNewAISteps`; i.e. de-applying an action should not trigger a deriving of new actions
+         self.llmRecording.isApplyingActions = true
         
         // TODO: just do `actions.reversed().forEach { $0.removeAction(graph: graph, document: self) }`
         // Remove all actions before re-applying
@@ -374,6 +376,7 @@ extension StitchDocumentViewModel {
                 let step: any StepActionable = try action.convertToType()
                 step.removeAction(graph: graph, document: self)
             }
+         self.llmRecording.isApplyingActions = false
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         try self.validateAndApplyActions(self.llmRecording.actions)
@@ -386,13 +389,25 @@ extension StitchDocumentViewModel {
             }
         }
         
+        // After we have de-applied and then re-applied the actions,
+        // derive a new actions based on post-"de-apply, re-apply" state
+        // and confirm that de-applying and re-applying the actions
+        // did not cause the actions to change
+        self.llmRecording.actions = self.deriveNewAIActions()
+        
         // Force update view
         self.graphUpdaterId = .randomId()
         
         // Validates that action data didn't change after derived actions is computed
         let newActions = self.llmRecording.actions
+        
+        // TODO: why or how is the count changing? What is mutating the `newActions` count?
+        assertInDebug(oldActions.count == newActions.count)
+        
         try zip(oldActions, newActions).forEach { oldAction, newAction in
             if oldAction != newAction {
+                log("Found unequal actions: oldAction: \(try oldAction.convertToType())")
+                log("Found unequal actions: newAction: \(try newAction.convertToType())")
                 throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(try oldAction.convertToType())\n\(try newAction.convertToType())")
             }
         }

@@ -88,7 +88,21 @@ struct StepActionLayerGroupCreated: StepActionable {
     
     func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionLayerGroupCreated {
         var copy = self
+        
+        // Update the node id of the layer group itself...
         copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        
+        // ... and its children
+        copy.children = copy.children.map({ (childId: NodeId) in
+            if let newChildId = nodeIdMap.get(childId) {
+                log("StepActionLayerGroupCreated: remapNodeIds: NEW newChildId: \(newChildId)")
+                return newChildId
+            } else {
+                log("StepActionLayerGroupCreated: remapNodeIds: OLD childId: \(childId)")
+                return childId
+            }
+        }).toSet
+        
         return copy
     }
     
@@ -110,38 +124,15 @@ struct StepActionLayerGroupCreated: StepActionable {
     @MainActor
     func applyAction(document: StitchDocumentViewModel) throws {
         let layersSidebar = document.visibleGraph.layersSidebarViewModel
-        
-        // NOTE: Can't be selected canvas nodes; needs to be selected sidebar-layers instead
-        
-//        // Get selected nodes from the graph
-//        let selectedCanvasItems = document.visibleGraph.selection.selectedCanvasItems
-//        let nodeIds = selectedCanvasItems.compactMap { canvasId -> UUID? in
-//            switch canvasId {
-//            case .node(let nodeId):
-//                return nodeId
-//            case .layerInput(let coord):
-//                return coord.node
-//            case .layerOutput(let coord):
-//                return coord.node
-//            }
-//        }
-        
-        // TODO: MAY 16: REMOVE THIS ASSUMPTIONS AND INSTEAD USE this step's .children/.selectedSidebarLayers property; see note in `deriveNewAIActions`
-        // ASSUME FOR NOW: just select all non-layer-group sidebar items
-        let nonGroupLayers = document.visibleGraph.layerNodes()
-            .filter { $0.layer != .group }
-            .map(\.id)
-            .toSet
-                
-        // Set the selection
-        layersSidebar.primary = Set(nonGroupLayers)
-        
-        // Create the group
-        layersSidebar.sidebarGroupCreated(id: self.nodeId)
+        layersSidebar.primary = Set(self.children) // Primarily select the group's chidlren
+        layersSidebar.sidebarGroupCreated(id: self.nodeId) // Create the group
     }
     
     func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
-        graph.layersSidebarViewModel.sidebarGroupUncreated()
+        let layersSidebar = document.visibleGraph.layersSidebarViewModel
+        // `sidebarGroupUncreated` is expected to be called from a UI condition where user has 'primarily selected' a layer group
+        layersSidebar.primary = Set([self.nodeId])
+        layersSidebar.sidebarGroupUncreated()
     }
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
