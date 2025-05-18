@@ -8,10 +8,12 @@
 import SwiftUI
 
 enum EdgeDraggedToInspector: Hashable, Equatable {
-    
-    // TODO: MAY 13: NOT NEEDED?
+
+    // TODO: currently this is stored for *every* output on the canvas; would be better to either (1) only use this for the actively-dragged-output or (2) reuse the existing `OutputPortUIViewModel.anchorPoints` (requires shifting anchorPoints to a global coordinate space)
+    // Used for the actively-dragged output
     case draggedOutput(OutputCoordinate)
     
+    // TODO: reuse the existing .global space
     // LayerInputType = could be for input or input-field
     // Note: the LayerInputType will always be for a
     case inspectorInputOrField(LayerInputType)
@@ -31,7 +33,8 @@ extension View {
                                                      shouldTrack: Bool = false) -> some View {
         self.anchorPreference(key: EdgeDraggedToInspectorPreferenceKey.self,
                               value: .bounds) {
-//            if shouldTrack {
+            // TODO: does this if/else condition make a difference?
+            // if shouldTrack {
                 return [id: $0]
 //            } else {
 //                return [:] // Will this still trigger GeometryPoints etc. ?
@@ -53,8 +56,9 @@ struct TrackDraggedOutput: ViewModifier {
     
     func body(content: Content) -> some View {
         if nodeIO == .output {
-            content.trackEdgeDraggedToInspectorAnchorPreference(id: .draggedOutput(id),
-                                                                shouldTrack: isActivelyDraggedOutput)
+            content.trackEdgeDraggedToInspectorAnchorPreference(
+                id: .draggedOutput(id),
+                shouldTrack: isActivelyDraggedOutput)
         } else {
             content
         }

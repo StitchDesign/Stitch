@@ -172,7 +172,7 @@ extension StitchDocumentViewModel {
         // If already on this canvas, do nothing
         // (Can happen from dragging an edge onto the inspector)
         guard !input.canvasObserver.isDefined else {
-            log("Input already on canvas")
+            log("Layer Input \(layerInput) already on canvas")
             return
         }
         
@@ -286,6 +286,10 @@ extension StitchDocumentViewModel {
             return
         }
         
+        guard !unpackedPort.canvasObserver.isDefined else {
+            log("addLayerFieldToCanvas: Field \(fieldIndex) for input \(layerInput) already on canvas")
+            return
+        }
     
         // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
         
