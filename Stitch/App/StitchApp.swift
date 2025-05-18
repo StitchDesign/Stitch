@@ -45,7 +45,6 @@ struct StitchApp: App {
         WindowGroup {
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
-//                .coordinateSpace(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE)
                 .onAppear {
 //                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
                     
