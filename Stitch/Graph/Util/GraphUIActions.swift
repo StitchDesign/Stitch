@@ -37,11 +37,11 @@ struct SetDeviceScreenSize: StitchDocumentEvent {
     }
 }
 
-struct SetGraphYPosition: GraphEvent {
-    let graphYPosition: CGFloat
+struct SetGraphPosition: GraphEvent {
+    let graphPosition: CGPoint
     
     func handle(state: GraphState) {
-        state.graphYPosition = graphYPosition
+        state.graphPosition = graphPosition
     }
 }
 

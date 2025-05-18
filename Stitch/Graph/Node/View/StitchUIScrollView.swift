@@ -29,14 +29,10 @@ struct StitchUIScrollViewModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        StitchUIScrollView(document: document,
-                           graph: graph) {
+        StitchUIScrollView(document: document, graph: graph) {
             ZStack {
-                content
-                    .ignoresSafeArea()
                 
                 APP_BACKGROUND_COLOR
-                    .zIndex(-99999)
                     .frame(WHOLE_GRAPH_SIZE)
                     .coordinateSpace(name: WHOLE_GRAPH_COORDINATE_SPACE)
                     .ignoresSafeArea()
@@ -51,9 +47,12 @@ struct StitchUIScrollViewModifier: ViewModifier {
                             graph.graphTapped(document: document)
                         })
                     )
-                
                     .gesture(StitchLongPressGestureRecognizerRepresentable())
                     .gesture(StitchTrackpadGraphBackgroundPanGesture())
+                
+                
+                content
+                    .ignoresSafeArea()
                 
                 // RENDERING THE NODE CURSOR SELECTION BOX HERE
                 
@@ -73,16 +72,14 @@ struct StitchUIScrollViewModifier: ViewModifier {
                 }
             } // ZStack
         } // StitchUIScrollView
-        
-        .background {
-#if DEV_DEBUG
-            Color.red
-#else
-            APP_BACKGROUND_COLOR
-#endif
-            
-        }
-        .ignoresSafeArea()
+//        .background {
+//#if DEV_DEBUG
+//            Color.red
+//#else
+//            APP_BACKGROUND_COLOR
+//#endif
+//        }
+//        .ignoresSafeArea()
     }
 }
 

@@ -19,16 +19,23 @@ struct LayerInspectorInputPortView: View {
         self.layerInputObserver.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
     }
     
+    var isWholeInputEligibleForEdge: Bool {
+        guard let inputOrField = graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField else {
+            return false
+        }
+        return inputOrField.portType == .packed && inputOrField.layerInput == layerInputObserver.port
+    }
+    
     var body: some View {
         
         // TODO: is this really correct, to always treat the layer's input as packed ?
-        let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
+        let assumedPackedLayerInputType = LayerInputType(layerInput: layerInputObserver.port,
                                             // Always `.packed` at the inspector-row level
                                             portType: .packed)
         
         // TODO: use just layerInputPort, i.e. `LayerInspectorRowId.layerInput(layerInputPort)` ?
         // Always for "packed"
-        let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
+        let layerInspectorRowId: LayerInspectorRowId = .layerInput(assumedPackedLayerInputType)
         
         // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
         // But now, what `AddLayerPropertyToGraphButton` needs is more like `RowCoordinate = LayerPortCoordinate || OutputCoordinate`
@@ -36,25 +43,32 @@ struct LayerInspectorInputPortView: View {
         // but canvas item view model needs to know "packed vs unpacked" for its id;
         // so we do need to pass the packed-vs-unpacked information
         
-        let coordinate: NodeIOCoordinate = .init(
-            portType: .keyPath(layerInputType),
+        let assumedPackedCoordinate: NodeIOCoordinate = .init(
+            portType: .keyPath(assumedPackedLayerInputType),
             nodeId: node.id)
         
-        let isPropertyRowSelected = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        let isSelectedProperty = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        
+//        logInView("LayerInspectorInputPortView: layerInputObserver.port: \(layerInputObserver.port)")
+//        logInView("LayerInspectorInputPortView: graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput: \(graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput)")
+//        logInView("LayerInspectorInputPortView: isEligibleInspectorInput: \(isEligibleInspectorInput)")
+        
+        let isSelectedInspectorRow = isSelectedProperty || isWholeInputEligibleForEdge
         
         // Does this inspector-row (the entire input) have a canvas item?
         let packedInputCanvasItemId: CanvasItemId? = layerInputObserver.packedCanvasObserverOnlyIfPacked?.id
 
         LayerInspectorPortView(layerInputObserver: layerInputObserver,
                                layerInspectorRowId: layerInspectorRowId,
-                               coordinate: coordinate,
+                               coordinate: assumedPackedCoordinate,
                                graph: graph,
                                document: document,
                                packedInputCanvasItemId: packedInputCanvasItemId) {
             HStack {
+                // TODO: MAY 16: should never be eligible for 'edge dragged to inspector' connection
                 if isShadowLayerInputRow {
                     ShadowInputInspectorRow(nodeId: node.id,
-                                            isPropertyRowSelected: isPropertyRowSelected)
+                                            isSelectedInspectorRow: isSelectedInspectorRow)
                 }
                 
                 // Note: 3D Transform and PortValue.padding are arranged in a "grid" in the inspector ONLY.
@@ -64,14 +78,14 @@ struct LayerInspectorInputPortView: View {
                                                        graph: graph,
                                                        nodeId: node.id,
                                                        layerInputObserver: layerInputObserver,
-                                                       isPropertyRowSelected: isPropertyRowSelected)
+                                                       isSelectedInspectorRow: isSelectedInspectorRow)
                 } else if layerInputObserver.usesGridMultifieldArrangement() {
                     // Multifields in the inspector are always "read-only" and "tap to open flyout"
                     LayerInspectorGridInputView(document: document,
                                                 graph: graph,
                                                 node: node,
                                                 layerInputObserver: layerInputObserver,
-                                                isPropertyRowSelected: isPropertyRowSelected)
+                                                isSelectedInspectorRow: isSelectedInspectorRow)
                 } else {
                     // Handles both single- and multifield-inputs (arranges an input's multiple-fields in an HStack)
                     InspectorLayerInputView(
@@ -79,7 +93,8 @@ struct LayerInspectorInputPortView: View {
                         graph: graph,
                         node: node,
                         layerInputObserver: layerInputObserver,
-                        forFlyout: false)
+                        forFlyout: false,
+                        isSelectedInspectorRow: isSelectedInspectorRow)
                 }
             }
         }
@@ -103,6 +118,8 @@ struct InspectorLayerInputView: View {
     
     let forFlyout: Bool
     
+    let isSelectedInspectorRow: Bool
+    
     var label: String {
         layerInputObserver.overallPortLabel(usesShortLabel: true)
     }
@@ -125,14 +142,7 @@ struct InspectorLayerInputView: View {
     var fieldGroups: [FieldGroup] {
         self.layerInputObserver.fieldGroupsFromInspectorRowViewModels
     }
-    
-    // iPad-only?
-    var packedPropertyRowIsSelected: Bool {
-        graph.propertySidebar.selectedProperty == .layerInput(
-            LayerInputType(layerInput: layerInputObserver.port,
-                           portType: .packed))
-    }
-    
+        
     var blockedFields: LayerPortTypeSet {
         layerInputObserver.blockedFields
     }
@@ -142,13 +152,27 @@ struct InspectorLayerInputView: View {
         layerInputObserver.usesMultifields
     }
     
+//    var hasEligibleEdgeDrag: Bool {
+//        graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver.port
+//    }
+    
+    // Use theme color if entire inspector input/output-row is selected,
+    // or if this specific field is 'eligible' via drag-output.
+    func usesThemeColor(_ field: InputFieldViewModel) -> Bool {
+        isSelectedInspectorRow ||
+        field.isEligibleForEdgeConnection(input: layerInputObserver.port, graph.edgeDrawingObserver)
+    }
+    
+    
     var body: some View {
         HStack {
             if willShowLabel {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: packedPropertyRowIsSelected)
+                                 // Alternatively: only use theme color when 'whole input selected' ?
+//                                 usesThemeColor: hasEligibleEdgeDrag)
+                                 usesThemeColor: isSelectedInspectorRow)
             }
             Spacer()
             
@@ -161,7 +185,9 @@ struct InspectorLayerInputView: View {
                         PotentiallyBlockedFieldsView(fieldGroup: fieldGroup,
                                                      isMultifield: self.usesMultifields,
                                                      blockedFields: self.blockedFields) { (inputFieldViewModel: InputFieldViewModel,
-                                                                                           isMultifield: Bool) in
+                                                                                           isMultifield: Bool,
+                                                                                           fieldIndex: Int) in
+                                                        
                             /*
                              Overall, we are iterating through [[FieldGroup]], which abstracts over packed vs unpacked;
                              However, we need to retrieve the inspector row view model and the row observer for a given field view model.
@@ -174,7 +200,6 @@ struct InspectorLayerInputView: View {
                              
                              Alternatively: we could iterate through not just `[FieldGroup]`, but `[{FieldGroup, RowViewModel, RowObserver}]`
                              */
-                            
                             let fieldId: FieldCoordinate = inputFieldViewModel.id
                                                         
                             if let inputRowViewModel = node.getInputRowViewModel(for: fieldId.rowId),
@@ -195,8 +220,19 @@ struct InspectorLayerInputView: View {
                                     isPackedLayerInputAlreadyOnCanvas: layerInputObserver.getCanvasItemForWholeInput().isDefined,
                                     isFieldInMultifieldInput: self.usesMultifields,
                                     isForFlyout: false,
-                                    isSelectedInspectorRow: packedPropertyRowIsSelected,
-                                    useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex))
+                                    isSelectedInspectorRow: isSelectedInspectorRow,
+                                    useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex),
+                                    usesThemeColor: usesThemeColor(inputFieldViewModel))
+                                
+                                .modifier(
+                                    TrackInspectorField(
+                                        layerInputObserver: layerInputObserver,
+                                        layerInputType: .init(
+                                            layerInput: layerInputObserver.port,
+                                            portType: .unpacked(inputFieldViewModel.fieldIndex.asUnpackedPortType)),
+                                        hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
+                                )
+                                
                             } // if let
                         }
                     } // HStack { ...
@@ -208,6 +244,29 @@ struct InspectorLayerInputView: View {
 
 enum LayerInputFieldType {
     case canvas(CanvasItemViewModel)
+}
+
+extension InputFieldViewModel {
+    
+    @MainActor
+    func isEligibleForEdgeConnection(input: LayerInputPort,
+                                     _ edgeDrawingObserver: EdgeDrawingObserver) -> Bool {
+        
+        if let eligibleInputOrField = edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField,
+           eligibleInputOrField.layerInput == input,
+           eligibleInputOrField.portType.getUnpacked?.rawValue == self.fieldIndex {
+            
+            if input == .position {
+                log("position: eligibleInputOrField.portType.getUnpacked?.rawValue: \(eligibleInputOrField.portType.getUnpacked?.rawValue)")
+                log("position: self.fieldIndex: \(self.fieldIndex)")
+            }
+            
+            return true
+            
+        } else {
+            return false
+        }
+    }
 }
 
 // fka `LayerInputFieldsView`
@@ -233,7 +292,8 @@ struct LayerInputFieldsView: View {
         
     @ViewBuilder
     func valueEntryView(_ inputFieldViewModel: InputFieldViewModel,
-                        _ isMultifield: Bool) -> some View {
+                        _ isMultifield: Bool,
+                        _ fieldIndex: Int) -> some View {
         
         switch layerInputFieldType {
                     
@@ -253,7 +313,8 @@ struct LayerInputFieldsView: View {
                            isFieldInMultifieldInput: isMultifield,
                            isForFlyout: false,
                            isSelectedInspectorRow: false, // Always false for canvas layer input
-                           useIndividualFieldLabel: true)
+                           useIndividualFieldLabel: true,
+                           usesThemeColor: false)
         }
     }
     
@@ -297,7 +358,11 @@ struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
     let isMultifield: Bool
     let blockedFields: LayerPortTypeSet
     
-    @ViewBuilder var valueEntryView: (InputFieldViewModel, Bool) -> ValueView
+    @ViewBuilder var valueEntryView: (
+        InputFieldViewModel,
+        Bool, // is multifield ?
+        Int // field index
+    ) -> ValueView
     
     var body: some View {
         let fields = fieldGroup.fieldObservers
@@ -305,7 +370,8 @@ struct PotentiallyBlockedFieldsView<ValueView>: View where ValueView: View {
 //        ForEach(fieldGroup.fieldObservers) { fieldViewModel in
             let isBlocked = fieldViewModel.isBlocked(self.blockedFields)
             if !isBlocked {
-                self.valueEntryView(fieldViewModel, isMultifield)
+                self.valueEntryView(fieldViewModel, isMultifield, index)
+//                self.valueEntryView(fieldViewModel, isMultifield)
                     .zIndex(-CGFloat(index))
             }
         }
@@ -361,7 +427,7 @@ struct LayerInspectorOutputPortView: View {
                          node: node,
                          isForLayerInspector: true,
                          isFieldInMultifieldInput: isMultiField,
-                         isSelectedInspectorRow: propertyRowIsSelected)
+                        isSelectedInspectorRow: propertyRowIsSelected)
     }
     
     var body: some View {
@@ -381,7 +447,7 @@ struct LayerInspectorOutputPortView: View {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 isSelectedInspectorRow: propertyRowIsSelected)
+                                 usesThemeColor: propertyRowIsSelected)
                 Spacer()
                 
                 LayerOutputFieldsView(fieldGroups: rowViewModel.cachedFieldGroups,
@@ -412,7 +478,7 @@ struct LayerOutputFieldsView<ValueEntry>: View where ValueEntry: View {
                     LabelDisplayView(label: fieldGroupLabel,
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
-                                     isSelectedInspectorRow: false)
+                                     usesThemeColor: false)
                     Spacer()
                 }
             }
@@ -437,7 +503,8 @@ let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 
 struct LayerInspectorPortView<RowView>: View where RowView: View {
     
-    // This ought to be non-optional?
+    // Nil for layer *outputs* in the inspector
+    // Non-nil for layer inputs in the inspector
     let layerInputObserver: LayerInputObserver?
     
     // input or output
@@ -467,16 +534,22 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
         return isPaddingPortValueTypeRow ? .firstTextBaseline : .center
     }
     
+    var usesThemeColor: Bool {
+        let isEligibleLayerInput = graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver?.port
+        let isSelectedInspectorRow = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        return isEligibleLayerInput || isSelectedInspectorRow
+    }
+    
     var body: some View {
         HStack(alignment: hstackAlignment) {
             
             LayerInspectorRowButton(graph: graph,
-                                    document: document,
                                     layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: packedInputCanvasItemId,
-                                    isHovered: isHovered)
+                                    isHovered: isHovered,
+                                    usesThemeColor: usesThemeColor)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align
             // Alternatively, we want the height of the row-buton to be the same as the height of the input-row's label, e.g. specify a height in `LabelDisplayView`
@@ -498,11 +571,12 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             self.isHovered = isHovering
         })
         .contentShape(Rectangle())
-        .modifier(LayerInspectorPortViewTapModifier(graph: graph,
-                                                    document: document,
-                                                    isAutoLayoutRow: layerInputObserver?.port == .orientation,
-                                                    layerInspectorRowId: layerInspectorRowId,
-                                                    packedInputCanvasItemId: packedInputCanvasItemId))
+        .modifier(LayerInspectorPortViewTapModifier(
+            graph: graph,
+            document: document,
+            isAutoLayoutRow: layerInputObserver?.port == .orientation,
+            layerInspectorRowId: layerInspectorRowId,
+            packedInputCanvasItemId: packedInputCanvasItemId))
     }
 }
 

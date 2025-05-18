@@ -30,6 +30,7 @@ final class PropertySidebarObserver: Sendable {
     // Values refer to field indices containing heterogenous fields
     @MainActor var heterogenousFieldsMap: [LayerInputPort : Set<Int>]?
     
+    // e.g. a row that was tapped on iPad as a precursor to adding that input/field to the canvas
     @MainActor var selectedProperty: LayerInspectorRowId?
     
     // Used for positioning flyouts; read and populated by every row,
@@ -40,14 +41,12 @@ final class PropertySidebarObserver: Sendable {
     // Only layer inputs (not fields or outputs) can have flyouts
     @MainActor var flyoutState: PropertySidebarFlyoutState? = nil
     
+    // Remember collapsed sections even when we switch to another layer
     @MainActor var collapsedSections: Set<LayerInspectorSection> = .init()
     
     // NOTE: Specific to positioning the flyout when flyout's bottom edge could sit below graph's bottom edge
     @MainActor var safeAreaTopPadding: CGFloat = 0
-    
-    // TODO: why do we not need to worry about bottom padding from UIKitWrapper?
-    // var safeAreaBottomPadding: CGFloat = 0
-    
+        
     init() { }
 }
 

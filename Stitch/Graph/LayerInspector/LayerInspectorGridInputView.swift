@@ -12,12 +12,20 @@ struct LayerInspectorGridInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerInputObserver: LayerInputObserver
-    let isPropertyRowSelected: Bool
+    let isSelectedInspectorRow: Bool
     
     var allFieldObservers: [FieldViewModel] {
         layerInputObserver.fieldGroupsFromInspectorRowViewModels.flatMap(\.fieldObservers)
     }
     
+    // Use theme color if entire inspector input/output-row is selected,
+    // or if this specific field is 'eligible' via drag-output.
+    func usesThemeColor(_ field: InputFieldViewModel) -> Bool {
+        isSelectedInspectorRow ||
+        field.isEligibleForEdgeConnection(input: layerInputObserver.port,
+                                          graph.edgeDrawingObserver)
+    }
+        
     var body: some View {
                         
         // Aligns fields with "padding" label's text baseline
@@ -27,7 +35,7 @@ struct LayerInspectorGridInputView: View {
             LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true),
                              isLeftAligned: false,
                              fontColor: STITCH_FONT_GRAY_COLOR,
-                             isSelectedInspectorRow: false)
+                             usesThemeColor: isSelectedInspectorRow)
             
             Spacer()
             
@@ -61,7 +69,15 @@ struct LayerInspectorGridInputView: View {
                                    nodeId: node.id,
                                    layerInputObserver: layerInputObserver,
                                    fieldObserver: fieldObserver,
-                                   isPropertyRowSelected: isPropertyRowSelected)
+                                   usesThemeColor: usesThemeColor(fieldObserver))
+        .modifier(
+            TrackInspectorField(
+                layerInputObserver: layerInputObserver,
+                layerInputType: .init(
+                    layerInput: layerInputObserver.port,
+                    portType: .unpacked(fieldObserver.fieldIndex.asUnpackedPortType)),
+                hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
+        )
     }
 }
 
@@ -72,7 +88,7 @@ struct InspectorFieldReadOnlyView: View {
     let nodeId: NodeId
     let layerInputObserver: LayerInputObserver
     let fieldObserver: FieldViewModel
-    let isPropertyRowSelected: Bool
+    let usesThemeColor: Bool
     
     // TODO: is `InputFieldValueView` ever used in the layer inspector now? ... vs flyout?
     @MainActor
@@ -91,7 +107,7 @@ struct InspectorFieldReadOnlyView: View {
             isForLayerInspector: true,
             hasPicker: false,
             fieldHasHeterogenousValues: hasHeterogenousValues,
-            isSelectedInspectorRow: isPropertyRowSelected,
+            usesThemeColor: usesThemeColor,
             onTap: {
                 // If entire packed input is already on canvas, we should jump to that input on that canvas rather than open the flyout
                 if layerInputObserver.mode == .packed,

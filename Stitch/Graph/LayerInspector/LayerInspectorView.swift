@@ -143,7 +143,7 @@ struct LayerInspectorView: View {
     }
 }
 
-
+// TODO: can we reuse this for "edge dragged to inspector input / field" ?
 struct LayerPropertyRowOriginReader: ViewModifier {
     
     @Bindable var graph: GraphState
@@ -155,10 +155,11 @@ struct LayerPropertyRowOriginReader: ViewModifier {
                 Color.clear.onChange(of: geometry.frame(in: .global),
                                      initial: true) { oldValue, newValue in
 
-                    // log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
+                    log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
                     
                     // Guide for where to place the flyout;
                     // we read the origin even if this row doesn't support flyout.
+                    
                     graph.propertySidebar.propertyRowOrigins
                         .updateValue(newValue.origin, forKey: layerInput)
                 }
@@ -333,7 +334,6 @@ struct LayerInspectorOutputsSectionView: View {
 }
 
 extension GraphState {
-    
     // Note: just used for `LayerInspectorView`
     @MainActor
     func getLayerInspectorData() -> (header: String,
@@ -342,12 +342,11 @@ extension GraphState {
                                      outputs: [OutputLayerNodeRowData])? {
         // log("getLayerInspectorData called")
                 
-        // Any time orderedSidebarLayers changes, that will retrigger LayerInspector
         guard !self.orderedSidebarLayers.isEmpty else {
             return nil
         }
 
-        let inspectorFocusedLayers = self.layersSidebarViewModel.selectionState.primary
+        let inspectorFocusedLayers = self.inspectorFocusedLayers
         
         // log("getLayerInspectorData: inspectorFocusedLayers: \(inspectorFocusedLayers)")
                 
@@ -373,7 +372,7 @@ extension GraphState {
         
         // else had 0 or 1 layers selected:
         else {
-            guard let inspectedLayerId = self.layersSidebarViewModel.selectionState.primary.first,
+            guard let inspectedLayerId = inspectorFocusedLayers.first,
                   let node = self.getNode(inspectedLayerId),
                   let layerNode = node.layerNode else {
                 // log("getLayerInspectorData: No inspector-focused layers?:  \(inspectorFocusedLayers)")
