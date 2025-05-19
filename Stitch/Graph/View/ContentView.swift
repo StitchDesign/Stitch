@@ -46,12 +46,12 @@ struct ContentView: View, KeyboardReadable {
         ZStack {
             
             // Best place to listen for TAB key for flyout
-            UIKitWrapper(ignoresKeyCommands: true,
-                         isOnlyForTextFieldHelp: true,
-                         inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
-                         name: .mainGraph) {
+//            UIKitWrapper(ignoresKeyCommands: true,
+//                         isOnlyForTextFieldHelp: true,
+//                         inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
+//                         name: .mainGraph) {
                 contentView // the graph
-            }
+//            }
         }
     }
 
@@ -90,7 +90,7 @@ struct ContentView: View, KeyboardReadable {
             // Also, if in full-screen preview mode on Catalyst or iPad, place the fullscreen preview on top.
             if showFullScreen.isTrue || StitchDocumentViewModel.isPhoneDevice {
                 fullScreenPreviewView
-                    .modifier(FullScreenPreviewViewModifier(document: document))
+//                    .modifier(FullScreenPreviewViewModifier(document: document))
             } // if showFullScreen.isTrue
             
             // NEVER show graph-view on iPhone
@@ -149,13 +149,14 @@ struct ContentView: View, KeyboardReadable {
     }
 
     private var fullScreenPreviewView: some View {
-        FullScreenPreviewViewWrapper(
-            document: document,
-            previewWindowSizing: self.previewWindowSizing,
-            showFullScreenPreviewSheet: alertState.showFullScreenPreviewSheet,
-            graphNamespace: graphNamespace,
-            routerNamespace: routerNamespace,
-            animationCompleted: showFullScreenAnimateCompleted)
+//        FullScreenPreviewViewWrapper(
+//            document: document,
+//            previewWindowSizing: self.previewWindowSizing,
+//            showFullScreenPreviewSheet: alertState.showFullScreenPreviewSheet,
+//            graphNamespace: graphNamespace,
+//            routerNamespace: routerNamespace,
+//            animationCompleted: showFullScreenAnimateCompleted)
+        EmptyView()
     }
         
     @ViewBuilder

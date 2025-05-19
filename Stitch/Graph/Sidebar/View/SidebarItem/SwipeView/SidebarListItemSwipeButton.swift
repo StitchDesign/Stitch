@@ -19,18 +19,19 @@ struct SidebarListItemSwipeButton<Item: SidebarItemSwipable>: View {
     let action: @MainActor () -> Void
     
     var body: some View {
-        UIKitTappableWrapper(tapCallback: {
-            action()
-            
-            withAnimation {
-                gestureViewModel.resetSwipePosition()
-            }
-        },
-                             view: {
-            buttonView
-        })
-        .cornerRadius(1)
-        .buttonStyle(.borderless)
+//        UIKitTappableWrapper(tapCallback: {
+//            action()
+//            
+//            withAnimation {
+//                gestureViewModel.resetSwipePosition()
+//            }
+//        },
+//                             view: {
+//            buttonView
+//        })
+//        .cornerRadius(1)
+//        .buttonStyle(.borderless)
+        Text("test")
     }
 
     private var buttonView: some View {

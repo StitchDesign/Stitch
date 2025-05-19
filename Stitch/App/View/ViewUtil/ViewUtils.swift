@@ -22,17 +22,17 @@ func createBinding<T: Any & Sendable>(_ value: T,
     }
 }
 
-struct UIKitOnTapModifier: ViewModifier {
-    let onTapCallback: () -> Void
-
-    func body(content: Content) -> some View {
-        UIKitTappableWrapper() {
-            onTapCallback()
-        } view: {
-            content
-        }
-    }
-}
+//struct UIKitOnTapModifier: ViewModifier {
+//    let onTapCallback: () -> Void
+//
+//    func body(content: Content) -> some View {
+//        UIKitTappableWrapper() {
+//            onTapCallback()
+//        } view: {
+//            content
+//        }
+//    }
+//}
 
 extension View {
     /// Used to update some `State` property given a Redux state boolean value.

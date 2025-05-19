@@ -70,10 +70,10 @@ struct PreviewContent: View {
         // NOTE: `if swiftUIAnimatedVar { ... } else { ... }` seems to not work well when inside UIHostingController.
         Group {
             if shouldRenderPreview {
-                UIKitWrapper(ignoresKeyCommands: false,
-                             isOnlyForTextFieldHelp: false,
-                             inputTextFieldFocused: inputTextFieldFocused,
-                             name: .previewWindow) {
+//                UIKitWrapper(ignoresKeyCommands: false,
+//                             isOnlyForTextFieldHelp: false,
+//                             inputTextFieldFocused: inputTextFieldFocused,
+//                             name: .previewWindow) {
                     RecordingWatermarkView(isVisible: document.isScreenRecording) {
                         GeneratePreview(document: document)
                     }
@@ -86,14 +86,14 @@ struct PreviewContent: View {
                     // Important: render preview window border BEFORE applying scale
                     .previewWindowBorder(showsBorder: !isFullScreen)
                     .scaleEffect(finalScale)
-                }
+//                }
             } else {
-                UIKitWrapper(ignoresKeyCommands: false,
-                             isOnlyForTextFieldHelp: false,
-                             inputTextFieldFocused: inputTextFieldFocused,
-                             name: .previewWindow) {
+//                UIKitWrapper(ignoresKeyCommands: false,
+//                             isOnlyForTextFieldHelp: false,
+//                             inputTextFieldFocused: inputTextFieldFocused,
+//                             name: .previewWindow) {
                     EmptyView()
-                }
+//                }
                              .allowsHitTesting(false)
             }
         } // Group

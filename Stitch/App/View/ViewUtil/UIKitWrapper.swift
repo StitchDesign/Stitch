@@ -9,36 +9,36 @@ import UIKit
 import SwiftUI
 import StitchSchemaKit
 
-// https://developer.apple.com/documentation/uikit/uiview/1622415-clipstobounds
-// a SwiftUI view that accepts another SwiftUI view T, and which wraps T in a UIKit view
-struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
-    let ignoresKeyCommands: Bool
-    let isOnlyForTextFieldHelp: Bool
-    let inputTextFieldFocused: Bool
-    let name: KeyListenerName
-    @ViewBuilder var content: () -> T
-
-    // called when first made
-    func makeUIViewController(context: Context) -> StitchHostingController<T> {
-
-        // UIKitWrapper wraps our floating preview window,
-        // which needs to ignore the keyboard.
-        StitchHostingController<T>(
-            rootView: content(),
-            ignoresSafeArea: true,
-            ignoreKeyCommands: ignoresKeyCommands,
-            isOnlyForTextFieldHelp: isOnlyForTextFieldHelp,
-            inputTextFieldFocused: inputTextFieldFocused,
-            name: name)
-    }
-
-    // called on updates
-    func updateUIViewController(_ uiViewController: StitchHostingController<T>,
-                                context: Context) {
-        uiViewController.rootView = content()
-        uiViewController.inputTextFieldFocused = self.inputTextFieldFocused
-    }
-}
+//// https://developer.apple.com/documentation/uikit/uiview/1622415-clipstobounds
+//// a SwiftUI view that accepts another SwiftUI view T, and which wraps T in a UIKit view
+//struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
+//    let ignoresKeyCommands: Bool
+//    let isOnlyForTextFieldHelp: Bool
+//    let inputTextFieldFocused: Bool
+//    let name: KeyListenerName
+//    @ViewBuilder var content: () -> T
+//
+//    // called when first made
+//    func makeUIViewController(context: Context) -> StitchHostingController<T> {
+//
+//        // UIKitWrapper wraps our floating preview window,
+//        // which needs to ignore the keyboard.
+//        StitchHostingController<T>(
+//            rootView: content(),
+//            ignoresSafeArea: true,
+//            ignoreKeyCommands: ignoresKeyCommands,
+//            isOnlyForTextFieldHelp: isOnlyForTextFieldHelp,
+//            inputTextFieldFocused: inputTextFieldFocused,
+//            name: name)
+//    }
+//
+//    // called on updates
+//    func updateUIViewController(_ uiViewController: StitchHostingController<T>,
+//                                context: Context) {
+//        uiViewController.rootView = content()
+//        uiViewController.inputTextFieldFocused = self.inputTextFieldFocused
+//    }
+//}
 
 // https://steipete.com/posts/disabling-keyboard-avoidance-in-swiftui-uihostingcontroller/
 

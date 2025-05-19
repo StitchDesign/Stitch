@@ -54,7 +54,7 @@ enum KeyListenerName: String, Equatable {
 }
 
 /// Used by various SwiftUI views to inject a view into a view controller
-class StitchHostingController<T: View>: UIHostingController<T> {
+class _StitchHostingController<T: View>: UIHostingController<T> {
     let ignoresSafeArea: Bool
     let ignoreKeyCommands: Bool
     
@@ -261,10 +261,10 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     let arrowKeyBindings: [UIKeyCommand] = [
 
         // Up and Down arrows override system bevaior, so that we can scroll through insert-node-menu;
-        createKeyBinding(ArrowKey.up.uiKeyCommand,
-                         action: #selector(arrowKeyUp(_:))),
-        createKeyBinding(ArrowKey.down.uiKeyCommand,
-                         action: #selector(arrowKeyDown(_:))),
+//        createKeyBinding(ArrowKey.up.uiKeyCommand,
+//                         action: #selector(arrowKeyUp(_:))),
+//        createKeyBinding(ArrowKey.down.uiKeyCommand,
+//                         action: #selector(arrowKeyDown(_:))),
 
         // ... but keep system behavior for left and right, so that we can move through an input.
         UIKeyCommand(action: #selector(arrowKeyLeft(_:)),
@@ -274,8 +274,8 @@ class StitchHostingController<T: View>: UIHostingController<T> {
                      input: ArrowKey.right.uiKeyCommand)
     ]
 
-    let escKeyBinding = createKeyBinding(UIKeyCommand.inputEscape,
-                                         action: #selector(escKey(_:)))
+//    let escKeyBinding = createKeyBinding(UIKeyCommand.inputEscape,
+//                                         action: #selector(escKey(_:)))
 
     let optionKeyBinding = UIKeyCommand(input: .empty,
                                         modifierFlags: .alternate,
@@ -307,7 +307,8 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     override var keyCommands: [UIKeyCommand]? {
 
         if !ignoreKeyCommands {
-            let bindings = [escKeyBinding, zoomInBinding, zoomOutBinding, optionKeyBinding] + qwertyCommands + qwertyShiftCommands
+            let bindings = [// escKeyBinding,
+                            zoomInBinding, zoomOutBinding, optionKeyBinding] + qwertyCommands + qwertyShiftCommands
 
             if usesArrowKeyBindings {
                 return arrowKeyBindings + bindings
@@ -323,7 +324,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
 }
 
 /// A very simple view implementation of a `StitchHostingController`.
-struct StitchHostingControllerView<T: View>: View {
+struct _StitchHostingControllerView<T: View>: View {
     let ignoreKeyCommands: Bool
     let inputTextFieldFocused: Bool
     var usesArrowKeyBindings: Bool = false
@@ -331,7 +332,7 @@ struct StitchHostingControllerView<T: View>: View {
     @ViewBuilder var view: () -> T
 
     var body: some View {
-        StitchHostingControllerViewRepresentable(
+        _StitchHostingControllerViewRepresentable(
             view: view(),
             ignoreKeyCommands: ignoreKeyCommands,
             inputTextFieldFocused: inputTextFieldFocused,
@@ -341,15 +342,15 @@ struct StitchHostingControllerView<T: View>: View {
 }
 
 /// A very simple view implementation of a `StitchHostingController`.
-struct StitchHostingControllerViewRepresentable<T: View>: UIViewControllerRepresentable {
+struct _StitchHostingControllerViewRepresentable<T: View>: UIViewControllerRepresentable {
     let view: T
     let ignoreKeyCommands: Bool
     let inputTextFieldFocused: Bool
     var usesArrowKeyBindings: Bool = false
     let name: KeyListenerName
 
-    func makeUIViewController(context: Context) -> StitchHostingController<T> {
-        StitchHostingController(rootView: view,
+    func makeUIViewController(context: Context) -> _StitchHostingController<T> {
+        _StitchHostingController(rootView: view,
                                 ignoresSafeArea: false,
                                 ignoreKeyCommands: ignoreKeyCommands,
                                 isOnlyForTextFieldHelp: false, // Actually should be true, since this is only for node menu ?
@@ -358,7 +359,7 @@ struct StitchHostingControllerViewRepresentable<T: View>: UIViewControllerRepres
                                 name: name)
     }
 
-    func updateUIViewController(_ uiViewController: StitchHostingController<T>, context: Context) {
+    func updateUIViewController(_ uiViewController: _StitchHostingController<T>, context: Context) {
         uiViewController.rootView = view
         uiViewController.inputTextFieldFocused = self.inputTextFieldFocused
     }

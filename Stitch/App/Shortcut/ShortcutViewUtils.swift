@@ -29,16 +29,16 @@ struct SwiftUIShortcutView: View {
     }
 }
 
-/// Registers arrow key bindings
-extension StitchHostingController {
-    static func createKeyBinding(_ key: String,
-                                 modifierFlags: UIKeyModifierFlags = [],
-                                 action: Selector) -> UIKeyCommand {
-        let keyCommand = UIKeyCommand(input: key,
-                                      modifierFlags: modifierFlags,
-                                      action: action)
-        keyCommand.wantsPriorityOverSystemBehavior = true
-        return keyCommand
-    }
-}
-
+///// Registers arrow key bindings
+//extension StitchHostingController {
+//    static func createKeyBinding(_ key: String,
+//                                 modifierFlags: UIKeyModifierFlags = [],
+//                                 action: Selector) -> UIKeyCommand {
+//        let keyCommand = UIKeyCommand(input: key,
+//                                      modifierFlags: modifierFlags,
+//                                      action: action)
+//        keyCommand.wantsPriorityOverSystemBehavior = true
+//        return keyCommand
+//    }
+//}
+//

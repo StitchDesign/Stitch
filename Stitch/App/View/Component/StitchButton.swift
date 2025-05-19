@@ -80,65 +80,65 @@ extension StitchButton {
     }
 }
 
-/// Provides a `UIViewControllerRepesentable` version of a "button", which is useful for views
-/// which may need UIKit to have gesture events be registered.
-struct UIKitTappableWrapper<T: View>: UIViewControllerRepresentable {
-    let tapCallback: () -> Void
-    @ViewBuilder var view: () -> T
-
-    func makeUIViewController(context: Context) -> GestureHostingController<T> {
-        let vc = GestureHostingController(
-            rootView: view(),
-            ignoresSafeArea: false,
-            ignoreKeyCommands: true,
-            isOnlyForTextFieldHelp: false,
-            inputTextFieldFocused: false, // N/A
-            name: .uiKitTappableWrapper)
-        let delegate = context.coordinator
-
-        let tapGesture = UITapGestureRecognizer(target: delegate,
-                                                action: #selector(delegate.tapGestureHandler))
-        tapGesture.delegate = delegate
-        vc.view.addGestureRecognizer(tapGesture)
-
-        // So that uikit-tappable wrapper does not affect colors of view on which it is applied;
-        // helpful for `CatalystNavBarButton`
-        vc.view.backgroundColor = .clear
-
-        vc.delegate = delegate
-        return vc
-    }
-
-    func updateUIViewController(_ uiViewController: GestureHostingController<T>, context: Context) {
-        uiViewController.rootView = view()
-        context.coordinator.tapCallback = tapCallback
-    }
-
-    func makeCoordinator() -> UIKitTappableWrapperDelegate {
-        UIKitTappableWrapperDelegate(tapCallback: tapCallback)
-    }
-}
-
-final class UIKitTappableWrapperDelegate: NSObject, UIGestureRecognizerDelegate {
-    var tapCallback: () -> Void
-
-    init(tapCallback: @escaping () -> Void) {
-        self.tapCallback = tapCallback
-    }
-
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-
-        // NOT NEEDED?
-        if otherGestureRecognizer is UILongPressGestureRecognizer {
-            //            log("UIKitTappableWrapperDelegate: will disable long press gesture")
-            otherGestureRecognizer.disableTemporarily()
-        }
-
-        return true
-    }
-
-    @objc func tapGestureHandler(_ gestureRecognizer: UITapGestureRecognizer) {
-        //        log("UIKitTappableWrapperDelegate: tapGestureHandler")
-        self.tapCallback()
-    }
-}
+///// Provides a `UIViewControllerRepesentable` version of a "button", which is useful for views
+///// which may need UIKit to have gesture events be registered.
+//struct UIKitTappableWrapper<T: View>: UIViewControllerRepresentable {
+//    let tapCallback: () -> Void
+//    @ViewBuilder var view: () -> T
+//
+//    func makeUIViewController(context: Context) -> GestureHostingController<T> {
+//        let vc = GestureHostingController(
+//            rootView: view(),
+//            ignoresSafeArea: false,
+//            ignoreKeyCommands: true,
+//            isOnlyForTextFieldHelp: false,
+//            inputTextFieldFocused: false, // N/A
+//            name: .uiKitTappableWrapper)
+//        let delegate = context.coordinator
+//
+//        let tapGesture = UITapGestureRecognizer(target: delegate,
+//                                                action: #selector(delegate.tapGestureHandler))
+//        tapGesture.delegate = delegate
+//        vc.view.addGestureRecognizer(tapGesture)
+//
+//        // So that uikit-tappable wrapper does not affect colors of view on which it is applied;
+//        // helpful for `CatalystNavBarButton`
+//        vc.view.backgroundColor = .clear
+//
+//        vc.delegate = delegate
+//        return vc
+//    }
+//
+//    func updateUIViewController(_ uiViewController: GestureHostingController<T>, context: Context) {
+//        uiViewController.rootView = view()
+//        context.coordinator.tapCallback = tapCallback
+//    }
+//
+//    func makeCoordinator() -> UIKitTappableWrapperDelegate {
+//        UIKitTappableWrapperDelegate(tapCallback: tapCallback)
+//    }
+//}
+//
+//final class UIKitTappableWrapperDelegate: NSObject, UIGestureRecognizerDelegate {
+//    var tapCallback: () -> Void
+//
+//    init(tapCallback: @escaping () -> Void) {
+//        self.tapCallback = tapCallback
+//    }
+//
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//
+//        // NOT NEEDED?
+//        if otherGestureRecognizer is UILongPressGestureRecognizer {
+//            //            log("UIKitTappableWrapperDelegate: will disable long press gesture")
+//            otherGestureRecognizer.disableTemporarily()
+//        }
+//
+//        return true
+//    }
+//
+//    @objc func tapGestureHandler(_ gestureRecognizer: UITapGestureRecognizer) {
+//        //        log("UIKitTappableWrapperDelegate: tapGestureHandler")
+//        self.tapCallback()
+//    }
+//}

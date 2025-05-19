@@ -61,10 +61,11 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     
     var body: some View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
-        SidebarListItemGestureRecognizerView(
-            view: customSwipeItem,
-            sidebarViewModel: sidebarViewModel,
-            gestureViewModel: gestureViewModel)
+//        SidebarListItemGestureRecognizerView(
+//            view: customSwipeItem,
+//            sidebarViewModel: sidebarViewModel,
+//            gestureViewModel: gestureViewModel)
+        Text("love")
         .transition(.move(edge: .top).combined(with: .opacity))
         
         // MARK: indent padding animation needs to be before y animation

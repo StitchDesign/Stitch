@@ -36,7 +36,7 @@ struct MacScreenSharingView: View {
 
                 RecordingView(dismissWindow: dismissWindow)
             }
-            .modifier(FullScreenPreviewViewModifier(document: document))
+//            .modifier(FullScreenPreviewViewModifier(document: document))
             .onDisappear {
                 dismissRecordingWindow()
             }
