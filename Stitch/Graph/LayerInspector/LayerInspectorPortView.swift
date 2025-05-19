@@ -97,11 +97,7 @@ struct LayerInspectorInputPortView: View {
                         isSelectedInspectorRow: isSelectedInspectorRow)
                 }
             }
-//            .modifier(TrackInspectorInput(
-//                layerInputObserver: layerInputObserver,
-//                hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
         }
-        
     }
 }
 
@@ -563,11 +559,6 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                         
             rowView()
         }
-        
-        // this was bad -- blocked individual fields?
-//         .modifier(TrackInspectorInput(
-//             layerInputObserver: layerInputObserver,
-//             hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(
@@ -585,9 +576,6 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             isAutoLayoutRow: layerInputObserver?.port == .orientation,
             layerInspectorRowId: layerInspectorRowId,
             packedInputCanvasItemId: packedInputCanvasItemId))
-//        .modifier(TrackInspectorInput(
-//            layerInputObserver: layerInputObserver,
-//            hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
     }
 }
 

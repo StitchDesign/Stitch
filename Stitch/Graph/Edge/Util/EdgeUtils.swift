@@ -47,12 +47,11 @@ func areNear(_ inputCenter: CGPoint,
     let isForInspector = layerInputType.isDefined
     let isWholeInput = layerInputType?.isPacked ?? false
         
-//    let range = CGSize(width: isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
-    let range = CGSize(width: nearnessAllowance * 3,
+    let range = CGSize(width: isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
                        // Inspector rows have a little more space between them
                        height: nearnessAllowance * (isForInspector ? 2 : 1))
 
-    let box1OriginX = inputCenter.x + nearnessAllowance // + (isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
+    let box1OriginX = inputCenter.x + nearnessAllowance + (isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
     
     // shift inward slightly
     let box1 = CGRect.init(
@@ -69,44 +68,6 @@ func areNear(_ inputCenter: CGPoint,
 
     let k = isIntersecting(box1, box2)
     // log("areNear: k: \(k)")
-    return k
-}
-
-@MainActor
-func areNear(box1: CGRect,
-             box2: CGRect,
-             layerInputType: LayerInputType,
-             nearnessAllowance: CGFloat = NODE_ROW_HEIGHT) -> Bool {
-
-
-//    // log("areNear: inputCenter: \(inputCenter)")
-//    // log("areNear: cursorCenter: \(cursorCenter)")
-//    
-//    let isForInspector = layerInputType.isDefined
-//    let isWholeInput = layerInputType?.isPacked ?? false
-//        
-////    let range = CGSize(width: isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
-//    let range = CGSize(width: nearnessAllowance * 3,
-//                       // Inspector rows have a little more space between them
-//                       height: nearnessAllowance * (isForInspector ? 2 : 1))
-//
-//    let box1OriginX = inputCenter.x + nearnessAllowance // + (isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
-//    
-//    // shift inward slightly
-//    let box1 = CGRect.init(
-//        origin: .init(x: box1OriginX,
-//                      y: inputCenter.y),
-//        size: range)
-//
-//    // TODO: maybe better to expand the cursor's location ?
-//    let box2 = CGRect.init(origin: cursorCenter,
-//                           size: range)
-
-     log("areNear: box1: \(box1)")
-     log("areNear: box2: \(box2)")
-
-    let k = isIntersecting(box1, box2)
-     log("areNear: k: \(k)")
     return k
 }
 
@@ -202,14 +163,8 @@ extension GraphState {
             
             case .inspectorInputOrField(let layerInputType):
                 // Note: `areNear` *already* expands the 'hit area'
-                if areNear(box1: geometry[preference.value],
-                           box2: CGRect(
-                            origin: .init(
-                                x: drawingGesture.cursorLocationInGlobalCoordinateSpace.x,
-                                y: drawingGesture.cursorLocationInGlobalCoordinateSpace.y - 12),
-                            size: .init(
-                                width: 24,
-                                height: 24)),
+                if areNear(geometry[preference.value].mid,
+                           drawingGesture.cursorLocationInGlobalCoordinateSpace,
                            layerInputType: layerInputType) {
                     
                     // log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
