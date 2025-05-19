@@ -48,7 +48,7 @@ extension FocusedUserEditField {
         case .commentBox(let commentBoxId):
             return nil
             
-        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight:
+        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight, .prototypeWindow, .prototypeTextField:
             return nil
         }
     }
