@@ -71,8 +71,6 @@ struct TrackInspectorInput: ViewModifier {
     // Some inspector rows are for outputs, which we ignore
     let layerInputObserver: LayerInputObserver?
     
-    let fieldIndex: Int?
-    
     // Are we actively dragging an input/output ?
     let hasActivelyDrawnEdge: Bool
     
@@ -80,11 +78,9 @@ struct TrackInspectorInput: ViewModifier {
 
         if let layerInputObserver = layerInputObserver {
             
-            let layerInputType: LayerInputType = fieldIndex
-                .map({ LayerInputType(layerInput: layerInputObserver.port,
-                                      portType: .unpacked($0.asUnpackedPortType)) })
-            ?? LayerInputType(layerInput: layerInputObserver.port,
-                              portType: .packed)
+            let layerInputType = LayerInputType(
+                layerInput: layerInputObserver.port,
+                portType: .packed)
             
             content.trackEdgeDraggedToInspectorAnchorPreference(
                 id: .inspectorInputOrField(layerInputType),

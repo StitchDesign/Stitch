@@ -36,6 +36,9 @@ struct LayerInspector3DTransformInputView: View {
                                              usesThemeColor: isSelectedInspectorRow)
                             Spacer()
                         }
+                        .modifier(TrackInspectorInput(
+                            layerInputObserver: layerInputObserver,
+                            hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
                     }
                     
                     HStack {

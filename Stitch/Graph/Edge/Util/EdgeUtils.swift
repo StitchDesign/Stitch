@@ -65,6 +65,36 @@ func areNear(_ inputCenter: CGPoint,
     return k
 }
 
+func areNear(box1: CGRect,
+             box2: CGRect,
+             nearnessAllowance: CGFloat = NODE_ROW_HEIGHT) -> Bool {
+
+
+    // log("areNear: inputCenter: \(inputCenter)")
+    // log("areNear: cursorCenter: \(cursorCenter)")
+
+//    let range = CGSize(width: nearnessAllowance * 3,
+//                       // Inspector rows have a little more space between them
+//                       height: nearnessAllowance * (isInspectorInputOrFieldDetection ? 2 : 1))
+
+//    // shift inward slightly
+//    let box1 = CGRect.init(
+//        origin: .init(x: inputCenter.x + nearnessAllowance,
+//                      y: inputCenter.y),
+//        size: range)
+//
+//    // TODO: maybe better to expand the cursor's location ?
+//    let box2 = CGRect.init(origin: cursorCenter,
+//                           size: range)
+    
+    log("areNear: box1: \(box1)")
+    log("areNear: box2: \(box2)")
+
+    let k = isIntersecting(box1, box2)
+    log("areNear: k: \(k)")
+    return k
+}
+
 
 extension GraphState {
     /*
@@ -150,15 +180,23 @@ extension GraphState {
                 
         var nearestInspectorInputs = [LayerInputType]()
         
+        let cursorBox = CGRect(
+            origin: drawingGesture.cursorLocationInGlobalCoordinateSpace,
+//            size: CGSize(width: 36, height: 36))
+//            size: CGSize(width: 24, height: 24))
+            size: CGSize(width: 18, height: 18))
+        
         for preference in preferences {
             switch preference.key {
             case .inspectorInputOrField(let layerInputType):
                 // Note: `areNear` *already* expands the 'hit area'
-                if areNear(geometry[preference.value].mid,
-                           drawingGesture.cursorLocationInGlobalCoordinateSpace,
-                           isInspectorInputOrFieldDetection: true) {
-                    
-                    // log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
+//                if areNear(geometry[preference.value].mid,
+//                           drawingGesture.cursorLocationInGlobalCoordinateSpace,
+//                           isInspectorInputOrFieldDetection: true) {
+                
+                if areNear(box1: geometry[preference.value],
+                           box2: cursorBox) {
+                    log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
                     nearestInspectorInputs.append(layerInputType)
                 }
                  
@@ -171,10 +209,10 @@ extension GraphState {
         
         if nearestInspectorInputs.isEmpty,
            hadEligibleInspectorInputOrField {
-            // log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
+            log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
             drawingObserver.nearestEligibleEdgeDestination = nil
         } else if let nearestInspectorInput = nearestInspectorInputs.last {
-            // log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
+            log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
             drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
         }
         

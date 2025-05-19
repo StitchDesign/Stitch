@@ -152,10 +152,6 @@ struct InspectorLayerInputView: View {
         layerInputObserver.usesMultifields
     }
     
-//    var hasEligibleEdgeDrag: Bool {
-//        graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver.port
-//    }
-    
     // Use theme color if entire inspector input/output-row is selected,
     // or if this specific field is 'eligible' via drag-output.
     func usesThemeColor(_ field: InputFieldViewModel) -> Bool {
@@ -166,15 +162,20 @@ struct InspectorLayerInputView: View {
     
     var body: some View {
         HStack {
-            if willShowLabel {
-                LabelDisplayView(label: label,
-                                 isLeftAligned: false,
-                                 fontColor: STITCH_FONT_GRAY_COLOR,
-                                 // Alternatively: only use theme color when 'whole input selected' ?
-//                                 usesThemeColor: hasEligibleEdgeDrag)
-                                 usesThemeColor: isSelectedInspectorRow)
+            HStack(spacing: 0) {
+                if willShowLabel {
+                    LabelDisplayView(label: label,
+                                     isLeftAligned: false,
+                                     fontColor: STITCH_FONT_GRAY_COLOR,
+                                     // Alternatively: only use theme color when 'whole input selected' ?
+    //                                 usesThemeColor: hasEligibleEdgeDrag)
+                                     usesThemeColor: isSelectedInspectorRow)
+                }
+                Spacer()
             }
-            Spacer()
+            .modifier(TrackInspectorInput(
+                layerInputObserver: layerInputObserver,
+                hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
             
             ForEach(fieldGroups) { (fieldGroup: FieldGroup) in
                

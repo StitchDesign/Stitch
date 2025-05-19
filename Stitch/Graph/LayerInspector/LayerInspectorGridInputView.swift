@@ -32,12 +32,17 @@ struct LayerInspectorGridInputView: View {
         HStack(alignment: .firstTextBaseline) {
             
             // Label
-            LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true),
-                             isLeftAligned: false,
-                             fontColor: STITCH_FONT_GRAY_COLOR,
-                             usesThemeColor: isSelectedInspectorRow)
-            
-            Spacer()
+            Group {
+                LabelDisplayView(label: layerInputObserver.overallPortLabel(usesShortLabel: true),
+                                 isLeftAligned: false,
+                                 fontColor: STITCH_FONT_GRAY_COLOR,
+                                 usesThemeColor: isSelectedInspectorRow)
+                
+                Spacer()
+            }
+            .modifier(TrackInspectorInput(
+                layerInputObserver: layerInputObserver,
+                hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
             
             if let p0 = allFieldObservers[safe: 0],
                let p1 = allFieldObservers[safe: 1],
