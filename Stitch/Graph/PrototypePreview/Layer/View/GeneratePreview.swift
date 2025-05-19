@@ -55,9 +55,18 @@ struct GeneratePreview: View {
                               realityContent: nil)
             .hidden()
             .disabled(true)
-        }        
+        }
         .modifier(HoverGestureModifier(document: document,
                                        previewWindowSize: document.previewWindowSize))
+        // Tracks focus state on prototype window to disable some graph shortcuts (i.e. node creation shortcuts)
+        .simultaneousGesture(
+            TapGesture()
+                .onEnded {
+                    if document.reduxFocusedField != .prototypeWindow {
+                        document.reduxFocusedField = .prototypeWindow
+                    }
+                }
+        )
     }
 }
 
