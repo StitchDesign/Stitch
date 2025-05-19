@@ -164,7 +164,7 @@ struct PortEntryExtendedHitBox: View {
                                  // TODO: why are the GraphBaseView and StitchRootView coordinate spaces so inaccurate vs .global ?
                                  coordinateSpace: .global)
                 .onChanged { gesture in
-                    log("PortEntry: global coordinate space: onChanged: gesture.location: \(gesture.location)")
+                    // log("PortEntry: global coordinate space: onChanged: gesture.location: \(gesture.location)")
                     switch nodeIO {
                     case .input:
                         graph.inputDragged(gesture: gesture, rowId: rowId)
@@ -173,7 +173,7 @@ struct PortEntryExtendedHitBox: View {
                     }
                 } // .onChanged
                 .onEnded { _ in
-                    log("PortEntry: global coordinate space: onEnded")
+                    // log("PortEntry: global coordinate space: onEnded")
                     switch nodeIO {
                     case .input:
                         graph.inputDragEnded()
@@ -185,7 +185,7 @@ struct PortEntryExtendedHitBox: View {
             .simultaneousGesture(DragGesture(minimumDistance: 0.5,
                                              coordinateSpace: .named(NodesView.coordinateNamespace))
                 .onChanged { gesture in
-                    log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
+                    // log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
                     switch nodeIO {
                     case .input:
                         graph.dragLocationInNodesViewCoordinateSpace = gesture.location
@@ -194,7 +194,7 @@ struct PortEntryExtendedHitBox: View {
                     }
                 } // .onChanged
                 .onEnded { _ in
-                    log("PortEntry: NodesView coordinate space: onEnded")
+                    // log("PortEntry: NodesView coordinate space: onEnded")
                     switch nodeIO {
                     case .input:
                         graph.dragLocationInNodesViewCoordinateSpace = nil
