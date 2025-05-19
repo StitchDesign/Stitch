@@ -37,6 +37,7 @@ final class StitchStore: Sendable {
     // TODO: should be properly persisted
     @MainActor var edgeStyle: EdgeStyle = .defaultEdgeStyle
     @MainActor var appTheme: StitchTheme = .defaultTheme
+    @MainActor var isOptionRequiredForShortcut: Bool = .defaultIsOptionRequiredForShortcuts
     
     // MARK: must be stored here to prevent inspector retain cycle
     @MainActor var showsLayerInspector = false
