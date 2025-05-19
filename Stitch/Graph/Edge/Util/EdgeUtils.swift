@@ -34,6 +34,7 @@ func yDistance(_ from: CGPoint,
 
 // TODO: do we want different 'near-ness' for detecting eligible canvas inputs vs eligible inspector inputs/fields ?
 /// Are these two points within NEARNESS_ALLOWANCE of each other?
+@MainActor
 func areNear(_ inputCenter: CGPoint,
              _ cursorCenter: CGPoint,
              isInspectorInputOrFieldDetection: Bool,
@@ -43,13 +44,15 @@ func areNear(_ inputCenter: CGPoint,
     // log("areNear: inputCenter: \(inputCenter)")
     // log("areNear: cursorCenter: \(cursorCenter)")
 
-    let range = CGSize(width: nearnessAllowance * 3,
+    let range = CGSize(width: isInspectorInputOrFieldDetection ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
                        // Inspector rows have a little more space between them
                        height: nearnessAllowance * (isInspectorInputOrFieldDetection ? 2 : 1))
 
+    let box1OriginX = inputCenter.x + nearnessAllowance + (isInspectorInputOrFieldDetection ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : 0)
+    
     // shift inward slightly
     let box1 = CGRect.init(
-        origin: .init(x: inputCenter.x + nearnessAllowance,
+        origin: .init(x: box1OriginX,
                       y: inputCenter.y),
         size: range)
 
@@ -150,6 +153,8 @@ extension GraphState {
                 
         var nearestInspectorInputs = [LayerInputType]()
         
+        // TODO: investigate ordering to prioritize fields
+        
         for preference in preferences {
             switch preference.key {
             case .inspectorInputOrField(let layerInputType):
@@ -173,10 +178,22 @@ extension GraphState {
            hadEligibleInspectorInputOrField {
             // log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
             drawingObserver.nearestEligibleEdgeDestination = nil
-        } else if let nearestInspectorInput = nearestInspectorInputs.last {
-            // log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
-            drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
         }
+        
+        // Prioritize unpacked fields if inputs detected
+        else {
+            let reversedInputs = nearestInspectorInputs.reversed()
+            let nearestUnpackedField = reversedInputs.first(where: { $0.portType.getUnpacked != nil })
+            
+            
+            if let nearestInspectorInput = nearestUnpackedField ?? reversedInputs.first {
+                // log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
+                
+                drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)                
+            }
+        }
+        
+        print(nearestInspectorInputs)
         
         // After we've set or wiped the nearestEligible input,
         // *animate* the port color change:
