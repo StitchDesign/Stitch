@@ -44,11 +44,12 @@ func areNear(_ inputCenter: CGPoint,
     // log("areNear: inputCenter: \(inputCenter)")
     // log("areNear: cursorCenter: \(cursorCenter)")
     
+    let isForInspector = layerInputType.isDefined
     let isWholeInput = layerInputType?.isPacked ?? false
         
     let range = CGSize(width: isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
                        // Inspector rows have a little more space between them
-                       height: nearnessAllowance * (isWholeInput ? 2 : 1))
+                       height: nearnessAllowance * (isForInspector ? 2 : 1))
 
     let box1OriginX = inputCenter.x + nearnessAllowance + (isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
     
@@ -157,7 +158,9 @@ extension GraphState {
         // TODO: investigate ordering to prioritize fields
         
         for preference in preferences {
+            
             switch preference.key {
+            
             case .inspectorInputOrField(let layerInputType):
                 // Note: `areNear` *already* expands the 'hit area'
                 if areNear(geometry[preference.value].mid,
@@ -175,26 +178,22 @@ extension GraphState {
         
         let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
         
+        // No inspector input or field was eligible
         if nearestInspectorInputs.isEmpty,
            hadEligibleInspectorInputOrField {
             // log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
             drawingObserver.nearestEligibleEdgeDestination = nil
         }
         
-        // Prioritize unpacked fields if inputs detected
+        // We had at least one eligible inspector input or field
         else {
-            let reversedInputs = nearestInspectorInputs.reversed()
-            let nearestUnpackedField = reversedInputs.first(where: { $0.portType.getUnpacked != nil })
+            // The entire row is treated as the "input"; but we prefer a specific field
+            let nearestUnpackedField = nearestInspectorInputs.last(where: { $0.portType.getUnpacked != nil })
             
-            log("findEligibleInspectorFieldOrRow: reversedInputs: \(reversedInputs)")
+            log("findEligibleInspectorFieldOrRow: nearestInspectorInputs: \(nearestInspectorInputs)")
             log("findEligibleInspectorFieldOrRow: nearestUnpackedField: \(nearestUnpackedField)")
             
-            
-            // maybe use .last ?
-//            if let nearestInspectorInput = nearestUnpackedField ?? reversedInputs.first {
-            if let nearestInspectorInput = nearestUnpackedField ?? reversedInputs.last {
-                log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
-                
+            if let nearestInspectorInput = nearestUnpackedField ?? nearestInspectorInputs.last{
                 drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
             }
         }

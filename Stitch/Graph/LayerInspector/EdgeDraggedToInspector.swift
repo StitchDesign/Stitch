@@ -101,6 +101,7 @@ struct TrackInspectorField: ViewModifier {
     // Some inspector rows are for outputs, which we ignore
     let layerInputObserver: LayerInputObserver
     let layerInputType: LayerInputType
+    let usesMultifields: Bool
     
     // Are we actively dragging an input/output ?
     let hasActivelyDrawnEdge: Bool
@@ -109,7 +110,7 @@ struct TrackInspectorField: ViewModifier {
 
         // TODO: can this help with perf, if we don't track unless we have an active edge drag?
 //        if hasActivelyDrawnEdge {
-        if true {
+        if usesMultifields {
             content.trackEdgeDraggedToInspectorAnchorPreference(
                 id: .inspectorInputOrField(layerInputType),
                 shouldTrack: hasActivelyDrawnEdge)
