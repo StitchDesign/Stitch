@@ -169,11 +169,12 @@ extension StitchDocumentViewModel {
         
         let input: InputLayerNodeRowData = layerNode[keyPath: layerInput.packedLayerInputKeyPath]
         
-        // If already on this canvas, do nothing
+        // Remove existing layer input
         // (Can happen from dragging an edge onto the inspector)
-        guard !input.canvasObserver.isDefined else {
+        if let existingCanvasObserver = input.canvasObserver {
             log("Layer Input \(layerInput) already on canvas")
-            return
+            graph.deleteCanvasItem(existingCanvasObserver.id,
+                                   document: self)
         }
         
         let canvasPosition = self.getLayerInputOrFieldCanvasInsertionPosition(
@@ -286,9 +287,11 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard !unpackedPort.canvasObserver.isDefined else {
+        // Remove existing layer input
+        if let existingCanvasObserver = unpackedPort.canvasObserver {
             log("addLayerFieldToCanvas: Field \(fieldIndex) for input \(layerInput) already on canvas")
-            return
+            graph.deleteCanvasItem(existingCanvasObserver.id,
+                                   document: self)
         }
     
         // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
