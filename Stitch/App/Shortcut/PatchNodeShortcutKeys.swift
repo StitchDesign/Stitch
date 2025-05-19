@@ -31,15 +31,30 @@ let LESS_THAN_NODE_SHORTCUT: KeyEquivalent = ","
 let GREATER_THAN_NODE_SHORTCUT: KeyEquivalent = "."
 
 let CLASSIC_ANIMATION_NODE_SHORTCUT: KeyEquivalent = "C"
+
+// + shift = And
 let POP_ANIMATION_NODE_SHORTCUT: KeyEquivalent = "A"
+
+// N + shift = Not
+let NOT_NODE_SHORTCUT: KeyEquivalent = "N"
+
 let FLIP_SWITCH_NODE_SHORTCUT: KeyEquivalent = "S"
 let DELAY_NODE_SHORTCUT: KeyEquivalent = "D"
 let KEYBOARD_NODE_SHORTCUT: KeyEquivalent = "K"
+
+// + shift = equals exactly
 let EQUALS_NODE_SHORTCUT: KeyEquivalent = "E"
+
+// + shift = progress
 let REVERSE_PROGRESS_NODE_SHORTCUT: KeyEquivalent = "R"
+
 let TRANSITION_NODE_SHORTCUT: KeyEquivalent = "T"
 let PULSE_NODE_SHORTCUT: KeyEquivalent = "U"
+
+// + shift = option switch
 let PRESS_INTERACTION_NODE_SHORTCUT: KeyEquivalent = "I"
+
+// + shift = or
 let OPTION_PICKER_NODE_SHORTCUT: KeyEquivalent = "O"
 
 
