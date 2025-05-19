@@ -20,34 +20,25 @@ struct ActivelyDrawnEdge: ViewModifier {
                            drawingGesture: OutputDragGesture,
                            draggedOutputRect: CGRect,
                            geometry: GeometryProxy,
-                           preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) -> EmptyView {
-                
-        // TODO: do we risk a retain cycle here?
-        DispatchQueue.main.async { [weak graph] in
-            
-            guard let graph = graph,
-                  graph.edgeDrawingObserver.drawingGesture.isDefined else {
-                // log("findEligibleInspectorFieldOrRow: no longer have an output drag")
-                return
-            }
-            
-            
-            if let outputNodeId = drawingGesture.outputId.graphItemType.getCanvasItemId,
-               let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
-                graph.findEligibleCanvasInput(
-                    cursorLocation: dragLocationInNodesViewCoordinateSpace,
-                    cursorNodeId: outputNodeId)
-            }
-            
-            graph.findEligibleInspectorInputOrField(drawingObserver: drawingObserver,
-                                                    drawingGesture: drawingGesture,
-                                                    geometry: geometry,
-                                                    preferences: preferences)
+                           preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) {
+        guard graph.edgeDrawingObserver.drawingGesture.isDefined else {
+            // log("findEligibleInspectorFieldOrRow: no longer have an output drag")
+            return
         }
         
-        return EmptyView()
+        
+        if let outputNodeId = drawingGesture.outputId.graphItemType.getCanvasItemId,
+           let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
+            graph.findEligibleCanvasInput(
+                cursorLocation: dragLocationInNodesViewCoordinateSpace,
+                cursorNodeId: outputNodeId)
+        }
+        
+        graph.findEligibleInspectorInputOrField(drawingObserver: drawingObserver,
+                                                drawingGesture: drawingGesture,
+                                                geometry: geometry,
+                                                preferences: preferences)
     }
-    
     
     // Note: the rules for the color of an actively dragged edge are simple:
     // gray if no eligible input, else highlighted-loop if a loop, else highlighted.
@@ -104,58 +95,60 @@ struct ActivelyDrawnEdge: ViewModifier {
                         
                         let pointTo = drawingGesture.cursorLocationInGlobalCoordinateSpace
                         
-                        if let downstreamNode = graph.getNode(drawingGesture.outputId.nodeId),
-                           let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
-                           let outputAnchorData = EdgeAnchorUpstreamData(
-                            from: upstreamCanvasItem.outputPortUIViewModels,
-                            upstreamNodeId: upstreamCanvasItem.id.nodeId,
-                            inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels),
-                           let outputPortAddress = outputRowViewModel.portUIViewModel.portAddress,
-                           let outputNodeId = outputRowViewModel.canvasItemDelegate?.id
-                        
-                        // TODO: previously the actively-drawn-edge used a NodesView-coordinate-space poiint
-                        // , let pointFrom = outputRowViewModel.portUIViewModel.anchorPoint
-                        {
+                        Group {
+                            if let downstreamNode = graph.getNode(drawingGesture.outputId.nodeId),
+                               let upstreamCanvasItem = outputRowViewModel.canvasItemDelegate,
+                               let outputAnchorData = EdgeAnchorUpstreamData(
+                                from: upstreamCanvasItem.outputPortUIViewModels,
+                                upstreamNodeId: upstreamCanvasItem.id.nodeId,
+                                inputRowViewModelsOnDownstreamNode: downstreamNode.allInputViewModels),
+                               let outputPortAddress = outputRowViewModel.portUIViewModel.portAddress,
+                               let outputNodeId = outputRowViewModel.canvasItemDelegate?.id
                             
-                            let pointFrom = draggedOutputRect.mid
-                            
-                            // logInView("EdgeFromDraggedOutputView: pointFrom: \(pointFrom)")
-                            // logInView("EdgeFromDraggedOutputView: pointTo: \(pointTo)")
-                            
-                            // TODO: `EdgeView` for actively-drawn edges does not need to take the full `PortEdgeUI` ?
-                            let edge = PortEdgeUI(from: outputPortAddress,
-                                                  to: .init(portId: -1, // Nonsense
-                                                            canvasId: outputNodeId))
-                            
-                            let color = self.color(outputRowViewModel)
-                            
-                            EdgeView(edge: edge,
-                                     pointFrom: pointFrom,
-                                     pointTo: pointTo,
-                                     color: color.color(theme),
-                                     isActivelyDragged: true, // Always true for actively-dragged edge
-                                     firstFrom: outputAnchorData.firstUpstreamOutput.anchorPoint ?? .zero,
-                                     firstTo: inputAnchorData?.firstInput.anchorPoint ?? .zero,
-                                     lastFrom: outputAnchorData.lastUpstreamRowOutput.anchorPoint ?? .zero,
-                                     lastTo: inputAnchorData?.lastInput.anchorPoint ?? .zero,
-                                     firstFromWithEdge: outputAnchorData.firstConnectedUpstreamOutput?.anchorPoint?.y,
-                                     lastFromWithEdge: outputAnchorData.lastConnectedUpstreamOutput?.anchorPoint?.y,
-                                     firstToWithEdge: inputAnchorData?.firstConnectedInput.anchorPoint?.y,
-                                     lastToWithEdge: inputAnchorData?.lastConectedInput.anchorPoint?.y,
-                                     totalOutputs: outputAnchorData.totalOutputs,
-                                     // We never animate the actively dragged edge
-                                     edgeAnimationEnabled: false,
-                                     edgeScaleEffect: scale)
-                            .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
-                                       value: color)
+                            // TODO: previously the actively-drawn-edge used a NodesView-coordinate-space poiint
+                            // , let pointFrom = outputRowViewModel.portUIViewModel.anchorPoint
+                            {
+                                
+                                let pointFrom = draggedOutputRect.mid
+                                
+                                // logInView("EdgeFromDraggedOutputView: pointFrom: \(pointFrom)")
+                                // logInView("EdgeFromDraggedOutputView: pointTo: \(pointTo)")
+                                
+                                // TODO: `EdgeView` for actively-drawn edges does not need to take the full `PortEdgeUI` ?
+                                let edge = PortEdgeUI(from: outputPortAddress,
+                                                      to: .init(portId: -1, // Nonsense
+                                                                canvasId: outputNodeId))
+                                
+                                let color = self.color(outputRowViewModel)
+                                
+                                EdgeView(edge: edge,
+                                         pointFrom: pointFrom,
+                                         pointTo: pointTo,
+                                         color: color.color(theme),
+                                         isActivelyDragged: true, // Always true for actively-dragged edge
+                                         firstFrom: outputAnchorData.firstUpstreamOutput.anchorPoint ?? .zero,
+                                         firstTo: inputAnchorData?.firstInput.anchorPoint ?? .zero,
+                                         lastFrom: outputAnchorData.lastUpstreamRowOutput.anchorPoint ?? .zero,
+                                         lastTo: inputAnchorData?.lastInput.anchorPoint ?? .zero,
+                                         firstFromWithEdge: outputAnchorData.firstConnectedUpstreamOutput?.anchorPoint?.y,
+                                         lastFromWithEdge: outputAnchorData.lastConnectedUpstreamOutput?.anchorPoint?.y,
+                                         firstToWithEdge: inputAnchorData?.firstConnectedInput.anchorPoint?.y,
+                                         lastToWithEdge: inputAnchorData?.lastConectedInput.anchorPoint?.y,
+                                         totalOutputs: outputAnchorData.totalOutputs,
+                                         // We never animate the actively dragged edge
+                                         edgeAnimationEnabled: false,
+                                         edgeScaleEffect: scale)
+                                .animation(.linear(duration: DrawnEdge.ANIMATION_DURATION),
+                                           value: color)
+                            }
                         }
-                        
-                        findEligibleInput(graph.edgeDrawingObserver,
-                                          drawingGesture: drawingGesture,
-                                          draggedOutputRect: draggedOutputRect,
-                                          geometry: geometry,
-                                          preferences: preferences)
-                        
+                        .onChange(of: drawingGesture.cursorLocationInGlobalCoordinateSpace) {
+                            findEligibleInput(graph.edgeDrawingObserver,
+                                              drawingGesture: drawingGesture,
+                                              draggedOutputRect: draggedOutputRect,
+                                              geometry: geometry,
+                                              preferences: preferences)
+                        }
                     } // if let draggedOutputPref
                 } // GeometryReader
             } // overlayPreferenceValue

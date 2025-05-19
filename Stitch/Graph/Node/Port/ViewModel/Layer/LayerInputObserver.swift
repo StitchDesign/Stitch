@@ -129,6 +129,19 @@ final class LayerInputObserver: Identifiable {
 }
 
 extension LayerInputType {
+    var isPacked: Bool {
+        switch self.portType {
+        case .packed:
+            return true
+        case .unpacked:
+            return false
+        }
+    }
+    
+    var isUnpacked: Bool {
+        !self.isPacked
+    }
+    
     var getUnpackedPortType: UnpackedPortType? {
         self.portType.getUnpacked
     }

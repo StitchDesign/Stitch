@@ -34,22 +34,28 @@ func yDistance(_ from: CGPoint,
 
 // TODO: do we want different 'near-ness' for detecting eligible canvas inputs vs eligible inspector inputs/fields ?
 /// Are these two points within NEARNESS_ALLOWANCE of each other?
+@MainActor
 func areNear(_ inputCenter: CGPoint,
              _ cursorCenter: CGPoint,
-             isInspectorInputOrFieldDetection: Bool,
+             layerInputType: LayerInputType? = nil,
              nearnessAllowance: CGFloat = NODE_ROW_HEIGHT) -> Bool {
 
 
     // log("areNear: inputCenter: \(inputCenter)")
     // log("areNear: cursorCenter: \(cursorCenter)")
-
-    let range = CGSize(width: nearnessAllowance * 3,
+    
+    let isForInspector = layerInputType.isDefined
+    let isWholeInput = layerInputType?.isPacked ?? false
+        
+    let range = CGSize(width: isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
                        // Inspector rows have a little more space between them
-                       height: nearnessAllowance * (isInspectorInputOrFieldDetection ? 2 : 1))
+                       height: nearnessAllowance * (isForInspector ? 2 : 1))
 
+    let box1OriginX = inputCenter.x + nearnessAllowance + (isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
+    
     // shift inward slightly
     let box1 = CGRect.init(
-        origin: .init(x: inputCenter.x + nearnessAllowance,
+        origin: .init(x: box1OriginX,
                       y: inputCenter.y),
         size: range)
 
@@ -102,8 +108,7 @@ extension GraphState {
             }
   
             if areNear(inputCenter,
-                       cursorLocation,
-                       isInspectorInputOrFieldDetection: false)
+                       cursorLocation)
                 // i.e. don't create a connection to the output's node's own input!
                 && inputViewModel.canvasItemDelegate?.id != cursorNodeId {
                 nearestInputs.append(inputViewModel)
@@ -150,13 +155,17 @@ extension GraphState {
                 
         var nearestInspectorInputs = [LayerInputType]()
         
+        // TODO: investigate ordering to prioritize fields
+        
         for preference in preferences {
+            
             switch preference.key {
+            
             case .inspectorInputOrField(let layerInputType):
                 // Note: `areNear` *already* expands the 'hit area'
                 if areNear(geometry[preference.value].mid,
                            drawingGesture.cursorLocationInGlobalCoordinateSpace,
-                           isInspectorInputOrFieldDetection: true) {
+                           layerInputType: layerInputType) {
                     
                     // log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
                     nearestInspectorInputs.append(layerInputType)
@@ -169,13 +178,24 @@ extension GraphState {
         
         let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
         
+        // No inspector input or field was eligible
         if nearestInspectorInputs.isEmpty,
            hadEligibleInspectorInputOrField {
             // log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
             drawingObserver.nearestEligibleEdgeDestination = nil
-        } else if let nearestInspectorInput = nearestInspectorInputs.last {
-            // log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
-            drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+        }
+        
+        // We had at least one eligible inspector input or field
+        else {
+            // The entire row is treated as the "input"; but we prefer a specific field
+            let nearestUnpackedField = nearestInspectorInputs.last(where: { $0.portType.getUnpacked != nil })
+            
+            log("findEligibleInspectorFieldOrRow: nearestInspectorInputs: \(nearestInspectorInputs)")
+            log("findEligibleInspectorFieldOrRow: nearestUnpackedField: \(nearestUnpackedField)")
+            
+            if let nearestInspectorInput = nearestUnpackedField ?? nearestInspectorInputs.last{
+                drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+            }
         }
         
         // After we've set or wiped the nearestEligible input,
