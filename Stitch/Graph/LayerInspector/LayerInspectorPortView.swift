@@ -170,8 +170,6 @@ struct InspectorLayerInputView: View {
                 LabelDisplayView(label: label,
                                  isLeftAligned: false,
                                  fontColor: STITCH_FONT_GRAY_COLOR,
-                                 // Alternatively: only use theme color when 'whole input selected' ?
-//                                 usesThemeColor: hasEligibleEdgeDrag)
                                  usesThemeColor: isSelectedInspectorRow)
             }
             Spacer()
@@ -224,12 +222,13 @@ struct InspectorLayerInputView: View {
                                     useIndividualFieldLabel: layerInputObserver.useIndividualFieldLabel(activeIndex: document.activeIndex),
                                     usesThemeColor: usesThemeColor(inputFieldViewModel))
                                 
+                                // Only want this for multifield inputs
                                 .modifier(
                                     TrackInspectorField(
                                         layerInputObserver: layerInputObserver,
-                                        layerInputType: .init(
-                                            layerInput: layerInputObserver.port,
-                                            portType: .unpacked(inputFieldViewModel.fieldIndex.asUnpackedPortType)),
+                                        layerInputType: .init(layerInput: layerInputObserver.port,
+                                                              portType: .unpacked(inputFieldViewModel.fieldIndex.asUnpackedPortType)),
+                                        usesMultifields: self.usesMultifields,
                                         hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
                                 )
                                 

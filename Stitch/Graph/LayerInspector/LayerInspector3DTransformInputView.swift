@@ -68,9 +68,9 @@ struct LayerInspector3DTransformInputView: View {
             .modifier(
                 TrackInspectorField(
                     layerInputObserver: layerInputObserver,
-                    layerInputType: .init(
-                        layerInput: layerInputObserver.port,
-                        portType: .unpacked(fieldObserver.fieldIndex.asUnpackedPortType)),
+                    layerInputType: .init(layerInput: layerInputObserver.port,
+                                          portType: .unpacked(fieldObserver.fieldIndex.asUnpackedPortType)),
+                    usesMultifields: true,
                     hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined)
             )
         } // ForEach

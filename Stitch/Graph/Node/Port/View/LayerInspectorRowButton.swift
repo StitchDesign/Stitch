@@ -117,9 +117,6 @@ struct LayerInspectorRowButton: View {
         }
         .modifier(TrackInspectorInput(
             layerInputObserver: layerInputObserver,
-            // Technically, field index is just for use of flyout and irrelevant to "dragged edge onto inspector" ?
-//            fieldIndex: self.fieldIndex,
-            fieldIndex: nil,
             hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
         
         // Shrink down the dot view
