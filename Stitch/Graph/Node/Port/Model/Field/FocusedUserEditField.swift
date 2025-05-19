@@ -35,7 +35,9 @@ enum FocusedUserEditField: Equatable, Hashable {
          stitchAIPromptModal,
          sidebarLayerTitle(String),
          previewWindowSettingsWidth,
-         previewWindowSettingsHeight
+         previewWindowSettingsHeight,
+         prototypeWindow,
+         prototypeTextField(PreviewCoordinate)
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {
