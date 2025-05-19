@@ -45,6 +45,11 @@ struct ProjectsHomeCommands: Commands {
         self.store.currentDocument?.selectedInput.isDefined ?? false
     }
 
+    // If option is NOT required for shortcuts, then we need to
+    var isOptionRequiredForShortcut: Bool {
+        self.store.isOptionRequiredForShortcut
+    }
+    
     var body: some Commands {
 
         CommandMenu("Graph") {
@@ -59,7 +64,7 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(DirectoryUpdated())
                 }
             }
-
+                        
             if activeProject {
                 
                 Divider()
@@ -84,7 +89,7 @@ struct ProjectsHomeCommands: Commands {
                 }
                 
                 
-                // MARK: copy paste, cut paste
+                // MARK: COPY, PASTE, CUT
                 
                 // Not shown in menu when no active project;
                 // Disabled when we have focused text input
@@ -113,7 +118,11 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(SelectedGraphItemsPasted())
                 }
                 
-                // MARK: insert node shortcuts
+                
+                // MARK: INSERTING NODES
+                
+                // tricky -- we still want to expose the shortcut to the user?
+                // ah, but origami doesn't show these at all, period.
                 
                 SwiftUIShortcutView(title: "Insert Unpack Node",
                                     key: ADD_UNPACK_NODE_SHORTCUT,
@@ -175,7 +184,8 @@ struct ProjectsHomeCommands: Commands {
                 // TODO: maybe it would be better if these options did not all show up in the Graph menu on Catalyst?
                 SwiftUIShortcutView(title: "Insert Add Node",
                                     key: ADD_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
+//                                    eventModifiers: [.option],
+                                    eventModifiers: [],
                                     disabled: textFieldFocused) {
                     if hasSelectedInput {
                         dispatch(NodeCreatedWhileInputSelected(patch: .add))
@@ -384,6 +394,9 @@ struct ProjectsHomeCommands: Commands {
             } // if activeProject
 
         } // CommandMenu
+        
+        
+        // MARK: SHARE
         
         CommandGroup(after: .appInfo) {
             Menu {

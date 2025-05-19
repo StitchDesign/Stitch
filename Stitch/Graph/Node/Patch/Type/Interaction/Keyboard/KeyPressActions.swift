@@ -158,8 +158,8 @@ extension StitchStore {
             graph.keyCharPressedDuringEdgeEditingMode(char: char,
                                                       activeIndex: document.activeIndex)
         }
-        else // if document.selectedInput.isDefined,
-                if let patch = char.patchFromShortcutKey() {
+        else if document.selectedInput.isDefined,
+                let patch = char.patchFromShortcutKey() {
             document.nodeCreatedWhileInputSelected(patch: patch)
         }
         else {
