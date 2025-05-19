@@ -36,7 +36,8 @@ enum FocusedUserEditField: Equatable, Hashable {
          sidebarLayerTitle(String),
          previewWindowSettingsWidth,
          previewWindowSettingsHeight,
-         prototypeWindow
+         prototypeWindow,
+         prototypeTextField(PreviewCoordinate)
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {

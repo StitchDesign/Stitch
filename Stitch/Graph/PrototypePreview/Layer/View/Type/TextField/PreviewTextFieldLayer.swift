@@ -10,7 +10,9 @@ import SwiftUI
 import StitchSchemaKit
 
 struct PreviewTextFieldLayer: View {
-
+    @FocusedValue(\.focusedField) private var focusedField
+    @FocusState private var isFocused: Bool
+    
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
@@ -51,9 +53,6 @@ struct PreviewTextFieldLayer: View {
     let parentIsScrollableGrid: Bool
 
     let focusedTextFieldLayer: PreviewCoordinate?
-
-    // Don't need to explicitly handle
-    @FocusState private var isFocused: Bool
     
     var id: PreviewCoordinate {
         interactiveLayer.id
@@ -86,6 +85,16 @@ struct PreviewTextFieldLayer: View {
         
         TextField(placeholder,
                   text: $viewModel.textFieldInput)
+            .focusedValue(\.focusedField, .prototypeTextField(self.id))
+            .onChange(of: self.document.reduxFocusedField) { _, focusedField in
+                // Disables focus state here with other graph taps
+                switch focusedField {
+                case .prototypeTextField:
+                    return
+                default:
+                    self.isFocused = false
+                }
+            }
             .autocorrectionDisabled()
             .autocapitalization(.none)
             .multilineTextAlignment(textAlignment.asMultilineAlignment ?? .leading)
