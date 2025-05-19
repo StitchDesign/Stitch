@@ -44,13 +44,13 @@ func areNear(_ inputCenter: CGPoint,
     // log("areNear: inputCenter: \(inputCenter)")
     // log("areNear: cursorCenter: \(cursorCenter)")
     
-    let isInspectorInputOrFieldDetection = layerInputType != nil
-
-    let range = CGSize(width: isInspectorInputOrFieldDetection ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
+    let isWholeInput = layerInputType?.isPacked ?? false
+        
+    let range = CGSize(width: isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
                        // Inspector rows have a little more space between them
-                       height: nearnessAllowance * (isInspectorInputOrFieldDetection ? 2 : 1))
+                       height: nearnessAllowance * (isWholeInput ? 2 : 1))
 
-    let box1OriginX = inputCenter.x + nearnessAllowance + (isInspectorInputOrFieldDetection ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
+    let box1OriginX = inputCenter.x + nearnessAllowance + (isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
     
     // shift inward slightly
     let box1 = CGRect.init(
@@ -186,9 +186,14 @@ extension GraphState {
             let reversedInputs = nearestInspectorInputs.reversed()
             let nearestUnpackedField = reversedInputs.first(where: { $0.portType.getUnpacked != nil })
             
+            log("findEligibleInspectorFieldOrRow: reversedInputs: \(reversedInputs)")
+            log("findEligibleInspectorFieldOrRow: nearestUnpackedField: \(nearestUnpackedField)")
             
-            if let nearestInspectorInput = nearestUnpackedField ?? reversedInputs.first {
-                // log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
+            
+            // maybe use .last ?
+//            if let nearestInspectorInput = nearestUnpackedField ?? reversedInputs.first {
+            if let nearestInspectorInput = nearestUnpackedField ?? reversedInputs.last {
+                log("findEligibleInspectorFieldOrRow: found inspector input/field: \(nearestInspectorInput)")
                 
                 drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
             }
