@@ -71,23 +71,14 @@ struct TrackInspectorInput: ViewModifier {
     // Some inspector rows are for outputs, which we ignore
     let layerInputObserver: LayerInputObserver?
     
-    let fieldIndex: Int?
-    
     // Are we actively dragging an input/output ?
     let hasActivelyDrawnEdge: Bool
     
     func body(content: Content) -> some View {
-
         if let layerInputObserver = layerInputObserver {
-            
-            let layerInputType: LayerInputType = fieldIndex
-                .map({ LayerInputType(layerInput: layerInputObserver.port,
-                                      portType: .unpacked($0.asUnpackedPortType)) })
-            ?? LayerInputType(layerInput: layerInputObserver.port,
-                              portType: .packed)
-            
             content.trackEdgeDraggedToInspectorAnchorPreference(
-                id: .inspectorInputOrField(layerInputType),
+                id: .inspectorInputOrField(LayerInputType(layerInput: layerInputObserver.port,
+                                                          portType: .packed)),
                 shouldTrack: hasActivelyDrawnEdge)
         } else {
             content
@@ -101,6 +92,7 @@ struct TrackInspectorField: ViewModifier {
     // Some inspector rows are for outputs, which we ignore
     let layerInputObserver: LayerInputObserver
     let layerInputType: LayerInputType
+    let usesMultifields: Bool
     
     // Are we actively dragging an input/output ?
     let hasActivelyDrawnEdge: Bool
@@ -109,7 +101,7 @@ struct TrackInspectorField: ViewModifier {
 
         // TODO: can this help with perf, if we don't track unless we have an active edge drag?
 //        if hasActivelyDrawnEdge {
-        if true {
+        if usesMultifields {
             content.trackEdgeDraggedToInspectorAnchorPreference(
                 id: .inspectorInputOrField(layerInputType),
                 shouldTrack: hasActivelyDrawnEdge)
