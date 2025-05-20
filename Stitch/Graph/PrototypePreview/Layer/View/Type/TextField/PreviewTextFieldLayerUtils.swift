@@ -80,8 +80,16 @@ extension StitchDocumentViewModel {
     func reduxFieldDefocused(focusedField: FocusedUserEditField) {
         log("reduxFieldDefocused: focusedField: \(focusedField)")
         log("reduxFieldDefocused: self.reduxFocusedField was: \(self.reduxFocusedField)")
-        if self.reduxFocusedField == focusedField {
-            self.reduxFocusedField = nil
+        
+        switch focusedField {
+        case .sidebarLayerTitle:
+            // Make sure focus state becomes the sidebar when submitting new layer text name
+            self.reduxFocusedField = .sidebar
+            
+        default:
+            if self.reduxFocusedField == focusedField {
+                self.reduxFocusedField = nil
+            }
         }
     }
 }
