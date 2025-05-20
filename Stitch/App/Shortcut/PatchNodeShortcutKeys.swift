@@ -65,49 +65,77 @@ extension Character {
     func patchFromShortcutKey(isShiftDown: Bool) -> Patch? {
         log("patchFromShortcutKey: isShiftDown: \(isShiftDown)")
         
-//        if isShiftDown {
-//          switch
-//        }
+        let lowercaseCharacter = self.lowercased().toCharacter
         
-        switch self {
+        if isShiftDown {
+            switch lowercaseCharacter {
+                // Always requires shift ?
+            case NOT_NODE_SHORTCUT.character.lowercased().toCharacter:
+                return .not
+            default:
+                break
+            }
+        }
+        
+        switch lowercaseCharacter {
+        
         case ADD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .add
+        
         case SUBTRACT_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .subtract
+        
         case MULTIPLY_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .multiply
+        
         case DIVIDE_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .divide
+        
         case POWER_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .power
+        
         case MOD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .mod
+        
         case LESS_THAN_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .lessThan
+        
         case GREATER_THAN_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .greaterThan
+        
         case CLASSIC_ANIMATION_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .classicAnimation
+        
         case POP_ANIMATION_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .popAnimation
+            return isShiftDown ? .and : .popAnimation
+        
         case FLIP_SWITCH_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .flipSwitch
+        
         case DELAY_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .delay
+        
         case KEYBOARD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .keyboard
+        
         case EQUALS_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .equals
+            return isShiftDown ? .equalsExactly : .equals
+        
         case REVERSE_PROGRESS_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .reverseProgress
+            return isShiftDown ? .progress : .reverseProgress
+        
         case TRANSITION_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .transition
+        
         case PULSE_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .pulse
+        
         case PRESS_INTERACTION_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .pressInteraction
+            return isShiftDown ? .optionSwitch : .pressInteraction
+        
         case OPTION_PICKER_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .optionPicker
+            return isShiftDown ? .or : .optionPicker
+        
         default:
             return nil
         }
