@@ -23,14 +23,7 @@ extension ProjectSidebarObservable {
         let originalSelections = self.selectionState.primary
         
         // Set sidebar to be focused:
-        if !self.isSidebarFocused {
-            self.isSidebarFocused = true            
-        }
-        
-        document.selectedInput = nil
-        
-        // Wipe redux field
-        document.reduxFocusedField = nil
+        document.reduxFocusedField = .sidebar
         
         // log("sidebarItemTapped: originalSelections: \(originalSelections)")
         

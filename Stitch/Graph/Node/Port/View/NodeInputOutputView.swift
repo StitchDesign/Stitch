@@ -40,7 +40,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
             }
 
             if nodeIO == .input {
-                dispatch(InputSelected(tappedInput: rowObserver.id))
+                document.reduxFocusedField = .nodeInputPortSelection(rowViewModel.id)
             }
             
             // Do nothing when input/output doesn't contain a loop
@@ -51,13 +51,5 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
                 
             }
         }
-    }
-}
-
-struct InputSelected: StitchDocumentEvent {
-    let tappedInput: InputCoordinate
-    
-    func handle(state: StitchDocumentViewModel) {
-        state.selectedInput = tappedInput
     }
 }

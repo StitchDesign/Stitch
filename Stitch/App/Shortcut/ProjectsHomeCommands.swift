@@ -14,31 +14,26 @@ struct ProjectsHomeCommands: Commands {
     
     @Bindable var store: StitchStore
     @FocusedValue(\.focusedField) private var focusedField
-
+    
     let activeReduxFocusedField: FocusedUserEditField?
-
+    
     var activeProject: Bool {
         store.currentDocument.isDefined
     }
-        
-    var isSidebarFocused: Bool {
-        store.currentDocument?.visibleGraph.layersSidebarViewModel.isSidebarFocused ?? false
-    }
-    
-    var graph: GraphState? {
-        store.currentDocument?.visibleGraph
-    }
-    
-    var ungroupButtonEnabled: Bool {
-        self.graph?.layersSidebarViewModel.canUngroup() ?? false
-    }
-
-    var groupButtonEnabled: Bool {
-        self.graph?.layersSidebarViewModel.canBeGrouped() ?? false
-    }
     
     var textFieldFocused: Bool {
-        activeReduxFocusedField.isDefined || focusedField.isDefined
+        guard !focusedField.isDefined else {
+            return true
+        }
+        
+        switch activeReduxFocusedField {
+        case .sidebar, .prototypeWindow, .none:
+            // no text field in these cases
+            return false
+            
+        default:
+            return true
+        }
     }
     
     var hasSelectedInput: Bool {
@@ -50,356 +45,23 @@ struct ProjectsHomeCommands: Commands {
         self.store.isOptionRequiredForShortcut
     }
     
-    var body: some Commands {
+    var disabledGraphDelete: Bool {
+        guard let document = store.currentDocument else {
+            return true
+        }
 
-        CommandMenu("Graph") {
-
-            // NOTE: `title:` but not `key:` can be replaced by runtime state changes.
-            SwiftUIShortcutView(title: activeProject ? "Restart Prototype" : "Refresh Projects",
-                                key: .init("R")) {
-                if activeProject {
-                    dispatch(PrototypeRestartedAction())
-                } else {
-                    store.allProjectUrls = []
-                    dispatch(DirectoryUpdated())
-                }
-            }
-                        
-            if activeProject {
-                
-                Divider()
-                
-                SwiftUIShortcutView(title: "Insert",
-                                    key: .return) {
-                    INSERT_NODE_ACTION()
-                }
-                
-                SwiftUIShortcutView(title: "Duplicate",
-                                    key: DUPLICATE_SELECTED_NODES_SHORTCUT) {
-                    dispatch(DuplicateShortcutKeyPressed())
-                }
-                
-                // TODO: should CMD+Delete ungroup a GroupNode on the canvas, as it ungroups a LayerGroup in the sidebar?
-                SwiftUIShortcutView(title: "Delete",
-                                    key: DELETE_SELECTED_NODES_SHORTCUT,
-                                    // empty list = do not require CMD
-                                    eventModifiers: DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS) {
-                    // deletes both selected nodes and selected comments
-                    dispatch(DeleteShortcutKeyPressed())
-                }
-                
-                
-                // MARK: COPY, PASTE, CUT
-                
-                // Not shown in menu when no active project;
-                // Disabled when we have focused text input
-                //            if activeProject {
-                SwiftUIShortcutView(title: "Cut",
-                                    key: CUT_SELECTED_NODES_SHORTCUT,
-                                    disabled: textFieldFocused) {
-                    log("cut shortcut")
-                    // cuts both nodes and comments
-                    dispatch(SelectedGraphItemsCut())
-                }
-                
-                SwiftUIShortcutView(title: "Copy",
-                                    key: COPY_SELECTED_NODES_SHORTCUT,
-                                    disabled: textFieldFocused) {
-                    log("copy shortcut")
-                    // copies both nodes and comments
-                    dispatch(SelectedGraphItemsCopied())
-                }
-                
-                SwiftUIShortcutView(title: "Paste",
-                                    key: PASTE_SELECTED_NODES_SHORTCUT,
-                                    disabled: textFieldFocused) {
-                    log("paste shortcut")
-                    // pastes both nodes and comments
-                    dispatch(SelectedGraphItemsPasted())
-                }
-                
-                
-                // MARK: INSERTING NODES
-                
-                // tricky -- we still want to expose the shortcut to the user?
-                // ah, but origami doesn't show these at all, period.
-                
-                SwiftUIShortcutView(title: "Insert Unpack Node",
-                                    key: ADD_UNPACK_NODE_SHORTCUT,
-                                    // empty list = do not require CMD
-                                    eventModifiers: CMD_MODIFIER,
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .sizeUnpack))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.sizeUnpack)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Pack Node",
-                                    key: ADD_PACK_NODE_SHORTCUT,
-                                    // empty list = do not require CMD
-                                    eventModifiers: CMD_MODIFIER,
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .sizePack))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.sizePack)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Value Node",
-                                    key: ADD_SPLITTER_NODE_SHORTCUT,
-                                    // empty list = do not require CMD
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .splitter))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.splitter)))
-                    }
-                }
-                
-                // Option + W = add Broadcaster
-                SwiftUIShortcutView(title: "Insert Wireless Broadcaster",
-                                    key: ADD_WIRELESS_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.wirelessBroadcaster)))
-                    // TODO: probably not needed?
-                    store.currentDocument?.keypressState.modifiers.remove(.option)
-                }
-                
-                // Option + Shift + W = add Receiver
-                SwiftUIShortcutView(title: "Insert Wireless Receiver",
-                                    key: ADD_WIRELESS_NODE_SHORTCUT,
-                                    eventModifiers: [.option, .shift],
-                                    disabled: textFieldFocused) {
-                    dispatch(NodeCreatedEvent(choice: .patch(.wirelessReceiver)))
-                    // Note: the Option key seems to get stuck easily when Shift is also pressed?
-                    store.currentDocument?.keypressState.modifiers.remove(.option)
-                    store.currentDocument?.keypressState.modifiers.remove(.shift)
-                }
-                
-                SwiftUIShortcutView(title: "Insert Add Node",
-                                    key: ADD_NODE_SHORTCUT,
-                                    
-                                    // Menu shows that key is "Option ="
-//                                    eventModifiers: [.option],
-                                    
-                                    // Menu shows that key is just "="
-//                                    eventModifiers: [],
-                                    
-                                    eventModifiers: self.isOptionRequiredForShortcut ? [.option] : [],
-                                    
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .add))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.add)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Subtract Node",
-                                    key: SUBTRACT_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .subtract))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.subtract)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Multiply Node",
-                                    key: MULTIPLY_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .multiply))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.multiply)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Divide Node",
-                                    key: DIVIDE_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .divide))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.divide)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Power Node",
-                                    key: POWER_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .power))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.power)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Mod Node",
-                                    key: MOD_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .mod))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.mod)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Less Than Node",
-                                    key: LESS_THAN_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .lessThan))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.lessThan)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Greater Than Node",
-                                    key: GREATER_THAN_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .greaterThan))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.greaterThan)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Classic Animation Node",
-                                    key: CLASSIC_ANIMATION_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .classicAnimation))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.classicAnimation)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Pop Animation Node",
-                                    key: POP_ANIMATION_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .popAnimation))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.popAnimation)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Switch Node",
-                                    key: FLIP_SWITCH_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .flipSwitch))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.flipSwitch)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Delay Node",
-                                    key: DELAY_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .delay))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.delay)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Keyboard Node",
-                                    key: KEYBOARD_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .keyboard))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.keyboard)))
-                    }
-                }
         
-                SwiftUIShortcutView(title: "Insert Equals Node",
-                                    key: EQUALS_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .equals))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.equals)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Reverse Progress Node",
-                                    key: REVERSE_PROGRESS_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .reverseProgress))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.reverseProgress)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Transition Node",
-                                    key: TRANSITION_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .transition))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.transition)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Pulse Node",
-                                    key: PULSE_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .pulse))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.pulse)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Press Interaction Node",
-                                    key: PRESS_INTERACTION_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .pressInteraction))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.pressInteraction)))
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Insert Option Picker Node",
-                                    key: OPTION_PICKER_NODE_SHORTCUT,
-                                    eventModifiers: [.option],
-                                    disabled: textFieldFocused) {
-                    if hasSelectedInput {
-                        dispatch(NodeCreatedWhileInputSelected(patch: .optionPicker))
-                    } else {
-                        dispatch(NodeCreatedEvent(choice: .patch(.optionPicker)))
-                    }
-                }
-            } // if activeProject
-
-        } // CommandMenu
+        if document.isSidebarFocused {
+            return document.visibleGraph.layersSidebarViewModel.selectionState.items.isEmpty
+        } else {
+            return document.visibleGraph.selectedCanvasItems.isEmpty
+        }
+    }
+    
+    var body: some Commands {
+        // MARK: no support for conditionally display commands--they'll never appear with an if statement
+        GraphCommands(store: store,
+                      textFieldFocused: textFieldFocused)
         
         
         // MARK: SHARE
@@ -427,41 +89,52 @@ struct ProjectsHomeCommands: Commands {
                 Text("Contact Us")
             }
         }
-    
+        
         CommandGroup(replacing: .newItem) {
             SwiftUIShortcutView(title: "New Project",
                                 key: NEW_PROJECT_SHORTCUT) {
                 store.createNewProjectSideEffect(isProjectImport: false)
             }
-
+            
             SwiftUIShortcutView(title: "New Project from Sample",
                                 key: NEW_PROJECT_SHORTCUT,
                                 eventModifiers: [.command, .shift]) {
                 store.conditionallToggleSampleProjectsModal()
             }
-
+            
             // NOTE: we already get CMD + W in Catalyst
             // TODO: only show with active project
-            #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
             if store.currentDocument != nil {
                 SwiftUIShortcutView(title: "Close Graph",
                                     key: CLOSE_GRAPH_SHORTCUT) {
                     dispatch(CloseGraph())
                 }
             }
-            #endif
+#endif
         }
-
+        
         CommandGroup(replacing: .importExport) {
             if activeProject {
                 SwiftUIShortcutView(title: "Add File to Project",
-                                    key: "O", // the letter O
+                                    key: "O",
                                     eventModifiers: [.command],
                                     disabled: !activeProject) {
                     FILE_IMPORT_ACTION()
                 }
             }
-
+            
+            // MARK: splitting into multiple shortcuts breaks commands when using same CMD + R
+            SwiftUIShortcutView(title: activeProject ? "Restart Prototype" : "Refresh Projects",
+                                key: .init("R")) {
+                if activeProject {
+                    dispatch(PrototypeRestartedAction())
+                } else {
+                    store.allProjectUrls = []
+                    dispatch(DirectoryUpdated())
+                }
+            }
+            
             SwiftUIShortcutView(title: "Delete All Projects",
                                 key: .delete,
                                 eventModifiers: [.command, .shift],
@@ -470,7 +143,7 @@ struct ProjectsHomeCommands: Commands {
                 DELETE_ALL_PROJECTS_ALERT_ACTION()
             }
         }
-
+        
         CommandGroup(before: .sidebar) {
             if activeProject {
                 SwiftUIShortcutView(title: "Toggle Preview Window",
@@ -479,7 +152,7 @@ struct ProjectsHomeCommands: Commands {
                                     disabled: !activeProject) {
                     PREVIEW_SHOW_TOGGLE_ACTION()
                 }
-                                    
+                
             }
             
             if activeProject {
@@ -489,9 +162,9 @@ struct ProjectsHomeCommands: Commands {
                                     disabled: !activeProject) {
                     dispatch(ToggleSidebars())
                 }
-                                    
+                
             }
-
+            
             if activeProject {
                 SwiftUIShortcutView(title: "Full Screen Preview Window",
                                     key: "F",
@@ -501,7 +174,7 @@ struct ProjectsHomeCommands: Commands {
                 }
             }
         }
-
+        
         // TODO: should be toggle? e.g. pressing `CMD + ,` again should close app / project settings window?
         CommandGroup(replacing: CommandGroupPlacement.appSettings) {
             SwiftUIShortcutView(title: "Settings",
@@ -514,7 +187,7 @@ struct ProjectsHomeCommands: Commands {
                 }
             }
         }
-
+        
         
         // MARK: undo + redo
         
@@ -525,7 +198,7 @@ struct ProjectsHomeCommands: Commands {
                                 disabled: textFieldFocused) {
                 dispatch(UndoEvent())
             }
-
+            
             SwiftUIShortcutView(title: "Redo",
                                 key: UNDO_SHORTCUT,
                                 eventModifiers: [.command, .shift],
@@ -533,46 +206,49 @@ struct ProjectsHomeCommands: Commands {
                 dispatch(RedoEvent())
             }
         } // replacing: .undoRedo
-
         
-        // Don't show any of these if we're on projects-home-screen
-        if activeProject {
-
-            // TODO: These commands should only apppear with graph
-            CommandGroup(replacing: .pasteboard) {
-                SwiftUIShortcutView(title: "Select All",
-                                    key: SELECT_ALL_NODES_SHORTCUT,
-                                    // Disable CMD+A "select all" when an input text field is focused
-                                    disabled: textFieldFocused || !activeProject) {
-                    dispatch(SelectAllShortcutKeyPressed())
-                }
-                
-                SwiftUIShortcutView(title: "Group",
-                                    key: CREATE_GROUP_SHORTCUT) {
-                    let cannotCreateLayerGroup = !isSidebarFocused || !groupButtonEnabled
-                    
-                    if cannotCreateLayerGroup {
-                        dispatch(GroupNodeCreated(isComponent: false))
-                    } else {
-                        self.graph?.layersSidebarViewModel.sidebarGroupCreated()
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Ungroup",
-                                    key: DELETE_SELECTED_NODES_SHORTCUT,
-                                    eventModifiers: [.command]) {
-                    
-                    let cannotUngroupLayer = !isSidebarFocused || !ungroupButtonEnabled
-                    
-                    if cannotUngroupLayer {
-                        dispatch(SelectedGroupNodesUncreated())
-                    } else {
-                        self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
-                    }
-                }
-                
-            } // replacing: .pasteboard
+        CommandGroup(replacing: .pasteboard) {
+            // Not shown in menu when no active project;
+            // Disabled when we have focused text input
+            SwiftUIShortcutView(title: "Cut",
+                                key: CUT_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                log("cut shortcut")
+                // cuts both nodes and comments
+                dispatch(SelectedGraphItemsCut())
+            }
             
-        } // if activeProject
+            SwiftUIShortcutView(title: "Copy",
+                                key: COPY_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                log("copy shortcut")
+                // copies both nodes and comments
+                dispatch(SelectedGraphItemsCopied())
+            }
+            
+            SwiftUIShortcutView(title: "Paste",
+                                key: PASTE_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                log("paste shortcut")
+                // pastes both nodes and comments
+                dispatch(SelectedGraphItemsPasted())
+            }
+            
+            SwiftUIShortcutView(title: "Duplicate",
+                                key: DUPLICATE_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                dispatch(DuplicateShortcutKeyPressed())
+            }
+            
+            // TODO: should CMD+Delete ungroup a GroupNode on the canvas, as it ungroups a LayerGroup in the sidebar?
+            SwiftUIShortcutView(title: "Delete",
+                                key: DELETE_SELECTED_NODES_SHORTCUT,
+                                // empty list = do not require CMD
+                                eventModifiers: DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS,
+                                disabled: disabledGraphDelete) {
+                // deletes both selected nodes and selected comments
+                dispatch(DeleteShortcutKeyPressed())
+            }
+        }
     }
 }

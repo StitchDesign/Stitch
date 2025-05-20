@@ -129,14 +129,8 @@ extension StitchStore {
             return
         }
     
-        if document.reduxFocusedField.isDefined {
-            // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since some field is focused")
-            return
-        }
-        
-        // if insert node menu is open, ignore key presses:
-        if document.insertNodeMenuState.show {
-            // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since insert node menu is open")
+        // key press state only applies to prototype window focus
+        guard document.isPrototypePreviewFocused else {
             return
         }
 
@@ -191,7 +185,8 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         
         // log("KEY: KeyCharacterPressEnded: char: \(char)")
         
-        if state.reduxFocusedField.isDefined {
+        // key press state only applies to prototype window focus
+        guard state.isPrototypePreviewFocused else {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since some field is focused")
             return
         }
