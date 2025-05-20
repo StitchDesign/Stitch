@@ -129,11 +129,6 @@ extension StitchStore {
             return
         }
     
-        // key press state only applies to prototype window focus
-        guard document.isPrototypePreviewFocused else {
-            return
-        }
-
         if self.alertState.showProjectSettings {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since project settings modal is open")
             return
@@ -148,32 +143,27 @@ extension StitchStore {
         // TODO: edge-added and edge-removed logic still recalculate the graph
         document.keypressState.characters.insert(char)
 
+        // Edge editing mode shortcuts have priority.
         if graph.edgeEditingState.isDefined {
             graph.keyCharPressedDuringEdgeEditingMode(char: char,
                                                       activeIndex: document.activeIndex)
-        } else {
-            
-            // If option is not required for shortcuts, treat the keypress as a shortcut too.
-            if !self.isOptionRequiredForShortcut,
-               let patch = char.patchFromShortcutKey() {
-                
-                if document.reduxFocusedField?.isInputPortSelected ?? false {
-                    document.nodeCreatedWhileInputSelected(choice: .patch(patch))
-                } else {
-                    document.handleNodeCreatedViaShortcut(patch: patch)
-                }
-            }
-            
-            // Always update the keyboard nodes
+        }
+        
+        // If the prototype window is 'focused', run keyboard patches and do not insert any nodes to the canvas.
+        else if document.isPrototypePreviewFocused {
             document.calculateAllKeyboardNodes()
         }
-//        else if document.selectedInput.isDefined,
-//                let patch = char.patchFromShortcutKey() {
-//            document.nodeCreatedWhileInputSelected(patch: patch)
-//        }
-//        else {
-//            document.calculateAllKeyboardNodes()
-//        }
+        
+        // Else: If option is not required for shortcuts, try to treat the keypress as a shortcut.
+        else if !self.isOptionRequiredForShortcut,
+                let patch = char.patchFromShortcutKey() {
+            
+            if document.reduxFocusedField?.isInputPortSelected ?? false {
+                document.nodeCreatedWhileInputSelected(choice: .patch(patch))
+            } else {
+                document.handleNodeCreatedViaShortcut(patch: patch)
+            }
+        }
     }
 }
 
@@ -185,12 +175,6 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         
         // log("KEY: KeyCharacterPressEnded: char: \(char)")
         
-        // key press state only applies to prototype window focus
-        guard state.isPrototypePreviewFocused else {
-            // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since some field is focused")
-            return
-        }
-        
         // log("KEY: KeyCharacterPressEnded: graphState.keypressState.isSpacePressed was: \(graphState.keypressState.isSpacePressed)")
 
         // NOTE: Always let key presses end, even if insert-node-menu or project settings modal is open
@@ -201,6 +185,8 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         // log("KEY: KeyCharacterPressEnded: graphState.keypressState.isSpacePressed is now: \(graphState.keypressState.isSpacePressed)")
 
         // recalculate all the keyboard nodes on the graph
-        state.calculateAllKeyboardNodes()
+        if state.isPrototypePreviewFocused {
+            state.calculateAllKeyboardNodes()
+        }
     }
 }
