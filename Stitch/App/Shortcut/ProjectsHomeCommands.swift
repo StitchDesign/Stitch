@@ -188,7 +188,9 @@ struct ProjectsHomeCommands: Commands {
 //                                    eventModifiers: [.option],
                                     
                                     // Menu shows that key is just "="
-                                    eventModifiers: [],
+//                                    eventModifiers: [],
+                                    
+                                    eventModifiers: self.isOptionRequiredForShortcut ? [.option] : [],
                                     
                                     disabled: textFieldFocused) {
                     if hasSelectedInput {
