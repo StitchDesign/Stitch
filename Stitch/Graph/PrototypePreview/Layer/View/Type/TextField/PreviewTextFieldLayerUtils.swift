@@ -27,6 +27,17 @@ extension StitchDocumentViewModel {
             return false
         }
     }
+    
+    @MainActor
+    var isPrototypePreviewFocused: Bool {
+        switch self.reduxFocusedField {
+        case .prototypeWindow, .prototypeTextField:
+            return true
+            
+        default:
+            return false
+        }
+    }
 }
 
 extension FocusedUserEditField {
