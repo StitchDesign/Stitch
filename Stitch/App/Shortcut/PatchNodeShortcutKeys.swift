@@ -47,7 +47,13 @@ let OPTION_PICKER_NODE_SHORTCUT: KeyEquivalent = "O"
 
 
 extension Character {
-    func patchFromShortcutKey() -> Patch? {
+    func patchFromShortcutKey(isShiftDown: Bool) -> Patch? {
+        log("patchFromShortcutKey: isShiftDown: \(isShiftDown)")
+        
+//        if isShiftDown {
+//          switch
+//        }
+        
         switch self {
         case ADD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .add
