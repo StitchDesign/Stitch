@@ -18,6 +18,7 @@ struct LayerInspectorRowButton: View {
     let packedInputCanvasItemId: CanvasItemId?
     let isHovered: Bool
     let usesThemeColor: Bool
+    let disabledInputAnchorPreferenceTracking: Bool
     
     // non-nil = this inspector row button is for a field, not an input
     var fieldIndex: Int? = nil
@@ -117,7 +118,8 @@ struct LayerInspectorRowButton: View {
         }
         .modifier(TrackInspectorInput(
             layerInputObserver: layerInputObserver,
-            hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined))
+            hasActivelyDrawnEdge: graph.edgeDrawingObserver.drawingGesture.isDefined,
+            disabled: disabledInputAnchorPreferenceTracking))
         
         // Shrink down the dot view
         .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)

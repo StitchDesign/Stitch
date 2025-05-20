@@ -74,8 +74,12 @@ struct TrackInspectorInput: ViewModifier {
     // Are we actively dragging an input/output ?
     let hasActivelyDrawnEdge: Bool
     
+    // Disabled when used e.g. in generic flyout row
+    let disabled: Bool
+    
     func body(content: Content) -> some View {
-        if let layerInputObserver = layerInputObserver {
+        if let layerInputObserver = layerInputObserver,
+           !disabled {
             content.trackEdgeDraggedToInspectorAnchorPreference(
                 id: .inspectorInputOrField(LayerInputType(layerInput: layerInputObserver.port,
                                                           portType: .packed)),

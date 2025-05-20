@@ -548,7 +548,9 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                                     coordinate: coordinate,
                                     packedInputCanvasItemId: packedInputCanvasItemId,
                                     isHovered: isHovered,
-                                    usesThemeColor: usesThemeColor)
+                                    usesThemeColor: usesThemeColor,
+                                    // Do not track anchorPreference for shadow-proxy row
+                                    disabledInputAnchorPreferenceTracking: isShadowProxyRow)
             // TODO: `.firstTextBaseline` doesn't align symbols and text in quite the way we want;
             // Really, we want the center of the symbol and the center of the input's label text to align
             // Alternatively, we want the height of the row-buton to be the same as the height of the input-row's label, e.g. specify a height in `LabelDisplayView`
