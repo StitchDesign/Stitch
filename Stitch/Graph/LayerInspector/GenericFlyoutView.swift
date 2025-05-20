@@ -170,6 +170,7 @@ struct GenericFlyoutRowView: View {
                                         // use of color-theme on a flyout row is determined only by whether the row is selected,
                                         // since we cannot drag an edge to it
                                         usesThemeColor: isSelectedInspectorRow,
+                                        disabledInputAnchorPreferenceTracking: true,
                                         fieldIndex: fieldIndex)
             }
                                     
