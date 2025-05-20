@@ -174,7 +174,6 @@ struct ProjectsHomeCommands: Commands {
         CommandGroup(replacing: .pasteboard) {
             // Not shown in menu when no active project;
             // Disabled when we have focused text input
-            //            if activeProject {
             SwiftUIShortcutView(title: "Cut",
                                 key: CUT_SELECTED_NODES_SHORTCUT,
                                 disabled: textFieldFocused || !activeProject) {
