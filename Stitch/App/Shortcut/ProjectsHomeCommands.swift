@@ -22,7 +22,7 @@ struct ProjectsHomeCommands: Commands {
     }
         
     var isSidebarFocused: Bool {
-        store.currentDocument?.visibleGraph.layersSidebarViewModel.isSidebarFocused ?? false
+        store.currentDocument?.isSidebarFocused ?? false
     }
     
     var graph: GraphState? {

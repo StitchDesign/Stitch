@@ -16,6 +16,19 @@ struct ReduxFieldFocused: StitchDocumentEvent {
     }
 }
 
+extension StitchDocumentViewModel {
+    @MainActor
+    var isSidebarFocused: Bool {
+        switch self.reduxFocusedField {
+        case .sidebar, .sidebarLayerTitle:
+            return true
+            
+        default:
+            return false
+        }
+    }
+}
+
 extension FocusedUserEditField {
     var inputPortSelected: NodeRowViewModelId? {
         switch self {
