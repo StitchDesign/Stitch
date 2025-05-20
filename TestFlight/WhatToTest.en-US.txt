@@ -1,6 +1,12 @@
-What's new:
-- New keyboard shortcuts for various node types
-- Contextual tips to help you learn how to use Stitch AI
-- Improved “Contact Stitch” with the option to attach documents to your message
-- Fixed an issue where Stitch AI could overwrite existing nodes
-- Fixed a memory leak related to sidebar hover states that could slow down large projects
+New
+ - Prototyping with scroll views now easier with the “auto” scroll option in layer groups
+ - Edge dragging support for the Layer inspector
+ - Support for node shortcuts without the Option key via app settings
+ - New shortcuts for nodes, including layers
+
+Improvements/Fixes
+ - Menu commands reorganized for clearer navigation
+ - Nodes that support multiple data types are labeled Value instead of Number for better clarity
+ - Improved sidebar item selection handling
+ - Keyboard node key-press detection only fires when the prototype preview window is focused
+ - App no longer switches into AI augmentation mode after an OpenAI request
