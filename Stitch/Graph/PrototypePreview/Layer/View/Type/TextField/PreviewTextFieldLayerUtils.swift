@@ -16,7 +16,33 @@ struct ReduxFieldFocused: StitchDocumentEvent {
     }
 }
 
+extension StitchDocumentViewModel {
+    @MainActor
+    var isSidebarFocused: Bool {
+        switch self.reduxFocusedField {
+        case .sidebar, .sidebarLayerTitle:
+            return true
+            
+        default:
+            return false
+        }
+    }
+}
+
 extension FocusedUserEditField {
+    var inputPortSelected: NodeRowViewModelId? {
+        switch self {
+        case .nodeInputPortSelection(let id):
+            return id
+            
+        default:
+            return nil
+        }
+    }
+    
+    var isInputPortSelected: Bool {
+        self.inputPortSelected != nil
+    }
     
     // Find the parent canvas item for this focused-field (whether a patch node, a layer input or layer output), and select that canvas item.
     var canvasFieldId: CanvasItemId? {
@@ -48,7 +74,7 @@ extension FocusedUserEditField {
         case .commentBox:
             return nil
             
-        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight, .prototypeWindow, .prototypeTextField, .sidebar:
+        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight, .prototypeWindow, .prototypeTextField, .sidebar, .nodeInputPortSelection:
             return nil
         }
     }
@@ -68,11 +94,6 @@ extension StitchDocumentViewModel {
         // if we selected a canvas item, we also thereby selected it:
         if let canvasItemId = focusedField.canvasFieldId {
             graph.selectSingleCanvasItem(canvasItemId)
-        }
-        
-        // Selected input gets reset when we focus a text field
-        if self.selectedInput != nil {
-            self.selectedInput = nil            
         }
     }
     

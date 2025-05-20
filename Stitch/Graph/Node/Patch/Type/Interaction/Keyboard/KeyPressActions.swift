@@ -157,7 +157,7 @@ extension StitchStore {
         if graph.edgeEditingState.isDefined {
             graph.keyCharPressedDuringEdgeEditingMode(char: char,
                                                       activeIndex: document.activeIndex)
-        } else if document.selectedInput.isDefined,
+        } else if document.reduxFocusedField?.isInputPortSelected ?? false,
                 let patch = char.patchFromShortcutKey() {
             document.nodeCreatedWhileInputSelected(choice: .patch(patch))
         } else {

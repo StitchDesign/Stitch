@@ -19,7 +19,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var gestureViewModel: ItemViewModel
     
     var isSidebarFocused: Bool {
-        self.sidebarViewModel.isSidebarFocused
+        self.document.isSidebarFocused
     }
     
     var isSelected: Bool {

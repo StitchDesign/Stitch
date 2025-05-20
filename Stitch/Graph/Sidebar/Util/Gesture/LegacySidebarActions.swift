@@ -18,8 +18,9 @@ extension ProjectSidebarObservable {
             self.currentItemDragged = itemId
         }
         
-        if !self.isSidebarFocused {
-            self.isSidebarFocused = true
+        if let document = self.graphDelegate?.documentDelegate,
+           !document.isSidebarFocused {
+            document.reduxFocusedField = .sidebar
         }
     }
 
@@ -90,8 +91,8 @@ extension ProjectSidebarObservable {
         var draggedItem = item
         
         // Focus sidebar
-        if !self.isSidebarFocused {
-            self.isSidebarFocused = true
+        if !document.isSidebarFocused {
+            document.reduxFocusedField = .sidebar
         }
               
         // We have an in-progress option dupe-drag and have already duplicated the layers
