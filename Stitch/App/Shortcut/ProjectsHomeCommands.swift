@@ -22,7 +22,18 @@ struct ProjectsHomeCommands: Commands {
     }
     
     var textFieldFocused: Bool {
-        activeReduxFocusedField.isDefined || focusedField.isDefined
+        guard !focusedField.isDefined else {
+            return true
+        }
+        
+        switch activeReduxFocusedField {
+        case .sidebar, .prototypeWindow, .none:
+            // no text field in these cases
+            return false
+            
+        default:
+            return true
+        }
     }
     
     var disabledGraphDelete: Bool {
