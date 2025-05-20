@@ -27,7 +27,7 @@ extension FocusedUserEditField {
                 // log("canvasFieldId: .textInput: .node: x \(x)")
                 return x
             // TODO: what is a .textInput with a .layerInspector graphItemType?
-            case .layerInspector(let x):
+            case .layerInspector:
                 // log("canvasFieldId: .textInput: .layerInspector: x \(x)")
                 return nil
             }
@@ -37,7 +37,7 @@ extension FocusedUserEditField {
                 // log("canvasFieldId: .textInput: .canvas: x \(x)")
                 return x
                 // TODO: what is a .textInput with a .layerInspector graphItemType?
-            case .layerInspector(let x):
+            case .layerInspector:
                 // log("canvasFieldId: .textInput: .layerInspector: x \(x)")
                 return nil
             }
@@ -45,10 +45,10 @@ extension FocusedUserEditField {
             return CanvasItemId.node(nodeId)
             
         // TODO: update comment boxes to use CanvasItemId
-        case .commentBox(let commentBoxId):
+        case .commentBox:
             return nil
             
-        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight, .prototypeWindow, .prototypeTextField:
+        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight, .prototypeWindow, .prototypeTextField, .sidebar:
             return nil
         }
     }
@@ -80,8 +80,16 @@ extension StitchDocumentViewModel {
     func reduxFieldDefocused(focusedField: FocusedUserEditField) {
         log("reduxFieldDefocused: focusedField: \(focusedField)")
         log("reduxFieldDefocused: self.reduxFocusedField was: \(self.reduxFocusedField)")
-        if self.reduxFocusedField == focusedField {
-            self.reduxFocusedField = nil
+        
+        switch focusedField {
+        case .sidebarLayerTitle:
+            // Make sure focus state becomes the sidebar when submitting new layer text name
+            self.reduxFocusedField = .sidebar
+            
+        default:
+            if self.reduxFocusedField == focusedField {
+                self.reduxFocusedField = nil
+            }
         }
     }
 }

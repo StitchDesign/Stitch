@@ -159,7 +159,7 @@ extension StitchStore {
                                                       activeIndex: document.activeIndex)
         } else if document.selectedInput.isDefined,
                 let patch = char.patchFromShortcutKey() {
-            document.nodeCreatedWhileInputSelected(patch: patch)
+            document.nodeCreatedWhileInputSelected(choice: .patch(patch))
         } else {
             document.calculateAllKeyboardNodes()
         }
