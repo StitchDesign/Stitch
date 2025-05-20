@@ -79,6 +79,9 @@ extension Character {
         
         switch lowercaseCharacter {
         
+        case ADD_WIRELESS_NODE_SHORTCUT.character.lowercased().toCharacter:
+            return isShiftDown ? .wirelessReceiver : .wirelessBroadcaster
+            
         case ADD_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .add
         
