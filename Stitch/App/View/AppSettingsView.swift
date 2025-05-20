@@ -138,6 +138,7 @@ struct PreviewWindowDeviceSelectionView: View {
 let DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME = "DefaultPreviewWindowDevice"
 let SAVED_APP_THEME_KEY_NAME = "SavedAppTheme"
 let SAVED_EDGE_STYLE_KEY_NAME = "SavedEdgeStyle"
+let SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME = "SavedIsOptionRequiredForShortcuts"
 
 struct AppSettingsView: View {
     // Obtains last camera preference setting, if any
@@ -149,17 +150,23 @@ struct AppSettingsView: View {
 
     @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
     
+    @AppStorage(SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME) private var savedIsOptionRequiredForShortcuts: String = Bool.defaultIsOptionRequiredForShortcuts.description
+    
+    var isOptionRequiredForShortcut: Bool
+    
     @Environment(\.appTheme) var theme
     @Environment(\.edgeStyle) var edgeStyle
+//    @Environment(\.isOptionRequiredForShortcut) var isOptionRequiredForShortcut
         
     let allCameraChoices = getCameraPickerOptions()
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 10) {
             cameraPicker
             themePicker
             edgeStylePicker
             defaultPreviewWindowDevicePicker
+            isOptionRequiredForShortcutsPicker
         }
     }
 
@@ -193,6 +200,7 @@ struct AppSettingsView: View {
                 .pickerStyle(.menu)
                 .padding(.leading, 10)
             }
+            
             StitchCaptionView("Set the main camera used throughout your projects")
         }
     }
@@ -258,6 +266,28 @@ struct AppSettingsView: View {
             StitchCaptionView("Set the default preview window device for new projects")
         }
     }
+
+    @ViewBuilder
+    var isOptionRequiredForShortcutsPicker: some View {
+        logInView("AppSettingsView: isOptionRequiredForShortcutsPicker: self.isOptionRequiredForShortcut: \(self.isOptionRequiredForShortcut)")
+        
+        let isRequired = self.isOptionRequiredForShortcut
+        let icon: String = isRequired ? "checkmark.square" : "square"
+        
+        VStack(alignment: .leading) {
+            HStack(alignment: .center) {
+                Text("Require Option for shortcuts?").fontWeight(.bold)
+                Image(systemName: icon)
+                    .onTapGesture {
+                        dispatch(OptionRequiredForShortcutsChanged(newValue: !isRequired))
+                    }
+            }
+            .padding(.bottom, 2)
+            
+            StitchCaptionView("If true, `Option + O`, rather than just `O`, adds an Option Picker to the canvas.")
+        }
+    }
+    
             
     func getCameraSelection(cameraID: String?) -> AVCaptureDevicePickerOption? {
         guard let cameraID = cameraID,
@@ -273,6 +303,6 @@ struct AppSettingsView: View {
 
 struct AppSettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        AppSettingsView()
+        AppSettingsView(isOptionRequiredForShortcut: true)
     }
 }

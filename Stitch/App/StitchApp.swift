@@ -85,6 +85,7 @@ struct StitchApp: App {
             // Inject theme as environment variable
                 .environment(\.appTheme, self.store.appTheme)
                 .environment(\.edgeStyle, self.store.edgeStyle)
+                .environment(\.isOptionRequiredForShortcut, self.store.isOptionRequiredForShortcut)
         }
         
 
