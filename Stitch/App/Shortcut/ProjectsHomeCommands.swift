@@ -60,8 +60,7 @@ struct ProjectsHomeCommands: Commands {
                 }
             }
 
-            if activeProject {
-                
+            if let document = store.currentDocument {
                 Divider()
                 
                 SwiftUIShortcutView(title: "Insert",
@@ -115,6 +114,7 @@ struct ProjectsHomeCommands: Commands {
                 
                 // MARK: insert node shortcuts
                 InsertNodeCommands(store: store,
+                                   document: document,
                                    textFieldFocused: textFieldFocused,
                                    hasSelectedInput: hasSelectedInput)
             } // if activeProject

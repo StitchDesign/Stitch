@@ -33,6 +33,7 @@ enum FocusedUserEditField: Equatable, Hashable {
          any,    // default option
          llmRecordingModal,
          stitchAIPromptModal,
+         sidebar,
          sidebarLayerTitle(String),
          previewWindowSettingsWidth,
          previewWindowSettingsHeight,
