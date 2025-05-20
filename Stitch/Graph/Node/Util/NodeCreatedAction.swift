@@ -14,10 +14,10 @@ import CoreMotion
 struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
     
     // Determined by the shortcut or key that was pressed while the input was selected
-    let choice: NodeKind
+    let patch: Patch
     
     func handle(state: StitchDocumentViewModel) {
-        state.nodeCreatedWhileInputSelected(choice: choice)
+        state.nodeCreatedWhileInputSelected(patch: patch)
     }
 }
 
@@ -25,9 +25,17 @@ extension StitchDocumentViewModel {
     
     // TODO: this can actually only ever be for creating a PatchNode ?
     @MainActor
-    func nodeCreatedWhileInputSelected(choice: NodeKind) {
+    func nodeCreatedWhileInputSelected(patch: Patch) {
         let state = self
         let graph = state.visibleGraph
+
+        // A Wireless Broadcaster has no (visible) outgoing edges,
+        // so we insert a Wireless Receiver instead.
+        // If we attempt to insert
+        var patch = patch
+        if patch == .wirelessBroadcaster {
+            patch = .wirelessReceiver
+        }
         
         // Find the input
         guard let selectedInput = state.reduxFocusedField?.inputPortSelected,
@@ -45,7 +53,7 @@ extension StitchDocumentViewModel {
                 
         // Create the node that corresponds to the shortcut/key pressed
         guard let node = state.nodeInserted(
-            choice: choice,
+            choice: .patch(patch),
             canvasLocation: selectedInputLocation) else {
             
             fatalErrorIfDebug()
@@ -56,8 +64,7 @@ extension StitchDocumentViewModel {
         graph.persistNewNode(node)
         
         // Update the created-node's type if node supports the selected input's type
-        if let patch = choice.getPatch,
-           patch.availableNodeTypes.contains(selectedInputType) {
+        if patch.availableNodeTypes.contains(selectedInputType) {
             let _ = graph.nodeTypeChanged(nodeId: node.id,
                                           newNodeType: selectedInputType,
                                           activeIndex: state.activeIndex)
@@ -82,7 +89,7 @@ extension StitchDocumentViewModel {
         inputOnCreatedNode.setValuesInInput(selectedInputObserver.values)
         
         guard let firstOutput = node.outputsObservers.first else {
-            fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(choice): did not have output") // should never be called for
+            fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(patch): did not have output") // should never be called for
             return
         }
         
