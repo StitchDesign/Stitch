@@ -184,8 +184,7 @@ struct ProjectsHomeCommands: Commands {
                 // TODO: maybe it would be better if these options did not all show up in the Graph menu on Catalyst?
                 SwiftUIShortcutView(title: "Insert Add Node",
                                     key: ADD_NODE_SHORTCUT,
-//                                    eventModifiers: [.option],
-                                    eventModifiers: [],
+                                    eventModifiers: [.option],
                                     disabled: textFieldFocused) {
                     if hasSelectedInput {
                         dispatch(NodeCreatedWhileInputSelected(patch: .add))
