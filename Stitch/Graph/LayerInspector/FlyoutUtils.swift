@@ -89,9 +89,6 @@ struct FlyoutToggled: StitchDocumentEvent {
             if let fieldToFocus = fieldToFocus {
                 state.reduxFieldFocused(focusedField: fieldToFocus)
             }
-            
-            // Reset selected input when flyout opens
-            state.selectedInput = nil
         }
     }
 }

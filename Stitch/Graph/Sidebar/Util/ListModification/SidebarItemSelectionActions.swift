@@ -26,9 +26,7 @@ extension ProjectSidebarObservable {
         if !self.isSidebarFocused {
             self.isSidebarFocused = true            
         }
-        
-        document.selectedInput = nil
-        
+                
         // Wipe redux field
         document.reduxFocusedField = nil
         

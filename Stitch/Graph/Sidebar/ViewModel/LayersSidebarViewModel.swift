@@ -23,6 +23,8 @@ final class LayersSidebarViewModel: ProjectSidebarObservable, Sendable {
     // Selection state
     @MainActor var primary = Set<ItemID>()     // items selected because directly clicked
     @MainActor var lastFocused: ItemID?
+    
+    // TODO: remove sidebar focus from here!!!!!
     @MainActor var isSidebarFocused: Bool = false
     
     // Option-drag duplication of layers
