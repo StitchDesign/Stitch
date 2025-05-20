@@ -157,8 +157,8 @@ extension StitchStore {
             if !self.isOptionRequiredForShortcut,
                let patch = char.patchFromShortcutKey() {
                 
-                if document.selectedInput.isDefined {
-                    document.nodeCreatedWhileInputSelected(patch: patch)
+                if document.reduxFocusedField?.isInputPortSelected ?? false {
+                    document.nodeCreatedWhileInputSelected(choice: .patch(patch))
                 } else {
                     document.handleNodeCreatedViaShortcut(patch: patch)
                 }

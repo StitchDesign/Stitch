@@ -23,6 +23,7 @@ struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
 
 extension StitchDocumentViewModel {
     
+    // TODO: this can actually only ever be for creating a PatchNode ?
     @MainActor
     func nodeCreatedWhileInputSelected(choice: NodeKind) {
         let state = self

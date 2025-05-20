@@ -37,7 +37,7 @@ struct ProjectsHomeCommands: Commands {
     }
     
     var hasSelectedInput: Bool {
-        self.store.currentDocument?.selectedInput.isDefined ?? false
+        self.store.currentDocument?.reduxFocusedField?.isInputPortSelected ?? false
     }
 
     // If option is NOT required for shortcuts, then we need to

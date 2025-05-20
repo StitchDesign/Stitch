@@ -47,6 +47,14 @@ struct InsertNodeCommands: View {
         }
     }
     
+    var isOptionRequired: Bool {
+        store.isOptionRequiredForShortcut
+    }
+    
+    var modifiersAdjustedForOptionRequirement: EventModifiers {
+        isOptionRequired ? [.option] : []
+    }
+    
     var body: some View {
         Menu("Insert \(selectionLabel) Node") {
             if isLayerSidebarFocused {
@@ -86,7 +94,7 @@ struct InsertNodeCommands: View {
         SwiftUIShortcutView(title: "Value",
                             key: ADD_SPLITTER_NODE_SHORTCUT,
                             // empty list = do not require CMD
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.splitter)))
@@ -100,7 +108,7 @@ struct InsertNodeCommands: View {
         // Option + W = add Broadcaster
         SwiftUIShortcutView(title: "Wireless Broadcaster",
                             key: ADD_WIRELESS_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             dispatch(NodeCreatedEvent(choice: .patch(.wirelessBroadcaster)))
             // TODO: probably not needed?
@@ -110,7 +118,7 @@ struct InsertNodeCommands: View {
         // Option + Shift + W = add Receiver
         SwiftUIShortcutView(title: "Wireless Receiver",
                             key: ADD_WIRELESS_NODE_SHORTCUT,
-                            eventModifiers: [.option, .shift],
+                            eventModifiers:  self.isOptionRequired ? [.option, .shift] : [.shift],
                             disabled: self.shouldDisablePatch) {
             dispatch(NodeCreatedEvent(choice: .patch(.wirelessReceiver)))
             // Note: the Option key seems to get stuck easily when Shift is also pressed?
@@ -123,7 +131,7 @@ struct InsertNodeCommands: View {
         // TODO: maybe it would be better if these options did not all show up in the Graph menu on Catalyst?
         SwiftUIShortcutView(title: "Add",
                             key: ADD_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.add)))
@@ -134,7 +142,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Subtract",
                             key: SUBTRACT_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.subtract)))
@@ -145,7 +153,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Multiply",
                             key: MULTIPLY_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.multiply)))
@@ -156,7 +164,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Divide",
                             key: DIVIDE_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.divide)))
@@ -167,7 +175,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Power",
                             key: POWER_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.power)))
@@ -178,7 +186,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Mod",
                             key: MOD_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.mod)))
@@ -191,7 +199,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Less Than",
                             key: LESS_THAN_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.lessThan)))
@@ -202,7 +210,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Greater Than",
                             key: GREATER_THAN_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.greaterThan)))
@@ -213,7 +221,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Equals",
                             key: EQUALS_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.equals)))
@@ -226,7 +234,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Classic Animation",
                             key: CLASSIC_ANIMATION_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.classicAnimation)))
@@ -237,7 +245,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Pop Animation",
                             key: POP_ANIMATION_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.popAnimation)))
@@ -250,7 +258,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Switch",
                             key: FLIP_SWITCH_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.flipSwitch)))
@@ -261,7 +269,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Option Picker",
                             key: OPTION_PICKER_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.optionPicker)))
@@ -272,7 +280,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Reverse Progress",
                             key: REVERSE_PROGRESS_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.reverseProgress)))
@@ -283,7 +291,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Transition",
                             key: TRANSITION_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.transition)))
@@ -294,7 +302,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Pulse",
                             key: PULSE_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.pulse)))
@@ -307,7 +315,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Delay",
                             key: DELAY_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.delay)))
@@ -318,7 +326,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Keyboard",
                             key: KEYBOARD_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.keyboard)))
@@ -329,7 +337,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Press Interaction",
                             key: PRESS_INTERACTION_NODE_SHORTCUT,
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .patch(.pressInteraction)))
@@ -343,7 +351,7 @@ struct InsertNodeCommands: View {
     var layers: some View {
         SwiftUIShortcutView(title: "Oval",
                             key: "O",
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .layer(.oval)))
@@ -354,7 +362,7 @@ struct InsertNodeCommands: View {
 
         SwiftUIShortcutView(title: "Rectangle",
                             key: "R",
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .layer(.rectangle)))
@@ -367,7 +375,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Text",
                             key: "T",
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .layer(.text)))
@@ -380,7 +388,7 @@ struct InsertNodeCommands: View {
         
         SwiftUIShortcutView(title: "Group",
                             key: "G",
-                            eventModifiers: [.option],
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             if hasSelectedInput {
                 dispatch(NodeCreatedWhileInputSelected(choice: .layer(.group)))
