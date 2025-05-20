@@ -30,7 +30,7 @@ struct InsertNodeCommands: View {
     
     var shouldDisablePatch: Bool {
         switch document.reduxFocusedField {
-        case .any, .none:
+        case .any, .none, .nodeInputPortSelection:
             // Disable all scenarios except when there's any selection, no selection, or an input port is selected
             return false
         default:
