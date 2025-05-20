@@ -23,6 +23,7 @@ struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
 
 extension StitchDocumentViewModel {
     
+    // TODO: this can actually only ever be for creating a PatchNode ?
     @MainActor
     func nodeCreatedWhileInputSelected(choice: NodeKind) {
         let state = self
@@ -108,6 +109,15 @@ struct NodeCreatedEvent: StitchDocumentEvent {
 }
 
 extension StitchDocumentViewModel {
+    
+    @MainActor
+    func handleNodeCreatedViaShortcut(patch: Patch) {
+        guard let node = self.nodeInserted(choice: .patch(patch)) else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.visibleGraph.persistNewNode(node)
+    }
     
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
     @MainActor

@@ -13,7 +13,6 @@ enum EdgeStyle: String, CaseIterable {
          curve = "Curve",
          line = "Line"
 
-//    static let defaultEdgeStyle: Self = .circuit
     static let defaultEdgeStyle: Self = .curve
 }
 
