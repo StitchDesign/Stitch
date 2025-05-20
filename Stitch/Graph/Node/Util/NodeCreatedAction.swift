@@ -107,6 +107,15 @@ struct NodeCreatedEvent: StitchDocumentEvent {
 
 extension StitchDocumentViewModel {
     
+    @MainActor
+    func handleNodeCreatedViaShortcut(patch: Patch) {
+        guard let node = self.nodeInserted(choice: .patch(patch)) else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.visibleGraph.persistNewNode(node)
+    }
+    
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
     @MainActor
     var newCanvasItemInsertionLocation: CGPoint {
