@@ -178,7 +178,9 @@ struct GenerateAINode: StitchDocumentEvent {
         let graph = state.visibleGraph
         
         // Set loading state
-        state.insertNodeMenuState.isGeneratingAINode = true
+        withAnimation { // added
+            state.insertNodeMenuState.isGeneratingAINode = true
+        }
         
         // Set flag to indicate this is from AI generation
         state.insertNodeMenuState.isFromAIGeneration = true

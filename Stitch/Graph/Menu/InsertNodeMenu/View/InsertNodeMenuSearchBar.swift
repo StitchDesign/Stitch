@@ -38,15 +38,29 @@ struct InsertNodeMenuSearchBar: View {
             TextField("Search or enter AI prompt...", text: $queryString)
                 .focused($isFocused)
                 .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                .padding(.leading, 52)
-                .padding(.trailing, 12)
-                .overlay(HStack {
-                    let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
-                    Image(systemName: isAIMode ? "sparkles" : "magnifyingglass")
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 15)
-                        .animation(.linear(duration: 0.2), value: isAIMode)
-                })
+                .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+                .padding(.leading, 12)
+                .padding(.trailing, 52)
+                .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+                .overlay(alignment: .center) {
+                    HStack {
+                        let isLoading = store.currentDocument?.insertNodeMenuState.isGeneratingAINode ?? false
+                        
+                        Group {
+                            if isLoading {
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                                    .tint(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
+                            } else {
+                                Image(systemName: "plus.app")
+                                    .frame(width: 36, height: 36)
+                            }
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+                        .padding(.trailing, 15)
+                        .animation(.linear(duration: 0.2), value: isLoading)
+                    }
+                }
                 .font(.system(size: 24))
                 .disableAutocorrection(true)
                 .onSubmit {
@@ -106,13 +120,15 @@ struct InsertNodeMenuSearchBar: View {
 
         // Hosting controller needed to register arrow key presses in this view;
         // this is also the main key-press listener for the app, since the insert node menu is always on-screen
-        StitchHostingControllerView(ignoreKeyCommands: false,
-                                    inputTextFieldFocused: false, // N/A
-                                    usesArrowKeyBindings: true, // N/A ?
-                                    name: .insertNodeMenuSearchbar) {
-            searchInput
-        }
-        .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
-
+//        StitchHostingControllerView(ignoreKeyCommands: false,
+//                                    inputTextFieldFocused: false, // N/A
+//                                    usesArrowKeyBindings: true, // N/A ?
+        //                                    name: .insertNodeMenuSearchbar) {
+        searchInput
+            .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+        //        }
+            .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
+            .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+        
     }
 }

@@ -45,7 +45,7 @@ struct InsertNodeMenuView: View {
     @State private var isLoadingStitchAI = false
     private let launchTip = StitchAILaunchTip()
 
-    let document: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     let insertNodeMenuState: InsertNodeMenuState
     let isPortraitMode: Bool
     let showMenu: Bool
@@ -53,8 +53,12 @@ struct InsertNodeMenuView: View {
     
     var body: some View {
         sheetView
+        
+        // these are now mostly static?
+        // except menuHeight can change on iPad?
             .frame(width: InsertNodeMenuWrapper.menuWidth,
                    height: menuHeight)
+        
             .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
         // Background view guarantees focus state for search bar
             .background {
@@ -65,50 +69,69 @@ struct InsertNodeMenuView: View {
             }
     }
 
+    var isLoading: Bool {
+       document.insertNodeMenuState.isGeneratingAINode
+    }
+    
+    
     @MainActor
     var sheetView: some View {
         VStack(spacing: 0) {
             InsertNodeMenuSearchBar(launchTip: self.launchTip,
                                     isLoadingStitchAI: $isLoadingStitchAI)
 
-            HStack(spacing: .zero) {
-
-                InsertNodeMenuSearchResults(
-                    searchResults: insertNodeMenuState.searchResults,
-                    activeSelection: insertNodeMenuState.activeSelection,
-                    footerRect: self.$footerRect,
-                    show: document.insertNodeMenuState.show)
+            if !isLoading {
+                HStack(spacing: .zero) {
+                    // alternatively, change the height available for this?
+                    
+                    InsertNodeMenuSearchResults(
+                        searchResults: insertNodeMenuState.searchResults,
+                        activeSelection: insertNodeMenuState.activeSelection,
+                        footerRect: self.$footerRect,
+                        show: document.insertNodeMenuState.show)
                     //                    .frame(width: 170, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_SEARCH_RESULTS_WIDTH)
-                //                    .compositingGroup() // added
-
-                InsertNodeMenuNodeDescriptionView(
-                    activeSelection: insertNodeMenuState.activeSelection)
+                    //                    .compositingGroup() // added
+                    
+                    InsertNodeMenuNodeDescriptionView(
+                        activeSelection: insertNodeMenuState.activeSelection)
                     //                    .frame(width: 460, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_DESCRIPTION_WIDTH)
-            } // HStack
-            .overlay {
-                VStack {
-                    if isLoadingStitchAI {
-                        Spacer()
-                        
-                        Text("Stitch AI is processing your request. This may take up to 30 seconds.")
-                            .fontWeight(.bold)
-                            .italic()
-                            .transition(.opacity)
-                    }
-                    
-                    Spacer()
-                    
-                    footerView
-                }
+                } // HStack
+                .transition(.move(edge: .top))
+                // Asymmetric: fade in, move out to the top
+//                .transition(.asymmetric(
+//                    insertion: .opacity,
+//                    removal: .move(edge: .top)
+//                ))
             }
+               
+            
+//            .overlay {
+//                VStack {
+//                    if isLoadingStitchAI {
+//                        Spacer()
+//                        
+//                        Text("Stitch AI is processing your request. This may take up to 30 seconds.")
+//                            .fontWeight(.bold)
+//                            .italic()
+//                            .transition(.opacity)
+//                    }
+//                    
+//                    Spacer()
+//                    
+////                    footerView
+//                }
+//            }
         } // VStack
         .background(INSERT_NODE_SEARCH_BACKGROUND)
         .animation(.stitchAnimation, value: self.isLoadingStitchAI)
         .foregroundColor(INSERT_NODE_MENU_SEARCH_TEXT)
+        .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+        
         // Important: animates the entire view's appearance at same time; otherwise e.g. the frosted background fades in separately
         .compositingGroup()
+        
         // Add onDisappear to cancel any in-progress request
         .onDisappear {
             document.aiManager?.cancelCurrentRequest()
