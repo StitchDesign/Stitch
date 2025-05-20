@@ -22,7 +22,30 @@ struct ProjectsHomeCommands: Commands {
     }
     
     var textFieldFocused: Bool {
-        activeReduxFocusedField.isDefined || focusedField.isDefined
+        guard !focusedField.isDefined else {
+            return true
+        }
+        
+        switch activeReduxFocusedField {
+        case .sidebar, .prototypeWindow, .none:
+            // no text field in these cases
+            return false
+            
+        default:
+            return true
+        }
+    }
+    
+    var disabledGraphDelete: Bool {
+        guard let document = store.currentDocument else {
+            return true
+        }
+        
+        if document.isSidebarFocused {
+            return document.visibleGraph.layersSidebarViewModel.selectionState.items.isEmpty
+        } else {
+            return document.visibleGraph.selectedCanvasItems.isEmpty
+        }
     }
     
     var body: some Commands {
@@ -209,7 +232,7 @@ struct ProjectsHomeCommands: Commands {
                                 key: DELETE_SELECTED_NODES_SHORTCUT,
                                 // empty list = do not require CMD
                                 eventModifiers: DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS,
-                                disabled: textFieldFocused || !activeProject) {
+                                disabled: disabledGraphDelete) {
                 // deletes both selected nodes and selected comments
                 dispatch(DeleteShortcutKeyPressed())
             }
