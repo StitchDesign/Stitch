@@ -114,7 +114,15 @@ struct InsertNodeCommands: View {
                             key: ADD_WIRELESS_NODE_SHORTCUT,
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
-            dispatch(NodeCreatedEvent(choice: .patch(.wirelessBroadcaster)))
+            
+            // Note: Wireless Broadcaster does not expose any outputs, so cannot be "inserted upstream from a selected input";
+            // so we instead insert a wireless-receiver.
+            if hasSelectedInput {
+                dispatch(NodeCreatedWhileInputSelected(patch: .wirelessReceiver))
+            } else {
+                dispatch(NodeCreatedEvent(choice: .patch(.wirelessBroadcaster)))
+            }
+            
             // TODO: probably not needed?
             store.currentDocument?.keypressState.modifiers.remove(.option)
         }
@@ -125,7 +133,7 @@ struct InsertNodeCommands: View {
                             eventModifiers:  shiftModifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisablePatch) {
             if hasSelectedInput {
-                dispatch(NodeCreatedWhileInputSelected(patch: .add))
+                dispatch(NodeCreatedWhileInputSelected(patch: .wirelessReceiver))
             } else {
                 dispatch(NodeCreatedEvent(choice: .patch(.wirelessReceiver)))
             }
@@ -298,7 +306,6 @@ struct InsertNodeCommands: View {
             }
         }
         
-        
         SwiftUIShortcutView(title: "Or",
                             key: OPTION_PICKER_NODE_SHORTCUT,
                             eventModifiers: shiftModifiersAdjustedForOptionRequirement,
@@ -309,7 +316,6 @@ struct InsertNodeCommands: View {
                 dispatch(NodeCreatedEvent(choice: .patch(.or)))
             }
         }
-        
         
         Divider()
         
