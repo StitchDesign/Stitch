@@ -32,31 +32,42 @@ func yDistance(_ from: CGPoint,
     abs(from.y - to.y)
 }
 
-// Are these two points within NEARNESS_ALLOWANCE of each other?
-func areNear(_ inputCenter: CGPoint, _ cursorCenter: CGPoint) -> Bool {
+// TODO: do we want different 'near-ness' for detecting eligible canvas inputs vs eligible inspector inputs/fields ?
+/// Are these two points within NEARNESS_ALLOWANCE of each other?
+@MainActor
+func areNear(_ inputCenter: CGPoint,
+             _ cursorCenter: CGPoint,
+             layerInputType: LayerInputType? = nil,
+             nearnessAllowance: CGFloat = NODE_ROW_HEIGHT) -> Bool {
 
-    let NEARNESS_ALLOWANCE: CGFloat = NODE_ROW_HEIGHT
 
-    //    log("areNear: inputCenter: \(inputCenter)")
-    //    log("areNear: cursorCenter: \(cursorCenter)")
+    // log("areNear: inputCenter: \(inputCenter)")
+    // log("areNear: cursorCenter: \(cursorCenter)")
+    
+    let isForInspector = layerInputType.isDefined
+    let isWholeInput = layerInputType?.isPacked ?? false
+        
+    let range = CGSize(width: isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : nearnessAllowance * 3,
+                       // Inspector rows have a little more space between them
+                       height: nearnessAllowance * (isForInspector ? 2 : 1))
 
-    let range = CGSize(width: NEARNESS_ALLOWANCE * 3,
-                       height: NEARNESS_ALLOWANCE)
-
+    let box1OriginX = inputCenter.x + nearnessAllowance + (isWholeInput ? LayerInspectorView.LAYER_INSPECTOR_WIDTH - 40 : 0)
+    
     // shift inward slightly
     let box1 = CGRect.init(
-        origin: .init(x: inputCenter.x + NEARNESS_ALLOWANCE,
+        origin: .init(x: box1OriginX,
                       y: inputCenter.y),
         size: range)
 
+    // TODO: maybe better to expand the cursor's location ?
     let box2 = CGRect.init(origin: cursorCenter,
                            size: range)
 
-    //    log("areNear: box1: \(box1)")
-    //    log("areNear: box2: \(box2)")
+    // log("areNear: box1: \(box1)")
+    // log("areNear: box2: \(box2)")
 
     let k = isIntersecting(box1, box2)
-    //    log("areNear: k: \(k)")
+    // log("areNear: k: \(k)")
     return k
 }
 
@@ -68,8 +79,10 @@ extension GraphState {
      - cursor position is too far from other inputs,
      - ... etc.
      */
+    
+    // fka `findEligibleInput`
     @MainActor
-    func findEligibleInput(
+    func findEligibleCanvasInput(
         // The location of the user's output/input-dragged gesture
         cursorLocation: CGPoint,
         
@@ -77,8 +90,6 @@ extension GraphState {
         // Never create an edge from an output to an input on the very same node.
         cursorNodeId: CanvasItemId
     ) {
-        
-        var nearestInputs = [InputNodeRowViewModel]()
         
         let canvasItemsAtThisTraversalLevel = self
             .getCanvasItemsAtTraversalLevel(groupNodeFocused: documentDelegate?.groupNodeFocused?.groupNodeId)
@@ -88,34 +99,44 @@ extension GraphState {
                 canvasItem.inputViewModels
             }
         
+        var nearestInputs = [InputNodeRowViewModel]()
+        
         // Only look at pref-dict inputs' which are on this level
         for inputViewModel in eligibleInputs {
             guard let inputCenter = inputViewModel.portUIViewModel.anchorPoint else {
                 continue
             }
-            
-            if areNear(inputCenter, cursorLocation)
+  
+            if areNear(inputCenter,
+                       cursorLocation)
+                // i.e. don't create a connection to the output's node's own input!
                 && inputViewModel.canvasItemDelegate?.id != cursorNodeId {
                 nearestInputs.append(inputViewModel)
             }
         }
         
-        if nearestInputs.isEmpty {
-            self.edgeDrawingObserver.nearestEligibleInput = nil
+        let hadEligibleCanvasInput = self.edgeDrawingObserver.nearestEligibleEdgeDestination?.getCanvasInput.isDefined ?? false
+        
+        if nearestInputs.isEmpty,
+           hadEligibleCanvasInput {
+            log("findEligibleCanvasInput: wiping nearestEligibleEdgeDestination")
+            self.edgeDrawingObserver.nearestEligibleEdgeDestination = nil
         } else if let nearestInput = nearestInputs.last {
             // While dragging cursor from an output/input,
             // we've detected that we're over an eligible input
             // to which we could create a connection.
-            self.edgeDrawingObserver.nearestEligibleInput = nearestInput
+            log("findEligibleCanvasInput: found nearestEligibleEdgeDestination: \(nearestInput)")
+            self.edgeDrawingObserver.nearestEligibleEdgeDestination = .canvasInput(nearestInput)
         }
         
         // After we've set or wiped the nearestEligible input,
         // *animate* the port color change:
         withAnimation(.linear(duration: DrawnEdge.ANIMATION_DURATION)) {
             if let drawingGesture = self.edgeDrawingObserver.drawingGesture,
-               let outputObserver = self.getOutputRowObserver(drawingGesture.output.nodeIOCoordinate),
-               let canvasItemId = drawingGesture.output.canvasItemDelegate?.id {
-                drawingGesture.output.portUIViewModel.updatePortColor(
+               let outputObserver = self.getOutputRowObserver(drawingGesture.outputId.asNodeIOCoordinate),
+               let canvasItemId = drawingGesture.outputId.graphItemType.getCanvasItemId,
+               let outputRowViewModel = self.getOutputRowViewModel(for: drawingGesture.outputId) {
+                outputRowViewModel.portUIViewModel.updatePortColor(
                     canvasItemId: canvasItemId,
                     hasEdge: outputObserver.hasEdge,
                     hasLoop: outputObserver.hasLoopedValues,
@@ -125,6 +146,69 @@ extension GraphState {
             }
         }
     }
+    
+    @MainActor
+    func findEligibleInspectorInputOrField(drawingObserver: EdgeDrawingObserver,
+                                           drawingGesture: OutputDragGesture,
+                                           geometry: GeometryProxy,
+                                           preferences: [EdgeDraggedToInspector: Anchor<CGRect>]) {
+                
+        var nearestInspectorInputs = [LayerInputType]()
+        
+        // TODO: investigate ordering to prioritize fields
+        
+        for preference in preferences {
+            
+            switch preference.key {
+            
+            case .inspectorInputOrField(let layerInputType):
+                // Note: `areNear` *already* expands the 'hit area'
+                if areNear(geometry[preference.value].mid,
+                           drawingGesture.cursorLocationInGlobalCoordinateSpace,
+                           layerInputType: layerInputType) {
+                    
+                    // log("findEligibleInspectorFieldOrRow: WAS NEAR: layerInputType: \(layerInputType)")
+                    nearestInspectorInputs.append(layerInputType)
+                }
+                 
+            case .draggedOutput:
+                continue
+            }
+        } // for preference in ...
+        
+        let hadEligibleInspectorInputOrField = drawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField.isDefined ?? false
+        
+        // No inspector input or field was eligible
+        if nearestInspectorInputs.isEmpty,
+           hadEligibleInspectorInputOrField {
+            // log("findEligibleInspectorFieldOrRow: NO inspector inputs/fields")
+            drawingObserver.nearestEligibleEdgeDestination = nil
+        }
+        
+        // We had at least one eligible inspector input or field
+        else {
+            // The entire row is treated as the "input"; but we prefer a specific field
+            let nearestUnpackedField = nearestInspectorInputs.last(where: { $0.portType.getUnpacked != nil })
+            
+            log("findEligibleInspectorFieldOrRow: nearestInspectorInputs: \(nearestInspectorInputs)")
+            log("findEligibleInspectorFieldOrRow: nearestUnpackedField: \(nearestUnpackedField)")
+            
+            if let nearestInspectorInput = nearestUnpackedField ?? nearestInspectorInputs.last{
+                drawingObserver.nearestEligibleEdgeDestination = .inspectorInputOrField(nearestInspectorInput)
+            }
+        }
+        
+        // After we've set or wiped the nearestEligible input,
+        // *animate* the port color change:
+        withAnimation(.linear(duration: DrawnEdge.ANIMATION_DURATION)) {
+            self
+                .getOutputRowObserver(drawingGesture.outputId.asNodeIOCoordinate)?
+                .updateRowViewModelsPortColor(selectedEdges: self.selectedEdges,
+                                              selectedCanvasItems: self.selectedCanvasItems,
+                                              drawingObserver: drawingObserver)
+        }
+    }
+    
     
     /// Removes edges which root from some output coordinate.
     @MainActor

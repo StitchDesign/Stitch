@@ -80,7 +80,9 @@ struct ProjectsHomeView: View {
         .stitchSheet(isPresented: alertState.showAppSettings,
                      titleLabel: "Settings",
                      hideAction: store.hideAppSettingsSheet,
-                     sheetBody: { AppSettingsView() })
+                     sheetBody: {
+            AppSettingsView(isOptionRequiredForShortcut: store.isOptionRequiredForShortcut)
+        })
         .stitchSheet(isPresented: store.showsSampleProjectModal,
                      titleLabel: "Sample Projects",
                      hideAction: { store.showsSampleProjectModal = false }) {

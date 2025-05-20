@@ -187,6 +187,11 @@ extension GraphState {
         // end any edge-drawing
         self.edgeDrawingObserver.reset()
         self.nodeIsMoving = true
+        
+        // reset any focus state
+        if document.reduxFocusedField != nil {
+            document.reduxFocusedField = nil            
+        }
     }
 }
 

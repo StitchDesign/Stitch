@@ -27,7 +27,7 @@ struct CommonEditingView: View {
     
     let isForFlyout: Bool
     
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
 
     var isForSpacingField: Bool = false
     var isForLayerDimensionField: Bool = false
@@ -88,7 +88,7 @@ struct CommonEditingView: View {
                 // Inspector/flyout
                 isForLayerInspector: isForLayerInspector,
                 isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
-                isSelectedInspectorRow: isSelectedInspectorRow,
+                usesThemeColor: usesThemeColor,
                 hasHeterogenousValues: hasHeterogenousValues,
                 isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
                                 

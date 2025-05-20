@@ -15,7 +15,7 @@ struct LabelDisplayView: View {
     let label: String
     let isLeftAligned: Bool
     var fontColor: Color = STITCH_FONT_WHITE_COLOR
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
 
     var body: some View {
 
@@ -24,7 +24,7 @@ struct LabelDisplayView: View {
             EmptyView()
         } else {
             StitchTextView(string: label,
-                           fontColor: isSelectedInspectorRow ? theme.fontColor : fontColor)
+                           fontColor: usesThemeColor ? theme.fontColor : fontColor)
                 .frame(alignment: isLeftAligned ? .leading : .trailing)
                 .fixedSize() // Do not let parent shrink this child view
         }
