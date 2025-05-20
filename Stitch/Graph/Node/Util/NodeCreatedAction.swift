@@ -40,8 +40,7 @@ extension StitchDocumentViewModel {
         // Find the input
         guard let selectedInput = state.reduxFocusedField?.inputPortSelected,
               let canvasId = selectedInput.graphItemType.getCanvasItemId,
-              var selectedInputLocation = graph.getCanvasItem(canvasId)?
-            .locationOfInputs,
+              var selectedInputLocation = graph.getCanvasItem(canvasId)?.locationOfInputs,
               let selectedInputObserver = state.visibleGraph.getInputRowViewModel(for: selectedInput)?.rowDelegate,
               let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
             fatalErrorIfDebug()
@@ -60,9 +59,6 @@ extension StitchDocumentViewModel {
             return
         }
                 
-        // TODO: is this really needed? Mostly for undo/redo ?
-        graph.persistNewNode(node)
-        
         // Update the created-node's type if node supports the selected input's type
         if patch.availableNodeTypes.contains(selectedInputType) {
             let _ = graph.nodeTypeChanged(nodeId: node.id,
@@ -97,8 +93,12 @@ extension StitchDocumentViewModel {
         graph.addEdgeWithoutGraphRecalc(from: firstOutput.id,
                                         to: selectedInputObserver.id)
         
+        self.visibleGraph.updateGraphData(self)
+        
         // TODO: calculate a smaller portion of the graph?
         graph.calculateFullGraph()
+        
+        graph.persistNewNode(node)
     }
 }
 
