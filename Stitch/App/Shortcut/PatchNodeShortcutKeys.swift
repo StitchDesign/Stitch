@@ -8,14 +8,12 @@
 import Foundation
 import SwiftUI
 
+// MARK: PATCH SHORTCUTS
 
 let ADD_PACK_NODE_SHORTCUT: KeyEquivalent = "P"
 let ADD_UNPACK_NODE_SHORTCUT: KeyEquivalent = "U"
 
 let ADD_SPLITTER_NODE_SHORTCUT: KeyEquivalent = "X"
-
-
-// TODO: ineligible for input-selected ?
 
 // Option + W = add Broadcaster
 // Option + Shift + W = add Receiver
@@ -58,10 +56,38 @@ let PRESS_INTERACTION_NODE_SHORTCUT: KeyEquivalent = "I"
 let OPTION_PICKER_NODE_SHORTCUT: KeyEquivalent = "O"
 
 
+// MARK: LAYER SHORCUTS
+
+let OVAL_LAYER_SHORTCUT: KeyEquivalent = "O"
+let RECTANGLE_LAYER_SHORTCUT: KeyEquivalent = "R"
+let TEXT_LAYER_SHORTCUT: KeyEquivalent = "T"
+let GROUP_LAYER_SHORTCUT: KeyEquivalent = "G"
+let HIT_AREA_LAYER_SHORTCUT: KeyEquivalent = "H"
+
+
 // let SCROLL_NODE_SHORTCUT: KeyEquivalent = "Q"
 
 
 extension Character {
+    func layerFromShortcutKey() -> Layer? {
+        let lowercaseCharacter = self.lowercased().toCharacter
+        
+        switch lowercaseCharacter {
+        case OVAL_LAYER_SHORTCUT.character.lowercased().toCharacter:
+            return .oval
+        case RECTANGLE_LAYER_SHORTCUT.character.lowercased().toCharacter:
+            return .rectangle
+        case TEXT_LAYER_SHORTCUT.character.lowercased().toCharacter:
+            return .text
+        case GROUP_LAYER_SHORTCUT.character.lowercased().toCharacter:
+            return .group
+        case HIT_AREA_LAYER_SHORTCUT.character.lowercased().toCharacter:
+            return .hitArea
+        default:
+            return nil
+        }
+    }
+    
     func patchFromShortcutKey(isShiftDown: Bool) -> Patch? {
         log("patchFromShortcutKey: isShiftDown: \(isShiftDown)")
         
