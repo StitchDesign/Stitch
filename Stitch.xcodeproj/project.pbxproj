@@ -184,6 +184,7 @@
 		B586D16727FE80B300E56106 /* PreviewContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B586D16627FE80B300E56106 /* PreviewContent.swift */; };
 		B58723BB2B27894700EAB0E5 /* StitchDocumentUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */; };
 		B58723BD2B28D5FE00EAB0E5 /* NodeEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */; };
+		B58902722DDC2C1800CBABAF /* GraphCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58902712DDC2C1500CBABAF /* GraphCommands.swift */; };
 		B58AB69D2C152E4C002C63E2 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		B58B5E0E2C9909C700AC519A /* StitchDocumentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */; };
 		B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B58E3FC82901AA2800700656 /* Music Player.stitch */; };
@@ -1198,6 +1199,7 @@
 		B586D16627FE80B300E56106 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentUtil.swift; sourceTree = "<group>"; };
 		B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeEntity.swift; sourceTree = "<group>"; };
+		B58902712DDC2C1500CBABAF /* GraphCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCommands.swift; sourceTree = "<group>"; };
 		B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentViewModel.swift; sourceTree = "<group>"; };
 		B58E3FC82901AA2800700656 /* Music Player.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Music Player.stitch"; sourceTree = "<group>"; };
 		B58E3FCA290357E500700656 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
@@ -3179,6 +3181,7 @@
 		B56FFB392C18F23000623CC7 /* Shortcut */ = {
 			isa = PBXGroup;
 			children = (
+				B58902712DDC2C1500CBABAF /* GraphCommands.swift */,
 				B5C553982DDBFF7A005B7766 /* InsertNodeCommands.swift */,
 				ECD50AC9285D34B80009B564 /* StitchCommands.swift */,
 				EC95748629B0231200048382 /* ProjectsHomeCommands.swift */,
@@ -5823,6 +5826,7 @@
 				B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */,
 				B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */,
 				B5CAFF922831D07100C2EC38 /* ProjectsListItemBlurView.swift in Sources */,
+				B58902722DDC2C1800CBABAF /* GraphCommands.swift in Sources */,
 				EC0E1AFE2D4B2288004AAA37 /* LLMValueParsingUtils.swift in Sources */,
 				EC4914A229359AC300D74344 /* TextEndsWithNode.swift in Sources */,
 				B59660982C1A498800BE75D7 /* StitchMLModel.swift in Sources */,
