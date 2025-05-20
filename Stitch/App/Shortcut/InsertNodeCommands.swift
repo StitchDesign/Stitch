@@ -347,28 +347,21 @@ struct InsertNodeCommands: View {
         }
     }
     
+    // Note: these can never be inserted "upstream" of a selected input
     @ViewBuilder
     var layers: some View {
         SwiftUIShortcutView(title: "Oval",
                             key: "O",
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
-            if hasSelectedInput {
-                dispatch(NodeCreatedWhileInputSelected(choice: .layer(.oval)))
-            } else {
-                dispatch(NodeCreatedEvent(choice: .layer(.oval)))
-            }
+            dispatch(NodeCreatedEvent(choice: .layer(.oval)))
         }
 
         SwiftUIShortcutView(title: "Rectangle",
                             key: "R",
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
-            if hasSelectedInput {
-                dispatch(NodeCreatedWhileInputSelected(choice: .layer(.rectangle)))
-            } else {
-                dispatch(NodeCreatedEvent(choice: .layer(.rectangle)))
-            }
+            dispatch(NodeCreatedEvent(choice: .layer(.rectangle)))
         }
         
         Divider()
@@ -377,11 +370,8 @@ struct InsertNodeCommands: View {
                             key: "T",
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
-            if hasSelectedInput {
-                dispatch(NodeCreatedWhileInputSelected(choice: .layer(.text)))
-            } else {
-                dispatch(NodeCreatedEvent(choice: .layer(.text)))
-            }
+            dispatch(NodeCreatedWhileInputSelected(choice: .layer(.text)))
+            dispatch(NodeCreatedEvent(choice: .layer(.text)))
         }
         
         Divider()
@@ -390,11 +380,8 @@ struct InsertNodeCommands: View {
                             key: "G",
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
-            if hasSelectedInput {
-                dispatch(NodeCreatedWhileInputSelected(choice: .layer(.group)))
-            } else {
-                dispatch(NodeCreatedEvent(choice: .layer(.group)))
-            }
+            dispatch(NodeCreatedWhileInputSelected(choice: .layer(.group)))
+            dispatch(NodeCreatedEvent(choice: .layer(.group)))
         }
         
     }
