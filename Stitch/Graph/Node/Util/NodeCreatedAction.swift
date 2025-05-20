@@ -118,8 +118,8 @@ struct NodeCreatedEvent: StitchDocumentEvent {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func handleNodeCreatedViaShortcut(patch: Patch) {
-        guard let node = self.nodeInserted(choice: .patch(patch)) else {
+    func handleNodeCreatedViaShortcut(choice: PatchOrLayer) {
+        guard let node = self.nodeInserted(choice: choice.asNodeKind) else {
             fatalErrorIfDebug()
             return
         }

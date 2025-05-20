@@ -154,14 +154,21 @@ extension StitchStore {
             document.calculateAllKeyboardNodes()
         }
         
-        // Else: If option is not required for shortcuts, try to treat the keypress as a shortcut.
+        else if document.isLayerSidebarFocused,
+                !document.shouldDisableLayerShortcuts,
+                let layer = char.layerFromShortcutKey() {
+            document.handleNodeCreatedViaShortcut(choice: .layer(layer))
+        }
+        
+        // Else: If option is not required for shortcuts, and shortcuts are not disabled, try to treat the keypress as a shortcut.
         else if !self.isOptionRequiredForShortcut,
+                !document.shouldDisablePatchShortcuts,
                 let patch = char.patchFromShortcutKey(isShiftDown: document.keypressState.isShiftPressed) {
             
             if document.reduxFocusedField?.isInputPortSelected ?? false {
                 document.nodeCreatedWhileInputSelected(patch: patch)
             } else {
-                document.handleNodeCreatedViaShortcut(patch: patch)
+                document.handleNodeCreatedViaShortcut(choice: .patch(patch))
             }
         }
     }
