@@ -33,6 +33,19 @@ struct GraphCommands: Commands {
     
     var body: some Commands {
         CommandMenu("Graph") {
+            SwiftUIShortcutView(title: "Insert...",
+                                key: .return,
+                                disabled: !activeProject) {
+                INSERT_NODE_ACTION()
+            }
+                        
+            if let document = store.currentDocument {
+                InsertNodeCommands(store: store,
+                                   document: document)
+            }
+            
+            Divider()
+            
             SwiftUIShortcutView(title: "Select All",
                                 key: SELECT_ALL_NODES_SHORTCUT,
                                 // Disable CMD+A "select all" when an input text field is focused
@@ -66,19 +79,6 @@ struct GraphCommands: Commands {
                 } else {
                     self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
                 }
-            }
-            
-            Divider()
-            
-            SwiftUIShortcutView(title: "Insert...",
-                                key: .return,
-                                disabled: !activeProject) {
-                INSERT_NODE_ACTION()
-            }
-                        
-            if let document = store.currentDocument {
-                InsertNodeCommands(store: store,
-                                   document: document)
             }
         }
     }
