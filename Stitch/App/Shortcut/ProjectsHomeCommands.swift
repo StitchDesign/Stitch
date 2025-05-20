@@ -114,9 +114,7 @@ struct ProjectsHomeCommands: Commands {
                 
                 // MARK: insert node shortcuts
                 InsertNodeCommands(store: store,
-                                   document: document,
-                                   textFieldFocused: textFieldFocused,
-                                   hasSelectedInput: hasSelectedInput)
+                                   document: document)
             } // if activeProject
 
         } // CommandMenu
