@@ -14,27 +14,11 @@ struct ProjectsHomeCommands: Commands {
     
     @Bindable var store: StitchStore
     @FocusedValue(\.focusedField) private var focusedField
-
+    
     let activeReduxFocusedField: FocusedUserEditField?
-
+    
     var activeProject: Bool {
         store.currentDocument.isDefined
-    }
-        
-    var isSidebarFocused: Bool {
-        store.currentDocument?.isSidebarFocused ?? false
-    }
-    
-    var graph: GraphState? {
-        store.currentDocument?.visibleGraph
-    }
-    
-    var ungroupButtonEnabled: Bool {
-        self.graph?.layersSidebarViewModel.canUngroup() ?? false
-    }
-
-    var groupButtonEnabled: Bool {
-        self.graph?.layersSidebarViewModel.canBeGrouped() ?? false
     }
     
     var textFieldFocused: Bool {
@@ -42,78 +26,9 @@ struct ProjectsHomeCommands: Commands {
     }
     
     var body: some Commands {
-
-        CommandMenu("Graph") {
-
-            // NOTE: `title:` but not `key:` can be replaced by runtime state changes.
-            SwiftUIShortcutView(title: activeProject ? "Restart Prototype" : "Refresh Projects",
-                                key: .init("R")) {
-                if activeProject {
-                    dispatch(PrototypeRestartedAction())
-                } else {
-                    store.allProjectUrls = []
-                    dispatch(DirectoryUpdated())
-                }
-            }
-
-            if let document = store.currentDocument {
-                Divider()
-                
-                SwiftUIShortcutView(title: "Insert",
-                                    key: .return) {
-                    INSERT_NODE_ACTION()
-                }
-                
-                SwiftUIShortcutView(title: "Duplicate",
-                                    key: DUPLICATE_SELECTED_NODES_SHORTCUT) {
-                    dispatch(DuplicateShortcutKeyPressed())
-                }
-                
-                // TODO: should CMD+Delete ungroup a GroupNode on the canvas, as it ungroups a LayerGroup in the sidebar?
-                SwiftUIShortcutView(title: "Delete",
-                                    key: DELETE_SELECTED_NODES_SHORTCUT,
-                                    // empty list = do not require CMD
-                                    eventModifiers: DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS) {
-                    // deletes both selected nodes and selected comments
-                    dispatch(DeleteShortcutKeyPressed())
-                }
-                
-                
-                // MARK: copy paste, cut paste
-                
-                // Not shown in menu when no active project;
-                // Disabled when we have focused text input
-                //            if activeProject {
-                SwiftUIShortcutView(title: "Cut",
-                                    key: CUT_SELECTED_NODES_SHORTCUT,
-                                    disabled: textFieldFocused) {
-                    log("cut shortcut")
-                    // cuts both nodes and comments
-                    dispatch(SelectedGraphItemsCut())
-                }
-                
-                SwiftUIShortcutView(title: "Copy",
-                                    key: COPY_SELECTED_NODES_SHORTCUT,
-                                    disabled: textFieldFocused) {
-                    log("copy shortcut")
-                    // copies both nodes and comments
-                    dispatch(SelectedGraphItemsCopied())
-                }
-                
-                SwiftUIShortcutView(title: "Paste",
-                                    key: PASTE_SELECTED_NODES_SHORTCUT,
-                                    disabled: textFieldFocused) {
-                    log("paste shortcut")
-                    // pastes both nodes and comments
-                    dispatch(SelectedGraphItemsPasted())
-                }
-                
-                // MARK: insert node shortcuts
-                InsertNodeCommands(store: store,
-                                   document: document)
-            } // if activeProject
-
-        } // CommandMenu
+        // MARK: no support for conditionally display commands--they'll never appear with an if statement
+        GraphCommands(store: store,
+                      textFieldFocused: textFieldFocused)
         
         CommandGroup(after: .appInfo) {
             Menu {
@@ -138,41 +53,52 @@ struct ProjectsHomeCommands: Commands {
                 Text("Contact Us")
             }
         }
-    
+        
         CommandGroup(replacing: .newItem) {
             SwiftUIShortcutView(title: "New Project",
                                 key: NEW_PROJECT_SHORTCUT) {
                 store.createNewProjectSideEffect(isProjectImport: false)
             }
-
+            
             SwiftUIShortcutView(title: "New Project from Sample",
                                 key: NEW_PROJECT_SHORTCUT,
                                 eventModifiers: [.command, .shift]) {
                 store.conditionallToggleSampleProjectsModal()
             }
-
+            
             // NOTE: we already get CMD + W in Catalyst
             // TODO: only show with active project
-            #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
             if store.currentDocument != nil {
                 SwiftUIShortcutView(title: "Close Graph",
                                     key: CLOSE_GRAPH_SHORTCUT) {
                     dispatch(CloseGraph())
                 }
             }
-            #endif
+#endif
         }
-
+        
         CommandGroup(replacing: .importExport) {
             if activeProject {
                 SwiftUIShortcutView(title: "Add File to Project",
-                                    key: "O", // the letter O
+                                    key: "O",
                                     eventModifiers: [.command],
                                     disabled: !activeProject) {
                     FILE_IMPORT_ACTION()
                 }
             }
-
+            
+            // MARK: splitting into multiple shortcuts breaks commands when using same CMD + R
+            SwiftUIShortcutView(title: activeProject ? "Restart Prototype" : "Refresh Projects",
+                                key: .init("R")) {
+                if activeProject {
+                    dispatch(PrototypeRestartedAction())
+                } else {
+                    store.allProjectUrls = []
+                    dispatch(DirectoryUpdated())
+                }
+            }
+            
             SwiftUIShortcutView(title: "Delete All Projects",
                                 key: .delete,
                                 eventModifiers: [.command, .shift],
@@ -181,7 +107,7 @@ struct ProjectsHomeCommands: Commands {
                 DELETE_ALL_PROJECTS_ALERT_ACTION()
             }
         }
-
+        
         CommandGroup(before: .sidebar) {
             if activeProject {
                 SwiftUIShortcutView(title: "Toggle Preview Window",
@@ -190,7 +116,7 @@ struct ProjectsHomeCommands: Commands {
                                     disabled: !activeProject) {
                     PREVIEW_SHOW_TOGGLE_ACTION()
                 }
-                                    
+                
             }
             
             if activeProject {
@@ -200,9 +126,9 @@ struct ProjectsHomeCommands: Commands {
                                     disabled: !activeProject) {
                     dispatch(ToggleSidebars())
                 }
-                                    
+                
             }
-
+            
             if activeProject {
                 SwiftUIShortcutView(title: "Full Screen Preview Window",
                                     key: "F",
@@ -212,7 +138,7 @@ struct ProjectsHomeCommands: Commands {
                 }
             }
         }
-
+        
         // TODO: should be toggle? e.g. pressing `CMD + ,` again should close app / project settings window?
         CommandGroup(replacing: CommandGroupPlacement.appSettings) {
             SwiftUIShortcutView(title: "Settings",
@@ -225,7 +151,7 @@ struct ProjectsHomeCommands: Commands {
                 }
             }
         }
-
+        
         
         // MARK: undo + redo
         
@@ -236,7 +162,7 @@ struct ProjectsHomeCommands: Commands {
                                 disabled: textFieldFocused) {
                 dispatch(UndoEvent())
             }
-
+            
             SwiftUIShortcutView(title: "Redo",
                                 key: UNDO_SHORTCUT,
                                 eventModifiers: [.command, .shift],
@@ -244,46 +170,49 @@ struct ProjectsHomeCommands: Commands {
                 dispatch(RedoEvent())
             }
         } // replacing: .undoRedo
-
         
-        // Don't show any of these if we're on projects-home-screen
-        if activeProject {
-
-            // TODO: These commands should only apppear with graph
-            CommandGroup(replacing: .pasteboard) {
-                SwiftUIShortcutView(title: "Select All",
-                                    key: SELECT_ALL_NODES_SHORTCUT,
-                                    // Disable CMD+A "select all" when an input text field is focused
-                                    disabled: textFieldFocused || !activeProject) {
-                    dispatch(SelectAllShortcutKeyPressed())
-                }
-                
-                SwiftUIShortcutView(title: "Group",
-                                    key: CREATE_GROUP_SHORTCUT) {
-                    let cannotCreateLayerGroup = !isSidebarFocused || !groupButtonEnabled
-                    
-                    if cannotCreateLayerGroup {
-                        dispatch(GroupNodeCreated(isComponent: false))
-                    } else {
-                        self.graph?.layersSidebarViewModel.sidebarGroupCreated()
-                    }
-                }
-                
-                SwiftUIShortcutView(title: "Ungroup",
-                                    key: DELETE_SELECTED_NODES_SHORTCUT,
-                                    eventModifiers: [.command]) {
-                    
-                    let cannotUngroupLayer = !isSidebarFocused || !ungroupButtonEnabled
-                    
-                    if cannotUngroupLayer {
-                        dispatch(SelectedGroupNodesUncreated())
-                    } else {
-                        self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
-                    }
-                }
-                
-            } // replacing: .pasteboard
+        CommandGroup(replacing: .pasteboard) {
+            // Not shown in menu when no active project;
+            // Disabled when we have focused text input
+            SwiftUIShortcutView(title: "Cut",
+                                key: CUT_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                log("cut shortcut")
+                // cuts both nodes and comments
+                dispatch(SelectedGraphItemsCut())
+            }
             
-        } // if activeProject
+            SwiftUIShortcutView(title: "Copy",
+                                key: COPY_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                log("copy shortcut")
+                // copies both nodes and comments
+                dispatch(SelectedGraphItemsCopied())
+            }
+            
+            SwiftUIShortcutView(title: "Paste",
+                                key: PASTE_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                log("paste shortcut")
+                // pastes both nodes and comments
+                dispatch(SelectedGraphItemsPasted())
+            }
+            
+            SwiftUIShortcutView(title: "Duplicate",
+                                key: DUPLICATE_SELECTED_NODES_SHORTCUT,
+                                disabled: textFieldFocused || !activeProject) {
+                dispatch(DuplicateShortcutKeyPressed())
+            }
+            
+            // TODO: should CMD+Delete ungroup a GroupNode on the canvas, as it ungroups a LayerGroup in the sidebar?
+            SwiftUIShortcutView(title: "Delete",
+                                key: DELETE_SELECTED_NODES_SHORTCUT,
+                                // empty list = do not require CMD
+                                eventModifiers: DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS,
+                                disabled: textFieldFocused || !activeProject) {
+                // deletes both selected nodes and selected comments
+                dispatch(DeleteShortcutKeyPressed())
+            }
+        }
     }
 }
