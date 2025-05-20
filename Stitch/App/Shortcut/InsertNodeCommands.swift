@@ -7,17 +7,45 @@
 
 import SwiftUI
 
-struct InsertNodeCommands: View {
-    @Bindable var store: StitchStore
-    @Bindable var document: StitchDocumentViewModel
+extension StitchDocumentViewModel {
+    @MainActor
+    var shouldDisablePatchShortcuts: Bool {
+        switch self.reduxFocusedField {
+        case .any, .none, .nodeInputPortSelection:
+            // Disable all scenarios except when there's any selection, no selection, or an input port is selected
+            return false
+        default:
+            return true
+        }
+    }
     
+    @MainActor
+    var shouldDisableLayerShortcuts: Bool {
+        switch self.reduxFocusedField {
+        case .sidebarLayerTitle:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    @MainActor
     var isLayerSidebarFocused: Bool {
-        switch document.reduxFocusedField {
+        switch self.reduxFocusedField {
         case .sidebarLayerTitle, .sidebar:
             return true
         default:
             return false
         }
+    }
+}
+
+struct InsertNodeCommands: View {
+    @Bindable var store: StitchStore
+    @Bindable var document: StitchDocumentViewModel
+    
+    var isLayerSidebarFocused: Bool {
+        document.isLayerSidebarFocused
     }
     
     var hasSelectedInput: Bool {
@@ -29,22 +57,11 @@ struct InsertNodeCommands: View {
     }
     
     var shouldDisablePatch: Bool {
-        switch document.reduxFocusedField {
-        case .any, .none, .nodeInputPortSelection:
-            // Disable all scenarios except when there's any selection, no selection, or an input port is selected
-            return false
-        default:
-            return true
-        }
+        document.shouldDisablePatchShortcuts
     }
     
     var shouldDisableLayer: Bool {
-        switch document.reduxFocusedField {
-        case .sidebarLayerTitle:
-            return true
-        default:
-            return false
-        }
+        document.shouldDisableLayerShortcuts
     }
     
     var isOptionRequired: Bool {
@@ -436,14 +453,14 @@ struct InsertNodeCommands: View {
     @ViewBuilder
     var layers: some View {
         SwiftUIShortcutView(title: "Oval",
-                            key: "O",
+                            key: OVAL_LAYER_SHORTCUT,
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             dispatch(NodeCreatedEvent(choice: .layer(.oval)))
         }
 
         SwiftUIShortcutView(title: "Rectangle",
-                            key: "R",
+                            key: RECTANGLE_LAYER_SHORTCUT,
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             dispatch(NodeCreatedEvent(choice: .layer(.rectangle)))
@@ -452,16 +469,24 @@ struct InsertNodeCommands: View {
         Divider()
         
         SwiftUIShortcutView(title: "Text",
-                            key: "T",
+                            key: TEXT_LAYER_SHORTCUT,
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             dispatch(NodeCreatedEvent(choice: .layer(.text)))
         }
         
+        
+        SwiftUIShortcutView(title: "Hit Area",
+                            key: HIT_AREA_LAYER_SHORTCUT,
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
+                            disabled: self.shouldDisableLayer) {
+            dispatch(NodeCreatedEvent(choice: .layer(.hitArea)))
+        }
+        
         Divider()
         
         SwiftUIShortcutView(title: "Group",
-                            key: "G",
+                            key: GROUP_LAYER_SHORTCUT,
                             eventModifiers: modifiersAdjustedForOptionRequirement,
                             disabled: self.shouldDisableLayer) {
             dispatch(NodeCreatedEvent(choice: .layer(.group)))
