@@ -36,10 +36,20 @@ struct ProjectsHomeCommands: Commands {
         }
     }
     
+    var hasSelectedInput: Bool {
+        self.store.currentDocument?.reduxFocusedField?.isInputPortSelected ?? false
+    }
+
+    // If option is NOT required for shortcuts, then we need to
+    var isOptionRequiredForShortcut: Bool {
+        self.store.isOptionRequiredForShortcut
+    }
+    
     var disabledGraphDelete: Bool {
         guard let document = store.currentDocument else {
             return true
         }
+
         
         if document.isSidebarFocused {
             return document.visibleGraph.layersSidebarViewModel.selectionState.items.isEmpty
@@ -52,6 +62,9 @@ struct ProjectsHomeCommands: Commands {
         // MARK: no support for conditionally display commands--they'll never appear with an if statement
         GraphCommands(store: store,
                       textFieldFocused: textFieldFocused)
+        
+        
+        // MARK: SHARE
         
         CommandGroup(after: .appInfo) {
             Menu {

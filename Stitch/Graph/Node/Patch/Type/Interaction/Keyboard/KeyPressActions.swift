@@ -129,11 +129,6 @@ extension StitchStore {
             return
         }
     
-        // key press state only applies to prototype window focus
-        guard document.isPrototypePreviewFocused else {
-            return
-        }
-
         if self.alertState.showProjectSettings {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since project settings modal is open")
             return
@@ -148,65 +143,29 @@ extension StitchStore {
         // TODO: edge-added and edge-removed logic still recalculate the graph
         document.keypressState.characters.insert(char)
 
+        // Edge editing mode shortcuts have priority.
         if graph.edgeEditingState.isDefined {
             graph.keyCharPressedDuringEdgeEditingMode(char: char,
                                                       activeIndex: document.activeIndex)
-        } else if document.reduxFocusedField?.isInputPortSelected ?? false,
-                let patch = char.patchFromShortcutKey() {
-            document.nodeCreatedWhileInputSelected(choice: .patch(patch))
-        } else {
+        }
+        
+        // If the prototype window is 'focused', run keyboard patches and do not insert any nodes to the canvas.
+        else if document.isPrototypePreviewFocused {
             document.calculateAllKeyboardNodes()
         }
-    }
-}
-
-extension Character {
-    func patchFromShortcutKey() -> Patch? {
-        switch self {
-        case ADD_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .add
-        case SUBTRACT_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .subtract
-        case MULTIPLY_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .multiply
-        case DIVIDE_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .divide
-        case POWER_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .power
-        case MOD_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .mod
-        case LESS_THAN_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .lessThan
-        case GREATER_THAN_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .greaterThan
-        case CLASSIC_ANIMATION_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .classicAnimation
-        case POP_ANIMATION_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .popAnimation
-        case FLIP_SWITCH_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .flipSwitch
-        case DELAY_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .delay
-        case KEYBOARD_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .keyboard
-        case EQUALS_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .equals
-        case REVERSE_PROGRESS_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .reverseProgress
-        case TRANSITION_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .transition
-        case PULSE_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .pulse
-        case PRESS_INTERACTION_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .pressInteraction
-        case OPTION_PICKER_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .optionPicker
-        default:
-            return nil
+        
+        // Else: If option is not required for shortcuts, try to treat the keypress as a shortcut.
+        else if !self.isOptionRequiredForShortcut,
+                let patch = char.patchFromShortcutKey() {
+            
+            if document.reduxFocusedField?.isInputPortSelected ?? false {
+                document.nodeCreatedWhileInputSelected(choice: .patch(patch))
+            } else {
+                document.handleNodeCreatedViaShortcut(patch: patch)
+            }
         }
     }
 }
-
 
 struct KeyCharacterPressEnded: StitchDocumentEvent {
     let char: Character
@@ -215,12 +174,6 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         
         // log("KEY: KeyCharacterPressEnded: char: \(char)")
-        
-        // key press state only applies to prototype window focus
-        guard state.isPrototypePreviewFocused else {
-            // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since some field is focused")
-            return
-        }
         
         // log("KEY: KeyCharacterPressEnded: graphState.keypressState.isSpacePressed was: \(graphState.keypressState.isSpacePressed)")
 
@@ -232,6 +185,8 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         // log("KEY: KeyCharacterPressEnded: graphState.keypressState.isSpacePressed is now: \(graphState.keypressState.isSpacePressed)")
 
         // recalculate all the keyboard nodes on the graph
-        state.calculateAllKeyboardNodes()
+        if state.isPrototypePreviewFocused {
+            state.calculateAllKeyboardNodes()
+        }
     }
 }
