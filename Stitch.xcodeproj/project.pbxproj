@@ -238,6 +238,7 @@
 		B5C0E0B1299ADC7A00322A1E /* Layer Nodes.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AF299ADC7A00322A1E /* Layer Nodes.stitch */; };
 		B5C53FAF2CED1FAC0069612E /* NodeLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C53FAE2CED1FA70069612E /* NodeLayout.swift */; };
 		B5C53FB12CED20AE0069612E /* InfiniteCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C53FB02CED20AB0069612E /* InfiniteCanvas.swift */; };
+		B5C553992DDBFF80005B7766 /* InsertNodeCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C553982DDBFF7A005B7766 /* InsertNodeCommands.swift */; };
 		B5C603A5275D9BE200EA2999 /* CameraUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C603A4275D9BE200EA2999 /* CameraUtil.swift */; };
 		B5C603A7275D9E5C00EA2999 /* CameraOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C603A6275D9E5C00EA2999 /* CameraOrientation.swift */; };
 		B5CA9D2E2A77503B00B4E431 /* NumberFormatterObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CA9D2D2A77503B00B4E431 /* NumberFormatterObserver.swift */; };
@@ -1246,6 +1247,7 @@
 		B5C0E0AF299ADC7A00322A1E /* Layer Nodes.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Layer Nodes.stitch"; sourceTree = "<group>"; };
 		B5C53FAE2CED1FA70069612E /* NodeLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeLayout.swift; sourceTree = "<group>"; };
 		B5C53FB02CED20AB0069612E /* InfiniteCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfiniteCanvas.swift; sourceTree = "<group>"; };
+		B5C553982DDBFF7A005B7766 /* InsertNodeCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeCommands.swift; sourceTree = "<group>"; };
 		B5C603A4275D9BE200EA2999 /* CameraUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraUtil.swift; sourceTree = "<group>"; };
 		B5C603A6275D9E5C00EA2999 /* CameraOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOrientation.swift; sourceTree = "<group>"; };
 		B5CA9D2D2A77503B00B4E431 /* NumberFormatterObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatterObserver.swift; sourceTree = "<group>"; };
@@ -3177,6 +3179,7 @@
 		B56FFB392C18F23000623CC7 /* Shortcut */ = {
 			isa = PBXGroup;
 			children = (
+				B5C553982DDBFF7A005B7766 /* InsertNodeCommands.swift */,
 				ECD50AC9285D34B80009B564 /* StitchCommands.swift */,
 				EC95748629B0231200048382 /* ProjectsHomeCommands.swift */,
 				ECD50AC5285D34790009B564 /* ShortcutViewUtils.swift */,
@@ -5281,6 +5284,7 @@
 				EC0093DC26D6B8BA000EAE08 /* AbsoluteValueNode.swift in Sources */,
 				B5C53FAF2CED1FAC0069612E /* NodeLayout.swift in Sources */,
 				EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */,
+				B5C553992DDBFF80005B7766 /* InsertNodeCommands.swift in Sources */,
 				B55500B62C1B98B00081C3F1 /* SingleDropdownKind.swift in Sources */,
 				ECE35EDE27CEDB7100CB8F5C /* LayerDimensionUtils.swift in Sources */,
 				EC68A6FC288B311A00689F92 /* SplitterTypeActions.swift in Sources */,
