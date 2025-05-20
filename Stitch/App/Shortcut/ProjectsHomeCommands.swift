@@ -22,7 +22,7 @@ struct ProjectsHomeCommands: Commands {
     }
         
     var isSidebarFocused: Bool {
-        store.currentDocument?.visibleGraph.layersSidebarViewModel.isSidebarFocused ?? false
+        store.currentDocument?.isSidebarFocused ?? false
     }
     
     var graph: GraphState? {
@@ -41,10 +41,6 @@ struct ProjectsHomeCommands: Commands {
         activeReduxFocusedField.isDefined || focusedField.isDefined
     }
     
-    var hasSelectedInput: Bool {
-        self.store.currentDocument?.selectedInput.isDefined ?? false
-    }
-
     var body: some Commands {
 
         CommandMenu("Graph") {

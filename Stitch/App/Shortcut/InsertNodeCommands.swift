@@ -21,7 +21,7 @@ struct InsertNodeCommands: View {
     }
     
     var hasSelectedInput: Bool {
-        self.store.currentDocument?.selectedInput.isDefined ?? false
+        self.store.currentDocument?.reduxFocusedField?.isInputPortSelected ?? false
     }
     
     var selectionLabel: String {
