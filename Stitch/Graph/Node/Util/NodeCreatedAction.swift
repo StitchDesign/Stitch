@@ -29,10 +29,11 @@ extension StitchDocumentViewModel {
         let graph = state.visibleGraph
         
         // Find the input
-        guard let selectedInput = state.selectedInput,
-              var selectedInputLocation = graph.getCanvasItem(inputId: selectedInput)?
+        guard let selectedInput = state.reduxFocusedField?.inputPortSelected,
+              let canvasId = selectedInput.graphItemType.getCanvasItemId,
+              var selectedInputLocation = graph.getCanvasItem(canvasId)?
             .locationOfInputs,
-              let selectedInputObserver = state.visibleGraph.getInputRowObserver(selectedInput),
+              let selectedInputObserver = state.visibleGraph.getInputRowViewModel(for: selectedInput)?.rowDelegate,
               let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
             fatalErrorIfDebug()
             return
@@ -86,7 +87,7 @@ extension StitchDocumentViewModel {
         
         // Create an edge from the node's output to the selected input
         graph.addEdgeWithoutGraphRecalc(from: firstOutput.id,
-                                        to: selectedInput)
+                                        to: selectedInputObserver.id)
         
         // TODO: calculate a smaller portion of the graph?
         graph.calculateFullGraph()

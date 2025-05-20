@@ -73,7 +73,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
             }
             .background {
                 if nodeIO == .input,
-                   document.selectedInput == rowId.asNodeIOCoordinate {
+                   document.reduxFocusedField?.inputPortSelected == rowId {
                     UnevenRoundedRectangle(cornerRadii: .init(topLeading: 0,
                                                               bottomLeading: 0,
                                                               // a circle on the right side

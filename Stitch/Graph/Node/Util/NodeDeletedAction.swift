@@ -16,7 +16,7 @@ struct DeleteShortcutKeyPressed: StitchDocumentEvent {
         let graph = state.visibleGraph
         
         // Check which we have focused: layers or canvas items
-        if state.visibleGraph.layersSidebarViewModel.isSidebarFocused {
+        if state.isSidebarFocused {
             graph.layersSidebarViewModel.deleteSelectedItems()
             graph.updateInspectorFocusedLayers()
         }

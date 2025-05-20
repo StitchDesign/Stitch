@@ -189,7 +189,7 @@ extension StitchDocumentViewModel {
             return
         }
         
-        let activelySelectedLayers = self.visibleGraph.layersSidebarViewModel.isSidebarFocused
+        let activelySelectedLayers = self.isSidebarFocused
         
         if activelySelectedLayers {
             self.visibleGraph.sidebarSelectedItemsDuplicated(document: self)
