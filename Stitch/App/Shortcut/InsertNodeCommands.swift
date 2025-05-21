@@ -483,14 +483,14 @@ struct InsertNodeCommands: View {
             dispatch(NodeCreatedEvent(choice: .layer(.hitArea)))
         }
         
-        Divider()
+//        Divider()
         
-        SwiftUIShortcutView(title: "Group",
-                            key: GROUP_LAYER_SHORTCUT,
-                            eventModifiers: modifiersAdjustedForOptionRequirement,
-                            disabled: self.shouldDisableLayer) {
-            dispatch(NodeCreatedEvent(choice: .layer(.group)))
-        }
+//        SwiftUIShortcutView(title: "Group",
+//                            key: GROUP_LAYER_SHORTCUT,
+//                            eventModifiers: modifiersAdjustedForOptionRequirement,
+//                            disabled: self.shouldDisableLayer) {
+//            dispatch(NodeCreatedEvent(choice: .layer(.group)))
+//        }
         
     }
 }
