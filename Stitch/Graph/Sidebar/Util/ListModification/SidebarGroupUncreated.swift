@@ -13,15 +13,23 @@ import SwiftUI
 
 // note: see `_SidebarGroupUncreated` for new stuff to do e.g. `syncSidebarDataWithNodes`
 extension ProjectSidebarObservable {
+    
     @MainActor
     func sidebarGroupUncreated() {
+ 
+        // Note: `sidebarGroupUncreated` makes certain assumptions about what kind of state we can have based on the UI;
+        // e.g. that we have groups primarily selected when attempting to uncreate them
         let primarilySelectedGroups = self.selectionState.primary
         
-        guard let graph = self.graphDelegate,
-              let group = primarilySelectedGroups.first,
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug("sidebarGroupUncreated: No graph delegate")
+            return
+        }
+        
+        guard let group = primarilySelectedGroups.first,
               let item = self.items.get(group) else {
             // Expected group here
-            fatalErrorIfDebug()
+            fatalErrorIfDebug("sidebarGroupUncreated: Did not have a sidebar selection or could not find group")
             return
         }
         
@@ -45,7 +53,7 @@ extension LayersSidebarViewModel {
     
     @MainActor
     func sidebarGroupUncreatedViaEditMode(groupId: NodeId, children: [NodeId]) {
-        log("_SidebarGroupUncreated called")
+        log("sidebarGroupUncreatedViaEditMode called: will delete groupId \(groupId)")
 
         guard let graph = self.graphDelegate,
               let document = graph.documentDelegate else {
@@ -58,13 +66,7 @@ extension LayersSidebarViewModel {
         graph.deleteNode(id: groupId,
                          document: document,
                          willDeleteLayerGroupChildren: false)
-
-        // update legacy sidebar data
-        // TODO: APRIL 11: should not be necessary anymore? since causes a persistence change
-        guard let document = graph.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
+        
         graph.updateGraphData(document)
     }
 }

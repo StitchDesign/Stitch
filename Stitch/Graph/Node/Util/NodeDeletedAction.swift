@@ -138,8 +138,10 @@ extension GraphState {
 
         //    log("deleteNode called, will delete node \(id)")
         
-        guard let node = self.getNode(id),
-              let graph = node.graphDelegate else {
+        // TODO: formerly we retrieved the graph via `node.graphDelegate`; was the `graphDelegate` a different graph than this method's `GraphState` ? i.e. nonsense code.
+        let graph = self
+        
+        guard let node = graph.getNode(id) else {
             log("deleteNode: node not found")
             return
         }
