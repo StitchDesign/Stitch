@@ -38,10 +38,8 @@ struct InsertNodeMenuSearchBar: View {
             TextField("Search or enter AI prompt...", text: $queryString)
                 .focused($isFocused)
                 .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
-                .padding(.leading, 12)
-                .padding(.trailing, 52)
-                .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+                .padding(.leading, 16)
+                .padding(.trailing, 60)
                 .overlay(alignment: .center) {
                     HStack {
                         let isLoading = store.currentDocument?.insertNodeMenuState.isGeneratingAINode ?? false
@@ -57,7 +55,7 @@ struct InsertNodeMenuSearchBar: View {
                             }
                         }
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, 15)
+                        .padding(.trailing, 20)
                         .animation(.linear(duration: 0.2), value: isLoading)
                     }
                 }
@@ -91,7 +89,7 @@ struct InsertNodeMenuSearchBar: View {
                     }
                 }
         }
-        // we apparently need both `.onAppear`'s to set .isFocused = true ?
+        // We apparently need both `.onAppear`'s to set .isFocused = true ?
         // Note: do not wipe queryString in .onChange(of: self.isFocused), otherwise we lose the user's string when user switches back to the Stitch window in Catalyst.
         .onAppear {
             // log("InsertNodeMenuSearchBar: onAppear: outer")
@@ -120,15 +118,12 @@ struct InsertNodeMenuSearchBar: View {
 
         // Hosting controller needed to register arrow key presses in this view;
         // this is also the main key-press listener for the app, since the insert node menu is always on-screen
-//        StitchHostingControllerView(ignoreKeyCommands: false,
-//                                    inputTextFieldFocused: false, // N/A
-//                                    usesArrowKeyBindings: true, // N/A ?
-        //                                    name: .insertNodeMenuSearchbar) {
-        searchInput
-            .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
-        //        }
-            .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
-            .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
-        
+        StitchHostingControllerView(ignoreKeyCommands: false,
+                                    inputTextFieldFocused: false, // N/A
+                                    usesArrowKeyBindings: true, // N/A ?
+                                    name: .insertNodeMenuSearchbar) {
+            searchInput
+        }
+                                    .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
     }
 }

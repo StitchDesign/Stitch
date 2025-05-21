@@ -79,7 +79,7 @@ struct InsertNodeMenuView: View {
         VStack(spacing: 0) {
             InsertNodeMenuSearchBar(launchTip: self.launchTip,
                                     isLoadingStitchAI: $isLoadingStitchAI)
-
+            
             if !isLoading {
                 HStack(spacing: .zero) {
                     // alternatively, change the height available for this?
@@ -91,7 +91,6 @@ struct InsertNodeMenuView: View {
                         show: document.insertNodeMenuState.show)
                     //                    .frame(width: 170, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_SEARCH_RESULTS_WIDTH)
-                    //                    .compositingGroup() // added
                     
                     InsertNodeMenuNodeDescriptionView(
                         activeSelection: insertNodeMenuState.activeSelection)
@@ -99,30 +98,7 @@ struct InsertNodeMenuView: View {
                     .frame(width: INSERT_NODE_MENU_DESCRIPTION_WIDTH)
                 } // HStack
                 .transition(.move(edge: .top))
-                // Asymmetric: fade in, move out to the top
-//                .transition(.asymmetric(
-//                    insertion: .opacity,
-//                    removal: .move(edge: .top)
-//                ))
             }
-               
-            
-//            .overlay {
-//                VStack {
-//                    if isLoadingStitchAI {
-//                        Spacer()
-//                        
-//                        Text("Stitch AI is processing your request. This may take up to 30 seconds.")
-//                            .fontWeight(.bold)
-//                            .italic()
-//                            .transition(.opacity)
-//                    }
-//                    
-//                    Spacer()
-//                    
-////                    footerView
-//                }
-//            }
         } // VStack
         .background(INSERT_NODE_SEARCH_BACKGROUND)
         .animation(.stitchAnimation, value: self.isLoadingStitchAI)
