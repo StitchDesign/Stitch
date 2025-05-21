@@ -35,3 +35,26 @@ struct AppThemeChangedEvent: AppEvent {
         return .stateOnly(state)
     }
 }
+
+extension Bool {
+    static let defaultIsOptionRequiredForShortcuts = true
+}
+
+struct OptionRequiredForShortcutsChanged: StitchStoreEvent {
+
+    let newValue: Bool
+    
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        
+        log("OptionRequiredForShortcutsChanged: store.isOptionRequiredForShortcut was: \(store.isOptionRequiredForShortcut)")
+        log("OptionRequiredForShortcutsChanged: newValue.description: \(newValue.description)")
+        store.isOptionRequiredForShortcut = newValue
+        log("OptionRequiredForShortcutsChanged: store.isOptionRequiredForShortcut is now: \(store.isOptionRequiredForShortcut)")
+        
+        UserDefaults.standard.setValue(
+            newValue.description,
+            forKey: SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME)
+        
+        return .shouldPersist
+    }
+}

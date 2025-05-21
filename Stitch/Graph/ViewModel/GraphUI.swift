@@ -209,10 +209,6 @@ extension GraphState {
             document.showCatalystProjectTitleModal = false
         }
         
-        if self.layersSidebarViewModel.isSidebarFocused {
-            self.layersSidebarViewModel.isSidebarFocused = false
-        }
-        
         if document.openPortPreview != nil {
             document.openPortPreview = nil
         }
@@ -322,11 +318,6 @@ extension GraphState {
         // Prevent render cycles if already selected
         guard !self.isCanvasItemSelected(canvasItemId) else { return }
         self.selection.selectedCanvasItems.insert(canvasItemId)
-        
-        // Unfocus sidebar
-        if self.layersSidebarViewModel.isSidebarFocused {
-            self.layersSidebarViewModel.isSidebarFocused = false
-        }
     }
     
     // TODO: signature could be tighter, e.g. method on `SelectionState` rather than `GraphState`

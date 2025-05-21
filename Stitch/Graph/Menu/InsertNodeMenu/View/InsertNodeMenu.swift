@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
+import TipKit
 
 
 let INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR: Color = Color(uiColor: UIColor(hex: "F3F3F3")!)
@@ -40,27 +41,35 @@ let INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING: CGFloat = INSERT_NODE_MENU_FOOT
 
 struct InsertNodeMenuView: View {
     @Environment(\.appTheme) var theme
+    @State private var footerRect: CGRect = .zero
+    @State private var isLoadingStitchAI = false
+    private let launchTip = StitchAILaunchTip()
 
     let document: StitchDocumentViewModel
     let insertNodeMenuState: InsertNodeMenuState
     let isPortraitMode: Bool
     let showMenu: Bool
-
     let menuHeight: CGFloat
-
-    @State var footerRect: CGRect = .zero
-
+    
     var body: some View {
         sheetView
             .frame(width: InsertNodeMenuWrapper.menuWidth,
                    height: menuHeight)
             .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+        // Background view guarantees focus state for search bar
+            .background {
+                TipView(self.launchTip, arrowEdge: .bottom)
+                    .width(400)
+                    .fixedSize()
+                    .offset(y: -(menuHeight / 2) - 64)
+            }
     }
 
     @MainActor
     var sheetView: some View {
         VStack(spacing: 0) {
-            InsertNodeMenuSearchBar()
+            InsertNodeMenuSearchBar(launchTip: self.launchTip,
+                                    isLoadingStitchAI: $isLoadingStitchAI)
 
             HStack(spacing: .zero) {
 
@@ -78,11 +87,25 @@ struct InsertNodeMenuView: View {
                     //                    .frame(width: 460, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_DESCRIPTION_WIDTH)
             } // HStack
-            .overlay(alignment: .bottom) {
-                footerView
+            .overlay {
+                VStack {
+                    if isLoadingStitchAI {
+                        Spacer()
+                        
+                        Text("Stitch AI is processing your request. This may take up to 30 seconds.")
+                            .fontWeight(.bold)
+                            .italic()
+                            .transition(.opacity)
+                    }
+                    
+                    Spacer()
+                    
+                    footerView
+                }
             }
         } // VStack
         .background(INSERT_NODE_SEARCH_BACKGROUND)
+        .animation(.stitchAnimation, value: self.isLoadingStitchAI)
         .foregroundColor(INSERT_NODE_MENU_SEARCH_TEXT)
         // Important: animates the entire view's appearance at same time; otherwise e.g. the frosted background fades in separately
         .compositingGroup()

@@ -20,11 +20,17 @@ struct EdgeStyleKey: EnvironmentKey {
     static let defaultValue: EdgeStyle = .defaultEdgeStyle
 }
 
+// default true
+struct IsOptionRequiredForShortcut: EnvironmentKey, Hashable {
+    static let defaultValue: Bool = true
+}
+
 struct SafeAreaInsetsEnvironmentKey: EnvironmentKey, Hashable {
     static let defaultValue = SafeAreaInsets()
 }
 
 extension EnvironmentValues {
+    // TODO: is this even used?
     var viewframe: CGRect {
         get { self[ViewFrameKey.self] }
         set { self[ViewFrameKey.self] = newValue }
@@ -35,6 +41,11 @@ extension EnvironmentValues {
         set { self[AppThemeKey.self] = newValue }
     }
 
+    var isOptionRequiredForShortcut: Bool {
+        get { self[IsOptionRequiredForShortcut.self] }
+        set { self[IsOptionRequiredForShortcut.self] = newValue }
+    }
+    
     var edgeStyle: EdgeStyle {
         get { self[EdgeStyleKey.self] }
         set { self[EdgeStyleKey.self] = newValue }

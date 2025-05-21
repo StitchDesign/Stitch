@@ -40,7 +40,7 @@ struct TapToEditTextView: View {
     // For inspector and flyout only
     let isForLayerInspector: Bool
     let isPackedLayerInputAlreadyOnCanvas: Bool
-    let isSelectedInspectorRow: Bool // always false for canvas
+    let usesThemeColor: Bool // always false for canvas
     let hasHeterogenousValues: Bool // for layer multiselect
     
     // Helps us know when tapping a field in inspector can open the flyout
@@ -118,7 +118,7 @@ struct TapToEditTextView: View {
                 isForLayerInspector: isForLayerInspector,
                 hasPicker: hasPicker,
                 fieldHasHeterogenousValues: hasHeterogenousValues,
-                isSelectedInspectorRow: isSelectedInspectorRow,
+                usesThemeColor: usesThemeColor,
                 onTap: onReadOnlyTap)
         }
     }
@@ -157,7 +157,7 @@ struct TapToEditTextView: View {
             isHovering: self.isHovering,
             isFocused: true,
             isForLayerInspector: isForLayerInspector,
-            isSelectedInspectorRow: isSelectedInspectorRow))
+            usesThemeColor: usesThemeColor))
         
         // Field highlight
         .overlay {

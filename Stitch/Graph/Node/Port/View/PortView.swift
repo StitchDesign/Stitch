@@ -17,6 +17,11 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
+let PORT_ENTRY_NON_EXTENDED_BORDER_SIZE = CGSize(
+    width: PORT_VISIBLE_LENGTH + 2,
+    height: NODE_ROW_HEIGHT + 4)
+
+
 let NODE_PORT_HEIGHT: CGFloat = 8
 
 struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
@@ -24,6 +29,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
     
     @Bindable var portUIViewModel: PortUIViewModelType
     @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     
     let rowId: NodeRowViewModelId
     let nodeIO: NodeIO
@@ -32,7 +38,11 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
     var portColor: Color {
         portUIViewModel.portColor.color(theme)
     }
-        
+    
+    var nodeIOCoordinate: NodeIOCoordinate {
+        self.rowId.asNodeIOCoordinate
+    }
+    
     var body: some View {
         Rectangle().fill(self.portColor)
         //            Rectangle().fill(portBodyColor)
@@ -44,7 +54,15 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
         //                            .offset(x: coordinate.isInput ? 2 : -2)
         //                    }
         //                }
+        
+        // For perf reasons, we only populate `EdgeDraggedToInspectorPreferenceKey` if we're actively dragging an edge
+            .modifier(TrackDraggedOutput(
+                graph: graph,
+                id: nodeIOCoordinate,
+                nodeIO: nodeIO))
+        
             .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
+           
         // TODO: use `UnevenRoundedRectangle` ?
             .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
             .background {
@@ -53,6 +71,20 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                     .frame(width: 8)
                     .offset(x: nodeIO == .input ? -4 : 4)
             }
+            .background {
+                if nodeIO == .input,
+                   document.reduxFocusedField?.inputPortSelected == rowId {
+                    UnevenRoundedRectangle(cornerRadii: .init(topLeading: 0,
+                                                              bottomLeading: 0,
+                                                              // a circle on the right side
+                                                              bottomTrailing: 80,
+                                                              topTrailing: 80))
+                    .fill(STITCH_TITLE_FONT_COLOR)
+                    .frame(PORT_ENTRY_NON_EXTENDED_BORDER_SIZE)
+                    .offset(x: 1)
+                }
+            }
+           
             .overlay(PortEntryExtendedHitBox(graph: self.graph,
                                              nodeIO: nodeIO,
                                              rowId: rowId))
@@ -66,7 +98,7 @@ struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
                 self.graph.maybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO)
             }
         
-        // Now handled in `findEligibleInput` instead
+        // Now handled in `findEligibleCanvasInput` instead
         //            .onChange(of: self.graph.edgeDrawingObserver.nearestEligibleInput.isDefined) { _, _ in
         //                dispatch(MaybeUpdatePortColor(rowId: rowId, nodeIO: nodeIO))
         //            }
@@ -123,30 +155,53 @@ struct PortEntryExtendedHitBox: View {
              PortGestureRecognizerView handles the heavy lifting,
              but UIKit pan gesture's location is inaccurate with high velocities,
              creating a noticeable gap between cursor and dragged out
+             
+             Note: if minDistance = 0, then taps cause immediate appearance of an edge:
+            `.gesture(DragGesture(minimumDistance: 0, ...)`
              */
-            //            .gesture(DragGesture(minimumDistance: 0,
-            // if minDistance = 0, then taps cause immediate appearance of an edge
-            .gesture(DragGesture(minimumDistance: 0.05,
-                                 // .local = relative to this view
-                                 coordinateSpace: .named(NodesView.coordinateNameSpace))
-                        .onChanged { gesture in
-                            
-                            switch nodeIO {
-                            case .input:
-                                graph.inputDragged(gesture: gesture, rowId: rowId)
-                            case .output:
-                                graph.outputDragged(gesture: gesture, rowId: rowId)
-                            }
-                        } // .onChanged
-                        .onEnded { _ in
-                            //                    log("PortEntry: onEnded")
-                            switch nodeIO {
-                            case .input:
-                                graph.inputDragEnded()
-                            case .output:
-                                graph.outputDragEnded()
-                            }
-                        }
+        
+            .gesture(DragGesture(minimumDistance: 0.5,
+                                 // TODO: why are the GraphBaseView and StitchRootView coordinate spaces so inaccurate vs .global ?
+                                 coordinateSpace: .global)
+                .onChanged { gesture in
+                    log("PortEntry: global coordinate space: onChanged: gesture.location: \(gesture.location)")
+                    switch nodeIO {
+                    case .input:
+                        graph.inputDragged(gesture: gesture, rowId: rowId)
+                    case .output:
+                        graph.outputDragged(gesture: gesture, rowId: rowId)
+                    }
+                } // .onChanged
+                .onEnded { _ in
+                    log("PortEntry: global coordinate space: onEnded")
+                    switch nodeIO {
+                    case .input:
+                        graph.inputDragEnded()
+                    case .output:
+                        graph.outputDragEnded()
+                    }
+                }
+            )
+            .simultaneousGesture(DragGesture(minimumDistance: 0.5,
+                                             coordinateSpace: .named(NodesView.coordinateNamespace))
+                .onChanged { gesture in
+                    log("PortEntry: NodesView coordinate space: onChanged: gesture.location: \(gesture.location)")
+                    switch nodeIO {
+                    case .input:
+                        graph.dragLocationInNodesViewCoordinateSpace = gesture.location
+                    case .output:
+                        graph.dragLocationInNodesViewCoordinateSpace = gesture.location
+                    }
+                } // .onChanged
+                .onEnded { _ in
+                    log("PortEntry: NodesView coordinate space: onEnded")
+                    switch nodeIO {
+                    case .input:
+                        graph.dragLocationInNodesViewCoordinateSpace = nil
+                    case .output:
+                        graph.dragLocationInNodesViewCoordinateSpace = nil
+                    }
+                }
             )
     }
 }

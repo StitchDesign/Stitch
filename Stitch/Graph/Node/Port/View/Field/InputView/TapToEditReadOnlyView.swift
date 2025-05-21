@@ -31,7 +31,7 @@ struct TapToEditReadOnlyView: View {
     // Only relevant for inspector or flyout, never a canvas  field
     let fieldHasHeterogenousValues: Bool
     
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
         
     let onTap: () -> Void
     
@@ -45,7 +45,7 @@ struct TapToEditReadOnlyView: View {
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
         StitchTextView(string: displayString,
                        font: STITCH_FONT,
-                       fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
+                       fontColor: usesThemeColor ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
 
         .modifier(InputFieldFrameAndPadding(
             width: fieldWidth,
@@ -55,7 +55,7 @@ struct TapToEditReadOnlyView: View {
             isHovering: isHovering,
             isFocused: isFocused,
             isForLayerInspector: isForLayerInspector,
-            isSelectedInspectorRow: isSelectedInspectorRow))
+            usesThemeColor: usesThemeColor))
                 
         // Manually focus this field when user taps.
         // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.

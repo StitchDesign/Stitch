@@ -10,6 +10,7 @@ import StitchSchemaKit
 import Sentry
 import FirebaseCore
 import FirebaseAnalytics
+import TipKit
 
 @main @MainActor
 struct StitchApp: App {
@@ -53,6 +54,14 @@ struct StitchApp: App {
                 .onAppear {
 //                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
                     
+                    // Load and configure the state of all the tips of the app
+                    try? Tips.configure()
+                    
+                    // For testing
+                    #if DEV_DEBUG
+                    try? Tips.resetDatastore()
+                    #endif
+                    
                     dispatch(DirectoryUpdatedOnAppOpen())
                     
                     SentrySDK.start { options in
@@ -82,7 +91,9 @@ struct StitchApp: App {
             // Inject theme as environment variable
                 .environment(\.appTheme, self.store.appTheme)
                 .environment(\.edgeStyle, self.store.edgeStyle)
+                .environment(\.isOptionRequiredForShortcut, self.store.isOptionRequiredForShortcut)
         }
+        
 
         // TODO: why does XCode complain about `.windowStyle not available on iOS` even when using `#if targetEnvironment(macCatalyst)`?
         // TODO: why do `!os(iOS)` or `os(macOS)` statements not seem to run?

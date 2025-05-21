@@ -74,7 +74,7 @@ struct FieldValueNumberView: View {
                                      hasHeterogenousValues: hasHeterogenousValues,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout, 
-                                     isSelectedInspectorRow: isSelectedInspectorRow,
+                                     usesThemeColor: isSelectedInspectorRow,
                                      isForLayerDimensionField: isForLayerDimensionField,
                                      nodeKind: nodeKind)
         }

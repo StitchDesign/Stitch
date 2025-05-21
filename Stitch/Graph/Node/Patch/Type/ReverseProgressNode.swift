@@ -10,37 +10,38 @@ import StitchSchemaKit
 
 import SwiftUI
 
-// TODO?: origami's style?
-@MainActor
-func reverseProgressNode(id: NodeId,
-                         n: Double = 50,
-                         start: Double = 0,
-                         end: Double = 100,
-                         position: CGPoint = .zero,
-                         zIndex: Double = 0) -> PatchNode {
-
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Value", [.number(n)]),
-        ("Start", [.number(start)]),
-        ("End", [.number(end)])
-    )
-
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values:
-            (nil, [.number(reverseProgress(n, start: start, end: end))])
-    )
-
-    return PatchNode(
-        position: position,
-        zIndex: zIndex,
-        id: id,
-        patchName: .reverseProgress,
-        inputs: inputs,
-        outputs: outputs)
+struct ReverseProgressNode: PatchNodeDefinition {
+    static let patch: Patch = .reverseProgress
+    
+    static let defaultUserVisibleType: UserVisibleType? = nil
+    
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Value",
+                    isTypeStatic: true
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Start",
+                    isTypeStatic: true
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "End",
+                    isTypeStatic: true
+                ),
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
 }
 
 @MainActor

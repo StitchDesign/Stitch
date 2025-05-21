@@ -47,6 +47,7 @@ struct ContentView: View, KeyboardReadable {
             
             // Best place to listen for TAB key for flyout
             UIKitWrapper(ignoresKeyCommands: true,
+                         isOnlyForTextFieldHelp: true,
                          inputTextFieldFocused: document.reduxFocusedField?.inputTextFieldWithNumberIsFocused(document.graph) ?? false,
                          name: .mainGraph) {
                 contentView // the graph
@@ -77,6 +78,7 @@ struct ContentView: View, KeyboardReadable {
         }
         
         // TODO: remove these? just access from document in the relevant view?
+        // TODO: not actually used/accessed ?
        .environment(\.viewframe, document.frame)
     }
 

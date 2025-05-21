@@ -11,33 +11,40 @@ import StitchSchemaKit
 
 let OptionPickerDefaultNodeType = UserVisibleType.number
 
-@MainActor
-func optionPickerPatchNode(id: NodeId,
-                           n: Double = 0,
-                           n2: Double = 1,
-                           nodePosition: CGPoint = .zero,
-                           nodeZIndex: Double = 0) -> PatchNode {
+struct OptionPickerPatchNode: PatchNodeDefinition {
+    static let patch = Patch.optionPicker
 
-    let inputs = toInputs(
-        id: id,
-        values:
-            ("Option", [.number(0)]),
-        (nil, [.number(n)]),
-        (nil, [.number(n2)]))
+    static let defaultUserVisibleType: UserVisibleType? = .number
+    
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(
+                    defaultValues: [.number(0)],
+                    label: "Option",
+                    isTypeStatic: true
+                ),
+                .init(
+                    defaultValues: [.number(0)],
+                    label: ""
+                ),
+                .init(
+                    defaultValues: [.number(1)],
+                    label: ""
+                )
+            ],
+            outputs: [
+                .init(
+                    label: "",
+                    type: .number
+                )
+            ]
+        )
+    }
 
-    let outputs = toOutputs(
-        id: id,
-        offset: inputs.count,
-        values: (nil, [.number(n)]))
-
-    return PatchNode(
-        position: nodePosition,
-        zIndex: nodeZIndex,
-        id: id,
-        patchName: .optionPicker,
-        userVisibleType: OptionPickerDefaultNodeType,
-        inputs: inputs,
-        outputs: outputs)
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
+        ComputedNodeState()
+    }
 }
 
 @MainActor

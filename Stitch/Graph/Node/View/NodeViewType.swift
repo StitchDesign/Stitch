@@ -32,6 +32,7 @@ struct CanvasLayerInputViewWrapper: View {
             
             HStack {
                 NodeRowPortView(graph: graph,
+                                document: document,
                                 node: node,
                                 rowObserver: rowObserver,
                                 rowViewModel: rowViewModel)
@@ -85,7 +86,8 @@ struct DefaultNodeInputsView: View {
                        isFieldInMultifieldInput: isMultiField,
                        isForFlyout: false,
                        isSelectedInspectorRow: false,
-                       useIndividualFieldLabel: true)
+                       useIndividualFieldLabel: true,
+                       usesThemeColor: false)
     }
     
     @State var hoveredField: FieldCoordinate? = nil
@@ -115,6 +117,7 @@ struct DefaultNodeInputsView: View {
                 
                 HStack(alignment: .center) {
                     NodeRowPortView(graph: graph,
+                                    document: document,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)
@@ -126,7 +129,7 @@ struct DefaultNodeInputsView: View {
                                                                   graph: graph),
                                          isLeftAligned: false,
                                          fontColor: STITCH_FONT_GRAY_COLOR,
-                                         isSelectedInspectorRow: false)
+                                         usesThemeColor: false)
                         
                         if showsInputFields {
                             ForEach(rowViewModel.cachedFieldGroups) { fieldGroup in
@@ -223,10 +226,11 @@ struct DefaultNodeOutputsView: View {
                                graph: graph),
                                      isLeftAligned: false,
                                      fontColor: STITCH_FONT_GRAY_COLOR,
-                                     isSelectedInspectorRow: false)
+                                     usesThemeColor: false)
                     .zIndex(-98) // Place below fields
                     
                     NodeRowPortView(graph: graph,
+                                    document: document,
                                     node: node,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowViewModel)

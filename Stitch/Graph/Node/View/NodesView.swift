@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodesView: View {
-    static let coordinateNameSpace = "NODESVIEW"
+    static let coordinateNamespace = "NODESVIEW"
     
     @Bindable var document: StitchDocumentViewModel
     
@@ -19,46 +19,31 @@ struct NodesView: View {
     // animation state for group node traversals
     let groupTraversedToChild: Bool
 
-
     private var visibleNodesViewModel: VisibleNodesViewModel {
         self.graph.visibleNodesViewModel
     }
-    
-    // Finds a group node's offset from center, used for animating
-    // group node traversals
-    // TODO: group node location for transition
-    var groupNodeLocation: CGPoint {
-        .zero
-        //        guard let groupNodeFocused = groupNodeFocused,
-        //              let groupNode: GroupNode = groupNodesState[groupNodeFocused] else {
-        //            return CGPoint.zero
-        //        }
-        //        return getNodeOffset(node: groupNode.schema,
-        //                             graphViewFrame: graphFrame,
-        //                             scale: zoom)
-    }
-    
+        
     var body: some View {
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
                        needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
-            
-            //                        commentBoxes
-            
-            nodesOnlyView()
+            // commentBoxes
+            NodesOnlyView(document: document, graph: graph)
         }
-           .modifier(CanvasEdgesViewModifier(document: document,
-                                             graph: graph))
+           .modifier(CanvasEdgesViewModifier(document: document, graph: graph))
         
+        // TODO: completely remove?
            .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
-                                      nodeLocation: groupNodeLocation,
+                                      nodeLocation: .zero,
                                       graphOffset: .zero))
         
-           .coordinateSpace(name: Self.coordinateNameSpace)
+        // Can we move this ?
+           .coordinateSpace(name: Self.coordinateNamespace)
 
-        // should come after edges, so that edges are offset, scaled etc.
+        // Scales and offsets the nodes, edges etc.
            .modifier(StitchUIScrollViewModifier(document: document,
                                                 graph: graph))
+        
     }
     
     // TODO: better location for CommentBoxes?
@@ -72,11 +57,6 @@ struct NodesView: View {
 //        }
 //    }
     
-    @MainActor
-    func nodesOnlyView() -> some View {
-        NodesOnlyView(document: document,
-                      graph: graph)
-    }
 }
 
 struct CanvasEdgesViewModifier: ViewModifier {
@@ -91,16 +71,12 @@ struct CanvasEdgesViewModifier: ViewModifier {
                 CandidateEdgesView(graph: graph)
             }
             .overlay {
-                EdgeDrawingView(graph: graph,
-                                edgeDrawingObserver: graph.edgeDrawingObserver)
-                
                 if let edgeEditingState = graph.edgeEditingState {
                     EdgeInputLabelsView(document: document,
                                         graph: graph,
                                         edgeEditingState: edgeEditingState)
                 }
                 
-
                 if let openPortPreview = document.openPortPreview,
                    let canvas = graph.getCanvasItem(openPortPreview.canvasItemId) {
                     PortPreviewPopoverWrapperView(
@@ -109,5 +85,6 @@ struct CanvasEdgesViewModifier: ViewModifier {
                         canvas: canvas)
                 }
             }
+        
     }
 }

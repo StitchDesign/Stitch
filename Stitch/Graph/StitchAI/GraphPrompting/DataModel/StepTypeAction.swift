@@ -15,6 +15,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case connectNodes(StepActionConnectionAdded)
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
+    case sidebarGroupCreated(StepActionLayerGroupCreated)
     
     var stepType: StepType {
         switch self {
@@ -26,6 +27,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionChangeValueType.stepType
         case .setInput:
             return StepActionSetInput.stepType
+        case .sidebarGroupCreated:
+            return StepActionLayerGroupCreated.stepType
         }
     }
     
@@ -38,6 +41,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .changeValueType(let x):
             return x.toStep
         case .setInput(let x):
+            return x.toStep
+        case .sidebarGroupCreated(let x):
             return x.toStep
         }
     }
@@ -61,7 +66,77 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .setInput:
             let x = try StepActionSetInput.fromStep(action)
             return .setInput(x)
+            
+        case .sidebarGroupCreated:
+            let x = try StepActionLayerGroupCreated.fromStep(action)
+            return .sidebarGroupCreated(x)
         }
+    }
+}
+
+struct StepActionLayerGroupCreated: StepActionable {
+    static let stepType: StepType = .sidebarGroupCreated
+    
+    var nodeId: NodeId
+    var children: NodeIdSet
+    
+    var toStep: Step {
+        Step(stepType: Self.stepType,
+             nodeId: nodeId,
+             children: children)
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionLayerGroupCreated {
+        var copy = self
+        
+        // Update the node id of the layer group itself...
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        
+        // ... and its children
+        copy.children = copy.children.map({ (childId: NodeId) in
+            if let newChildId = nodeIdMap.get(childId) {
+                log("StepActionLayerGroupCreated: remapNodeIds: NEW newChildId: \(newChildId)")
+                return newChildId
+            } else {
+                log("StepActionLayerGroupCreated: remapNodeIds: OLD childId: \(childId)")
+                return childId
+            }
+        }).toSet
+        
+        return copy
+    }
+    
+    static func fromStep(_ action: Step) throws -> Self {
+        if let nodeId = action.nodeId?.value, let children = action.children {
+            return .init(nodeId: nodeId, children: children)
+        }
+        throw StitchAIManagerError.stepDecoding(Self.stepType, action)
+    }
+    
+    static func createStructuredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .sidebarGroupCreated,
+              nodeId: OpenAISchema(type: .string),
+              children: OpenAISchemaRef(ref: "NodeIdSet"))
+    }
+    
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .children]
+    
+    @MainActor
+    func applyAction(document: StitchDocumentViewModel) throws {
+        let layersSidebar = document.visibleGraph.layersSidebarViewModel
+        layersSidebar.primary = Set(self.children) // Primarily select the group's chidlren
+        layersSidebar.sidebarGroupCreated(id: self.nodeId) // Create the group
+    }
+    
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
+        let layersSidebar = document.visibleGraph.layersSidebarViewModel
+        // `sidebarGroupUncreated` is expected to be called from a UI condition where user has 'primarily selected' a layer group
+        layersSidebar.primary = Set([self.nodeId])
+        layersSidebar.sidebarGroupUncreated()
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        createdNodes.updateValue(.layer(.group), forKey: self.nodeId)
     }
 }
 
@@ -81,6 +156,9 @@ extension Step {
         
         case .setInput:
             return try StepActionSetInput.fromStep(self)
+        
+        case .sidebarGroupCreated:
+            return try StepActionLayerGroupCreated.fromStep(self)
         }
     }
 }
@@ -161,6 +239,9 @@ protocol StepActionable: Hashable, Codable {
     func removeAction(graph: GraphState, document: StitchDocumentViewModel)
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws
+    
+    /// Maps IDs to some new value.
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self
 }
 
 // See `createLLMStepAddNode`
@@ -174,6 +255,12 @@ struct StepActionAddNode: StepActionable {
         Step(stepType: Self.stepType,
              nodeId: nodeId,
              nodeName: nodeName)
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {
@@ -209,6 +296,7 @@ struct StepActionAddNode: StepActionable {
                          willDeleteLayerGroupChildren: true)
     }
     
+    // TODO: what does `validate` mean here ? Are we "making x valid" or "determining whether x is valid" ?
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
         createdNodes.updateValue(self.nodeName, forKey: self.nodeId)
     }
@@ -220,10 +308,10 @@ struct StepActionConnectionAdded: StepActionable {
     
     // effectively the 'to port'
     let port: NodeIOPortType // integer or key path
-    let toNodeId: NodeId
+    var toNodeId: NodeId
     
     let fromPort: Int //NodeIOPortType // integer or key path
-    let fromNodeId: NodeId
+    var fromNodeId: NodeId
     
     var toStep: Step {
         Step(
@@ -233,6 +321,15 @@ struct StepActionConnectionAdded: StepActionable {
             fromNodeId: fromNodeId,
             toNodeId: toNodeId
         )
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        
+        copy.toNodeId = nodeIdMap.get(self.toNodeId) ?? self.toNodeId
+        copy.fromNodeId = nodeIdMap.get(self.fromNodeId) ?? self.fromNodeId
+
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {
@@ -278,19 +375,21 @@ struct StepActionConnectionAdded: StepActionable {
         // Create canvas node if destination is layer
         if let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position,
            let destinationNode = document.visibleGraph.getNode(self.toNodeId),
-            destinationNode.kind.isLayer {
-                guard let layerInput = self.port.keyPath?.layerInput else {
-                    // fatalErrorIfDebug()
-                    throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
-                }
-                
-                var position = fromNodeLocation
-                position.x += 200
-                
-                document.layerInputAddedToGraph(node: destinationNode,
-                                                layerInput: layerInput,
-                                                position: position)
+           destinationNode.kind.isLayer {
+            guard let layerInput = self.port.keyPath?.layerInput else {
+                // fatalErrorIfDebug()
+                throw StitchAIManagerError.actionValidationError("expected layer node keypath but got: \(self.port)")
             }
+            
+            var position = fromNodeLocation
+            position.x += 200
+            
+            document.addLayerInputToCanvas(node: destinationNode,
+                                           layerInput: layerInput,
+                                           draggedOutput: nil,
+                                           canvasHeightOffset: nil,
+                                           position: position)
+        }
     }
     
     func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
@@ -329,6 +428,14 @@ struct StepActionChangeValueType: StepActionable {
         Step(stepType: Self.stepType,
              nodeId: nodeId,
              valueType: valueType)
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {
@@ -379,9 +486,9 @@ struct StepActionChangeValueType: StepActionable {
 struct StepActionSetInput: StepActionable {
     static let stepType = StepType.setInput
     
-    let nodeId: NodeId
+    var nodeId: NodeId
     let port: NodeIOPortType // integer or key path
-    let value: PortValue
+    var value: PortValue
     let valueType: NodeType
     
     // encoding
@@ -391,6 +498,19 @@ struct StepActionSetInput: StepActionable {
              port: port,
              value: value,
              valueType: value.toNodeType)
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+        var copy = self
+        
+        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        
+        if let interactionId = copy.value.getInteractionId?.asNodeId {
+            let newId = nodeIdMap.get(interactionId) ?? interactionId
+            copy.value = .assignedLayer(LayerNodeId(newId))
+        }
+
+        return copy
     }
     
     static func fromStep(_ action: Step) throws -> Self {

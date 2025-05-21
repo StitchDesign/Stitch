@@ -10,6 +10,98 @@ import StitchSchemaKit
 import SwiftUI
 import CoreMotion
 
+
+struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
+    
+    // Determined by the shortcut or key that was pressed while the input was selected
+    let patch: Patch
+    
+    func handle(state: StitchDocumentViewModel) {
+        state.nodeCreatedWhileInputSelected(patch: patch)
+    }
+}
+
+extension StitchDocumentViewModel {
+    
+    // TODO: this can actually only ever be for creating a PatchNode ?
+    @MainActor
+    func nodeCreatedWhileInputSelected(patch: Patch) {
+        let state = self
+        let graph = state.visibleGraph
+
+        // A Wireless Broadcaster has no (visible) outgoing edges,
+        // so we insert a Wireless Receiver instead.
+        // If we attempt to insert
+        var patch = patch
+        if patch == .wirelessBroadcaster {
+            patch = .wirelessReceiver
+        }
+        
+        // Find the input
+        guard let selectedInput = state.reduxFocusedField?.inputPortSelected,
+              let canvasId = selectedInput.graphItemType.getCanvasItemId,
+              var selectedInputLocation = graph.getCanvasItem(canvasId)?.locationOfInputs,
+              let selectedInputObserver = state.visibleGraph.getInputRowViewModel(for: selectedInput)?.rowDelegate,
+              let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        // Insert the created node further to the east
+        selectedInputLocation.x -= (NODE_POSITION_STAGGER_SIZE * 6)
+                
+        // Create the node that corresponds to the shortcut/key pressed
+        guard let node = state.nodeInserted(
+            choice: .patch(patch),
+            canvasLocation: selectedInputLocation) else {
+            
+            fatalErrorIfDebug()
+            return
+        }
+                
+        // Update the created-node's type if node supports the selected input's type
+        if patch.availableNodeTypes.contains(selectedInputType) {
+            let _ = graph.nodeTypeChanged(nodeId: node.id,
+                                          newNodeType: selectedInputType,
+                                          activeIndex: state.activeIndex)
+        }
+        
+        // TODO: use Patch's .graphNode method; right now, however, NodeKind.rowDefinitions properly retrieves row definitions whether new or old style
+        let indexOfInputToChange = node.kind.rowDefinitions(for: selectedInputType).inputs
+         // patch.graphNode?.rowDefinitions(for: selectedInputType).inputs
+            .firstIndex(where: { !$0.isTypeStatic })
+        // Else default to first input
+        ?? 0
+        
+        // Put the selected input's values into the created-node's first non-type-static-input
+        
+        // NOTE: all shortcut/key-insertable nodes should have NodeDefinitions now
+        // TODO: write a test for this ?
+        guard let inputOnCreatedNode: InputNodeRowObserver = node.inputsObservers[safe: indexOfInputToChange] else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        inputOnCreatedNode.setValuesInInput(selectedInputObserver.values)
+        
+        guard let firstOutput = node.outputsObservers.first else {
+            fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(patch): did not have output") // should never be called for
+            return
+        }
+        
+        // Create an edge from the node's output to the selected input
+        graph.addEdgeWithoutGraphRecalc(from: firstOutput.id,
+                                        to: selectedInputObserver.id)
+        
+        self.visibleGraph.updateGraphData(self)
+        
+        // TODO: calculate a smaller portion of the graph?
+        graph.calculateFullGraph()
+        
+        graph.persistNewNode(node)
+    }
+}
+
 struct NodeCreatedEvent: StitchDocumentEvent {
     
     let choice: NodeKind
@@ -24,6 +116,15 @@ struct NodeCreatedEvent: StitchDocumentEvent {
 }
 
 extension StitchDocumentViewModel {
+    
+    @MainActor
+    func handleNodeCreatedViaShortcut(choice: PatchOrLayer) {
+        guard let node = self.nodeInserted(choice: choice.asNodeKind) else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.visibleGraph.persistNewNode(node)
+    }
     
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
     @MainActor
@@ -86,9 +187,10 @@ extension StitchDocumentViewModel {
     @MainActor
     func nodeInserted(choice: NodeKind,
                       // For LLMStep Actions
-                      nodeId: UUID? = nil) -> NodeViewModel? {
+                      nodeId: UUID? = nil,
+                      canvasLocation: CGPoint? = nil) -> NodeViewModel? {
 
-        let nodeCenter = self.newCanvasItemInsertionLocation
+        let nodeCenter = canvasLocation ?? self.newCanvasItemInsertionLocation
         
         guard let node = self.visibleGraph.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,

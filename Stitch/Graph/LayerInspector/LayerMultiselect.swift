@@ -92,18 +92,21 @@ extension LayerNodeViewModel {
 extension LayerInputPort {
     @MainActor
     func multiselectObservers(_ graph: GraphState) -> [LayerInputObserver] {
-                
-        let selectedLayers = graph.sidebarSelectionState.primary
         
-        let observers: [LayerInputObserver] = selectedLayers.compactMap {
-            if let layerNode = graph.getNode($0)?.layerNode {
-                let observer: LayerInputObserver = layerNode[keyPath: self.layerNodeKeyPath]
-                return observer
-            }
-            return nil
-        }
+        graph.inspectorFocusedLayerNodes.map { $0[keyPath: self.layerNodeKeyPath] }
         
-        return observers
+//        let selectedLayers = graph.inspectorFocusedLayers
+//        
+//        let observers: [LayerInputObserver] = selectedLayers.compactMap {
+//            if let layerNode = graph.getNode($0)?.layerNode {
+//                
+//                let observer: LayerInputObserver = layerNode[keyPath: self.layerNodeKeyPath]
+//                return observer
+//            }
+//            return nil
+//        }
+//        
+//        return observers
     }
 
     // TODO: this is not accurate when comparing media; see e.g. `MediaFieldValueView`

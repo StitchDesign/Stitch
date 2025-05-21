@@ -21,25 +21,17 @@ struct FatalErrorIfDebugView: View {
 }
 
 func fatalErrorIfDebug(_ message: String = "") {
-#if DEBUG || DEV_DEBUG || STITCH_AI
-    fatalError(message)
-#else
-    log(message)
-#endif
-}
-
-// Crash helpers intended only for local developer use
-func fatalErrorIfDebugOnly(_ message: String = "") {
 #if DEBUG || DEV_DEBUG
     fatalError(message)
 #else
-    log(message)
+    // When we encounter a "crash if developing locally" while we're running on production,
+    // we should log to Sentry.
+    log(message, .logToServer)
 #endif
 }
 
-
 func assertInDebug(_ conditional: Bool) {
-#if DEBUG || DEV_DEBUG || STITCH_AI
+#if DEBUG || DEV_DEBUG
     assert(conditional)
 #endif
 }
@@ -54,7 +46,7 @@ enum LoggingAction: Equatable {
 
 // For debug printing from within SwiftUI views
 func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
-    #if DEBUG || DEV_DEBUG || STITCH_AI
+    #if DEBUG || DEV_DEBUG
     print("** \(message)")
 
     switch loggingAction {
@@ -81,7 +73,7 @@ func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
 }
 
 func logInView(_ message: String) -> EmptyView {
-    #if DEBUG || DEV_DEBUG || STITCH_AI
+    #if DEBUG || DEV_DEBUG
     print("** \(message)")
     #endif
     return EmptyView()

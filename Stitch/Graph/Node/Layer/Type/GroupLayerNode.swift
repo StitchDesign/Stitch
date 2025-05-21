@@ -42,10 +42,7 @@ extension StitchOrientation: PortValueEnum {
     }
 }
 
-// Defaults to iPhone 11 preview window size
-let DEFAULT_GROUP_SIZE = CGSize(width: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE.width,
-                                height: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE.height).toLayerSize
-
+let DEFAULT_GROUP_SIZE = LayerSize(width: .fill, height: .fill)
 let DEFAULT_GROUP_POSITION = CGSize.zero
 
 let DEFAULT_GROUP_CLIP_SETTING: Bool = true
@@ -91,6 +88,7 @@ struct GroupLayerNode: LayerNodeDefinition {
         
         // Layer scrolling via group layer
         .scrollContentSize,
+        .isScrollAuto,
         
         .scrollXEnabled,
         .scrollJumpToXStyle,
@@ -190,6 +188,7 @@ func nativeScrollInteractionEval(node: NodeViewModel,
         
         nativeScrollInteractionEvalOp(
             layerViewModel: layerViewModel,
+            loopIndex: loopIndex,
             interactiveLayer: interactiveLayer,
             // TODO: DEC 3: grab parentSize from readSize of `assignedLayerNodeViewModel.layerGroupdId` ?
             parentSize: interactiveLayer.parentSize,
@@ -199,11 +198,12 @@ func nativeScrollInteractionEval(node: NodeViewModel,
 }
 
 @MainActor
-func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the grop
+func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the group
+                                   loopIndex: Int,
                                    interactiveLayer: InteractiveLayer,
                                    parentSize: CGSize,
                                    currentGraphTime: TimeInterval,
-                                   currentGraphFrameCount: Int) -> ImpureEvalOpResult {
+                                   currentGraphFrameCount: Int) -> PortValues {
     
     // log("nativeScrollInteractionEvalOp: called")
     
@@ -232,9 +232,9 @@ func nativeScrollInteractionEvalOp(layerViewModel: LayerViewModel, // for the gr
     
     let offsetFromScrollView = interactiveLayer.nativeScrollState.rawScrollViewOffset
     
-    return .init(outputs: [
+    return [
         .position(offsetFromScrollView)
-    ])
+    ]
 }
 
 

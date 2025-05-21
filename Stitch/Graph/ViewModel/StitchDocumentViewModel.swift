@@ -25,7 +25,7 @@ struct GraphUpdaterId: Equatable, Hashable, Sendable, Codable {
 
 @Observable
 final class StitchDocumentViewModel: Sendable {
-    // TODO: what kind of id is this? Per data flow, it's from StitchDocumentViewModel.id which is from document.graphId i.e. it's the id for the document's root
+    // TODO: what kind of id is this? Per data flow, it's from StitchDocumentViewModel.id which is from document.graphId i.e. it's the id for the document's root graph
     let rootId: UUID // Previously was just `UUID`, taken from StitchDocument.id which was from
     
     let isDebugMode: Bool
@@ -127,6 +127,8 @@ final class StitchDocumentViewModel: Sendable {
     /// Subscribed by view to trigger graph view update based on data changes.
     @MainActor var graphUpdaterId: GraphUpdaterId = .init(value: .zero)
     
+    @MainActor var stitchAITrainingTip = StitchAITrainingTip()
+    
     @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
     @MainActor weak var documentEncoder: DocumentEncoder?
@@ -149,17 +151,13 @@ final class StitchDocumentViewModel: Sendable {
         self.isDebugMode = isDebugMode
         
         // Handles Stitch AI if enabled
-//#if STITCH_AI
         do {
             self.aiManager = try StitchAIManager()
         } catch {
             self.aiManager = nil
             log("StitchStore error: could not init secrets file with error: \(error)")
         }
-//#else
-//        self.aiManager = nil
-//#endif
-
+        
         self.lastEncodedDocument = schema
         
         self.initializeDelegate(store: store,
@@ -320,7 +318,10 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         self.projectLoader?.loadingDocument = .loading
         
         // Checks if AI edit mode is enabled and if actions should be updated
-        if self.llmRecording.isRecording || self.llmRecording.mode == .augmentation {
+        
+        let recordingOrCorrecting = self.llmRecording.isRecording || self.llmRecording.mode == .augmentation
+        
+        if recordingOrCorrecting && !self.llmRecording.isApplyingActions {
             let oldActions = self.llmRecording.actions
             let newActions = self.deriveNewAIActions()
             

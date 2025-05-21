@@ -12,32 +12,20 @@ import SwiftyJSON
 struct EditBeforeSubmitModalView: View {
  
     @Bindable var document: StitchDocumentViewModel
-    let graph: GraphState
+    @Bindable var graph: GraphState
     
     var recordingState: LLMRecordingState {
         self.document.llmRecording
     }
 
-    var prompt: String {
-        recordingState.promptState.prompt
-    }
-    
-    var recordingStateActions: [Step] {
-        recordingState.actions
-    }
-    
-    var actions: [Step] {
-        recordingState.actions
-    }
-    
     var body: some View {
         VStack {
-            StitchTextView(string: "Prompt: \(prompt)")
+            StitchTextView(string: "Prompt: \(recordingState.promptState.prompt)")
                 .font(.headline)
                 .padding(.top)
             
             List {
-                ForEach(self.actions, id: \.hashValue) { action in
+                ForEach(self.recordingState.actions) { action in
                     LLMActionCorrectionView(action: action,
                                             graph: graph)
                 }
@@ -48,8 +36,11 @@ struct EditBeforeSubmitModalView: View {
             .listStyle(.plain)
             
             if let invalidReason = recordingState.actionsError {
-                StitchTextView(string: "Error: " + invalidReason,
-                               fontColor: .red)
+                ScrollView {
+                    StitchTextView(string: "Error: " + invalidReason,
+                                   fontColor: .red)
+                    .lineLimit(nil)
+                }
                 .padding()
                 .border(.red)
                 .padding()
@@ -72,7 +63,6 @@ struct EditBeforeSubmitModalView: View {
                 Text("Cancel")
                     .padding()
             }
-            
             
             Button(action: {
                 log("Stitch AI edit modal: will complete and dismiss")
@@ -118,7 +108,7 @@ struct LLMNodeIOPortTypeView: View {
 
 struct LLMActionCorrectionView: View {
     let action: Step
-    let graph: GraphState
+    @Bindable var graph: GraphState
         
     var body: some View {
         
@@ -174,6 +164,13 @@ struct LLMActionCorrectionView: View {
                 }
                 StitchTextView(string: "ValueType: \(x.valueType.display)")
                 StitchTextView(string: "Value: \(x.value.display)")
+                
+            case .sidebarGroupCreated(let x):
+                StitchTextView(string: "Create Group")
+                StitchTextView(string: "With Node: \(x.nodeId.debugFriendlyId)")
+                if !x.children.isEmpty {
+                    StitchTextView(string: "Children: \(x.children.map { $0.debugFriendlyId }.joined(separator: ", "))")
+                }
                 
             case .none:
                 FatalErrorIfDebugView()

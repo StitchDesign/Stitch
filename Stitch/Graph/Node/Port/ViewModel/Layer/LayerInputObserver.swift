@@ -129,8 +129,27 @@ final class LayerInputObserver: Identifiable {
 }
 
 extension LayerInputType {
-    var getUnpackedPortType: UnpackedPortType? {
+    var isPacked: Bool {
         switch self.portType {
+        case .packed:
+            return true
+        case .unpacked:
+            return false
+        }
+    }
+    
+    var isUnpacked: Bool {
+        !self.isPacked
+    }
+    
+    var getUnpackedPortType: UnpackedPortType? {
+        self.portType.getUnpacked
+    }
+}
+
+extension LayerInputKeyPathType {
+    var getUnpacked: UnpackedPortType? {
+        switch self {
         case .unpacked(let unpackedPortType):
             return unpackedPortType
         default:
@@ -219,15 +238,17 @@ extension LayerInputObserver {
         }
         
         switch self.mode {
+            
         case .packed:
             return allFields
             
         case .unpacked:
             // Vast majority of unpacked cases simply directly return inspector row view models
-            // Note:
             guard let groupings = self.port.transform3DLabelGroupings else {
                 return allFields
             }
+            
+            // Special case for 3D Transform
             
             // Groupings are gone in unpacked mode so we just need the fields
             let flattenedFields = allFields.flatMap { $0.fieldObservers }
@@ -459,6 +480,11 @@ extension LayerInputObserver {
     @MainActor
     var packedCanvasObserverOnlyIfPacked: CanvasItemViewModel? {
         self.mode == .packed ? self._packedData.canvasObserver : nil
+    }
+    
+    @MainActor
+    var unpackedCanvasObserversOnlyIfUnpacked: [CanvasItemViewModel]? {
+        self.mode == .unpacked ? self.getAllCanvasObservers() : nil
     }
     
     // All row observers for this input; for working with row observer(s) regardless of pack vs unpack

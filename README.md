@@ -1,4 +1,6 @@
-# Stitch (Beta)
+# Stitch [![Beta](https://img.shields.io/badge/status-beta-orange?style=flat-square)](#)
+
+[![Join our Discord](https://img.shields.io/discord/1332128366723203158?color=blue&label=Discord&logo=discord&cacheSeconds=3600)](https://discord.gg/eRk7D8jsD7) [![Follow us on X (Twitter)](https://img.shields.io/twitter/follow/stitchdesignapp?style=social)](https://x.com/stitchdesignapp)
 
 ![header](README_Assets/airbnb-monthystays.png)
 
@@ -26,7 +28,8 @@ Part of the benifit of being all in on the Apple ecosystem is that we get severa
 
 ## Community
 
-We're just starting our [Discord](https://discord.gg/B4EPfGjk) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
+We're just starting our [Discord](https://discord.gg/eRk7D8jsD7) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
+
 
 ## Who We Are
 

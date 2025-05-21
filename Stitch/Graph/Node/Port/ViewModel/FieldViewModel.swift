@@ -19,8 +19,14 @@ final class FieldViewModel: Observable, AnyObject, Identifiable, Sendable {
     
     let id: FieldCoordinate
     @MainActor var fieldValue: FieldValue
-    @MainActor var fieldIndex: Int
+    
     @MainActor var fieldLabel: String
+    
+    @MainActor var fieldIndex: Int {
+        self.fieldIndexWhichIgnoresPackedVsUnpacked()
+    }
+    
+    @MainActor private var _fieldIndex: Int
     
     @MainActor
     init(fieldValue: FieldValue,
@@ -29,21 +35,21 @@ final class FieldViewModel: Observable, AnyObject, Identifiable, Sendable {
          rowId: NodeRowViewModelId) {
         self.id = FieldCoordinate(rowId: rowId, fieldIndex: fieldIndex)
         self.fieldValue = fieldValue
-        self.fieldIndex = fieldIndex
+        self._fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
     }
-}
-
-extension FieldViewModel {
     
     // a field index that ignores packed vs. unpacked mode
     // so e.g. a field view model for a height field of a size input will have a fieldLabelIndex of 1, not 0
     @MainActor
-    func fieldLabelIndex(_ portType: NodeIOPortType) -> Int {
+    private func fieldIndexWhichIgnoresPackedVsUnpacked() -> Int {
+        
+        let portType = self.id.rowId.portType
+        
         switch portType {
-        case .portIndex:
-            // leverage patch node definition to get label
-            return fieldIndex
+            
+        case .portIndex: // i.e. patch input, patch output, layer output
+            return self._fieldIndex
 
         case .keyPath(let layerInputType):
 
@@ -51,11 +57,10 @@ extension FieldViewModel {
             case .packed:
                 // if it is packed, then field index is correct,
                 // so can use proper label list etc.
-                return fieldIndex
+                return self._fieldIndex
 
             case .unpacked(let unpackedPortType):
-                let index = unpackedPortType.rawValue
-                return index
+                return unpackedPortType.rawValue // rawValue = index
             }
         }
     }

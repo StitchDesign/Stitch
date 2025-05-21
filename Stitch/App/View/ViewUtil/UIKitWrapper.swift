@@ -13,6 +13,7 @@ import StitchSchemaKit
 // a SwiftUI view that accepts another SwiftUI view T, and which wraps T in a UIKit view
 struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
     let ignoresKeyCommands: Bool
+    let isOnlyForTextFieldHelp: Bool
     let inputTextFieldFocused: Bool
     let name: KeyListenerName
     @ViewBuilder var content: () -> T
@@ -22,10 +23,11 @@ struct UIKitWrapper<T: View>: UIViewControllerRepresentable {
 
         // UIKitWrapper wraps our floating preview window,
         // which needs to ignore the keyboard.
-        return StitchHostingController<T>(
+        StitchHostingController<T>(
             rootView: content(),
             ignoresSafeArea: true,
             ignoreKeyCommands: ignoresKeyCommands,
+            isOnlyForTextFieldHelp: isOnlyForTextFieldHelp,
             inputTextFieldFocused: inputTextFieldFocused,
             name: name)
     }

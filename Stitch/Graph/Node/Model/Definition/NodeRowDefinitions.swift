@@ -80,6 +80,7 @@ extension NodeKind {
         }
     }
 
+    // TODO: define on patch or layer but not group, i.e. not on NodeKind itself
     @MainActor
     func newStyleRowDefinitions(for nodeType: UserVisibleType?) -> NodeRowDefinitions? {
         switch self {

@@ -8,6 +8,8 @@
 import SwiftUI
 import StitchSchemaKit
 
+
+
 // For an individual field
 // fka `InputValueEntry`
 struct InputFieldView: View {
@@ -36,6 +38,8 @@ struct InputFieldView: View {
     
     let useIndividualFieldLabel: Bool
     
+    var usesThemeColor: Bool
+        
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
@@ -44,7 +48,7 @@ struct InputFieldView: View {
         LabelDisplayView(label: inputField.fieldLabel,
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: isSelectedInspectorRow)
+                         usesThemeColor: usesThemeColor)
     }
     
     @MainActor
@@ -62,7 +66,7 @@ struct InputFieldView: View {
                             isPackedLayerInputAlreadyOnCanvas: isPackedLayerInputAlreadyOnCanvas,
                             isFieldInMultifieldInput: isFieldInMultifieldInput,
                             isForFlyout: isForFlyout,
-                            isSelectedInspectorRow: isSelectedInspectorRow,
+                            usesThemeColor: usesThemeColor,
                             hasIncomingEdge: hasIncomingEdge, // Only for pulse button and color orb; always false for inspector rows
                             isForLayerGroup: node.kind.getLayer == .group,
                             isButtonPressed: $isButtonPressed)
