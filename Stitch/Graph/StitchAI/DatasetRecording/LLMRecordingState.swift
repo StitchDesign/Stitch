@@ -221,8 +221,14 @@ extension StitchDocumentViewModel {
             }
             
             // If we have a layer group, use the StepActionLayerGroupCreated instead of StepActionAddNode
-            if nodeName.asNodeKind.getLayer == .group {
-                // find all the sidebar items that have this layer group as their parent;
+            if nodeName.asNodeKind.getLayer == .group
+            
+            // TODO: what is the best way to enforce this "no nested groups" policy for now? Do not create a `StepActionLayerGroupCreated` for a layer group if the layer group already has a parent? But then do we create a regular `StepActionNodeAddNode` too? What about the children? ... Probably better just to solve the problem of nested layer groups.
+            // , let sidebarForLayerGroup = self.visibleGraph.layersSidebarViewModel.items.get(nodeEntity.id),
+            // !sidebarForLayerGroup.parentId.isDefined
+            
+            {
+                // Find all the sidebar items that have this layer group as their parent;
                 // those should be the sidebar items that were originally "selected"
                 // (ah, but maybe not *primarily* selected ?)
                 // ... should be okay
@@ -230,8 +236,8 @@ extension StitchDocumentViewModel {
                 // Find all the children of the LayerGroup
                 let children = self.visibleGraph.getLayerChildren(for: nodeEntity.id)
                 log("deriveNewAIActions: children for layer group \(nodeEntity.id) are: \(children)")
-                newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id, children: children))
-                
+                newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id,
+                                                                      children: children))
             } else {
                 newNodesSteps.append(StepActionAddNode(nodeId: nodeEntity.id,
                                                        nodeName: nodeName))
