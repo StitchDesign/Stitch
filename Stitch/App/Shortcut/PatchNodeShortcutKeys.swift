@@ -105,6 +105,15 @@ extension Character {
         
         switch lowercaseCharacter {
         
+        case ADD_PACK_NODE_SHORTCUT.character.lowercased().toCharacter:
+            return .sizePack
+            
+        case ADD_UNPACK_NODE_SHORTCUT.character.lowercased().toCharacter:
+            return .sizeUnpack
+
+        case ADD_SPLITTER_NODE_SHORTCUT.character.lowercased().toCharacter:
+            return .splitter
+            
         case ADD_WIRELESS_NODE_SHORTCUT.character.lowercased().toCharacter:
             return isShiftDown ? .wirelessReceiver : .wirelessBroadcaster
             
