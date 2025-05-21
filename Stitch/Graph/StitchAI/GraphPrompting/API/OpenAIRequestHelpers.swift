@@ -171,6 +171,7 @@ extension Stitch.Step: CustomStringConvertible {
             toNodeId: \(toNodeId?.value.uuidString ?? "nil"),
             value: \(String(describing: value)),
             nodeType: \(valueType?.display ?? "nil")
+            children: \(children?.description ?? "nil")
         )
         """
     }
