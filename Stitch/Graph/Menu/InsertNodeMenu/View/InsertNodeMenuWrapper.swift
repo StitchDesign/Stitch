@@ -14,60 +14,63 @@ struct InsertNodeMenuWrapper: View {
     
     @Bindable var document: StitchDocumentViewModel
     
-    var menuHeight: CGFloat {
-        document.nodeMenuHeight
-    }
-    
-    var graphScale: CGFloat {
-        graphMovement.zoomData
-    }
-    
-    // menu and animating-node start in middle
-    var menuOrigin: CGPoint {
-        CGPoint(x: screenWidth/2,
-                y: screenHeight/2)
-    }
-    
-    var screenWidth: CGFloat {
-        document.frame.width
-    }
-    
-    var screenHeight: CGFloat {
-        document.frame.height
-    }
-    
-    private var graphMovement: GraphMovementObserver {
-        self.document.graphMovement
-    }
-    
     // GraphUI properties
     var insertNodeMenuState: InsertNodeMenuState {
         document.insertNodeMenuState
     }
     
+    var menuHeight: CGFloat {
+        document.nodeMenuHeight
+    }
+    
     static let shownMenuCornerRadius: CGFloat = 20 // per Figma
-    static let hiddenMenuCornerRadius: CGFloat = 60
     
-    // We show the modal background when menu is toggled but node-animation has not yet started
-    var showModalBackground: Bool {
-        document.insertNodeMenuState.show
-    }
+    // TODO: commented out variables were used in the 'insert node menu -> node on canvas' animation
     
-    var graphOffset: CGPoint {
-        graphMovement.localPosition
-    }
+    // static let hiddenMenuCornerRadius: CGFloat = 60
     
-    // Used by node-view only
-    func getAdjustedMenuOrigin() -> CGPoint {
-        // When the menu is shown and the node is hidden,
-        // the node needs to be positioned directly underneath the menu;
-        // since the node (but not the menu) is affected by graph offset,
-        // we need to factor graph offset out of the menuOrigin the node will be using.
-        var d = menuOrigin
-        d.x -= graphOffset.x
-        d.y -= graphOffset.y
-        return d
-    }
+    //    var graphScale: CGFloat {
+    //        graphMovement.zoomData
+    //    }
+    //
+    //    // menu and animating-node start in middle
+    //    var menuOrigin: CGPoint {
+    //        CGPoint(x: screenWidth/2,
+    //                y: screenHeight/2)
+    //    }
+    //
+    //    var screenWidth: CGFloat {
+    //        document.frame.width
+    //    }
+    //
+    //    var screenHeight: CGFloat {
+    //        document.frame.height
+    //    }
+    //
+    //    private var graphMovement: GraphMovementObserver {
+    //        self.document.graphMovement
+    //    }
+        
+    // // We show the modal background when menu is toggled but node-animation has not yet started
+    //    var showModalBackground: Bool {
+    //        document.insertNodeMenuState.show
+    //    }
+    
+    //    var graphOffset: CGPoint {
+    //        graphMovement.localPosition
+    //    }
+    
+    //    // Used by node-view only
+    //    func getAdjustedMenuOrigin() -> CGPoint {
+    //        // When the menu is shown and the node is hidden,
+    //        // the node needs to be positioned directly underneath the menu;
+    //        // since the node (but not the menu) is affected by graph offset,
+    //        // we need to factor graph offset out of the menuOrigin the node will be using.
+    //        var d = menuOrigin
+    //        d.x -= graphOffset.x
+    //        d.y -= graphOffset.y
+    //        return d
+    //    }
     
     var menuView: some View {
         // InsertNodeMenu should NOT ignore the .keyboard and/or .bottom safe areas
