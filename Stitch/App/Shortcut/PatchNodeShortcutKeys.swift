@@ -61,7 +61,7 @@ let OPTION_PICKER_NODE_SHORTCUT: KeyEquivalent = "O"
 let OVAL_LAYER_SHORTCUT: KeyEquivalent = "O"
 let RECTANGLE_LAYER_SHORTCUT: KeyEquivalent = "R"
 let TEXT_LAYER_SHORTCUT: KeyEquivalent = "T"
-let GROUP_LAYER_SHORTCUT: KeyEquivalent = "G"
+//let GROUP_LAYER_SHORTCUT: KeyEquivalent = "G"
 let HIT_AREA_LAYER_SHORTCUT: KeyEquivalent = "H"
 
 
@@ -79,8 +79,8 @@ extension Character {
             return .rectangle
         case TEXT_LAYER_SHORTCUT.character.lowercased().toCharacter:
             return .text
-        case GROUP_LAYER_SHORTCUT.character.lowercased().toCharacter:
-            return .group
+//        case GROUP_LAYER_SHORTCUT.character.lowercased().toCharacter:
+//            return .group
         case HIT_AREA_LAYER_SHORTCUT.character.lowercased().toCharacter:
             return .hitArea
         default:
