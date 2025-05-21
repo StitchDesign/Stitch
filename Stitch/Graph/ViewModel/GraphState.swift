@@ -535,12 +535,11 @@ extension GraphState {
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
         
-        let graph = GraphEntity(id: self.projectId.value,
-                                name: self.name,
-                                nodes: nodes,
-                                orderedSidebarLayers: self.layersSidebarViewModel.createdOrderedEncodedData(),
-                                commentBoxes: commentBoxes)
-        return graph
+        return GraphEntity(id: self.projectId.value,
+                           name: self.name,
+                           nodes: nodes,
+                           orderedSidebarLayers: self.layersSidebarViewModel.createdOrderedEncodedData(),
+                           commentBoxes: commentBoxes)
     }
     
     @MainActor
@@ -926,11 +925,27 @@ extension GraphState {
         .toSet
     }
     
+    // Note: this assumes the LayerGroup has already been created, so e.g. cannot use in cases 
     @MainActor
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
-        self.layersSidebarViewModel.items.get(groupId)?
-            .children?.map(\.id)
-            .toSet ?? .init()
+        
+        guard let layerGroupItem = self.layersSidebarViewModel.items.get(groupId) else {
+            log("getLayerChildren: had no sidebar item for \(groupId)")
+            return .init()
+        }
+        
+        guard let children = layerGroupItem.children else {
+            log("getLayerChildren: \(groupId) was not a group?: layerGroupItem.children: \(layerGroupItem.children)")
+            return .init()
+        }
+        
+        let layerChildren = children.map(\.id).toSet
+        log("getLayerChildren: layerChildren: \(layerChildren)")
+        return layerChildren
+        
+//        self.layersSidebarViewModel.items.get(groupId)?
+//            .children?.map(\.id)
+//            .toSet ?? .init()
     }
     
     // The children of a ui group node are better described as 'canvas items',

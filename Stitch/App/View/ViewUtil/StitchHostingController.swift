@@ -123,13 +123,13 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     @MainActor
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {
-        log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
+        // log("KEY: StitchHostingController: name: \(name): pressesBegan: presses.first?.key: \(presses.first?.key)")
         presses.first?.key.map(keyPressed)
         
         // If we don't have a key, we can't check whether we should
         // prevent this press from being passed down the responder chain.
         guard let key = presses.first?.key else {
-            log("KEY: StitchHostingController: name: \(name): pressesBegan: no key")
+            // log("KEY: StitchHostingController: name: \(name): pressesBegan: no key")
             super.pressesBegan(presses, with: event)
             return
         }
@@ -138,7 +138,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         // Prevents up- and down-arrow keys from jumping the cursor to the start or end of the text when we merely want to increment or decrement the focused field's value.
         let isUpOrDownArrow = (key.keyCode == .keyboardUpArrow || key.keyCode == .keyboardDownArrow)
         if isUpOrDownArrow && self.inputTextFieldFocused {
-            log("KEY: StitchHostingController: name: \(name): pressesBegan: will not pass arrow key down responder chain")
+            // log("KEY: StitchHostingController: name: \(name): pressesBegan: will not pass arrow key down responder chain")
             return
         }
         
@@ -155,7 +155,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
          TODO: also never pass on the shift key?
          */
         if self.isOptionKey(key) {
-            log("KEY: StitchHostingController: name: \(name): pressesBegan: option key held")
+            // log("KEY: StitchHostingController: name: \(name): pressesBegan: option key held")
             return
         }
 #endif
@@ -198,7 +198,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
         if let modifiers = key.asStitchKeyModifiers {
-            log("keyPressed: modifiers: \(modifiers)")
+            // log("keyPressed: modifiers: \(modifiers)")
             dispatch(KeyModifierPressBegan(name: self.name, modifiers: modifiers))
         }
         
@@ -206,7 +206,7 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         if let keyPress = key.characters.first,
                   // Don't listen to random char presses if we're only in the flyout or search bar etc.
                     !self.isOnlyForTextFieldHelp {
-            log("keyPressed: keyPress: \(keyPress)")
+            // log("keyPressed: keyPress: \(keyPress)")
             dispatch(KeyCharacterPressBegan(char: keyPress))
         }
     }

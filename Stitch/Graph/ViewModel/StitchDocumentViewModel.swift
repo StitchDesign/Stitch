@@ -318,7 +318,10 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         self.projectLoader?.loadingDocument = .loading
         
         // Checks if AI edit mode is enabled and if actions should be updated
-        if self.llmRecording.isRecording || self.llmRecording.mode == .augmentation {
+        
+        let recordingOrCorrecting = self.llmRecording.isRecording || self.llmRecording.mode == .augmentation
+        
+        if recordingOrCorrecting && !self.llmRecording.isApplyingActions {
             let oldActions = self.llmRecording.actions
             let newActions = self.deriveNewAIActions()
             

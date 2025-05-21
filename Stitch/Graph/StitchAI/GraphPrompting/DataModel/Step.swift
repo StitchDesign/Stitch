@@ -20,6 +20,7 @@ struct Step: Hashable {
     var toNodeId: StitchAIUUID?     // Target node for connections
     var value: PortValue? // Associated value data
     var valueType: NodeType?     // Type of the node
+    var children: NodeIdSet? // Child nodes if this is a group
     
     init(stepType: StepType,
          nodeId: UUID? = nil,
@@ -29,7 +30,8 @@ struct Step: Hashable {
          fromNodeId: UUID? = nil,
          toNodeId: UUID? = nil,
          value: PortValue? = nil,
-         valueType: NodeType? = nil) {
+         valueType: NodeType? = nil,
+         children: NodeIdSet? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
@@ -39,6 +41,7 @@ struct Step: Hashable {
         self.toNodeId = .init(value: toNodeId)
         self.value = value
         self.valueType = valueType
+        self.children = children
     }
 }
 
@@ -57,6 +60,7 @@ extension Step: Codable {
         case toNodeId = "to_node_id"
         case value
         case valueType = "value_type"
+        case children = "children"
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -80,7 +84,8 @@ extension Step: Codable {
         try container.encodeIfPresent(fromNodeId, forKey: .fromNodeId)
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
         try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .valueType)
-        
+        try container.encodeIfPresent(children, forKey: .children)
+    
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
         }
@@ -117,6 +122,8 @@ extension Step: Codable {
         }
         let nodeType = try NodeType(llmString: nodeTypeString)
         self.valueType = nodeType
+        
+        self.children = try container.decodeIfPresent(NodeIdSet.self, forKey: .children)
         
         // Parse value given node type
         do {

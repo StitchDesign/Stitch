@@ -44,6 +44,8 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 
     @MainActor func sidebarGroupCreated()
     
+    @MainActor func sidebarGroupCreated(id: Self.ItemID)
+    
     @MainActor
     func sidebarGroupUncreatedViaEditMode(groupId: Self.ItemID, children: [Self.ItemID])
  

@@ -72,6 +72,8 @@ extension Array where Element == any StepActionable {
         let createdNodes = self.reduce(into: IdSet()) { partialResult, step in
             if let addNodeAction = step as? StepActionAddNode {
                 partialResult.insert(addNodeAction.nodeId)
+            } else if let layerGroupCreated = step as? StepActionLayerGroupCreated {
+                partialResult.insert(layerGroupCreated.nodeId)
             }
         }
         log("nodesCreatedByLLMActions: createdNodes: \(createdNodes)")
@@ -87,6 +89,10 @@ extension Array where Element == any StepActionable {
         
         self.forEach {
             if let addNodeAction = $0 as? StepActionAddNode {
+                idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
+            }
+            
+            if let addNodeAction = $0 as? StepActionLayerGroupCreated {
                 idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
             }
         }
@@ -107,13 +113,11 @@ extension StitchDocumentViewModel {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        var convertedActions = try actions
-            .convertSteps()
+        var convertedActions: [any StepActionable] = try actions.convertSteps()
         
         if isNewRequest {
             // Change Ids for newly created nodes
-            convertedActions = convertedActions
-                .remapNodeIdsForNewNodes()
+            convertedActions = convertedActions.remapNodeIdsForNewNodes()
         }
         
         // Are these steps valid?
@@ -129,7 +133,12 @@ extension StitchDocumentViewModel {
         }
         
         for action in convertedActions {
-            if let addAction = action as? StepActionAddNode {
+            if let addAction = (action as? StepActionAddNode) {
+                // add-node actions cannot re-use IDs
+                assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
+            }
+            
+            if let addAction = (action as? StepActionLayerGroupCreated) {
                 // add-node actions cannot re-use IDs
                 assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
             }
@@ -170,29 +179,73 @@ extension StitchDocumentViewModel {
                 fatalErrorIfDebug()
                 return nil
             }
-            
             return nodeEntity
         }
         
+        /*
+         TODO: proper handling of arbitrarily nested layer groups
+         
+         We must always create all the *children* of a layer group, BEFORE we can create the layer group.
+         
+         Note: this is NOT as simple as applying the `StepActionAddNode` actions before the `StepActionsLayerGroupCreated`s actions, since a layer group's child may be another layer group (nested layer groups).
+         
+         Suppose a sidebar nested hierarchy like:
+         
+         Grandpa (group)
+            - Oval
+            - Papa (group)
+                - Rectangle
+         
+         Then our application/creation order is, from left to right:
+         
+         `[AddNode("Rectangle"), AddLayerGroup("Papa"), AddNode("Oval"), AddLayerGroup("Grandpa")]`
+         
+         i.e. create deepest level first, then work up a level ?
+         
+         FOR NOW, WE ASSUME NON-NESTED LAYER GROUPS, AND SO ALWAYS CREATE NON-LAYER-GROUP LAYERS / PATCHES BEFORE LAYER GROUPS.
+        */
         var newNodesSteps: [StepActionAddNode] = []
+        var newLayerGroupSteps: [StepActionLayerGroupCreated] = []
+        
         var newNodeTypesSteps: [StepActionChangeValueType] = []
         var newConnectionSteps: [StepActionConnectionAdded] = []
         var newSetInputSteps: [StepActionSetInput] = []
         
-        // Create steps
+        
+        // MARK: DERIVING THE ACTIONS
+        
         for nodeEntity in newNodes {
             guard let nodeName = PatchOrLayer.from(nodeKind: nodeEntity.kind) else {
                 fatalErrorIfDebug()
                 continue
             }
             
-            let valueType = nodeEntity.nodeTypeEntity.patchNodeEntity?.userVisibleType
-            let defaultValueType = nodeEntity.kind.getPatch?.defaultNodeType
-            let stepAddNode = StepActionAddNode(nodeId: nodeEntity.id,
-                                                nodeName: nodeName)
-            newNodesSteps.append(stepAddNode)
+            // If we have a layer group, use the StepActionLayerGroupCreated instead of StepActionAddNode
+            if nodeName.asNodeKind.getLayer == .group
+            
+            // TODO: what is the best way to enforce this "no nested groups" policy for now? Do not create a `StepActionLayerGroupCreated` for a layer group if the layer group already has a parent? But then do we create a regular `StepActionNodeAddNode` too? What about the children? ... Probably better just to solve the problem of nested layer groups.
+            // , let sidebarForLayerGroup = self.visibleGraph.layersSidebarViewModel.items.get(nodeEntity.id),
+            // !sidebarForLayerGroup.parentId.isDefined
+            
+            {
+                // Find all the sidebar items that have this layer group as their parent;
+                // those should be the sidebar items that were originally "selected"
+                // (ah, but maybe not *primarily* selected ?)
+                // ... should be okay
+                                
+                // Find all the children of the LayerGroup
+                let children = self.visibleGraph.getLayerChildren(for: nodeEntity.id)
+                log("deriveNewAIActions: children for layer group \(nodeEntity.id) are: \(children)")
+                newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id,
+                                                                      children: children))
+            } else {
+                newNodesSteps.append(StepActionAddNode(nodeId: nodeEntity.id,
+                                                       nodeName: nodeName))
+            }
             
             // Value type change if different from default
+            let valueType = nodeEntity.nodeTypeEntity.patchNodeEntity?.userVisibleType
+            let defaultValueType = nodeEntity.kind.getPatch?.defaultNodeType
             if valueType != defaultValueType,
                let valueType = valueType {
                 newNodeTypesSteps.append(.init(nodeId: nodeEntity.id,
@@ -201,6 +254,7 @@ extension StitchDocumentViewModel {
             
             // Create actions for values and connections
             switch nodeEntity.nodeTypeEntity {
+                
             case .patch(let patchNode):
                 let defaultInputs = nodeEntity.kind.defaultInputs(for: valueType)
                 
@@ -219,37 +273,55 @@ extension StitchDocumentViewModel {
                                                 nodeId: nodeEntity.id)
                     let defaultInputValue = layerInput.getDefaultValue(for: layerNode.layer)
                     
-                    let input = layerNode[keyPath: layerInput.schemaPortKeyPath].inputConnections.first!
-                    Self.deriveNewInputActions(input: input,
-                                               port: port,
-                                               defaultInputs: [defaultInputValue],
-                                               newConnectionSteps: &newConnectionSteps,
-                                               newSetInputSteps: &newSetInputSteps)
+                    if let input = layerNode[keyPath: layerInput.schemaPortKeyPath].inputConnections.first {
+                        
+                        Self.deriveNewInputActions(input: input,
+                                                   port: port,
+                                                   defaultInputs: [defaultInputValue],
+                                                   newConnectionSteps: &newConnectionSteps,
+                                                   newSetInputSteps: &newSetInputSteps)
+                    }
                 }
-                
-            default:
+                        
+            case .group, .component:
+                // We currently do not support the creation of GroupNodes (ui-groupings) or Components via LLM Step Actions
                 continue
             }
         }
         
-        // Sorting necessary for validation
+        
+        // MARK: SORTING THE DERIVED ACTIONS
+        
+        // Sorting necessary for validation (just consistent ordering)
         let newNodesStepsSorted = newNodesSteps
             .sorted { $0.nodeId < $1.nodeId }
             .map { $0.toStep }
+        
+        let newLayerGroupStepsSorted = newLayerGroupSteps
+            .sorted { $0.nodeId < $1.nodeId }
+            .map { $0.toStep }
+        
         let newNodeTypesStepsSorted = newNodeTypesSteps
             .sorted { $0.nodeId < $1.nodeId }
             .map { $0.toStep }
+        
         let newConnectionStepsSorted = newConnectionSteps
             .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
             .map { $0.toStep }
+        
         let newSetInputStepsSorted = newSetInputSteps
             .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
             .map { $0.toStep }
+
+        // TODO: see note above about properly handling nested layer groups
+        let creatingNodes = newNodesStepsSorted + newLayerGroupStepsSorted
         
-        return newNodesStepsSorted +
-        newNodeTypesStepsSorted +
-        newConnectionStepsSorted +
-        newSetInputStepsSorted
+        let updatingPatchNodesTypes = newNodeTypesStepsSorted
+        let creatingConnections = newConnectionStepsSorted
+        let settingInputs = newSetInputStepsSorted
+        
+        // This order is important! We want to create nodes first, then change their node types, etc.
+        return creatingNodes + updatingPatchNodesTypes + creatingConnections + settingInputs
     }
     
     private static func deriveNewInputActions(input: NodeConnectionType,
@@ -281,12 +353,13 @@ extension StitchDocumentViewModel {
     @MainActor
     func reapplyActions() throws {
         let oldActions = self.llmRecording.actions
-        let actions = try self.llmRecording.actions.convertSteps()
+        let actions: [any StepActionable] = try oldActions.convertSteps()
         let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         // Save node positions
         self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
+            // TODO: MAY 18: save position for LayerGroup i.e. `StepActionLayerGroupCreated` as well?
             if let action = action as? StepActionAddNode,
                let node = graph.getNode(action.nodeId) {
                 let canvasItems = node.getAllCanvasObservers()
@@ -297,14 +370,19 @@ extension StitchDocumentViewModel {
                 }
             }
         }
+
+        // TODO: while `isApplyingActions = true`, we do not want any persistence-triggering methods to call `deriveNewAISteps`; i.e. de-applying an action should not trigger a deriving of new actions
+         self.llmRecording.isApplyingActions = true
         
+        // TODO: just do `actions.reversed().forEach { $0.removeAction(graph: graph, document: self) }`
         // Remove all actions before re-applying
         try self.llmRecording.actions
             .reversed()
             .forEach { action in
-                let step = try action.convertToType()
+                let step: any StepActionable = try action.convertToType()
                 step.removeAction(graph: graph, document: self)
             }
+         self.llmRecording.isApplyingActions = false
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         try self.validateAndApplyActions(self.llmRecording.actions)
@@ -317,13 +395,25 @@ extension StitchDocumentViewModel {
             }
         }
         
+        // After we have de-applied and then re-applied the actions,
+        // derive a new actions based on post-"de-apply, re-apply" state
+        // and confirm that de-applying and re-applying the actions
+        // did not cause the actions to change
+        self.llmRecording.actions = self.deriveNewAIActions()
+        
         // Force update view
         self.graphUpdaterId = .randomId()
         
         // Validates that action data didn't change after derived actions is computed
         let newActions = self.llmRecording.actions
+        
+        // TODO: why or how is the count changing? What is mutating the `newActions` count?
+        assertInDebug(oldActions.count == newActions.count)
+        
         try zip(oldActions, newActions).forEach { oldAction, newAction in
             if oldAction != newAction {
+                log("Found unequal actions: oldAction: \(try oldAction.convertToType())")
+                log("Found unequal actions: newAction: \(try newAction.convertToType())")
                 throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(try oldAction.convertToType())\n\(try newAction.convertToType())")
             }
         }
