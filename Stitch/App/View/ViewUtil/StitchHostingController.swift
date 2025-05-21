@@ -198,17 +198,22 @@ class StitchHostingController<T: View>: UIHostingController<T> {
         
         // TODO: key-modifiers (Tab, Shift etc.) and key-characters are not exclusive
         if let modifiers = key.asStitchKeyModifiers {
+            // log("keyPressed: modifiers: \(modifiers)")
             dispatch(KeyModifierPressBegan(name: self.name, modifiers: modifiers))
-        } else if let keyPress = key.characters.first,
+        }
+        
+        // else
+        if let keyPress = key.characters.first,
                   // Don't listen to random char presses if we're only in the flyout or search bar etc.
                     !self.isOnlyForTextFieldHelp {
+            // log("keyPressed: keyPress: \(keyPress)")
             dispatch(KeyCharacterPressBegan(char: keyPress))
         }
     }
 
     @MainActor
     func keyReleased(_ key: UIKey) {
-        // // log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
+        // log("KEY: StitchHostingController: name: \(name): keyReleased: key: \(key)")
         if let modifiers = key.asStitchKeyModifiers {
             dispatch(KeyModifierPressEnded(modifiers: modifiers))
         } else if let keyPress = key.characters.first,
@@ -307,7 +312,14 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     override var keyCommands: [UIKeyCommand]? {
 
         if !ignoreKeyCommands {
-            let bindings = [escKeyBinding, zoomInBinding, zoomOutBinding, optionKeyBinding] + qwertyCommands + qwertyShiftCommands
+            let bindings = [escKeyBinding, zoomInBinding, zoomOutBinding, optionKeyBinding]
+            /*
+              TODO: dig deeper here, so we can use SwiftUI shortcuts consistently whether Option is required or note. For now, we want to be cautious about changing our keypress logic.
+             
+             UIKeyCommands seem to override modifier-free SwiftUI shortcuts (i.e. `.keyboardShortcut("a", modifiers: [])`;
+             but without UIKeyCommands we seem to receive a pressesBegan and pressesEnded at the same time?
+             */
+            + qwertyCommands + qwertyShiftCommands
 
             if usesArrowKeyBindings {
                 return arrowKeyBindings + bindings

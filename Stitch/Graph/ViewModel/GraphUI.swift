@@ -209,16 +209,8 @@ extension GraphState {
             document.showCatalystProjectTitleModal = false
         }
         
-        if self.layersSidebarViewModel.isSidebarFocused {
-            self.layersSidebarViewModel.isSidebarFocused = false
-        }
-        
         if document.openPortPreview != nil {
             document.openPortPreview = nil
-        }
-        
-        if document.selectedInput != nil {
-            document.selectedInput = nil
         }
     }
 }
@@ -326,16 +318,6 @@ extension GraphState {
         // Prevent render cycles if already selected
         guard !self.isCanvasItemSelected(canvasItemId) else { return }
         self.selection.selectedCanvasItems.insert(canvasItemId)
-        
-        // Unfocus sidebar
-        if self.layersSidebarViewModel.isSidebarFocused {
-            self.layersSidebarViewModel.isSidebarFocused = false
-        }
-        
-        // De-select input
-        if self.documentDelegate?.selectedInput.isDefined ?? false {
-            self.documentDelegate?.selectedInput = nil
-        }
     }
     
     // TODO: signature could be tighter, e.g. method on `SelectionState` rather than `GraphState`

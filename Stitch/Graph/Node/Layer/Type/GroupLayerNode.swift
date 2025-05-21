@@ -42,10 +42,7 @@ extension StitchOrientation: PortValueEnum {
     }
 }
 
-// Defaults to iPhone 11 preview window size
-let DEFAULT_GROUP_SIZE = CGSize(width: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE.width,
-                                height: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE.height).toLayerSize
-
+let DEFAULT_GROUP_SIZE = LayerSize(width: .fill, height: .fill)
 let DEFAULT_GROUP_POSITION = CGSize.zero
 
 let DEFAULT_GROUP_CLIP_SETTING: Bool = true

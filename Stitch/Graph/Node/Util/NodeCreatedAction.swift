@@ -14,25 +14,34 @@ import CoreMotion
 struct NodeCreatedWhileInputSelected: StitchDocumentEvent {
     
     // Determined by the shortcut or key that was pressed while the input was selected
-    let choice: NodeKind
+    let patch: Patch
     
     func handle(state: StitchDocumentViewModel) {
-        state.nodeCreatedWhileInputSelected(choice: choice)
+        state.nodeCreatedWhileInputSelected(patch: patch)
     }
 }
 
 extension StitchDocumentViewModel {
     
+    // TODO: this can actually only ever be for creating a PatchNode ?
     @MainActor
-    func nodeCreatedWhileInputSelected(choice: NodeKind) {
+    func nodeCreatedWhileInputSelected(patch: Patch) {
         let state = self
         let graph = state.visibleGraph
+
+        // A Wireless Broadcaster has no (visible) outgoing edges,
+        // so we insert a Wireless Receiver instead.
+        // If we attempt to insert
+        var patch = patch
+        if patch == .wirelessBroadcaster {
+            patch = .wirelessReceiver
+        }
         
         // Find the input
-        guard let selectedInput = state.selectedInput,
-              var selectedInputLocation = graph.getCanvasItem(inputId: selectedInput)?
-            .locationOfInputs,
-              let selectedInputObserver = state.visibleGraph.getInputRowObserver(selectedInput),
+        guard let selectedInput = state.reduxFocusedField?.inputPortSelected,
+              let canvasId = selectedInput.graphItemType.getCanvasItemId,
+              var selectedInputLocation = graph.getCanvasItem(canvasId)?.locationOfInputs,
+              let selectedInputObserver = state.visibleGraph.getInputRowViewModel(for: selectedInput)?.rowDelegate,
               let selectedInputType: UserVisibleType = selectedInputObserver.values.first?.toNodeType else {
             fatalErrorIfDebug()
             return
@@ -43,19 +52,15 @@ extension StitchDocumentViewModel {
                 
         // Create the node that corresponds to the shortcut/key pressed
         guard let node = state.nodeInserted(
-            choice: choice,
+            choice: .patch(patch),
             canvasLocation: selectedInputLocation) else {
             
             fatalErrorIfDebug()
             return
         }
                 
-        // TODO: is this really needed? Mostly for undo/redo ?
-        graph.persistNewNode(node)
-        
         // Update the created-node's type if node supports the selected input's type
-        if let patch = choice.getPatch,
-           patch.availableNodeTypes.contains(selectedInputType) {
+        if patch.availableNodeTypes.contains(selectedInputType) {
             let _ = graph.nodeTypeChanged(nodeId: node.id,
                                           newNodeType: selectedInputType,
                                           activeIndex: state.activeIndex)
@@ -80,16 +85,20 @@ extension StitchDocumentViewModel {
         inputOnCreatedNode.setValuesInInput(selectedInputObserver.values)
         
         guard let firstOutput = node.outputsObservers.first else {
-            fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(choice): did not have output") // should never be called for
+            fatalErrorIfDebug("NodeCreatedWhileInputSelected for \(patch): did not have output") // should never be called for
             return
         }
         
         // Create an edge from the node's output to the selected input
         graph.addEdgeWithoutGraphRecalc(from: firstOutput.id,
-                                        to: selectedInput)
+                                        to: selectedInputObserver.id)
+        
+        self.visibleGraph.updateGraphData(self)
         
         // TODO: calculate a smaller portion of the graph?
         graph.calculateFullGraph()
+        
+        graph.persistNewNode(node)
     }
 }
 
@@ -107,6 +116,15 @@ struct NodeCreatedEvent: StitchDocumentEvent {
 }
 
 extension StitchDocumentViewModel {
+    
+    @MainActor
+    func handleNodeCreatedViaShortcut(choice: PatchOrLayer) {
+        guard let node = self.nodeInserted(choice: choice.asNodeKind) else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.visibleGraph.persistNewNode(node)
+    }
     
     /// Only for insert-node-menu creation of nodes; shortcut key creation of nodes uses `viewPortCenter`
     @MainActor

@@ -40,12 +40,11 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
     @MainActor var highlightedSidebarLayers: Set<Self.ItemID> { get set }
     
-    // tracks if sidebar is focused
-    @MainActor var isSidebarFocused: Bool { get set }
-    
     @MainActor var graphDelegate: GraphState? { get set }
 
     @MainActor func sidebarGroupCreated()
+    
+    @MainActor func sidebarGroupCreated(id: Self.ItemID)
     
     @MainActor
     func sidebarGroupUncreatedViaEditMode(groupId: Self.ItemID, children: [Self.ItemID])
