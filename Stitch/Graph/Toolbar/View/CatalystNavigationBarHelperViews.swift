@@ -168,7 +168,7 @@ struct CatalystTopBarGraphButtons: View {
         }
         .disabled(!hasActiveGroupFocused)
 
-        CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+        CatalystNavBarButton("AI Generation/Correction", systemIconName: llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
             dispatch(LLMRecordingToggled())
         }
         .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
@@ -208,7 +208,7 @@ struct CatalystTopBarGraphButtons: View {
         TopBarSharingButtonsView(document: document)
             .modifier(CatalystTopBarButtonStyle())
 
-        TopBarFeedbackButtonsView()
+        TopBarFeedbackButtonsView(document: self.document)
             .modifier(CatalystTopBarButtonStyle())
 
         CatalystNavBarButton("Project Settings", systemIconName: .SETTINGS_SF_SYMBOL_NAME) {
