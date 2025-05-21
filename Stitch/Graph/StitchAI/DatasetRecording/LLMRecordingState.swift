@@ -350,6 +350,7 @@ extension StitchDocumentViewModel {
         }
     }
     
+    // TODO: pass down the [Step] explicitly ?
     @MainActor
     func reapplyActions() throws {
         let oldActions = self.llmRecording.actions
@@ -357,6 +358,8 @@ extension StitchDocumentViewModel {
         let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
+        
+        // TODO: might not want this when "reapplying during streaming" ?
         // Save node positions
         self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
             // TODO: MAY 18: save position for LayerGroup i.e. `StepActionLayerGroupCreated` as well?
@@ -394,6 +397,8 @@ extension StitchDocumentViewModel {
                 canvas.previousPosition = canvasPosition
             }
         }
+        
+        // TODO: do we really want to re
         
         // After we have de-applied and then re-applied the actions,
         // derive a new actions based on post-"de-apply, re-apply" state

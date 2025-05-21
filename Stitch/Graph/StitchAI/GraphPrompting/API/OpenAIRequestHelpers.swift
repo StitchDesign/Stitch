@@ -70,9 +70,18 @@ struct ChunkProcessed: StitchDocumentEvent {
         state.visibleGraph.streamedSteps.append(newStep)
         log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
         
-        if let _ = try? state.validateAndApplyActions(state.visibleGraph.streamedSteps.elements) {
-            
-        } else {
+        state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
+        log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
+        
+        
+        if let _ = try? state.reapplyActions() {
+            log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
+        }
+        
+//        if let _ = try? state.validateAndApplyActions(state.visibleGraph.streamedSteps.elements) {
+//            
+//        }
+        else {
             log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS")
         }
     }
