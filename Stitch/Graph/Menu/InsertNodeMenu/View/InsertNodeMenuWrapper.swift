@@ -45,7 +45,7 @@ struct InsertNodeMenuWrapper: View {
         document.insertNodeMenuState
     }
     
-    static let shownMenuCornerRadius: CGFloat = 16
+    static let shownMenuCornerRadius: CGFloat = 20 // per Figma
     static let hiddenMenuCornerRadius: CGFloat = 60
     
     // We show the modal background when menu is toggled but node-animation has not yet started
@@ -81,18 +81,37 @@ struct InsertNodeMenuWrapper: View {
             menuHeight: menuHeight)
     }
     
+    var isLoadingAIRequest: Bool {
+        document.insertNodeMenuState.isGeneratingAINode
+    }
+    
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             ModalBackgroundGestureRecognizer(dismissalCallback: { dispatch(CloseAndResetInsertNodeMenu()) }) {
                 Color.clear
             }
             
             // Insert Node Menu view
             if document.insertNodeMenuState.show {
+                
                 menuView
                     .shadow(radius: 4)
                     .shadow(radius: 8, x: 4, y: 2)
                     .animation(.default, value: document.insertNodeMenuState.show)
+                    .animation(.default, value: isLoadingAIRequest)
+                    
+                // Padding from top, per Figma
+                    .offset(y: 24)
+                
+                // Preserve position when we've collapsed the node menu body because of an active AI request
+                // Alternatively?: use VStack { menu, Spacer }
+                    .offset(y: isLoadingAIRequest
+                            ? (-menuHeight/2 + INSERT_NODE_MENU_SEARCH_BAR_HEIGHT/2)
+                            : 0
+                    )
+                
+                
+                    
             }
         }
     }

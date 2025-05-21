@@ -181,7 +181,9 @@ struct GenerateAINode: StitchDocumentEvent {
         graph.streamedSteps = .init()
         
         // Set loading state
-        state.insertNodeMenuState.isGeneratingAINode = true
+        withAnimation { // added
+            state.insertNodeMenuState.isGeneratingAINode = true
+        }
         
         // Set flag to indicate this is from AI generation
         state.insertNodeMenuState.isFromAIGeneration = true

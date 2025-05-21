@@ -23,7 +23,9 @@ extension StitchAIManager {
         }
         
         // Set the flag to indicate a request is in progress
-        currentDocument.insertNodeMenuState.isGeneratingAINode = true
+        withAnimation { // added
+            currentDocument.insertNodeMenuState.isGeneratingAINode = true
+        }
         
         // Track initial graph state
         currentDocument.llmRecording.initialGraphState = currentDocument.visibleGraph.createSchema()
