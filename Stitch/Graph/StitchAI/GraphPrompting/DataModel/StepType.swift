@@ -23,6 +23,7 @@ enum StepType: String, Equatable, Codable {
     case connectNodes = "connect_nodes"
     case changeValueType = "change_value_type"
     case setInput = "set_input"
+    case sidebarGroupCreated = "sidebar_group_created"
     
     var display: String {
         switch self {
@@ -34,6 +35,8 @@ enum StepType: String, Equatable, Codable {
             return "Change Node Type"
         case .setInput:
             return "Set Input"
+        case .sidebarGroupCreated:
+            return "Create Sidebar Group"
         }
     }
 }

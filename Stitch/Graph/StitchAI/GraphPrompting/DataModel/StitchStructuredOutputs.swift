@@ -35,10 +35,15 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
     let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
     let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
+    let SidebarGroupCreatedAction = StepStructuredOutputs(StepActionLayerGroupCreated.self)
     
     // Types
     let NodeID = OpenAISchema(type: .string,
                               description: "The unique identifier for the node (UUID)")
+    
+    let NodeIdSet = OpenAISchema(type: .array,
+                                description: "Array of node UUIDs",
+                                items: OpenAIGeneric(types: [OpenAISchema(type: .string)]))
     
     let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
     
@@ -60,7 +65,8 @@ struct StitchAIStepsSchema: Encodable {
                                 .init(ref: "AddNodeAction"),
                                 .init(ref: "ConnectNodesAction"),
                                 .init(ref: "ChangeValueTypeAction"),
-                                .init(ref: "SetInputAction")
+                                .init(ref: "SetInputAction"),
+                                .init(ref: "SidebarGroupCreatedAction")
                              ])
     )
 }
@@ -95,6 +101,7 @@ struct StitchAIStepSchema: Encodable {
     var toNodeId: OpenAISchema? = nil
     var value: OpenAIGeneric? = nil
     var valueType: OpenAISchemaRef? = nil
+    var children: OpenAISchemaRef? = nil
     
     func encode(to encoder: Encoder) throws {
         // Reuses coding keys from Step struct
@@ -112,5 +119,6 @@ struct StitchAIStepSchema: Encodable {
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
         try container.encodeIfPresent(value, forKey: .value)
         try container.encodeIfPresent(valueType, forKey: .valueType)
+        try container.encodeIfPresent(children, forKey: .children)
     }
 }
