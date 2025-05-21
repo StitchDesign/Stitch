@@ -118,6 +118,9 @@ extension StitchDocumentViewModel {
             // TODO: shouldn't we also check whether this input already has a field on the canvas? Currently this possibility is probably prevented in the UI itself; can we consolidate the logic/rule somewhere?
             addLayerInput(focusedLayer.asLayerNodeId.asNodeId)
         }
+        
+        graph.encodeProjectInBackground()
+        self.graphUpdaterId = .randomId()
     }
 }
 
@@ -162,12 +165,20 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard layerNode[keyPath: layerInput.layerNodeKeyPath].mode == .packed else {
-            log("Tried to add whole layer input to canvas when layer input was in unpack mode")
-            return
+        // If we're not dragging an edge to the inspector, then we cannot swap.
+        if !draggedOutput.isDefined {
+            guard layerNode[keyPath: layerInput.layerNodeKeyPath].mode == .packed else {
+                log("Tried to add whole layer input to canvas when layer input was in unpack mode")
+                return
+            }
         }
         
         let input: InputLayerNodeRowData = layerNode[keyPath: layerInput.packedLayerInputKeyPath]
+        
+        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+        
+        let previousPackMode = portObserver.mode
+        
         
         // Remove existing layer input
         // (Can happen from dragging an edge onto the inspector)
@@ -175,6 +186,15 @@ extension StitchDocumentViewModel {
             log("Layer Input \(layerInput) already on canvas")
             graph.deleteCanvasItem(existingCanvasObserver.id,
                                    document: self)
+        }
+        
+        // Remove an existing layer fields on the canvas
+        if draggedOutput.isDefined {
+            portObserver.unpackedCanvasObserversOnlyIfUnpacked?.forEach { fieldOnCanvas in
+                log("addLayerInputToCanvas: Field \(fieldOnCanvas.id) for input \(layerInput) already on canvas")
+                graph.deleteCanvasItem(fieldOnCanvas.id,
+                                       document: self)
+            }
         }
         
         let canvasPosition = self.getLayerInputOrFieldCanvasInsertionPosition(
@@ -211,6 +231,14 @@ extension StitchDocumentViewModel {
         
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
+        
+        // MARK: Change the pack mode
+        
+        let newPackMode = portObserver.mode
+        if previousPackMode != newPackMode {
+            portObserver.wasPackModeToggled(document: self)
+        }
+        
         
         // TODO: why do we have to do this?
         if let layerNode = node.layerNode {
@@ -277,22 +305,39 @@ extension StitchDocumentViewModel {
             fatalErrorIfDebug("LayerInputFieldAddedToCanvas: no node and/or layer node")
             return
         }
-        
+                
         let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+
+        // TODO: FIX ISSUE WHERE ANCHOR-POINTS (EDGE'S TO) DID NOT UPDATED PROPERLY WHEN SWAPPING OUT INPUT-ON-CANVAS FOR FIELD-ON-CANVAS; and then remove this statement
+        if draggedOutput.isDefined,
+           let _ = portObserver.packedCanvasObserverOnlyIfPacked  {
+            log("addLayerFieldToCanvas: Whole input \(layerInput) already on canvas, exiting early")
+            return
+        }
         
         let previousPackMode = portObserver.mode
         
+        // Not all layer inputs are multifield!
         guard let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] else {
             fatalErrorIfDebug("LayerInputFieldAddedToCanvas: no unpacked port for fieldIndex \(fieldIndex)")
             return
         }
-        
-        // Remove existing layer input
+                 
+        // Remove existing layer field first; can happen when we're dragging
         if let existingCanvasObserver = unpackedPort.canvasObserver {
             log("addLayerFieldToCanvas: Field \(fieldIndex) for input \(layerInput) already on canvas")
             graph.deleteCanvasItem(existingCanvasObserver.id,
                                    document: self)
         }
+        
+//        // TODO: allow this even when it's not from drawing an edge?
+//        // If we already have the input on the canvas, remove that first
+//        if draggedOutput.isDefined,
+//           let existingInputOnCanvas = portObserver.packedCanvasObserverOnlyIfPacked {
+//            log("addLayerFieldToCanvas: Whole input \(layerInput) already on canvas")
+//            graph.deleteCanvasItem(existingInputOnCanvas.id,
+//                                   document: self)
+//        }
     
         // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
         
@@ -335,6 +380,7 @@ extension StitchDocumentViewModel {
         
         unpackedPort.canvasObserver = canvasItem
         
+        
         // MARK: Change the pack mode
         
         let newPackMode = portObserver.mode
@@ -346,6 +392,8 @@ extension StitchDocumentViewModel {
         
         graph.resetLayerInputsCache(layerNode: layerNode,
                                     activeIndex: activeIndex) // Why?
+        
+        graph.propertySidebar.selectedProperty = nil
     }
     
     @MainActor
@@ -381,7 +429,8 @@ extension StitchDocumentViewModel {
             addLayerField(focusedLayer.asLayerNodeId.asNodeId)
         }
         
-        self.encodeProjectInBackground()
+        graph.encodeProjectInBackground()
+        self.graphUpdaterId = .randomId()
     }
 }
 
