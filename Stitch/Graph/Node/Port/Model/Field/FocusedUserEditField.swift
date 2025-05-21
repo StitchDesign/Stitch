@@ -21,6 +21,7 @@ import StitchSchemaKit
 enum FocusedUserEditField: Equatable, Hashable {
     case textInput(FieldCoordinate), // focused text input
          nodeTitle(StitchTitleEdit), // focused stitch's title text
+         nodeInputPortSelection(NodeRowViewModelId),
          mathExpression(NodeId), // editing a math expression
          projectTitle, // i.e. for Catalyst
          // when a JSON Popover output is open,
@@ -33,9 +34,12 @@ enum FocusedUserEditField: Equatable, Hashable {
          any,    // default option
          llmRecordingModal,
          stitchAIPromptModal,
+         sidebar,
          sidebarLayerTitle(String),
          previewWindowSettingsWidth,
-         previewWindowSettingsHeight
+         previewWindowSettingsHeight,
+         prototypeWindow,
+         prototypeTextField(PreviewCoordinate)
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {

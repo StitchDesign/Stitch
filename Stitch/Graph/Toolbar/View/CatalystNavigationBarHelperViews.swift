@@ -157,42 +157,21 @@ struct CatalystTopBarGraphButtons: View {
     @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
-    let isFullscreen: Bool // = false
-    let isPreviewWindowShown: Bool // = true
-
-    let llmRecordingModeEnabled: Bool
-    let llmRecordingModeActive: Bool
-    let stitchAITrainingTip: StitchAITrainingTip
-    @Binding var shouldDisplayTrainingTip: Bool
+    let isFullscreen: Bool
+    let isPreviewWindowShown: Bool
     
-    @ViewBuilder
-    var aiTrainingButton: some View {
-        CatalystNavBarButton("AI Generation/Correction", systemIconName: llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
-            dispatch(LLMRecordingToggled())
-            
-            if self.shouldDisplayTrainingTip {
-                self.shouldDisplayTrainingTip = false
-                self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
-            }
-        }
-    }
-
+    let llmRecordingModeActive: Bool
+    
     var body: some View {
         CatalystNavBarButton("Go Up", systemIconName: .GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME, tooltip: "Go up one level in the graph hierarchy") {
             dispatch(GoUpOneTraversalLevel())
         }
         .disabled(!hasActiveGroupFocused)
 
-        // #if DEBUG || DEV_DEBUG
-        if llmRecordingModeEnabled {
-            if shouldDisplayTrainingTip {
-                aiTrainingButton
-                    .popoverTip(self.stitchAITrainingTip, arrowEdge: .top)
-            } else {
-                aiTrainingButton
-            }
+        CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+            dispatch(LLMRecordingToggled())
         }
-        // #endif
+        .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
 
         CatalystNavBarButton("Add Node", systemIconName: .ADD_NODE_SF_SYMBOL_NAME) {
             dispatch(ToggleInsertNodeMenu())
@@ -295,7 +274,7 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
 }
 
 // TODO: 'toggle preview window' icon needs to change between hide vs show
-// Hacky view to get hover effect on Catalyst topbar buttons
+// Hacky view to get hover effect on Catalyst topbar buttons and to enforce gray tint
 struct CatalystNavBarButton: View, Identifiable {
 
     // let systemName: String  for `Image(systemName:)`

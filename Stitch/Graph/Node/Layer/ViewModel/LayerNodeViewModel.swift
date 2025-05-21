@@ -151,6 +151,7 @@ final class LayerNodeViewModel {
     var deviceAppearancePort: LayerInputObserver
     
     var scrollContentSizePort: LayerInputObserver
+    var isScrollAutoPort: LayerInputObserver
     var scrollXEnabledPort: LayerInputObserver
     var scrollJumpToXStylePort: LayerInputObserver
     var scrollJumpToXPort: LayerInputObserver
@@ -321,6 +322,7 @@ final class LayerNodeViewModel {
         self.materialThicknessPort = .init(from: schema, port: .materialThickness)
         
         self.scrollContentSizePort = .init(from: schema, port: .scrollContentSize)
+        self.isScrollAutoPort = .init(from: schema, port: .isScrollAuto)
         self.scrollXEnabledPort = .init(from: schema, port: .scrollXEnabled)
         self.scrollJumpToXStylePort = .init(from: schema, port: .scrollJumpToXStyle)
         self.scrollJumpToXPort = .init(from: schema, port: .scrollJumpToX)
@@ -424,8 +426,7 @@ extension LayerNodeViewModel: SchemaObserver {
                                  layerNodeId: NodeId,
                                  graph: GraphReader) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
-            guard let outputData = layerNodeOutputs[safe: portIndex],
-                  let node = graph.getNode(layerNodeId) else {
+            guard let outputData = layerNodeOutputs[safe: portIndex] else {
                 fatalErrorIfDebug()
                 return
             }

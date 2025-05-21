@@ -45,6 +45,11 @@ struct ProjectSidebarView: View {
             .zIndex(1)
         }
         .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
+        .onTapGesture {
+            if document.reduxFocusedField != .sidebar {
+                document.reduxFocusedField = .sidebar
+            }
+        }
         
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
         .edgesIgnoringSafeArea(.bottom)

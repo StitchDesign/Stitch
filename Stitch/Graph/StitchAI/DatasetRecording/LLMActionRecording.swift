@@ -14,6 +14,7 @@ import StitchSchemaKit
 let LLM_START_RECORDING_SF_SYMBOL = "inset.filled.rectangle.badge.record"
 let LLM_STOP_RECORDING_SF_SYMBOL = "stop.fill"
 
+// TODO: separate buttons (icons and actions) for generating training data vs correcting what the LLM just sent to us
 struct LLMRecordingToggled: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
@@ -45,19 +46,25 @@ extension StitchDocumentViewModel {
     func startLLMAugmentationMode() {
         
         log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
+        
+        
+        // TODO: these logs are telling us that self.llmRecording.actions is empty (we're not sure how or where they were made empty?); can we populate the actions again, before we open the "edit before submit" modal ?
+        
+        let derivedActions = self.deriveNewAIActions()
+        self.llmRecording.actions = derivedActions
+        
         // First store the current AI-generated actions
-        let currentActions = self.llmRecording.actions
-        log("🤖 💾 Storing AI-Generated Actions: \(currentActions)")
+        log("🤖 💾 Storing AI-Generated Actions: \(self.llmRecording.actions)")
+        
+        // Invalidate the StitchAI tip -- don't need to show it to the user again
+        self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
+        StitchAITrainingTip.hasCompletedOpenAIRequest = false
         
         // Set augmentation mode
         self.llmRecording.mode = .augmentation
         
         // Open the Edit-before-submit modal
         self.llmRecording.modal = .editBeforeSubmit
-        
-        // We keep the actions as they are - don't clear them
-        log("🤖 💾 Verified Actions Count: \(currentActions.count)")
-        log("🤖 💾 Verified Actions Content: \(currentActions.asJSONDisplay())")
         
         // Clear the AI generation flag AFTER we've secured the actions
         self.insertNodeMenuState.isFromAIGeneration = false
@@ -135,22 +142,5 @@ extension StitchDocumentViewModel {
         }
         
         self.showLLMEditModal()
-    }
-}
-
-struct LLMRecordingModeEnabledChanged: StitchStoreEvent {
-    
-    let enabled: Bool
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        log("LLMRecordingModeSet: enabled: \(enabled)")
-        store.llmRecordingModeEnabled = enabled
-        
-        // Also update the UserDefaults:
-        UserDefaults.standard.setValue(
-            enabled,
-            forKey: LLM_RECORDING_MODE_KEY_NAME)
-        
-        return .noChange
     }
 }

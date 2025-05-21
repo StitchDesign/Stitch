@@ -78,6 +78,7 @@ struct ContentView: View, KeyboardReadable {
         }
         
         // TODO: remove these? just access from document in the relevant view?
+        // TODO: not actually used/accessed ?
        .environment(\.viewframe, document.frame)
     }
 

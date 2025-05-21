@@ -15,9 +15,7 @@ final class StitchStore: Sendable {
     
     // For now, just for debug purposes
     @MainActor var homescreenProjectSelectionState = HomescreenProjectSelectionState()
-    
-    @MainActor var llmRecordingModeEnabled: Bool = false
-    
+        
     @MainActor var allProjectUrls: [ProjectLoader]?
     let documentLoader = DocumentLoader()
     let clipboardEncoder = ClipboardEncoder()
@@ -39,6 +37,7 @@ final class StitchStore: Sendable {
     // TODO: should be properly persisted
     @MainActor var edgeStyle: EdgeStyle = .defaultEdgeStyle
     @MainActor var appTheme: StitchTheme = .defaultTheme
+    @MainActor var isOptionRequiredForShortcut: Bool = .defaultIsOptionRequiredForShortcuts
     
     // MARK: must be stored here to prevent inspector retain cycle
     @MainActor var showsLayerInspector = false

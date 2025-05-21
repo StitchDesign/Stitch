@@ -23,7 +23,7 @@ struct PopAnimationNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [.number(0)],
-                    label: "Number"
+                    label: "Value"
                 ),
                 .init(
                     defaultValues: [.number(5)],

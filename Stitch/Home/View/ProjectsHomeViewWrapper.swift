@@ -55,6 +55,12 @@ struct ProjectsHomeViewWrapper: View {
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
+                        TopBarFeedbackButtonsView(document: nil)
+                        // Hides the little arrow on Catalyst
+                            .menuIndicator(.hidden)
+                            .buttonStyle(.borderless)
+                            .id(UUID())
+                        
                         CatalystNavBarButton("Settings", systemIconName: .SETTINGS_SF_SYMBOL_NAME, tooltip: "Open Settings", SHOW_APP_SETTINGS_ACTION)
                         .id(UUID())
                         
@@ -67,9 +73,9 @@ struct ProjectsHomeViewWrapper: View {
                             store?.conditionallToggleSampleProjectsModal()
                         }
                         
-                        // TODO: disabling feedback button on home screen for consistency with Catalyst due to color issue
-//                        TopBarFeedbackButtonsView(showLabel: false)
-//                            .modifier(iPadTopBarButtonStyle())
+                        TopBarFeedbackButtonsView(document: nil,
+                                                  showLabel: false)
+                            .modifier(iPadTopBarButtonStyle())
                         
                         iPadNavBarButton(title: "Settings", iconName: PROJECT_SETTINGS_ICON_NAME, tooltip: "Open Settings", action: SHOW_APP_SETTINGS_ACTION)
 #endif

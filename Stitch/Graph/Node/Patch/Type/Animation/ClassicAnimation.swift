@@ -71,7 +71,7 @@ struct ClassicAnimationNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [defaultNumber],
-                    label: "Number"
+                    label: "Value"
                 ),
                 .init(
                     defaultValues: [.number(1)],

@@ -17,8 +17,6 @@ let isCatalyst = false
 
 struct ProjectToolbarViewModifier: ViewModifier {
     @Environment(StitchStore.self) private var store
-    @State private var shouldDisplayTrainingTip = false
-    private let stitchAITrainingTip = StitchAITrainingTip()
     
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
@@ -26,8 +24,6 @@ struct ProjectToolbarViewModifier: ViewModifier {
     let projectId: GraphId
     @Binding var isFullScreen: Bool
     
-    @AppStorage(LLM_RECORDING_MODE_KEY_NAME) private var llmRecordingMode: Bool = false
-
     // Note: Do NOT hide toolbar in Catalyst full screen mode
     @MainActor
     var hideToolbar: Bool {
@@ -39,10 +35,9 @@ struct ProjectToolbarViewModifier: ViewModifier {
             .onChange(of: self.document.insertNodeMenuState.isGeneratingAINode) { oldValue, newValue in
                 let didCompleteAIRequest = oldValue != newValue && !newValue
                 if didCompleteAIRequest {
-                    self.shouldDisplayTrainingTip = true
+                    StitchAITrainingTip.hasCompletedOpenAIRequest = true
                 }
             }
-        
             .onChange(of: document.isFullScreenMode) { _, newValue in
                 isFullScreen = newValue
             }
@@ -100,10 +95,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,
                         restartPrototypeWindowIconRotationZ: document.restartPrototypeWindowIconRotationZ,
-                        llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: document.llmRecording.isRecording,
-                        stitchAITrainingTip: self.stitchAITrainingTip,
-                        shouldDisplayTrainingTip: self.$shouldDisplayTrainingTip)
+                        llmRecordingModeActive: document.llmRecording.isRecording)
                 }
 
                 #else
@@ -138,10 +130,8 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,
-                        llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: document.llmRecording.isRecording,
-                        stitchAITrainingTip: self.stitchAITrainingTip,
-                        shouldDisplayTrainingTip: self.$shouldDisplayTrainingTip)
+                        llmRecordingModeActive: document.llmRecording.isRecording
+                    )
                 }
                 #endif
 

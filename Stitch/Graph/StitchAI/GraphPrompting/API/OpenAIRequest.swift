@@ -348,19 +348,14 @@ extension StitchAIManager {
 //        document.llmRecording.mode = .augmentation
         document.llmRecording.mode = .normal
         
-        try document.validateAndApplyActions(steps)
+        try document.validateAndApplyActions(steps,
+                                             isNewRequest: true)
+        
+        document.encodeProjectInBackground()
     }
 }
 
 // MARK: - Extensions
-
-extension StitchDocumentViewModel {
-    @MainActor func handleError(_ error: Error) {
-        log("Error generating graph with StitchAI: \(error)", .logToServer)
-        self.insertNodeMenuState.show = false
-        self.insertNodeMenuState.isGeneratingAINode = false
-    }
-}
 
 extension Data {
     /// Parse OpenAI response data into step actions

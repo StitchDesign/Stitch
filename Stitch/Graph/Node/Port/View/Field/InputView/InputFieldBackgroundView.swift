@@ -46,7 +46,7 @@ struct InputFieldBackgroundColorView: ViewModifier {
     let isForLayerInspector: Bool
     
     // Really, only for iPad
-    let isSelectedInspectorRow: Bool
+    let usesThemeColor: Bool
     
     // TODO: should focused fields in flyouts and inspector use same background color as focused canvas fields?
     var color: Color {
@@ -85,9 +85,8 @@ struct InputFieldBackgroundColorView: ViewModifier {
                     .fill(self.color)
                     .stroke((isHovering && !isFocused) ? Color.gray : .clear, lineWidth: 2)
             }
-        #if !targetEnvironment(macCatalyst)
             .background {
-                if isSelectedInspectorRow {
+                if usesThemeColor {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(.clear)
                         .overlay {
@@ -96,7 +95,6 @@ struct InputFieldBackgroundColorView: ViewModifier {
                         }
                 }
             }
-        #endif
     }
 }
 
