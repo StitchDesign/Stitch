@@ -10,6 +10,7 @@ import SwiftUI
 
 // MARK: PATCH SHORTCUTS
 
+// Require CMD
 let ADD_PACK_NODE_SHORTCUT: KeyEquivalent = "P"
 let ADD_UNPACK_NODE_SHORTCUT: KeyEquivalent = "U"
 
@@ -88,14 +89,15 @@ extension Character {
         }
     }
     
-    func patchFromShortcutKey(isShiftDown: Bool) -> Patch? {
+    func patchFromShortcutKey(isShiftDown: Bool,
+                              isCommandDown: Bool) -> Patch? {
         log("patchFromShortcutKey: isShiftDown: \(isShiftDown)")
+        log("patchFromShortcutKey: isCommandDown: \(isCommandDown)")
         
         let lowercaseCharacter = self.lowercased().toCharacter
         
         if isShiftDown {
             switch lowercaseCharacter {
-                // Always requires shift ?
             case NOT_NODE_SHORTCUT.character.lowercased().toCharacter:
                 return .not
             default:
@@ -103,14 +105,19 @@ extension Character {
             }
         }
         
+        if isCommandDown {
+            switch lowercaseCharacter {
+            case ADD_PACK_NODE_SHORTCUT.character.lowercased().toCharacter:
+                return .sizePack
+            case ADD_UNPACK_NODE_SHORTCUT.character.lowercased().toCharacter:
+                return .sizeUnpack
+            default:
+                break
+            }
+        }
+        
         switch lowercaseCharacter {
         
-        case ADD_PACK_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .sizePack
-            
-        case ADD_UNPACK_NODE_SHORTCUT.character.lowercased().toCharacter:
-            return .sizeUnpack
-
         case ADD_SPLITTER_NODE_SHORTCUT.character.lowercased().toCharacter:
             return .splitter
             

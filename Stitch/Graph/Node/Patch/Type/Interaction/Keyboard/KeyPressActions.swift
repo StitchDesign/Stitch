@@ -163,7 +163,9 @@ extension StitchStore {
         // Else: If option is not required for shortcuts, and shortcuts are not disabled, try to treat the keypress as a shortcut.
         else if !self.isOptionRequiredForShortcut,
                 !document.shouldDisablePatchShortcuts,
-                let patch = char.patchFromShortcutKey(isShiftDown: document.keypressState.isShiftPressed) {
+                let patch = char.patchFromShortcutKey(
+                    isShiftDown: document.keypressState.isShiftPressed,
+                    isCommandDown: document.keypressState.isCommandPressed) {
             
             if document.reduxFocusedField?.isInputPortSelected ?? false {
                 document.nodeCreatedWhileInputSelected(patch: patch)
