@@ -305,8 +305,15 @@ extension StitchDocumentViewModel {
             fatalErrorIfDebug("LayerInputFieldAddedToCanvas: no node and/or layer node")
             return
         }
-        
+                
         let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+
+        // TODO: FIX ISSUE WHERE ANCHOR-POINTS (EDGE'S TO) DID NOT UPDATED PROPERLY WHEN SWAPPING OUT INPUT-ON-CANVAS FOR FIELD-ON-CANVAS; and then remove this statement
+        if draggedOutput.isDefined,
+           let _ = portObserver.packedCanvasObserverOnlyIfPacked  {
+            log("addLayerFieldToCanvas: Whole input \(layerInput) already on canvas, exiting early")
+            return
+        }
         
         let previousPackMode = portObserver.mode
         
@@ -323,14 +330,14 @@ extension StitchDocumentViewModel {
                                    document: self)
         }
         
-        // TODO: allow this even when it's not from drawing an edge?
-        // If we already have the input on the canvas, remove that first
-        if draggedOutput.isDefined,
-           let existingInputOnCanvas = portObserver.packedCanvasObserverOnlyIfPacked {
-            log("addLayerFieldToCanvas: Whole input \(layerInput) already on canvas")
-            graph.deleteCanvasItem(existingInputOnCanvas.id,
-                                   document: self)
-        }
+//        // TODO: allow this even when it's not from drawing an edge?
+//        // If we already have the input on the canvas, remove that first
+//        if draggedOutput.isDefined,
+//           let existingInputOnCanvas = portObserver.packedCanvasObserverOnlyIfPacked {
+//            log("addLayerFieldToCanvas: Whole input \(layerInput) already on canvas")
+//            graph.deleteCanvasItem(existingInputOnCanvas.id,
+//                                   document: self)
+//        }
     
         // MARK: CREATING AND INITIALIZING THE CANVAS ITEM VIEW MODEL ITSELF
         

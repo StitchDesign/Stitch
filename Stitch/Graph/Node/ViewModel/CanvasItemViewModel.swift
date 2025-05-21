@@ -193,6 +193,7 @@ extension CanvasItemViewModel {
         
         self.inputPortUIViewModels.forEach {
             let newAnchorPoint = fn(.input, $0.portIdForAnchorPoint)
+            
             if newAnchorPoint != $0.anchorPoint {
                 $0.anchorPoint = newAnchorPoint
             }
