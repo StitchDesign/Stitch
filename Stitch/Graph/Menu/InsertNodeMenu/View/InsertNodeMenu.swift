@@ -46,6 +46,7 @@ struct InsertNodeMenuView: View {
     private let launchTip = StitchAILaunchTip()
 
     @Bindable var document: StitchDocumentViewModel
+    
     let insertNodeMenuState: InsertNodeMenuState
     let isPortraitMode: Bool
     let showMenu: Bool
@@ -56,10 +57,10 @@ struct InsertNodeMenuView: View {
         
         // these are now mostly static?
         // except menuHeight can change on iPad?
-            .frame(width: InsertNodeMenuWrapper.menuWidth,
+            .frame(width: InsertNodeMenuWithModalBackground.menuWidth,
                    height: menuHeight)
         
-            .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+            .cornerRadius(InsertNodeMenuWithModalBackground.shownMenuCornerRadius)
         // Background view guarantees focus state for search bar
             .background {
                 TipView(self.launchTip, arrowEdge: .bottom)
@@ -69,10 +70,9 @@ struct InsertNodeMenuView: View {
             }
     }
 
-    var isLoading: Bool {
-       document.insertNodeMenuState.isGeneratingAINode
+    var isGeneratingAINode: Bool {
+       document.insertNodeMenuState.isGeneratingAIResult
     }
-    
     
     @MainActor
     var sheetView: some View {
@@ -80,7 +80,7 @@ struct InsertNodeMenuView: View {
             InsertNodeMenuSearchBar(launchTip: self.launchTip,
                                     isLoadingStitchAI: $isLoadingStitchAI)
             
-            if !isLoading {
+            if !isGeneratingAINode {
                 HStack(spacing: .zero) {
                     // alternatively, change the height available for this?
                     
@@ -97,13 +97,17 @@ struct InsertNodeMenuView: View {
                     //                    .frame(width: 460, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_DESCRIPTION_WIDTH)
                 } // HStack
+
+                // Note: let contents overflow; do not use padding
+                // .padding(.bottom, 8)
+
                 .transition(.move(edge: .top))
             }
         } // VStack
         .background(INSERT_NODE_SEARCH_BACKGROUND)
         .animation(.stitchAnimation, value: self.isLoadingStitchAI)
         .foregroundColor(INSERT_NODE_MENU_SEARCH_TEXT)
-        .cornerRadius(InsertNodeMenuWrapper.shownMenuCornerRadius)
+        .cornerRadius(InsertNodeMenuWithModalBackground.shownMenuCornerRadius)
         
         // Important: animates the entire view's appearance at same time; otherwise e.g. the frosted background fades in separately
         .compositingGroup()
@@ -113,7 +117,7 @@ struct InsertNodeMenuView: View {
             // Only cancel if not auto-hiding
             if !document.insertNodeMenuState.isAutoHiding {
                 document.aiManager?.cancelCurrentRequest()
-                document.insertNodeMenuState.isGeneratingAINode = false
+                document.insertNodeMenuState.isGeneratingAIResult = false
             }
             // Reset the flag
             document.insertNodeMenuState.isAutoHiding = false
@@ -121,8 +125,7 @@ struct InsertNodeMenuView: View {
     }
     
     var isAIMode: Bool {
-        // AI is supported if manager was created
-        self.document.aiManager != nil && self.insertNodeMenuState.isAIMode
+        self.document.aiManager.isDefined && self.insertNodeMenuState.isAIMode
     }
 
     @MainActor
@@ -138,7 +141,7 @@ struct InsertNodeMenuView: View {
                     dispatch(AddNodeButtonPressed())
                 }
             }, label: {
-                let isLoading = document.insertNodeMenuState.isGeneratingAINode
+                let isLoading = document.insertNodeMenuState.isGeneratingAIResult
                 
                 HStack(spacing: 8) {
                     StitchTextView(string: isAIMode ? "Submit Prompt" : "Add Node",

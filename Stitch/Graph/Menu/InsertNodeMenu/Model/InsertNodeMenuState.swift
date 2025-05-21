@@ -36,7 +36,7 @@ struct InsertNodeMenuState: Hashable {
     // Assumption: can be nil if user filters for a string no node matches, e.g. "QW@#1"
     var activeSelection: InsertNodeMenuOptionData? = Self.startingActiveSelection
     var searchQuery: String?
-    var isGeneratingAINode: Bool = false
+    var isGeneratingAIResult: Bool = false
     var isFromAIGeneration: Bool = false {
         didSet {
             if isFromAIGeneration {

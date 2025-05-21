@@ -182,7 +182,7 @@ struct GenerateAINode: StitchDocumentEvent {
         
         // Set loading state
         withAnimation { // added
-            state.insertNodeMenuState.isGeneratingAINode = true
+            state.insertNodeMenuState.isGeneratingAIResult = true
         }
         
         // Set flag to indicate this is from AI generation

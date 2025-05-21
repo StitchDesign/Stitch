@@ -67,7 +67,7 @@ struct StitchRootView: View {
 //#if targetEnvironment(macCatalyst)
                     .overlay(alignment: .center) {
                         if let document = store.currentDocument, showMenu {
-                            InsertNodeMenuWrapper(document: document)
+                            InsertNodeMenuWithModalBackground(document: document)
                         } // if let document
                     } // .overlay
             }

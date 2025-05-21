@@ -126,7 +126,7 @@ struct LLMActionDeleted: StitchDocumentEvent {
             
             // We immediately "de-apply" the removed action(s) from graph,
             // so that user instantly sees what changed.
-            try state.reapplyActions()
+            try state.reapplyActions(isStreaming: false)
         } catch {
             log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
         }

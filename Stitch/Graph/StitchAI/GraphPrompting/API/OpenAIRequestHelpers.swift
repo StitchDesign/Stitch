@@ -74,7 +74,7 @@ struct ChunkProcessed: StitchDocumentEvent {
         log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
         
         
-        if let _ = try? state.reapplyActions() {
+        if let _ = try? state.reapplyActions(isStreaming: true) {
             log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
         }
         
@@ -191,6 +191,6 @@ extension StitchDocumentViewModel {
     @MainActor func handleError(_ error: Error) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
         self.insertNodeMenuState.show = false
-        self.insertNodeMenuState.isGeneratingAINode = false
+        self.insertNodeMenuState.isGeneratingAIResult = false
     }
 }

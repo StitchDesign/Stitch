@@ -330,7 +330,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
                 
                 if self.llmRecording.willAutoValidate {
                     do {
-                        try self.reapplyActions()
+                        try self.reapplyActions(isStreaming: false)
                     } catch let error as StitchAIManagerError {
                         self.llmRecording.actionsError = error.description
                     } catch {

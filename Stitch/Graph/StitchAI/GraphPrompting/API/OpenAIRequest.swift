@@ -24,7 +24,7 @@ extension StitchAIManager {
         
         // Set the flag to indicate a request is in progress
         withAnimation { // added
-            currentDocument.insertNodeMenuState.isGeneratingAINode = true
+            currentDocument.insertNodeMenuState.isGeneratingAIResult = true
         }
         
         // Track initial graph state
@@ -74,7 +74,7 @@ extension StitchAIManager {
             }
          
             await MainActor.run { [weak currentDocument] in
-                currentDocument?.insertNodeMenuState.isGeneratingAINode = false
+                currentDocument?.insertNodeMenuState.isGeneratingAIResult = false
             }
         }
     }
@@ -275,7 +275,7 @@ extension StitchAIManager {
         // Set auto-hiding flag before hiding menu
         document.insertNodeMenuState.isAutoHiding = true
         document.insertNodeMenuState.show = false
-        document.insertNodeMenuState.isGeneratingAINode = false
+        document.insertNodeMenuState.isGeneratingAIResult = false
 
         log(" Storing Original AI Generated Actions ")
         document.llmRecording.promptState.prompt = originalPrompt

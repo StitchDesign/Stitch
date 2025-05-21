@@ -33,6 +33,10 @@ struct InsertNodeMenuSearchBar: View {
         return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
     }
     
+    var isLoadingAIResult: Bool {
+        store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
+    }
+    
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             TextField("Search or enter AI prompt...", text: $queryString)
@@ -42,10 +46,8 @@ struct InsertNodeMenuSearchBar: View {
                 .padding(.trailing, 60)
                 .overlay(alignment: .center) {
                     HStack {
-                        let isLoading = store.currentDocument?.insertNodeMenuState.isGeneratingAINode ?? false
-                        
                         Group {
-                            if isLoading {
+                            if isLoadingAIResult {
                                 ProgressView()
                                     .scaleEffect(1.5)
                                     .tint(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
@@ -56,7 +58,7 @@ struct InsertNodeMenuSearchBar: View {
                         }
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                         .padding(.trailing, 20)
-                        .animation(.linear(duration: 0.2), value: isLoading)
+                        .animation(.linear(duration: 0.2), value: isLoadingAIResult)
                     }
                 }
                 .font(.system(size: 24))
@@ -69,7 +71,7 @@ struct InsertNodeMenuSearchBar: View {
                         self.isLoadingStitchAI = true
                         
                         dispatch(GenerateAINode(prompt: queryString))
-                    } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection) != nil {
+                    } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
                         dispatch(AddNodeButtonPressed())
                     }
                     // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.

@@ -49,6 +49,7 @@ struct LLMRecordingState {
     
     var mode: LLMRecordingMode = .normal
     
+    // TODO: rename to `steps`, to distinguish between `Step` vs `StepActionable` ?
     var actions: [Step] = .init()
     
     var promptState = LLMPromptState()
@@ -350,9 +351,17 @@ extension StitchDocumentViewModel {
         }
     }
     
+    @MainActor func deapplyActions(actions: [any StepActionable]) {
+        self.llmRecording.isApplyingActions = true
+        actions.reversed().forEach {
+            $0.removeAction(graph: graph, document: self)
+        }
+        self.llmRecording.isApplyingActions = false
+    }
+    
     // TODO: pass down the [Step] explicitly ?
     @MainActor
-    func reapplyActions() throws {
+    func reapplyActions(isStreaming: Bool) throws {
         let oldActions = self.llmRecording.actions
         let actions: [any StepActionable] = try oldActions.convertSteps()
         let graph = self.visibleGraph
@@ -360,45 +369,38 @@ extension StitchDocumentViewModel {
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         
         // TODO: might not want this when "reapplying during streaming" ?
-        // Save node positions
-        self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
-            // TODO: MAY 18: save position for LayerGroup i.e. `StepActionLayerGroupCreated` as well?
-            if let action = action as? StepActionAddNode,
-               let node = graph.getNode(action.nodeId) {
-                let canvasItems = node.getAllCanvasObservers()
+        if !isStreaming {
+            // Do not save node positions
+            self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
+                // TODO: MAY 18: save position for LayerGroup i.e. `StepActionLayerGroupCreated` as well?
+                if let action = action as? StepActionAddNode,
+                   let node = graph.getNode(action.nodeId) {
+                    let canvasItems = node.getAllCanvasObservers()
 
-                canvasItems.forEach { canvasItem in
-                    result.updateValue(canvasItem.position,
-                                       forKey: canvasItem.id)
+                    canvasItems.forEach { canvasItem in
+                        result.updateValue(canvasItem.position,
+                                           forKey: canvasItem.id)
+                    }
                 }
             }
         }
 
-        // TODO: while `isApplyingActions = true`, we do not want any persistence-triggering methods to call `deriveNewAISteps`; i.e. de-applying an action should not trigger a deriving of new actions
-         self.llmRecording.isApplyingActions = true
-        
-        // TODO: just do `actions.reversed().forEach { $0.removeAction(graph: graph, document: self) }`
         // Remove all actions before re-applying
-        try self.llmRecording.actions
-            .reversed()
-            .forEach { action in
-                let step: any StepActionable = try action.convertToType()
-                step.removeAction(graph: graph, document: self)
-            }
-         self.llmRecording.isApplyingActions = false
+        // Note: while de-applying actions, we should not be deriving new actions; `isApplyingActions = true` blocks the derivation of new actions
+        self.deapplyActions(actions: actions)
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
         try self.validateAndApplyActions(self.llmRecording.actions)
         
         // Update node positions to reflect previous position
-        self.llmRecording.canvasItemPositions.forEach { canvasId, canvasPosition in
-            if let canvas = graph.getCanvasItem(canvasId) {
-                canvas.position = canvasPosition
-                canvas.previousPosition = canvasPosition
+        if !isStreaming {
+            self.llmRecording.canvasItemPositions.forEach { canvasId, canvasPosition in
+                if let canvas = graph.getCanvasItem(canvasId) {
+                    canvas.position = canvasPosition
+                    canvas.previousPosition = canvasPosition
+                }
             }
         }
-        
-        // TODO: do we really want to re
         
         // After we have de-applied and then re-applied the actions,
         // derive a new actions based on post-"de-apply, re-apply" state
