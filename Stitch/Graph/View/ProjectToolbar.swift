@@ -99,10 +99,10 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 }
 
                 #else
-               // on Mac, show project title name
-               ToolbarItem(placement: .navigationBarLeading) {
-                   CatalystNavBarProjectTitleDisplayView(graph: graph)
-               }
+                // On Mac, show project title
+                ToolbarItem(placement: .topBarLeading) {
+                    CatalystNavBarProjectTitleDisplayView(graph: graph)
+                }
 
                 // Catalyst and iPad have same button layout,
                 // but use slightly different buttons:
@@ -118,10 +118,10 @@ struct ProjectToolbarViewModifier: ViewModifier {
                  Note: .navigationBarTrailing on Catalyst is apparently broken, always placed items on left-side ?
                  */
 
-               // Hack view to get proper placement
-               ToolbarItem(placement: .secondaryAction) {
-                   Text("")
-               }
+                // Hack view to get proper placement
+                ToolbarItem(placement: .secondaryAction) {
+                    Spacer()
+                }
 
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
@@ -137,7 +137,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
             }
             .animation(.spring, value: document.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
-           .toolbarBackground(.visible, for: .automatic)
-           .toolbar(hideToolbar ? .hidden : .automatic)
+            .toolbarBackground(.visible, for: .automatic)
+            .toolbar(hideToolbar ? .hidden : .automatic)
     }
 }

@@ -43,17 +43,15 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
-                        CatalystNavBarButton(action: { [weak store] in
-                            store?.createNewProjectSideEffect(isProjectImport: false)
-                        },
-                                             iconName: .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME))
+                        CatalystNavBarButton("New Project", systemIconName: .NEW_PROJECT_SF_SYMBOL_NAME) { [weak store] in
+                               store?.createNewProjectSideEffect(isProjectImport: false)
+                        }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
-                        CatalystNavBarButton(action: { [weak store] in
+                        CatalystNavBarButton("Open Sample Project", systemIconName: .OPEN_SAMPLE_PROJECTS_MODAL) { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
-                        },
-                                             iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
                         
@@ -63,27 +61,23 @@ struct ProjectsHomeViewWrapper: View {
                             .buttonStyle(.borderless)
                             .id(UUID())
                         
-                        CatalystNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
-                                             iconName: .sfSymbol(.SETTINGS_SF_SYMBOL_NAME))
+                        CatalystNavBarButton("Settings", systemIconName: .SETTINGS_SF_SYMBOL_NAME, tooltip: "Open Settings", SHOW_APP_SETTINGS_ACTION)
                         .id(UUID())
                         
 #else
-                        iPadNavBarButton(action: { [weak store] in
+                        iPadNavBarButton(title: "New Project", iconName: NEW_PROJECT_ICON_NAME) { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
-                        },
-                                         iconName: NEW_PROJECT_ICON_NAME)
+                        }
                         
-                        iPadNavBarButton(action: { [weak store] in
+                        iPadNavBarButton(title: "Open Sample Project", iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL)) { [weak store] in
                             store?.conditionallToggleSampleProjectsModal()
-                        },
-                                         iconName: .sfSymbol(.OPEN_SAMPLE_PROJECTS_MODAL))
+                        }
                         
                         TopBarFeedbackButtonsView(document: nil,
                                                   showLabel: false)
                             .modifier(iPadTopBarButtonStyle())
                         
-                        iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
-                                         iconName: PROJECT_SETTINGS_ICON_NAME)
+                        iPadNavBarButton(title: "Settings", iconName: PROJECT_SETTINGS_ICON_NAME, tooltip: "Open Settings", action: SHOW_APP_SETTINGS_ACTION)
 #endif
                         
                     }
