@@ -338,6 +338,7 @@
 		E4F8AABB2BD6ED8500E9BA4D /* RadialGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F8AABA2BD6ED8500E9BA4D /* RadialGradientNode.swift */; };
 		E4F8AABD2BD6ED9600E9BA4D /* AngularGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F8AABC2BD6ED9600E9BA4D /* AngularGradientNode.swift */; };
 		E4FD8D042852581900645432 /* UIKitWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FD8D032852581900645432 /* UIKitWrapper.swift */; };
+		E4FEBB232DDF81BA00A37878 /* StitchNodeNames.md in Resources */ = {isa = PBXBuildFile; fileRef = E4FEBB222DDF81BA00A37878 /* StitchNodeNames.md */; };
 		EC004DCD2B4498C200C5DB33 /* CanvasSketchLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DCC2B4498C200C5DB33 /* CanvasSketchLayerNode.swift */; };
 		EC004DD12B449D0700C5DB33 /* CanvasSketchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DD02B449D0700C5DB33 /* CanvasSketchView.swift */; };
 		EC004DD32B44D24300C5DB33 /* CanvasSketchUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DD22B44D24300C5DB33 /* CanvasSketchUtils.swift */; };
@@ -1343,6 +1344,7 @@
 		E4F8AABA2BD6ED8500E9BA4D /* RadialGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadialGradientNode.swift; sourceTree = "<group>"; };
 		E4F8AABC2BD6ED9600E9BA4D /* AngularGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AngularGradientNode.swift; sourceTree = "<group>"; };
 		E4FD8D032852581900645432 /* UIKitWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitWrapper.swift; sourceTree = "<group>"; };
+		E4FEBB222DDF81BA00A37878 /* StitchNodeNames.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = StitchNodeNames.md; sourceTree = "<group>"; };
 		EC004DCC2B4498C200C5DB33 /* CanvasSketchLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSketchLayerNode.swift; sourceTree = "<group>"; };
 		EC004DD02B449D0700C5DB33 /* CanvasSketchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSketchView.swift; sourceTree = "<group>"; };
 		EC004DD22B44D24300C5DB33 /* CanvasSketchUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSketchUtils.swift; sourceTree = "<group>"; };
@@ -2087,6 +2089,7 @@
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */,
+				E4FEBB222DDF81BA00A37878 /* StitchNodeNames.md */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
 				B56FFB522C195EA000623CC7 /* Graph */,
@@ -4939,6 +4942,7 @@
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
 				E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
+				E4FEBB232DDF81BA00A37878 /* StitchNodeNames.md in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
