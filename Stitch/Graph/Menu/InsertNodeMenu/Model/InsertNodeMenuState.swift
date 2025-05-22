@@ -29,14 +29,20 @@ struct InsertNodeMenuState: Hashable {
 
     // Whether the menu shows or not; not the same as whether we're animating.
     var show = false
-    // Moved here from StitchDocumentViewModel, since only used by 
+    
+    // Moved here from StitchDocumentViewModel, since only used by insert node menu
     var doubleTapLocation: CGPoint?
+    
     var searchResults: [InsertNodeMenuOptionData] = allSearchOptions
+    
     // Ensures an option is selected when the menu appears
     // Assumption: can be nil if user filters for a string no node matches, e.g. "QW@#1"
     var activeSelection: InsertNodeMenuOptionData? = Self.startingActiveSelection
+    
     var searchQuery: String?
+    
     var isGeneratingAIResult: Bool = false
+    
     var isFromAIGeneration: Bool = false {
         didSet {
             if isFromAIGeneration {
@@ -46,6 +52,7 @@ struct InsertNodeMenuState: Hashable {
             }
         }
     }
+    
     var isAutoHiding: Bool = false
     
     static let startingActiveSelection = allSearchOptions.first

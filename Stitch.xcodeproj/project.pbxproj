@@ -634,6 +634,7 @@
 		EC733DC42639E24C00DD4EC1 /* LayerNodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC733DC32639E24C00DD4EC1 /* LayerNodeViewModel.swift */; };
 		EC7451B0294D2C4F00C7EB80 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7451AF294D2C4F00C7EB80 /* LocationManager.swift */; };
 		EC7451B2294D2C6200C7EB80 /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7451B1294D2C6200C7EB80 /* LocationData.swift */; };
+		EC75FA502DDFCEC900FF87E8 /* EitherType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75FA4F2DDFCEC900FF87E8 /* EitherType.swift */; };
 		EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = EC7784CE27053D9700B662DD /* ZIPFoundation */; };
 		EC7A4FC0267A89D500487CDA /* VideoDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */; };
 		EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */; };
@@ -1638,6 +1639,7 @@
 		EC733DC32639E24C00DD4EC1 /* LayerNodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeViewModel.swift; sourceTree = "<group>"; };
 		EC7451AF294D2C4F00C7EB80 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		EC7451B1294D2C6200C7EB80 /* LocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
+		EC75FA4F2DDFCEC900FF87E8 /* EitherType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EitherType.swift; sourceTree = "<group>"; };
 		EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDisplayView.swift; sourceTree = "<group>"; };
 		EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = fur_elise.mp3; sourceTree = "<group>"; };
 		EC7ADBFD2683EC9C00A8B318 /* fur_elise.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = fur_elise.m4a; sourceTree = "<group>"; };
@@ -3639,6 +3641,7 @@
 				EC1E7A6C287CFA9600144D05 /* StringUtils.swift */,
 				EC68590A2DB078B7004BF315 /* ArrayUtils.swift */,
 				20521CA62558B3BE00270E72 /* MiscUtils.swift */,
+				EC75FA4F2DDFCEC900FF87E8 /* EitherType.swift */,
 				EC08D5542898873C00FEE846 /* MathUtils.swift */,
 				EC609DBB293530B700BF60A5 /* CollectionExtensionUtils.swift */,
 				EC17549228B9753800968D65 /* UIDeviceUtils.swift */,
@@ -5757,6 +5760,7 @@
 				B539C2E62B92BDA900C6CEC3 /* CameraFeedActor.swift in Sources */,
 				EC0093DE26D6F39A000EAE08 /* RoundNode.swift in Sources */,
 				B51C3B8C29A9462A00043089 /* ARAnchorNode.swift in Sources */,
+				EC75FA502DDFCEC900FF87E8 /* EitherType.swift in Sources */,
 				EC6DF0A929FA04F60052545E /* StitchJSON.swift in Sources */,
 				20A9F9B325D6F685003462A9 /* NodeEvaluationHelpers.swift in Sources */,
 				E4E860022CBD5448006763DA /* StitchAIErrorModalView.swift in Sources */,

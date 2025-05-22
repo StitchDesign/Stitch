@@ -35,13 +35,10 @@ struct OpenAIRequest {
     @MainActor
     init(prompt: String,
          config: OpenAIRequestConfig = .default,
-         graph: GraphState) throws {
+         systemPrompt: String) {
         self.prompt = prompt
         self.config = config
-        
-        // Load system prompt from bundled file
-        let loadedPrompt = try StitchAIManager.systemPrompt(graph: graph)
-        self.systemPrompt = loadedPrompt
+        self.systemPrompt = systemPrompt
     }
 }
 
@@ -57,12 +54,7 @@ struct ChunkProcessed: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         log("ChunkProcessed: newStep: \(newStep)")
-        
-        if state.visibleGraph.streamedSteps.isEmpty {
-            state.insertNodeMenuState.isAutoHiding = true // Set flag before hiding
-            state.insertNodeMenuState.show = false
-        }
-        
+                
         state.visibleGraph.streamedSteps.append(newStep)
         log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
         
@@ -140,7 +132,7 @@ extension Stitch.Step: CustomStringConvertible {
 
 
 extension StitchDocumentViewModel {
-    @MainActor func handleError(_ error: Error) {
+    @MainActor func handleStitchAIError(_ error: Error) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
         self.insertNodeMenuState.show = false
         self.insertNodeMenuState.isGeneratingAIResult = false

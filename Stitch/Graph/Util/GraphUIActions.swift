@@ -173,8 +173,11 @@ struct GenerateAINode: StitchDocumentEvent {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(prompt)")
         
-        assertInDebug(state.aiManager?.secrets != nil)
-        
+        guard let aiManager = state.aiManager else {
+            fatalErrorIfDebug("GenerateAINode: no aiManager")
+            return
+        }
+                
         let graph = state.visibleGraph
         
         // Clear previous streamed steps
@@ -189,12 +192,16 @@ struct GenerateAINode: StitchDocumentEvent {
         state.insertNodeMenuState.isFromAIGeneration = true
         
         print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
-        
-        // Dispatch OpenAI request
+
         do {
-            let request = try OpenAIRequest(prompt: prompt,
-                                            graph: graph)
-            state.aiManager?.handleRequest(request)
+            let systemPrompt = try StitchAIManager.systemPrompt(graph: graph)
+            
+            let request = OpenAIRequest(prompt: prompt,
+                                        systemPrompt: systemPrompt)
+            
+            aiManager.handleRequest(request,
+                                    document: state)
+            
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
         }

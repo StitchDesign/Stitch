@@ -15,12 +15,9 @@ extension StitchAIManager {
     
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
-    func streamData(for urlRequest: URLRequest,
-                    graph: GraphState) async throws -> (Data, URLResponse, [Step]) {
+    func startOpenAIStreamingRequest(for urlRequest: URLRequest) async throws {
         
         var accumulatedData = Data()
-        var accumulatedSteps: [Step] = []
-        var accumulatedString = ""
         
         // `bytes(for:)` returns an `AsyncSequence` of individual `UInt8`s
         let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
@@ -61,11 +58,10 @@ extension StitchAIManager {
             
         } // for byte in bytes
         
+        // DEBUG
         log("allContentTokens: \(allContentTokens)")
         let finalMessage = String(allContentTokens.joined())
         log("finalMessage: \(finalMessage)")
-                
-        return (accumulatedData, response, accumulatedSteps)
     }
 }
 
