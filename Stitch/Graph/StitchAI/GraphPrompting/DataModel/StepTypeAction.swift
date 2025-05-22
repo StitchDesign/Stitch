@@ -220,6 +220,8 @@ typealias DepthMap = [UUID: Int]
 
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
 
+typealias StepActionables = [any StepActionable]
+
 protocol StepActionable: Hashable, Codable {
     static var stepType: StepType { get }
         
@@ -244,7 +246,6 @@ protocol StepActionable: Hashable, Codable {
     func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self
 }
 
-// See `createLLMStepAddNode`
 struct StepActionAddNode: StepActionable {
     static let stepType: StepType = .addNode
     

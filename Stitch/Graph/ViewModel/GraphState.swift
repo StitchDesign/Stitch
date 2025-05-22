@@ -17,8 +17,11 @@ import Vision
 import OrderedCollections
 
 @Observable
-final class GraphState: Sendable {    
+final class GraphState: Sendable {
+    
+    // TODO: remove this? Just add the Step to llmRecording.actions as the Step is parsed ?
     @MainActor var streamedSteps: OrderedSet<Step> = .init()
+    
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     

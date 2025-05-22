@@ -118,8 +118,7 @@ extension StitchAIManager {
         // Construct request payload
         let payload = try StitchAIRequest(secrets: secrets,
                                           userPrompt: prompt,
-                                          systemPrompt: systemPrompt,
-                                          stream: config.stream)
+                                          systemPrompt: systemPrompt)
         
         // Serialize and send request
         do {
@@ -137,24 +136,13 @@ extension StitchAIManager {
         let response: URLResponse
         
         do {
-            // Create data task and store it
-            let startTime = Date()
+            // NEW: stream data and print chunks as they arrive
+            let result = try await self.streamData(for: urlRequest, graph: graph)
+            data = result.0
+            response = result.1
+            // When streaming, use the parsed steps directly
+            return result.2
             
-            if config.stream {
-                // NEW: stream data and print chunks as they arrive
-                let result = try await self.streamData(for: urlRequest, graph: graph)
-                data = result.0
-                response = result.1
-                // When streaming, use the parsed steps directly
-                return result.2
-            } else {
-                let result = try await URLSession.shared.data(for: urlRequest)
-                data = result.0
-                response = result.1
-            }
-            
-            let responseTime = Date().timeIntervalSince(startTime)
-            log("OpenAI request completed in \(responseTime) seconds")
         } catch {
             log("OpenAI request failed: \(error)")
             

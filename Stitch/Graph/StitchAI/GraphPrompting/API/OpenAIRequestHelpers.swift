@@ -13,19 +13,15 @@ struct OpenAIRequestConfig {
     let timeoutInterval: TimeInterval   // Request timeout duration in seconds
     let retryDelay: TimeInterval       // Delay between retry attempts
     let maxTimeoutErrors: Int  // Maximum number of timeout errors before showing alert
-    let stream: Bool           // Whether to stream the response
     
     /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
         maxRetries: 3,
         timeoutInterval: 60,
         retryDelay: 2,
-        maxTimeoutErrors: 4,
-        stream: true
+        maxTimeoutErrors: 4
     )
 }
-
-
 
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
@@ -73,56 +69,12 @@ struct ChunkProcessed: StitchDocumentEvent {
         state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
         log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
         
-        
         if let _ = try? state.reapplyActions(isStreaming: true) {
             log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
-        }
-        
-//        if let _ = try? state.validateAndApplyActions(state.visibleGraph.streamedSteps.elements) {
-//            
-//        }
-        else {
+        } else {
             log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS")
+            
         }
-    }
-}
-
-/// Helper struct to process streaming chunks
-struct StreamingChunkProcessor {
-    
-    static func getStepsFromJoinedString(message: String) throws -> [Step]? {
-        // Decode the chunk
-        guard let data = message.data(using: .utf8) else {
-            throw StitchAIManagerError.invalidStreamingData
-        }
-        
-        let response: ContentJSON = try JSONDecoder().decode(ContentJSON.self, from: data)
-        return response.steps
-    }
-    
-    /// Process a chunk of data from the stream
-    static func processChunk(_ chunk: String) throws -> [Step]? {
-        // Remove "data: " prefix if present
-        let jsonString = chunk.hasPrefix("data: ") ?
-        String(chunk.dropFirst(6)) : chunk
-        
-        // Skip "[DONE]" message
-        guard jsonString != "[DONE]" else {
-            return nil
-        }
-        
-        // Decode the chunk
-        guard let data = jsonString.data(using: .utf8) else {
-            throw StitchAIManagerError.invalidStreamingData
-        }
-        
-        let response = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-        guard let choice = response.choices.first,
-              let content = try? choice.message.parseContent() else {
-            return nil
-        }
-        
-        return content.steps
     }
 }
 

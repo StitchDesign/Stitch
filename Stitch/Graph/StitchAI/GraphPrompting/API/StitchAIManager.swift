@@ -11,10 +11,6 @@ import SwiftUI
 import SwiftyJSON
 import Sentry
 
-struct LLMRecordingPayload: Encodable, Sendable {
-    let actions: String
-}
-
 struct Payload: Codable {
     let user_id: String
     var actions: RecordingWrapper

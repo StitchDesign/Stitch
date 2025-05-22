@@ -155,7 +155,7 @@ struct LayerPropertyRowOriginReader: ViewModifier {
                 Color.clear.onChange(of: geometry.frame(in: .global),
                                      initial: true) { oldValue, newValue in
 
-                    log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
+                    // log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
                     
                     // Guide for where to place the flyout;
                     // we read the origin even if this row doesn't support flyout.

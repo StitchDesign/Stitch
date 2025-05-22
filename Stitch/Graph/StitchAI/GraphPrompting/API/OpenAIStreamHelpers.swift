@@ -64,42 +64,8 @@ extension StitchAIManager {
         log("allContentTokens: \(allContentTokens)")
         let finalMessage = String(allContentTokens.joined())
         log("finalMessage: \(finalMessage)")
-        
-//        log("DONE: allContentVals: \(allContentVals)")
-////        let message = allContentVals.map { $0.joined() }.joined()
-//        let message = allContentVals.megajoin()
-//        log("final message: \(message)")
-//        
-//        if let parsedSteps = try? StreamingChunkProcessor.getStepsFromJoinedString(message: message) {
-//            log("parsedSteps: \(parsedSteps)")
-//            return (accumulatedData, response, parsedSteps)
-//        } else {
-//            log("could not parse steps")
-//            return (accumulatedData, response, accumulatedSteps)
-//        }
-        
+                
         return (accumulatedData, response, accumulatedSteps)
-        
-//        // Print any trailing bytes that weren't newline-terminated
-//        if !currentChunk.isEmpty {
-//            let chunkData = Data(currentChunk)
-//            if let str = String(data: chunkData, encoding: .utf8) {
-////                print("OpenAI Stream Chunk: \(str)")
-//                // Add final chunk to accumulated string
-//                accumulatedString += str
-//                
-//                // Try to parse any remaining accumulated JSON
-//                if let steps = try? StreamingChunkProcessor.processChunk(accumulatedString) {
-//                    print(" Final chunk actions:")
-//                    steps.forEach { step in
-//                        print("  → \(step.description)")
-//                    }
-//                    accumulatedSteps.append(contentsOf: steps)
-//                }
-//            }
-//        }
-        
-//        return (accumulatedData, response, accumulatedSteps)
     }
 }
 
@@ -251,7 +217,4 @@ extension Data {
         // log("getContentKey: returning contentStrings: \(contentStrings)")
         return contentStrings
     }
-
-
 }
-
