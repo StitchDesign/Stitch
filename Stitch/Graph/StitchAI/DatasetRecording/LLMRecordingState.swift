@@ -523,19 +523,51 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
             let createdNodeIndexAtThisDepthLevel = x.offset
             // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
             // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
-            createdNode.getAllCanvasObservers().enumerated().forEach { canvasItemAndIndex in
+            
+            let patchSize: CGSize? = createdNode.patchNode.flatMap {
+                PatchOrLayerSizes.patches[$0.patch]?[createdNode.userVisibleType]
+            }
+            
+            createdNode.getAllCanvasObservers().enumerated().forEach { x in
+                
+                let canvasItem = x.element
+                let canvasItemIndex = x.offset
+                
+                var size: CGSize? = nil
+                switch canvasItem.id {
+                case .node:
+                    size = patchSize
+                case .layerInput(let layerInputCoordinate):
+                    let layerInput = layerInputCoordinate.keyPath.layerInput
+                    size = PatchOrLayerSizes.layerInputs[layerInput]
+                case .layerOutput(_):
+                    size = PatchOrLayerSizes.layerOutputSize
+                }
+                
+                log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
+                
+                let defaultSize = CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                                         height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                
+                let finalSize = size ?? defaultSize
+                
+                let padding = 12.0
+                
                 let newPosition =  CGPoint(
-                    x: viewPortCenter.x + (CGFloat(depthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER),
-                    y: viewPortCenter.y + (CGFloat(canvasItemAndIndex.offset) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER) + (CGFloat(createdNodeIndexAtThisDepthLevel) * CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
+                    x: viewPortCenter.x + padding + (CGFloat(depthLevel) * finalSize.width),
+                    y: viewPortCenter.y + padding + (CGFloat(canvasItemIndex) * finalSize.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * finalSize.height)
                 )
+                                
                 // log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
                 // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
-                canvasItemAndIndex.element.position = newPosition
-                canvasItemAndIndex.element.previousPosition = newPosition
+                canvasItem.position = newPosition
+                canvasItem.previousPosition = newPosition
             }
         }
     }
 }
+
+
 
 // Might not need this anymore ?
 // Also overlaps with `StitchAIPromptState` ?

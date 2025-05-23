@@ -14,12 +14,14 @@ typealias LayerInputSizes = [LayerInputPort: CGSize]
 extension CGSize {
     // A layer input-fields on the canvas are a single size
     static let ASSUMED_LAYER_FIELD_SIZE: CGSize = .init(width: 200, height: 120)
+    static let ASSUMED_LAYER_OUTPUT_SIZE: CGSize = .init(width: 300, height: 200)
 }
 
 struct PatchOrLayerSizes {
     static let patches: PatchSizes = CANVAS_SIZES_FOR_PATCH_BY_NODE_TYPE
     static let layerInputs: LayerInputSizes = LAYER_INPUT_SIZES_FOR_LAYER_INPUT_PORT
     static let layerFieldSize: CGSize = .ASSUMED_LAYER_FIELD_SIZE
+    static let layerOutputSize: CGSize = .ASSUMED_LAYER_OUTPUT_SIZE
 }
 
 // MARK: ONLY TO BE USED WHEN GENERATING NEW HARDCODED SIZE DICTIONARIES FOR "PATCH BY NODE TYPE" AND LAYER INPUTS
