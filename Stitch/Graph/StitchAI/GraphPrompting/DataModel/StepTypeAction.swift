@@ -283,10 +283,8 @@ struct StepActionAddNode: StepActionable {
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) throws {
-        guard let _ = document.nodeInserted(choice: self.nodeName.asNodeKind,
-                                            nodeId: self.nodeId) else {
-            throw StitchAIManagerError.actionValidationError("Could not create node \(self.nodeId.debugFriendlyId) \(self.nodeName)")
-        }
+        let _ = document.nodeInserted(choice: self.nodeName,
+                                      nodeId: self.nodeId)
     }
     
     func removeAction(graph: GraphState,

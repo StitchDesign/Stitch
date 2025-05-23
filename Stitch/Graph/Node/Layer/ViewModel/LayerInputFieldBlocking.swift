@@ -29,6 +29,7 @@ extension LayerNodeReader {
     /// After row observer's values or row view model's field has changed, we may need to change which inputs/fields on the layer node are being blocked.
     @MainActor
     func refreshBlockedInputs(graph: GraphReader, activeIndex: ActiveIndex) {
+        
         // 'Blocking context' is per layer node, not layer input,
         // since the blocking of a single layer input depends on other layer inputs on the same layer node (and certain facts about the layer node's parent)
         
@@ -49,6 +50,12 @@ extension LayerNodeReader {
         let fn = curry(getValue)(self)
         
         self.allLayerInputObservers.forEach { input in
+            
+            if graph.DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES {
+                input.blockedFields = .init()
+                return
+            }
+            
             input.maybeBlockFields(isPinned: fn(.isPinned).getBool ?? false,
                                    parentGroupOrientation: parentGroupOrientation,
                                    isParentAutoScroll: isParentAutoScroll,
