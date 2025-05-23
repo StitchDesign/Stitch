@@ -45,7 +45,7 @@ Any is a boolean node that returns true if any of the inputs are true.
 *Outputs*
 * One boolean value that is true if any of the inputs are true.
 
-## Ar Anchor
+## AR Anchor
 Creates an AR anchor from a 3D model and an ARTransform. Represents the position and orientation of a 3D item in the physical environment.
 
 *Inputs*
@@ -55,7 +55,7 @@ Creates an AR anchor from a 3D model and an ARTransform. Represents the position
 *Outputs*
 * The AR anchor value; which is used as an input for the RealityView node.
 
-## Ar Raycasting
+## Raycasting
 Returns a 3D location in physical space that corresponds to a given 2D location on the screen.
 
 *Inputs*
@@ -69,7 +69,7 @@ Returns a 3D location in physical space that corresponds to a given 2D location 
 *Outputs*
 * ARTransform, which is used as an input for the AR Anchor node
 
-## Arc Tan2
+## Arc Tan 2
 ArcTan2 is a node that takes two inputs, and returns the arctangent of the first input divided by the second input.
 
 *Inputs*
@@ -124,7 +124,7 @@ This node sorts the array in ascending order.
 *Outputs*
 * The sorted array
 
-## Base64 String To Image
+## Base64 to Image
 A node that converts a Base64 string to an image asset.
 
 *Inputs*
@@ -144,7 +144,7 @@ Node for converting Pop Animation values to spring tension and friction.
 * Friction
 * Tension
 
-## Box3 D
+## Box
 A box 3D shape, which can be used inside a Reality View.
 
 *Inputs*
@@ -249,7 +249,7 @@ A layer for filling the preview window with a specified color.
 * Opacity
 * Z Index
 
-## Color To Hex
+## Color to Hex
 Converts a provided color into a corresponding Hex string.
 
 *Inputs*
@@ -258,7 +258,7 @@ Converts a provided color into a corresponding Hex string.
 *Outputs*
 * Hex string
 
-## Color To Hsl
+## Color to HSL
 Converts a provided color into its constituent HSL (Hue/Saturation/Light) components.
 
 *Inputs*
@@ -270,7 +270,7 @@ Converts a provided color into its constituent HSL (Hue/Saturation/Light) compon
 * Lightness
 * Alpha
 
-## Color To Rgb
+## Color to RGB
 Converts a provided color into its constituent RGB (Red/Green/Blue) components (from 0 - 1).
 
 *Inputs*
@@ -282,7 +282,7 @@ Converts a provided color into its constituent RGB (Red/Green/Blue) components (
 * Blue
 * Alpha
 
-## Commands To Shape
+## Commands to Shape
 Generates a shape from a loop of given shape commands
 
 *Inputs*
@@ -291,7 +291,7 @@ Generates a shape from a loop of given shape commands
 *Outputs*
 * A generated shape
 
-## Cone3 D
+## Cone
 A cone 3D shape, which can be used inside a Reality View.
 
 *Inputs*
@@ -429,7 +429,7 @@ Packs Point, CurveTo and CurveFrom position inputs into a CurveTo ShapeCommand.
 ## Curve To Unpack
 Unpack packs CurveTo ShapeCommand into a Point, CurveTo and CurveFrom position outputs.
 
-## Cylinder3 D
+## Cylinder
 A cylinder 3D shape, which can be used inside a Reality View.
 
 *Inputs*
@@ -670,7 +670,7 @@ A node for importing an image asset into your prototype.
 * The image file
 * The size of the image
 
-## Image To Base64 String
+## Image to Base64
 A node that converts an image asset to a Base64 string.
 
 *Inputs*
@@ -691,7 +691,7 @@ Returns the index of a given item in an array if the item is present.
 * The index at which the item occurs
 * A Boolean indicating whether the array contains the given item.
 
-## Json Array
+## JSON Array
 Creates a JSON array from a given list of inputs. N number of inputs can be added to the node.
 
 *Inputs*
@@ -700,7 +700,7 @@ Creates a JSON array from a given list of inputs. N number of inputs can be adde
 *Outputs*
 * The JSON array of values
 
-## Json Object
+## JSON Object
 Creates a JSON object out of an input key and value. The node can be configured to accept a variety of input value types.
 
 *Inputs*
@@ -710,7 +710,7 @@ Creates a JSON object out of an input key and value. The node can be configured 
 *Outputs*
 * The created JSON object
 
-## Json To Shape
+## JSON to Shape
 Generates a Shape from a given JSON object.
 
 *Inputs*
@@ -931,7 +931,7 @@ Calculates the sum of every value in a loop.
 *Outputs*
 * The sum of the elements in the loop
 
-## Loop To Array
+## Loop to Array
 Converts a loop to an array.
 
 *Inputs*
@@ -1004,7 +1004,7 @@ calculates the remainder when two input values are divided
 *Outputs*
 * The Remainder
 
-## Model3 D
+## 3D Model
 The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the preview window.
 
 *Inputs*
@@ -1022,7 +1022,7 @@ The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the pr
 * Anchoring
 * Z-Index
 
-## Mouse Interaction
+## Mouse
 Makes a given layer responsive to mouse interactions
 
 *Outputs*
@@ -1191,16 +1191,16 @@ Works with:
 *Outputs*
 * The constructed value based on the individual inputs
 
-## Point3 D Pack
+## Point 3D Pack
 Packs three Number inputs to a single Point3D output.
 
-## Point3 D Unpack
+## Point 3D Unpack
 Unpacks a single Point3D input to three Number outputs.
 
-## Point4 D Pack
+## Point 4D Pack
 Packs four Number inputs to a single Point4D output.
 
-## Point4 D Unpack
+## Point 4D Unpack
 Unpacks a single Point4D input to four Number outputs.
 
 ## Pop Animation
@@ -1407,8 +1407,8 @@ Returns the inverse amount of progress completed by comparing the current value 
 *Outputs*
 * The amount of progress that has been completed
 
-## Rgba
-Creates a Color out of specified RGBA (Red/Green/Blue/Alpha) values (from 0 -1).
+## RGB Color
+Creates a color out of specified RGBA (Red/Green/Blue/Alpha) values (from 0 -1).
 
 *Inputs*
 
@@ -1451,7 +1451,7 @@ Calculates the sum of a loop of numbers - the sum at each index is the sum of th
 *Outputs*
 * A loop of sums
 
-## Sample Hold
+## Sample and Hold
 Store and send a value until a new value is received, or the current value is reset.
 
 *Inputs*
@@ -1501,7 +1501,7 @@ Adds scroll interaction to a specified layer. Scrolling can be either free or pa
 *Outputs*
 * The scroll X/Y position
 
-## Set Value For Key
+## Value For Key
 Allows you to set a value at a specified key in the JSON object.
 
 *Inputs*
@@ -1512,7 +1512,7 @@ Allows you to set a value at a specified key in the JSON object.
 *Outputs*
 * The JSON object with the new value.
 
-## Sf Symbol
+## SF Symbol
 Creates an SF Symbol.
 
 ## Shape
@@ -1535,7 +1535,7 @@ The Shape Layer can take a shape as an input and display it in the preview windo
 * Stroke Color
 * Coordinate System (Relative or Absolute)
 
-## Shape To Commands
+## Shape to Commands
 Takes a shape as input, and outputs the commands used to generate the shape. Can be used to create a new shape from an existing pone.
 
 *Inputs*
@@ -1613,7 +1613,7 @@ A node for playing audio through the device speaker
 * An audio file
 * The volume of the playing audio
 
-## Sphere3 D
+## Sphere
 A sphere 3D shape, which can be used inside a Reality View.
 
 *Inputs*
@@ -1662,13 +1662,13 @@ Creates an animation based off of the physical model of a spring.
 *Outputs*
 * The current value of the animation
 
-## Spring From Duration And Bounce
+## Duration and Bounce Converter
 Convert duration and bounce values to mass, stiffness and damping for a Spring Animation node.
 
-## Spring From Response And Damping Ratio
+## Response And Damping Ratio Converter
 Convert response and damping ratio to mass, stiffness and damping for a Spring Animation node.
 
-## Spring From Settling Duration And Damping Ratio
+## Settling Duration and Damping Ratio Converter
 Convert settling duration and damping ratio to mass, stiffness and damping for a Spring Animation node.
 
 ## Square Root
@@ -1691,7 +1691,7 @@ Measures elapsed time in seconds.
 *Outputs*
 * Elapsed time in seconds
 
-## Subarray
+## Sub Array
 Returns a subarray from a given array.
 
 *Inputs*
@@ -1712,7 +1712,7 @@ Returns the result of the subtraction between two numbers.
 *Outputs*
 * The result of the subtraction
 
-## Switch
+## Toggle Switch
 Displays an interactive UI toggle switch. 
 
 *Inputs*
@@ -1917,7 +1917,7 @@ Works with:
 *Outputs*
 * The constituent values that make up the input
 
-## Value At Index
+## Value at Index
 Given an array, this returns the value at a specific index in the array.
 
 *Inputs*
@@ -1927,7 +1927,7 @@ Given an array, this returns the value at a specific index in the array.
 *Outputs*
 * The value in the array at the specified index
 
-## Value At Path
+## Value at Path
 Provides ways to access specific elements within a JSON object:
 
 # Numbers for Array Indices
@@ -1953,7 +1953,7 @@ Example: ..artist will find all instances of the key 'artist', regardless of nes
 *Outputs*
 * The value that exists at the given path
 
-## Value For Key
+## Set Value for Key
 Given a JSON object and a key, extract the value from the JSON object
 
 *Inputs*
@@ -2022,7 +2022,7 @@ The Video Streaming Layer streams a video from a given URL string.
 * Z-Index
 * Clipped (Boolean)
 
-## When Prototype Starts
+## On Prototype Start
 A node that gets triggered whenever the prototype has started or restarted. Can be used to trigger any action you want to occur on the start.
 
 *Outputs*

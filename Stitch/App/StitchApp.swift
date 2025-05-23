@@ -59,9 +59,8 @@ struct StitchApp: App {
                     #if DEBUG || DEV_DEBUG
                     // Test all node kinds to ensure there's documentation
                     NodeKind.allCases.forEach { nodeKind in
-                        if NodeDescriptions.forKind(nodeKind) == nil {
-                            fatalErrorIfDebug("Fatal error: no markdown found for \(nodeKind)")
-                        }
+                        let nodesNotDefined = NodeKind.allCases.filter { NodeDescriptions.forKind($0) == nil }
+                        assertInDebug(nodesNotDefined.isEmpty)
                     }
                     #endif
                     
