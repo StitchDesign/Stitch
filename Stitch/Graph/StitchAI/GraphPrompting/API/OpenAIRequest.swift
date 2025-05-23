@@ -24,7 +24,7 @@ struct OpenAIRequestConfig {
     /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
         maxRetries: 3,
-        timeoutInterval: 60,
+        timeoutInterval: FeatureFlags.STITCH_AI_REASONING ? 180 : 60,
         retryDelay: 2,
         maxTimeoutErrors: 4
     )
