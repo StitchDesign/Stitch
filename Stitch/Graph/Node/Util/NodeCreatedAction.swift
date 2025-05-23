@@ -51,13 +51,9 @@ extension StitchDocumentViewModel {
         selectedInputLocation.x -= (NODE_POSITION_STAGGER_SIZE * 6)
                 
         // Create the node that corresponds to the shortcut/key pressed
-        guard let node = state.nodeInserted(
+        let node = state.nodeInserted(
             choice: .patch(patch),
-            canvasLocation: selectedInputLocation) else {
-            
-            fatalErrorIfDebug()
-            return
-        }
+            canvasLocation: selectedInputLocation)
                 
         // Update the created-node's type if node supports the selected input's type
         if patch.availableNodeTypes.contains(selectedInputType) {
@@ -104,13 +100,10 @@ extension StitchDocumentViewModel {
 
 struct NodeCreatedEvent: StitchDocumentEvent {
     
-    let choice: NodeKind
+    let choice: PatchOrLayer
     
     func handle(state: StitchDocumentViewModel) {
-        guard let node = state.nodeInserted(choice: choice) else {
-            fatalErrorIfDebug()
-            return
-        }
+        let node = state.nodeInserted(choice: choice)
         state.visibleGraph.persistNewNode(node)
     }
 }
@@ -119,10 +112,7 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func handleNodeCreatedViaShortcut(choice: PatchOrLayer) {
-        guard let node = self.nodeInserted(choice: choice.asNodeKind) else {
-            fatalErrorIfDebug()
-            return
-        }
+        let node = self.nodeInserted(choice: choice)
         self.visibleGraph.persistNewNode(node)
     }
     
@@ -185,23 +175,19 @@ extension StitchDocumentViewModel {
 
     // Used by InsertNodeMenu
     @MainActor
-    func nodeInserted(choice: NodeKind,
+    func nodeInserted(choice: PatchOrLayer,
                       // For LLMStep Actions
                       nodeId: UUID? = nil,
-                      canvasLocation: CGPoint? = nil) -> NodeViewModel? {
+                      canvasLocation: CGPoint? = nil) -> NodeViewModel {
 
         let nodeCenter = canvasLocation ?? self.newCanvasItemInsertionLocation
         
-        guard let node = self.visibleGraph.createNode(
+        let node = self.visibleGraph.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
                 newNodeId: nodeId ?? UUID(),
                 highestZIndex: self.visibleGraph.highestZIndex,
                 choice: choice,
-                center: nodeCenter) else {
-            log("nodeCreated: could not create node for \(choice)")
-            fatalErrorIfDebug()
-            return nil
-        }
+                center: nodeCenter)
 
         self.handleNewlyCreatedNode(node: node)
         return node
@@ -245,16 +231,12 @@ extension GraphState {
     func createNode(graphTime: TimeInterval,
                     newNodeId: NodeId = NodeId(),
                     highestZIndex: ZIndex,
-                    choice: NodeKind,
-                    center: CGPoint) -> NodeViewModel? {
+                    choice: PatchOrLayer,
+                    center: CGPoint) -> NodeViewModel {
         //    log("createNode called")
 
         // increment the "highest z-index", and then use that for next node
         switch choice {
-
-        case .group:
-            fatalErrorIfDebug("createNode: unexpectedly had Group node for NodeKind choice; exiting early")
-            return nil
 
         // TODO: break this logic up into smaller, separate functions,
         // creating a layer node vs creating a patch node.
@@ -275,16 +257,13 @@ extension GraphState {
     @MainActor
     private func createLayerNode(layer: Layer,
                                  newNodeId: NodeId,
-                                 center: CGPoint) -> NodeViewModel? {
+                                 center: CGPoint) -> NodeViewModel {
         // just add directly to end of layer nodes list (ordered-dict)
-        guard let layerNode = layer.defaultNode(
+        let layerNode = layer.defaultNode(
                 id: newNodeId,
                 position: center.toCGSize,
                 zIndex: highestZIndex + 1,
-                graphDelegate: self) else {
-            fatalErrorIfDebug()
-            return nil
-        }
+                graphDelegate: self)
         
         // Update sidebar data
         var sidebarLayerData = SidebarLayerData(id: layerNode.id)

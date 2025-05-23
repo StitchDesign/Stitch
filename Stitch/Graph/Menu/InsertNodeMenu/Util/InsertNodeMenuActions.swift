@@ -87,52 +87,25 @@ struct AddNodeButtonPressed: StitchDocumentEvent {
             state.reduxFocusedField = nil
         }
         
-        // Immediately create a LayerNode; do not animate.
-        if nodeKind.isLayer {
-            guard let newNode = state.nodeInserted(choice: nodeKind) else {
-                return
-            }
+        switch nodeKind {
+            
+        case .layer(let layer):
+            let newNode = state.nodeInserted(choice: .layer(layer))
             state.nodeCreationCompleted(newNode.id)
             graph.persistNewNode(newNode)
-        } else {
-            // Create the real node, but hide it until animation has completed.
-            // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
-            guard let node = state.nodeInserted(choice: nodeKind) else {
-                return
-            }
-            
+
+        case .patch(let patch):
+            let node = state.nodeInserted(choice: .patch(patch))
             let createdNodeId = node.id
-            
             graph.persistNewNode(node)
-            
             // MARK: with animation disabled we now call this immediately
             dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
-            
             withAnimation {
                 state.insertNodeMenuState.show = false
-    
-                // TODO: animation disabled for now
-//                // log("ActiveSelectionSizeReadingCompleted: withAnimation")
-//                state.insertNodeMenuState.menuAnimatingToNode = true
-//                
-//                // TODO: get rid of this manual dispatch of the completed-animation action
-//                // TODO: why are the 0.3 extra seconds required?
-//                // TODO: base the 0.9 off of the existing animation's duration
-//                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-//                //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-//                    //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-//                    dispatch(InsertNodeAnimationCompleted(createdNodeId: createdNodeId))
-//                }
             }
             
-            // TODO: `completion` animation callback seems either delayed, or in some cases not to fire at all?
-            //        completion: {
-            //            log("ActiveSelectionSizeReadingCompleted completion")
-            //            // Can we do this, dispatch an action from a completion?
-            //            // else we could move these changes to an onChange listener in the view ?
-            //            dispatch(InsertNodeAnimationCompleted())
-            //        }
+        default: // TODO: handle inserting a component
+            break
         }
     }
 }
