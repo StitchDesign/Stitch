@@ -25,7 +25,7 @@ enum NodeDescriptions {
 
     /// Markdown body for a given display title (“Pop Animation”, “3D Model”, …)
     static func forTitle(_ title: String) -> String? {
-        map[title]
+        map.get(title)
     }
 
     /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.

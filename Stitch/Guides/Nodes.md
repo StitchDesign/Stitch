@@ -322,7 +322,7 @@ Converts position values between different parent layers.
 *Outputs*
 * The converted X/Y position
 
-## Core Ml Classify
+## Image Classification
 A node for classifying an image via a CoreML Classification model.
 
 *Inputs*
@@ -333,7 +333,7 @@ A node for classifying an image via a CoreML Classification model.
 * The class that the model predicted the image is as a string
 * The confidence value of the classification result
 
-## Core Ml Detection
+## Object Detection
 A node for detecting the objects in an image via a CoreML Object Detection model
 
 *Inputs*
@@ -583,7 +583,7 @@ Applies a grayscale filter to a provided visual media asset.
 *Outputs*
 * The media object with a grayscale filter applied to it
 
-## Greater Or Equal
+## Greater or Equal
 Checks if two input numbers are greater than or equal to one another
 
 *Inputs*
@@ -631,7 +631,7 @@ Adds interaction to a specific rectangle in the Preview Window.
 * Z Index
 * A Boolean to toggle Setup Mode (visualizes the hit area)
 
-## Hsl Color
+## HSL Color
 A node for generating a color from HSL (Hue/Saturation/Light) input values.
 
 *Inputs*
@@ -763,7 +763,7 @@ Checks whether a value is less than another.
 *Outputs*
 * A Boolean indicating if the first value is less than the second value.
 
-## Less Than Or Equal
+## Less Than or Equal
 Checks if two input numbers are less than or equal to one another
 
 *Inputs*
@@ -1285,7 +1285,7 @@ Outputs a pulse event when it's toggled on or off.
 * A pulse if an "On" input event occurs
 * A pulse if an "Off" output event occurs
 
-## Pulse On Change
+## Pulse on Change
 The Pulse On Change node outputs a pulse if an input value comes in that is different from the specified value.
 
 *Inputs*
@@ -1294,7 +1294,7 @@ The Pulse On Change node outputs a pulse if an input value comes in that is diff
 *Outputs*
 * A pulse event that occurs if the value has changed
 
-## Qr Code Detection
+## QR Code Detection
 Detects a QR code in a video or image..
 
 *Inputs*
@@ -1473,7 +1473,7 @@ Use to create a loop out of a media input. When you've created your sample, the 
 *Outputs*
 * The sampled media
 
-## Scroll Interaction
+## Legacy Scroll Interaction
 NOTE: Scroll Interactions are better supported through scroll inputs and outputs on a layer group. This is a legacy patch node.
 
 Adds scroll interaction to a specified layer. Scrolling can be either free or paged (carousel).
@@ -1641,7 +1641,7 @@ Splits an input text string at a given token. For example, if the text value is 
 *Outputs*
 * The split text
 
-## Splitter
+## Value
 The value node is helpful for storing a value and sending that value to other nodes. You can also use these nodes in Groups to create an input port or an output port on the parent group. If you need to set a value and send that value to several other nodes, while having a single place to change that value, then this node is for you.
 
 *Inputs*
