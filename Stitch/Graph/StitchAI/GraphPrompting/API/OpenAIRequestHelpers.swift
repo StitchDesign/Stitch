@@ -14,14 +14,20 @@ struct ChunkProcessed: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         log("ChunkProcessed: newStep: \(newStep)")
-                
+        
+        let isFirstReceivedStep = state.llmRecording.actions.isEmpty
+        
         state.visibleGraph.streamedSteps.append(newStep)
         // log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
         
         state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
-        // log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
+        log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
         
-        if let error = state.reapplyActions(isStreaming: true) {
+        // When we receive a new step, we may 
+        
+        
+        if let error = state.reapplyActions(isStreaming: true,
+                                            isNewRequest: isFirstReceivedStep) {
             log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
                     
             guard let aiManager = state.aiManager else {
@@ -34,8 +40,7 @@ struct ChunkProcessed: StitchDocumentEvent {
             aiManager.currentTask?.cancel()
             
             aiManager.currentTask = nil
-                        
-                        
+                                    
             //            try await aiManager.retryMakeOpenAIStreamingRequest(
             //                request,
             //                currentAttempts: currentAttempt + 1,

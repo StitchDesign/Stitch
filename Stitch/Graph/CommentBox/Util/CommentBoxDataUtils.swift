@@ -235,7 +235,7 @@ extension CommentBoxViewModel {
         let initialWidth = width.magnitude + xPadding
         let initialHeight = height.magnitude + titleHeightAllowance + yPadding
 
-        var initialSize = CGSize(width: initialWidth,
+        let initialSize = CGSize(width: initialWidth,
                                  height: initialHeight)
 
         //        var initialSize = CGSize(width: initialWidth * 1/scale,

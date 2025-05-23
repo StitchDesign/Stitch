@@ -128,7 +128,7 @@ struct PackPatchNode: PatchNodeDefinition {
             ]
 
             switch rowType {
-            case .shapeCommand(let _):
+            case .shapeCommand:
                 // Not supporting right now
                 fatalErrorIfDebug()
                 return []

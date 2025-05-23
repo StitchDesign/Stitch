@@ -50,7 +50,10 @@ extension StitchDocumentViewModel {
         
         // TODO: these logs are telling us that self.llmRecording.actions is empty (we're not sure how or where they were made empty?); can we populate the actions again, before we open the "edit before submit" modal ?
         
-        let derivedActions = self.deriveNewAIActions()
+        let derivedActions = Self.deriveNewAIActions(
+            oldGraphEntity: self.llmRecording.initialGraphState,
+            visibleGraph: self.visibleGraph)
+        
         self.llmRecording.actions = derivedActions
         
         // First store the current AI-generated actions

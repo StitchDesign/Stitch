@@ -97,12 +97,12 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     }
 }
 
-struct LLMActionDeleted: StitchDocumentEvent {
+struct LLMActionDeletedFromEditModal: StitchDocumentEvent {
     let deletedStep: Step
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionDeleted: deletedStep: \(deletedStep)")
-        log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
+        log("LLMActionDeletedFromEditModal: deletedStep: \(deletedStep)")
+        log("LLMActionDeletedFromEditModal: state.llmRecording.actions was: \(state.llmRecording.actions)")
         
         guard let deletedStep = state.llmRecording.actions.first(where: { $0 == deletedStep }) else {
             fatalErrorIfDebug()
@@ -114,26 +114,23 @@ struct LLMActionDeleted: StitchDocumentEvent {
             return
         }
         
+        // Run deletion process for action
+        deletedAction.removeAction(graph: state.visibleGraph,
+                                   document: state)
         
+        // Filter out removed action before re-applying actions
+        let filteredActions = state.llmRecording.actions.filter { $0 != deletedStep }
         
-        do {
-            // Run deletion process for action
-            deletedAction.removeAction(graph: state.visibleGraph,
-                                       document: state)
-            
-            // Filter out removed action before re-applying actions
-            let filteredActions = state.llmRecording.actions.filter { $0 != deletedStep }
-            
-            state.llmRecording.actions = filteredActions
-
-            // If we deleted the LLMAction that added a patch to the graph,
-            // then we should also delete any LLMActions that e.g. changed that patch's nodeType or inputs.
-            
-            // We immediately "de-apply" the removed action(s) from graph,
-            // so that user instantly sees what changed.
-            try state.reapplyActions(isStreaming: false)
-        } catch {
-            log("LLMActionDeleted: when reapplying actions, encountered: \(error)")
+        state.llmRecording.actions = filteredActions
+        
+        // If we deleted the LLMAction that added a patch to the graph,
+        // then we should also delete any LLMActions that e.g. changed that patch's nodeType or inputs.
+        
+        // We immediately "de-apply" the removed action(s) from graph,
+        // so that user instantly sees what changed.
+        if let error = state.reapplyActions(isStreaming: false, isNewRequest: false) {
+            // TODO: show this to the user?
+            log("LLMActionDeletedFromEditModal: error when reapplying actions: \(error)")
         }
     }
 }

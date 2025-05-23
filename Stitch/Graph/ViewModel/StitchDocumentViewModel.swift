@@ -317,23 +317,26 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         self.projectLoader?.loadingDocument = .loading
         
         // Checks if AI edit mode is enabled and if actions should be updated
-        
         let recordingOrCorrecting = self.llmRecording.isRecording || self.llmRecording.mode == .augmentation
-        
+
+        // If we are recording graph changes as LLM-actions,
+        // and we're not currently 'applying an existing LLM-action',
+        // then we
         if recordingOrCorrecting && !self.llmRecording.isApplyingActions {
             let oldActions = self.llmRecording.actions
-            let newActions = self.deriveNewAIActions()
+            let newActions = Self.deriveNewAIActions(
+                oldGraphEntity: self.llmRecording.initialGraphState,
+                visibleGraph: self.visibleGraph)
             
             if oldActions != newActions {
                 self.llmRecording.actions = newActions
                 
                 if self.llmRecording.willAutoValidate {
-                    do {
-                        try self.reapplyActions(isStreaming: false)
-                    } catch let error as StitchAIManagerError {
+                    if let error: StitchAIStepHandlingError = self.reapplyActions(
+                        isStreaming: false,
+                        isNewRequest: false) {
+                        
                         self.llmRecording.actionsError = error.description
-                    } catch {
-                        self.llmRecording.actionsError = error.localizedDescription
                     }
                 }
             }

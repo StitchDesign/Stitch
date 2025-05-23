@@ -70,6 +70,13 @@ extension Result {
             return nil
         }
     }
+    /// Returns the error if this is a `.failure`, or `nil` if `.success`
+    var error: Failure? {
+        guard case .failure(let err) = self else {
+            return nil
+        }
+        return err
+    }
     
     var isFailure: Bool {
         switch self {

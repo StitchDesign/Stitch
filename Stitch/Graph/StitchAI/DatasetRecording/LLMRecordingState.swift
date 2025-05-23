@@ -106,30 +106,21 @@ extension Array where Element == any StepActionable {
     }
 }
 
-extension Result {
-  /// Returns the error if this is a `.failure`, or `nil` if `.success`
-  var error: Failure? {
-      guard case .failure(let err) = self else {
-          return nil
-      }
-      return err
-  }
-}
-
 extension StitchDocumentViewModel {
     
     @MainActor
     func validateAndApplyActions(_ convertedActions: [any StepActionable],
-                                 isNewRequest: Bool = false) -> StitchAIStepHandlingError? {
+                                 isNewRequest: Bool) -> StitchAIStepHandlingError? {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
         var convertedActions = convertedActions
-                        
-        if isNewRequest {
-            // Change Ids for newly created nodes
-            convertedActions = convertedActions.remapNodeIdsForNewNodes()
-        }
+          
+        // TODO: handle the fact that OpenAI may send us the same node ids over and over again; i.e. ids will be unique across all the actions sent for a given request, but ids may be same across multiple different requests; e.g. first request for "Add 1 and 2 and then Divide by 3" will use NodeIds X and Y, but then a second request for "Multiply 3 and 3 and Subtract by 9" will use the same NodeIds X and Y
+//        if isNewRequest {
+//            // Change Ids for newly created nodes
+//            convertedActions = convertedActions.remapNodeIdsForNewNodes()
+//        }
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
@@ -172,13 +163,15 @@ extension StitchDocumentViewModel {
     }
         
     @MainActor
-    func deriveNewAIActions() -> [Step] {
-        guard let oldGraphEntity = self.llmRecording.initialGraphState else {
-            log("No graph state found")
+    static func deriveNewAIActions(oldGraphEntity: GraphEntity?,
+                                   visibleGraph: GraphReader) -> [Step] {
+        // Can this truly be optional ?
+        guard let oldGraphEntity = oldGraphEntity else {
+            log("deriveNewAIActions: No graph state found") // should be fatal error ?
             return []
         }
         
-        let newGraphEntity = self.visibleGraph.createSchema()
+        let newGraphEntity = visibleGraph.createSchema()
         let oldNodeIds = oldGraphEntity.nodes.map(\.id).toSet
         let newNodeIds = newGraphEntity.nodes.map(\.id).toSet
         
@@ -244,7 +237,7 @@ extension StitchDocumentViewModel {
                 // ... should be okay
                                 
                 // Find all the children of the LayerGroup
-                let children = self.visibleGraph.getLayerChildren(for: nodeEntity.id)
+                let children = visibleGraph.getLayerChildren(for: nodeEntity.id)
                 log("deriveNewAIActions: children for layer group \(nodeEntity.id) are: \(children)")
                 newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id,
                                                                       children: children))
@@ -330,8 +323,11 @@ extension StitchDocumentViewModel {
         let creatingConnections = newConnectionStepsSorted
         let settingInputs = newSetInputStepsSorted
         
+        
         // This order is important! We want to create nodes first, then change their node types, etc.
-        return creatingNodes + updatingPatchNodesTypes + creatingConnections + settingInputs
+        let derivedActions = creatingNodes + updatingPatchNodesTypes + creatingConnections + settingInputs
+        log("deriveNewAIActions: derivedActions: \(derivedActions)")
+        return derivedActions
     }
     
     private static func deriveNewInputActions(input: NodeConnectionType,
@@ -369,9 +365,22 @@ extension StitchDocumentViewModel {
         self.llmRecording.isApplyingActions = false
     }
     
+    
+    /*
+     This function has two use cases:
+     
+     1. We are in edit mode and delete an action (`LLMActionDeletedFromEditModal`).
+     We have already deleted the action and now re-apply the remaining actions, to adjust their positions. (And what else?)
+     
+     2. We are streaming a response and have received a new step, which needs to be validated (e.g. validation fails if we received a SetInput that refers to a node that does not yet exist); we may also need to adjust nodes' positions
+
+     */
+    
     // TODO: pass down the [Step] explicitly ?
     @MainActor
-    func reapplyActions(isStreaming: Bool) -> StitchAIStepHandlingError? {
+    func reapplyActions(// steps: [Step],
+                        isStreaming: Bool,
+                        isNewRequest: Bool) -> StitchAIStepHandlingError? {
         let oldActions: [Step] = self.llmRecording.actions
         
         let conversionAttempt = oldActions.convertSteps()
@@ -398,7 +407,7 @@ extension StitchDocumentViewModel {
         self.deapplyActions(actions: actions)
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        if let error = self.validateAndApplyActions(actions) {
+        if let error = self.validateAndApplyActions(actions, isNewRequest: isNewRequest) {
             return error
         }
         
@@ -417,21 +426,36 @@ extension StitchDocumentViewModel {
         // derive a new actions based on post-"de-apply, re-apply" state
         // and confirm that de-applying and re-applying the actions
         // did not cause the actions to change
-        self.llmRecording.actions = self.deriveNewAIActions()
+    
         
-        // Force update view
-        self.graphUpdaterId = .randomId()
+        // TODO: should we really do this? If we're re-applying actions, we just want to see
+                            
+        self.llmRecording.actions = Self.deriveNewAIActions(
+            oldGraphEntity: self.llmRecording.initialGraphState,
+            visibleGraph: self.visibleGraph)
         
-        // Validates that action data didn't change after derived actions is computed
-        return Self.validateActionsDidNotChangeDuringReapply(oldActions: oldActions,
-                                                             newActions: self.llmRecording.actions)
+        // Force update of view
+        self.graphUpdaterId = .randomId() // TODO: not needed?
+        
+        if isStreaming {
+            return nil
+        } else {
+            // Validates that action data didn't change after derived actions is computed
+            return Self.validateActionsDidNotChangeDuringReapply(
+                oldActions: oldActions,
+                newActions: self.llmRecording.actions)
+        }
     }
+    
+    
     
     private static func validateActionsDidNotChangeDuringReapply(oldActions: [Step],
                                                                  newActions: [Step]) -> StitchAIStepHandlingError? {
         
         // TODO: why or how is the count changing? What is mutating the `newActions` count?
         assertInDebug(oldActions.count == newActions.count)
+        log("oldActions.count: \(oldActions.count)")
+        log("newActions.count: \(newActions.count)")
         
         for (oldAction, newAction) in zip(oldActions, newActions) {
             if oldAction != newAction {
@@ -446,6 +470,7 @@ extension StitchDocumentViewModel {
                 log("Found unequal actions: _oldAction: \(_oldAction)")
                 log("Found unequal actions: _newAction: \(_newAction)")
                 
+                fatalErrorIfDebug() // Crash on dev
                 return .actionValidationError("Found unequal actions:\n\(_oldAction)\n\(_newAction)")
             }
         }
@@ -471,7 +496,7 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
     
     guard !depthMap.isEmpty else {
 //        fatalErrorIfDebug("Depth-map should never be empty")
-        log("Depth-map should never be empty")
+        log("Depth-map should never be empty") // can be empty if we have no nodes
         return
     }
                     

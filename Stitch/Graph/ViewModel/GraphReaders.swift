@@ -31,7 +31,14 @@ protocol GraphReader {
     
     @MainActor func layerNodesDict() -> LayerNodesDict
     
+    
+    // Sidebar data
+    
     @MainActor var layersSidebarViewModel: LayersSidebarViewModel { get }
+    
+    @MainActor func getLayerChildren(for groupId: NodeId) -> NodeIdSet
+    
+    @MainActor func createSchema() -> GraphEntity
 }
 
 extension GraphState: GraphReader {
