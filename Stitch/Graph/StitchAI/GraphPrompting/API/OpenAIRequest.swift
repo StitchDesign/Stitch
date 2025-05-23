@@ -17,6 +17,25 @@ import SwiftyJSON
 let OPEN_AI_BASE_URL_STRING = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
+// Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
+/// Main event handler for initiating OpenAI API requests
+struct OpenAIRequest {
+    private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
+    let prompt: String             // User's input prompt
+    let systemPrompt: String       // System-level instructions loaded from file
+    let config: OpenAIRequestConfig // Request configuration settings
+    
+    /// Initialize a new request with prompt and optional configuration
+    @MainActor
+    init(prompt: String,
+         config: OpenAIRequestConfig = .default,
+         systemPrompt: String) {
+        self.prompt = prompt
+        self.config = config
+        self.systemPrompt = systemPrompt
+    }
+}
+
 extension StitchAIManager {
    
     @MainActor

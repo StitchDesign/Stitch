@@ -45,7 +45,6 @@ enum StitchAIManagerError: Error {
     
     case typeCasting
     case stepActionDecoding(String)
-    case stepDecoding(StepType, Step)
     case emptySuccessfulResponse
     
     case nodeNameParsing(String)
@@ -56,7 +55,6 @@ enum StitchAIManagerError: Error {
     case structuredOutputsNotFound
     case apiResponseError
     case portTypeDecodingError(String)
-    case actionValidationError(String)
     
     case invalidStreamingData
     
@@ -88,8 +86,6 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Unable to cast type for object."
         case .stepActionDecoding(let string):
             return "Unable to parse action step type from: \(string)"
-        case .stepDecoding(let stepType, let step):
-            return "Unable to decode: \(stepType) with step payload:\n\(step)"
         case .emptySuccessfulResponse:
             return "StitchAI JSON parsing failed: No choices available"
         case .nodeNameParsing(let string):
@@ -108,8 +104,6 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "API returned non-successful status code."
         case .portTypeDecodingError(let port):
             return "Could not decode node's port from: \(port)"
-        case .actionValidationError(let string):
-            return "Action validation error: \(string)"
         case .invalidStreamingData:
             return "Invalid streaming data received from OpenAI"
         }

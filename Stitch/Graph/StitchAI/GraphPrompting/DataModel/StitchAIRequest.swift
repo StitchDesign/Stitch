@@ -12,7 +12,7 @@ import StitchSchemaKit
 let OPEN_AI_STRUCTURED_OUTPUTS = StitchAIResponseFormat().json_schema.schema
 let ENCODED_OPEN_AI_STRUCTURED_OUTPUTS = try! OPEN_AI_STRUCTURED_OUTPUTS.encodeToPrintableString()
 
-//https://platform.openai.com/docs/api-reference/making-requests
+// https://platform.openai.com/docs/api-reference/making-requests
 struct StitchAIRequest: OpenAIRequestable {
     let model: String
     let n: Int

@@ -635,6 +635,7 @@
 		EC7451B0294D2C4F00C7EB80 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7451AF294D2C4F00C7EB80 /* LocationManager.swift */; };
 		EC7451B2294D2C6200C7EB80 /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7451B1294D2C6200C7EB80 /* LocationData.swift */; };
 		EC75FA502DDFCEC900FF87E8 /* EitherType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75FA4F2DDFCEC900FF87E8 /* EitherType.swift */; };
+		EC75FA8C2DE034C600FF87E8 /* OpenAIRequestConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC75FA8B2DE034C600FF87E8 /* OpenAIRequestConfig.swift */; };
 		EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = EC7784CE27053D9700B662DD /* ZIPFoundation */; };
 		EC7A4FC0267A89D500487CDA /* VideoDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */; };
 		EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */; };
@@ -1640,6 +1641,7 @@
 		EC7451AF294D2C4F00C7EB80 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		EC7451B1294D2C6200C7EB80 /* LocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
 		EC75FA4F2DDFCEC900FF87E8 /* EitherType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EitherType.swift; sourceTree = "<group>"; };
+		EC75FA8B2DE034C600FF87E8 /* OpenAIRequestConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequestConfig.swift; sourceTree = "<group>"; };
 		EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDisplayView.swift; sourceTree = "<group>"; };
 		EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = fur_elise.mp3; sourceTree = "<group>"; };
 		EC7ADBFD2683EC9C00A8B318 /* fur_elise.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = fur_elise.m4a; sourceTree = "<group>"; };
@@ -4040,6 +4042,7 @@
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
 				EC8826CE2DCD2EAC003529BA /* OpenAIStreamHelpers.swift */,
 				EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */,
+				EC75FA8B2DE034C600FF87E8 /* OpenAIRequestConfig.swift */,
 				E48A07912D38C528002E8A98 /* StitchAIManager.swift */,
 				E42CFD472D4414F10034CCFF /* Secrets.swift */,
 				E42CFD452D4413F90034CCFF /* secrets.json */,
@@ -5086,6 +5089,7 @@
 				EC7451B0294D2C4F00C7EB80 /* LocationManager.swift in Sources */,
 				EC2614512B897BFA00BEB066 /* Point3DUnpackNode.swift in Sources */,
 				EC2614552B897C4200BEB066 /* MatrixUnpackNode.swift in Sources */,
+				EC75FA8C2DE034C600FF87E8 /* OpenAIRequestConfig.swift in Sources */,
 				B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */,
 				ECD83E9E2D4D87AD002B7A3E /* LLMActionPositionNodeUtil.swift in Sources */,
 				B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */,

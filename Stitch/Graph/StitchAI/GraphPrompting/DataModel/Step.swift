@@ -153,3 +153,57 @@ extension StepActionable {
         return .init(portType: port, nodeId: nodeId.value)
     }
 }
+
+extension Stitch.Step: CustomStringConvertible {
+    /// Provides detailed string representation of a Step
+    public var description: String {
+        return """
+        Step(
+            stepType: "\(stepType)",
+            nodeId: \(nodeId?.value.uuidString ?? "nil"),
+            nodeName: \(nodeName?.asNodeKind.asLLMStepNodeName ?? "nil"),
+            port: \(port?.asLLMStepPort() ?? "nil"),
+            fromNodeId: \(fromNodeId?.value.uuidString ?? "nil"),
+            toNodeId: \(toNodeId?.value.uuidString ?? "nil"),
+            value: \(String(describing: value)),
+            nodeType: \(valueType?.display ?? "nil")
+            children: \(children?.description ?? "nil")
+        )
+        """
+    }
+}
+
+extension Array where Element == Step {
+    
+    // Note: each Step could throw its own error; we just return the first error we encounter
+    func convertSteps() -> Result<[any StepActionable], StitchAIStepHandlingError> {
+        
+        var convertedSteps = [any StepActionable]()
+        
+        for step in self {
+            switch step.convertToType() {
+            case .failure(let error):
+                // Return first error we encounter
+                return .failure(error)
+            case .success(let converted):
+                convertedSteps.append(converted)
+            }
+        }
+        
+        return .success(convertedSteps)
+    }
+    
+    mutating func append(_ stepType: StepTypeAction) {
+        self.append(stepType.toStep())
+    }
+    
+    func containsNewNode(from id: NodeId) -> Bool {
+        self.contains(where: { step in
+            if step.stepType == .addNode,
+               let addActionNodeId = step.nodeId {
+                return addActionNodeId.value == id
+            }
+            return false
+        })
+    }
+}
