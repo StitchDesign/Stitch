@@ -34,7 +34,7 @@ struct ChunkProcessed: StitchDocumentEvent {
             aiManager.currentTask?.cancel()
             
             aiManager.currentTask = nil
-            
+                        
             //            try await aiManager.retryMakeOpenAIStreamingRequest(
             //                request,
             //                currentAttempts: currentAttempt + 1,

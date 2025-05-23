@@ -169,7 +169,6 @@ final class StitchDocumentViewModel: Sendable {
                             isInitialization: Bool = false) {
         self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
-        self.aiManager?.documentDelegate = self
         self.storeDelegate = store
         
         guard let documentEncoder = self.documentEncoder else {

@@ -17,57 +17,74 @@ extension StitchAIManager {
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
     func startOpenAIStreamingRequest(for urlRequest: URLRequest,
                                      with request: OpenAIRequest,
-                                     attempt: Int) async throws {
+                                     attempt: Int) async -> Result<URLResponse, Error> {
         
-        var accumulatedData = Data()
-        
-        // `bytes(for:)` returns an `AsyncSequence` of individual `UInt8`s
-        let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
-                
         var currentChunk: [UInt8] = []
-                    
+        
         // Tracks every token received, never reset
         var allContentTokens = [String]()
         
         // Tracks tokens; 'semi-reset' when we encounter a new step
         var contentTokensSinceLastStep = [String]()
         
-        for try await byte in bytes {
-            accumulatedData.append(byte)
-            currentChunk.append(byte)
-            
-            guard byte == 10, !currentChunk.isEmpty else {
-                continue
-            }
-                        
-            if let chunkDataString = String(data: Data(currentChunk), encoding: .utf8),
-               let contentToken = chunkDataString.getContentToken() {
-                
-                allContentTokens.append(contentToken)
-                contentTokensSinceLastStep.append(contentToken)
-                
-                if let (newStep, newTokens) = parseStepFromTokenStream(tokens: contentTokensSinceLastStep) {
-                    contentTokensSinceLastStep = newTokens
-                    
-                    DispatchQueue.main.async {
-                        dispatch(ChunkProcessed(
-                            newStep: newStep,
-                            request: request,
-                            currentAttempt: attempt
-                        ))
-                    }
-                }
-            }
-            
-            // Clear the current chunk
-            currentChunk.removeAll(keepingCapacity: true)
-            
-        } // for byte in bytes
+        // `bytes(for:)` returns an `AsyncSequence` of individual `UInt8`s
+        // let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
         
-        // DEBUG
-        log("allContentTokens: \(allContentTokens)")
-        let finalMessage = String(allContentTokens.joined())
-        log("finalMessage: \(finalMessage)")
+        let fetchedBytes = await Result {
+            try await URLSession.shared.bytes(for: urlRequest)
+        }
+        
+        switch fetchedBytes {
+            
+        case .failure(let error):
+            return .failure(error)
+            
+        case .success((let bytes, let response)):
+
+            do {
+                for try await byte in bytes {
+                    
+                    currentChunk.append(byte)
+                    
+                    guard byte == 10, !currentChunk.isEmpty else {
+                        continue
+                    }
+                    
+                    if let chunkDataString = String(data: Data(currentChunk),
+                                                    encoding: .utf8),
+                       let contentToken = chunkDataString.getContentToken() {
+                        
+                        allContentTokens.append(contentToken)
+                        contentTokensSinceLastStep.append(contentToken)
+                        
+                        if let (newStep, newTokens) = parseStepFromTokenStream(tokens: contentTokensSinceLastStep) {
+                            contentTokensSinceLastStep = newTokens
+                            
+                            DispatchQueue.main.async {
+                                dispatch(ChunkProcessed(
+                                    newStep: newStep,
+                                    request: request,
+                                    currentAttempt: attempt
+                                ))
+                            }
+                        }
+                    }
+                    
+                    // Clear the current chunk
+                    currentChunk.removeAll(keepingCapacity: true)
+                } // for byte in bytes
+                
+                // DEBUG
+                log("allContentTokens: \(allContentTokens)")
+                let finalMessage = String(allContentTokens.joined())
+                log("finalMessage: \(finalMessage)")
+                return .success(response)
+                
+            } catch {
+                fatalErrorIfDebug("Could not get byte from bytes")
+                return .failure(error)
+            }
+        }
     }
 }
 
@@ -86,12 +103,12 @@ extension String {
             return str
         }
     }
-
+    
     // nil = could not retrieve `content` key's value
     func getContentToken() -> String? {
-                
+        
         guard let jsonStrAsData: Data = self
-            // Remove the "data: " prefix OpenAI inserts
+                // Remove the "data: " prefix OpenAI inserts
             .removeDataPrefix().data(using: .utf8) else {
             
             return nil
@@ -137,14 +154,14 @@ extension String {
  that can be parsed as a Step.
  
  If we find a Step, we return:
-    `(the Step we found, the list of tokens starting with the token where we found the Step)`
+ `(the Step we found, the list of tokens starting with the token where we found the Step)`
  */
 // fka `streamDataHelper`
 func parseStepFromTokenStream(tokens: [String]) -> (Step, [String])? {
-        
+    
     // TODO: not needed, since we reset upon finding a Step anyway ?
     var tokensSoFar = [String]()
-        
+    
     for (tokenIndex, token) in tokens.enumerated() {
         
         tokensSoFar.append(token)
@@ -152,7 +169,7 @@ func parseStepFromTokenStream(tokens: [String]) -> (Step, [String])? {
         let message: String = String(tokensSoFar.joined())
         // Always remove the steps prefix
             .removeStepsPrefix()
-
+        
         if let step: Step = message.eagerlyParseAsT() {
             log("found step: \(step)")
             let newTokens = tail(of: tokens, from: tokenIndex)

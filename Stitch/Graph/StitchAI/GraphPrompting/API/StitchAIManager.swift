@@ -23,13 +23,13 @@ struct RecordingWrapper: Codable {
 }
 
 final actor StitchAIManager {
+    // TODO: `Secrets` is a struct; should be thread-safe; can it just be a global? i.e.
     let secrets: Secrets
 
     var postgrest: PostgrestClient
     var tableName: String
     
     @MainActor var currentTask: Task<Void, Never>?
-    @MainActor weak var documentDelegate: StitchDocumentViewModel?
 
     init?() throws {
         guard let secrets = try Secrets() else {

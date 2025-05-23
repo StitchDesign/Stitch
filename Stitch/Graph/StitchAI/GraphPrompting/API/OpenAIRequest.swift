@@ -38,6 +38,7 @@ struct OpenAIRequest {
 
 extension StitchAIManager {
    
+    // Used when we need to kick off a request, either initially or as a retry
     @MainActor
     func getOpenAIStreamingTask(request: OpenAIRequest,
                                 attempt: Int,
@@ -124,75 +125,89 @@ extension StitchAIManager {
     func makeOpenAIStreamingRequest(_ request: OpenAIRequest,
                                     attempt: Int, // = 1,
                                     lastCapturedError: String? = nil,
-                                    document: StitchDocumentViewModel) async throws {
+                                    document: StitchDocumentViewModel) async -> StitchAIManagerError? {
                         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
             log("All StitchAI retry attempts exhausted", .logToServer)
-            throw StitchAIManagerError.maxRetriesError(request.config.maxRetries,
+            return StitchAIManagerError.maxRetriesError(request.config.maxRetries,
                                                        lastCapturedError ?? "")
         }
         
         guard let urlRequest = Self.getURLRequestForOpenAI(request: request,
                                                            secrets: self.secrets) else {
             fatalErrorIfDebug()
-            return
+            return nil
         }
         
-        do {
-            log("Making request attempt \(attempt) of \(request.config.maxRetries)")
-            try await self.startOpenAIStreamingRequest(
-                for: urlRequest,
-                with: request,
-                attempt: attempt)
-        } catch {
-            // Async because we will retry request on timeout-errors
-            try await self.handleOpenAIStreamingError(
+        let streamOpeningResult = await self.startOpenAIStreamingRequest(
+            for: urlRequest,
+            with: request,
+            attempt: attempt)
+        
+        switch streamOpeningResult {
+        
+        case .success(let response):
+            // Even if we had a successful response, may have hit a rate limit?
+            // TODO: is this still necessary for streaming requests?
+            return await handlePossibleRateLimit(
+                response: response,
+                request: request,
+                attempt: attempt,
+                document: document)
+            
+        case .failure(let error):
+            return await self.handleOpenAIStreamingError(
                 error,
                 attempt: attempt,
                 request: request,
                 document: document)
         }
-                
-        // TODO: MAY 22: without a response, how to handle rate limit or server errors?
-//        // Check HTTP status code
-//        if let httpResponse = response as? HTTPURLResponse,
-//           !(200...299).contains(httpResponse.statusCode) {
-//            // Retry on rate limit or server errors
-//            if httpResponse.statusCode == 429 || // Rate limit
-//                httpResponse.statusCode >= 500 {  // Server error
-//                log("StitchAI Request failed with status code: \(httpResponse.statusCode)", .logToServer)
-//                log("Retrying in \(config.retryDelay) seconds")
-//                
-//                return try await self.retryMakeRequest(
-//                    request,
-//                    currentAttempts: attempt,
-//                    lastError: StitchAIManagerError.apiResponseError.description,
-//                    document: document)
-//            }
-//        }
-        
     }
+     
+    func handlePossibleRateLimit(response: URLResponse,
+                                 request: OpenAIRequest,
+                                 attempt: Int,
+                                 document: StitchDocumentViewModel) async -> StitchAIManagerError? {
         
+        // Check HTTP status code
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            // Retry on rate limit or server errors
+            if httpResponse.statusCode == 429 || // Rate limit
+                httpResponse.statusCode >= 500 {  // Server error
+                log("StitchAI Request failed with status code: \(httpResponse.statusCode)", .logToServer)
+                log("Retrying in \(request.config.retryDelay) seconds")
+                return await self.retryMakeOpenAIStreamingRequest(request,
+                                                                  currentAttempts: attempt + 1,
+                                                                  lastError: StitchAIManagerError.apiResponseError.description,
+                                                                  document: document)
+            }
+        }
+        
+        // else no error, we're all good!
+        return nil
+    }
+    
     // An error that occurred when we attempted to open the stream, or as the stream was open
     // Note: NOT the same as an error when validating or applying parsed Steps; for that, see `handleErrorWhenApplyingChunk`
     func handleOpenAIStreamingError(_ error: Error,
-                                            attempt: Int,
-                                            request: OpenAIRequest,
-                                            document: StitchDocumentViewModel) async throws {
+                                    attempt: Int,
+                                    request: OpenAIRequest,
+                                    document: StitchDocumentViewModel) async -> StitchAIManagerError? {
         
         log("OpenAI request failed: \(error)")
         
         guard let error = error as NSError? else {
             // If we don't have an NSError, treat error as invalid url ?
-            throw StitchAIManagerError.invalidURL(request)
+            return StitchAIManagerError.invalidURL(request)
         }
         
         // Handle network errors
         
         // Don't show error for cancelled requests
         if error.code == NSURLErrorCancelled {
-            throw StitchAIManagerError.requestCancelled(request)
+            return StitchAIManagerError.requestCancelled(request)
         }
         
         // Handle timeout errors
@@ -200,48 +215,50 @@ extension StitchAIManager {
             log("Timeout error count: \(attempt)")
             
             if attempt > request.config.maxTimeoutErrors {
-                throw StitchAIManagerError.multipleTimeoutErrors(request, error.localizedDescription)
+                return StitchAIManagerError.multipleTimeoutErrors(request, error.localizedDescription)
             }
             
             log("StitchAI Request timed out: \(error.localizedDescription)", .logToServer)
             log("Retrying in \(request.config.retryDelay) seconds")
             
-            try await self.retryMakeOpenAIStreamingRequest(
+            return await self.retryMakeOpenAIStreamingRequest(
                 request,
-                currentAttempts: attempt,
+                currentAttempts: attempt + 1,
                 lastError: error.localizedDescription,
                 document: document)
         }
         
         // Handle network connection errors
-       else  if error.code == NSURLErrorNotConnectedToInternet ||
+       else if error.code == NSURLErrorNotConnectedToInternet ||
             error.code == NSURLErrorNetworkConnectionLost {
-            throw StitchAIManagerError.internetConnectionFailed(request)
+            return StitchAIManagerError.internetConnectionFailed(request)
         }
         
         // Handle other errors
         else {
-            throw StitchAIManagerError.other(request, error)
+            return StitchAIManagerError.other(request, error)
         }
     }
     
     func retryMakeOpenAIStreamingRequest(_ request: OpenAIRequest,
                                          currentAttempts: Int,
                                          lastError: String,
-                                         document: StitchDocumentViewModel) async throws {
+                                         document: StitchDocumentViewModel) async -> StitchAIManagerError? {
 
         // Calculate exponential backoff delay: 2^attempt * base delay
         let backoffDelay = pow(2.0, Double(currentAttempts)) * request.config.retryDelay
         // Cap the maximum delay at 30 seconds
         let cappedDelay = min(backoffDelay, 30.0)
         
+        // TODO: can `Task.sleep` really "fail" ?
         log("Retrying request with backoff delay: \(cappedDelay) seconds")
-        try await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
+        let slept: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
+        assertInDebug(slept.isDefined)
         
-        try await self.makeOpenAIStreamingRequest(request,
-                                                  attempt: currentAttempts + 1,
-                                                  lastCapturedError: lastError,
-                                                  document: document)
+        return await self.makeOpenAIStreamingRequest(request,
+                                                     attempt: currentAttempts + 1,
+                                                     lastCapturedError: lastError,
+                                                     document: document)
     }
     
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
