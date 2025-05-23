@@ -15,59 +15,62 @@ extension Layer {
     }
 
     var nodeDescriptionBody: String {
-        switch self {
-        case .text:
-            return textDescription
-        case .oval:
-            return ovalDescription
-        case .rectangle:
-            return rectangleDescription
-        case .image:
-            return imageDescription
-        case .group:
-            return groupDescription
-        case .video:
-            return videoDescription
-        case .model3D:
-            return model3DDescription
-        case .realityView:
-            return realityViewDescription
-        case .shape:
-            return shapeDescription
-        case .colorFill:
-            return colorFillDescription
-        case .hitArea:
-            return hitAreaDescription
-        case .canvasSketch:
-            return canvasSketchDescription
-        case .textField:
-            return textFieldDescription
-        case .map:
-            return mapDescription
-        case .progressIndicator:
-            return progressIndicatorDescription
-        case .switchLayer:
-            return switchDescription
-        case .linearGradient:
-            return linearGradientDescription
-        case.radialGradient:
-            return radialGradientDescription
-        case .angularGradient:
-            return angularGradientDescription
-        case .sfSymbol:
-            return sfSymbolDescription
-        case .videoStreaming:
-            return videoStreamingDescription
-        case .material:
-            return materialDescription
-        case .box:
-            return box3DDescription
-        case .sphere:
-            return sphere3DDescription
-        case .cylinder:
-            return cylinder3DDescription
-        case .cone:
-            return cone3DDescription
+        NodeDescriptions.forKind(.layer(self))!
+    }
+}
+
+enum NodeDescriptions {
+
+    // MARK: Public helpers ----------------------------------------------------
+
+    /// Markdown body for a given display title (“Pop Animation”, “3D Model”, …)
+    static func forTitle(_ title: String) -> String? {
+        map[title]
+    }
+
+    /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.
+    static func forKind(_ kind: NodeKind) -> String? {
+        forTitle(kind.getDisplayTitle(customName: nil))
+    }
+
+    // MARK: Cached data -------------------------------------------------------
+
+    private static let map: [String: String] = {
+        guard
+            let url = Bundle.main.url(forResource: "Nodes",         // ← Guides/Nodes.md
+                                      withExtension: "md"),
+//                                      subdirectory: "Guides"),
+            let md  = try? String(contentsOf: url, encoding: .utf8)
+        else {
+            assertionFailure("⚠️ Could not load Guides/Nodes.md from bundle")
+            return [:]
         }
+        return buildLookup(fromMarkdown: md)
+    }()
+
+    // MARK: Markdown parsing --------------------------------------------------
+
+    /// Splits markdown on “## ” headings.  Heading → rest-of-section.
+    private static func buildLookup(fromMarkdown md: String) -> [String: String] {
+        var dict: [String: String] = [:]
+
+        // First heading might be “# Stitch Nodes” – skip it by splitting on “\n## ”
+        let sections = md.components(separatedBy: "\n## ")
+
+        for raw in sections {
+            // Each block is: <title>\n<body…>
+            guard
+                let firstBreak = raw.firstIndex(of: "\n")
+            else { continue }                                      // no body
+
+            let title = raw[..<firstBreak].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !title.isEmpty else { continue }
+
+            let body  = raw[firstBreak...]
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+
+            dict[title] = body
+        }
+        return dict
     }
 }
