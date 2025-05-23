@@ -76,7 +76,7 @@ extension LayerSize {
                   let y = values[1].getLayerDimension {
             return LayerSize(width: x, height: y)
         } else {
-            fatalErrorIfDebug("LayerSize.fromSizeNodeInputs: incorrect inputs")
+//            fatalErrorIfDebug("LayerSize.fromSizeNodeInputs: incorrect inputs")
             return .zero
         }
     }

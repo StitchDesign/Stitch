@@ -8,105 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-
-typealias PatchSizes = [Patch: [NodeType?: CGSize]]
-typealias LayerInputSizes = [LayerInputPort: CGSize]
-let ASSUMED_LAYER_FIELD_SIZE: CGSize = .init(width: 200, height: 120)
-
-struct PatchOrLayerSizes {
-    let patches: PatchSizes
-    let layerInputs: LayerInputSizes
-    static let layerFieldSize: CGSize = ASSUMED_LAYER_FIELD_SIZE
-}
-
-struct ReadAllPatchAndLayerInputSizes: ViewModifier {
-    
-    @Bindable var document: StitchDocumentViewModel
-    
-    var graph: GraphState {
-        document.visibleGraph
-    }
-    
-    @State var createdPatchNodes: [NodeViewModel] = .init()
-    
-//    // Reuse your existing typealias:
-//    typealias PatchSizes = [Patch: [UserVisibleType?: CGSize]]
-
-    // In your ViewModifier:
-    @State private var canvasSizes: PatchSizes = [:]
-
-    func body(content: Content) -> some View {
-        logInView("ReadAllPatchAndLayerInputSizes called")
-        
-        content.onAppear {
-            self.createdPatchNodes = document.createAllPatchNodes()
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                // Build the nested dictionary
-                var newSizes: PatchSizes = [:]
-
-                for node in self.createdPatchNodes {
-                    if case let .patch(patchVM) = node.nodeType {
-                        // We know it's a patch node because createAllPatchNodes only made patches
-                        let patch     = patchVM.patch
-                        let nodeType  = patchVM.userVisibleType    // this is your UserVisibleType?
-                        let size      = patchVM.canvasObserver.sizeByLocalBounds!
-                        
-                        // insert into the nested map
-                        newSizes[patch, default: [:]][nodeType] = size
-                    }
-                }
-
-                self.canvasSizes = newSizes
-
-                // easy console dump
-                print("ReadAllPatchAndLayerInputSizes: Captured canvasSizes:")
-                print(self.canvasSizes)
-            }
-        }
-    }
-}
-
-extension StitchDocumentViewModel {
-    /// Inserts one patch node for each Patch ▷ NodeType combination.
-    /// - Returns: The array of inserted node view models.
-    @MainActor
-    func createAllPatchNodes() -> [NodeViewModel] {
-        var createdNodes: [NodeViewModel] = []
-        let graph = self.visibleGraph
-        
-        for patch in Patch.allCases {
-            let nodeTypes = patch.availableNodeTypes
-            
-            // If no specific node types, just insert the default patch node once
-            if nodeTypes.isEmpty {
-                let node = self.nodeInserted(choice: .patch(patch))
-                createdNodes.append(node)
-            }
-            // Otherwise, insert one node per available type and switch it
-            else {
-                for nodeType in nodeTypes {
-                    let node = self.nodeInserted(choice: .patch(patch))
-                    createdNodes.append(node)
-                    
-                    // Change the newly-inserted node’s type to the desired one
-                    guard let oldType = node.userVisibleType else {
-                        fatalError("Expected a default type on newly-inserted patch node")
-                    }
-                    _ = graph.changeType(
-                        for: node,
-                        oldType: oldType,
-                        newType: nodeType,
-                        activeIndex: .defaultActiveIndex
-                    )
-                }
-            }
-        }
-        
-        return createdNodes
-    }
-}
-
 // Grid lines, cursor, selection box, patch and layer nodes
 struct GraphBaseView: View {
     
@@ -140,10 +41,6 @@ struct GraphBaseView: View {
                 dispatch(ColorSchemeReceived(colorScheme: colorScheme))
                 dispatch(SafeAreaInsetsReceived(insets: safeAreaInsets))
             }
-        
-        
-            .modifier(ReadAllPatchAndLayerInputSizes(document: document))
-        
             .onChange(of: colorScheme) { _, color in
                 //                log("GraphBaseView: onChange of ColorScheme")
                 dispatch(ColorSchemeReceived(colorScheme: color))

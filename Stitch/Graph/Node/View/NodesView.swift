@@ -26,9 +26,17 @@ struct NodesView: View {
     var body: some View {
         InfiniteCanvas(graph: graph,
                        existingCache: graph.visibleNodesViewModel.infiniteCanvasCache,
-                       needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset) {
+                       needsInfiniteCanvasCacheReset: graph.visibleNodesViewModel.needsInfiniteCanvasCacheReset
+        ) {
             // commentBoxes
             NodesOnlyView(document: document, graph: graph)
+            
+            #if DEV || DEV_DEBUG
+            // NOTE: ONLY FOR READING SIZE OF ALL PATCH X NODE-TYPE COMBINATIONS
+            // NEVER CALLED FOR PRODUCTION; AND
+                .modifier(ReadAllPatchAndLayerInputSizes(document: document))
+            #endif
+            
         }
            .modifier(CanvasEdgesViewModifier(document: document, graph: graph))
         
