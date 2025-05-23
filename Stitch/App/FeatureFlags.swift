@@ -13,4 +13,9 @@ struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
     static let USE_COMPONENTS = false
     static let USE_AI_MODE = true
+    #if STITCH_AI_REASONING
+    static let STITCH_AI_REASONING = true
+    #else
+    static let STITCH_AI_REASONING = false
+    #endif
 }
