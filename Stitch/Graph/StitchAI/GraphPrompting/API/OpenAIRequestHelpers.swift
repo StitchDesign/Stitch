@@ -16,13 +16,13 @@ struct ChunkProcessed: StitchDocumentEvent {
         log("ChunkProcessed: newStep: \(newStep)")
                 
         state.visibleGraph.streamedSteps.append(newStep)
-        log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
+        // log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
         
         state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
-        log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
+        // log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
         
         if let error = state.reapplyActions(isStreaming: true) {
-            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request \(request)")
+            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
                     
             guard let aiManager = state.aiManager else {
                 fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
@@ -34,6 +34,7 @@ struct ChunkProcessed: StitchDocumentEvent {
             aiManager.currentTask?.cancel()
             
             aiManager.currentTask = nil
+                        
                         
             //            try await aiManager.retryMakeOpenAIStreamingRequest(
             //                request,

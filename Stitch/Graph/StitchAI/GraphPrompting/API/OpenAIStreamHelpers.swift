@@ -15,9 +15,9 @@ extension StitchAIManager {
     
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
-    func startOpenAIStreamingRequest(for urlRequest: URLRequest,
-                                     with request: OpenAIRequest,
-                                     attempt: Int) async -> Result<URLResponse, Error> {
+    func openStream(for urlRequest: URLRequest,
+                    with request: OpenAIRequest,
+                    attempt: Int) async -> Result<URLResponse, Error> {
         
         var currentChunk: [UInt8] = []
         
@@ -75,13 +75,12 @@ extension StitchAIManager {
                 } // for byte in bytes
                 
                 // DEBUG
-                log("allContentTokens: \(allContentTokens)")
+//                log("allContentTokens: \(allContentTokens)")
                 let finalMessage = String(allContentTokens.joined())
                 log("finalMessage: \(finalMessage)")
                 return .success(response)
-                
             } catch {
-                fatalErrorIfDebug("Could not get byte from bytes")
+                log("Could not get byte from bytes: \(error.localizedDescription)")
                 return .failure(error)
             }
         }

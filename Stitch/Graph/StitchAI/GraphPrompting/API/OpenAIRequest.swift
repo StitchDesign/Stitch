@@ -140,13 +140,13 @@ extension StitchAIManager {
             return nil
         }
         
-        let streamOpeningResult = await self.startOpenAIStreamingRequest(
+        let streamOpeningResult = await self.openStream(
             for: urlRequest,
             with: request,
             attempt: attempt)
         
         switch streamOpeningResult {
-        
+            
         case .success(let response):
             // Even if we had a successful response, may have hit a rate limit?
             // TODO: is this still necessary for streaming requests?
@@ -157,11 +157,16 @@ extension StitchAIManager {
                 document: document)
             
         case .failure(let error):
-            return await self.handleOpenAIStreamingError(
-                error,
-                attempt: attempt,
-                request: request,
-                document: document)
+            if let cancellationError = error as? CancellationError {
+                log("Stream was cancelled") // this is okay
+                return nil
+            } else {
+                return await self.handleOpenAIStreamingError(
+                    error,
+                    attempt: attempt,
+                    request: request,
+                    document: document)
+            }
         }
     }
      
