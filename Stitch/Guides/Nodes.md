@@ -554,7 +554,7 @@ Returns whether two input values are exactly equal to each other. It's the same 
 *Outputs*
 * A Boolean indicating whether the input items are exactly equal.
 
-## Flip Switch
+## Switch
 A node that will flip between an On and Off state whenever a pulse is received.
 
 *Inputs*
@@ -1501,7 +1501,7 @@ Adds scroll interaction to a specified layer. Scrolling can be either free or pa
 *Outputs*
 * The scroll X/Y position
 
-## Value For Key
+## Value for Key
 Allows you to set a value at a specified key in the JSON object.
 
 *Inputs*
@@ -1665,7 +1665,7 @@ Creates an animation based off of the physical model of a spring.
 ## Duration and Bounce Converter
 Convert duration and bounce values to mass, stiffness and damping for a Spring Animation node.
 
-## Response And Damping Ratio Converter
+## Response and Damping Ratio Converter
 Convert response and damping ratio to mass, stiffness and damping for a Spring Animation node.
 
 ## Settling Duration and Damping Ratio Converter
