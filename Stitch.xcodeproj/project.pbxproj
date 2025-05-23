@@ -387,6 +387,8 @@
 		EC1374EE2B61B9C80039B108 /* InsertNodeMenuSizeReadingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1374ED2B61B9C80039B108 /* InsertNodeMenuSizeReadingData.swift */; };
 		EC14B1D129F84CEA002FDA4F /* inputEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC14B1D029F84CEA002FDA4F /* inputEditTests.swift */; };
 		EC1587402DE1179400A9C50A /* PatchAndLayerInputSizes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC15873F2DE1179300A9C50A /* PatchAndLayerInputSizes.swift */; };
+		EC1587432DE1287000A9C50A /* HardcodedLayerInputSizes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1587422DE1287000A9C50A /* HardcodedLayerInputSizes.swift */; };
+		EC1587452DE1287900A9C50A /* HardcodedPatchByNodeTypeSizes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1587442DE1287900A9C50A /* HardcodedPatchByNodeTypeSizes.swift */; };
 		EC15CDE12C49D68A007CE763 /* StitchSpacingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC15CDE02C49D68A007CE763 /* StitchSpacingUtils.swift */; };
 		EC15E42A2602A08B006F2E08 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC15E4292602A08B006F2E08 /* CloudKit.framework */; };
 		EC16587D2B6AF03F00FE4AE6 /* EdgeEditingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC16587C2B6AF03F00FE4AE6 /* EdgeEditingState.swift */; };
@@ -1392,6 +1394,8 @@
 		EC1374ED2B61B9C80039B108 /* InsertNodeMenuSizeReadingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSizeReadingData.swift; sourceTree = "<group>"; };
 		EC14B1D029F84CEA002FDA4F /* inputEditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = inputEditTests.swift; sourceTree = "<group>"; };
 		EC15873F2DE1179300A9C50A /* PatchAndLayerInputSizes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchAndLayerInputSizes.swift; sourceTree = "<group>"; };
+		EC1587422DE1287000A9C50A /* HardcodedLayerInputSizes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcodedLayerInputSizes.swift; sourceTree = "<group>"; };
+		EC1587442DE1287900A9C50A /* HardcodedPatchByNodeTypeSizes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcodedPatchByNodeTypeSizes.swift; sourceTree = "<group>"; };
 		EC15CDE02C49D68A007CE763 /* StitchSpacingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSpacingUtils.swift; sourceTree = "<group>"; };
 		EC15E425260271C6006F2E08 /* Stitch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Stitch.entitlements; sourceTree = "<group>"; };
 		EC15E4292602A08B006F2E08 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -3382,6 +3386,7 @@
 		B56FFB5B2C19612100623CC7 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				EC1587412DE1285A00A9C50A /* HardcodedSizes */,
 				B55501242C1BF9890081C3F1 /* NodeSelection */,
 				EC844A642B5F200D00C79B0B /* Font */,
 				B51BCC1F2CB481F700C90083 /* DocumentEncoder.swift */,
@@ -3520,7 +3525,6 @@
 				200BD85C254F66EB00692903 /* ContentView.swift */,
 				EC295CC727B31AA900739F98 /* ProjectNavigationView.swift */,
 				ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */,
-				EC15873F2DE1179300A9C50A /* PatchAndLayerInputSizes.swift */,
 				B504CFD02D2F953C00E245DA /* DebugModePopover.swift */,
 				B5E28AED2A7AB9180007C0CB /* ProjectToolbar.swift */,
 				EC3420E32AF9C72B00EBD896 /* SelectionBox */,
@@ -4102,6 +4106,16 @@
 				E4F7AC252974B6E700B7F55A /* PreviewRealityLayer.swift */,
 			);
 			path = RealityView;
+			sourceTree = "<group>";
+		};
+		EC1587412DE1285A00A9C50A /* HardcodedSizes */ = {
+			isa = PBXGroup;
+			children = (
+				EC15873F2DE1179300A9C50A /* PatchAndLayerInputSizes.swift */,
+				EC1587422DE1287000A9C50A /* HardcodedLayerInputSizes.swift */,
+				EC1587442DE1287900A9C50A /* HardcodedPatchByNodeTypeSizes.swift */,
+			);
+			path = HardcodedSizes;
 			sourceTree = "<group>";
 		};
 		EC15E4282602A08B006F2E08 /* Frameworks */ = {
@@ -5019,6 +5033,7 @@
 				E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */,
 				ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */,
 				EC2BBF042947BBC2005BCCDB /* ColorFillLayerNode.swift in Sources */,
+				EC1587432DE1287000A9C50A /* HardcodedLayerInputSizes.swift in Sources */,
 				B550C22F28D0404300F40B80 /* MiddlewareService.swift in Sources */,
 				EC83D89A2926E42400255311 /* GraphUICursorSelectionActions.swift in Sources */,
 				EC8967002B4E1C8E0066879B /* CurveLine.swift in Sources */,
@@ -5867,6 +5882,7 @@
 				EC3420DE2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift in Sources */,
 				ECC301B329380EBB00C34F10 /* ValueAtPathNode.swift in Sources */,
 				B5EFD5B12D5D896B006A68FB /* StitchAISystemPrompt.swift in Sources */,
+				EC1587452DE1287900A9C50A /* HardcodedPatchByNodeTypeSizes.swift in Sources */,
 				EC4CFB6726FE483300D085F3 /* StitchMicrophone.swift in Sources */,
 				EC560E1D293AAB1600350046 /* RunningTotalNode.swift in Sources */,
 				EC9AB63F28DFE66A002810BC /* ScrollFoundation.swift in Sources */,
