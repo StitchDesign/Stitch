@@ -486,6 +486,10 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
                               nodes: VisibleNodesViewModel,
                               viewPortCenter: CGPoint) {
     
+    // TODO: if we have a chain of nodes, shift our starting point further west
+    //    var viewPortCenter = viewPortCenter
+    //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
+    
     let (depthMap, hasCycle) = convertedActions.calculateAINodesAdjacency()
     
     guard let depthMap = depthMap,
@@ -544,22 +548,25 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
                     size = PatchOrLayerSizes.layerOutputSize
                 }
                 
-                log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
+//                log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                 
                 let defaultSize = CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
                                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
                 
-                let finalSize = size ?? defaultSize
-                
-                let padding = 12.0
+                let padding: CGFloat = 36.0
+                var finalSize = size ?? defaultSize
+                finalSize.width += padding
+                finalSize.height += padding
+               
+//                let padding: CGFloat = 200.0
                 
                 let newPosition =  CGPoint(
-                    x: viewPortCenter.x + padding + (CGFloat(depthLevel) * finalSize.width),
-                    y: viewPortCenter.y + padding + (CGFloat(canvasItemIndex) * finalSize.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * finalSize.height)
+                    x: viewPortCenter.x + (CGFloat(depthLevel) * finalSize.width),
+                    y: viewPortCenter.y + (CGFloat(canvasItemIndex) * finalSize.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * finalSize.height)
                 )
                                 
-                // log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
-                // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
+//                 log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
+//                 log("positionAIGeneratedNodes: newPosition: \(newPosition)")
                 canvasItem.position = newPosition
                 canvasItem.previousPosition = newPosition
             }
