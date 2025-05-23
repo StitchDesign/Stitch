@@ -167,6 +167,8 @@ extension StitchDocumentViewModel {
                                  viewPortCenter: self.newCanvasItemInsertionLocation)
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
+        
+        return nil
     }
         
     @MainActor
@@ -358,11 +360,12 @@ extension StitchDocumentViewModel {
         }
     }
     
-    @MainActor func deapplyActions(actions: [any StepActionable]) {
+    @MainActor
+    func deapplyActions(actions: [any StepActionable]) {
+        // While de-applying actions, we should not be deriving new actions;
+        // `isApplyingActions = true` blocks the derivation of new actions from graph changes / persistence
         self.llmRecording.isApplyingActions = true
-        actions.reversed().forEach {
-            $0.removeAction(graph: graph, document: self)
-        }
+        actions.reversed().forEach { $0.removeAction(graph: graph, document: self) }
         self.llmRecording.isApplyingActions = false
     }
     
@@ -383,25 +386,21 @@ extension StitchDocumentViewModel {
         // Do not save or apply nodes' positions when streaming
         if !isStreaming {
             self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
-                // TODO: MAY 18: save position for LayerGroup i.e. `StepActionLayerGroupCreated` as well?
-                if let action = action as? StepActionAddNode,
-                   let node = graph.getNode(action.nodeId) {
-                    let canvasItems = node.getAllCanvasObservers()
-
-                    canvasItems.forEach { canvasItem in
-                        result.updateValue(canvasItem.position,
-                                           forKey: canvasItem.id)
+                if let nodeId = (action as? StepActionAddNode)?.nodeId ?? (action as? StepActionLayerGroupCreated)?.nodeId {
+                    graph.getNode(nodeId)?.getAllCanvasObservers().forEach {
+                        result.updateValue($0.position,forKey: $0.id)
                     }
                 }
             }
         }
 
         // Remove all actions before re-applying
-        // Note: while de-applying actions, we should not be deriving new actions; `isApplyingActions = true` blocks the derivation of new actions
         self.deapplyActions(actions: actions)
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        try self.validateAndApplyActions(actions)
+        if let error = self.validateAndApplyActions(actions) {
+            return error
+        }
         
         // Update node positions to reflect previous position
         if !isStreaming {
@@ -435,10 +434,9 @@ extension StitchDocumentViewModel {
         assertInDebug(oldActions.count == newActions.count)
         
         for (oldAction, newAction) in zip(oldActions, newActions) {
-//        zip(oldActions, newActions).forEach { oldAction, newAction in
             if oldAction != newAction {
-                let _oldAction = try? oldAction.convertToType()
-                let _newAction = try? newAction.convertToType()
+                let _oldAction = oldAction.convertToType().value
+                let _newAction = newAction.convertToType().value
                 
                 // Steps
                 log("Found unequal actions: oldAction: \(oldAction)")

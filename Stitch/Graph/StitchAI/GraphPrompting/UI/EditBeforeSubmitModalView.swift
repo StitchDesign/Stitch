@@ -117,7 +117,8 @@ struct LLMActionCorrectionView: View {
             // added
             stepTypeAndDeleteView
             
-            switch try? StepTypeAction.fromStep(action) {
+            switch StepTypeAction.fromStep(action).value {
+                
             case .addNode(let x):
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
 
