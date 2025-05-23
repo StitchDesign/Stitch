@@ -123,9 +123,9 @@ extension Patch {
         case .arRaycasting:
             return "Raycasting"
         case .base64StringToImage:
-            return "Base64 To Image"
+            return "Base64 to Image"
         case .imageToBase64String:
-            return "Image To Base64"
+            return "Image to Base64"
         case .whenPrototypeStarts:
             return "On Prototype Start"
         case .jsonToShape:
