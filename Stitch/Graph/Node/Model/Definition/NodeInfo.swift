@@ -29,7 +29,7 @@ extension NodeInfo {
             let node = patch.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
-                                         graphDelegate: graph)!
+                                         graphDelegate: graph)
             //            var supportedTypes = Set<UserVisibleType>()
             //            switch patch {
             //            // These nodes have phased out `availableNodeTypes` for auto detetcing in coercion
@@ -51,7 +51,7 @@ extension NodeInfo {
             let node = layer.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
-                                         graphDelegate: graph)!
+                                         graphDelegate: graph)
 
             return NodeInfo(name: node.displayTitle,
                             inputs: NodeKind.layer(layer).rowDefinitions(for: node.userVisibleType).inputs,

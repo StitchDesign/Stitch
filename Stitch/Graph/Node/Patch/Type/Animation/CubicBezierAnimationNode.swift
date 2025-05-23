@@ -121,13 +121,13 @@ func cubicBezierAnimationEvalOp(values: PortValues,
     )
 
     if equivalentPositions || duration.isZero {
-        log("cubicBezierAnimationEvalOp: reached positions or duration was 0")
+        // log("cubicBezierAnimationEvalOp: reached positions or duration was 0")
         return finished
     }
 
     // Independent of 'single vs multiple' field etc.
     guard case var .threeField(animationState) = computedState.classicAnimationState else {
-        log("cubicBezierAnimationEvalOp: bad state")
+        // log("cubicBezierAnimationEvalOp: bad state")
         fatalError()
     }
 
