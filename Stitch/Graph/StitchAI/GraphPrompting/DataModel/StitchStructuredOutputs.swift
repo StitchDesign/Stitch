@@ -11,11 +11,27 @@ import SwiftyJSON
 
 extension StitchAIManager {
     static let structuredOutputs = StitchAIStructuredOutputsPayload()
+    
+    static func printStructuredOutputsSchema() {
+        do {
+            let schema = try structuredOutputs.printSchema()
+            print(schema)
+        } catch {
+            print("Failed to print schema:", error)
+        }
+    }
 }
 
-struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable {
+struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
     var defs = StitchAIStructuredOutputsDefinitions()
     var schema = StitchAIStructuredOutputsSchema()
+    
+    func printSchema() throws -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        let data = try encoder.encode(self)
+        return String(data: data, encoding: .utf8) ?? "Failed to encode schema"
+    }
 }
 
 struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
