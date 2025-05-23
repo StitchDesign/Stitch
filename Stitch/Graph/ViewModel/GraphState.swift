@@ -21,6 +21,12 @@ final class GraphState: Sendable {
     
     // TODO: remove this? Just add the Step to llmRecording.actions as the Step is parsed ?
     @MainActor var streamedSteps: OrderedSet<Step> = .init()
+
+    #if DEV_DEBUG || DEBUG
+    @MainActor var DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES: Bool = false
+    #else
+    @MainActor var DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES: Bool = false
+    #endif
     
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>

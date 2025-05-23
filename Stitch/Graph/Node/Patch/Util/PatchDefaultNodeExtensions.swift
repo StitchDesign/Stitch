@@ -15,7 +15,7 @@ extension Patch {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
-                         graphDelegate: .createEmpty())?.userVisibleType
+                         graphDelegate: .createEmpty()).userVisibleType
     }
 
     // called when we first place the patch on the graph
@@ -27,7 +27,7 @@ extension Patch {
                      // TODO: separate 'first creation of node' from 'recreation of node via schema'
                      //                     firstCreation: Bool = true,
                      graphTime: TimeInterval = .zero,
-                     graphDelegate: GraphState) -> NodeViewModel? {
+                     graphDelegate: GraphState) -> NodeViewModel {
 
         // Preferred newer method for node creation
         if let GraphNodeType = NodeKind.patch(self).graphNode {
@@ -70,8 +70,6 @@ extension Patch {
             node = curveNode(id: id, position: position, zIndex: zIndex)
         case .cubicBezierCurve:
             node = cubicBezierCurveNode(id: id, position: position, zIndex: zIndex)
-        case .loopBuilder:
-            return nil
         case .not:
             node = notNode(id: id, position: position, zIndex: zIndex)
         case .transition:
@@ -202,8 +200,8 @@ extension Patch {
             node = commandsToShapeNode(id: id, position: position, zIndex: zIndex)
         default:
             // Shouldn't happen
-            fatalErrorIfDebug()
-            return nil
+            fatalErrorIfDebug("defaultNode: could not create node for patch \(self)")
+            node = addPatchNode(nodeId: id, position: position, zIndex: zIndex)
         } // switch
 
         /*

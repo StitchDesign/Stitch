@@ -334,7 +334,7 @@ struct InputFieldValueView: View {
             } else {
                 Color.clear
                     .onAppear {
-                        fatalErrorIfDebug()
+                        // fatalErrorIfDebug()
                     }
             }
             

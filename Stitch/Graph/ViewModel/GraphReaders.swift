@@ -39,6 +39,13 @@ protocol GraphReader {
     @MainActor func getLayerChildren(for groupId: NodeId) -> NodeIdSet
     
     @MainActor func createSchema() -> GraphEntity
+
+#if DEV_DEBUG || DEBUG
+    @MainActor var DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES: Bool { get }
+#else
+    @MainActor var DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES: Bool { get }
+#endif
+    
 }
 
 extension GraphState: GraphReader {
