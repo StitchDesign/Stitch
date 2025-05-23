@@ -48,6 +48,15 @@ struct StitchApp: App {
                 .onAppear {
 //                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
                     
+                    #if DEBUG || DEV_DEBUG
+                    // Test all node kinds to ensure there's documentation
+                    NodeKind.allCases.forEach { nodeKind in
+                        if NodeDescriptions.forKind(nodeKind) == nil {
+                            fatalErrorIfDebug("Fatal error: no markdown found for \(nodeKind)")
+                        }
+                    }
+                    #endif
+                    
                     // Load and configure the state of all the tips of the app
                     try? Tips.configure()
                     
