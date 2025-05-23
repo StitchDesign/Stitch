@@ -233,29 +233,29 @@ func interactionIdCoercer(_ values: PortValues) -> PortValues {
     values.map {
         switch $0 {
         case .assignedLayer:
-            log("interactionIdCoercer: interactionId")
+            // log("interactionIdCoercer: interactionId")
             return $0
         case .none:
             return .assignedLayer(nil)
         case .json(let x):
             return x.value.coerceJSONToPortValue(.interactionId)
         default:
-            log("interactionIdCoercer: default")
+            // log("interactionIdCoercer: default")
             return .assignedLayer(nil)
         }
     }
 }
 
 func pinToCoercer(_ values: PortValues) -> PortValues {
-    log("pinToCoercer: values: \(values)")
+    // log("pinToCoercer: values: \(values)")
     let defaultValue = PortValue.pinTo(.defaultPinToId)
     return values.map {
         switch $0 {
         case .pinTo:
-            log("pinToCoercer: pinTo")
+            // log("pinToCoercer: pinTo")
             return $0
         case .assignedLayer(let x):
-            log("pinToCoercer: assignedLayer \(x)")
+            // log("pinToCoercer: assignedLayer \(x)")
             if let x = x {
                 return .pinTo(.layer(x))
             } else {
@@ -264,7 +264,7 @@ func pinToCoercer(_ values: PortValues) -> PortValues {
         case .json(let x):
             return x.value.coerceJSONToPortValue(.pinToId)
         default:
-            log("pinToCoercer: default")
+            // log("pinToCoercer: default")
             return defaultValue
         }
     }

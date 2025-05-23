@@ -51,7 +51,7 @@ func loopShuffleEval(node: PatchNode,
         return [inputLoop.shuffled()].createPureEvalResult()
     }
 
-    log("loopShuffleEval: no change")
+    // log("loopShuffleEval: no change")
     // So just pass on the input loop
     return [inputLoop].createPureEvalResult()
 }

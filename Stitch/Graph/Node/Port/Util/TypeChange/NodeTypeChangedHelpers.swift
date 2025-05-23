@@ -35,7 +35,7 @@ extension InputNodeRowObserver {
 
         if let portId = self.id.portId,
            nodeKind.rowIsTypeStatic(nodeType: newType, portId: portId) {
-            log("NodeRowObserver: coerceInput: had static node row, so nothing to do")
+            // log("NodeRowObserver: coerceInput: had static node row, so nothing to do")
             return
         }
 

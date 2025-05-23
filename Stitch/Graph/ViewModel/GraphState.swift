@@ -18,6 +18,12 @@ import Vision
 @Observable
 final class GraphState: Sendable {
         
+    #if DEV_DEBUG || DEBUG
+    @MainActor var DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES: Bool = false
+    #else
+    @MainActor var DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES: Bool = false
+    #endif
+    
     typealias CachedPortUI = NodePortType<NodeViewModel>
     typealias NodePortCacheSet = Set<CachedPortUI>
     
