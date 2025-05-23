@@ -188,7 +188,7 @@ struct LLMActionCorrectionView: View {
             Spacer()
             Image(systemName: "trash")
                 .onTapGesture {
-                    dispatch(LLMActionDeleted(deletedAction: action))
+                    dispatch(LLMActionDeleted(deletedStep: action))
                 }
         }
     }

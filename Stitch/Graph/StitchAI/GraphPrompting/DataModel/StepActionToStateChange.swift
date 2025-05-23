@@ -27,17 +27,21 @@ extension StitchDocumentViewModel {
     // fka `handleLLMStepAction`
     // returns nil = failed, and should retry
     @MainActor
-    func applyAction<ActionType: StepActionable>(_ action: ActionType) throws {
+    func applyAction<ActionType: StepActionable>(_ action: ActionType) -> StitchAIStepHandlingError? {
         
         // Set true whenever we are
         self.llmRecording.isApplyingActions = true
                         
-        try action.applyAction(document: self)
+        if let error = action.applyAction(document: self) {
+            return error
+        }
         
         // TODO: why was this needed in AI Generation mode? (added to resolve an AI-generation-mode-only issue where press interaction's outputs would be empty when creating an edge to an option switch node)
         self.visibleGraph.updateGraphData(self)
         
         self.llmRecording.isApplyingActions = false
+        
+        return nil
     }
 }
 

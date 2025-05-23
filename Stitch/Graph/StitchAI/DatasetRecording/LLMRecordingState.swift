@@ -106,16 +106,26 @@ extension Array where Element == any StepActionable {
     }
 }
 
+extension Result {
+  /// Returns the error if this is a `.failure`, or `nil` if `.success`
+  var error: Failure? {
+      guard case .failure(let err) = self else {
+          return nil
+      }
+      return err
+  }
+}
+
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ actions: [Step],
-                                 isNewRequest: Bool = false) throws {
+    func validateAndApplyActions(_ convertedActions: [any StepActionable],
+                                 isNewRequest: Bool = false) -> StitchAIStepHandlingError? {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        var convertedActions: [any StepActionable] = try actions.convertSteps()
-        
+        var convertedActions = convertedActions
+                        
         if isNewRequest {
             // Change Ids for newly created nodes
             convertedActions = convertedActions.remapNodeIdsForNewNodes()
@@ -123,14 +133,13 @@ extension StitchDocumentViewModel {
         
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
-        do {
-            try convertedActions.validateLLMSteps()
-        } catch let error as StitchAIManagerError {
-            // immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
-            self.llmRecording.actionsError = error.description
+        if let validationError = convertedActions.validateLLMSteps() {
+            self.llmRecording.actionsError = validationError.description
+            
+            // Immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
             self.startLLMAugmentationMode()
-            log("validateAndApplyActions: hit error when validating LLM-actions: \(actions) ... error was: \(error)")
-            throw error
+            log("validateAndApplyActions: hit error when validating LLM-actions: \(convertedActions) ... error was: \(validationError)")
+            return validationError
         }
         
         for action in convertedActions {
@@ -139,18 +148,16 @@ extension StitchDocumentViewModel {
                 assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
             }
             
-            if let addAction = (action as? StepActionLayerGroupCreated) {
-                // add-node actions cannot re-use IDs
-                assertInDebug(!self.visibleGraph.nodes.keys.contains(addAction.nodeId))
+            if let layerGroupCreatedAction = (action as? StepActionLayerGroupCreated) {
+                // layer-group-created actions cannot re-use IDs
+                assertInDebug(!self.visibleGraph.nodes.keys.contains(layerGroupCreatedAction.nodeId))
             }
             
-            do {
-                try self.applyAction(action)
-            } catch let error as StitchFileError {
-                self.llmRecording.actionsError = error.localizedDescription
+            if let error = self.applyAction(action) {
+                self.llmRecording.actionsError = error.description
                 self.startLLMAugmentationMode()
                 log("validateAndApplyActions: encountered error while trying to apply LLM-actions: \(error)")
-                throw error
+                return error
             }
         }
         
@@ -361,16 +368,20 @@ extension StitchDocumentViewModel {
     
     // TODO: pass down the [Step] explicitly ?
     @MainActor
-    func reapplyActions(isStreaming: Bool) throws {
-        let oldActions = self.llmRecording.actions
-        let actions: [any StepActionable] = try oldActions.convertSteps()
+    func reapplyActions(isStreaming: Bool) -> StitchAIStepHandlingError? {
+        let oldActions: [Step] = self.llmRecording.actions
+        
+        let conversionAttempt = oldActions.convertSteps()
+        guard let actions: [any StepActionable] = conversionAttempt.value else {
+            return conversionAttempt.error
+        }
+        
         let graph = self.visibleGraph
         
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         
-        // TODO: might not want this when "reapplying during streaming" ?
+        // Do not save or apply nodes' positions when streaming
         if !isStreaming {
-            // Do not save node positions
             self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
                 // TODO: MAY 18: save position for LayerGroup i.e. `StepActionLayerGroupCreated` as well?
                 if let action = action as? StepActionAddNode,
@@ -390,7 +401,7 @@ extension StitchDocumentViewModel {
         self.deapplyActions(actions: actions)
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        try self.validateAndApplyActions(self.llmRecording.actions)
+        try self.validateAndApplyActions(actions)
         
         // Update node positions to reflect previous position
         if !isStreaming {
@@ -402,6 +413,7 @@ extension StitchDocumentViewModel {
             }
         }
         
+        // TODO: should we really do this? why do we need to do this?
         // After we have de-applied and then re-applied the actions,
         // derive a new actions based on post-"de-apply, re-apply" state
         // and confirm that de-applying and re-applying the actions
@@ -412,20 +424,39 @@ extension StitchDocumentViewModel {
         self.graphUpdaterId = .randomId()
         
         // Validates that action data didn't change after derived actions is computed
-        let newActions = self.llmRecording.actions
+        return Self.validateActionsDidNotChangeDuringReapply(oldActions: oldActions,
+                                                             newActions: self.llmRecording.actions)
+    }
+    
+    private static func validateActionsDidNotChangeDuringReapply(oldActions: [Step],
+                                                                 newActions: [Step]) -> StitchAIStepHandlingError? {
         
         // TODO: why or how is the count changing? What is mutating the `newActions` count?
         assertInDebug(oldActions.count == newActions.count)
         
-        try zip(oldActions, newActions).forEach { oldAction, newAction in
+        for (oldAction, newAction) in zip(oldActions, newActions) {
+//        zip(oldActions, newActions).forEach { oldAction, newAction in
             if oldAction != newAction {
-                log("Found unequal actions: oldAction: \(try oldAction.convertToType())")
-                log("Found unequal actions: newAction: \(try newAction.convertToType())")
-                throw StitchAIManagerError.actionValidationError("Found unequal actions:\n\(try oldAction.convertToType())\n\(try newAction.convertToType())")
+                let _oldAction = try? oldAction.convertToType()
+                let _newAction = try? newAction.convertToType()
+                
+                // Steps
+                log("Found unequal actions: oldAction: \(oldAction)")
+                log("Found unequal actions: newAction: \(newAction)")
+                
+                // StepActionables
+                log("Found unequal actions: _oldAction: \(_oldAction)")
+                log("Found unequal actions: _newAction: \(_newAction)")
+                
+                return .actionValidationError("Found unequal actions:\n\(_oldAction)\n\(_newAction)")
             }
         }
+        
+        return nil
     }
 }
+
+
 
 @MainActor
 func positionAIGeneratedNodes(convertedActions: [any StepActionable],

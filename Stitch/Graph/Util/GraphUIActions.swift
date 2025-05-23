@@ -166,7 +166,8 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 }
 
 /// Process search results in the insert node menu sheet
-struct GenerateAINode: StitchDocumentEvent {
+/// fka `GenerateAINode`
+struct SubmitUserPromptToOpenAI: StitchDocumentEvent {
     let prompt: String
     
     func handle(state: StitchDocumentViewModel) {
@@ -193,17 +194,25 @@ struct GenerateAINode: StitchDocumentEvent {
         
         print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
 
-        do {
-            let systemPrompt = try StitchAIManager.systemPrompt(graph: graph)
+        // Note: do/catch vs Result doesn't really matter? Ideally we want to pass on error messages, so `if let x = try? ...` isn't a good idea.
+        switch Result(catching: { try StitchAIManager.systemPrompt(graph: graph) }) {
             
+        case .failure(let error):
+            // Nothing for user to do?
+            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
+            
+        case .success(let systemPrompt):
             let request = OpenAIRequest(prompt: prompt,
                                         systemPrompt: systemPrompt)
             
-            aiManager.handleRequest(request,
-                                    document: state)
+            // Track initial graph state
+            state.llmRecording.initialGraphState = state.visibleGraph.createSchema()
             
-        } catch {
-            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
+            // Create the task and set it on the manager
+            aiManager.currentTask = aiManager.getOpenAIStreamingTask(
+                request: request,
+                attempt: 1,
+                document: state)
         }
     }
 }

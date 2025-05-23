@@ -13,29 +13,16 @@ import SwiftUI
 import Sentry
 import SwiftyJSON
 
-let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
+// If this is not a valid URL, we should not even be able to run the app.
+let OPEN_AI_BASE_URL_STRING = "https://api.openai.com/v1/chat/completions"
+let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
 extension StitchAIManager {
-        
+   
     @MainActor
-    func handleRequest(_ request: OpenAIRequest,
-                       document: StitchDocumentViewModel) {
-
-        // Set the flag to indicate a request is in progress
-        withAnimation {
-            document.insertNodeMenuState.isGeneratingAIResult = true
-        }
-        
-        // Track initial graph state
-        document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
-        
-        // Create the task and set it on the manager
-        self.currentTask =  getOpenAIStreamingTask(request: request, document: document)
-    }
-    
-    @MainActor
-    private func getOpenAIStreamingTask(request: OpenAIRequest,
-                                        document: StitchDocumentViewModel) -> Task<Void, Never>? {
+    func getOpenAIStreamingTask(request: OpenAIRequest,
+                                attempt: Int,
+                                document: StitchDocumentViewModel) -> Task<Void, Never>? {
         
         Task(priority: .high) { [weak self] in
             
@@ -45,15 +32,16 @@ extension StitchAIManager {
             }
             
             do {
-                try await aiManager.makeOpenAIStreamingRequest(request,
-                                                document: document)
+                try await aiManager.makeOpenAIStreamingRequest(
+                    request,
+                    attempt: attempt,
+                    document: document)
                 
                 log("OpenAI Request succeeded")
                 
                 // Handle successful response
                 // Note: does not fire until we properly handle the whole request
                 try aiManager.openAIStreamingCompleted(
-                    // steps: steps,
                     originalPrompt: request.prompt,
                     document: document)
             } // do
@@ -67,26 +55,7 @@ extension StitchAIManager {
                         return
                     }
                     
-                    // Reset recording state
-                    document.llmRecording = .init()
-
-                    // TODO: comment below is slightly obscure -- what's going on here?
-                    // Reset checks which would later break new recording mode
-                    document.insertNodeMenuState = InsertNodeMenuState()
-                    
-                    if let error = error as? StitchAIManagerError,
-                       error.shouldDisplayModal {
-                        
-                        document.showErrorModal(
-                            message: error.description,
-                            userPrompt: request.prompt
-                        )
-                    } else {
-                        document.showErrorModal(
-                            message: "StitchAI handleRequest unknown error: \(error)",
-                            userPrompt: request.prompt
-                        )
-                    }
+                    document.handleErrorWhenMakingOpenAIStreamingRequest(error, request)
                 }
             } // catch
          
@@ -98,88 +67,75 @@ extension StitchAIManager {
             
         }
     }
-    
-    
+        
+    // Note: the failures that can happen in here are catastrophic and meant for us as developers, not something the user can take action on
     @MainActor
-    func getOpenAIURLRequest(request: OpenAIRequest,
-                             attempt: Int) -> Either<URLRequest> {
+    static func getURLRequestForOpenAI(request: OpenAIRequest,
+                                       secrets: Secrets) -> URLRequest? {
         
         let config = request.config
         let prompt = request.prompt
         let systemPrompt = request.systemPrompt
-        
-        // Validate API URL
-        guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
-            return .failure(StitchAIManagerError.invalidURL(request))
-        }
-        
+                
         // Configure request headers and parameters
-        var urlRequest = URLRequest(url: openAIAPIURL)
+        var urlRequest = URLRequest(url: OPEN_AI_BASE_URL)
         urlRequest.httpMethod = "POST"
         urlRequest.timeoutInterval = config.timeoutInterval
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(self.secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
+
+        let payload = StitchAIRequest(secrets: secrets,
+                                      userPrompt: prompt,
+                                      systemPrompt: systemPrompt)
         
-        let payloadAttempt = Either<StitchAIRequest>.init(catching: {
-            try StitchAIRequest(secrets: secrets,
-                                userPrompt: prompt,
-                                systemPrompt: systemPrompt)
-        })
-        
-        switch payloadAttempt {
-            
-        case .success(let payload):
-            return .init {
-                let encoder = JSONEncoder()
-    //            encoder.outputFormatting = [.withoutEscapingSlashes]
-                let jsonData = try encoder.encode(payload)
-                urlRequest.httpBody = jsonData
-                log("Making request attempt \(attempt) of \(config.maxRetries)")
-                return urlRequest
-            }
-        
-        case .failure(let error):
-            return .failure(error)
+        let encoder = JSONEncoder()
+        // encoder.outputFormatting = [.withoutEscapingSlashes]
+        guard let jsonData = try? encoder.encode(payload) else {
+            fatalErrorIfDebug("Could not encode payload")
+            return nil
         }
+        
+        urlRequest.httpBody = jsonData
+        return urlRequest
     }
     
     /// Execute the API request with retry logic
+    // fka `makeRequest`
     @MainActor
     func makeOpenAIStreamingRequest(_ request: OpenAIRequest,
-                                    attempt: Int = 1,
+                                    attempt: Int, // = 1,
                                     lastCapturedError: String? = nil,
                                     document: StitchDocumentViewModel) async throws {
-        
-        let config = request.config
-                
+                        
         // Check if we've exceeded retry attempts
-        guard attempt <= config.maxRetries else {
-            log("All StitchAI retry attempts exhausted")
-            SentrySDK.capture(message: "All StitchAI retry attempts exhausted")
-            throw StitchAIManagerError.maxRetriesError(request.config.maxRetries, lastCapturedError ?? "")
+        guard attempt <= request.config.maxRetries else {
+            log("All StitchAI retry attempts exhausted", .logToServer)
+            throw StitchAIManagerError.maxRetriesError(request.config.maxRetries,
+                                                       lastCapturedError ?? "")
         }
         
-        let urlRequestAttempt: Either<URLRequest> = self.getOpenAIURLRequest(request: request, attempt: attempt)
+        guard let urlRequest = Self.getURLRequestForOpenAI(request: request,
+                                                           secrets: self.secrets) else {
+            fatalErrorIfDebug()
+            return
+        }
         
-        switch urlRequestAttempt {
-        
-        case .failure(let error):
-            throw error
-            
-        case .success(let urlRequest):
-            do {
-                try await self.startOpenAIStreamingRequest(for: urlRequest)
-            } catch {
-                // Async because we will retry request on timeout-errors
-                try await self.handleOpenAIStreamingRequestError(
-                    error,
-                    attempt: attempt,
-                    request: request,
-                    document: document)
-            }
+        do {
+            log("Making request attempt \(attempt) of \(request.config.maxRetries)")
+            try await self.startOpenAIStreamingRequest(
+                for: urlRequest,
+                with: request,
+                attempt: attempt)
+        } catch {
+            // Async because we will retry request on timeout-errors
+            try await self.handleOpenAIStreamingError(
+                error,
+                attempt: attempt,
+                request: request,
+                document: document)
         }
                 
-        // TODO: MAY 22: without a response, how do handle rate limit or server errors?
+        // TODO: MAY 22: without a response, how to handle rate limit or server errors?
 //        // Check HTTP status code
 //        if let httpResponse = response as? HTTPURLResponse,
 //           !(200...299).contains(httpResponse.statusCode) {
@@ -199,11 +155,13 @@ extension StitchAIManager {
         
     }
         
-    private func handleOpenAIStreamingRequestError(_ error: Error,
-                                                   attempt: Int,
-                                                   request: OpenAIRequest,
-                                                   document: StitchDocumentViewModel) async throws {
-                
+    // An error that occurred when we attempted to open the stream, or as the stream was open
+    // Note: NOT the same as an error when validating or applying parsed Steps; for that, see `handleErrorWhenApplyingChunk`
+    func handleOpenAIStreamingError(_ error: Error,
+                                            attempt: Int,
+                                            request: OpenAIRequest,
+                                            document: StitchDocumentViewModel) async throws {
+        
         log("OpenAI request failed: \(error)")
         
         guard let error = error as NSError? else {
@@ -248,13 +206,13 @@ extension StitchAIManager {
         }
     }
     
-    private func retryMakeOpenAIStreamingRequest(_ request: OpenAIRequest,
-                                                 currentAttempts: Int,
-                                                 lastError: String,
-                                                 document: StitchDocumentViewModel) async throws {
-        let config = request.config
+    func retryMakeOpenAIStreamingRequest(_ request: OpenAIRequest,
+                                         currentAttempts: Int,
+                                         lastError: String,
+                                         document: StitchDocumentViewModel) async throws {
+
         // Calculate exponential backoff delay: 2^attempt * base delay
-        let backoffDelay = pow(2.0, Double(currentAttempts)) * config.retryDelay
+        let backoffDelay = pow(2.0, Double(currentAttempts)) * request.config.retryDelay
         // Cap the maximum delay at 30 seconds
         let cappedDelay = min(backoffDelay, 30.0)
         
@@ -262,9 +220,9 @@ extension StitchAIManager {
         try await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
         
         try await self.makeOpenAIStreamingRequest(request,
-                                   attempt: currentAttempts + 1,
-                                   lastCapturedError: lastError,
-                                   document: document)
+                                                  attempt: currentAttempts + 1,
+                                                  lastCapturedError: lastError,
+                                                  document: document)
     }
     
     // We successfully opened the stream and received bits until the stream was closed (without an error?).

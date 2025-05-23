@@ -42,15 +42,10 @@ struct OpenAIRequest {
     }
 }
 
-
-extension [[String]] {
-    func megajoin() -> String {
-        self.map { $0.joined() }.joined()
-    }
-}
-
 struct ChunkProcessed: StitchDocumentEvent {
     let newStep: Step
+    let request: OpenAIRequest
+    let currentAttempt: Int
     
     func handle(state: StitchDocumentViewModel) {
         log("ChunkProcessed: newStep: \(newStep)")
@@ -61,21 +56,138 @@ struct ChunkProcessed: StitchDocumentEvent {
         state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
         log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
         
-        if let _ = try? state.reapplyActions(isStreaming: true) {
-            log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
-        } else {
-            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS")
+        do {
             
+            try state.reapplyActions(isStreaming: true)
+            log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
+            
+        } catch {
+            
+            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request \(request)")
+                    
+            guard let aiManager = state.aiManager else {
+                fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
+                return
+            }
+            
+            // Cancel the current task
+            aiManager.currentTask?.cancel()
+            
+            //
+            aiManager.currentTask = nil
+            
+            // Start a new task with the incremented retry count
+                    
+//            await Self.handleErrorWhenApplyingChunk(
+//                error: error,
+//                request: request,
+//                currentAttempt: currentAttempt,
+//                state: state)
+            
+        }
+    }
+    
+    // some of this logic
+    @MainActor
+    private static func handleErrorWhenApplyingChunk(error: Error,
+                                                     request: OpenAIRequest,
+                                                     currentAttempt: Int,
+                                                     state: StitchDocumentViewModel) async throws {
+        
+        guard let aiManager = state.aiManager else {
+            fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
+            return
+        }
+        
+        if let error = (error as? StitchAIManagerError) {
+            log("StitchAIManager error parsing steps: \(error.description)")
+                        
+            let availableNodeTypes = NodeType.allCases
+                .filter { $0 != .none }
+                .map { $0.display }
+                .joined(separator: ", ")
+            
+            let errorMessage = switch error {
+            case .nodeTypeParsing(let nodeType):
+                "Invalid node type '\(nodeType)'. Available types are: [\(availableNodeTypes)]"
+            case .portTypeDecodingError(let port):
+                "Invalid port type '\(port)'. Check node's available port types in schema."
+            case .actionValidationError(let msg):
+                "Action validation failed: \(msg). Ensure actions match schema specifications."
+            default:
+                error.description
+            }
+            
+            let lastError = "Try again, there were failures parsing the result. \(errorMessage)"
+            
+            try await aiManager.retryMakeOpenAIStreamingRequest(
+                request,
+                currentAttempts: currentAttempt,
+                lastError: lastError,
+                document: state)
+        } else {
+            log("StitchAIManager unknown error parsing steps: \(error.localizedDescription)")
+            
+            let lastError = "Try again, there were failures parsing the result. You may have tried to add incorrect nodes or port types. Available node types: [\(NodeType.allCases.filter { $0 != .none }.map { $0.display }.joined(separator: ", "))]"
+            
+            try await aiManager.retryMakeOpenAIStreamingRequest(
+                request,
+                currentAttempts: currentAttempt,
+                lastError: lastError,
+                document: state)
+        }
+        
+    }
+}
+
+extension StitchDocumentViewModel {
+    
+    @MainActor
+    func handleErrorWhenMakingOpenAIStreamingRequest(_ error: Error, _ request: OpenAIRequest) {
+        
+        let document = self
+        
+        // Reset recording state
+        document.llmRecording = .init()
+
+        // TODO: comment below is slightly obscure -- what's going on here?
+        // Reset checks which would later break new recording mode
+        document.insertNodeMenuState = InsertNodeMenuState()
+        
+        if let error = error as? StitchAIManagerError,
+           error.shouldDisplayModal {
+            
+            document.showErrorModal(
+                message: error.description,
+                userPrompt: request.prompt
+            )
+        } else {
+            document.showErrorModal(
+                message: "StitchAI handleRequest unknown error: \(error)",
+                userPrompt: request.prompt
+            )
         }
     }
 }
 
 extension Array where Element == Step {
-    func convertSteps() throws -> [any StepActionable] {
-        let convertedSteps: [any StepActionable] = try self.map { step in
-            try step.convertToType()
+    
+    // Note: each Step could throw its own error; we just return the first error we encounter
+    func convertSteps() -> Result<[any StepActionable], StitchAIStepHandlingError> {
+        
+        var convertedSteps = [any StepActionable]()
+        
+        for step in self {
+            switch step.convertToType() {
+            case .failure(let error):
+                // Return first error we encounter
+                return .failure(error)
+            case .success(let converted):
+                convertedSteps.append(converted)
+            }
         }
-        return convertedSteps
+        
+        return .success(convertedSteps)
     }
     
     mutating func append(_ stepType: StepTypeAction) {
@@ -84,11 +196,10 @@ extension Array where Element == Step {
     
     func containsNewNode(from id: NodeId) -> Bool {
         self.contains(where: { step in
-            if let convertedStep = try? step.convertToType(),
-               let addStep = convertedStep as? StepActionAddNode {
-                return addStep.nodeId == id
+            if step.stepType == .addNode,
+               let addActionNodeId = step.nodeId {
+                return addActionNodeId.value == id
             }
-            
             return false
         })
     }

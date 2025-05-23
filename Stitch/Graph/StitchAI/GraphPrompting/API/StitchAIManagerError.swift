@@ -8,22 +8,48 @@
 import SwiftUI
 import StitchSchemaKit
 
+enum StitchAIStepHandlingError: Error {
+    case stepActionDecoding(String)
+    case stepDecoding(StepType, Step)
+    case actionValidationError(String)
+}
+
+extension StitchAIStepHandlingError: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .stepActionDecoding(let string):
+            return "Unable to parse action step type from: \(string)"
+        case .stepDecoding(let stepType, let step):
+            return "Unable to decode: \(stepType) with step payload:\n\(step)"
+        case .actionValidationError(let string):
+            return "Action validation error: \(string)"
+        }
+    }
+}
+
+
+// TODO: a smaller sub-enum just for errors from "validating or applying Step/StepActionable"
+// TODO: which are just for us developers (to be logged), vs actionable for the user?
 enum StitchAIManagerError: Error {
     case documentNotFound(OpenAIRequest)
     case requestInProgress(OpenAIRequest)
     case maxRetriesError(Int, String)
     case invalidURL(OpenAIRequest)
     case jsonEncodingError(OpenAIRequest, Error)
-    case multipleTimeoutErrors(OpenAIRequest, String)
+    
     case requestCancelled(OpenAIRequest)
+    
+    // Show these as alerts to user ?
     case internetConnectionFailed(OpenAIRequest)
+    case multipleTimeoutErrors(OpenAIRequest, String)
+    
     case typeCasting
     case stepActionDecoding(String)
     case stepDecoding(StepType, Step)
     case emptySuccessfulResponse
+    
     case nodeNameParsing(String)
     case nodeTypeParsing(String)
-    case other(OpenAIRequest, Error)
     case contentDataDecodingError(String, String)
     case portValueDecodingError(String)
     case decodeObjectFromString(String, String)
@@ -31,7 +57,10 @@ enum StitchAIManagerError: Error {
     case apiResponseError
     case portTypeDecodingError(String)
     case actionValidationError(String)
+    
     case invalidStreamingData
+    
+    case other(OpenAIRequest, Error)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {

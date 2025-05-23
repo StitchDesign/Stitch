@@ -70,7 +70,7 @@ struct InsertNodeMenuSearchBar: View {
                         
                         self.isLoadingStitchAI = true
                         
-                        dispatch(GenerateAINode(prompt: queryString))
+                        dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
                     } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
                         dispatch(AddNodeButtonPressed())
                     }

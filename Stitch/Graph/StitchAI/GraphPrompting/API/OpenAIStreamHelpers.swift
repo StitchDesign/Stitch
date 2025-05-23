@@ -15,7 +15,9 @@ extension StitchAIManager {
     
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
-    func startOpenAIStreamingRequest(for urlRequest: URLRequest) async throws {
+    func startOpenAIStreamingRequest(for urlRequest: URLRequest,
+                                     with request: OpenAIRequest,
+                                     attempt: Int) async throws {
         
         var accumulatedData = Data()
         
@@ -48,7 +50,11 @@ extension StitchAIManager {
                     contentTokensSinceLastStep = newTokens
                     
                     DispatchQueue.main.async {
-                        dispatch(ChunkProcessed(newStep: newStep))
+                        dispatch(ChunkProcessed(
+                            newStep: newStep,
+                            request: request,
+                            currentAttempt: attempt
+                        ))
                     }
                 }
             }

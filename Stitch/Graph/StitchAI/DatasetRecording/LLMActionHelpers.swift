@@ -98,26 +98,31 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
 }
 
 struct LLMActionDeleted: StitchDocumentEvent {
-    let deletedAction: Step
+    let deletedStep: Step
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionDeleted: deletedAction: \(deletedAction)")
+        log("LLMActionDeleted: deletedStep: \(deletedStep)")
         log("LLMActionDeleted: state.llmRecording.actions was: \(state.llmRecording.actions)")
         
-        guard let deletedAction = state.llmRecording.actions.first(where: {
-            $0 == deletedAction
-        }) else {
+        guard let deletedStep = state.llmRecording.actions.first(where: { $0 == deletedStep }) else {
             fatalErrorIfDebug()
             return
         }
                 
+        guard let deletedAction: any StepActionable = deletedStep.convertToType().value else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        
+        
         do {
             // Run deletion process for action
-            try deletedAction.convertToType().removeAction(graph: state.visibleGraph,
-                                                           document: state)
+            deletedAction.removeAction(graph: state.visibleGraph,
+                                       document: state)
             
             // Filter out removed action before re-applying actions
-            let filteredActions = state.llmRecording.actions.filter { $0 != deletedAction }
+            let filteredActions = state.llmRecording.actions.filter { $0 != deletedStep }
             
             state.llmRecording.actions = filteredActions
 
