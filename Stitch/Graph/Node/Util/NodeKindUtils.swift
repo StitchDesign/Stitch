@@ -239,3 +239,22 @@ extension NodeKind {
             .inputs[safe: portId]?.canDirectlyCopyUpstreamValues ?? false
     }
 }
+
+extension NodeKind: CaseIterable {
+    public static var allCases: [StitchSchemaKit.NodeKind_V31.NodeKind] {
+        let patchCases = Patch.allCases.map(NodeKind.patch)
+        let layerCases = Layer.allCases.map(NodeKind.layer)
+        return patchCases + layerCases
+    }
+    
+    var nodeDescriptionBody: String {
+        switch self {
+        case .patch(let patch):
+            return patch.nodeDescriptionBody
+        case .layer(let layer):
+            return layer.nodeDescriptionBody
+        default:
+            fatalError()
+        }
+    }
+}
