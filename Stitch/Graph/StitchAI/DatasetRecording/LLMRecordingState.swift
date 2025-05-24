@@ -155,7 +155,8 @@ extension StitchDocumentViewModel {
         // Only adjust node positions if actions were valid and successfully applied
         positionAIGeneratedNodes(convertedActions: convertedActions,
                                  nodes: self.visibleGraph.visibleNodesViewModel,
-                                 viewPortCenter: self.newCanvasItemInsertionLocation)
+                                 viewPortCenter: self.newCanvasItemInsertionLocation,
+                                 graph: graph)
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
         
@@ -484,7 +485,8 @@ extension StitchDocumentViewModel {
 @MainActor
 func positionAIGeneratedNodes(convertedActions: [any StepActionable],
                               nodes: VisibleNodesViewModel,
-                              viewPortCenter: CGPoint) {
+                              viewPortCenter: CGPoint,
+                              graph: GraphReader) {
     
     // TODO: if we have a chain of nodes, shift our starting point further west
     //    var viewPortCenter = viewPortCenter
@@ -528,41 +530,25 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
             // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
             // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
             
-            let patchSize: CGSize? = createdNode.patchNode.flatMap {
-                PatchOrLayerSizes.patches[$0.patch]?[createdNode.userVisibleType]
-            }
-            
             createdNode.getAllCanvasObservers().enumerated().forEach { x in
                 
                 let canvasItem = x.element
                 let canvasItemIndex = x.offset
                 
-                var size: CGSize? = nil
-                switch canvasItem.id {
-                case .node:
-                    size = patchSize
-                case .layerInput(let layerInputCoordinate):
-                    let layerInput = layerInputCoordinate.keyPath.layerInput
-                    size = PatchOrLayerSizes.layerInputs[layerInput]
-                case .layerOutput(_):
-                    size = PatchOrLayerSizes.layerOutputSize
-                }
+                var size: CGSize = canvasItem.getHardcodedSize(graph)
+                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
+                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
                 
 //                log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                 
-                let defaultSize = CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
-                                         height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-                
+                // Add some 'padding' to the canvas item's size, so items do not end up right next to each other
                 let padding: CGFloat = 36.0
-                var finalSize = size ?? defaultSize
-                finalSize.width += padding
-                finalSize.height += padding
-               
-//                let padding: CGFloat = 200.0
-                
+                size.width += padding
+                size.height += padding
+                               
                 let newPosition =  CGPoint(
-                    x: viewPortCenter.x + (CGFloat(depthLevel) * finalSize.width),
-                    y: viewPortCenter.y + (CGFloat(canvasItemIndex) * finalSize.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * finalSize.height)
+                    x: viewPortCenter.x + (CGFloat(depthLevel) * size.width),
+                    y: viewPortCenter.y + (CGFloat(canvasItemIndex) * size.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * size.height)
                 )
                                 
 //                 log("positionAIGeneratedNodes: canvasItemAndIndex.element.id: \(canvasItemAndIndex.element.id)")
@@ -570,6 +556,33 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
                 canvasItem.position = newPosition
                 canvasItem.previousPosition = newPosition
             }
+        }
+    }
+}
+
+extension CanvasItemViewModel {
+    @MainActor
+    func getHardcodedSize(_ graph: GraphReader) -> CGSize? {
+        
+        switch self.id {
+        
+        case .node(let nodeId):
+            if let patchNode = graph.getNode(nodeId)?.patchNode {
+                return PatchOrLayerSizes.patches[patchNode.patch]?[patchNode.userVisibleType]
+            } else {
+                return nil
+            }
+        
+        case .layerInput(let layerInputCoordinate):
+            switch layerInputCoordinate.keyPath.portType {
+            case .packed:
+                return PatchOrLayerSizes.layerInputs[layerInputCoordinate.keyPath.layerInput]
+            case .unpacked:
+                return PatchOrLayerSizes.layerFieldSize
+            }
+            
+        case .layerOutput(_):
+            return PatchOrLayerSizes.layerOutputSize
         }
     }
 }

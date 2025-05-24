@@ -50,7 +50,8 @@ struct InsertNodeMenuSearchBar: View {
                             if isLoadingAIResult {
                                 ProgressView()
                                     .scaleEffect(1.5)
-                                    .tint(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
+//                                    .tint(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
+                                    .tint(STITCH_TITLE_FONT_COLOR)
                             } else {
                                 Image(systemName: "plus.app")
                                     .frame(width: 36, height: 36)
