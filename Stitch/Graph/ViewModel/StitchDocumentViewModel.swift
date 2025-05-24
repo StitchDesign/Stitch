@@ -136,11 +136,11 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
-         projectLoader: ProjectLoader,
+         projectLoader: ProjectLoader?,
          store: StitchStore,
          isDebugMode: Bool) {
         self.rootId = schema.id
-        self.documentEncoder = projectLoader.encoder
+        self.documentEncoder = projectLoader?.encoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
@@ -478,7 +478,7 @@ extension StitchDocumentViewModel {
     static func createTestFriendlyDocument(_ store: StitchStore) -> StitchDocumentViewModel {
 //        let store = StitchStore()
         let (projectLoader, documentViewModel) = try! createNewEmptyProject(store: store)
-        store.navPath = [projectLoader]
+        store.navPath = [.project(projectLoader)]
                 
         assert(documentViewModel.documentEncoder.isDefined)
         assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
@@ -489,11 +489,10 @@ extension StitchDocumentViewModel {
     @MainActor static func createEmpty() -> StitchDocumentViewModel {
         let store = StitchStore()
         let doc = StitchDocument()
-        let loader = ProjectLoader(url: URL(fileURLWithPath: ""))
         
         return .init(from: doc,
                      graph: .init(),
-                     projectLoader: loader,
+                     projectLoader: nil,
                      store: store,
                      isDebugMode: false)
     }

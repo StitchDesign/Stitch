@@ -8,36 +8,71 @@
 import SwiftUI
 import StitchSchemaKit
 
+enum StitchAppRouter {
+    case project(ProjectLoader)
+    case aiPreviewer
+}
+
+extension StitchAppRouter: Identifiable, Hashable {
+    static let aiID = UUID().uuidString
+    
+    var id: String {
+        switch self {
+        case .project(let projectLoader):
+            return projectLoader.url.absoluteString
+        case .aiPreviewer:
+            return Self.aiID
+        }
+    }
+    
+    var project: ProjectLoader? {
+        switch self {
+        case .project(let projectLoader):
+            return projectLoader
+        case .aiPreviewer:
+            return nil
+        }
+    }
+}
+
 struct StitchNavStack: View {
     @Environment(\.dismissWindow) private var dismissWindow
 
     @Bindable var store: StitchStore
     
     var body: some View {
+        // TODO: need to determine a router
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
-                .navigationDestination(for: ProjectLoader.self) { projectLoader in
-                    ZStack { // Attempt to keep view-identity the same
-                        if let document = projectLoader.documentViewModel {
-                            StitchProjectView(store: store,
-                                              document: document,
-                                              alertState: store.alertState)
-                            .onDisappear {
-                                // Remove document from project loader
-                                // MARK: logic needs to be here as its the one place guaranteed to have the project
-                                projectLoader.documentViewModel = nil
-                                
-                                // Close mac screen sharing if still visible
-                                #if targetEnvironment(macCatalyst)
-                                dismissWindow(id: RecordingView.windowId)
-                                #endif
+                .navigationDestination(for: StitchAppRouter.self) { router in
+                    
+                    switch router {
+                    case .project(let projectLoader):
+                        ZStack { // Attempt to keep view-identity the same
+                            if let document = projectLoader.documentViewModel {
+                                StitchProjectView(store: store,
+                                                  document: document,
+                                                  alertState: store.alertState)
+                                .onDisappear {
+                                    // Remove document from project loader
+                                    // MARK: logic needs to be here as its the one place guaranteed to have the project
+                                    projectLoader.documentViewModel = nil
+                                    
+                                    // Close mac screen sharing if still visible
+#if targetEnvironment(macCatalyst)
+                                    dismissWindow(id: RecordingView.windowId)
+#endif
+                                }
                             }
                         }
+                        
+                    case .aiPreviewer:
+                        StitchAIProjectViewer(store: store)
                     }
                     
                 }
                 .onChange(of: store.navPath.first) { _, currentProject in
-                    let currentGraphId = currentProject?.id
+                    let currentGraphId = currentProject?.project?.id
                     
                     // Rest undo if project closed
                     if !store.isCurrentProjectSelected {

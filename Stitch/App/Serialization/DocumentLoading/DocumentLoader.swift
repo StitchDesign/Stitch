@@ -181,7 +181,7 @@ extension DocumentLoader {
         
         if enterProjectImmediately {
             projectLoader.documentViewModel = documentViewModel
-            store.navPath = [projectLoader]
+            store.navPath = [.project(projectLoader)]
         }
     }
 

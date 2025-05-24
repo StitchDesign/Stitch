@@ -43,6 +43,25 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
+#if STITCH_AI_REASONING
+                        CatalystNavBarButton(action: { [weak store] in
+                            guard let store = store else {
+                                return
+                            }
+                            
+                            if store.navPath.isEmpty {
+                                store.navPath = [.aiPreviewer]
+                            } else {
+                                store.navPath = []
+                            }
+                            
+//                            store.showAIResponseViewer.toggle()
+                        },
+                                             iconName: .sfSymbol("document.viewfinder.fill"))
+                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                        .id(UUID())
+#endif
+                        
                         CatalystNavBarButton(action: { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
                         },

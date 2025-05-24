@@ -61,7 +61,7 @@ func createNewEmptyProject(store: StitchStore) throws -> (ProjectLoader, StitchD
     
     document.didDocumentChange = true
     
-    store.navPath = [projectLoader]
+    store.navPath = [.project(projectLoader)]
     
     return (projectLoader, document)
 }
