@@ -8,25 +8,26 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct StitchAIProjectViewer: View {
-    // Encoder needs a strong reference somewhere to enable the fake document view model
-    @State private var encoder: DocumentEncoder
-    @State private var document: StitchDocumentViewModel
-    @State private var aiJsonPrompt: String
-    
-    let store: StitchStore
-    
-    init(store: StitchStore) {
+extension StitchStore {
+    @MainActor
+    func createAIDocumentPreviewer() -> (StitchDocumentViewModel, DocumentEncoder) {
         let document = StitchDocument()
         let encoder = DocumentEncoder(document: document,
                                        disableSaves: true)
-        self.document = StitchDocumentViewModel.createEmpty(document: document,
-                                                            encoder: encoder,
-                                                            store: store)
-        self.encoder = encoder
-        self.aiJsonPrompt = ""
-        self.store = store
+        let documentViewModel = StitchDocumentViewModel
+            .createEmpty(document: document,
+                         encoder: encoder,
+                         store: self)
+        
+        return (documentViewModel, encoder)
     }
+}
+
+struct StitchAIProjectViewer: View {
+    @State private var aiJsonPrompt = ""
+    
+    let store: StitchStore
+    let document: StitchDocumentViewModel
 
     func validateAiJsonActions() {
         // Reset previous state

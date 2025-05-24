@@ -10,11 +10,26 @@ import StitchSchemaKit
 
 enum StitchAppRouter {
     case project(ProjectLoader)
-    case aiPreviewer
+    
+    // Document encoder needs strong reference and enables nodse to appear in viewer
+    case aiPreviewer(StitchDocumentViewModel, DocumentEncoder)
 }
 
 extension StitchAppRouter: Identifiable, Hashable {
     static let aiID = UUID().uuidString
+    
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .project(let projectLoader):
+            hasher.combine(projectLoader.hashValue)
+        case .aiPreviewer(let stitchDocumentViewModel, _):
+            hasher.combine(stitchDocumentViewModel.rootId)
+        }
+    }
+    
+    static func == (lhs: StitchAppRouter, rhs: StitchAppRouter) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
     
     var id: String {
         switch self {
@@ -31,6 +46,16 @@ extension StitchAppRouter: Identifiable, Hashable {
             return projectLoader
         case .aiPreviewer:
             return nil
+        }
+    }
+    
+    @MainActor
+    var document: StitchDocumentViewModel? {
+        switch self {
+        case .project(let projectLoader):
+            return projectLoader.documentViewModel
+        case .aiPreviewer(let stitchDocumentViewModel, _):
+            return stitchDocumentViewModel
         }
     }
 }
@@ -66,8 +91,9 @@ struct StitchNavStack: View {
                             }
                         }
                         
-                    case .aiPreviewer:
-                        StitchAIProjectViewer(store: store)
+                    case .aiPreviewer(let document, _):
+                        StitchAIProjectViewer(store: store,
+                                              document: document)
                     }
                     
                 }

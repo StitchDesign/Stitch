@@ -49,8 +49,10 @@ struct ProjectsHomeViewWrapper: View {
                                 return
                             }
                             
+                            let (document, encoder) = store.createAIDocumentPreviewer()
+                            
                             if store.navPath.isEmpty {
-                                store.navPath = [.aiPreviewer]
+                                store.navPath = [.aiPreviewer(document, encoder)]
                             } else {
                                 store.navPath = []
                             }

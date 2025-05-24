@@ -123,7 +123,7 @@ extension StitchStore {
 
     @MainActor
     var currentDocument: StitchDocumentViewModel? {
-        self.navPath.first?.project?.documentViewModel
+        self.navPath.first?.document
     }
     
     var undoManager: StitchUndoManager {
