@@ -21,7 +21,8 @@ struct StitchAIProjectViewer: View {
         let encoder = DocumentEncoder(document: document,
                                        disableSaves: true)
         self.document = StitchDocumentViewModel.createEmpty(document: document,
-                                                            encoder: encoder)
+                                                            encoder: encoder,
+                                                            store: store)
         self.encoder = encoder
         self.aiJsonPrompt = ""
         self.store = store

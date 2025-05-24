@@ -138,7 +138,7 @@ final class StitchDocumentViewModel: Sendable {
          graph: GraphState,
          documentEncoder: DocumentEncoder?,
          projectLoader: ProjectLoader?,
-         store: StitchStore,
+         store: StitchStore?,
          isDebugMode: Bool) {
         self.rootId = schema.id
         self.documentEncoder = documentEncoder
@@ -161,8 +161,10 @@ final class StitchDocumentViewModel: Sendable {
         
         self.lastEncodedDocument = schema
         
-        self.initializeDelegate(store: store,
-                                isInitialization: true)
+        if let store = store {
+            self.initializeDelegate(store: store,
+                                    isInitialization: true)            
+        }
     }
     
     @MainActor
@@ -502,8 +504,9 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor static func createEmpty(document: StitchDocument = .init(),
-                                       encoder: DocumentEncoder? = nil) -> StitchDocumentViewModel {
-        let store = StitchStore()
+                                       encoder: DocumentEncoder? = nil,
+                                       // do NOT make multiple of these, breaks dispatch
+                                       store: StitchStore? = nil) -> StitchDocumentViewModel {
         let doc = document
         let graph = GraphState(from: doc.graph,
                                nodes: [:],
