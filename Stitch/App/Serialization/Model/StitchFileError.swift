@@ -106,6 +106,8 @@ enum StitchFileError: Error {
     case projectDuplicationFailed
     // No camera found
     case cameraDeviceNotFound
+    // Graph viewer that disables any persistence
+    case persistenceDisabled
     // Just pass in a string
     case customError(_ message: String)
     // Unexpected error
@@ -211,6 +213,8 @@ extension StitchFileError: CustomStringConvertible {
             return "Stitch was unable to duplicate this project."
         case .cameraDeviceNotFound:
             return "There was an issue finding your camera device. Check your camera in application settings and try again."
+        case .persistenceDisabled:
+            return "No document persistence is allowed here."
         case .customError(let message):
             return message
         }

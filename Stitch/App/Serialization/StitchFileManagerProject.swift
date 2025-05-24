@@ -11,18 +11,22 @@ import StitchSchemaKit
 /// Helpers focused on reading/writing with a specific project URL.
 extension DocumentEncodable {    
     nonisolated func getFolderUrl(for subfolder: StitchEncodableSubfolder,
-                                  isTemp: Bool = false) -> URL {
+                                  isTemp: Bool = false) -> URL? {
         if isTemp {
             return StitchFileManager.tempDocumentResources.appendingPathComponent(subfolder.rawValue)
         }
         
-        return self.rootUrl.appendingPathComponent(subfolder.rawValue)
+        return self.rootUrl?.appendingPathComponent(subfolder.rawValue)
     }
     
     /// Gets in-use and temp resources for a specific file type.
     func getAllResources(for subfolder: StitchEncodableSubfolder) throws -> [URL] {
-        try Self.getAllResources(rootUrl: self.rootUrl,
-                                 subfolder: subfolder)
+        guard let rootUrl = self.rootUrl else {
+            return []
+        }
+        
+        return try Self.getAllResources(rootUrl: rootUrl,
+                                        subfolder: subfolder)
     }
     
     /// Gets in-use and temp resources for a specific file type.
@@ -56,7 +60,12 @@ extension DocumentEncodable {
     }
     
     func readAllImportedFiles() throws -> StitchDocumentDirectory {
-        try Self.readAllImportedFiles(rootUrl: self.rootUrl)
+        guard let rootUrl = self.rootUrl else {
+            return .init(importedMediaUrls: [],
+                         componentDirs: [])
+        }
+        
+        return try Self.readAllImportedFiles(rootUrl: rootUrl)
     }
     
     static func readAllImportedFiles(rootUrl: URL) throws -> StitchDocumentDirectory {
@@ -75,7 +84,9 @@ extension DocumentEncodable {
     nonisolated func copyToMediaDirectory(originalURL: URL,
                                           forRecentlyDeleted: Bool,
                                           customMediaKey: MediaKey? = nil) -> URLResult {
-        let importedFilesURL = self.getFolderUrl(for: .media, isTemp: forRecentlyDeleted)
+        guard let importedFilesURL = self.getFolderUrl(for: .media, isTemp: forRecentlyDeleted) else {
+            return .failure(.persistenceDisabled)
+        }
         return Self.copyToMediaDirectory(originalURL: originalURL,
                                          importedFilesURL: importedFilesURL,
                                          customMediaKey: customMediaKey)
@@ -150,6 +161,11 @@ extension DocumentEncodable {
     
     /// Copies files from another directory.
     nonisolated func copyFiles(from directory: StitchDocumentDirectory) {
+        // Clipboard uses non-document root url
+        guard let destRootUrl = self.rootUrl else {
+            return
+        }
+        
         // Copy selected media
         for mediaUrl in directory.importedMediaUrls {
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
@@ -168,7 +184,6 @@ extension DocumentEncodable {
             let srcUrl = srcComponentUrl
             
             // Clipboard uses non-document root url
-            let destRootUrl = self.rootUrl// self.saveLocation.documentSaveLocation?.getRootDirectoryUrl() ?? self.rootUrl
             let destUrl = destRootUrl
                 .appendingComponentsPath()
                 .appendingPathComponent(srcComponentUrl.lastPathComponent)
@@ -185,6 +200,10 @@ extension DocumentEncodable {
     }
     
     func removeContents() throws {
-        try FileManager.default.removeItem(at: self.rootUrl)
+        guard let rootUrl = self.rootUrl else {
+            return
+        }
+        
+        try FileManager.default.removeItem(at: rootUrl)
     }
 }
