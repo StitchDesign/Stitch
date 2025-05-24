@@ -39,7 +39,8 @@ enum FocusedUserEditField: Equatable, Hashable {
          previewWindowSettingsWidth,
          previewWindowSettingsHeight,
          prototypeWindow,
-         prototypeTextField(PreviewCoordinate)
+         prototypeTextField(PreviewCoordinate),
+         aiPreviewerTextField
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {
