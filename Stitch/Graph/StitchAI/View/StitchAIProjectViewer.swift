@@ -24,6 +24,7 @@ extension StitchStore {
 }
 
 struct StitchAIProjectViewer: View {
+    @FocusedValue(\.focusedField) private var focusedField
     @State private var aiJsonPrompt = ""
     
     let store: StitchStore
@@ -52,6 +53,7 @@ struct StitchAIProjectViewer: View {
 
             VStack {
                 TextField("Graph from AI Response", text: $aiJsonPrompt)
+                    .focusedValue(\.focusedField, .aiPreviewerTextField)
                     .onSubmit {
                         validateAiJsonActions()
                     }
