@@ -51,23 +51,28 @@ extension StitchAIManager {
                 return
             }
             
-            do {
-                try await aiManager.makeOpenAIStreamingRequest(
-                    request,
-                    attempt: attempt,
-                    document: document)
-                
-                log("OpenAI Request succeeded")
+                        
+            switch await aiManager.makeOpenAIStreamingRequest(request,
+                                                              attempt: attempt,
+                                                              document: document) {
+            
+            case .none:
+                log("getOpenAIStreamingTask: succeeded")
                 
                 // Handle successful response
                 // Note: does not fire until we properly handle the whole request
-                try aiManager.openAIStreamingCompleted(
+                aiManager.openAIStreamingCompleted(
                     originalPrompt: request.prompt,
                     document: document)
-            } // do
-            
-            catch {
-                log("StitchAI handleRequest error: \(error.localizedDescription)", .logToServer)
+                
+//                // Whether we succeeded or failed,
+//                // reset "is generating AI node" on the node menu.
+//                await MainActor.run { [weak document] in
+//                    document?.insertNodeMenuState.isGeneratingAIResult = false
+//                }
+                
+            case .some(let error):
+                log("getOpenAIStreamingTask: error: \(error.description)")
                 
                 await MainActor.run { [weak document] in
                     guard let document = document else {
@@ -77,13 +82,44 @@ extension StitchAIManager {
                     
                     document.handleErrorWhenMakingOpenAIStreamingRequest(error, request)
                 }
-            } // catch
-         
-            // Whether we succeeded or failed,
-            // reset "is generating AI node" on the node menu.
+            }
+
+            
+//            // Whether we succeeded or failed,
+//            // reset "is generating AI node" on the node menu.
             await MainActor.run { [weak document] in
                 document?.insertNodeMenuState.isGeneratingAIResult = false
             }
+            
+//            do {
+//                try await aiManager.makeOpenAIStreamingRequest(
+//                    request,
+//                    attempt: attempt,
+//                    document: document)
+//                
+//                log("OpenAI Request succeeded")
+//                
+//                // Handle successful response
+//                // Note: does not fire until we properly handle the whole request
+//                aiManager.openAIStreamingCompleted(
+//                    originalPrompt: request.prompt,
+//                    document: document)
+//            } // do
+//            
+//            catch {
+//                log("StitchAI handleRequest error: \(error.localizedDescription)", .logToServer)
+//                
+//                await MainActor.run { [weak document] in
+//                    guard let document = document else {
+//                        log("getOpenAIStreamingTask: no document")
+//                        return
+//                    }
+//                    
+//                    document.handleErrorWhenMakingOpenAIStreamingRequest(error, request)
+//                }
+//            } // catch
+         
+         
             
         }
     }
@@ -270,7 +306,7 @@ extension StitchAIManager {
     // fka `openAIRequestCompleted`
     @MainActor
     func openAIStreamingCompleted(originalPrompt: String,
-                                  document: StitchDocumentViewModel) throws {
+                                  document: StitchDocumentViewModel) {
         log("openAIStreamingCompleted called")
         
         document.reduxFocusedField = nil

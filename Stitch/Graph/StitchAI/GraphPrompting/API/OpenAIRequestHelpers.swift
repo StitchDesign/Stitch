@@ -40,12 +40,17 @@ struct ChunkProcessed: StitchDocumentEvent {
             aiManager.currentTask?.cancel()
             
             aiManager.currentTask = nil
+            
+            aiManager.currentTask = aiManager.getOpenAIStreamingTask(
+                request: request,
+                attempt: currentAttempt,
+                document: state)
                                     
-            //            try await aiManager.retryMakeOpenAIStreamingRequest(
-            //                request,
-            //                currentAttempts: currentAttempt + 1,
-            //                lastError: "Try again, there were failures validating and applying the result. \(error.description)",
-            //                document: state)
+//            try await aiManager.retryMakeOpenAIStreamingRequest(
+//                request,
+//                currentAttempts: currentAttempt,
+//                lastError: "Try again, there were failures validating and applying the result. \(error.description)",
+//                document: state)
         } else {
             log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
         }
