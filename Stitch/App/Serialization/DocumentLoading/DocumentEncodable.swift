@@ -14,7 +14,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     
     var documentId: CodableDocument.ID { get }
     
-    nonisolated var saveLocation: EncoderDirectoryLocation { get }
+    nonisolated var saveLocation: EncoderDirectoryLocation? { get }
     
     @MainActor var delegate: DocumentDelegate? { get }
 }
@@ -55,11 +55,12 @@ extension DocumentEncodable {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
-            if willUpdateUndoHistory {
+            if willUpdateUndoHistory,
+               let rootUrl = self.rootUrl {
                 store.saveUndoHistory(from: delegate,
                                       oldSchema: oldSchema,
                                       newSchema: newSchema,
-                                      rootUrl: self.rootUrl,
+                                      rootUrl: rootUrl,
                                       undoEffectsData: nil)
             }
         }
@@ -73,11 +74,12 @@ extension DocumentEncodable {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
-            if willUpdateUndoHistory {
+            if willUpdateUndoHistory,
+               let rootUrl = self.rootUrl {
                 store.saveUndoHistory(from: delegate,
                                       oldSchema: oldSchema,
                                       newSchema: newSchema,
-                                      rootUrl: self.rootUrl,
+                                      rootUrl: rootUrl,
                                       undoEvents: undoEvents,
                                       redoEvents: [])
             }
@@ -116,8 +118,8 @@ extension DocumentEncodable {
         }
     }
     
-    nonisolated var rootUrl: URL {
-        self.saveLocation.getRootDirectoryUrl()
+    nonisolated var rootUrl: URL? {
+        self.saveLocation?.getRootDirectoryUrl()
     }
     
     var recentlyDeletedUrl: URL {
@@ -127,7 +129,9 @@ extension DocumentEncodable {
     func encodeProject(_ document: Self.CodableDocument,
                        willUpdateUndoHistory: Bool = true,
                        temporaryURL: URL? = nil) async -> StitchFileVoidResult {
-        let rootDocUrl = temporaryURL ?? self.rootUrl.appendingVersionedSchemaPath()
+        guard let rootDocUrl = temporaryURL ?? self.rootUrl?.appendingVersionedSchemaPath() else {
+            return .failure(.persistenceDisabled)
+        }
         
         do {
             // Encode document

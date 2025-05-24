@@ -8,36 +8,97 @@
 import SwiftUI
 import StitchSchemaKit
 
+enum StitchAppRouter {
+    case project(ProjectLoader)
+    
+    // Document encoder needs strong reference and enables nodse to appear in viewer
+    case aiPreviewer(StitchDocumentViewModel, DocumentEncoder)
+}
+
+extension StitchAppRouter: Identifiable, Hashable {
+    static let aiID = UUID().uuidString
+    
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .project(let projectLoader):
+            hasher.combine(projectLoader.hashValue)
+        case .aiPreviewer(let stitchDocumentViewModel, _):
+            hasher.combine(stitchDocumentViewModel.rootId)
+        }
+    }
+    
+    static func == (lhs: StitchAppRouter, rhs: StitchAppRouter) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+    
+    var id: String {
+        switch self {
+        case .project(let projectLoader):
+            return projectLoader.url.absoluteString
+        case .aiPreviewer:
+            return Self.aiID
+        }
+    }
+    
+    var project: ProjectLoader? {
+        switch self {
+        case .project(let projectLoader):
+            return projectLoader
+        case .aiPreviewer:
+            return nil
+        }
+    }
+    
+    @MainActor
+    var document: StitchDocumentViewModel? {
+        switch self {
+        case .project(let projectLoader):
+            return projectLoader.documentViewModel
+        case .aiPreviewer(let stitchDocumentViewModel, _):
+            return stitchDocumentViewModel
+        }
+    }
+}
+
 struct StitchNavStack: View {
     @Environment(\.dismissWindow) private var dismissWindow
 
     @Bindable var store: StitchStore
     
     var body: some View {
+        // TODO: need to determine a router
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
-                .navigationDestination(for: ProjectLoader.self) { projectLoader in
-                    ZStack { // Attempt to keep view-identity the same
-                        if let document = projectLoader.documentViewModel {
-                            StitchProjectView(store: store,
-                                              document: document,
-                                              alertState: store.alertState)
-                            .onDisappear {
-                                // Remove document from project loader
-                                // MARK: logic needs to be here as its the one place guaranteed to have the project
-                                projectLoader.documentViewModel = nil
-                                
-                                // Close mac screen sharing if still visible
-                                #if targetEnvironment(macCatalyst)
-                                dismissWindow(id: RecordingView.windowId)
-                                #endif
+                .navigationDestination(for: StitchAppRouter.self) { router in
+                    
+                    switch router {
+                    case .project(let projectLoader):
+                        ZStack { // Attempt to keep view-identity the same
+                            if let document = projectLoader.documentViewModel {
+                                StitchProjectView(store: store,
+                                                  document: document,
+                                                  alertState: store.alertState)
+                                .onDisappear {
+                                    // Remove document from project loader
+                                    // MARK: logic needs to be here as its the one place guaranteed to have the project
+                                    projectLoader.documentViewModel = nil
+                                    
+                                    // Close mac screen sharing if still visible
+#if targetEnvironment(macCatalyst)
+                                    dismissWindow(id: RecordingView.windowId)
+#endif
+                                }
                             }
                         }
+                        
+                    case .aiPreviewer(let document, _):
+                        StitchAIProjectViewer(store: store,
+                                              document: document)
                     }
                     
                 }
                 .onChange(of: store.navPath.first) { _, currentProject in
-                    let currentGraphId = currentProject?.id
+                    let currentGraphId = currentProject?.project?.id
                     
                     // Rest undo if project closed
                     if !store.isCurrentProjectSelected {

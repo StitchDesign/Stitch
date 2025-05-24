@@ -30,7 +30,7 @@ final class StitchStore: Sendable {
     //    var defaultComponents = ComponentsDict()
     
     // Navigation path for viewing documents
-    @MainActor var navPath: [ProjectLoader] = []
+    @MainActor var navPath: [StitchAppRouter] = []
     
     @MainActor var isShowingDrawer = false
     
@@ -123,7 +123,7 @@ extension StitchStore {
 
     @MainActor
     var currentDocument: StitchDocumentViewModel? {
-        self.navPath.first?.documentViewModel
+        self.navPath.first?.document
     }
     
     var undoManager: StitchUndoManager {

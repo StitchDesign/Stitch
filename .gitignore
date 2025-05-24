@@ -20,3 +20,7 @@ setup_secrets*.sh
 
 .sentryclirc
 Stitch/GoogleService-Info.plist
+
+# Prevents accidental uploading of datasets
+stitch-v0*.jsonl
+stitch-training.jsonl

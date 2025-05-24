@@ -118,7 +118,7 @@ extension StitchStore {
                 }
                 
                 projectLoader.documentViewModel = documentViewModel
-                self?.navPath = [projectLoader]
+                self?.navPath = [.project(projectLoader)]
                 loadedCallback()
             }
         }
