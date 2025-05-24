@@ -2039,3 +2039,13 @@ Used with the Wireless Broadcaster node to route values across the graph. Useful
 
 *Outputs*
 * The value received from the corresponding broadcast node.
+
+## Delay 1
+
+Delays the incoming value by exactly one frame. Use this to create a 1-frame offset or synchronize signals in your graph.
+
+*Inputs*
+* Any value or signal to delay.
+
+*Outputs*
+* The input value from the previous frame.
