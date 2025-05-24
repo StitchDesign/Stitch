@@ -513,7 +513,6 @@ extension StitchDocumentViewModel {
                                components: .init(),
                                mediaFiles: [],
                                saveLocation: [])
-//        graph.documentEncoderDelegate = encoder
         
         return .init(from: doc,
                      graph: graph,
