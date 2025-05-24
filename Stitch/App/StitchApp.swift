@@ -46,7 +46,15 @@ struct StitchApp: App {
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
-//                    StitchAITrainingData.validateTrainingData(from: "stitch-training")
+//                    do {
+//                        // For 4o
+//                        try StitchAITrainingData.validateTrainingData(from: "stitch-training")
+//    
+//                        // For o4-mini
+//                        try StitchAIReasoningTrainingData.validateTrainingData(from: "stitch-v0.1.17-RFT-VALIDATION")
+//                    } catch {
+//                        print("StitchAITrainingData error: \(error)")
+//                    }
                     
                     // Load and configure the state of all the tips of the app
                     try? Tips.configure()
