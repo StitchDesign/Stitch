@@ -52,11 +52,16 @@ struct StitchAIProjectViewer: View {
                               alertState: store.alertState)
 
             VStack {
-                TextField("Graph from AI Response", text: $aiJsonPrompt)
+                HStack {
+                    TextField("Insert array of JSON actions...",
+                              text: $aiJsonPrompt)
                     .focusedValue(\.focusedField, .aiPreviewerTextField)
                     .onSubmit {
                         validateAiJsonActions()
                     }
+                }
+                .padding()
+                .background(.ultraThinMaterial)
                 
                 Spacer()
             }
