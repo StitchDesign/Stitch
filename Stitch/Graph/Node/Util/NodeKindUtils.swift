@@ -210,7 +210,11 @@ extension NodeKind {
         }
     }
     
-    func getDisplayTitle(customName: String?) -> String {
+    var defaultDisplayTitle: String {
+        self.getDisplayTitle()
+    }
+    
+    func getDisplayTitle(customName: String? = nil) -> String {
         // Always prefer a custom name
         if let customName = customName,
            customName != "" {

@@ -61,6 +61,19 @@ struct StitchApp: App {
                     NodeKind.allCases.forEach { nodeKind in
                         let nodesNotDefined = NodeKind.allCases.filter { NodeDescriptions.forKind($0) == nil }
                         assertInDebug(nodesNotDefined.isEmpty)
+                        
+                        let allNodeTitles = NodeKind.allCases.map(\.defaultDisplayTitle)
+                        let allNodeTitlesSet = allNodeTitles.toSet
+                        
+                        // Ensure no duplicate names
+                        assertInDebug(allNodeTitles.count == allNodeTitlesSet.count)
+                        
+                        let extraNodesInMap = NodeDescriptions.map.filter {
+                            !allNodeTitlesSet.contains($0.key)
+                        }
+                        
+                        // Ensures the markdown doesn't contain extra nodes not captured in schema
+                        assertInDebug(extraNodesInMap.isEmpty)
                     }
                     #endif
                     

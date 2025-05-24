@@ -35,7 +35,7 @@ enum NodeDescriptions {
 
     // MARK: Cached data -------------------------------------------------------
 
-    private static let map: [String: String] = {
+    static let map: [String: String] = {
         guard
             let url = Bundle.main.url(forResource: "Nodes",         // ← Guides/Nodes.md
                                       withExtension: "md"),
@@ -59,14 +59,15 @@ enum NodeDescriptions {
 
         for raw in sections {
             // Each block is: <title>\n<body…>
-            guard
-                let firstBreak = raw.firstIndex(of: "\n")
-            else { continue }                                      // no body
+            guard let firstBreak = raw.firstIndex(of: "\n") else { continue }
 
-            let title = raw[..<firstBreak].trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !title.isEmpty else { continue }
+            let title = raw[..<firstBreak]
+                .trimmingCharacters(in: .whitespacesAndNewlines)
 
-            let body  = raw[firstBreak...]
+            // Ignore the top-level “# …” header (or any accidental single-# line)
+            guard !title.isEmpty, !title.hasPrefix("#") else { continue }
+
+            let body = raw[firstBreak...]
                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
             dict[title] = body

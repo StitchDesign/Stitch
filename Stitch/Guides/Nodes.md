@@ -1045,44 +1045,6 @@ A node for multiplying two numbers.
 *Outputs*
 * The result of the mulitplication
 
-## Native Scroll Interaction
-Adds scroll interaction to a specified layer.
-
-*Inputs*
-* The Layer to add the scroll interaction too
-* Scroll X Enabled
-* Scroll Y Enabled
-* Content Size (Width / Height)
-* Jump Style X
-    • Instant
-    • Animated
-* Jump to X (Pulse)
-* Jump Position X
-* Jump Style Y
-* Jump to Y
-* Jump Position Y
-
-*Outputs*
-* The scroll X/Y position
-
-## Network Request
-The Network Request node allows you to make HTTP GET and POST requests to an endpoint. Results are returned as JSON.
-
-*Inputs*
-* The URL to make the request to
-* URL parameters (as JSON)
-* Request body (as JSON)
-* Request headers (as JSON)
-* Request method (GET or POST)
-* A pulse input that initiates the URL request when triggered
-
-*Outputs*
-* Loading status (a Bool)
-* Request result (as JSON)
-* Error status (a Bool)
-* Error (as JSON)
-* Response headers (as JSON)
-
 ## Not
 Performs a NOT Boolean operation where the input is inverted. For example, if the input is 0, the output is 1. If the input is 0, the output is 0.
 
@@ -1603,9 +1565,6 @@ A node for importing a sound file.
 * Duration of the sound file
 * A loop of amplitude values for 16 component frequencies of the sound file
 
-## Sound Kit
-NOT USED
-
 ## Speaker
 A node for playing audio through the device speaker
 
@@ -2049,3 +2008,22 @@ Delays the incoming value by exactly one frame. Use this to create a 1-frame off
 
 *Outputs*
 * The input value from the previous frame.
+
+## Network Request
+
+The Network Request node allows you to make HTTP GET and POST requests to an endpoint. Results are returned as JSON.
+
+*Inputs*
+* The URL to make the request to
+* URL parameters (as JSON)
+* Request body (as JSON)
+* Request headers (as JSON)
+* Request method (GET or POST)
+* A pulse input that initiates the URL request when triggered
+
+*Outputs*
+* Loading status (a Bool)
+* Request result (as JSON)
+* Error status (a Bool)
+* Error (as JSON)
+* Response headers (as JSON)
