@@ -59,6 +59,10 @@ extension Optional {
     var isDefined: Bool {
         self != nil
     }
+    
+    var isNotDefined: Bool {
+        self == nil
+    }
 }
 
 extension Result {

@@ -731,6 +731,10 @@
 		EC9DB348280F239C0061EC3C /* PortDragActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB347280F239C0061EC3C /* PortDragActions.swift */; };
 		EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9F0C8C26549B38003DFD41 /* CameraFeedNode.swift */; };
 		ECA2E2B927F6210D00D31ECF /* SidebarListItemSelectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA2E2B827F6210D00D31ECF /* SidebarListItemSelectionStatus.swift */; };
+		ECA347CB2DE291EC00B6A8B8 /* StepValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA347CA2DE291EC00B6A8B8 /* StepValidation.swift */; };
+		ECA347CD2DE2921B00B6A8B8 /* StepAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA347CC2DE2921B00B6A8B8 /* StepAction.swift */; };
+		ECA347CF2DE292A100B6A8B8 /* StepApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA347CE2DE292A100B6A8B8 /* StepApplication.swift */; };
+		ECA347D12DE2934600B6A8B8 /* StepDerivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA347D02DE2934600B6A8B8 /* StepDerivation.swift */; };
 		ECA3915B29A6C3C9005C10A8 /* StitchProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA3915A29A6C3C9005C10A8 /* StitchProjectView.swift */; };
 		ECA3915D29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA3915C29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift */; };
 		ECA3915F29A6C410005C10A8 /* StitchNavStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA3915E29A6C410005C10A8 /* StitchNavStack.swift */; };
@@ -1736,6 +1740,10 @@
 		EC9DB347280F239C0061EC3C /* PortDragActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortDragActions.swift; sourceTree = "<group>"; };
 		EC9F0C8C26549B38003DFD41 /* CameraFeedNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeedNode.swift; sourceTree = "<group>"; };
 		ECA2E2B827F6210D00D31ECF /* SidebarListItemSelectionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionStatus.swift; sourceTree = "<group>"; };
+		ECA347CA2DE291EC00B6A8B8 /* StepValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepValidation.swift; sourceTree = "<group>"; };
+		ECA347CC2DE2921B00B6A8B8 /* StepAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepAction.swift; sourceTree = "<group>"; };
+		ECA347CE2DE292A100B6A8B8 /* StepApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepApplication.swift; sourceTree = "<group>"; };
+		ECA347D02DE2934600B6A8B8 /* StepDerivation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepDerivation.swift; sourceTree = "<group>"; };
 		ECA3915A29A6C3C9005C10A8 /* StitchProjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchProjectView.swift; sourceTree = "<group>"; };
 		ECA3915C29A6C3DD005C10A8 /* ProjectsHomeViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsHomeViewWrapper.swift; sourceTree = "<group>"; };
 		ECA3915E29A6C410005C10A8 /* StitchNavStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchNavStack.swift; sourceTree = "<group>"; };
@@ -4067,8 +4075,12 @@
 				B59602142D568396007C7AA9 /* StitchAITypeCasting.swift */,
 				E40B2F542CB86F2B005F5479 /* OpenAIResponseStructs.swift */,
 				ECCF23542D4C6C9300BC2F2F /* Step.swift */,
-				ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */,
 				ECCF23522D4C6C7B00BC2F2F /* StepType.swift */,
+				ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */,
+				ECA347CC2DE2921B00B6A8B8 /* StepAction.swift */,
+				ECA347CE2DE292A100B6A8B8 /* StepApplication.swift */,
+				ECA347CA2DE291EC00B6A8B8 /* StepValidation.swift */,
+				ECA347D02DE2934600B6A8B8 /* StepDerivation.swift */,
 				ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */,
 				ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */,
 				EC0E1AFD2D4B2288004AAA37 /* LLMValueParsingUtils.swift */,
@@ -5158,6 +5170,7 @@
 				205E6DDA25AFCB16001C5C27 /* NodeTesting.swift in Sources */,
 				ECC2BCD32B9B734F00D5F942 /* SidebarItemGestureViewModel.swift in Sources */,
 				ECB661602D9B175900E3C90C /* NodeRowObserverPostProcessing.swift in Sources */,
+				ECA347CB2DE291EC00B6A8B8 /* StepValidation.swift in Sources */,
 				E4085DC629BF899C0057AAAF /* ConvertPositionNode.swift in Sources */,
 				B5EC61F92A5E2174002A639F /* NodeViewType.swift in Sources */,
 				B548533729371E3900C43828 /* RealityView.swift in Sources */,
@@ -5250,6 +5263,7 @@
 				E4F7AC262974B6E700B7F55A /* PreviewRealityLayer.swift in Sources */,
 				ECD0CB3E2DB095E300E1B97A /* GraphSetters.swift in Sources */,
 				EC5E6C892B71839600B4CACC /* AnimatableForwardCircuitLine.swift in Sources */,
+				ECA347CD2DE2921B00B6A8B8 /* StepAction.swift in Sources */,
 				EC28CC9C287E348A00987792 /* PatchDefaultNodeExtensions.swift in Sources */,
 				ECB1B7B226FB9D7A006D9C95 /* FileUtils.swift in Sources */,
 				B5CEC1A428F8D95700BE083E /* StitchAVCaptureSession.swift in Sources */,
@@ -5266,6 +5280,7 @@
 				ECF6AEF5263CB7C70011C679 /* CoreMLClassifyNode.swift in Sources */,
 				EC6C68D42937D27A0023B700 /* ArrayCountNode.swift in Sources */,
 				ECDBD8AD27A1D2E300F8DC91 /* GraphBaseView.swift in Sources */,
+				ECA347D12DE2934600B6A8B8 /* StepDerivation.swift in Sources */,
 				B548533929371E7B00C43828 /* ARUtils.swift in Sources */,
 				ECDD4E0E2CC065BE003B4F9A /* MaterialLayerNode.swift in Sources */,
 				ECE35EDC27CEDB3F00CB8F5C /* LayerSizeUtils.swift in Sources */,
@@ -5632,6 +5647,7 @@
 				EC1B41B426BCB0910016C2C2 /* NodeCreatedAction.swift in Sources */,
 				ECC2BCDD2B9B74D200D5F942 /* SidebarListItemChevronView.swift in Sources */,
 				ECF2ED132A732B5A003EB106 /* MomentumAnimationState.swift in Sources */,
+				ECA347CF2DE292A100B6A8B8 /* StepApplication.swift in Sources */,
 				EC733DC02639CB2100DD4EC1 /* Interactions.swift in Sources */,
 				EC31438728189FDF0023DB26 /* ProjectCreatedActions.swift in Sources */,
 				EC3127F62BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift in Sources */,
