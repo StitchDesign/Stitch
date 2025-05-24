@@ -10,23 +10,25 @@ import StitchSchemaKit
 
 final actor DocumentEncoder: DocumentEncodable {
     let documentId: UUID
-    let saveLocation: EncoderDirectoryLocation
+    
+    // Nil case allows for no encoding saving (used by graph viewer)
+    let saveLocation: EncoderDirectoryLocation?
     
     @MainActor weak var delegate: StitchDocumentViewModel?
     
     @MainActor
-    init(document: StitchDocument) {
-        self.saveLocation = .document(.document(document.id))
+    init(document: StitchDocument,
+         disableSaves: Bool = false) {
+        self.saveLocation = disableSaves ? nil : .document(.document(document.id))
         self.documentId = document.graph.id
         self.lastEncodedDocument = document
     }
 }
 
-
 final actor ComponentEncoder: DocumentEncodable {
     let id: UUID
     var documentId: UUID
-    let saveLocation: EncoderDirectoryLocation
+    let saveLocation: EncoderDirectoryLocation?
     
     @MainActor weak var delegate: StitchMasterComponent?
     

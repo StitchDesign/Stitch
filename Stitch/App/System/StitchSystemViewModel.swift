@@ -31,8 +31,9 @@ final class StitchSystemViewModel: Sendable, Identifiable {
     
     @MainActor
     func refreshComponents() {
-        if let decodedFiles = DocumentEncoder
-            .getDecodedFiles(rootUrl: self.encoder.rootUrl) {
+        if let rootUrl = self.encoder.rootUrl,
+           let decodedFiles = DocumentEncoder
+            .getDecodedFiles(rootUrl: rootUrl) {
             let newComponents = self.components.sync(with: decodedFiles.components,
                                                            updateCallback: { component, data in
                 var data = data

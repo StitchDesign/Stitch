@@ -136,11 +136,12 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
+         documentEncoder: DocumentEncoder?,
          projectLoader: ProjectLoader?,
          store: StitchStore,
          isDebugMode: Bool) {
         self.rootId = schema.id
-        self.documentEncoder = projectLoader?.encoder
+        self.documentEncoder = documentEncoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
@@ -162,6 +163,20 @@ final class StitchDocumentViewModel: Sendable {
         
         self.initializeDelegate(store: store,
                                 isInitialization: true)
+    }
+    
+    @MainActor
+    convenience init(from schema: StitchDocument,
+                     graph: GraphState,
+                     projectLoader: ProjectLoader?,
+                     store: StitchStore,
+                     isDebugMode: Bool) {
+        self.init(from: schema,
+                  graph: graph,
+                  documentEncoder: projectLoader?.encoder,
+                  projectLoader: projectLoader,
+                  store: store,
+                  isDebugMode: isDebugMode)
     }
     
     @MainActor
@@ -486,12 +501,20 @@ extension StitchDocumentViewModel {
         return documentViewModel
     }
     
-    @MainActor static func createEmpty() -> StitchDocumentViewModel {
+    @MainActor static func createEmpty(document: StitchDocument = .init(),
+                                       encoder: DocumentEncoder? = nil) -> StitchDocumentViewModel {
         let store = StitchStore()
-        let doc = StitchDocument()
+        let doc = document
+        let graph = GraphState(from: doc.graph,
+                               nodes: [:],
+                               components: .init(),
+                               mediaFiles: [],
+                               saveLocation: [])
+//        graph.documentEncoderDelegate = encoder
         
         return .init(from: doc,
-                     graph: .init(),
+                     graph: graph,
+                     documentEncoder: encoder,
                      projectLoader: nil,
                      store: store,
                      isDebugMode: false)
