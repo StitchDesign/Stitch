@@ -210,7 +210,11 @@ extension NodeKind {
         }
     }
     
-    func getDisplayTitle(customName: String?) -> String {
+    var defaultDisplayTitle: String {
+        self.getDisplayTitle()
+    }
+    
+    func getDisplayTitle(customName: String? = nil) -> String {
         // Always prefer a custom name
         if let customName = customName,
            customName != "" {
@@ -237,5 +241,24 @@ extension NodeKind {
         
         return self.graphNode?.rowDefinitions(for: userVisibleType)
             .inputs[safe: portId]?.canDirectlyCopyUpstreamValues ?? false
+    }
+}
+
+extension NodeKind: CaseIterable {
+    public static var allCases: [StitchSchemaKit.NodeKind_V31.NodeKind] {
+        let patchCases = Patch.allCases.map(NodeKind.patch)
+        let layerCases = Layer.allCases.map(NodeKind.layer)
+        return patchCases + layerCases
+    }
+    
+    var nodeDescriptionBody: String {
+        switch self {
+        case .patch(let patch):
+            return patch.nodeDescriptionBody
+        case .layer(let layer):
+            return layer.nodeDescriptionBody
+        default:
+            fatalError()
+        }
     }
 }

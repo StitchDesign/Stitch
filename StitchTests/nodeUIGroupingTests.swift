@@ -37,9 +37,9 @@ class GroupNodeTests: XCTestCase {
         let graphState = documentViewModel.graph
         
         // Create two Add nodes
-        guard let node1 = documentViewModel.nodeInserted(choice: .patch(.add)),
-              let node2 = documentViewModel.nodeInserted(choice: .patch(.add)),
-              let canvasNode1 = node1.nonLayerCanvasItem,
+        let node1 = documentViewModel.nodeInserted(choice: .patch(.add))
+        let node2 = documentViewModel.nodeInserted(choice: .patch(.add))
+        guard let canvasNode1 = node1.nonLayerCanvasItem,
               let canvasNode2 = node2.nonLayerCanvasItem else {
 //            XCTAbortTest()
             fatalError("failed to create Add nodes")

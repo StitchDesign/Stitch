@@ -123,13 +123,13 @@ extension Patch {
         case .arRaycasting:
             return "Raycasting"
         case .base64StringToImage:
-            return "Base64 To Image"
+            return "Base64 to Image"
         case .imageToBase64String:
-            return "Image To Base64"
+            return "Image to Base64"
         case .whenPrototypeStarts:
             return "On Prototype Start"
         case .jsonToShape:
-            return "JSON To Shape"
+            return "JSON to Shape"
         case .jsonArray:
             return "JSON Array"
         case .jsonObject:
@@ -315,7 +315,7 @@ extension Patch {
         case .lessThan:
             return "Less Than"
         case .colorToHex:
-            return "Color To Hex"
+            return "Color to Hex"
         case .hexColor:
             return "Hex Color"
         case .splitText:
