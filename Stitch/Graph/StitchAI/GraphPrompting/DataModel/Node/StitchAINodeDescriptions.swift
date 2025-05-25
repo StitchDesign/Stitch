@@ -333,6 +333,8 @@ extension Patch: NodeKindDescribable {
             return "Convert response and damping ratio to mass, stiffness and damping for a Spring Animation node."
         case .springFromSettlingDurationAndDampingRatio:
             return "Convert settling duration and damping ratio to mass, stiffness and damping for a Spring Animation node."
+        case .javascript:
+            return "A node that uses JavaScript code underneath the hood. Can be created using Stitch AI."
         }
     }
 }

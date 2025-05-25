@@ -32,7 +32,7 @@ struct InsertNodeMenuSearchBar: View {
         let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
         return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
     }
-    
+
     var isLoadingAIResult: Bool {
         store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
     }
@@ -44,7 +44,8 @@ struct InsertNodeMenuSearchBar: View {
             
             self.isLoadingStitchAI = true
             
-            dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
+            dispatch(SubmitUserPromptToOpenAI(prompt: queryString,
+                                              requestType: .stitchAIGraph))
         } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
             dispatch(AddNodeButtonPressed())
         }

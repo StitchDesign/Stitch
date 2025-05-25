@@ -320,7 +320,7 @@ extension NodeIOPortType {
 extension NodeType {
     init(llmString: String) throws {
         guard let match = NodeType.allCases.first(where: {
-            $0.asLLMStepNodeType == llmString
+            $0.asLLMStepNodeType == llmString.toCamelCase()
         }) else {
             throw StitchAIParsingError.nodeTypeParsing(llmString)
         }

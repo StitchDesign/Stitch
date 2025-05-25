@@ -7,25 +7,15 @@
 
 import SwiftUI
 
-
-// A user's
-struct UserAIPrompt: Equatable, Hashable {
-    var value: String
-    
-    init(_ string: String) {
-        self.value = string
-    }
-}
-
 struct ExistingGraphAsTrainingExample: Equatable, Hashable {
     var graph: GraphEntity
-    var prompt: UserAIPrompt
+    var prompt: String
     var rating: StitchAIRating
 }
 
 struct ExistingGraphSubmittedAsTrainingExample: StitchDocumentEvent {
     
-    let prompt: UserAIPrompt
+    let prompt: String
     let rating: StitchAIRating
     
     func handle(state: StitchDocumentViewModel) {

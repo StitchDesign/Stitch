@@ -19,20 +19,51 @@ let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
-struct OpenAIRequest: Equatable, Hashable {
+struct OpenAIRequest {
+    enum RequestType {
+        case stitchAIGraph
+        case jsNode
+    }
+    
     private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
-    let prompt: UserAIPrompt             // User's input prompt
-    let systemPrompt: String       // System-level instructions loaded from file
+    let userPrompt: String             // User's input prompt
+    let systemPrompt: String
     let config: OpenAIRequestConfig // Request configuration settings
+    let payloadData: Data
     
     /// Initialize a new request with prompt and optional configuration
     @MainActor
     init(prompt: String,
+         requestType: RequestType,
+         secrets: Secrets,
          config: OpenAIRequestConfig = .default,
-         systemPrompt: String) {
-        self.prompt = .init(prompt)
+         graph: GraphState) throws {
+        let encoder = JSONEncoder()
+        
+        self.userPrompt = prompt
         self.config = config
-        self.systemPrompt = systemPrompt
+        
+        // Load system prompt from bundled file
+        switch requestType {
+        case .stitchAIGraph:
+            let systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
+            self.systemPrompt = systemPrompt
+            
+            // Construct http payload
+            let payload = try StitchAIRequest(secrets: secrets,
+                                              userPrompt: prompt,
+                                              systemPrompt: systemPrompt)
+            self.payloadData = try encoder.encode(payload)
+        case .jsNode:
+            let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
+            self.systemPrompt = systemPrompt
+            
+            // Construct http payload
+            let payload = try EditJsNodeRequest(secrets: secrets,
+                                                userPrompt: prompt,
+                                                systemPrompt: systemPrompt)
+            self.payloadData = try encoder.encode(payload)
+        }
     }
 }
 
@@ -67,7 +98,7 @@ extension StitchAIManager {
                         fatalErrorIfDebug("getOpenAIStreamingTask: no document")
                         return
                     }
-                    aiManager.openAIStreamingCompleted(originalPrompt: request.prompt,
+                    aiManager.openAIStreamingCompleted(originalPrompt: request.userPrompt,
                                                        request: request,
                                                        document: document)
                 }
@@ -111,7 +142,7 @@ extension StitchAIManager {
                                        secrets: Secrets) -> URLRequest? {
         
         let config = request.config
-        let prompt = request.prompt
+        let prompt = request.userPrompt
         let systemPrompt = request.systemPrompt
                 
         // Configure request headers and parameters
@@ -252,7 +283,7 @@ extension StitchAIManager {
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
     // fka `openAIRequestCompleted`
     @MainActor
-    func openAIStreamingCompleted(originalPrompt: UserAIPrompt,
+    func openAIStreamingCompleted(originalPrompt: String,
                                   request: OpenAIRequest,
                                   document: StitchDocumentViewModel) {
         log("openAIStreamingCompleted called")
@@ -274,7 +305,7 @@ extension StitchAIManager {
         
         // Only ask for rating if we received some actions
         if !document.llmRecording.streamedSteps.isEmpty {
-            document.llmRecording.modal = .ratingToast(userInputPrompt: request.prompt)
+            document.llmRecording.modal = .ratingToast(userInputPrompt: request.userPrompt)
         }
         
                 

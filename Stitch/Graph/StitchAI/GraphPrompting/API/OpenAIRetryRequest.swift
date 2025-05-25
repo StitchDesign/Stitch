@@ -18,7 +18,7 @@ extension StitchAIManager {
                                document: StitchDocumentViewModel,
                                canShareAIRetries: Bool) async {
         
-        log("StitchAIManager: retryOrShowErrorModal called: attempt: \(attempt), request.prompt: \(request.prompt)")
+        log("StitchAIManager: retryOrShowErrorModal called: attempt: \(attempt), request.prompt: \(request.userPrompt)")
         
         if let retryError = await _retryRequest(request: request,
                                                 steps: steps,
@@ -77,7 +77,7 @@ extension StitchAIManager {
                 
                 do {
                     try await aiManager.uploadActionsToSupabase(
-                        prompt: request.prompt,
+                        prompt: request.userPrompt,
                         // Send the raw-streamed steps
                         finalActions: Array(document.llmRecording.streamedSteps),
                         deviceUUID: deviceUUID,
@@ -158,6 +158,6 @@ extension StitchDocumentViewModel {
         self.aiManager?.currentTask = nil
         
         self.showErrorModal(message: error.description,
-                            userPrompt: request.prompt)
+                            userPrompt: request.userPrompt)
     }
 }

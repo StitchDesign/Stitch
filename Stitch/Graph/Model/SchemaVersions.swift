@@ -110,6 +110,8 @@ public typealias StitchSystem = CurrentStitchSystem.StitchSystem
 public typealias StitchSystemType = CurrentStitchSystemType.StitchSystemType
 public typealias DeviceAppearance = CurrentDeviceAppearance.DeviceAppearance
 public typealias MaterialThickness = CurrentMaterialThickness.MaterialThickness
+public typealias JavaScriptNodeSettings = CurrentJavaScriptNodeSettings.JavaScriptNodeSettings
+public typealias JavaScriptPortDefinition = CurrentJavaScriptPortDefinition.JavaScriptPortDefinition
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument
@@ -206,6 +208,8 @@ extension StitchDocumentVersion {
             return StitchDocument_V30.StitchDocument.self
         case ._V31:
             return StitchDocument_V31.StitchDocument.self
+        case ._V32:
+            return StitchDocument_V32.StitchDocument.self
         }
     }
 }
@@ -230,6 +234,8 @@ extension StitchSystemVersion {
             return StitchSystem_V30.StitchSystem.self
         case ._V31:
             return StitchSystem_V31.StitchSystem.self
+        case ._V32:
+            return StitchSystem_V32.StitchSystem.self
         }
     }
 }
@@ -253,7 +259,9 @@ extension StitchComponentVersion {
         case ._V30:
             return StitchComponent_V30.StitchComponent.self
         case ._V31:
-            return StitchComponent_V30.StitchComponent.self
+            return StitchComponent_V31.StitchComponent.self
+        case ._V32:
+            return StitchComponent_V32.StitchComponent.self
         }
     }
 }

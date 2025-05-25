@@ -86,6 +86,11 @@ func getLabelForRowObserver(node: PatchOrLayerNode,
 @MainActor
 func getLabelForOutput(portId: Int,
                        node: PatchOrLayerNode) -> String {
+    if let javaScriptNodeSettings = node.patchNode?.javaScriptNodeSettings,
+       let outputDefinition = javaScriptNodeSettings.outputDefinitions[safe: portId] {
+        return outputDefinition.label
+    }
+    
     let outputs = node.patchOrLayer
         .rowDefinitionsOldOrNewStyle(for: node.patchNode?.userVisibleType)
         .outputs
@@ -105,6 +110,11 @@ func getLabelForPatchInput(portId: Int,
     if let mathExpr = patch.mathExpression?.getSoulverVariables(),
        let variableChar = mathExpr[safe: portId] {
         return String(variableChar)
+    }
+    
+    if let javaScriptNodeSettings = patch.javaScriptNodeSettings,
+       let inputDefinition = javaScriptNodeSettings.inputDefinitions[safe: portId] {
+        return inputDefinition.label
     }
     
     let rowDefinitions = patch.patchOrLayer.rowDefinitionsOldOrNewStyle(for: patch.userVisibleType)

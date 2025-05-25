@@ -21,7 +21,7 @@ struct EditBeforeSubmitModalView: View {
     
     // TODO: Shouldn't we *always* have a prompt at this point ?
     var prompt: String {
-        recordingState.promptForTrainingDataOrCompletedRequest?.value ?? ""
+        recordingState.promptForTrainingDataOrCompletedRequest ?? ""
     }
 
     var body: some View {
@@ -193,6 +193,9 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "Children: \(x.children.map { $0.debugFriendlyId }.joined(separator: ", "))")
                 }
                 
+            case .editJSNode(let x):
+                StitchTextView(string: "Edit JS Node")
+                
             case .none:
                 FatalErrorIfDebugView()
             }
@@ -205,7 +208,7 @@ struct LLMActionCorrectionView: View {
     @ViewBuilder
     var stepTypeAndDeleteView: some View {
         HStack {
-            StitchTextView(string: "Step Type: \(action.toStep.stepType.display)")
+            StitchTextView(string: "Step Type: \(action.toStep.stepType?.display)")
             Spacer()
             Image(systemName: "trash")
                 .onTapGesture {
