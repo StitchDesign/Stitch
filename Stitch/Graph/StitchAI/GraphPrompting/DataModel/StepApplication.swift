@@ -155,11 +155,10 @@ extension StitchDocumentViewModel {
         // 'De-apply' (i.e. remove the effects of) the original actions
         self.deapplyActions(actions: originalSteps)
         
-        
         // Then apply the original actions + the new action
         let newSteps = originalSteps + [newStep]
-        
-        // self.llmRecording.actions = newSteps
+
+        self.llmRecording.actions = newSteps
         
         if let validationError = self.validateAndApplyActions(newSteps) {
             return validationError

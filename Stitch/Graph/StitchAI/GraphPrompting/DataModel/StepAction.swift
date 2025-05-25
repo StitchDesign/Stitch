@@ -9,6 +9,7 @@ import Foundation
 
 typealias StepActionables = [any StepActionable]
 
+// TODO: enum is probably better than protocol here; protocol is for contract (often: scoping down), enum is for data; the main question is "Do these things need to be equatable / comparable?"; if something needs to support equality comparisons, then it's data, not a contract
 protocol StepActionable: Hashable, Codable, Sendable, Identifiable {
     static var stepType: StepType { get }
         
