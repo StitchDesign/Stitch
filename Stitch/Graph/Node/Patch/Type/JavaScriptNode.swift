@@ -50,37 +50,7 @@ struct JavaScriptNode: PatchNodeDefinition {
         // 3. Evaluate a script
         let script = patchNode.javascriptString
         let result = jsContext.evaluateScript("""
-function evaluate(inputs) {
-  const strings = inputs[0];
-
-  // Basic keyword sentiment map
-  const positiveWords = ["good", "great", "love", "happy", "excellent", "awesome"];
-  const negativeWords = ["bad", "hate", "sad", "terrible", "awful", "horrible"];
-
-  const result = strings.map(s => {
-    const text = s.value.toLowerCase();
-    let score = 0;
-
-    for (const word of positiveWords) {
-      if (text.includes(word)) score += 1;
-    }
-
-    for (const word of negativeWords) {
-      if (text.includes(word)) score -= 1;
-    }
-
-    // Normalize to -1 / 0 / 1
-    const normalized = score > 0 ? 1 : score < 0 ? -1 : 0;
-
-    return {
-      value: normalized,
-      value_type: "number"
-    };
-  });
-
-  return [result];
-}
-
+\(script)
 // Get result from eval using node_inputs, which is passed from Swift land
 let result = evaluate(node_inputs)
 

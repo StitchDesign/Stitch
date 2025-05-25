@@ -120,6 +120,18 @@ struct NodeView: View {
             
             CanvasItemBodyDivider()
             
+            // TODO: remove this logic, there won't be a custom view like this for JS node
+            if stitch.kind == .patch(.javascript),
+                let patchNode = stitch.patchNode {
+                @Bindable var patchNode = patchNode
+                TextField("Javascript here...",
+                          text: $patchNode.javascriptString,
+                          axis: .vertical)
+                .height(15)
+                .padding()
+                .background(.ultraThickMaterial)
+            }
+            
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
         }
@@ -169,17 +181,7 @@ struct NodeView: View {
             inputsViews()
                 .zIndex(9999)
             
-            // TODO: remove this logic, there won't be a custom view like this for JS node
-            if stitch.kind != .patch(.javascript) {
-                Spacer()
-            }
-            
-            else if let patchNode = stitch.patchNode {
-                @Bindable var patchNode = patchNode
-                TextField("Javascript here...",
-                          text: $patchNode.javascriptString,
-                          axis: .vertical)
-            }
+            Spacer()
             
             outputsViews()
                 .zIndex(-9999)
