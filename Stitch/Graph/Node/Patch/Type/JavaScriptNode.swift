@@ -34,21 +34,58 @@ struct JavaScriptNode: PatchNodeDefinition {
         let aiDataFromInputs = inputValuesList.map { inputValues in
             inputValues
                 .map {
-                    let aiData = Step(value: $0, valueType: $0.toNodeType)
-                    let encodingString = try! aiData.encodeToPrintableString()
-                    return encodingString
+                    Step(value: $0, valueType: $0.toNodeType)
                 }
         }
-
+        
+        // Encode ➜ JSON ➜ Foundation object ➜ JS
+        guard let data = try? JSONEncoder().encode(aiDataFromInputs),
+              let jsonObject = try? JSONSerialization.jsonObject(with: data) else {   // [String: Any]
+            fatalErrorIfDebug()
+            return .init(outputsValues: [[.number(.zero)]])
+        }
+        
+        jsContext.setObject(jsonObject, forKeyedSubscript: "node_inputs" as NSString)
+        
         // 3. Evaluate a script
         let script = patchNode.javascriptString
         let result = jsContext.evaluateScript("""
 function evaluate(inputs) {
-  return inputs
+  const strings = inputs[0];
+
+  // Basic keyword sentiment map
+  const positiveWords = ["good", "great", "love", "happy", "excellent", "awesome"];
+  const negativeWords = ["bad", "hate", "sad", "terrible", "awful", "horrible"];
+
+  const result = strings.map(s => {
+    const text = s.value.toLowerCase();
+    let score = 0;
+
+    for (const word of positiveWords) {
+      if (text.includes(word)) score += 1;
+    }
+
+    for (const word of negativeWords) {
+      if (text.includes(word)) score -= 1;
+    }
+
+    // Normalize to -1 / 0 / 1
+    const normalized = score > 0 ? 1 : score < 0 ? -1 : 0;
+
+    return {
+      value: normalized,
+      value_type: "number"
+    };
+  });
+
+  return [result];
 }
 
-console.log("YOYOYO")
-evaluate(\(aiDataFromInputs))
+// Get result from eval using node_inputs, which is passed from Swift land
+let result = evaluate(node_inputs)
+
+// Return result into string, which gets picked up from Swift
+JSON.stringify(result)
 """
         )
         
@@ -56,7 +93,7 @@ evaluate(\(aiDataFromInputs))
             return .init(outputsValues: [[.number(.zero)]])
         }
         
-        log("javascript result: \(stringResult)")
+        print("javascript result: \(stringResult)")
         
 //        let steps = try data.getOpenAISteps()
         
