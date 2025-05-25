@@ -16,7 +16,7 @@ extension Patch {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
-                         graphDelegate: graph)!
+                         graphDelegate: graph)
     }
 }
 
@@ -26,7 +26,7 @@ extension Layer {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
-                         graphDelegate: graph)!
+                         graphDelegate: graph)
     }
 
     func getTestBundle() -> Bundle {

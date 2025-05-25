@@ -42,20 +42,17 @@ final class loopTests: XCTestCase {
          Not caught by existing JSONArrayFromValues test because the bug came from `nodeViewModel.loopedEval` helper.
          */
         let document = StitchDocumentViewModel.createTestFriendlyDocument(store)
-        if let node = document.nodeInserted(choice: .patch(.jsonArray)) {
+        let node = document.nodeInserted(choice: .patch(.jsonArray))
             
-            // How many inputs does the JSONArray node have?
-            let inputCount = node.inputs.count
-            let result: EvalResult = jsonArrayEval(node: node)
-            
-            // Result should be a JSON, with as many elements as there are are inputs
-            if let arrayCount = result.outputsValues.first?.first?.getJSON?.array?.count {
-                XCTAssertEqual(inputCount, arrayCount)
-            } else {
-                XCTFail("testJSONArray: No json array")
-            }
+        // How many inputs does the JSONArray node have?
+        let inputCount = node.inputs.count
+        let result: EvalResult = jsonArrayEval(node: node)
+        
+        // Result should be a JSON, with as many elements as there are are inputs
+        if let arrayCount = result.outputsValues.first?.first?.getJSON?.array?.count {
+            XCTAssertEqual(inputCount, arrayCount)
         } else {
-            XCTFail("testJSONArray: Could not create node")
+            XCTFail("testJSONArray: No json array")
         }
     }
 } // loopTests
