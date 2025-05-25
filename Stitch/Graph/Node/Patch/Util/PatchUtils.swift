@@ -384,27 +384,32 @@ extension Patch {
             return "QR Code Detection"
         case .delayOne:
             return "Delay 1"
+        case .javascript:
+            return "JavaScript"
         // TODO: assume that rawValue for all patches added will have properly capitalized display-value, and so just use `default: return self.rawValue`
         case .sizePack, .sizeUnpack, .positionPack, .positionUnpack, .point3DPack, .point3DUnpack, .point4DPack, .point4DUnpack, .transformPack, .transformUnpack, .closePath, .moveToPack, .lineToPack, .curveToPack, .curveToUnpack, .mathExpression, .springFromDurationAndBounce, .springFromResponseAndDampingRatio, .springFromSettlingDurationAndDampingRatio:
             return self.rawValue
         }
     }
 
+    static let excludedPatches: Set<Patch> = .init([
+        // TODO: Fix `SampleRange` node with media
+        .sampleRange,
+        // Prefer type-specific pack and unpack patches
+        .pack,
+        .unpack
+    ])
     
     // Previously used to filter some incomplete patches but currently we show all
     static var searchablePatches: [Patch] {
-        //        Patch.allCases
-        Patch.allCases.filter { patch in
-            
-            // TODO: Fix `SampleRange` node with media
-            patch != .sampleRange
-            
-            // Prefer type-specific pack and unpack patches
-            && patch != .pack
-            && patch != .unpack
-            
-//            // Prefer .nativeScrollInteraction
-//            && patch != .scrollInteraction
+        var excludedPatches = Self.excludedPatches
+        
+        if !FeatureFlags.ENABLE_JS_NODE {
+            excludedPatches.insert(.javascript)
+        }
+        
+        return Patch.allCases.filter { patch in
+            !excludedPatches.contains(patch)
         }
     }
 

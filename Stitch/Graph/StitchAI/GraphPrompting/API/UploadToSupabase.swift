@@ -25,7 +25,7 @@ struct RecordingWrapper: Codable {
 }
 
 extension StitchAIManager {
-    // Should the app really be running, if we can't
+    // Should the app really be running, if we can't    
     @MainActor static func getDeviceUUID() -> String? {
         guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {
             log("Unable to retrieve device UUID", .logToServer)
@@ -39,7 +39,7 @@ extension StitchAIManager {
         return deviceUUID
     }
     
-    func uploadActionsToSupabase(prompt: UserAIPrompt,
+    func uploadActionsToSupabase(prompt: String,
                                  finalActions: [Step],
                                  deviceUUID: String,
                                  isCorrection: Bool,
@@ -51,7 +51,7 @@ extension StitchAIManager {
                                  requiredRetry: Bool) async throws {
         
         let wrapper = RecordingWrapper(
-            prompt: prompt.value,
+            prompt: prompt,
             actions: finalActions)
         
         // Not good to have as a var in an async context?

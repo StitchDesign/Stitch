@@ -7,25 +7,15 @@
 
 import SwiftUI
 
-
-// A user's
-struct UserAIPrompt: Equatable, Hashable {
-    var value: String
-    
-    init(_ string: String) {
-        self.value = string
-    }
-}
-
 struct ExistingGraphAsTrainingExample: Equatable, Hashable {
     var graph: GraphEntity
-    var prompt: UserAIPrompt
+    var prompt: String
     var rating: StitchAIRating
 }
 
 struct ExistingGraphSubmittedAsTrainingExample: StitchDocumentEvent {
     
-    let prompt: UserAIPrompt
+    let prompt: String
     let rating: StitchAIRating
     
     func handle(state: StitchDocumentViewModel) {
@@ -65,7 +55,7 @@ struct ShowCreateTrainingDataFromExistingGraphModal: StitchDocumentEvent {
 
 struct SubmitExistingGraphAsTrainingExampleModalView: View {
     
-    let promptFromPreviousExistingGraphSubmittedAsTrainingData: UserAIPrompt?
+    let promptFromPreviousExistingGraphSubmittedAsTrainingData: String?
     let ratingFromPreviousExistingGraphSubmittedAsTrainingData: StitchAIRating?
     
     @State var prompt: String = ""
@@ -94,7 +84,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
         .cornerRadius(8)
         .onAppear {
             if let existingPrompt = self.promptFromPreviousExistingGraphSubmittedAsTrainingData {
-                self.prompt = existingPrompt.value
+                self.prompt = existingPrompt
             }
             if let existingRating = self.ratingFromPreviousExistingGraphSubmittedAsTrainingData {
                 self.currentRating = existingRating

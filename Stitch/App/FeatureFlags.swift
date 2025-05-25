@@ -28,6 +28,11 @@ struct FeatureFlags {
     static let STITCH_AI_REASONING = true
 #else
     static let STITCH_AI_REASONING = false
-#endif
+    #endif
     
+    #if DEV_DEBUG
+    static let ENABLE_JS_NODE = true
+    #else
+    static let ENABLE_JS_NODE = false
+    #endif
 }

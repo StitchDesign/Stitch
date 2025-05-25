@@ -40,7 +40,7 @@ struct ChunkProcessed: StitchStoreEvent {
         Task(priority: .high) { [weak aiManager] in
             
             guard let aiManager = aiManager,
-                  var nodeIdMap = aiManager.currentTask?.nodeIdMap else {
+                  let nodeIdMap = aiManager.currentTask?.nodeIdMap else {
                 log("ChunkProcessed: Did not have AI manager and/or current task")
                 return
             }
@@ -48,7 +48,7 @@ struct ChunkProcessed: StitchStoreEvent {
             switch parseAttempt {
                 
             case .failure(let parsingError):
-                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: parsingError: \(parsingError) for request.prompt: \(request.prompt)")
+                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: parsingError: \(parsingError) for request.prompt: \(request.userPrompt)")
                 if parsingError.shouldRetryRequest {
                     await aiManager.retryOrShowErrorModal(
                         request: request,
@@ -72,7 +72,7 @@ struct ChunkProcessed: StitchStoreEvent {
                 
                 if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
                                                                  newStep: parsedStep) {
-                    log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: validationError: \(validationError) for request.prompt: \(request.prompt)")
+                    log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: validationError: \(validationError) for request.prompt: \(request.userPrompt)")
                     if validationError.shouldRetryRequest {
                         await aiManager.retryOrShowErrorModal(
                             request: request,
@@ -104,7 +104,7 @@ func provideGenuinelyUniqueUUIDForAIStep<T: StepActionable>(
     
     var nodeIdMap = nodeIdMap
     
-    if unparsedStep.stepType.introducesNewNode,
+    if unparsedStep.stepType?.introducesNewNode ?? false,
        let newStepNodeId: StitchAIUUID = unparsedStep.nodeId {
         // log("ChunkProcessed: nodeIdMap was: \(nodeIdMap)")
         nodeIdMap.updateValue(

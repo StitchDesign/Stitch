@@ -442,6 +442,98 @@ struct StepActionSetInput: StepActionable {
     }
 }
 
+struct StepActionEditJSNode {
+    static let stepType: StepType = .editJSNode
+    
+    var settings: JavaScriptNodeSettings
+    
+}
+
+extension StepActionEditJSNode: StepActionable {
+    init(script: String,
+         inputDefinitions: [JavaScriptPortDefinition],
+         outputDefinitions: [JavaScriptPortDefinition]) {
+        self.init(settings: .init(script: script,
+                                  inputDefinitions: inputDefinitions,
+                                  outputDefinitions: outputDefinitions)
+        )
+    }
+    
+    var script: String {
+        self.settings.script
+    }
+    var inputDefinitions: [JavaScriptPortDefinition] {
+        self.settings.inputDefinitions
+    }
+    var outputDefinitions: [JavaScriptPortDefinition] {
+        self.settings.outputDefinitions
+    }
+    
+    static func fromStep(_ action: Step) -> Result<Self, StitchAIStepHandlingError> {
+        guard let script = action.script,
+              let inputs: [JavaScriptPortDefinition] = .init(from: action.inputDefinitions),
+              let outputs: [JavaScriptPortDefinition] = .init(from: action.outputDefinitions) else {
+            print("JavaScript node: unable extract all requested data from: \(action)")
+            return .failure(.stepDecoding(.editJSNode, action))
+        }
+        
+        return .success(.init(script: script,
+                              inputDefinitions: inputs,
+                              outputDefinitions: outputs))
+    }
+    
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [
+        .stepType, .script, .inputDefinitions, .outputDefinitions
+    ]
+    
+    var toStep: Step {
+        Step(stepType: .editJSNode,
+             script: script,
+             inputDefinitions: inputDefinitions.map(\.aiStep),
+             outputDefinitions: outputDefinitions.map(\.aiStep))
+    }
+    
+    static func createStructuredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .editJSNode,
+              script: OpenAISchema(type: .string),
+              inputDefinitions: OpenAISchemaRef(ref: "PortDefinitions"),
+              outputDefinitions: OpenAISchemaRef(ref: "PortDefinitions")
+        )
+    }
+    
+    func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
+        let graph = document.visibleGraph
+        
+        guard let nodeId = document.aiManager?.jsRequestNodeId,
+              let node = graph.getNode(nodeId),
+              let patchNode = node.patchNode else {
+            return .actionValidationError("StepActionEditJSNode.applyAction error: state missing")
+        }
+        
+        // Reset request
+        document.aiManager?.jsRequestNodeId = nil
+        
+        // Sets new data and recalculate
+        patchNode.processNewJavascript(response: self.settings)
+        
+        return nil
+    }
+    
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
+        // Nothing to do
+    }
+    
+    func validate(createdNodes: [NodeId : PatchOrLayer]) -> Result<[NodeId : PatchOrLayer], StitchAIStepHandlingError> {
+        // Nothing to do
+        return .success(createdNodes)
+    }
+    
+    func remapNodeIds(nodeIdMap: [StitchAIUUID : NodeId]) -> StepActionEditJSNode {
+        // Do nothing
+        return self
+    }
+}
+
 extension StepActionable {
     var toPortCoordinate: NodeIOCoordinate? {
         let step = self.toStep

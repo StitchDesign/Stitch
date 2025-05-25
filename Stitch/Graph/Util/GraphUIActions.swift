@@ -169,21 +169,36 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 /// fka `GenerateAINode`
 struct SubmitUserPromptToOpenAI: StitchStoreEvent {
     let prompt: String
+    let requestType: OpenAIRequest.RequestType
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        store.currentDocument?.stitchAIRequest(requestType,
+                                               prompt: prompt,
+                                               canShareAIRetries: store.canShareAIRetries)
+        
+        return .noChange
+    }
+}
+
+extension StitchDocumentViewModel {
+    @MainActor
+    func stitchAIRequest(_ requestType: OpenAIRequest.RequestType,
+                         prompt: String,
+                         canShareAIRetries: Bool) {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(prompt)")
+        let state = self
         
-        guard let state = store.currentDocument,
-                let aiManager = state.aiManager else {
+        guard let secrets = state.aiManager?.secrets,
+              let aiManager = state.aiManager else {
             fatalErrorIfDebug("GenerateAINode: no aiManager")
-            return .noChange
+            return
         }
         
         // Make sure current task is completely wiped
         aiManager.cancelCurrentRequest()
         aiManager.currentTask = nil
-        
+
         let graph = state.visibleGraph
         
         // Clear previous streamed steps
@@ -201,19 +216,14 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         state.insertNodeMenuState.isFromAIGeneration = true
         
         print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
+        
+        // Dispatch OpenAI request
+        do {
+            let request = try OpenAIRequest(prompt: prompt,
+                                            requestType: requestType,
+                                            secrets: secrets,
+                                            graph: graph)
 
-        // Note: do/catch vs Result doesn't really matter? Ideally we want to pass on error messages, so `if let x = try? ...` isn't a good idea.
-        // TODO: if we can't build the systemPrompt, then the app shouldn't even be running; don't make code-contributor handle impossible scenarios
-        switch Result(catching: { try StitchAIManager.systemPrompt(graph: graph) }) {
-            
-        case .failure(let error):
-            // Nothing for user to do?
-            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
-            
-        case .success(let systemPrompt):
-            let request = OpenAIRequest(prompt: prompt,
-                                        systemPrompt: systemPrompt)
-            
             // Track initial graph state
             state.llmRecording.initialGraphState = state.visibleGraph.createSchema()
             
@@ -222,10 +232,10 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
                 request: request,
                 attempt: 1,
                 document: state,
-                canShareAIRetries: store.canShareAIRetries))
+                canShareAIRetries: canShareAIRetries))
+        } catch {
+            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
         }
-        
-        return .noChange
     }
 }
 
@@ -372,7 +382,7 @@ struct ActiveIndexChangedAction: StitchDocumentEvent {
     let index: ActiveIndex
 
     func handle(state: StitchDocumentViewModel) {
-        let graph = state.visibleGraph
+//        let graph = state.visibleGraph
         
         state.activeIndex = index
         

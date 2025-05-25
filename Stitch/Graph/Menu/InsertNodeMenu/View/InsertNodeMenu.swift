@@ -138,7 +138,8 @@ struct InsertNodeMenuView: View {
             StitchButton(action: {
                 if isAIMode {
                     if let query = document.insertNodeMenuState.searchQuery {
-                        dispatch(SubmitUserPromptToOpenAI(prompt: query))
+                        dispatch(SubmitUserPromptToOpenAI(prompt: query,
+                                                          requestType: .stitchAIGraph))
                     }
                 } else {
                     dispatch(AddNodeButtonPressed())

@@ -37,6 +37,8 @@ final actor StitchAIManager {
     var tableName: String
     
     @MainActor var currentTask: CurrentAITask?
+    // @MainActor weak var documentDelegate: StitchDocumentViewModel?
+    @MainActor var jsRequestNodeId: NodeId?
 
     init?() throws {
         guard let secrets = try Secrets() else {
@@ -59,7 +61,7 @@ final actor StitchAIManager {
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
               let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
-            fatalErrorIfDebug("Invalid Supabase URL")
+            fatalErrorIfDebug(" Invalid Supabase URL")
             return
         }
         
@@ -85,6 +87,7 @@ extension StitchAIManager {
         
         currentTask.task.cancel()
         self.currentTask = nil
+        self.jsRequestNodeId = nil
     }
 }
 
