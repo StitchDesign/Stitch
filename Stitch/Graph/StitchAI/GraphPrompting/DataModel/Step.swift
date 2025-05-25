@@ -25,8 +25,9 @@ struct Step: Hashable {
     
     // js node
     var script: String?
-    var inputLabels: [String]?
-    var outputLabels: [String]?
+    var inputDefinitions: [Step]?
+    var outputDefinitions: [Step]?
+    var label: String?
     
     init(stepType: StepType? = nil,
          nodeId: UUID? = nil,
@@ -68,8 +69,9 @@ extension Step: Codable {
         case valueType = "value_type"
         case children = "children"
         case script
-        case inputLabels
-        case outputLabels
+        case inputDefinitions = "input_definitions"
+        case outputDefinitions = "output_definitions"
+        case label
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -95,8 +97,9 @@ extension Step: Codable {
         try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
         try container.encodeIfPresent(script, forKey: .script)
-        try container.encodeIfPresent(inputLabels, forKey: .inputLabels)
-        try container.encodeIfPresent(outputLabels, forKey: .outputLabels)
+        try container.encodeIfPresent(inputDefinitions, forKey: .inputDefinitions)
+        try container.encodeIfPresent(outputDefinitions, forKey: .outputDefinitions)
+        try container.encodeIfPresent(label, forKey: .label)
     
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
@@ -116,8 +119,9 @@ extension Step: Codable {
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(Int.self, forKey: .fromPort)
         self.script = try container.decodeIfPresent(String.self, forKey: .script)
-        self.inputLabels = try container.decodeIfPresent([String].self, forKey: .inputLabels)
-        self.outputLabels = try container.decodeIfPresent([String].self, forKey: .outputLabels)
+        self.inputDefinitions = try container.decodeIfPresent([Step].self, forKey: .inputDefinitions)
+        self.outputDefinitions = try container.decodeIfPresent([Step].self, forKey: .outputDefinitions)
+        self.label = try container.decodeIfPresent(String.self, forKey: .label)
         
         if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
             self.nodeName = try .fromLLMNodeName(nodeNameString)

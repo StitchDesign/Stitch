@@ -15,7 +15,7 @@ struct JavaScriptNode: PatchNodeDefinition {
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             // must contain one row to support add rows
-            inputs: [.init(defaultType: .string, canDirectlyCopyUpstreamValues: true)],
+            inputs: [.init(label: "", staticType: .string)],
             outputs: []
         )
     }
@@ -27,7 +27,7 @@ struct JavaScriptNode: PatchNodeDefinition {
               let patchNode = node.patchNodeViewModel,
               let script = patchNode.javaScriptNodeSettings?.script else {
             fatalErrorIfDebug()
-            return .init(outputsValues: [[.number(.zero)]])
+            return .init(outputsValues: [])
         }
 
         // Construct inputs into JSON
@@ -43,7 +43,7 @@ struct JavaScriptNode: PatchNodeDefinition {
         guard let data = try? JSONEncoder().encode(aiDataFromInputs),
               let jsonObject = try? JSONSerialization.jsonObject(with: data) else {   // [String: Any]
             fatalErrorIfDebug()
-            return .init(outputsValues: [[.number(.zero)]])
+            return .init(outputsValues: [])
         }
         
         jsContext.setObject(jsonObject, forKeyedSubscript: "node_inputs" as NSString)
@@ -61,7 +61,7 @@ JSON.stringify(result)
         
         guard let stringResult = result?.toString(),
               let dataResult = stringResult.data(using: .utf8) else {
-            return .init(outputsValues: [[.number(.zero)]])
+            return .init(outputsValues: [])
         }
         print("javascript result: \(stringResult)")
         
@@ -72,7 +72,7 @@ JSON.stringify(result)
             return .init(outputsValues: outputValuesList)
         } catch {
             print("JavaScript node decoding error: \(error.localizedDescription)")
-            return .init(outputsValues: [[.number(.zero)]])
+            return .init(outputsValues: [])
         }
     }
 }
@@ -80,21 +80,56 @@ JSON.stringify(result)
 // TODO: move to existing v32 in PatchNodeEntity SSK
 struct JavaScriptNodeSettings: Hashable {
     let script: String
-    let inputLabels: [String]
-    let outputLabels: [String]
+    let inputDefinitions: [JavaScriptPortDefinition]
+    let outputDefinitions: [JavaScriptPortDefinition]
     
     init?(from aiStep: Step) {
         guard let script = aiStep.script,
-              let inputLabels = aiStep.inputLabels,
-              let outputLabels = aiStep.outputLabels else {
+              let inputs: [JavaScriptPortDefinition] = .init(from: aiStep.inputDefinitions),
+              let outputs: [JavaScriptPortDefinition] = .init(from: aiStep.outputDefinitions) else {
             // TODO: error here
             print("JavaScript node: unable extract all requested data from: \(aiStep)")
             return nil
         }
         
         self.script = script
-        self.inputLabels = inputLabels
-        self.outputLabels = outputLabels
+        self.inputDefinitions = inputs
+        self.outputDefinitions = outputs
+    }
+}
+
+extension Array where Element == JavaScriptPortDefinition {
+    init?(from aiSteps: [Step]?) {
+        guard let aiSteps = aiSteps else {
+            return nil
+        }
+        
+        var definitions = [JavaScriptPortDefinition]()
+        
+        for step in aiSteps {
+            guard let definition = JavaScriptPortDefinition(from: step) else {
+                return nil
+            }
+            
+            definitions.append(definition)
+        }
+        
+        self = definitions
+    }
+}
+
+struct JavaScriptPortDefinition: Hashable {
+    let label: String
+    let strictType: NodeType
+    
+    init?(from aiStep: Step) {
+        guard let type = aiStep.valueType,
+              let label = aiStep.label else {
+            return nil
+        }
+        
+        self.label = label
+        self.strictType = type
     }
 }
 
@@ -123,25 +158,30 @@ extension PatchNodeViewModel {
         graph.scheduleForNextGraphStep(self.id)
         
         // Determine ports to remove
-        if self.inputsObservers.count > newJavaScriptSettings.inputLabels.count {
-            self.inputsObservers = self.inputsObservers.dropLast(self.inputsObservers.count - newJavaScriptSettings.inputLabels.count)
+        if self.inputsObservers.count > newJavaScriptSettings.inputDefinitions.count {
+            self.inputsObservers = self.inputsObservers.dropLast(self.inputsObservers.count - newJavaScriptSettings.inputDefinitions.count)
         }
-        if self.outputsObservers.count > newJavaScriptSettings.outputLabels.count {
-            self.outputsObservers = self.outputsObservers.dropLast(self.outputsObservers.count - newJavaScriptSettings.outputLabels.count)
+        if self.outputsObservers.count > newJavaScriptSettings.outputDefinitions.count {
+            self.outputsObservers = self.outputsObservers.dropLast(self.outputsObservers.count - newJavaScriptSettings.outputDefinitions.count)
         }
         
         // Create new observers if necessary
-        newJavaScriptSettings.inputLabels.enumerated().forEach { portIndex, label in
-            if self.inputsObservers[safe: portIndex] == nil {
-                let newObserver = InputNodeRowObserver(values: [.string(.init(""))],
+        newJavaScriptSettings.inputDefinitions.enumerated().forEach { portIndex, inputDefinition in
+            guard let inputObserver = self.inputsObservers[safe: portIndex] else {
+                let newObserver = InputNodeRowObserver(values: [inputDefinition.strictType.defaultPortValue],
                                                        id: .init(portId: portIndex,
                                                                  nodeId: self.id),
                                                        upstreamOutputCoordinate: nil)
                 self.inputsObservers.append(newObserver)
+                return
             }
+            
+            // Update some new default value and remove connection for simplifying value coercion
+            inputObserver.upstreamOutputCoordinate = nil
+            inputObserver.updateValuesInInput([inputDefinition.strictType.defaultPortValue])
         }
         
-        newJavaScriptSettings.outputLabels.enumerated().forEach { portIndex, label in
+        newJavaScriptSettings.outputDefinitions.enumerated().forEach { portIndex, label in
             if self.outputsObservers[safe: portIndex] == nil {
                 let newObserver = OutputNodeRowObserver(values: [.string(.init(""))],
                                                         id: .init(portId: portIndex,
