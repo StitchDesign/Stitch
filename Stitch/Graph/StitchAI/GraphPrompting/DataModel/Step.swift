@@ -202,14 +202,4 @@ extension Array where Element == Step {
     mutating func append(_ stepType: StepTypeAction) {
         self.append(stepType.toStep())
     }
-    
-    func containsNewNode(from id: NodeId) -> Bool {
-        self.contains(where: { step in
-            if step.stepType == .addNode,
-               let addActionNodeId = step.nodeId {
-                return addActionNodeId.value == id
-            }
-            return false
-        })
-    }
 }

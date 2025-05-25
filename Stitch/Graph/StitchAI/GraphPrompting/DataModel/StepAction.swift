@@ -9,7 +9,7 @@ import Foundation
 
 typealias StepActionables = [any StepActionable]
 
-protocol StepActionable: Hashable, Codable {
+protocol StepActionable: Hashable, Codable, Sendable, Identifiable {
     static var stepType: StepType { get }
         
     static func fromStep(_ action: Step) -> Result<Self, StitchAIStepHandlingError>
@@ -31,6 +31,10 @@ protocol StepActionable: Hashable, Codable {
     
     /// Maps IDs to some new value.
     func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self
+}
+
+extension StepActionable {
+    var id: Int { self.hashValue }
 }
 
 struct StepActionLayerGroupCreated: StepActionable {

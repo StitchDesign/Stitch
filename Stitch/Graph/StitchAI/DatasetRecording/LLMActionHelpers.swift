@@ -76,7 +76,7 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
             Task { [weak supabaseManager] in
                 try await supabaseManager?.uploadEditedActions(
                     prompt: state.llmRecording.promptState.prompt,
-                    finalActions: actionsAsSteps,
+                    finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
                     isCorrection: state.llmRecording.mode == .augmentation)
                 
@@ -97,29 +97,25 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     }
 }
 
+
 struct LLMActionDeletedFromEditModal: StitchDocumentEvent {
-    let deletedStep: Step
+    let deletedStep: any StepActionable
     
     func handle(state: StitchDocumentViewModel) {
         log("LLMActionDeletedFromEditModal: deletedStep: \(deletedStep)")
         log("LLMActionDeletedFromEditModal: state.llmRecording.actions was: \(state.llmRecording.actions)")
         
-        guard let deletedStep = state.llmRecording.actions.first(where: { $0 == deletedStep }) else {
+        guard let deletedStep: any StepActionable = state.llmRecording.actions.first(where: { $0.toStep == deletedStep.toStep }) else {
             fatalErrorIfDebug()
             return
         }
                 
-        guard let deletedAction: any StepActionable = deletedStep.convertToType().value else {
-            fatalErrorIfDebug()
-            return
-        }
-        
         // Run deletion process for action
-        deletedAction.removeAction(graph: state.visibleGraph,
+        deletedStep.removeAction(graph: state.visibleGraph,
                                    document: state)
         
         // Filter out removed action before re-applying actions
-        let filteredActions = state.llmRecording.actions.filter { $0 != deletedStep }
+        let filteredActions = state.llmRecording.actions.filter { $0.toStep != deletedStep.toStep }
         
         state.llmRecording.actions = filteredActions
         

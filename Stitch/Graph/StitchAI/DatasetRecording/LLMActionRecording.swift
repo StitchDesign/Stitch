@@ -112,7 +112,7 @@ extension StitchDocumentViewModel {
 //        print("🤖 Complete Action Sequence: \(self.llmRecording.actions.asJSONDisplay())")
         
         // Cache the json of all actions
-        self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.asJSONDisplay()
+        self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.map(\.toStep).asJSONDisplay()
         
         // If we stopped recording and have LLMActions
         if !self.llmRecording.actions.isEmpty {

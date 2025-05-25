@@ -301,7 +301,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         hasher.combine(upstreamConnections)
         hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
-        hasher.combine(aiActions)
+        hasher.combine(aiActions.map(\.toStep)) // downcast to Step
         hasher.combine(splitterLabels)
         
         let newGraphUpdaterId = hasher.finalize()
@@ -328,7 +328,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
                 oldGraphEntity: self.llmRecording.initialGraphState,
                 visibleGraph: self.visibleGraph)
             
-            if oldActions != newActions {
+            if oldActions.map(\.toStep) != newActions.map(\.toStep) {
                 self.llmRecording.actions = newActions
                 
                 if self.llmRecording.willAutoValidate {

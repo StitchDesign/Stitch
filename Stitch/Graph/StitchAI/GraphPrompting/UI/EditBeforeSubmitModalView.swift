@@ -25,7 +25,8 @@ struct EditBeforeSubmitModalView: View {
                 .padding(.top)
             
             List {
-                ForEach(self.recordingState.actions) { action in
+                // TODO: MAY 24: is hashValue okay here?
+                ForEach(self.recordingState.actions, id: \.hashValue) { action in
                     LLMActionCorrectionView(action: action,
                                             graph: graph)
                 }
@@ -107,7 +108,7 @@ struct LLMNodeIOPortTypeView: View {
 }
 
 struct LLMActionCorrectionView: View {
-    let action: Step
+    let action: any StepActionable
     @Bindable var graph: GraphState
         
     var body: some View {
@@ -117,7 +118,8 @@ struct LLMActionCorrectionView: View {
             // added
             stepTypeAndDeleteView
             
-            switch StepTypeAction.fromStep(action).value {
+            // TODO: update views below to work with a proper
+            switch StepTypeAction.fromStep(action.toStep).value {
                 
             case .addNode(let x):
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
@@ -185,7 +187,7 @@ struct LLMActionCorrectionView: View {
     @ViewBuilder
     var stepTypeAndDeleteView: some View {
         HStack {
-            StitchTextView(string: "Step Type: \(action.stepType.display)")
+            StitchTextView(string: "Step Type: \(action.toStep.stepType.display)")
             Spacer()
             Image(systemName: "trash")
                 .onTapGesture {
