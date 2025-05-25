@@ -18,6 +18,8 @@ typealias NodeViewModels = [NodeViewModel]
 @Observable
 final class PatchNodeViewModel: Sendable {
     let id: NodeId
+    
+    // TODO: does this really need to be `@MainActor var` ? It's pure data (i.e. thread-independent) and should also be a `let` because can never change across the life 
     @MainActor var patch: Patch
     
     @MainActor

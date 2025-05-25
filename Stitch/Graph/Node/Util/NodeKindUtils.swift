@@ -174,27 +174,6 @@ extension NodeKind {
         self.rowDefinitions(for: type).inputs.map { $0.defaultValues }
     }
 
-    @MainActor
-    func createDefaultNode(id: NodeId,
-                           activeIndex: ActiveIndex,
-                           graphDelegate: GraphState) -> NodeViewModel? {
-        switch self {
-        case .patch(let patch):
-            return patch.defaultNode(id: id,
-                                     position: .zero,
-                                     zIndex: .zero,
-                                     graphDelegate: graphDelegate)
-        case .layer(let layer):
-            return layer.defaultNode(id: id,
-                                     position: .zero,
-                                     zIndex: .zero,
-                                     graphDelegate: graphDelegate)
-        case .group:
-            // Not intended here
-            fatalError()
-        }
-    }
-    
     /// Considers special nodes which loop inputs.
     @MainActor func determineMaxLoopCount(from valuesList: PortValuesList) -> Int {
         switch self {

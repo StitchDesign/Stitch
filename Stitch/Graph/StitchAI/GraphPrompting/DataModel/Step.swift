@@ -178,28 +178,3 @@ extension Stitch.Step: CustomStringConvertible {
         """
     }
 }
-
-extension Array where Element == Step {
-    
-    // Note: each Step could throw its own error; we just return the first error we encounter
-    func convertSteps() -> Result<[any StepActionable], StitchAIStepHandlingError> {
-        
-        var convertedSteps = [any StepActionable]()
-        
-        for step in self {
-            switch step.convertToType() {
-            case .failure(let error):
-                // Return first error we encounter
-                return .failure(error)
-            case .success(let converted):
-                convertedSteps.append(converted)
-            }
-        }
-        
-        return .success(convertedSteps)
-    }
-    
-    mutating func append(_ stepType: StepTypeAction) {
-        self.append(stepType.toStep())
-    }
-}

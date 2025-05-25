@@ -17,7 +17,6 @@ protocol NodeDefinition {
     
     static var defaultTitle: String { get }
     
-    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
     
     @MainActor
@@ -126,7 +125,7 @@ enum NodeDefinitionKind {
 }
 
 extension NodeDefinitionKind {
-    var kind: NodeKind {
+    var kind: PatchOrLayer {
         switch self {
         case .patch(let patchGraphNode):
             return .patch(patchGraphNode.patch)

@@ -8,6 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
+// An error we encounter when trying to parse or validate a Step
 enum StitchAIStepHandlingError: Error {
     case stepActionDecoding(String)
     case stepDecoding(StepType, Step)
@@ -27,6 +28,43 @@ extension StitchAIStepHandlingError: CustomStringConvertible {
     }
 }
 
+// An error we encounter when opening or closing a stream request
+enum StitchAIStreamingError: Error {
+    case timeout
+    case maxTimeouts
+    case maxRetriesError(Int, String)
+    case rateLimit
+    case invalidURL
+    case requestCancelled // e.g. by user, or because stream naturally completed
+    case internetConnectionFailed
+    case other(Error)
+}
+
+extension StitchAIStreamingError: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .timeout:
+            return "Server timed out."
+        case .maxTimeouts:
+            return "We hit the max number of allowed time outs."
+        case .maxRetriesError(let maxRetries, let errorDescription):
+            return "Request failed after \(maxRetries) attempts. Last error:\n\(errorDescription)"
+        case .rateLimit:
+            return "Rate limited."
+        case .invalidURL:
+            return "Invalid URL"
+        case .requestCancelled:
+            return "Request either canceled by user or stream successfully completed."
+        case .internetConnectionFailed:
+            return "No internet connection. Please try again when your connection is restored."
+        case .other(let error):
+            return "OpenAI Request error: \(error.localizedDescription)"
+            
+        }
+    }
+}
+
+
 
 // TODO: a smaller sub-enum just for errors from "validating or applying Step/StepActionable"
 // TODO: which are just for us developers (to be logged), vs actionable for the user?
@@ -41,6 +79,7 @@ enum StitchAIManagerError: Error {
     
     // Show these as alerts to user ?
     case internetConnectionFailed(OpenAIRequest)
+    case timeout(OpenAIRequest, String)
     case multipleTimeoutErrors(OpenAIRequest, String)
     
     case typeCasting
@@ -74,10 +113,17 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Invalid URL"
         case .jsonEncodingError(_, let error):
             return "Error encoding JSON: \(error.localizedDescription)"
-        case .multipleTimeoutErrors(_, let errorDescription):
-            return "Stitch AI failed on multiple requests. Last captured error:\n\(errorDescription)"
+        
         case .internetConnectionFailed:
             return "No internet connection. Please try again when your connection is restored."
+        
+        case .timeout(let _, let errorDescription):
+            return "Server timed out. Last captured error:\n\(errorDescription)"
+        
+        case .multipleTimeoutErrors(_, let errorDescription):
+            return "Stitch AI failed on multiple requests. Last captured error:\n\(errorDescription)"
+        
+            
         case .other(_, let error):
             return "OpenAI Request error: \(error.localizedDescription)"
         case .requestCancelled(_):

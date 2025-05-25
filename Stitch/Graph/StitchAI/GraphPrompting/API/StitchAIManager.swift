@@ -28,13 +28,19 @@ struct RecordingWrapper: Codable {
 //    let recordingState: LLMRecordingState
 //}
 
+struct CurrentAITask {
+    var task: Task<Void, Never>
+    var nodeIdMap: [StitchAIUUID: NodeId]
+}
+
 final actor StitchAIManager {
     let secrets: Secrets
 
     var postgrest: PostgrestClient
     var tableName: String
     
-    @MainActor var currentTask: Task<Void, Never>?
+//    @MainActor var currentTask: Task<Void, Never>?
+    @MainActor var currentTask: CurrentAITask?
 
     init?() throws {
         guard let secrets = try Secrets() else {
@@ -81,7 +87,7 @@ extension StitchAIManager {
             return
         }
         
-        currentTask.cancel()
+        currentTask.task.cancel()
         self.currentTask = nil
     }
     
@@ -90,7 +96,7 @@ extension StitchAIManager {
             log("Unable to retrieve device UUID", .logToServer)
 #if DEV_DEBUG || DEBUG
             throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
-            #endif
+#endif
             return nil
         }
         

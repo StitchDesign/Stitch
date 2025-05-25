@@ -7,11 +7,77 @@
 
 import Foundation
 
+extension StitchAIManager {
+    
+    @MainActor
+    func maybeRetryOnError(request: OpenAIRequest,
+                           errorFromOpeningStream: StitchAIStreamingError?,
+                           errorFromValidation: StitchAIStepHandlingError?,
+                           attempt: Int,
+                           document: StitchDocumentViewModel) async {
+        
+        
+        if let errorFromOpeningStream = errorFromOpeningStream {
+            switch errorFromOpeningStream {
+            case .timeout, .rateLimit:
+                await self.retryRequest(request: request, attempt: attempt, document: document)
+            case .maxTimeouts, .maxRetriesError, .invalidURL, .requestCancelled, .internetConnectionFailed, .other:
+                break // under these scenarios, we do not re-attempt the request
+            }
+        } else if let errorFromValidation = errorFromValidation {
+            switch errorFromValidation {
+            case .stepActionDecoding, .stepDecoding, .actionValidationError:
+                await self.retryRequest(request: request, attempt: attempt, document: document)
+            }
+        } else {
+            log("Will not retry request, had errorFromOpeningStream: \(errorFromOpeningStream?.description) and errorFromValidation \(errorFromValidation?.description)")
+        }
+        
+    }
+    
+    // TODO: we attempt the request again when OpenAI has sent us data that either could not be parsed or could not be validated; should we also re-attempt when OpenAI gives us a timeout error?
+    @MainActor
+    func retryRequest(request: OpenAIRequest,
+                      attempt: Int,
+                      document: StitchDocumentViewModel) async {
+        
+        log("StitchAIManager: retryRequest called")
+        
+        let aiManager = self
+        
+        // Immediately cancel the current task
+        aiManager.currentTask?.task.cancel()
+        aiManager.currentTask = nil
+        
+        // Calculate an exponential backoff delay and then re-attempt the task
+        // Calculate exponential backoff delay: 2^attempt * base delay
+        let backoffDelay = pow(2.0, Double(attempt)) * request.config.retryDelay
+        // Cap the maximum delay at 30 seconds
+        let cappedDelay = min(backoffDelay, 30.0)
+        
+        // TODO: can `Task.sleep` really "fail" ?
+        log("Retrying request with backoff delay: \(cappedDelay) seconds")
+        let slept: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
+        assertInDebug(slept.isDefined)
+                
+        let task = await aiManager.getOpenAIStreamingTask(
+            request: request,
+            attempt: attempt + 1,
+            document: document)
+        
+        aiManager.currentTask = .init(
+            task: task,
+            // Will be populated as each chunk is processed
+            nodeIdMap: .init())
+    }
+}
+
 struct ChunkProcessed: StitchDocumentEvent {
     let newStep: Step
     let request: OpenAIRequest
     let currentAttempt: Int
     
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
         log("ChunkProcessed: newStep: \(newStep)")
         
@@ -21,36 +87,70 @@ struct ChunkProcessed: StitchDocumentEvent {
             return
         }
         
-        let recreateTask = { (_ aiManager: StitchAIManager) in
-            aiManager.currentTask?.cancel()
-            aiManager.currentTask = nil
-            aiManager.currentTask = aiManager.getOpenAIStreamingTask(
-                request: request,
-                attempt: currentAttempt + 1,
-                document: state)
-        }
+//        let recreateTask = { (_ aiManager: StitchAIManager) in
+//            aiManager.currentTask?.task.cancel()
+//            aiManager.currentTask = nil
+//            let task = aiManager.getOpenAIStreamingTask(
+//                request: request,
+//                attempt: currentAttempt + 1,
+//                document: state)
+//            aiManager.currentTask = .init(task: task,
+//                                          // Will be populated as each chunk is processed
+//                                          nodeIdMap: .init())
+//        }
         
         // TODO: get rid of this? or keep around for helpful debug?
         state.visibleGraph.streamedSteps.append(newStep)
 
-        // If we coould
-        switch newStep.convertToType() {
-        case .failure(let error):
-            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
-            recreateTask(aiManager)
+        // Parsing the Step is not async, but retry-on-failure *is*, since we wait some small delay.
+        // Note also: recreating the task needs to be done on the main thread, since the current task lives on the main thread.
+        let parseAttempt: Result<any StepActionable, StitchAIStepHandlingError> = newStep.convertToType()
+        
+        Task(priority: .high) { [weak aiManager] in
             
-        case .success(let parsedStep):
-            log("ChunkProcessed: successfully parsed step, parsedStep: \(parsedStep)")
-            if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
-                                                             newStep: parsedStep) {
-                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: validationError: \(validationError) for request.prompt: \(request.prompt)")
-                recreateTask(aiManager)
-            } else {
-                log("ChunkProcessed: SUCCESSFULLY APPLIED NEW STEP")
+            guard let aiManager = aiManager else {
+                log("Did not have AI manager")
+                return
             }
-        }
+            
+            // Would this closure retain (= memory leak) the AI-manager ?
+            //            let handleError = { (error: StitchAIStepHandlingError) in
+            //                await aiManager.maybeRetryOnError(request: request,
+            //                                            errorFromOpeningStream: nil,
+            //                                            errorFromValidation: error,
+            //                                            attempt: currentAttempt,
+            //                                            document: state)
+            //            }
+            
+            switch parseAttempt {
+                
+            case .failure(let error):
+                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
+                await aiManager.maybeRetryOnError(request: request,
+                                                  errorFromOpeningStream: nil,
+                                                  errorFromValidation: error,
+                                                  attempt: currentAttempt,
+                                                  document: state)
+                
+            case .success(let parsedStep):
+                log("ChunkProcessed: successfully parsed step, parsedStep: \(parsedStep)")
+                if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
+                                                                 newStep: parsedStep) {
+                    log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: validationError: \(validationError) for request.prompt: \(request.prompt)")
+                    await aiManager.maybeRetryOnError(request: request,
+                                                      errorFromOpeningStream: nil,
+                                                      errorFromValidation: validationError,
+                                                      attempt: currentAttempt,
+                                                      document: state)
+                } else {
+                    log("ChunkProcessed: SUCCESSFULLY APPLIED NEW STEP")
+                }
+            }
+        } // Task
     }
 }
+
+
 
 extension StitchDocumentViewModel {
     

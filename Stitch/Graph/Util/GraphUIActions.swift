@@ -195,6 +195,7 @@ struct SubmitUserPromptToOpenAI: StitchDocumentEvent {
         print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
 
         // Note: do/catch vs Result doesn't really matter? Ideally we want to pass on error messages, so `if let x = try? ...` isn't a good idea.
+        // TODO: if we can't build the systemPrompt, then the app shouldn't even be running; don't make code-contributor handle impossible scenarios
         switch Result(catching: { try StitchAIManager.systemPrompt(graph: graph) }) {
             
         case .failure(let error):
@@ -209,10 +210,14 @@ struct SubmitUserPromptToOpenAI: StitchDocumentEvent {
             state.llmRecording.initialGraphState = state.visibleGraph.createSchema()
             
             // Create the task and set it on the manager
-            aiManager.currentTask = aiManager.getOpenAIStreamingTask(
+            let task = aiManager.getOpenAIStreamingTask(
                 request: request,
                 attempt: 1,
                 document: state)
+            
+            aiManager.currentTask = .init(task: task,
+                                          // Will be populated as each chunk is processed
+                                          nodeIdMap: .init())
         }
     }
 }

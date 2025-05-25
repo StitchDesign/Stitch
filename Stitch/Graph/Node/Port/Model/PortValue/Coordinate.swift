@@ -9,10 +9,9 @@ import CoreData
 import SwiftUI
 import StitchSchemaKit
 
-// never serialized, only
 enum Coordinate: Equatable, Hashable {
-    case output(OutputCoordinate)
     case input(InputCoordinate)
+    case output(OutputCoordinate)
 }
 
 extension Coordinate: Identifiable {
