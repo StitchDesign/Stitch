@@ -1689,3 +1689,6 @@ Works with:
 *Outputs*
 * The constituent values that make up the input
 
+### JavaScript
+
+An AI-driven node.
