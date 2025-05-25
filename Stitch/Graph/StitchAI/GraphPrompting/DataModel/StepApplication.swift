@@ -181,16 +181,19 @@ extension StitchDocumentViewModel {
     
     // TODO: pass down the [Step] explicitly ?
     @MainActor
-    func reapplyActionsDuringEditMode(steps: [Step]) -> StitchAIStepHandlingError? {
+//    func reapplyActionsDuringEditMode(steps: [Step]) -> StitchAIStepHandlingError? {
+    func reapplyActionsDuringEditMode(steps: [any StepActionable]) -> StitchAIStepHandlingError? {
         
-        let oldActions: [Step] = steps //  self.llmRecording.actions
+        let oldActions = steps //  self.llmRecording.actions
 
         // This actually should NEVER fail, since we've already applied the actions once before?
-        let conversionAttempt = steps.convertSteps()
-        guard let actions: [any StepActionable] = conversionAttempt.value else {
-            fatalErrorIfDebug("reapplyActions: Could not ")
-            return conversionAttempt.error
-        }
+        //        let conversionAttempt = steps // .convertSteps()
+        //        guard let actions: [any StepActionable] = conversionAttempt.value else {
+        //            fatalErrorIfDebug("reapplyActions: Could not ")
+        //            return conversionAttempt.error
+        //        }
+        
+        let actions = steps
         
         let graph = self.visibleGraph
         
@@ -239,8 +242,8 @@ extension StitchDocumentViewModel {
             newActions: newActions)
     }
         
-    private static func validateActionsDidNotChangeDuringReapply(oldActions: [Step],
-                                                                 newActions: [Step]) -> StitchAIStepHandlingError? {
+    private static func validateActionsDidNotChangeDuringReapply(oldActions: [any StepActionable],
+                                                                 newActions: [any StepActionable]) -> StitchAIStepHandlingError? {
         
         // TODO: why or how is the count changing? What is mutating the `newActions` count?
         assertInDebug(oldActions.count == newActions.count)
@@ -248,20 +251,11 @@ extension StitchDocumentViewModel {
         log("newActions.count: \(newActions.count)")
         
         for (oldAction, newAction) in zip(oldActions, newActions) {
-            if oldAction != newAction {
-                let _oldAction = oldAction.convertToType().value
-                let _newAction = newAction.convertToType().value
-                
-                // Steps
+            if oldAction.toStep != newAction.toStep {
                 log("Found unequal actions: oldAction: \(oldAction)")
                 log("Found unequal actions: newAction: \(newAction)")
-                
-                // StepActionables
-                log("Found unequal actions: _oldAction: \(_oldAction)")
-                log("Found unequal actions: _newAction: \(_newAction)")
-                
                 fatalErrorIfDebug() // Crash on dev
-                return .actionValidationError("Found unequal actions:\n\(_oldAction)\n\(_newAction)")
+                return .actionValidationError("Found unequal actions:\n\(oldAction)\n\(newAction)")
             }
         }
         

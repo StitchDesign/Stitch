@@ -50,7 +50,8 @@ struct LLMRecordingState {
     var mode: LLMRecordingMode = .normal
     
     // TODO: rename to `steps`, to distinguish between `Step` vs `StepActionable` ?
-    var actions: [Step] = .init()
+//    var actions: [Step] = .init()
+    var actions: [any StepActionable] = .init()
     
     var promptState = LLMPromptState()
     

@@ -12,7 +12,8 @@ extension StitchDocumentViewModel {
 
     @MainActor
     static func deriveNewAIActions(oldGraphEntity: GraphEntity?,
-                                   visibleGraph: GraphReader) -> [Step] {
+//                                   visibleGraph: GraphReader) -> [Step] {
+                                   visibleGraph: GraphReader) -> [any StepActionable] {
         // Can this truly be optional ?
         guard let oldGraphEntity = oldGraphEntity else {
             log("deriveNewAIActions: No graph state found") // should be fatal error ?
@@ -146,27 +147,26 @@ extension StitchDocumentViewModel {
         // Sorting necessary for validation (just consistent ordering)
         let newNodesStepsSorted = newNodesSteps
             .sorted { $0.nodeId < $1.nodeId }
-            .map { $0.toStep }
+            // .map { $0.toStep }
         
         let newLayerGroupStepsSorted = newLayerGroupSteps
             .sorted { $0.nodeId < $1.nodeId }
-            .map { $0.toStep }
+            // .map { $0.toStep }
         
         let newNodeTypesStepsSorted = newNodeTypesSteps
             .sorted { $0.nodeId < $1.nodeId }
-            .map { $0.toStep }
+            // .map { $0.toStep }
         
         let newConnectionStepsSorted = newConnectionSteps
             .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
-            .map { $0.toStep }
+            // .map { $0.toStep }
         
         let newSetInputStepsSorted = newSetInputSteps
             .sorted { ($0.toPortCoordinate?.hashValue ?? 0) < ($1.toPortCoordinate?.hashValue ?? 0) }
-            .map { $0.toStep }
+            // .map { $0.toStep }
         
         // TODO: see note above about properly handling nested layer groups
-        let creatingNodes = newNodesStepsSorted + newLayerGroupStepsSorted
-        
+        let creatingNodes: [any StepActionable] = newNodesStepsSorted + newLayerGroupStepsSorted
         let updatingPatchNodesTypes = newNodeTypesStepsSorted
         let creatingConnections = newConnectionStepsSorted
         let settingInputs = newSetInputStepsSorted

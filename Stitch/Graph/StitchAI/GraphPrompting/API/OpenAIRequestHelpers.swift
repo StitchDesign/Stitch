@@ -15,42 +15,40 @@ struct ChunkProcessed: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ChunkProcessed: newStep: \(newStep)")
         
-        let isFirstReceivedStep = state.llmRecording.actions.isEmpty
+        guard let aiManager = state.aiManager else {
+            fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
+            // TODO: show error modal to user?
+            return
+        }
         
+        let retryRequest = { (aiManager: StitchAIManager) in
+            aiManager.currentTask?.cancel()
+            aiManager.currentTask = nil
+            aiManager.currentTask = aiManager.getOpenAIStreamingTask(
+                request: request,
+                attempt: currentAttempt + 1,
+                document: state)
+        }
+        
+        // TODO: get rid of this?
         state.visibleGraph.streamedSteps.append(newStep)
-        // log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
         
-        state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
+//         log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
+
+        // If we coould
+        let parsingError = newStep.convertToType()
+        
+//        state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
         log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
         
         // When we receive a new step, we may 
                 
-        if let error = state.reapplyActionsDuringEditMode(steps: state.llmRecording.actions,
-                                                          isStreaming: true,
-                                                          isNewRequest: isFirstReceivedStep) {
+        if let error = state.reapplyActionsDuringEditMode(steps: state.llmRecording.actions) {
             log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
             
-            guard let aiManager = state.aiManager else {
-                fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
-                return
-            }
             
-            // TODO: completely cancel the current task? or
-            // Cancel the current task
-            aiManager.currentTask?.cancel()
+            // Completely cancel the current task and create a new one
             
-            aiManager.currentTask = nil
-            
-            aiManager.currentTask = aiManager.getOpenAIStreamingTask(
-                request: request,
-                attempt: currentAttempt,
-                document: state)
-                                    
-//            try await aiManager.retryMakeOpenAIStreamingRequest(
-//                request,
-//                currentAttempts: currentAttempt,
-//                lastError: "Try again, there were failures validating and applying the result. \(error.description)",
-//                document: state)
         } else {
             log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
         }
