@@ -184,8 +184,8 @@ func getLabelForRowObserver(useShortLabel: Bool = false,
             
         case .portIndex(let portId):
             if let javaScriptNodeSettings = node.patchNode?.javaScriptNodeSettings,
-               let outputLabel = javaScriptNodeSettings.outputLabels[safe: portId] {
-                return outputLabel
+               let outputDefinition = javaScriptNodeSettings.outputDefinitions[safe: portId] {
+                return outputDefinition.label
             }
             
             return rowDefinitions.outputs[safe: portId]?.label ?? ""
@@ -206,8 +206,8 @@ func getLabelForRowObserver(useShortLabel: Bool = false,
             }
             
             if let javaScriptNodeSettings = node.patchNode?.javaScriptNodeSettings,
-               let inputLabel = javaScriptNodeSettings.inputLabels[safe: portId] {
-                return inputLabel
+               let inputDefinition = javaScriptNodeSettings.inputDefinitions[safe: portId] {
+                return inputDefinition.label
             }
             
             return rowDefinitions.inputs[safe: portId]?.label ?? ""

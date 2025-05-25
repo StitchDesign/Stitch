@@ -60,7 +60,7 @@ extension Patch {
         switch self {
         // MARK: we can't support a 0 min the way add inputs work, which must copy from something
             
-        case .loopBuilder, .jsonArray, .javascript:
+        case .loopBuilder, .jsonArray:
             return 1
 
         // minimum 2 inputs
