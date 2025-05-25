@@ -245,7 +245,7 @@ extension NodeKind {
 }
 
 extension NodeKind: CaseIterable {
-    public static var allCases: [StitchSchemaKit.NodeKind_V31.NodeKind] {
+    public static var allCases: [NodeKind] {
         let patchCases = Patch.allCases.map(NodeKind.patch)
         let layerCases = Layer.allCases.map(NodeKind.layer)
         return patchCases + layerCases
