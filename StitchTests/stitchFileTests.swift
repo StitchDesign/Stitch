@@ -23,4 +23,25 @@ final class StitchFileTests: XCTestCase {
                                                 store: mockStore)
         }
     }
+    
+    /// Ensures markdown descriptions encapsulate all information and don't contain extra definitions.
+    func testNodeDescriptions() {
+        NodeKind.allCases.forEach { nodeKind in
+            let nodesNotDefined = NodeKind.allCases.filter { NodeDescriptions.forKind($0) == nil }
+            XCTAssertTrue(nodesNotDefined.isEmpty)
+            
+            let allNodeTitles = NodeKind.allCases.map(\.defaultDisplayTitle)
+            let allNodeTitlesSet = allNodeTitles.toSet
+            
+            // Ensure no duplicate names
+            XCTAssertEqual(allNodeTitles.count, allNodeTitlesSet.count)
+            
+            let extraNodesInMap = NodeDescriptions.map.filter {
+                !allNodeTitlesSet.contains($0.key)
+            }
+            
+            // Ensures the markdown doesn't contain extra nodes not captured in schema
+            XCTAssertTrue(extraNodesInMap.isEmpty)
+        }
+    }
  }

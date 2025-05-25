@@ -29,8 +29,8 @@ final class GraphTests: XCTestCase {
     func testOutputsWipedOnGraphReset() throws {
         let document: StitchDocumentViewModel = .createTestFriendlyDocument(store)
         
-        let counterNode = document.nodeInserted(choice: .patch(.counter))!
-        let loopOptionSwitchNode = document.nodeInserted(choice: .patch(.loopOptionSwitch))!
+        let counterNode = document.nodeInserted(choice: .patch(.counter))
+        let loopOptionSwitchNode = document.nodeInserted(choice: .patch(.loopOptionSwitch))
                 
         // Provide some non-zero value
         counterNode.outputsObservers.first!.updateOutputValues([.number(99)])

@@ -29,12 +29,10 @@ class EvalTests: XCTestCase {
         let graphState = document.visibleGraph
         
         
-        guard let node = Patch.loopSelect.defaultNode(id: .init(),
-                                                      position: .zero,
-                                                      zIndex: .zero,
-                                                      graphDelegate: graphState) else {
-            fatalError()
-        }
+        let node = Patch.loopSelect.defaultNode(id: .init(),
+                                                position: .zero,
+                                                zIndex: .zero,
+                                                graphDelegate: graphState)
         
         zip(inputs, node.inputsObservers).forEach { values, inputObserver in
             inputObserver.updateValuesInInput(values)
