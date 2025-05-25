@@ -168,7 +168,19 @@ struct NodeView: View {
         HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
             inputsViews()
                 .zIndex(9999)
-            Spacer()
+            
+            // TODO: remove this logic, there won't be a custom view like this for JS node
+            if stitch.kind != .patch(.javascript) {
+                Spacer()
+            }
+            
+            else if let patchNode = stitch.patchNode {
+                @Bindable var patchNode = patchNode
+                TextField("Javascript here...",
+                          text: $patchNode.javascriptString,
+                          axis: .vertical)
+            }
+            
             outputsViews()
                 .zIndex(-9999)
         }

@@ -184,7 +184,7 @@ struct LLMActionCorrectionView: View {
     @ViewBuilder
     var stepTypeAndDeleteView: some View {
         HStack {
-            StitchTextView(string: "Step Type: \(action.stepType.display)")
+            StitchTextView(string: "Step Type: \(action.stepType?.display ?? "None")")
             Spacer()
             Image(systemName: "trash")
                 .onTapGesture {

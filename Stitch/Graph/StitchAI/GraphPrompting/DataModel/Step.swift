@@ -11,7 +11,8 @@ import SwiftyJSON
 
 /// Represents a single step/action in the visual programming sequence
 struct Step: Hashable {
-    var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
+    // MARK: optional step type enables JavaScript node support for using same types
+    var stepType: StepType?        // Type of step (e.g., "add_node", "connect_nodes")
     var nodeId: StitchAIUUID?        // Identifier for the node
     var nodeName: PatchOrLayer?      // Display name for the node
     var port: NodeIOPortType?  // Port identifier (can be string or number)
@@ -22,7 +23,7 @@ struct Step: Hashable {
     var valueType: NodeType?     // Type of the node
     var children: NodeIdSet? // Child nodes if this is a group
     
-    init(stepType: StepType,
+    init(stepType: StepType? = nil,
          nodeId: UUID? = nil,
          nodeName: PatchOrLayer? = nil,
          port: NodeIOPortType? = nil,
@@ -67,7 +68,7 @@ extension Step: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // `encodeIfPresent` cleans up JSON by removing properties
-        try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
+        try container.encodeIfPresent(stepType?.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
         
