@@ -21,7 +21,7 @@ struct ChunkProcessed: StitchDocumentEvent {
             return
         }
         
-        let retryRequest = { (aiManager: StitchAIManager) in
+        let recreateTask = { (_ aiManager: StitchAIManager) in
             aiManager.currentTask?.cancel()
             aiManager.currentTask = nil
             aiManager.currentTask = aiManager.getOpenAIStreamingTask(
@@ -30,27 +30,23 @@ struct ChunkProcessed: StitchDocumentEvent {
                 document: state)
         }
         
-        // TODO: get rid of this?
+        // TODO: get rid of this? or keep around for helpful debug?
         state.visibleGraph.streamedSteps.append(newStep)
-        
-//         log("ChunkProcessed: state.visibleGraph.streamedSteps is now: \(state.visibleGraph.streamedSteps)")
 
         // If we coould
-        let parsingError = newStep.convertToType()
-        
-//        state.llmRecording.actions = Array(state.visibleGraph.streamedSteps)
-        log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
-        
-        // When we receive a new step, we may 
-                
-        if let error = state.reapplyActionsDuringEditMode(steps: state.llmRecording.actions) {
-            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
+        switch newStep.convertToType() {
+        case .failure(let error):
+            recreateTask(aiManager)
             
-            
-            // Completely cancel the current task and create a new one
-            
-        } else {
-            log("ChunkProcessed: SUCCESSFULLY REAPPLIED LLM ACTIONS")
+        case .success(let parsedStep):
+            log("ChunkProcessed: successfully parsed step, parsedStep: \(parsedStep)")
+            if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
+                                                             newStep: parsedStep) {
+                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: validationError: \(validationError) for request.prompt: \(request.prompt)")
+                recreateTask(aiManager)
+            } else {
+                log("ChunkProcessed: SUCCESSFULLY APPLIED NEW STEP")
+            }
         }
     }
 }
