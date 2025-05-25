@@ -50,6 +50,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     static func fromStep(_ action: Step) throws -> Self {
         let stepType = action.stepType
         switch stepType {
+        case .none:
+            throw StitchAIManagerError.actionValidationError("No step defined.")
             
         case .addNode:
             let x = try StepActionAddNode.fromStep(action)
@@ -144,6 +146,8 @@ extension Step {
     func convertToType() throws -> any StepActionable {
         let stepType = self.stepType
         switch stepType {
+        case .none:
+            throw StitchAIManagerError.actionValidationError("No step defined.")
             
         case .addNode:
             return try StepActionAddNode.fromStep(self)
