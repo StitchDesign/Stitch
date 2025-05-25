@@ -25,7 +25,7 @@ enum LLMRecordingModal: Equatable, Hashable {
     // Modal from which user can edit LLM Actions (remove those created by model or user; add new ones by interacting with the graph)
     case editBeforeSubmit
     
-    // Modal from which either (1) re-enter LLM edit mode or (2) finally approve the LLM action list and send to Supabase
+    // Modal from which weuser either (1) re-enters LLM edit mode or (2) finally approves the LLM action list and send to Supabase
     case approveAndSubmit
 }
 

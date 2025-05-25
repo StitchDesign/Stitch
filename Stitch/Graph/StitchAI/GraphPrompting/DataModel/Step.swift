@@ -9,6 +9,16 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
+typealias Steps = [Step]
+
+extension Step: Identifiable {
+    var id: Int { self.hashValue }
+}
+
+// Note: `Step` as a type is basically one 'step' away from JSON,
+// i.e. it's very generic and in majority of (or in all?) cases
+// we actually want the more specific `StepActionable` type.
+
 /// Represents a single step/action in the visual programming sequence
 struct Step: Hashable {
     var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
@@ -43,10 +53,6 @@ struct Step: Hashable {
         self.valueType = valueType
         self.children = children
     }
-}
-
-extension Step: Identifiable {
-    var id: Int { self.hashValue }
 }
 
 extension Step: Codable {

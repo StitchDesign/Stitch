@@ -24,12 +24,12 @@ struct ChunkProcessed: StitchDocumentEvent {
         log("ChunkProcessed: state.llmRecording.actions is now: \(state.llmRecording.actions)")
         
         // When we receive a new step, we may 
-        
-        
-        if let error = state.reapplyActions(isStreaming: true,
-                                            isNewRequest: isFirstReceivedStep) {
+                
+        if let error = state.reapplyActionsDuringEditMode(steps: state.llmRecording.actions,
+                                                          isStreaming: true,
+                                                          isNewRequest: isFirstReceivedStep) {
             log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
-                    
+            
             guard let aiManager = state.aiManager else {
                 fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
                 return

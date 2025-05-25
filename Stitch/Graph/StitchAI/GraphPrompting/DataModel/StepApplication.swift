@@ -55,14 +55,14 @@ extension Array where Element == any StepActionable {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func validateAndApplyActions(_ convertedActions: [any StepActionable],
-                                 isNewRequest: Bool) -> StitchAIStepHandlingError? {
+    func validateAndApplyActions(_ convertedActions: [any StepActionable]) -> StitchAIStepHandlingError? {
+        
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        var convertedActions = convertedActions
           
         // TODO: handle the fact that OpenAI may send us the same node ids over and over again; i.e. ids will be unique across all the actions sent for a given request, but ids may be same across multiple different requests; e.g. first request for "Add 1 and 2 and then Divide by 3" will use NodeIds X and Y, but then a second request for "Multiply 3 and 3 and Subtract by 9" will use the same NodeIds X and Y
+//        var convertedActions = convertedActions
 //        if isNewRequest {
 //            // Change Ids for newly created nodes
 //            convertedActions = convertedActions.remapNodeIdsForNewNodes()
@@ -72,7 +72,6 @@ extension StitchDocumentViewModel {
         // invalid = e.g. tried to create a connection for a node before we created that node
         if let validationError = convertedActions.validateLLMSteps() {
             self.llmRecording.actionsError = validationError.description
-            
             // Immediately enter correction-mode: one of the actions, or perhaps the ordering, was incorrect
             self.startLLMAugmentationMode()
             log("validateAndApplyActions: hit error when validating LLM-actions: \(convertedActions) ... error was: \(validationError)")
@@ -106,7 +105,7 @@ extension StitchDocumentViewModel {
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
         
-        return nil
+        return nil // no error
     }
     
     
@@ -141,12 +140,33 @@ extension StitchDocumentViewModel {
         // While de-applying actions, we should not be deriving new actions;
         // `isApplyingActions = true` blocks the derivation of new actions from graph changes / persistence
         self.llmRecording.isApplyingActions = true
+        
         actions.reversed().forEach {
             $0.removeAction(graph: graph, document: self)
         }
+        
         self.llmRecording.isApplyingActions = false
     }
     
+    @MainActor
+    func onNewStepReceived(originalSteps: [any StepActionable],
+                           newStep: any StepActionable) -> StitchAIStepHandlingError? {
+        
+        // 'De-apply' (i.e. remove the effects of) the original actions
+        self.deapplyActions(actions: originalSteps)
+        
+        
+        // Then apply the original actions + the new action
+        let newSteps = originalSteps + [newStep]
+        
+        // self.llmRecording.actions = newSteps
+        
+        if let validationError = self.validateAndApplyActions(newSteps) {
+            return validationError
+        }
+        
+        return nil // no error
+    }
     
     
     /*
@@ -161,13 +181,14 @@ extension StitchDocumentViewModel {
     
     // TODO: pass down the [Step] explicitly ?
     @MainActor
-    func reapplyActions(// steps: [Step],
-                        isStreaming: Bool,
-                        isNewRequest: Bool) -> StitchAIStepHandlingError? {
-        let oldActions: [Step] = self.llmRecording.actions
+    func reapplyActionsDuringEditMode(steps: [Step]) -> StitchAIStepHandlingError? {
         
-        let conversionAttempt = oldActions.convertSteps()
+        let oldActions: [Step] = steps //  self.llmRecording.actions
+
+        // This actually should NEVER fail, since we've already applied the actions once before?
+        let conversionAttempt = steps.convertSteps()
         guard let actions: [any StepActionable] = conversionAttempt.value else {
+            fatalErrorIfDebug("reapplyActions: Could not ")
             return conversionAttempt.error
         }
         
@@ -176,12 +197,10 @@ extension StitchDocumentViewModel {
         log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
         
         // Do not save or apply nodes' positions when streaming
-        if !isStreaming {
-            self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
-                if let nodeId = (action as? StepActionAddNode)?.nodeId ?? (action as? StepActionLayerGroupCreated)?.nodeId {
-                    graph.getNode(nodeId)?.getAllCanvasObservers().forEach {
-                        result.updateValue($0.position,forKey: $0.id)
-                    }
+        self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
+            if let nodeId = (action as? StepActionAddNode)?.nodeId ?? (action as? StepActionLayerGroupCreated)?.nodeId {
+                graph.getNode(nodeId)?.getAllCanvasObservers().forEach {
+                    result.updateValue($0.position,forKey: $0.id)
                 }
             }
         }
@@ -190,44 +209,34 @@ extension StitchDocumentViewModel {
         self.deapplyActions(actions: actions)
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        if let error = self.validateAndApplyActions(actions, isNewRequest: isNewRequest) {
+        if let error = self.validateAndApplyActions(actions) {
             return error
         }
         
         // Update node positions to reflect previous position
-        if !isStreaming {
-            self.llmRecording.canvasItemPositions.forEach { canvasId, canvasPosition in
-                if let canvas = graph.getCanvasItem(canvasId) {
-                    canvas.position = canvasPosition
-                    canvas.previousPosition = canvasPosition
-                }
+        self.llmRecording.canvasItemPositions.forEach { canvasId, canvasPosition in
+            if let canvas = graph.getCanvasItem(canvasId) {
+                canvas.position = canvasPosition
+                canvas.previousPosition = canvasPosition
             }
         }
-        
-        // TODO: should we really do this? why do we need to do this?
-        // After we have de-applied and then re-applied the actions,
-        // derive a new actions based on post-"de-apply, re-apply" state
-        // and confirm that de-applying and re-applying the actions
-        // did not cause the actions to change
-    
-        
-        // TODO: should we really do this? If we're re-applying actions, we just want to see
-                            
-        self.llmRecording.actions = Self.deriveNewAIActions(
-            oldGraphEntity: self.llmRecording.initialGraphState,
-            visibleGraph: self.visibleGraph)
         
         // Force update of view
         self.graphUpdaterId = .randomId() // TODO: not needed?
         
-        if isStreaming {
-            return nil
-        } else {
-            // Validates that action data didn't change after derived actions is computed
-            return Self.validateActionsDidNotChangeDuringReapply(
-                oldActions: oldActions,
-                newActions: self.llmRecording.actions)
-        }
+        // After we have de-applied and then re-applied the actions,
+        // derive a new actions based on post-"de-apply, re-apply" state
+        // and confirm that de-applying and re-applying the actions
+        // did not cause the actions to change
+        
+        // Validates that action data didn't change after derived actions is computed
+        let newActions = Self.deriveNewAIActions(
+            oldGraphEntity: self.llmRecording.initialGraphState,
+            visibleGraph: self.visibleGraph)
+        
+        return Self.validateActionsDidNotChangeDuringReapply(
+            oldActions: oldActions,
+            newActions: newActions)
     }
         
     private static func validateActionsDidNotChangeDuringReapply(oldActions: [Step],

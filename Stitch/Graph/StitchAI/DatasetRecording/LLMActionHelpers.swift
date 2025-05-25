@@ -128,7 +128,7 @@ struct LLMActionDeletedFromEditModal: StitchDocumentEvent {
         
         // We immediately "de-apply" the removed action(s) from graph,
         // so that user instantly sees what changed.
-        if let error = state.reapplyActions(isStreaming: false, isNewRequest: false) {
+        if let error = state.reapplyActionsDuringEditMode(steps: state.llmRecording.actions) {
             // TODO: show this to the user?
             log("LLMActionDeletedFromEditModal: error when reapplying actions: \(error)")
         }

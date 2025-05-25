@@ -321,7 +321,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 
         // If we are recording graph changes as LLM-actions,
         // and we're not currently 'applying an existing LLM-action',
-        // then we
+        // then we should generate new steps
         if recordingOrCorrecting && !self.llmRecording.isApplyingActions {
             let oldActions = self.llmRecording.actions
             let newActions = Self.deriveNewAIActions(
@@ -332,9 +332,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
                 self.llmRecording.actions = newActions
                 
                 if self.llmRecording.willAutoValidate {
-                    if let error: StitchAIStepHandlingError = self.reapplyActions(
-                        isStreaming: false,
-                        isNewRequest: false) {
+                    if let error: StitchAIStepHandlingError = self.reapplyActionsDuringEditMode(steps: newActions) {
                         
                         self.llmRecording.actionsError = error.description
                     }
