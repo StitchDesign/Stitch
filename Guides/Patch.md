@@ -1645,4 +1645,4 @@ The Network Request node allows you to make HTTP GET and POST requests to an end
 
 ## JavaScript
 
-An AI-driven node.
+A node that uses JavaScript code underneath the hood. Can be created using Stitch AI.
