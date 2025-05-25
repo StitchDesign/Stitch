@@ -1,4 +1,4 @@
-# Stitch Nodes
+# Patch Nodes
 
 ## Absolute Value
 This node takes an input, converts it to a number, and returns the absolute value of that number.
@@ -11,7 +11,6 @@ This node takes an input, converts it to a number, and returns the absolute valu
 
 ## Add
 The add node takes two or more inputs, and returns the sum of those values. If they're numbers, they'll be added together. If they're strings, they'll be concatenated. If they're arrays, they'll be concatenated. If they're objects, they'll be merged. Etc.
-
 
 *Inputs*
 * At least two values that should be merged.
@@ -27,14 +26,6 @@ And is a boolean operator that returns true if both inputs are true.
 
 *Outputs*
 * One boolean value that is true if all inputs are true.
-
-## Angular Gradient
-Creates an angular gradient.
-
-*Inputs*
-* Center anchor
-* Start color
-* End color
 
 ## Any
 Any is a boolean node that returns true if any of the inputs are true.
@@ -144,26 +135,6 @@ Node for converting Pop Animation values to spring tension and friction.
 * Friction
 * Tension
 
-## Box
-A box 3D shape, which can be used inside a Reality View.
-
-*Inputs*
-* 3D Anchor Entity
-* 3D Size (Width/Height/Depth)
-* 3D Transform (Translation/Scale/Rotation)
-* Translation Gesture
-* Scale Gesture
-* Rotation Gesture
-* Position (X/Y)
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Corner Radius
-* Color
-* Metallic
-
 ## Camera Feed
 Creates a video feed from a hardware camera
 
@@ -175,25 +146,6 @@ Creates a video feed from a hardware camera
 *Outputs*
 * The video feed frames
 * The size of the video feed
-
-## Canvas Sketch
-Draw custom shapes by interacting with the prototype window.
-
-*Inputs*
-* Line Color
-* Line Width
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (Width / Height)
-* Opacity
-* Scale
-* Anchoring
-* Z Index
-
-*Outputs*
-* Image
 
 ## Circle Shape
 Generates a Circle shape from a given position and radius
@@ -240,15 +192,6 @@ For example, if the input value is 10, the min is -5, and the max is 5, the outp
 ## Close Path
 A ClosePath ShapeCommand.
 
-## Color Fill
-A layer for filling the preview window with a specified color.
-
-*Inputs*
-* A Bool for enabling/disabling the fill
-* A color picker
-* Opacity
-* Z Index
-
 ## Color to Hex
 Converts a provided color into a corresponding Hex string.
 
@@ -290,24 +233,6 @@ Generates a shape from a loop of given shape commands
 
 *Outputs*
 * A generated shape
-
-## Cone
-A cone 3D shape, which can be used inside a Reality View.
-
-*Inputs*
-* 3D Anchor Entity
-* 3D Transform (Translation/Scale/Rotation)
-* Translation Gesture
-* Scale Gesture
-* Rotation Gesture
-* Position (X/Y)
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Color
-* Metallic
 
 ## Convert Position
 Converts position values between different parent layers.
@@ -428,24 +353,6 @@ Packs Point, CurveTo and CurveFrom position inputs into a CurveTo ShapeCommand.
 
 ## Curve To Unpack
 Unpack packs CurveTo ShapeCommand into a Point, CurveTo and CurveFrom position outputs.
-
-## Cylinder
-A cylinder 3D shape, which can be used inside a Reality View.
-
-*Inputs*
-* 3D Anchor Entity
-* 3D Transform (Translation/Scale/Rotation)
-* Translation Gesture
-* Scale Gesture
-* Rotation Gesture
-* Position (X/Y)
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Color
-* Metallic
 
 ## Date And Time Formatter
 Creates human readable date and time values from an input of time in seconds
@@ -602,9 +509,6 @@ Checks whether a value is greater than another.
 *Outputs*
 * A Boolean indicating if the first value is greater than the second value.
 
-## Group
-
-
 ## Haptic Feedback
 A node that will trigger a haptic pulse.
 
@@ -620,17 +524,6 @@ A node for converting a Hex String value to a color output.
 *Outputs*
 * Color output
 
-## Hit Area
-Adds interaction to a specific rectangle in the Preview Window.
-
-*Inputs*
-* A Boolean to Enable/Disable the Hit Area
-* Position (X/Y)
-* Size (Width / Height)
-* Anchor
-* Z Index
-* A Boolean to toggle Setup Mode (visualizes the hit area)
-
 ## HSL Color
 A node for generating a color from HSL (Hue/Saturation/Light) input values.
 
@@ -642,23 +535,6 @@ A node for generating a color from HSL (Hue/Saturation/Light) input values.
 
 *Outputs*
 * A color value
-
-## Image
-The Image node is a Layer that will display an image asset in the Preview Window.
-
-*Inputs*
-* An image asset
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Fill Style
-* Scale
-* Anchoring
-* Z-Index
-* Clipped (Boolean)
 
 ## Image Import
 A node for importing an image asset into your prototype.
@@ -775,15 +651,6 @@ Checks if two input numbers are less than or equal to one another
 
 ## Line To Pack
 Packs a position input into a LineTo ShapeCommand.
-
-## Linear Gradient
-Creates a linear gradient.
-
-*Inputs*
-* Start anchor
-* End anchor
-* First color
-* Second color
 
 ## Location
 The Location node returns the currently detected location value of the node.
@@ -940,29 +807,6 @@ Converts a loop to an array.
 *Outputs*
 * A JSON array
 
-## Map
-The Map node will display an Apple Maps UI in the preview window. 
-
-*Inputs*
-* Map Style
-* Latitude / Longitude
-* Span
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Stroke Position
-* Stroke Width
-* Stroke Color
-
-## Material
-A Material Effect layer.
-
 ## Math Expression
 Evaluate a mathematical expression. Each variable in the expression becomes an input on the node.
 
@@ -1003,24 +847,6 @@ calculates the remainder when two input values are divided
 
 *Outputs*
 * The Remainder
-
-## 3D Model
-The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the preview window.
-
-*Inputs*
-* 3D Model Asset
-* 3D Anchor Entity
-* Animation
-* 3D Transform (Translation/Scale/Rotation)
-* Translation Gesture
-* Scale Gesture
-* Rotation Gesture
-* Position (X/Y)
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
 
 ## Mouse
 Makes a given layer responsive to mouse interactions
@@ -1107,24 +933,6 @@ Calculates an OR Boolean operation. If at least one input is true, the output wi
 
 *Outputs*
 * A Boolean that returns true if at least one of the inputs are true
-
-## Oval
-The Oval Layer will display an Oval shape in the Preview Window.
-
-*Inputs*
-* Color
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Stroke Position
-* Stroke Width
-* Stroke Color
 
 ## Oval Shape
 Generates an Oval shape from a given position and radius
@@ -1219,24 +1027,6 @@ Returns the amount of progress completed by comparing the current value against 
 *Outputs*
 * The amount of progress that has been completed
 
-## Progress Indicator
-The Progress Indicator will display a Progress Indicator animation.
-
-*Inputs*
-* Animating
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Stroke Position
-* Stroke Width
-* Stroke Color
-
 ## Pulse
 Outputs a pulse event when it's toggled on or off.
 
@@ -1266,15 +1056,6 @@ Detects a QR code in a video or image..
 * A boolean indiciating if a QR code was detected
 * Detected message in the QR code
 
-## Radial Gradient
-Creates a radial gradient.
-
-*Inputs*
-* Start anchor
-* Start color
-* End color
-* Second color
-
 ## Random
 Generates a random number between a specificed range
 
@@ -1285,42 +1066,6 @@ Generates a random number between a specificed range
 
 *Outputs*
 * The generated random number
-
-## Reality View
-The RealityView node will display the output of an Augmented Reality scene in the form of a layer group. Drag 3D layers inside the Reality View sidebar item to display 3D objects in the scene.
-
-*Inputs*
-* Camera Direction (Front / Back)
-* Position (X / Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (Width / Height)
-* Opacity
-* Scale
-* Anchoring
-* Z Index
-* Camera Toggle
-* Toggle for enabling/disabling shadows in the scene
-
-## Rectangle
-The Rectangle Layer will display a rectangle shape in the Preview Window.
-
-*Inputs*
-* Color
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Stroke Position
-* Stroke Width
-* Stroke Color
-* Corner Radius
 
 ## Repeating Animation
 Repeatedly animates a number.
@@ -1474,29 +1219,6 @@ Allows you to set a value at a specified key in the JSON object.
 *Outputs*
 * The JSON object with the new value.
 
-## SF Symbol
-Creates an SF Symbol.
-
-## Shape
-The Shape Layer can take a shape as an input and display it in the preview window. The shape can be modified via a variety of inputs.
-
-*Inputs*
-* Shape
-* Color
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (Width/Height)
-* Opacity
-* Scale
-* Anchoring
-* Z Index
-* Stroke Position (Inside or Outside)
-* Stroke Width
-* Stroke Color
-* Coordinate System (Relative or Absolute)
-
 ## Shape to Commands
 Takes a shape as input, and outputs the commands used to generate the shape. Can be used to create a new shape from an existing pone.
 
@@ -1571,24 +1293,6 @@ A node for playing audio through the device speaker
 *Inputs*
 * An audio file
 * The volume of the playing audio
-
-## Sphere
-A sphere 3D shape, which can be used inside a Reality View.
-
-*Inputs*
-* 3D Anchor Entity
-* 3D Transform (Translation/Scale/Rotation)
-* Translation Gesture
-* Scale Gesture
-* Rotation Gesture
-* Position (X/Y)
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Color
-* Metallic
 
 ## Split Text
 Splits an input text string at a given token. For example, if the text value is "Stitch", and the token is "it", the output string will be "St"
@@ -1671,42 +1375,6 @@ Returns the result of the subtraction between two numbers.
 *Outputs*
 * The result of the subtraction
 
-## Toggle Switch
-Displays an interactive UI toggle switch. 
-
-*Inputs*
-* Enabled
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Scale
-* Anchoring
-* Z-Index
-* Stroke Position
-* Stroke Width
-
-## Text
-Displays a text value in the preview window.
-
-*Inputs*
-* Text value (a string)
-* Color
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (Width / Height)
-* Opacity
-* Scale
-* Anchoring
-* Z Index
-* Font Size
-* Alignment
-* Vertical Alignment
-
 ## Text Ends With
 Checks whether a provided text string contains a given suffix
 
@@ -1716,24 +1384,6 @@ Checks whether a provided text string contains a given suffix
 
 *Outputs*
 * A Bool indicating whether or not the input text contains the suffix
-
-## Text Field
-Enter text into the preview window.
-
-*Inputs*
-* Placeholder (a string)
-* Color
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (Width / Height)
-* Opacity
-* Scale
-* Anchoring
-* Z Index
-* Font Size
-* Alignment
 
 ## Text Length
 Returns the length of a given text string.
@@ -1931,23 +1581,6 @@ Measures the velocity, or rate of change, of an input value over time. The veloc
 *Outputs*
 * The velocity of the input
 
-## Video
-The Video Layer displays a video asset in the preview window.
-
-*Inputs*
-* A video asset
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Fill Style
-* Scale
-* Anchoring
-* Z-Index
-* Clipped (Boolean)
-
 ## Video Import
 Allows for importing video file assets. The video can be displayed in the Preview Window by connecting this node to a Video Layer.
 
@@ -1962,24 +1595,6 @@ Allows for importing video file assets. The video can be displayed in the Previe
 * Average volume of the video
 * Current playback position
 * Duration of the video
-
-## Video Streaming
-The Video Streaming Layer streams a video from a given URL string.
-
-*Inputs*
-* A URL to stream a video from
-* Volume
-* Position (X/Y)
-* Rotation X
-* Rotation Y
-* Rotation Z
-* Size (W/H)
-* Opacity
-* Fill Style
-* Scale
-* Anchoring
-* Z-Index
-* Clipped (Boolean)
 
 ## On Prototype Start
 A node that gets triggered whenever the prototype has started or restarted. Can be used to trigger any action you want to occur on the start.

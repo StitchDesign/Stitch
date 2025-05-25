@@ -67,7 +67,6 @@
 		B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B51D8A012CD13D420016CCDA /* StitchEngine */; };
 		B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52148992C837CA6009AD42C /* DelayOneNode.swift */; };
 		B521A1022DE19D6B00662B13 /* StitchAIProjectViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521A1012DE19D5E00662B13 /* StitchAIProjectViewer.swift */; };
-		B521A0F52DE0296800662B13 /* Nodes.md in Resources */ = {isa = PBXBuildFile; fileRef = B521A0F42DE0296100662B13 /* Nodes.md */; };
 		B5221F662D397457009FF89A /* SphereLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F652D397455009FF89A /* SphereLayerNode.swift */; };
 		B5221F682D397735009FF89A /* StitchEntityType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F672D397731009FF89A /* StitchEntityType.swift */; };
 		B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F692D397889009FF89A /* Model3DLayerUtil.swift */; };
@@ -219,6 +218,8 @@
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
 		B5A99E3A2DD5645500D3246A /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = B5A99E392DD5645500D3246A /* StitchSchemaKit */; };
 		B5AC74F9283701E5002A5D01 /* ProjectsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */; };
+		B5AED9152DE2BAFB00C514F2 /* Layer.md in Resources */ = {isa = PBXBuildFile; fileRef = B5AED9132DE2BAFB00C514F2 /* Layer.md */; };
+		B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */ = {isa = PBXBuildFile; fileRef = B5AED9142DE2BAFB00C514F2 /* Patch.md */; };
 		B5B00FFA2BBFC7E000E83CE7 /* LayerInputType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B00FF92BBFC7E000E83CE7 /* LayerInputType.swift */; };
 		B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BA8278CE6FE008A2B5A /* ProjectSettingsView.swift */; };
 		B5B20BAD279095B9008A2B5A /* StitchSheetInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BAC279095B9008A2B5A /* StitchSheetInput.swift */; };
@@ -1093,7 +1094,6 @@
 		B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaValue.swift; sourceTree = "<group>"; };
 		B52148992C837CA6009AD42C /* DelayOneNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayOneNode.swift; sourceTree = "<group>"; };
 		B521A1012DE19D5E00662B13 /* StitchAIProjectViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIProjectViewer.swift; sourceTree = "<group>"; };
-		B521A0F42DE0296100662B13 /* Nodes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Nodes.md; sourceTree = "<group>"; };
 		B5221F652D397455009FF89A /* SphereLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphereLayerNode.swift; sourceTree = "<group>"; };
 		B5221F672D397731009FF89A /* StitchEntityType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEntityType.swift; sourceTree = "<group>"; };
 		B5221F692D397889009FF89A /* Model3DLayerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerUtil.swift; sourceTree = "<group>"; };
@@ -1237,6 +1237,8 @@
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
 		B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListView.swift; sourceTree = "<group>"; };
+		B5AED9132DE2BAFB00C514F2 /* Layer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Layer.md; sourceTree = "<group>"; };
+		B5AED9142DE2BAFB00C514F2 /* Patch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Patch.md; sourceTree = "<group>"; };
 		B5B00FF92BBFC7E000E83CE7 /* LayerInputType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputType.swift; sourceTree = "<group>"; };
 		B5B20BA8278CE6FE008A2B5A /* ProjectSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSettingsView.swift; sourceTree = "<group>"; };
 		B5B20BAC279095B9008A2B5A /* StitchSheetInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSheetInput.swift; sourceTree = "<group>"; };
@@ -2198,20 +2200,21 @@
 			path = LayerInspector;
 			sourceTree = "<group>";
 		};
+		B521A0F32DE0295700662B13 /* Guides */ = {
+			isa = PBXGroup;
+			children = (
+				B5AED9132DE2BAFB00C514F2 /* Layer.md */,
+				B5AED9142DE2BAFB00C514F2 /* Patch.md */,
+			);
+			path = Guides;
+			sourceTree = "<group>";
+		};
 		B521A1002DE19D5400662B13 /* View */ = {
 			isa = PBXGroup;
 			children = (
 				B521A1012DE19D5E00662B13 /* StitchAIProjectViewer.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		B521A0F32DE0295700662B13 /* Guides */ = {
-			isa = PBXGroup;
-			children = (
-				B521A0F42DE0296100662B13 /* Nodes.md */,
-			);
-			path = Guides;
 			sourceTree = "<group>";
 		};
 		B522C54928863117003060A6 /* Sample Apps */ = {
@@ -4981,8 +4984,9 @@
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
-				B521A0F52DE0296800662B13 /* Nodes.md in Resources */,
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
+				B5AED9152DE2BAFB00C514F2 /* Layer.md in Resources */,
+				B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,

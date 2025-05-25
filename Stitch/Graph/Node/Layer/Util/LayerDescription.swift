@@ -37,41 +37,53 @@ enum NodeDescriptions {
 
     static let map: [String: String] = {
         guard
-            let url = Bundle.main.url(forResource: "Nodes",         // ← Guides/Nodes.md
-                                      withExtension: "md"),
-//                                      subdirectory: "Guides"),
-            let md  = try? String(contentsOf: url, encoding: .utf8)
+            let patchUrl = Bundle.main.url(forResource: "Patch",
+                                           withExtension: "md"),
+            let layerUrl = Bundle.main.url(forResource: "Layer",
+                                           withExtension: "md"),
+
+            let patchMd  = try? String(contentsOf: patchUrl, encoding: .utf8),
+            let layerMd  = try? String(contentsOf: layerUrl, encoding: .utf8)
         else {
             assertionFailure("⚠️ Could not load Guides/Nodes.md from bundle")
             return [:]
         }
-        return buildLookup(fromMarkdown: md)
+        
+        var dict: [String: String] = [:]
+        buildLookup(dict: &dict,
+                    fromMarkdown: patchMd)
+        buildLookup(dict: &dict,
+                    fromMarkdown: layerMd)
+        return dict
     }()
 
     // MARK: Markdown parsing --------------------------------------------------
 
-    /// Splits markdown on “## ” headings.  Heading → rest-of-section.
-    private static func buildLookup(fromMarkdown md: String) -> [String: String] {
-        var dict: [String: String] = [:]
+    /// Splits markdown on “## ” headings and ignores all other header levels.
+    /// Returns a `[title: body]` dictionary.
+    private static func buildLookup(dict: inout [String: String],
+                                    fromMarkdown md: String) {
+        // (?ms)  → multi-line, dot-matches-newline
+        // ^## +  → a line that *starts* with “## ”
+        // (.+?)  → capture the heading text (lazy so we stop at the newline)
+        // \n     → heading line ends
+        // (.*?)  → capture everything until …
+        // (?=^## |\z) → …the next “## ” heading *or* end-of-file
+        let pattern = #"(?ms)^\s*##\s+(.+?)\s*\n(.*?)(?=^\s*##\s+|\z)"#
+        let regex = try! NSRegularExpression(pattern: pattern,
+                                             options: [.anchorsMatchLines,
+                                                       .dotMatchesLineSeparators])
 
-        // First heading might be “# Stitch Nodes” – skip it by splitting on “\n## ”
-        let sections = md.components(separatedBy: "\n## ")
+        for match in regex.matches(in: md, range: NSRange(md.startIndex..., in: md)) {
+            guard
+                let titleRange = Range(match.range(at: 1), in: md),
+                let bodyRange  = Range(match.range(at: 2), in: md)
+            else { continue }
 
-        for raw in sections {
-            // Each block is: <title>\n<body…>
-            guard let firstBreak = raw.firstIndex(of: "\n") else { continue }
-
-            let title = raw[..<firstBreak]
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-
-            // Ignore the top-level “# …” header (or any accidental single-# line)
-            guard !title.isEmpty, !title.hasPrefix("#") else { continue }
-
-            let body = raw[firstBreak...]
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let title = md[titleRange].trimmingCharacters(in: .whitespacesAndNewlines)
+            let body  = md[bodyRange].trimmingCharacters(in: .whitespacesAndNewlines)
 
             dict[title] = body
         }
-        return dict
     }
 }
