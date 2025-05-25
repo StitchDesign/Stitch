@@ -23,6 +23,11 @@ struct Step: Hashable {
     var valueType: NodeType?     // Type of the node
     var children: NodeIdSet? // Child nodes if this is a group
     
+    // js node
+    var script: String?
+    var inputLabels: [String]?
+    var outputLabels: [String]?
+    
     init(stepType: StepType? = nil,
          nodeId: UUID? = nil,
          nodeName: PatchOrLayer? = nil,
@@ -62,6 +67,9 @@ extension Step: Codable {
         case value
         case valueType = "value_type"
         case children = "children"
+        case script
+        case inputLabels
+        case outputLabels
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -86,6 +94,9 @@ extension Step: Codable {
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
         try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
+        try container.encodeIfPresent(script, forKey: .script)
+        try container.encodeIfPresent(inputLabels, forKey: .inputLabels)
+        try container.encodeIfPresent(outputLabels, forKey: .outputLabels)
     
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
@@ -95,17 +106,18 @@ extension Step: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let stepTypeString = try container.decode(String.self, forKey: .stepType)
-        
-        guard let stepType = StepType(rawValue: stepTypeString) else {
-            throw StitchAIManagerError.stepActionDecoding(stepTypeString)
+        if let stepTypeString = try container.decodeIfPresent(String.self, forKey: .stepType),
+           let stepType = StepType(rawValue: stepTypeString) {
+            self.stepType = stepType
         }
         
-        self.stepType = stepType
         self.nodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .nodeId)
         self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(Int.self, forKey: .fromPort)
+        self.script = try container.decodeIfPresent(String.self, forKey: .script)
+        self.inputLabels = try container.decodeIfPresent([String].self, forKey: .inputLabels)
+        self.outputLabels = try container.decodeIfPresent([String].self, forKey: .outputLabels)
         
         if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
             self.nodeName = try .fromLLMNodeName(nodeNameString)

@@ -46,7 +46,7 @@ final class PatchNodeViewModel: Sendable {
     // Splitter types are for group input, output, or inline nodes
     @MainActor var splitterNode: SplitterNodeEntity?
     
-    @MainActor var javascriptString: String = ""
+    @MainActor var javaScriptNodeSettings: JavaScriptNodeSettings?
         
     @MainActor
     init(from schema: PatchNodeEntity) {

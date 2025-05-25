@@ -183,6 +183,11 @@ func getLabelForRowObserver(useShortLabel: Bool = false,
         switch outputCoordinate.portType {
             
         case .portIndex(let portId):
+            if let javaScriptNodeSettings = node.patchNode?.javaScriptNodeSettings,
+               let outputLabel = javaScriptNodeSettings.outputLabels[safe: portId] {
+                return outputLabel
+            }
+            
             return rowDefinitions.outputs[safe: portId]?.label ?? ""
             
         case .keyPath:
@@ -199,6 +204,12 @@ func getLabelForRowObserver(useShortLabel: Bool = false,
                let variableChar = mathExpr[safe: portId] {
                 return String(variableChar)
             }
+            
+            if let javaScriptNodeSettings = node.patchNode?.javaScriptNodeSettings,
+               let inputLabel = javaScriptNodeSettings.inputLabels[safe: portId] {
+                return inputLabel
+            }
+            
             return rowDefinitions.inputs[safe: portId]?.label ?? ""
             
         case .keyPath(let keyPath):
