@@ -11,6 +11,8 @@ import StitchSchemaKit
 
 struct NodeView: View {
     @State private var showAboutPopover = false
+    @FocusedValue(\.focusedField) private var focusedField
+    @FocusState var isFocused: Bool
     
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel
@@ -120,6 +122,29 @@ struct NodeView: View {
     
     @State private var nodeBodyHovered: Bool = false
     
+    @ViewBuilder
+    func javascriptNodeField(patchNode: PatchNodeViewModel) -> some View {
+        @Bindable var patchNode = patchNode
+        TextField("Javascript here...",
+                  text: $patchNode.javascriptString,
+                  axis: .vertical)
+        .focusedValue(\.focusedField, .javascriptNodePrompt(stitch.id))
+        .focused(self.$isFocused)
+        .onChange(of: isFocused) {
+            if isFocused {
+                document.reduxFocusedField = .javascriptNodePrompt(stitch.id)
+            }
+        }
+        .onChange(of: document.reduxFocusedField) {
+            if document.reduxFocusedField != .javascriptNodePrompt(stitch.id) {
+                self.isFocused = false
+            }
+        }
+        .height(15)
+        .padding()
+        .background(.ultraThickMaterial)
+    }
+    
     @MainActor
     var nodeBody: some View {
         VStack(alignment: .leading, spacing: .zero) {
@@ -130,13 +155,7 @@ struct NodeView: View {
             // TODO: remove this logic, there won't be a custom view like this for JS node
             if stitch.kind == .patch(.javascript),
                 let patchNode = stitch.patchNode {
-                @Bindable var patchNode = patchNode
-                TextField("Javascript here...",
-                          text: $patchNode.javascriptString,
-                          axis: .vertical)
-                .height(15)
-                .padding()
-                .background(.ultraThickMaterial)
+                javascriptNodeField(patchNode: patchNode)
             }
             
             nodeBodyKind
