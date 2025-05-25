@@ -13,12 +13,15 @@ struct JavaScriptNode: PatchNodeDefinition {
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
-            inputs: [],
+            // must contain one row to support add rows
+            inputs: [.init(defaultType: .string, canDirectlyCopyUpstreamValues: true)],
             outputs: []
         )
     }
-
-    static func createEphemeralObserver() -> NodeEphemeralObservable? {
-        ComputedNodeState(stopwatchIsRunning: false)
+    
+    @MainActor
+    static func evaluate(node: NodeViewModel) -> EvalResult? {
+        log("javascript ran")
+        return .init(outputsValues: [[.number(.zero)]])
     }
 }
