@@ -22,8 +22,13 @@ struct RecordingWrapper: Codable {
     var actions: [LLMStepAction]
 }
 
+// TODO: put LLMRecordingState and StitchAIManager actor into a parent struct ?
+//struct StitchAIState {
+//    let aiManager: StitchAIManager
+//    let recordingState: LLMRecordingState
+//}
+
 final actor StitchAIManager {
-    // TODO: `Secrets` is a struct; should be thread-safe; can it just be a global? i.e.
     let secrets: Secrets
 
     var postgrest: PostgrestClient
@@ -52,7 +57,7 @@ final actor StitchAIManager {
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
               let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
-            fatalErrorIfDebug(" Invalid Supabase URL")
+            fatalErrorIfDebug("Invalid Supabase URL")
             return
         }
         

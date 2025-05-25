@@ -36,6 +36,7 @@ struct ChunkProcessed: StitchDocumentEvent {
         // If we coould
         switch newStep.convertToType() {
         case .failure(let error):
+            log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
             recreateTask(aiManager)
             
         case .success(let parsedStep):

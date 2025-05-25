@@ -90,37 +90,6 @@ extension StitchAIManager {
             await MainActor.run { [weak document] in
                 document?.insertNodeMenuState.isGeneratingAIResult = false
             }
-            
-//            do {
-//                try await aiManager.makeOpenAIStreamingRequest(
-//                    request,
-//                    attempt: attempt,
-//                    document: document)
-//                
-//                log("OpenAI Request succeeded")
-//                
-//                // Handle successful response
-//                // Note: does not fire until we properly handle the whole request
-//                aiManager.openAIStreamingCompleted(
-//                    originalPrompt: request.prompt,
-//                    document: document)
-//            } // do
-//            
-//            catch {
-//                log("StitchAI handleRequest error: \(error.localizedDescription)", .logToServer)
-//                
-//                await MainActor.run { [weak document] in
-//                    guard let document = document else {
-//                        log("getOpenAIStreamingTask: no document")
-//                        return
-//                    }
-//                    
-//                    document.handleErrorWhenMakingOpenAIStreamingRequest(error, request)
-//                }
-//            } // catch
-         
-         
-            
         }
     }
         
