@@ -58,10 +58,9 @@ extension Patch {
     // nil when patch node cannot add/remove inputs
     var minimumInputs: Int? {
         switch self {
-        case .javascript:
-            return 0
+        // MARK: we can't support a 0 min the way add inputs work, which must copy from something
             
-        case .loopBuilder, .jsonArray:
+        case .loopBuilder, .jsonArray, .javascript:
             return 1
 
         // minimum 2 inputs
