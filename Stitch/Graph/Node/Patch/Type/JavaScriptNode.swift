@@ -24,7 +24,8 @@ struct JavaScriptNode: PatchNodeDefinition {
     static func evaluate(node: NodeViewModel) -> EvalResult? {
         // 1. Create a context
         guard let jsContext = JSContext(),
-              let patchNode = node.patchNodeViewModel else {
+              let patchNode = node.patchNodeViewModel,
+              let script = patchNode.javaScriptNodeSettings?.script else {
             fatalErrorIfDebug()
             return .init(outputsValues: [[.number(.zero)]])
         }
@@ -48,7 +49,6 @@ struct JavaScriptNode: PatchNodeDefinition {
         jsContext.setObject(jsonObject, forKeyedSubscript: "node_inputs" as NSString)
         
         // 3. Evaluate a script
-        let script = patchNode.javascriptString
         let result = jsContext.evaluateScript("""
 \(script)
 // Get result from eval using node_inputs, which is passed from Swift land
@@ -59,14 +59,98 @@ JSON.stringify(result)
 """
         )
         
-        guard let stringResult = result?.toString() else {
+        guard let stringResult = result?.toString(),
+              let dataResult = stringResult.data(using: .utf8) else {
             return .init(outputsValues: [[.number(.zero)]])
         }
-        
         print("javascript result: \(stringResult)")
         
-//        let steps = try data.getOpenAISteps()
+        do {
+            let aiDecodedResults = try getStitchDecoder().decode([[Step]].self,
+                                                                 from: dataResult)
+            let outputValuesList = PortValuesList(javaScriptNodeResult: aiDecodedResults)
+            return .init(outputsValues: outputValuesList)
+        } catch {
+            print("JavaScript node decoding error: \(error.localizedDescription)")
+            return .init(outputsValues: [[.number(.zero)]])
+        }
+    }
+}
+
+// TODO: move to existing v32 in PatchNodeEntity SSK
+struct JavaScriptNodeSettings: Hashable {
+    let script: String
+    let inputLabels: [String]
+    let outputLabels: [String]
+    
+    init?(from aiStep: Step) {
+        guard let script = aiStep.script,
+              let inputLabels = aiStep.inputLabels,
+              let outputLabels = aiStep.outputLabels else {
+            // TODO: error here
+            print("JavaScript node: unable extract all requested data from: \(aiStep)")
+            return nil
+        }
         
-        return .init(outputsValues: [[.number(.zero)]])
+        self.script = script
+        self.inputLabels = inputLabels
+        self.outputLabels = outputLabels
+    }
+}
+
+extension PortValuesList {
+    init(javaScriptNodeResult: [[Step]]) {
+        self = javaScriptNodeResult.map { outputResults in
+            outputResults.compactMap { aiDecodedResult in
+                aiDecodedResult.value
+            }
+        }
+    }
+}
+
+extension PatchNodeViewModel {
+    /// Upon new JavaScript code:
+    /// 1. Sets script to node
+    /// 2. Processes changes to inputs and outputs
+    /// 3. Recalculates node
+    @MainActor
+    func processNewJavascript(response: JavaScriptNodeSettings,
+                              graph: GraphState) {
+        let newJavaScriptSettings = response
+        self.javaScriptNodeSettings = response
+        
+        // Calculate node
+        graph.scheduleForNextGraphStep(self.id)
+        
+        // Determine ports to remove
+        if self.inputsObservers.count > newJavaScriptSettings.inputLabels.count {
+            self.inputsObservers = self.inputsObservers.dropLast(self.inputsObservers.count - newJavaScriptSettings.inputLabels.count)
+        }
+        if self.outputsObservers.count > newJavaScriptSettings.outputLabels.count {
+            self.outputsObservers = self.outputsObservers.dropLast(self.outputsObservers.count - newJavaScriptSettings.outputLabels.count)
+        }
+        
+        // Create new observers if necessary
+        newJavaScriptSettings.inputLabels.enumerated().forEach { portIndex, label in
+            if self.inputsObservers[safe: portIndex] == nil {
+                let newObserver = InputNodeRowObserver(values: [.string(.init(""))],
+                                                       id: .init(portId: portIndex,
+                                                                 nodeId: self.id),
+                                                       upstreamOutputCoordinate: nil)
+                self.inputsObservers.append(newObserver)
+            }
+        }
+        
+        newJavaScriptSettings.outputLabels.enumerated().forEach { portIndex, label in
+            if self.outputsObservers[safe: portIndex] == nil {
+                let newObserver = OutputNodeRowObserver(values: [.string(.init(""))],
+                                                        id: .init(portId: portIndex,
+                                                                  nodeId: self.id))
+                self.outputsObservers.append(newObserver)
+            }
+        }
+        
+        // Saves information and determines if graph data needs to be updated
+        graph.encodeProjectInBackground()
     }
 }
