@@ -1642,3 +1642,7 @@ The Network Request node allows you to make HTTP GET and POST requests to an end
 * Error status (a Bool)
 * Error (as JSON)
 * Response headers (as JSON)
+
+## JavaScript
+
+An AI-driven node.
