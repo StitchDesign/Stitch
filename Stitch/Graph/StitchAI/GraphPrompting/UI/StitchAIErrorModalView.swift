@@ -7,10 +7,24 @@
 
 import SwiftUI
 
+
+extension StitchDocumentViewModel {
+    @MainActor
+    func showErrorModal(message: String,
+                        userPrompt: String) {
+        if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+            let hostingController = UIHostingController(rootView: StitchAIErrorModalView(
+                message: message,
+                userPrompt: userPrompt
+            ))
+            rootViewController.present(hostingController, animated: true, completion: nil)
+        }
+    }
+}
+
 struct StitchAIErrorModalView: View {
     var message: String
     var userPrompt: String
-//    var jsonResponse: String?
     
     @Environment(\.presentationMode) var presentationMode
     

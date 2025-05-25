@@ -198,17 +198,11 @@ struct LLMActionCorrectionView: View {
 // Hack for supporting check box on iOS
 struct CheckboxToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
-        // 1
         Button(action: {
-
-            // 2
             configuration.isOn.toggle()
-
         }, label: {
             HStack {
-                // 3
                 Image(systemName: configuration.isOn ? "checkmark.square" : "square")
-
                 configuration.label
             }
         })

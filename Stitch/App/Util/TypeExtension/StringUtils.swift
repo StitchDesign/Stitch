@@ -9,11 +9,25 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// https://stackoverflow.com/a/39677704/7170123
+
 extension String {
+    // https://stackoverflow.com/a/39677704/7170123
     func substring(from: Int) -> String {
         let fromIndex = self.index(self.startIndex, offsetBy: from)
         return String(self[fromIndex...])
+    }
+    
+    func toCamelCase() -> String {
+        let sentence = self
+        let words = sentence.components(separatedBy: " ")
+        let camelCaseString = words.enumerated().map { index, word in
+            index == 0 ? word.lowercased() : word.capitalized
+        }.joined()
+        return camelCaseString
+    }
+    
+    var asJFFString: JSONFriendlyFormat {
+        .string(self)
     }
 }
 

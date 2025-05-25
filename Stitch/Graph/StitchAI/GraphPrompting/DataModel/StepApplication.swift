@@ -7,6 +7,15 @@
 
 import Foundation
 
+
+// MARK: RECEIVING A LIST OF LLM-STEP-ACTIONS (i.e. `Step`) AND TURNING EACH ACTION INTO A STATE CHANGE
+
+//let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER = 400.0
+let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER: CGFloat = 600.0 // needed for especially wide nodes
+
+//let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER = 100.0
+let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER: CGFloat = 300.0 // needed for when nodes are at same topo depth level
+
 extension Array where Element == any StepActionable {
     /// Ensures newly created nodes won't overwrite the graph.
     func remapNodeIdsForNewNodes() -> Self {
@@ -96,6 +105,32 @@ extension StitchDocumentViewModel {
                                  graph: graph)
         
         self.graphUpdaterId = .randomId() // NOT NEEDED, ACTUALLY?
+        
+        return nil
+    }
+    
+    
+    // We've decoded the OpenAI json-response into an array of `LLMStepAction`;
+    // Now we turn each `LLMStepAction` into a state-change.
+    // TODO: better?: do more decoding logic on the `LLMStepAction`-side; e.g. `LLMStepAction.nodeName` should be type `PatchOrLayer` rather than `String?`
+    
+        
+    // fka `handleLLMStepAction`
+    // returns nil = failed, and should retry
+    @MainActor
+    func applyAction<ActionType: StepActionable>(_ action: ActionType) -> StitchAIStepHandlingError? {
+        
+        // Set true whenever we are
+        self.llmRecording.isApplyingActions = true
+                        
+        if let error = action.applyAction(document: self) {
+            return error
+        }
+        
+        // TODO: why was this needed in AI Generation mode? (added to resolve an AI-generation-mode-only issue where press interaction's outputs would be empty when creating an edge to an option switch node)
+        self.visibleGraph.updateGraphData(self)
+        
+        self.llmRecording.isApplyingActions = false
         
         return nil
     }
@@ -304,31 +339,3 @@ func positionAIGeneratedNodes(convertedActions: [any StepActionable],
 }
 
 
-// TODO: move to
-
-extension CanvasItemViewModel {
-    @MainActor
-    func getHardcodedSize(_ graph: GraphReader) -> CGSize? {
-        
-        switch self.id {
-        
-        case .node(let nodeId):
-            if let patchNode = graph.getNode(nodeId)?.patchNode {
-                return PatchOrLayerSizes.patches[patchNode.patch]?[patchNode.userVisibleType]
-            } else {
-                return nil
-            }
-        
-        case .layerInput(let layerInputCoordinate):
-            switch layerInputCoordinate.keyPath.portType {
-            case .packed:
-                return PatchOrLayerSizes.layerInputs[layerInputCoordinate.keyPath.layerInput]
-            case .unpacked:
-                return PatchOrLayerSizes.layerFieldSize
-            }
-            
-        case .layerOutput(_):
-            return PatchOrLayerSizes.layerOutputSize
-        }
-    }
-}
