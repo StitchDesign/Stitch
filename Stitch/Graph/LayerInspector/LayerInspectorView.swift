@@ -78,8 +78,20 @@ struct LayerInspectorView: View {
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
-                        
+                  
+            let focusedLayersTitle = self.graph.inspectorFocusedLayers.count > 1 ? "Multiple Layers" : node.displayTitle
+            
             List {
+                
+                Section(header:
+                            StitchTextView(string: focusedLayersTitle,
+                                           font: stitchFont(.LAYER_INSPECTOR_TITLE_FONT_SIZE))
+                                .textCase(nil)
+                                .bold()
+                ) {
+                    EmptyView() // no rows here
+                }
+                
                 ForEach(LayerInspectorSection.allCases) { section in
                     let sectionInputs = section.sectionData
                     
@@ -155,7 +167,7 @@ struct LayerPropertyRowOriginReader: ViewModifier {
                 Color.clear.onChange(of: geometry.frame(in: .global),
                                      initial: true) { oldValue, newValue in
 
-                    log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
+                    // log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
                     
                     // Guide for where to place the flyout;
                     // we read the origin even if this row doesn't support flyout.
@@ -199,12 +211,17 @@ struct LayerInspectorInputView: View {
     
 }
 
+extension CGFloat {
+    static let LAYER_INSPECTOR_HEADER_FONT_SIZE: Self = 18.0
+    static let LAYER_INSPECTOR_TITLE_FONT_SIZE: Self = .LAYER_INSPECTOR_HEADER_FONT_SIZE + 6
+}
+
 struct LayerInspectorSectionHeader: View {
     let string: String
 
     var body: some View {
         StitchTextView(string: string,
-                       font: stitchFont(18))
+                       font: stitchFont(.LAYER_INSPECTOR_HEADER_FONT_SIZE))
             .textCase(nil)
             .bold()
     }
