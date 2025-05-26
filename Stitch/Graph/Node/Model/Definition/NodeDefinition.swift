@@ -17,6 +17,7 @@ protocol NodeDefinition {
     
     static var defaultTitle: String { get }
     
+    @MainActor
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
     
     @MainActor

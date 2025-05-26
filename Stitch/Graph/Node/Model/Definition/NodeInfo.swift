@@ -40,8 +40,8 @@ extension NodeInfo {
             //            }
 
             return NodeInfo(name: node.displayTitle,
-                            inputs: NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType).inputs,
-                            outputs: NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType).outputs,
+                            inputs: PatchOrLayer.patch(patch).rowDefinitionsOldOrNewStyle(for: node.userVisibleType).inputs,
+                            outputs: PatchOrLayer.patch(patch).rowDefinitionsOldOrNewStyle(for: node.userVisibleType).outputs,
                             //                            supportedTypes: supportedTypes,
                             nodeDescription: patch.nodeDescription,
                             supportsNewInputs: patch.inputCountChanged.isDefined)
@@ -54,8 +54,8 @@ extension NodeInfo {
                                          graphDelegate: graph)
 
             return NodeInfo(name: node.displayTitle,
-                            inputs: NodeKind.layer(layer).rowDefinitions(for: node.userVisibleType).inputs,
-                            outputs: NodeKind.layer(layer).rowDefinitions(for: node.userVisibleType).outputs,
+                            inputs: PatchOrLayer.layer(layer).rowDefinitionsOldOrNewStyle(for: node.userVisibleType).inputs,
+                            outputs: PatchOrLayer.layer(layer).rowDefinitionsOldOrNewStyle(for: node.userVisibleType).outputs,
                             //                            supportedTypes: .init(),
                             nodeDescription: layer.nodeDescription,
                             supportsNewInputs: false)
