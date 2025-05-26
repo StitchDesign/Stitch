@@ -9,19 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 import SwiftyJSON
 
-//extension StitchAIManager {
-//    static let structuredOutputs = StitchAIStructuredOutputsPayload()
-//    
-//    static func printStructuredOutputsSchema() {
-//        do {
-//            let schema = try structuredOutputs.printSchema()
-//            print(schema)
-//        } catch {
-//            print("Failed to print schema:", error)
-//        }
-//    }
-//}
-
 struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
     var defs = StitchAIStructuredOutputsDefinitions()
     var schema = StitchAIStructuredOutputsSchema()
