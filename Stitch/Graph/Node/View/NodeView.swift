@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 struct NodeView: View {
     @State private var showAboutPopover = false
-    @State private var aiJavaScriptResponseString: String = ""
+    @State private var aiJsNodePrompt: String = ""
     @FocusedValue(\.focusedField) private var focusedField
     @FocusState var isFocused: Bool
     
@@ -127,31 +127,10 @@ struct NodeView: View {
     func javascriptNodeField(patchNode: PatchNodeViewModel) -> some View {
         @Bindable var patchNode = patchNode
         TextField("Javascript here...",
-                  text: $aiJavaScriptResponseString)
+                  text: $aiJsNodePrompt)
         .onSubmit {
-            // Process JSON result from AI
-            guard let jsonData = self.aiJavaScriptResponseString.data(using: .utf8) else {
-                // TODO: error here
-                print("JavaScript node: unable to create data from AI response")
-                return
-            }
-            
-            // TODO: handle errors
-            do {
-                let decodedStep = try getStitchDecoder()
-                    .decode(Step.self, from: jsonData)
-                
-                guard let javaScriptResponse = JavaScriptNodeSettings(from: decodedStep) else {
-                    return
-                }
-                 
-                // Sets new data and recalculate
-                patchNode.processNewJavascript(response: javaScriptResponse,
-                                               graph: graph)
-            } catch {
-                // TODO: error here
-                print("JavaScript node: unable to process query: \(error.localizedDescription)")
-            }
+            document.stitchAIRequest(.jsNode,
+                                     prompt: aiJsNodePrompt)
         }
         .focusedValue(\.focusedField, .javascriptNodePrompt(stitch.id))
         .focused(self.$isFocused)

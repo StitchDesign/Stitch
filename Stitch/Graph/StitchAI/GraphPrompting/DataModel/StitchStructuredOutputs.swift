@@ -72,6 +72,8 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
         .map { $0.asLLMStepPort }
     )
+    
+    // TODO: add port definitions to structured outputs
 }
 
 struct StitchAIStepsSchema: Encodable {
@@ -118,6 +120,10 @@ struct StitchAIStepSchema: Encodable {
     var value: OpenAIGeneric? = nil
     var valueType: OpenAISchemaRef? = nil
     var children: OpenAISchemaRef? = nil
+    var script: OpenAISchema? = nil
+    var inputDefinitions: OpenAISchemaRef? = nil
+    var outputDefinitions: OpenAISchemaRef? = nil
+    var label: OpenAISchema? = nil
     
     func encode(to encoder: Encoder) throws {
         // Reuses coding keys from Step struct
@@ -136,5 +142,9 @@ struct StitchAIStepSchema: Encodable {
         try container.encodeIfPresent(value, forKey: .value)
         try container.encodeIfPresent(valueType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
+        try container.encodeIfPresent(script, forKey: .script)
+        try container.encodeIfPresent(inputDefinitions, forKey: .inputDefinitions)
+        try container.encodeIfPresent(outputDefinitions, forKey: .outputDefinitions)
+        try container.encodeIfPresent(label, forKey: .label)
     }
 }
