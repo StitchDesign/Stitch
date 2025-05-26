@@ -9,7 +9,7 @@ import SwiftUI
 
 final actor StitchSystemEncoder: DocumentEncodable {
     var documentId: StitchSystemType
-    let saveLocation: EncoderDirectoryLocation
+    let saveLocation: EncoderDirectoryLocation?
     
     @MainActor weak var delegate: StitchSystemViewModel?
     
@@ -24,7 +24,7 @@ final actor StitchSystemEncoder: DocumentEncodable {
 // TODO: move
 final actor ClipboardEncoder: DocumentEncodable {
     var documentId: UUID = .init()
-    let saveLocation: EncoderDirectoryLocation
+    let saveLocation: EncoderDirectoryLocation?
     
     @MainActor var lastEncodedDocument: StitchClipboardContent
     @MainActor weak var delegate: ClipboardEncoderDelegate?

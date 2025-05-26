@@ -27,7 +27,7 @@ struct StitchAIRequest: OpenAIRequestable {
         
         self.model = secrets.openAIModel
         self.n = 1
-        self.temperature = 0.0
+        self.temperature = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
         self.response_format = StitchAIResponseFormat()
         self.messages = [
             .init(role: .system,

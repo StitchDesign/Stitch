@@ -141,7 +141,7 @@ final class GraphState: Sendable {
     
     @MainActor
     init(from schema: GraphEntity,
-         localPosition: CGPoint,
+         localPosition: CGPoint = ABSOLUTE_GRAPH_CENTER,
          nodes: NodesViewModelDict,
          components: MasterComponentsDict,
          mediaFiles: [URL],

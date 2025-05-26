@@ -66,6 +66,7 @@
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
 		B51D8A022CD13D420016CCDA /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B51D8A012CD13D420016CCDA /* StitchEngine */; };
 		B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52148992C837CA6009AD42C /* DelayOneNode.swift */; };
+		B521A1022DE19D6B00662B13 /* StitchAIProjectViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521A1012DE19D5E00662B13 /* StitchAIProjectViewer.swift */; };
 		B5221F662D397457009FF89A /* SphereLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F652D397455009FF89A /* SphereLayerNode.swift */; };
 		B5221F682D397735009FF89A /* StitchEntityType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F672D397731009FF89A /* StitchEntityType.swift */; };
 		B5221F6A2D39788E009FF89A /* Model3DLayerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5221F692D397889009FF89A /* Model3DLayerUtil.swift */; };
@@ -216,6 +217,8 @@
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
 		B5A99E3A2DD5645500D3246A /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = B5A99E392DD5645500D3246A /* StitchSchemaKit */; };
 		B5AC74F9283701E5002A5D01 /* ProjectsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */; };
+		B5AED9152DE2BAFB00C514F2 /* Layer.md in Resources */ = {isa = PBXBuildFile; fileRef = B5AED9132DE2BAFB00C514F2 /* Layer.md */; };
+		B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */ = {isa = PBXBuildFile; fileRef = B5AED9142DE2BAFB00C514F2 /* Patch.md */; };
 		B5B00FFA2BBFC7E000E83CE7 /* LayerInputType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B00FF92BBFC7E000E83CE7 /* LayerInputType.swift */; };
 		B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BA8278CE6FE008A2B5A /* ProjectSettingsView.swift */; };
 		B5B20BAD279095B9008A2B5A /* StitchSheetInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BAC279095B9008A2B5A /* StitchSheetInput.swift */; };
@@ -823,7 +826,6 @@
 		ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */; };
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
 		ECBFDB0B2DB98B4500C1D6D5 /* GraphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBFDB0A2DB98B4500C1D6D5 /* GraphTests.swift */; };
-		ECC175872A43D6A30017815D /* StitchNodeNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC175862A43D6A30017815D /* StitchNodeNames.swift */; };
 		ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC175892A43D9440017815D /* LayerDescription.swift */; };
 		ECC2BCCB2B9B72A700D5F942 /* SidebarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCA2B9B72A700D5F942 /* SidebarListView.swift */; };
 		ECC2BCCD2B9B72B700D5F942 /* SidebarFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCC2B9B72B700D5F942 /* SidebarFooterView.swift */; };
@@ -1098,6 +1100,7 @@
 		B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpackedValueCoercer.swift; sourceTree = "<group>"; };
 		B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaValue.swift; sourceTree = "<group>"; };
 		B52148992C837CA6009AD42C /* DelayOneNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayOneNode.swift; sourceTree = "<group>"; };
+		B521A1012DE19D5E00662B13 /* StitchAIProjectViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIProjectViewer.swift; sourceTree = "<group>"; };
 		B5221F652D397455009FF89A /* SphereLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphereLayerNode.swift; sourceTree = "<group>"; };
 		B5221F672D397731009FF89A /* StitchEntityType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEntityType.swift; sourceTree = "<group>"; };
 		B5221F692D397889009FF89A /* Model3DLayerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerUtil.swift; sourceTree = "<group>"; };
@@ -1240,6 +1243,8 @@
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
 		B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListView.swift; sourceTree = "<group>"; };
+		B5AED9132DE2BAFB00C514F2 /* Layer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Layer.md; sourceTree = "<group>"; };
+		B5AED9142DE2BAFB00C514F2 /* Patch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Patch.md; sourceTree = "<group>"; };
 		B5B00FF92BBFC7E000E83CE7 /* LayerInputType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputType.swift; sourceTree = "<group>"; };
 		B5B20BA8278CE6FE008A2B5A /* ProjectSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSettingsView.swift; sourceTree = "<group>"; };
 		B5B20BAC279095B9008A2B5A /* StitchSheetInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSheetInput.swift; sourceTree = "<group>"; };
@@ -1831,7 +1836,6 @@
 		ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpureEvaluation.swift; sourceTree = "<group>"; };
 		ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PureEvaluation.swift; sourceTree = "<group>"; };
 		ECBFDB0A2DB98B4500C1D6D5 /* GraphTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphTests.swift; sourceTree = "<group>"; };
-		ECC175862A43D6A30017815D /* StitchNodeNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StitchNodeNames.swift; sourceTree = "<group>"; };
 		ECC175892A43D9440017815D /* LayerDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDescription.swift; sourceTree = "<group>"; };
 		ECC2BCCA2B9B72A700D5F942 /* SidebarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListView.swift; sourceTree = "<group>"; };
 		ECC2BCCC2B9B72B700D5F942 /* SidebarFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarFooterView.swift; sourceTree = "<group>"; };
@@ -2083,6 +2087,7 @@
 			isa = PBXGroup;
 			children = (
 				200BD859254F66EB00692903 /* Stitch */,
+				B521A0F32DE0295700662B13 /* Guides */,
 				B5F5FD412B3755C200BBD9A2 /* TestFlight */,
 				208AFA8D25D45B440035B250 /* StitchTests */,
 				E4CC7D0E28F48EF6008EA1C0 /* StitchQuickLookExtension */,
@@ -2207,6 +2212,23 @@
 				ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */,
 			);
 			path = LayerInspector;
+			sourceTree = "<group>";
+		};
+		B521A0F32DE0295700662B13 /* Guides */ = {
+			isa = PBXGroup;
+			children = (
+				B5AED9132DE2BAFB00C514F2 /* Layer.md */,
+				B5AED9142DE2BAFB00C514F2 /* Patch.md */,
+			);
+			path = Guides;
+			sourceTree = "<group>";
+		};
+		B521A1002DE19D5400662B13 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B521A1012DE19D5E00662B13 /* StitchAIProjectViewer.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		B522C54928863117003060A6 /* Sample Apps */ = {
@@ -3243,7 +3265,6 @@
 				EC4121902BAD53F200B24000 /* PatchNodeDefinitionKinds.swift */,
 				EC41218E2BAD53E200B24000 /* LayerNodeDefinitionKinds.swift */,
 				B569E58A2B06A8B100C7435B /* NodeInfo.swift */,
-				ECC175862A43D6A30017815D /* StitchNodeNames.swift */,
 				B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */,
 			);
 			path = Definition;
@@ -3998,6 +4019,7 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
+				B521A1002DE19D5400662B13 /* View */,
 				B5EFD5B02D5D8967006A68FB /* StitchAISystemPrompt.swift */,
 				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
 				E4D0D2D42CE6ADF400E482E4 /* GraphPrompting */,
@@ -4985,6 +5007,8 @@
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
+				B5AED9152DE2BAFB00C514F2 /* Layer.md in Resources */,
+				B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
@@ -5444,6 +5468,7 @@
 				EC388D332975FB5F00CFA7D1 /* JSONToShapeNode.swift in Sources */,
 				ECEACE8C2A8587C3007ACDE2 /* StitchFPS.swift in Sources */,
 				EC2942472BA13EAA00D14CD1 /* SidebarGroupCreated.swift in Sources */,
+				B521A1022DE19D6B00662B13 /* StitchAIProjectViewer.swift in Sources */,
 				E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */,
 				ECB1B7B026FB9D46006D9C95 /* SerializationUtils.swift in Sources */,
 				EC0E656426F3E7D1000E8997 /* ReframeEvent.swift in Sources */,
@@ -5518,7 +5543,6 @@
 				EC135E142BBC460E003AB96F /* SpringHelpers.swift in Sources */,
 				EC5263032B59D83600EE1E52 /* HandleStitchAction.swift in Sources */,
 				B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */,
-				ECC175872A43D6A30017815D /* StitchNodeNames.swift in Sources */,
 				EC49149E293596E100D74344 /* SplitTextNode.swift in Sources */,
 				EC27A0CE2AF47CDF00FFD018 /* FromHSLToColor.swift in Sources */,
 				EC4A720D274C09360026B233 /* WirelessBroadcasterNode.swift in Sources */,
@@ -6253,6 +6277,156 @@
 			};
 			name = Release;
 		};
+		B521A0F62DE1243E00662B13 /* Stitch AI Reasoning */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = STITCH_AI_REASONING;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = "Stitch AI Reasoning";
+		};
+		B521A0F72DE1243E00662B13 /* Stitch AI Reasoning */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 433;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = Stitch/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.7.2;
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = "Stitch AI Reasoning";
+		};
+		B521A0F82DE1243E00662B13 /* Stitch AI Reasoning */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				INFOPLIST_FILE = StitchTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitchTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/Stitch";
+			};
+			name = "Stitch AI Reasoning";
+		};
+		B521A0F92DE1243E00662B13 /* Stitch AI Reasoning */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = StitchQuickLookExtension/StitchQuickLookExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StitchQuickLookExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StitchQuickLookExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.61;
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch.quicklook;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Stitch AI Reasoning";
+		};
 		B571BFB5285BD3C000FE8726 /* Dev Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -6614,157 +6788,6 @@
 			};
 			name = Release;
 		};
-		E4E860032CBDA1FC006763DA /* StitchAI */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-			};
-			name = StitchAI;
-		};
-		E4E860042CBDA1FC006763DA /* StitchAI */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 433;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 7KKD7RH9A6;
-				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
-				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				INFOPLIST_FILE = Stitch/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.7.2;
-				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = STITCH_AI;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2,6";
-			};
-			name = StitchAI;
-		};
-		E4E860052CBDA1FC006763DA /* StitchAI */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 7KKD7RH9A6;
-				INFOPLIST_FILE = StitchTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitchTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/Stitch";
-			};
-			name = StitchAI;
-		};
-		E4E860062CBDA1FC006763DA /* StitchAI */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_ENTITLEMENTS = StitchQuickLookExtension/StitchQuickLookExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7KKD7RH9A6;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = StitchQuickLookExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = StitchQuickLookExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0.61;
-				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch.quicklook;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = StitchAI;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -6772,7 +6795,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				200BD864254F66EE00692903 /* Debug */,
-				E4E860032CBDA1FC006763DA /* StitchAI */,
+				B521A0F62DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E27295A2AC400D1E45D /* Local Only */,
 				B571BFB5285BD3C000FE8726 /* Dev Debug */,
 				200BD865254F66EE00692903 /* Release */,
@@ -6784,7 +6807,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				200BD867254F66EE00692903 /* Debug */,
-				E4E860042CBDA1FC006763DA /* StitchAI */,
+				B521A0F72DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E28295A2AC400D1E45D /* Local Only */,
 				B571BFB6285BD3C000FE8726 /* Dev Debug */,
 				200BD868254F66EE00692903 /* Release */,
@@ -6796,7 +6819,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				208AFA9325D45B440035B250 /* Debug */,
-				E4E860052CBDA1FC006763DA /* StitchAI */,
+				B521A0F82DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E29295A2AC400D1E45D /* Local Only */,
 				B571BFB7285BD3C000FE8726 /* Dev Debug */,
 				208AFA9425D45B440035B250 /* Release */,
@@ -6808,7 +6831,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E4CC7D1C28F48EF7008EA1C0 /* Debug */,
-				E4E860062CBDA1FC006763DA /* StitchAI */,
+				B521A0F92DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E2A295A2AC400D1E45D /* Local Only */,
 				E4CC7D1D28F48EF7008EA1C0 /* Dev Debug */,
 				E4CC7D1F28F48EF7008EA1C0 /* Release */,

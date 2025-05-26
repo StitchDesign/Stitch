@@ -136,11 +136,12 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
-         projectLoader: ProjectLoader,
-         store: StitchStore,
+         documentEncoder: DocumentEncoder?,
+         projectLoader: ProjectLoader?,
+         store: StitchStore?,
          isDebugMode: Bool) {
         self.rootId = schema.id
-        self.documentEncoder = projectLoader.encoder
+        self.documentEncoder = documentEncoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
@@ -160,8 +161,24 @@ final class StitchDocumentViewModel: Sendable {
         
         self.lastEncodedDocument = schema
         
-        self.initializeDelegate(store: store,
-                                isInitialization: true)
+        if let store = store {
+            self.initializeDelegate(store: store,
+                                    isInitialization: true)            
+        }
+    }
+    
+    @MainActor
+    convenience init(from schema: StitchDocument,
+                     graph: GraphState,
+                     projectLoader: ProjectLoader?,
+                     store: StitchStore,
+                     isDebugMode: Bool) {
+        self.init(from: schema,
+                  graph: graph,
+                  documentEncoder: projectLoader?.encoder,
+                  projectLoader: projectLoader,
+                  store: store,
+                  isDebugMode: isDebugMode)
     }
     
     @MainActor
@@ -478,7 +495,7 @@ extension StitchDocumentViewModel {
     static func createTestFriendlyDocument(_ store: StitchStore) -> StitchDocumentViewModel {
 //        let store = StitchStore()
         let (projectLoader, documentViewModel) = try! createNewEmptyProject(store: store)
-        store.navPath = [projectLoader]
+        store.navPath = [.project(projectLoader)]
                 
         assert(documentViewModel.documentEncoder.isDefined)
         assert(documentViewModel.graph.documentEncoderDelegate.isDefined)
@@ -486,14 +503,21 @@ extension StitchDocumentViewModel {
         return documentViewModel
     }
     
-    @MainActor static func createEmpty() -> StitchDocumentViewModel {
-        let store = StitchStore()
-        let doc = StitchDocument()
-        let loader = ProjectLoader(url: URL(fileURLWithPath: ""))
+    @MainActor static func createEmpty(document: StitchDocument = .init(),
+                                       encoder: DocumentEncoder? = nil,
+                                       // do NOT make multiple of these, breaks dispatch
+                                       store: StitchStore? = nil) -> StitchDocumentViewModel {
+        let doc = document
+        let graph = GraphState(from: doc.graph,
+                               nodes: [:],
+                               components: .init(),
+                               mediaFiles: [],
+                               saveLocation: [])
         
         return .init(from: doc,
-                     graph: .init(),
-                     projectLoader: loader,
+                     graph: graph,
+                     documentEncoder: encoder,
+                     projectLoader: nil,
                      store: store,
                      isDebugMode: false)
     }

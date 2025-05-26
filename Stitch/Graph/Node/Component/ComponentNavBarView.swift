@@ -175,7 +175,7 @@ struct ComponentVersionControlButtons: View {
                 Task { [weak linkedComponent] in
                     guard let linkedComponent = linkedComponent else { return }
                     
-                    guard let newSaveLocation = linkedComponent.encoder.saveLocation.documentSaveLocation else {
+                    guard let newSaveLocation = linkedComponent.encoder.saveLocation?.documentSaveLocation else {
                         fatalErrorIfDebug()
                         return
                     }

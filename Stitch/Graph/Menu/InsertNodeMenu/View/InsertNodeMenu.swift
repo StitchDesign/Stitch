@@ -131,6 +131,9 @@ struct InsertNodeMenuView: View {
     @MainActor
     var footerView: some View {
         HStack {
+            #if STITCH_AI_REASONING
+            Text("Model: \(document.aiManager?.secrets.openAIModel ?? "None")")
+            #endif
             Spacer()
             StitchButton(action: {
                 if isAIMode {
