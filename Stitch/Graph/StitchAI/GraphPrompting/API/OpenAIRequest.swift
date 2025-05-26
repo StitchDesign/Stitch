@@ -51,7 +51,10 @@ extension StitchAIManager {
                 return
             }
             
-            switch await aiManager.makeOpenAIStreamingRequest(request, attempt: attempt) {
+            switch await aiManager.startOpenAIStreamingRequest(
+                request,
+                attempt: attempt,
+                lastCapturedError: document.llmRecording.actionsError ?? "") {
             
             case .none: // No error!
                 log("getOpenAIStreamingTask: succeeded")
@@ -131,10 +134,10 @@ extension StitchAIManager {
     
     /// Execute the API request with retry logic
     // fka `makeRequest`
-    func makeOpenAIStreamingRequest(_ request: OpenAIRequest,
-                                    attempt: Int, // = 1,
-                                    lastCapturedError: String = "last error from makeOpenAIStreamingRequest") async -> StitchAIStreamingError? {
-                        
+    func startOpenAIStreamingRequest(_ request: OpenAIRequest,
+                                     attempt: Int,
+                                     lastCapturedError: String) async -> StitchAIStreamingError? {
+        
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
             log("All StitchAI retry attempts exhausted", .logToServer)

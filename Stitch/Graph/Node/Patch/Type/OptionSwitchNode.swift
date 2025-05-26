@@ -91,7 +91,7 @@ func optionSwitchOpClosure(graphTime: TimeInterval) -> PulseOperationT {
         })
 
         if let pulsedValue = firstPulsed {
-            log("optionSwitchEval: had pulse")
+            // log("optionSwitchEval: had pulse")
             // if we have a pulsedValue,
             // then return that value's index position
             // in values as the result
@@ -101,7 +101,7 @@ func optionSwitchOpClosure(graphTime: TimeInterval) -> PulseOperationT {
             return PulseOpResultT(.number(Double(value)))
         } else {
             // no pulses at all on this index?
-            log("optionSwitchEval: no pulse")
+            // log("optionSwitchEval: no pulse")
             return PulseOpResultT(values.last ?? numberDefaultFalse)
         }
     }

@@ -148,6 +148,7 @@ struct StepActionAddNode: StepActionable {
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
+        // log("StepActionAddNode: applyAction: self.nodeId: \(self.nodeId)")
         let _ = document.nodeInserted(choice: self.nodeName,
                                       nodeId: self.nodeId)
         return nil
@@ -155,6 +156,7 @@ struct StepActionAddNode: StepActionable {
     
     func removeAction(graph: GraphState,
                       document: StitchDocumentViewModel) {
+        // log("StepActionAddNode: removeAction: self.nodeId: \(self.nodeId)")
         graph.deleteNode(id: self.nodeId,
                          document: document,
                          willDeleteLayerGroupChildren: true)

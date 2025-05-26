@@ -350,7 +350,6 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
                 
                 if self.llmRecording.willAutoValidate {
                     if let error: StitchAIStepHandlingError = self.reapplyActionsDuringEditMode(steps: newActions) {
-                        
                         self.llmRecording.actionsError = error.description
                     }
                 }

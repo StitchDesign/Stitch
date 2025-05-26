@@ -13,8 +13,9 @@ extension StitchAIManager {
     @MainActor
     func retryOrShowErrorModal(request: OpenAIRequest,
                                attempt: Int,
-                               lastCapturedError: String = "last error from retryRequest",
                                document: StitchDocumentViewModel) async {
+        
+        log("StitchAIManager: retryOrShowErrorModal called: attempt: \(attempt), request.prompt: \(request.prompt)")
         
         if let retryError = await _retryRequest(request: request, attempt: attempt, document: document),
            // If, while attempting a retry, we encounter an non-retry-able error (e.g. max timeouts or max retries),
@@ -37,10 +38,9 @@ extension StitchAIManager {
     @MainActor
     private func _retryRequest(request: OpenAIRequest,
                                attempt: Int,
-                               lastCapturedError: String = "last error from retryRequest",
                                document: StitchDocumentViewModel) async -> StitchAIStreamingError? {
         
-        log("StitchAIManager: retryRequest called")
+        log("StitchAIManager: retryRequest called: attempt: \(attempt)")
         
         if document.llmRecording.currentlyInARetryDelay {
             log("StitchAIManager: retryRequest: currently in a retry delay; not re-attempting")
@@ -52,9 +52,8 @@ extension StitchAIManager {
         if attempt > request.config.maxRetries {
             log("All StitchAI retry attempts exhausted", .logToServer)
             return .maxRetriesError(request.config.maxRetries,
-                                    lastCapturedError)
+                                    document.llmRecording.actionsError ?? "")
         }
-        
         
         let aiManager = self
         
@@ -78,7 +77,9 @@ extension StitchAIManager {
         // TODO: can `Task.sleep` really "fail" ?
         log("Retrying request with backoff delay: \(cappedDelay) seconds")
         let slept: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
-        assertInDebug(slept.isDefined)
+        
+        // This can somehow fail?
+        // assertInDebug(slept.isDefined)
             
         let task = aiManager.getOpenAIStreamingTask(
             request: request,

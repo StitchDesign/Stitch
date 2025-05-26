@@ -120,7 +120,7 @@ extension StitchDocumentViewModel {
     @MainActor
     var newCanvasItemInsertionLocation: CGPoint {
         if let doubleTapLocation = self.doubleTapLocation {
-            log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
+            // log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
             return adjustPositionToMultipleOf(doubleTapLocation)
         } else {
             var center = self.viewPortCenter

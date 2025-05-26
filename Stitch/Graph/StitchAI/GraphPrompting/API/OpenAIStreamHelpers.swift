@@ -52,27 +52,15 @@ struct ChunkProcessed: StitchDocumentEvent {
                 
             case .success(var parsedStep):
                 log("ChunkProcessed: successfully parsed step, parsedStep: \(parsedStep)")
+                                
+                // see note on `provideGenuinelyUniqueUUIDForAIStep`
+                let (updatedParsedStep,
+                     updatedNodeIdMap) = provideGenuinelyUniqueUUIDForAIStep(newStep,
+                                                                             parsedStep,
+                                                                             nodeIdMap: nodeIdMap)
+                parsedStep = updatedParsedStep
+                aiManager.currentTask?.nodeIdMap = updatedNodeIdMap
                 
-//                // Note: OpenAI can apparently send us the same UUIDs across completely different requests. So, we never actually use the `Step.nodeId: StitchAIUUID`; instead, we create a new, guaranteed-always-unique NodeId and update the parsed steps as they come in.
-//                // TODO: update the system prompt to force OpenAI to send genuinely unique UUIDs everytime
-                if newStep.stepType.introducesNewNode,
-                   let newStepNodeId: StitchAIUUID = newStep.nodeId {
-                    log("ChunkProcessed: nodeIdMap was: \(nodeIdMap)")
-                    nodeIdMap.updateValue(
-                        // a new, ALWAYS unique Stitch node id
-                        NodeId(),
-                        // the node id OpenAI sent us, may be repeated across requests
-                        forKey: newStepNodeId
-                    )
-                    
-                    // Update the current task's stored node id map
-                    aiManager.currentTask?.nodeIdMap = nodeIdMap
-                    log("ChunkProcessed: nodeIdMap is now: \(nodeIdMap)")
-                }
-                
-                log("ChunkProcessed: parsedStep was: \(parsedStep)")
-                parsedStep = parsedStep.remapNodeIds(nodeIdMap: nodeIdMap)
-                log("ChunkProcessed: parsedStep is now: \(parsedStep)")
                 
                 if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
                                                                  newStep: parsedStep) {
@@ -89,6 +77,36 @@ struct ChunkProcessed: StitchDocumentEvent {
             }
         } // Task
     }
+}
+
+ 
+// Note: OpenAI can apparently send us the same UUIDs across completely different requests. So, we never actually use the `Step.nodeId: StitchAIUUID`; instead, we create a new, guaranteed-always-unique NodeId and update the parsed steps as they come in.
+// TODO: update the system prompt to force OpenAI to send genuinely unique UUIDs everytime
+func provideGenuinelyUniqueUUIDForAIStep<T: StepActionable>(
+    _ unparsedStep: Step,
+    _ parsedStep: T,
+    nodeIdMap: [StitchAIUUID: NodeId]) -> (updatedParsedStep: T,
+                                           updatedNodeIdMap: [StitchAIUUID: NodeId]) {
+    
+    var nodeIdMap = nodeIdMap
+    
+    if unparsedStep.stepType.introducesNewNode,
+       let newStepNodeId: StitchAIUUID = unparsedStep.nodeId {
+        // log("ChunkProcessed: nodeIdMap was: \(nodeIdMap)")
+        nodeIdMap.updateValue(
+            // a new, ALWAYS unique Stitch node id
+            NodeId(),
+            // the node id OpenAI sent us, may be repeated across requests
+            forKey: newStepNodeId
+        )
+        log("ChunkProcessed: nodeIdMap is now: \(nodeIdMap)")
+    }
+    
+    // log("ChunkProcessed: parsedStep was: \(parsedStep)")
+    let updatedParsedStep = parsedStep.remapNodeIds(nodeIdMap: nodeIdMap)
+    log("ChunkProcessed: parsedStep is now: \(updatedParsedStep)")
+    
+    return (updatedParsedStep, nodeIdMap)
 }
 
 
@@ -133,8 +151,7 @@ extension StitchAIManager {
                         continue
                     }
                     
-                    if let chunkDataString = String(data: Data(currentChunk),
-                                                    encoding: .utf8),
+                    if let chunkDataString = String(data: Data(currentChunk), encoding: .utf8),
                        let contentToken = chunkDataString.getContentToken() {
                         
                         allContentTokens.append(contentToken)
@@ -158,7 +175,7 @@ extension StitchAIManager {
                 } // for byte in bytes
                 
                 // DEBUG
-//                log("allContentTokens: \(allContentTokens)")
+                // log("allContentTokens: \(allContentTokens)")
                 let finalMessage = String(allContentTokens.joined())
                 log("finalMessage: \(finalMessage)")
                 return .success(response)
