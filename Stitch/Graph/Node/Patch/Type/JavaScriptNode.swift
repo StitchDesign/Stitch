@@ -156,6 +156,7 @@ extension PatchNodeViewModel {
     /// 3. Recalculates node
     @MainActor
     func processNewJavascript(response: JavaScriptNodeSettings,
+                              node: NodeViewModel,
                               graph: GraphState) {
         let newJavaScriptSettings = response
         self.javaScriptNodeSettings = response
@@ -165,20 +166,35 @@ extension PatchNodeViewModel {
         
         // Determine ports to remove
         if self.inputsObservers.count > newJavaScriptSettings.inputDefinitions.count {
-            self.inputsObservers = self.inputsObservers.dropLast(self.inputsObservers.count - newJavaScriptSettings.inputDefinitions.count)
+            let countToRemove = self.inputsObservers.count - newJavaScriptSettings.inputDefinitions.count
+            self.inputsObservers = self.inputsObservers.dropLast(countToRemove)
+            self.canvasObserver.inputViewModels = self.canvasObserver.inputViewModels.dropLast(countToRemove)
         }
         if self.outputsObservers.count > newJavaScriptSettings.outputDefinitions.count {
-            self.outputsObservers = self.outputsObservers.dropLast(self.outputsObservers.count - newJavaScriptSettings.outputDefinitions.count)
+            let countToRemove = self.outputsObservers.count - newJavaScriptSettings.outputDefinitions.count
+            self.outputsObservers = self.outputsObservers.dropLast(countToRemove)
+            self.canvasObserver.outputViewModels = self.canvasObserver.outputViewModels.dropLast(countToRemove)
         }
         
         // Create new observers if necessary
         newJavaScriptSettings.inputDefinitions.enumerated().forEach { portIndex, inputDefinition in
             guard let inputObserver = self.inputsObservers[safe: portIndex] else {
-                let newObserver = InputNodeRowObserver(values: [inputDefinition.strictType.defaultPortValue],
+                let defaultValue = inputDefinition.strictType.defaultPortValue
+                
+                let newObserver = InputNodeRowObserver(values: [defaultValue],
                                                        id: .init(portId: portIndex,
                                                                  nodeId: self.id),
                                                        upstreamOutputCoordinate: nil)
+                let newRowViewModel = InputNodeRowViewModel(
+                    id: .init(graphItemType: .canvas(.node(self.id)),
+                              nodeId: self.id,
+                              portId: portIndex),
+                    initialValue: defaultValue,
+                    rowDelegate: newObserver,
+                    canvasItemDelegate: self.canvasObserver)
+                
                 self.inputsObservers.append(newObserver)
+                self.canvasObserver.inputViewModels.append(newRowViewModel)
                 return
             }
             
@@ -189,14 +205,25 @@ extension PatchNodeViewModel {
         
         newJavaScriptSettings.outputDefinitions.enumerated().forEach { portIndex, label in
             if self.outputsObservers[safe: portIndex] == nil {
-                let newObserver = OutputNodeRowObserver(values: [.string(.init(""))],
+                let defaultValue = PortValue.string(.init(""))
+                let newObserver = OutputNodeRowObserver(values: [defaultValue],
                                                         id: .init(portId: portIndex,
                                                                   nodeId: self.id))
+                
+                let newRowViewModel = OutputNodeRowViewModel(
+                    id: .init(graphItemType: .canvas(.node(self.id)),
+                              nodeId: self.id,
+                              portId: portIndex),
+                    initialValue: defaultValue,
+                    rowDelegate: newObserver,
+                    canvasItemDelegate: self.canvasObserver)
+                
                 self.outputsObservers.append(newObserver)
+                self.canvasObserver.outputViewModels.append(newRowViewModel)
             }
         }
         
         // Saves information and determines if graph data needs to be updated
-        graph.encodeProjectInBackground()
+//        graph.encodeProjectInBackground()
     }
 }

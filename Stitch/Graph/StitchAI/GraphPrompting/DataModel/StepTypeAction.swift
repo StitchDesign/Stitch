@@ -643,6 +643,7 @@ struct StepActionEditJSNode: StepActionable {
         
         // Sets new data and recalculate
         patchNode.processNewJavascript(response: self,
+                                       node: node,
                                        graph: graph)
     }
     
