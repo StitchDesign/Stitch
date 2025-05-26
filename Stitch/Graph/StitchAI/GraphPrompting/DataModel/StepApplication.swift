@@ -38,13 +38,6 @@ extension StitchDocumentViewModel {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-        // TODO: handle the fact that OpenAI may send us the same node ids over and over again; i.e. ids will be unique across all the actions sent for a given request, but ids may be same across multiple different requests; e.g. first request for "Add 1 and 2 and then Divide by 3" will use NodeIds X and Y, but then a second request for "Multiply 3 and 3 and Subtract by 9" will use the same NodeIds X and Y
-//        var convertedActions = convertedActions
-//        if isNewRequest {
-//            // Change Ids for newly created nodes
-//            convertedActions = convertedActions.remapNodeIdsForNewNodes()
-//        }
-        
         // Are these steps valid?
         // invalid = e.g. tried to create a connection for a node before we created that node
         if let validationError = convertedActions.validateLLMSteps() {

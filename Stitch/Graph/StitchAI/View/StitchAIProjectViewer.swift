@@ -13,7 +13,7 @@ extension StitchStore {
     func createAIDocumentPreviewer() -> (StitchDocumentViewModel, DocumentEncoder) {
         let document = StitchDocument()
         let encoder = DocumentEncoder(document: document,
-                                       disableSaves: true)
+                                      disableSaves: true)
         let documentViewModel = StitchDocumentViewModel
             .createEmpty(document: document,
                          encoder: encoder,
@@ -28,20 +28,19 @@ struct StitchAIProjectViewer: View {
     @State private var aiJsonPrompt = ""
     
     let store: StitchStore
-    let document: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
 
-    func validateAiJsonActions() {
+    func validateJSON() {
         // Reset previous state
         document.graph.update(from: .createEmpty())
-        
         let data = self.aiJsonPrompt.data(using: .utf8)!
-        let steps = try! getStitchDecoder().decode(LLMStepActions.self,
-                                                   from: data)
-        
-//        print("setps: \(steps)")
-        
-        try! document.validateAndApplyActions(steps,
-                                              isNewRequest: true)
+        let steps: Steps = try! getStitchDecoder().decode(LLMStepActions.self, from: data)
+        let stepActions: [any StepActionable] = steps.map { $0.parseAsStepAction().value! }
+        log("StitchAIProjectViewer: validateJSON: steps: \(steps)")
+        log("StitchAIProjectViewer: validateJSON: stepActions: \(stepActions)")
+        if let validationError = document.validateAndApplyActions(stepActions) {
+            fatalErrorIfDebug("StitchAIProjectViewer: validateJSON: validationError: \(validationError.description)")
+        }
     }
     
     var body: some View {
@@ -50,14 +49,13 @@ struct StitchAIProjectViewer: View {
             StitchProjectView(store: store,
                               document: document,
                               alertState: store.alertState)
-
             VStack {
                 HStack {
                     TextField("Insert array of JSON actions...",
                               text: $aiJsonPrompt)
                     .focusedValue(\.focusedField, .aiPreviewerTextField)
                     .onSubmit {
-                        validateAiJsonActions()
+                        validateJSON()
                     }
                 }
                 .padding()
