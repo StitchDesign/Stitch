@@ -53,6 +53,7 @@ struct NodeView: View {
             nodeBody
                 .popover(isPresented: $showAboutPopover) {
                     NodeDescriptionView(option: self.stitch.kind.insertNodeMenuOption)
+                        .frame(width: 500)  // maxWidth breaks the popover, cutting content short at times
                         .padding()
                 }
                 .opacity(node.viewCache.isDefined ? 1 : 0)

@@ -17,7 +17,8 @@ struct InsertNodeMenuNodeDescriptionView: View {
             if let activeSelection = activeSelection {
                 ScrollView(showsIndicators: false) {
                     NodeDescriptionView(option: activeSelection)
-                    .padding([.leading], 8)
+                        .padding(.bottom, INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING)
+                        .padding([.leading], 8)
                 }
             }
         }
@@ -42,7 +43,6 @@ struct NodeDescriptionView: View {
                 isTitle: false)
             
             Text(descriptionBody ?? "Failed to retrieve Markdown-formatted body")
-                .padding(.bottom, INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING)
         }
     }
 }
