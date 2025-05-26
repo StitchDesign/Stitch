@@ -21,9 +21,6 @@ import Vision
 // EXAMPLE:
 // Given a string, we want to make it an Int,
 // and lift it into .int PortValue case.
-func intParser(_ userEdit: String) -> PortValue {
-    return .int(toInt(userEdit) ?? (userEdit.isEmpty ? 0 : 1))
-}
 
 func stringParser(_ userEdit: String) -> PortValue {
     return .string(.init(userEdit))
@@ -82,15 +79,6 @@ func spacingParser(_ userEdit: String) -> PortValue {
  Parser Helpers: String -> T?
  where T is a type expected by a PortValue constructor
  ---------------------------------------------------------------- */
-
-func toInt(_ userEdit: String) -> Int? {
-    if let n = Double(userEdit) {
-        // Double() is a better parser than Int();
-        // Double is a superset of Int
-        return Int(n) // `Double -> Int` coercion always works
-    }
-    return nil
-}
 
 import MathParser
 
@@ -151,8 +139,6 @@ func parseUpdate(_ oldValue: PortValue, _ userEdit: String) -> PortValue {
     // ie I'm an .int; turn this user-created string into .int
     case .string:
         return stringParser(userEdit)
-    case .int:
-        return intParser(userEdit)
     case .number:
         return numberParser(userEdit)
     case .layerDimension:
@@ -183,9 +169,6 @@ func isValidEdit(_ oldValue: PortValue,
     switch oldValue {
     case .string, .comparable:
         return true // string edits are always valid
-    case .int:
-        // ie if we were able to get an int, then it's valid
-        return toInt(userEdit).isDefined
     case .number:
         return toNumber(userEdit).isDefined
     case .layerDimension:
