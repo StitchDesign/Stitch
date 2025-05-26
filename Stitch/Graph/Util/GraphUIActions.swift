@@ -217,14 +217,10 @@ struct SubmitUserPromptToOpenAI: StitchDocumentEvent {
             state.llmRecording.initialGraphState = state.visibleGraph.createSchema()
             
             // Create the task and set it on the manager
-            let task = aiManager.getOpenAIStreamingTask(
+            aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAIStreamingTask(
                 request: request,
                 attempt: 1,
-                document: state)
-            
-            aiManager.currentTask = .init(task: task,
-                                          // Will be populated as each chunk is processed
-                                          nodeIdMap: .init())
+                document: state))
         }
     }
 }

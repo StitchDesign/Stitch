@@ -20,7 +20,7 @@ struct EditBeforeSubmitModalView: View {
 
     var body: some View {
         VStack {
-            StitchTextView(string: "Prompt: \(recordingState.promptState.prompt)")
+            StitchTextView(string: "Prompt: \(recordingState.promptForJustCompletedTrainingData)")
                 .font(.headline)
                 .padding(.top)
             

@@ -22,15 +22,21 @@ struct RecordingWrapper: Codable {
     var actions: [LLMStepAction]
 }
 
-// TODO: put LLMRecordingState and StitchAIManager actor into a parent struct ?
+// TODO: put LLMRecordingState struct and StitchAIManager actor into a single parent ?
 //struct StitchAIState {
 //    let aiManager: StitchAIManager
 //    let recordingState: LLMRecordingState
 //}
 
 struct CurrentAITask {
+    // Streaming request to OpenAI
     var task: Task<Void, Never>
+    
+    // Map of OpenAI-provided UUIDs (which may be same across multiple sessions) vs. Stitch's genuinely always-unique UUIDs;
+    // See notes for `remapNodeIds`;
+    // Populated as we receive and parse each `Step`
     var nodeIdMap: [StitchAIUUID: NodeId] = .init()
+    
     var currentAttempt: Int = 1
 }
 

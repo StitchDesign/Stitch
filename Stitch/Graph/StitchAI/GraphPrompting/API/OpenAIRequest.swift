@@ -37,8 +37,6 @@ struct OpenAIRequest {
 }
 
 extension StitchAIManager {
-
-//    func handleNonRetry
     
     // Used when we need to kick off a request, either initially or as a retry
     @MainActor
@@ -165,19 +163,15 @@ extension StitchAIManager {
                 request: request)
             
         case .failure(let error):
-            if let cancellationError = error as? CancellationError {
-                log("Stream was cancelled") // this is okay
-                return nil
-            } else {
-                return self.handleOpenAIStreamingError(
-                    error,
-                    attempt: attempt,
-                    request: request)
-            }
+            // Note: `error` might be a cancellation, which is acceptable and not an error
+            return handleOpenAIStreamingError(
+                error,
+                attempt: attempt,
+                request: request)
         }
     }
      
-    func handlePossibleRateLimit(response: URLResponse,
+    private func handlePossibleRateLimit(response: URLResponse,
                                  request: OpenAIRequest) -> StitchAIStreamingError? {
         
         // Check HTTP status code
@@ -190,15 +184,6 @@ extension StitchAIManager {
                 log("Retrying in \(request.config.retryDelay) seconds")
                 
                 return .rateLimit
-                
-//                await self.retryRequest(request: request,
-//                                        attempt: attempt,
-//                                        document: document)
-                
-//                return await self.retryMakeOpenAIStreamingRequest(request,
-//                                                                  currentAttempts: attempt + 1,
-//                                                                  lastError: StitchAIManagerError.apiResponseError.description,
-//                                                                  document: document)
             }
         }
         
@@ -208,11 +193,15 @@ extension StitchAIManager {
     
     // An error that occurred when we attempted to open the stream, or as the stream was open
     // Note: NOT the same as an error when validating or applying parsed Steps; for that, see `handleErrorWhenApplyingChunk`
-    func handleOpenAIStreamingError(_ error: Error,
+    private func handleOpenAIStreamingError(_ error: Error,
                                     attempt: Int,
-                                    request: OpenAIRequest) -> StitchAIStreamingError {
+                                    request: OpenAIRequest) -> StitchAIStreamingError? {
         
         log("OpenAI request failed: \(error)")
+        
+        if let _ = (error as? CancellationError) {
+            return nil // Cancellation is not an error
+        }
         
         guard let error = error as NSError? else {
             // If we don't have an NSError, treat error as invalid url ?
@@ -223,7 +212,8 @@ extension StitchAIManager {
         
         // Don't show error for cancelled requests
         if error.code == NSURLErrorCancelled {
-            return .requestCancelled
+            // return .requestCancelled
+            return nil // Cancellation is not an error
         }
         
         // Handle timeout errors
@@ -235,19 +225,6 @@ extension StitchAIManager {
             } else {
                 return .timeout //.timeout(request, error.localizedDescription)
             }
-            
-//            log("StitchAI Request timed out: \(error.localizedDescription)", .logToServer)
-//            log("Retrying in \(request.config.retryDelay) seconds")
-//            
-//            self.retryRequest(request: request,
-//                              attempt: attempt,
-//                              document: document)
-            
-//            return await self.retryMakeOpenAIStreamingRequest(
-//                request,
-//                currentAttempts: attempt + 1,
-//                lastError: error.localizedDescription,
-//                document: document)
         }
         
         // Handle network connection errors
@@ -279,7 +256,7 @@ extension StitchAIManager {
          document.insertNodeMenuState.isGeneratingAIResult = false
 
         log(" Storing Original AI Generated Actions ")
-        document.llmRecording.promptState.prompt = originalPrompt
+        document.llmRecording.promptForJustCompletedTrainingData = originalPrompt
         
         // Enable edit mode for actions after successful request
 //        document.llmRecording.mode = .augmentation

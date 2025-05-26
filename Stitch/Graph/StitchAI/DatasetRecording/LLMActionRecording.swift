@@ -78,22 +78,13 @@ extension StitchDocumentViewModel {
     }
 }
 
-/// What we write to JSON/JSONL file
-struct LLMRecordingData: Equatable, Encodable {
-    let actions: LLMStepActions
-    let prompt: String
-}
-
 extension StitchDocumentViewModel {
     
     @MainActor
     func llmRecordingStarted() {
         print("📼 ⚡️ LLM Recording Started - isRecording set to true ⚡️ 📼")
         print("🎯 Current Recording Mode: \(self.llmRecording.mode)")
-        
-        // Debug print current actions before starting recording
-//        print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
-        
+                
         self.llmRecording.isRecording = true
         
         // Save initial graph entity state for tracking changes
@@ -108,12 +99,6 @@ extension StitchDocumentViewModel {
         print("🎯 Current Recording Mode: \(currentMode)")
         self.llmRecording.isRecording = false
         
-        // Debug print all actions
-//        print("🤖 Complete Action Sequence: \(self.llmRecording.actions.asJSONDisplay())")
-        
-        // Cache the json of all actions
-        self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.map(\.toStep).asJSONDisplay()
-        
         // If we stopped recording and have LLMActions
         if !self.llmRecording.actions.isEmpty {
             if currentMode == .augmentation {
@@ -121,7 +106,7 @@ extension StitchDocumentViewModel {
                 self.closedLLMRecordingPrompt()
             } else if !self.llmRecording.hasShownModalInNormalMode {
                 print("📼 📝 Opening LLM Recording Prompt Modal 📝 📼")
-                self.llmRecording.promptState.showModal = true
+                self.llmRecording.modal = .enterPromptForTrainingData
                 self.llmRecording.hasShownModalInNormalMode = true
                 self.reduxFocusedField = .llmRecordingModal
             }
@@ -133,7 +118,7 @@ extension StitchDocumentViewModel {
         log("📼 💾 Closing LLM Recording Prompt - Saving Data 💾 📼")
         log("🎯 Current Mode for Upload: \(currentMode)")
         
-        self.llmRecording.promptState.showModal = false
+        self.llmRecording.modal = .none
         self.reduxFocusedField = nil
         
         let actions = self.llmRecording.actions

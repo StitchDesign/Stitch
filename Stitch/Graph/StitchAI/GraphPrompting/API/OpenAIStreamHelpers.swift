@@ -9,6 +9,89 @@ import SwiftUI
 import JsonStream
 import SwiftyJSON
 
+
+struct ChunkProcessed: StitchDocumentEvent {
+    let newStep: Step
+    let request: OpenAIRequest
+    let currentAttempt: Int
+    
+    @MainActor
+    func handle(state: StitchDocumentViewModel) {
+        log("ChunkProcessed: newStep: \(newStep)")
+        
+        guard let aiManager = state.aiManager else {
+            fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
+            // TODO: show error modal to user?
+            return
+        }
+                
+        // Helpful for debug to keep around the streamed-in Steps while a given task is active
+        state.llmRecording.streamedSteps.append(newStep)
+            
+        // Parsing the Step is not async, but retry-on-failure *is*, since we wait some small delay.
+        let parseAttempt: Result<any StepActionable, StitchAIStepHandlingError> = newStep.parseAsStepAction()
+        
+        Task(priority: .high) { [weak aiManager] in
+            
+            guard let aiManager = aiManager,
+                  var nodeIdMap = aiManager.currentTask?.nodeIdMap else {
+                log("Did not have AI manager and/or current task")
+                return
+            }
+            
+            switch parseAttempt {
+                
+            case .failure(let parsingError):
+                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: parsingError: \(parsingError) for request.prompt: \(request.prompt)")
+                if parsingError.shouldRetryRequest {
+                    await aiManager.retryOrShowErrorModal(
+                        request: request,
+                        attempt: currentAttempt,
+                        document: state)
+                }
+                
+            case .success(var parsedStep):
+                log("ChunkProcessed: successfully parsed step, parsedStep: \(parsedStep)")
+                
+//                // Note: OpenAI can apparently send us the same UUIDs across completely different requests. So, we never actually use the `Step.nodeId: StitchAIUUID`; instead, we create a new, guaranteed-always-unique NodeId and update the parsed steps as they come in.
+//                // TODO: update the system prompt to force OpenAI to send genuinely unique UUIDs everytime
+                if newStep.stepType.introducesNewNode,
+                   let newStepNodeId: StitchAIUUID = newStep.nodeId {
+                    log("ChunkProcessed: nodeIdMap was: \(nodeIdMap)")
+                    nodeIdMap.updateValue(
+                        // a new, ALWAYS unique Stitch node id
+                        NodeId(),
+                        // the node id OpenAI sent us, may be repeated across requests
+                        forKey: newStepNodeId
+                    )
+                    
+                    // Update the current task's stored node id map
+                    aiManager.currentTask?.nodeIdMap = nodeIdMap
+                    log("ChunkProcessed: nodeIdMap is now: \(nodeIdMap)")
+                }
+                
+                log("ChunkProcessed: parsedStep was: \(parsedStep)")
+                parsedStep = parsedStep.remapNodeIds(nodeIdMap: nodeIdMap)
+                log("ChunkProcessed: parsedStep is now: \(parsedStep)")
+                
+                if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
+                                                                 newStep: parsedStep) {
+                    log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: validationError: \(validationError) for request.prompt: \(request.prompt)")
+                    if validationError.shouldRetryRequest {
+                        await aiManager.retryOrShowErrorModal(
+                            request: request,
+                            attempt: currentAttempt,
+                            document: state)
+                    }
+                } else {
+                    log("ChunkProcessed: SUCCESSFULLY APPLIED NEW STEP")
+                }
+            }
+        } // Task
+    }
+}
+
+
 extension StitchAIManager {
     
     // TODO: streamData opens a stream; the stream sends us events (from the server) that we respond to

@@ -75,7 +75,7 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
             
             Task { [weak supabaseManager] in
                 try await supabaseManager?.uploadEditedActions(
-                    prompt: state.llmRecording.promptState.prompt,
+                    prompt: state.llmRecording.promptForJustCompletedTrainingData,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
                     isCorrection: state.llmRecording.mode == .augmentation)
