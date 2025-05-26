@@ -9,23 +9,30 @@ import SwiftUI
 import StitchSchemaKit
 import SwiftyJSON
 
-extension StitchAIManager {
-    static let structuredOutputs = StitchAIStructuredOutputsPayload()
-    
-    static func printStructuredOutputsSchema() {
-        do {
-            let schema = try structuredOutputs.printSchema()
-            print(schema)
-        } catch {
-            print("Failed to print schema:", error)
-        }
-    }
-}
+//extension StitchAIManager {
+//    static let structuredOutputs = StitchAIStructuredOutputsPayload()
+//    
+//    static func printStructuredOutputsSchema() {
+//        do {
+//            let schema = try structuredOutputs.printSchema()
+//            print(schema)
+//        } catch {
+//            print("Failed to print schema:", error)
+//        }
+//    }
+//}
 
 struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
     var defs = StitchAIStructuredOutputsDefinitions()
     var schema = StitchAIStructuredOutputsSchema()
-    
+}
+
+struct EditJsNodeStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
+    var defs = EditJsNodeStructuredOutputsDefinitions()
+    var schema = EditJsNodeStructuredOutputsSchema()
+}
+
+extension OpenAISchemaDefinable {
     func printSchema() throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
@@ -45,6 +52,16 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
                               title: Self.title)
 }
 
+struct EditJsNodeStructuredOutputsSchema: OpenAISchemaCustomizable {
+    static let title = "VisualProgrammingActions"
+    
+    var properties = EditJsNodeStepsSchema()
+    
+    var schema = OpenAISchema(type: .object,
+                              required: ["steps"],
+                              additionalProperties: false,
+                              title: Self.title)
+}
 struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
@@ -72,7 +89,19 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
         .map { $0.asLLMStepPort }
     )
+}
+
+struct EditJsNodeStructuredOutputsDefinitions: Encodable {
+    // Step actions
+    let EditJsNodeAction = StepStructuredOutputs(StepActionEditJSNode.self)
     
+    // Types
+    let ValueType = OpenAISchemaEnum(values:
+                                        NodeType.allCases
+        .filter { $0 != .none }
+        .map { $0.asLLMStepNodeType }
+    )
+
     // TODO: add port definitions to structured outputs
 }
 
@@ -85,6 +114,15 @@ struct StitchAIStepsSchema: Encodable {
                                 .init(ref: "ChangeValueTypeAction"),
                                 .init(ref: "SetInputAction"),
                                 .init(ref: "SidebarGroupCreatedAction")
+                             ])
+    )
+}
+
+struct EditJsNodeStepsSchema: Encodable {
+    let steps = OpenAISchema(type: .array,
+                             description: "The action needed to create a JavaScript node",
+                             items: OpenAIGeneric(refs: [
+                                .init(ref: "EditJsNodeAction")
                              ])
     )
 }

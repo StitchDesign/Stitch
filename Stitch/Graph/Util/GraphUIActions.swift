@@ -184,7 +184,10 @@ extension StitchDocumentViewModel {
         print("🤖 Prompt: \(prompt)")
         let state = self
         
-        assertInDebug(state.aiManager?.secrets != nil)
+        guard let secrets = state.aiManager?.secrets else {
+            fatalErrorIfDebug("Invalid AI request when no secrets were made.")
+            return
+        }
         
         let graph = state.visibleGraph
         
@@ -200,6 +203,7 @@ extension StitchDocumentViewModel {
         do {
             let request = try OpenAIRequest(prompt: prompt,
                                             requestType: requestType,
+                                            secrets: secrets,
                                             graph: graph)
             state.aiManager?.handleRequest(request)
         } catch {
