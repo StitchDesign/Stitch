@@ -53,7 +53,7 @@ struct NetworkRequestNode: PatchNodeDefinition {
         ],
               outputs: [
                 .init(label: "Loading", type: .bool),
-                .init(label: "Result", type: .json),
+                .init(label: "Result", type: type ?? .string),
                 .init(label: "Errored", type: .bool),
                 .init(label: "Error", type: .json),
                 .init(label: "Headers", type: .json)
@@ -93,12 +93,14 @@ func networkRequestEval(node: PatchNode,
         let method = values[safe: 4]?.getNetworkRequestType ?? .get
         let pulsedAt = values[safe: 5]?.getPulse ?? .zero
 
+        let prevResultOutput = values[safe: 7] ?? type.defaultPortValue.defaultFalseValue
+        
         let prevOutputs = [
-            values[safe: 6] ?? boolDefaultFalse,
-            values[safe: 7] ?? defaultFalseJSON,
-            values[safe: 8] ?? boolDefaultFalse,
-            values[safe: 9] ?? defaultFalseJSON,
-            values[safe: 10] ?? defaultFalseJSON
+            values[safe: 6] ?? boolDefaultFalse, // loading
+            prevResultOutput, //values[safe: 7] ?? defaultFalseJSON, // result
+            values[safe: 8] ?? boolDefaultFalse, // errored
+            values[safe: 9] ?? defaultFalseJSON, // error
+            values[safe: 10] ?? defaultFalseJSON // headers
         ]
 
         let prevMedia = mediaObserver.computedMedia
