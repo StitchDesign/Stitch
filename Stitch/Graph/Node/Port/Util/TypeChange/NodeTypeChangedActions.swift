@@ -96,20 +96,34 @@ extension GraphState {
                 kind: node.kind)
         }
 
-        // Convert all values which support type changing
-        // Only network node doesn't change inputs
-        if patchNode.patch != .networkRequest {
+        // Convert all values which support type changing;
+        // Only network node doesn't change inputs.
+        if patchNode.patch == .networkRequest {
+            // For network request node, we just change the user-visible-type manually.
+            patchNode.userVisibleType = newType
+        } else {
             node.updateNodeTypeAndInputs(
                 newType: newType,
                 currentGraphTime: graphTime,
                 activeIndex: activeIndex,
                 graph: self)
-        } else {
-            // For network request node, we just change the user-visible-type manually.
-            patchNode.userVisibleType = newType
         }
 
         switch patchNode.patch {
+            
+        case .networkRequest:
+            // TODO: are you properly coercing media etc. ?
+            var nodesDownstreamFromSecondOutput = NodeIdSet()
+            node.getAllOutputsObservers().enumerated().forEach { index, outputObserver in
+                // ONLY the second output of the NetworkRequest changes type
+                if index == 1 {
+                    let existingValues = outputObserver.allLoopedValues
+                    outputObserver.updateOutputValues(existingValues.coerce(to: newType.defaultPortValue,
+                                                                            currentGraphTime: graphTime))
+                    nodesDownstreamFromSecondOutput = outputObserver.getDownstreamInputsObservers().map(\.id.nodeId).toSet
+                }
+            }
+            return Set([node.id]).union(nodesDownstreamFromSecondOutput)
             
         case .wirelessBroadcaster:
             let updatedReceivers = self.broadcastNodeTypeChange(
