@@ -77,9 +77,30 @@ struct LayerInspectorView: View {
                            layerInputObserverDict: LayerInputObserverDict,
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
+        // Don't need the .leading alignment, actually?
         VStack(alignment: .leading, spacing: 0) {
-                        
+//        VStack(spacing: 0) {
+//            let focusedLayersTitle = self.graph.inspectorFocusedLayers.count > 1 ? "Multiple Layers" : node.displayTitle
+//            StitchTextView(string: focusedLayersTitle,
+//                           font: stitchFont(.LAYER_INSPECTOR_TITLE_FONT_SIZE))
+//                .textCase(nil)
+//                .bold()
+//                .padding(.vertical, 4)
+            
+            
+            let focusedLayersTitle = self.graph.inspectorFocusedLayers.count > 1 ? "Multiple Layers" : node.displayTitle
+            
             List {
+                
+                Section(header:
+                            StitchTextView(string: focusedLayersTitle,
+                                           font: stitchFont(.LAYER_INSPECTOR_TITLE_FONT_SIZE))
+                                .textCase(nil)
+                                .bold()
+                 ) {
+                   EmptyView() // no rows here
+                 }
+                
                 ForEach(LayerInspectorSection.allCases) { section in
                     let sectionInputs = section.sectionData
                     
@@ -130,6 +151,9 @@ struct LayerInspectorView: View {
             // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style;
             // And using .plain requires manually adding trailing and leading padding
             .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+//            .background(Color(UIColor.systemBackground))
+            .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
         } // VStack
     }
     
@@ -199,12 +223,18 @@ struct LayerInspectorInputView: View {
     
 }
 
+
+extension CGFloat {
+    static let LAYER_INSPECTOR_SECTION_HEADER_FONT_SIZE: Self = 18.0
+    static let LAYER_INSPECTOR_TITLE_FONT_SIZE: Self = .LAYER_INSPECTOR_SECTION_HEADER_FONT_SIZE + 6
+}
+
 struct LayerInspectorSectionHeader: View {
     let string: String
-
+    
     var body: some View {
         StitchTextView(string: string,
-                       font: stitchFont(18))
+                       font: stitchFont(.LAYER_INSPECTOR_SECTION_HEADER_FONT_SIZE))
             .textCase(nil)
             .bold()
     }
@@ -236,21 +266,28 @@ struct LayerInspectorInputsSectionView: View {
             .transition(.slideInAndOut(edge: .top))
         } header: {
             // TODO: use a button instead?
-            HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) { // spacing of 8 ?
-                let rotationZ: CGFloat = expanded ? 90 : 0
-                Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
-                    .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                           height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                    .rotation3DEffect(Angle(degrees: rotationZ),
-                                      axis: (x: 0, y: 0, z: rotationZ))
-                    .animation(.linear(duration: 0.2), value: rotationZ)
-                    .opacity(self.isHovered ? 1 : 0)
-                
-                LayerInspectorSectionHeader(string: section.rawValue)
+            ZStack {
+                Color.yellow.ignoresSafeArea()
+                HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) { // spacing of 8 ?
+                    let rotationZ: CGFloat = expanded ? 90 : 0
+                    Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
+                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+                        .rotation3DEffect(Angle(degrees: rotationZ),
+                                          axis: (x: 0, y: 0, z: rotationZ))
+                        .animation(.linear(duration: 0.2), value: rotationZ)
+                        .opacity(self.isHovered ? 1 : 0)
+                    
+                    LayerInspectorSectionHeader(string: section.rawValue)
+                    
+                } // HStack
                 
             }
-            .listRowBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
-            // Note: list row insets appear to be the only way to control padding on a list's section headers
+//             .listRowBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
+                .listRowBackground(Color.red.ignoresSafeArea())
+            //                .listRowBackground(Color.clear.ignoresSafeArea())
+//
+//            // Note: list row insets appear to be the only way to control padding on a list's section headers
             .listRowInsets(EdgeInsets(top: 0,
                                       leading: 0,
                                       bottom: 0,
@@ -281,7 +318,15 @@ struct LayerInspectorInputsSectionView: View {
                     }
                 }
             }
-        }
+        } // header: { ...
+//        .listRowBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
+        
+        // Note: list row insets appear to be the only way to control padding on a list's section headers
+//        .listRowInsets(EdgeInsets(top: 0,
+//                                  leading: 0,
+//                                  bottom: 0,
+//                                  trailing: 0))
+
     }
 }
 
