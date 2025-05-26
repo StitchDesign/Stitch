@@ -150,26 +150,13 @@ extension StitchDocumentViewModel {
     
     // TODO: pass down the [Step] explicitly ?
     @MainActor
-//    func reapplyActionsDuringEditMode(steps: [Step]) -> StitchAIStepHandlingError? {
     func reapplyActionsDuringEditMode(steps: [any StepActionable]) -> StitchAIStepHandlingError? {
-        
-        let oldActions = steps //  self.llmRecording.actions
-
-        // This actually should NEVER fail, since we've already applied the actions once before?
-        //        let conversionAttempt = steps // .convertSteps()
-        //        guard let actions: [any StepActionable] = conversionAttempt.value else {
-        //            fatalErrorIfDebug("reapplyActions: Could not ")
-        //            return conversionAttempt.error
-        //        }
-        
-        let actions = steps
-        
         let graph = self.visibleGraph
         
-        log("StitchDocumentViewModel: reapplyLLMActions: actions: \(actions)")
+        log("StitchDocumentViewModel: reapplyLLMActions: steps: \(steps)")
         
         // Do not save or apply nodes' positions when streaming
-        self.llmRecording.canvasItemPositions = actions.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
+        self.llmRecording.canvasItemPositions = steps.reduce(into: [CanvasItemId : CGPoint]()) { result, action in
             if let nodeId = (action as? StepActionAddNode)?.nodeId ?? (action as? StepActionLayerGroupCreated)?.nodeId {
                 graph.getNode(nodeId)?.getAllCanvasObservers().forEach {
                     result.updateValue($0.position,forKey: $0.id)
@@ -178,10 +165,10 @@ extension StitchDocumentViewModel {
         }
 
         // Remove all actions before re-applying
-        self.deapplyActions(actions: actions)
+        self.deapplyActions(actions: steps)
         
         // Apply the LLM-actions (model-generated and user-augmented) to the graph
-        if let error = self.validateAndApplyActions(actions) {
+        if let error = self.validateAndApplyActions(steps) {
             return error
         }
         
@@ -207,7 +194,7 @@ extension StitchDocumentViewModel {
             visibleGraph: self.visibleGraph)
         
         return Self.validateActionsDidNotChangeDuringReapply(
-            oldActions: oldActions,
+            oldActions: steps,
             newActions: newActions)
     }
         
@@ -215,7 +202,7 @@ extension StitchDocumentViewModel {
                                                                  newActions: [any StepActionable]) -> StitchAIStepHandlingError? {
         
         // TODO: why or how is the count changing? What is mutating the `newActions` count?
-        // assertInDebug(oldActions.count == newActions.count)
+        assertInDebug(oldActions.count == newActions.count)
         log("oldActions.count: \(oldActions.count)")
         log("newActions.count: \(newActions.count)")
         
@@ -223,7 +210,7 @@ extension StitchDocumentViewModel {
             if oldAction.toStep != newAction.toStep {
                 log("Found unequal actions: oldAction: \(oldAction)")
                 log("Found unequal actions: newAction: \(newAction)")
-                // fatalErrorIfDebug() // Crash on dev
+                fatalErrorIfDebug() // Crash on dev
                 return .actionValidationError("Found unequal actions:\n\(oldAction)\n\(newAction)")
             }
         }
