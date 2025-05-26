@@ -124,6 +124,7 @@ struct NodeView: View {
         TextField("Javascript here...",
                   text: $aiJsNodePrompt)
         .onSubmit {
+            document.aiManager?.jsRequestNodeId = stitch.id
             document.stitchAIRequest(.jsNode,
                                      prompt: aiJsNodePrompt)
         }
