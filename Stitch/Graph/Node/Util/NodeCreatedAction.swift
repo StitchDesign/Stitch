@@ -63,7 +63,7 @@ extension StitchDocumentViewModel {
         }
         
         // TODO: use Patch's .graphNode method; right now, however, NodeKind.rowDefinitions properly retrieves row definitions whether new or old style
-        let indexOfInputToChange = node.kind.rowDefinitions(for: selectedInputType).inputs
+        let indexOfInputToChange = node.kind.patchOrLayer?.rowDefinitionsOldOrNewStyle(for: selectedInputType).inputs
          // patch.graphNode?.rowDefinitions(for: selectedInputType).inputs
             .firstIndex(where: { !$0.isTypeStatic })
         // Else default to first input

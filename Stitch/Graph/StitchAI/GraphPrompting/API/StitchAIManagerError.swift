@@ -15,6 +15,15 @@ enum StitchAIStepHandlingError: Error {
     case actionValidationError(String)
 }
 
+extension StitchAIStepHandlingError {
+    var shouldRetryRequest: Bool {
+        switch self {
+        case .stepActionDecoding, .stepDecoding, .actionValidationError:
+            return true
+        }
+    }
+}
+
 extension StitchAIStepHandlingError: CustomStringConvertible {
     var description: String {
         switch self {
@@ -38,6 +47,17 @@ enum StitchAIStreamingError: Error {
     case requestCancelled // e.g. by user, or because stream naturally completed
     case internetConnectionFailed
     case other(Error)
+}
+
+extension StitchAIStreamingError {
+    var shouldRetryRequest: Bool {
+        switch self {
+        case .timeout, .rateLimit:
+            return true
+        case .maxTimeouts, .maxRetriesError, .invalidURL, .requestCancelled, .internetConnectionFailed, .other:
+            return false // under these scenarios, we do not re-attempt the request
+        }
+    }
 }
 
 extension StitchAIStreamingError: CustomStringConvertible {

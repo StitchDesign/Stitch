@@ -16,23 +16,13 @@ extension StitchAIManager {
                            attempt: Int,
                            document: StitchDocumentViewModel) async {
         
+        let shouldRetry = errorFromOpeningStream?.shouldRetryRequest ?? errorFromValidation?.shouldRetryRequest ?? false
         
-        if let errorFromOpeningStream = errorFromOpeningStream {
-            switch errorFromOpeningStream {
-            case .timeout, .rateLimit:
-                await self.retryRequest(request: request, attempt: attempt, document: document)
-            case .maxTimeouts, .maxRetriesError, .invalidURL, .requestCancelled, .internetConnectionFailed, .other:
-                break // under these scenarios, we do not re-attempt the request
-            }
-        } else if let errorFromValidation = errorFromValidation {
-            switch errorFromValidation {
-            case .stepActionDecoding, .stepDecoding, .actionValidationError:
-                await self.retryRequest(request: request, attempt: attempt, document: document)
-            }
+        if shouldRetry {
+            await self.retryRequest(request: request, attempt: attempt, document: document)
         } else {
             log("Will not retry request, had errorFromOpeningStream: \(errorFromOpeningStream?.description) and errorFromValidation \(errorFromValidation?.description)")
         }
-        
     }
     
     // TODO: we attempt the request again when OpenAI has sent us data that either could not be parsed or could not be validated; should we also re-attempt when OpenAI gives us a timeout error?
@@ -60,7 +50,7 @@ extension StitchAIManager {
         let slept: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
         assertInDebug(slept.isDefined)
                 
-        let task = await aiManager.getOpenAIStreamingTask(
+        let task = aiManager.getOpenAIStreamingTask(
             request: request,
             attempt: attempt + 1,
             document: document)
@@ -86,19 +76,7 @@ struct ChunkProcessed: StitchDocumentEvent {
             // TODO: show error modal to user?
             return
         }
-        
-//        let recreateTask = { (_ aiManager: StitchAIManager) in
-//            aiManager.currentTask?.task.cancel()
-//            aiManager.currentTask = nil
-//            let task = aiManager.getOpenAIStreamingTask(
-//                request: request,
-//                attempt: currentAttempt + 1,
-//                document: state)
-//            aiManager.currentTask = .init(task: task,
-//                                          // Will be populated as each chunk is processed
-//                                          nodeIdMap: .init())
-//        }
-        
+                
         // TODO: get rid of this? or keep around for helpful debug?
         state.visibleGraph.streamedSteps.append(newStep)
 
@@ -155,30 +133,18 @@ struct ChunkProcessed: StitchDocumentEvent {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func handleErrorWhenMakingOpenAIStreamingRequest(_ error: Error, _ request: OpenAIRequest) {
-        
-        let document = self
+    func handleNonRetryableError(_ error: StitchAIStreamingError, _ request: OpenAIRequest) {
+        log("handleNonRetryableError: will not retry request")
         
         // Reset recording state
-        document.llmRecording = .init()
-
+        self.llmRecording = .init()
+        
         // TODO: comment below is slightly obscure -- what's going on here?
         // Reset checks which would later break new recording mode
-        document.insertNodeMenuState = InsertNodeMenuState()
+        self.insertNodeMenuState = InsertNodeMenuState()
         
-        if let error = error as? StitchAIManagerError,
-           error.shouldDisplayModal {
-            
-            document.showErrorModal(
-                message: error.description,
-                userPrompt: request.prompt
-            )
-        } else {
-            document.showErrorModal(
-                message: "StitchAI handleRequest unknown error: \(error)",
-                userPrompt: request.prompt
-            )
-        }
+        self.showErrorModal(message: error.description,
+                            userPrompt: request.prompt)
     }
 }
 

@@ -205,9 +205,9 @@ extension InputNodeRowObserver {
             return theseValues
         }
         
-        let canCopyInputValues = node.kind.canCopyInputValues(
+        let canCopyInputValues = node.kind.patchOrLayer?.canCopyInputValues(
             portId: self.id.portId,
-            userVisibleType: node.userVisibleType)
+            userVisibleType: node.userVisibleType) ?? false
         
         if canCopyInputValues {
             return theseValues

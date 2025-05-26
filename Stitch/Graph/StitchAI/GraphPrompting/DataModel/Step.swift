@@ -75,7 +75,7 @@ extension Step: Codable {
         // `encodeIfPresent` cleans up JSON by removing properties
         try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
-        try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
+        try container.encodeIfPresent(nodeName?.asLLMStepNodeName, forKey: .nodeName)
         
         // Handle port encoding differently based on type
         if let portValue = port?.asLLMStepPort() {
@@ -167,7 +167,7 @@ extension Stitch.Step: CustomStringConvertible {
         Step(
             stepType: "\(stepType)",
             nodeId: \(nodeId?.value.uuidString ?? "nil"),
-            nodeName: \(nodeName?.asNodeKind.asLLMStepNodeName ?? "nil"),
+            nodeName: \(nodeName?.asLLMStepNodeName ?? "nil"),
             port: \(port?.asLLMStepPort() ?? "nil"),
             fromNodeId: \(fromNodeId?.value.uuidString ?? "nil"),
             toNodeId: \(toNodeId?.value.uuidString ?? "nil"),

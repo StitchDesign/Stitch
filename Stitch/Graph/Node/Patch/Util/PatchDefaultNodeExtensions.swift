@@ -30,7 +30,7 @@ extension Patch {
                      graphDelegate: GraphState) -> NodeViewModel {
 
         // Preferred newer method for node creation
-        if let GraphNodeType = NodeKind.patch(self).graphNode {
+        if let GraphNodeType = PatchOrLayer.patch(self).graphNode {
             return GraphNodeType.createViewModel(id: id,
                                                  position: position,
                                                  zIndex: zIndex,

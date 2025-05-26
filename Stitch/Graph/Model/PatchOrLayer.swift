@@ -94,6 +94,21 @@ enum PatchOrLayer: Equatable, Codable, Hashable {
     }
 }
 
+extension Patch {
+    @MainActor
+    var patchOrLayer: PatchOrLayer {
+        .patch(self)
+    }
+}
+
+extension Layer {
+    @MainActor
+    var patchOrLayer: PatchOrLayer {
+        .layer(self)
+    }
+}
+
+
 extension PatchNodeViewModel {
     @MainActor
     var patchOrLayer: PatchOrLayer {

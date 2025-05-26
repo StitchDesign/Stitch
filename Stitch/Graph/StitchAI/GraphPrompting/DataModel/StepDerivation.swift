@@ -108,7 +108,7 @@ extension StitchDocumentViewModel {
             switch nodeEntity.nodeTypeEntity {
                 
             case .patch(let patchNode):
-                let defaultInputs = nodeEntity.kind.defaultInputs(for: valueType)
+                let defaultInputs = patchNode.patch.patchOrLayer.defaultInputs(for: valueType)
                 
                 for (input, defaultInputValues) in zip(patchNode.inputs, defaultInputs) {
                     Self.deriveNewInputActions(input: input.portData,

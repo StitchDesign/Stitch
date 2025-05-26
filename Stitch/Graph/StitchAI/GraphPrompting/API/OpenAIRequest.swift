@@ -50,36 +50,41 @@ extension StitchAIManager {
                 log("getOpenAIStreamingTask: no aiManager")
                 return
             }
-                        
-            switch await aiManager.makeOpenAIStreamingRequest(
-                request,
-                attempt: attempt) {
             
-            case .none:
+            switch await aiManager.makeOpenAIStreamingRequest(request, attempt: attempt) {
+            
+            case .none: // No error!
                 log("getOpenAIStreamingTask: succeeded")
                 
                 // Handle successful response
                 // Note: does not fire until we properly handle the whole request
-                aiManager.openAIStreamingCompleted(
-                    originalPrompt: request.prompt,
-                    document: document)
+                aiManager.openAIStreamingCompleted(originalPrompt: request.prompt,
+                                                   document: document)
                 
             case .some(let error):
                 log("getOpenAIStreamingTask: error: \(error.description)")
                 
-                await MainActor.run { [weak document] in
-                    guard let document = document else {
-                        log("getOpenAIStreamingTask: no document")
-                        return
+                // If the error was a timeout or rate limit, we'll want to try again:
+                if error.shouldRetryRequest {
+                    await aiManager.retryRequest(request: request,
+                                                 attempt: attempt,
+                                                 document: document)
+                }
+                
+                // Else, if e.g. 'no internet connection', we won't try again and will show error modal to the user.
+                else {
+                    await MainActor.run { [weak document] in
+                        guard let document = document else {
+                            log("getOpenAIStreamingTask: no document")
+                            return
+                        }
+                        document.handleNonRetryableError(error, request)
                     }
-                    
-                    document.handleErrorWhenMakingOpenAIStreamingRequest(error, request)
                 }
             }
-
             
-//            // Whether we succeeded or failed,
-//            // reset "is generating AI node" on the node menu.
+            // Whether we succeeded or failed,
+            // reset "is generating AI node" on the node menu.
             await MainActor.run { [weak document] in
                 document?.insertNodeMenuState.isGeneratingAIResult = false
             }
@@ -247,26 +252,7 @@ extension StitchAIManager {
         }
     }
     
-    func _retryMakeOpenAIStreamingRequest(_ request: OpenAIRequest,
-                                         currentAttempts: Int,
-                                         lastError: String,
-                                         document: StitchDocumentViewModel) async -> StitchAIStreamingError? {
 
-        // Calculate exponential backoff delay: 2^attempt * base delay
-        let backoffDelay = pow(2.0, Double(currentAttempts)) * request.config.retryDelay
-        // Cap the maximum delay at 30 seconds
-        let cappedDelay = min(backoffDelay, 30.0)
-        
-        // TODO: can `Task.sleep` really "fail" ?
-        log("Retrying request with backoff delay: \(cappedDelay) seconds")
-        let slept: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
-        assertInDebug(slept.isDefined)
-        
-        return await self.makeOpenAIStreamingRequest(request,
-                                                     attempt: currentAttempts + 1,
-                                                     lastCapturedError: lastError)
-    }
-    
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
     // fka `openAIRequestCompleted`
     @MainActor
