@@ -16,6 +16,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
     case sidebarGroupCreated(StepActionLayerGroupCreated)
+    case editJSNode(StepActionEditJSNode)
     
     var stepType: StepType {
         switch self {
@@ -29,6 +30,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionSetInput.stepType
         case .sidebarGroupCreated:
             return StepActionLayerGroupCreated.stepType
+        case .editJSNode:
+            return StepActionEditJSNode.stepType
         }
     }
     
@@ -43,6 +46,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .setInput(let x):
             return x.toStep
         case .sidebarGroupCreated(let x):
+            return x.toStep
+        case .editJSNode(let x):
             return x.toStep
         }
     }
@@ -72,6 +77,10 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .sidebarGroupCreated:
             let x = try StepActionLayerGroupCreated.fromStep(action)
             return .sidebarGroupCreated(x)
+
+        case .editJSNode:
+            let x = try StepActionEditJSNode.fromStep(action)
+            return .editJSNode(x)
         }
     }
 }
@@ -163,6 +172,9 @@ extension Step {
         
         case .sidebarGroupCreated:
             return try StepActionLayerGroupCreated.fromStep(self)
+            
+        case .editJSNode:
+            return try StepActionEditJSNode.fromStep(self)
         }
     }
 }
@@ -574,5 +586,73 @@ struct StepActionSetInput: StepActionable {
             throw StitchAIManagerError
                 .actionValidationError("SetInput: Node \(self.nodeId.debugFriendlyId) does not yet exist")
         }
+    }
+}
+
+struct StepActionEditJSNode: StepActionable {
+    static let stepType: StepType = .editJSNode
+    
+    var script: String
+    var inputDefinitions: [JavaScriptPortDefinition]
+    var outputDefinitions: [JavaScriptPortDefinition]
+    
+    static func fromStep(_ action: Step) throws -> StepActionEditJSNode {
+        guard let nodeId = action.nodeId?.value,
+              let script = action.script,
+              let inputs: [JavaScriptPortDefinition] = .init(from: action.inputDefinitions),
+              let outputs: [JavaScriptPortDefinition] = .init(from: action.outputDefinitions) else {
+            // TODO: error here
+            print("JavaScript node: unable extract all requested data from: \(action)")
+            throw StitchAIManagerError.apiResponseError
+        }
+        
+        return .init(script: script,
+                     inputDefinitions: inputs,
+                     outputDefinitions: outputs)
+    }
+    
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [
+        .stepType, .script, .inputDefinitions, .outputDefinitions
+    ]
+    
+    var toStep: Step {
+        Step(stepType: .editJSNode,
+             script: script,
+             inputDefinitions: inputDefinitions.map(\.aiStep),
+             outputDefinitions: outputDefinitions.map(\.aiStep))
+    }
+    
+    static func createStructuredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .editJSNode,
+              script: OpenAISchema(type: .string),
+              inputDefinitions: OpenAISchemaRef(ref: "PortDefinitions"),
+              outputDefinitions: OpenAISchemaRef(ref: "PortDefinitions")
+        )
+    }
+    
+    func applyAction(document: StitchDocumentViewModel) throws {
+        let graph = document.visibleGraph
+        
+        fatalError()
+//        guard let node = graph.getNode(self.nodeId),
+//              let patchNode = node.patchNode else {
+//            throw StitchAIManagerError.apiResponseError
+//        }
+//        
+//        // Sets new data and recalculate
+//        patchNode.processNewJavascript(response: self,
+//                                       graph: graph)
+    }
+    
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
+        fatalError()
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        fatalError()
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionEditJSNode {
+        fatalError()
     }
 }

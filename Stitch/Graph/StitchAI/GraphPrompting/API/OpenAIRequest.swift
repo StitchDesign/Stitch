@@ -33,6 +33,11 @@ struct OpenAIRequestConfig {
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
 struct OpenAIRequest {
+    enum RequestType {
+        case stitchAIGraph
+        case jsNode
+    }
+    
     private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
     let prompt: String             // User's input prompt
     let systemPrompt: String       // System-level instructions loaded from file
@@ -41,14 +46,19 @@ struct OpenAIRequest {
     /// Initialize a new request with prompt and optional configuration
     @MainActor
     init(prompt: String,
+         requestType: RequestType,
          config: OpenAIRequestConfig = .default,
          graph: GraphState) throws {
         self.prompt = prompt
         self.config = config
         
         // Load system prompt from bundled file
-        let loadedPrompt = try StitchAIManager.systemPrompt(graph: graph)
-        self.systemPrompt = loadedPrompt
+        switch requestType {
+        case .stitchAIGraph:
+            self.systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
+        case .jsNode:
+            self.systemPrompt = StitchAIManager.jsNodeSystemPrompt()
+        }
     }
 }
 

@@ -7,7 +7,7 @@
 
 extension StitchAIManager {
     @MainActor
-    static func systemPrompt(graph: GraphState) throws -> String {
+    static func stitchAISystemPrompt(graph: GraphState) throws -> String {
 """
 # Strict Adherence to Schema and Node Lists:
 - Your output must strictly follow the given JSON schema.

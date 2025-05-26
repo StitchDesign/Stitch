@@ -24,9 +24,12 @@ struct JavaScriptNode: PatchNodeDefinition {
     static func evaluate(node: NodeViewModel) -> EvalResult? {
         // 1. Create a context
         guard let jsContext = JSContext(),
-              let patchNode = node.patchNodeViewModel,
-              let script = patchNode.javaScriptNodeSettings?.script else {
+              let patchNode = node.patchNodeViewModel else {
             fatalErrorIfDebug()
+            return .init(outputsValues: [])
+        }
+        
+        guard let script = patchNode.javaScriptNodeSettings?.script else {
             return .init(outputsValues: [])
         }
 
@@ -78,25 +81,26 @@ JSON.stringify(result)
 }
 
 // TODO: move to existing v32 in PatchNodeEntity SSK
-struct JavaScriptNodeSettings: Hashable {
-    let script: String
-    let inputDefinitions: [JavaScriptPortDefinition]
-    let outputDefinitions: [JavaScriptPortDefinition]
-    
-    init?(from aiStep: Step) {
-        guard let script = aiStep.script,
-              let inputs: [JavaScriptPortDefinition] = .init(from: aiStep.inputDefinitions),
-              let outputs: [JavaScriptPortDefinition] = .init(from: aiStep.outputDefinitions) else {
-            // TODO: error here
-            print("JavaScript node: unable extract all requested data from: \(aiStep)")
-            return nil
-        }
-        
-        self.script = script
-        self.inputDefinitions = inputs
-        self.outputDefinitions = outputs
-    }
-}
+typealias JavaScriptNodeSettings = StepActionEditJSNode
+//struct JavaScriptNodeSettings: Hashable {
+//    let script: String
+//    let inputDefinitions: [JavaScriptPortDefinition]
+//    let outputDefinitions: [JavaScriptPortDefinition]
+//    
+//    init?(from aiStep: Step) {
+//        guard let script = aiStep.script,
+//              let inputs: [JavaScriptPortDefinition] = .init(from: aiStep.inputDefinitions),
+//              let outputs: [JavaScriptPortDefinition] = .init(from: aiStep.outputDefinitions) else {
+//            // TODO: error here
+//            print("JavaScript node: unable extract all requested data from: \(aiStep)")
+//            return nil
+//        }
+//        
+//        self.script = script
+//        self.inputDefinitions = inputs
+//        self.outputDefinitions = outputs
+//    }
+//}
 
 extension Array where Element == JavaScriptPortDefinition {
     init?(from aiSteps: [Step]?) {
@@ -118,7 +122,7 @@ extension Array where Element == JavaScriptPortDefinition {
     }
 }
 
-struct JavaScriptPortDefinition: Hashable {
+struct JavaScriptPortDefinition: Hashable, Codable {
     let label: String
     let strictType: NodeType
     
@@ -131,6 +135,8 @@ struct JavaScriptPortDefinition: Hashable {
         self.label = label
         self.strictType = type
     }
+    
+    var aiStep: Step { .init(valueType: self.strictType, label: label) }
 }
 
 extension PortValuesList {

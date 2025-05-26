@@ -38,7 +38,11 @@ struct Step: Hashable {
          toNodeId: UUID? = nil,
          value: PortValue? = nil,
          valueType: NodeType? = nil,
-         children: NodeIdSet? = nil) {
+         children: NodeIdSet? = nil,
+         script: String? = nil,
+         inputDefinitions: [Step]? = nil,
+         outputDefinitions: [Step]? = nil,
+         label: String? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
