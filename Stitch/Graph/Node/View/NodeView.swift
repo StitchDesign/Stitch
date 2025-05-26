@@ -10,6 +10,8 @@ import UIKit
 import StitchSchemaKit
 
 struct NodeView: View {
+    @State private var showAboutPopover = false
+    
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel
     @Bindable var document: StitchDocumentViewModel
@@ -49,6 +51,10 @@ struct NodeView: View {
         NodeLayout(observer: node,
                    existingCache: node.viewCache) {
             nodeBody
+                .popover(isPresented: $showAboutPopover) {
+                    Text("Popover Content")
+                        .padding()
+                }
                 .opacity(node.viewCache.isDefined ? 1 : 0)
             .onAppear {
                 self.node.updateVisibilityStatus(with: true, graph: graph)
@@ -64,16 +70,17 @@ struct NodeView: View {
             }
 #if targetEnvironment(macCatalyst)
             // Catalyst right-click to open canvas item menu
-                .contextMenu {
-                    CanvasItemMenuButtonsView(graph: graph,
-                                              document: document,
-                                              node: stitch,
-                                              canvasItemId: node.id,
-                                              activeGroupId: activeGroupId,
-                                              canAddInput: canAddInput,
-                                              canRemoveInput: canRemoveInput,
-                                              atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
-                }
+            .contextMenu {
+                CanvasItemMenuButtonsView(graph: graph,
+                                          document: document,
+                                          node: stitch,
+                                          canvasItemId: node.id,
+                                          activeGroupId: activeGroupId,
+                                          canAddInput: canAddInput,
+                                          canRemoveInput: canRemoveInput,
+                                          atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                                          showAboutPopover: self.$showAboutPopover)
+            }
 #endif
                 .modifier(NodeViewTapGestureModifier(graph: graph,
                                                      document: document,
@@ -96,7 +103,8 @@ struct NodeView: View {
                                       activeGroupId: activeGroupId,
                                       canAddInput: canAddInput,
                                       canRemoveInput: canRemoveInput,
-                                      atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
+                                      atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                                      showAboutPopover: self.$showAboutPopover)
                     }
                 }
                 .modifier(CanvasItemInputChangeHandleViewModier(
@@ -280,18 +288,20 @@ struct CanvasItemTag: View {
     let canAddInput: Bool
     let canRemoveInput: Bool
     let atleastOneCommentBoxSelected: Bool
+    @Binding var showAboutPopover: Bool
     
     // fka `nodeTagMenu`
     @ViewBuilder var canvasItemMenu: CanvasItemMenuButtonsView {
         CanvasItemMenuButtonsView(graph: graph,
-                               document: document,
-                               node: stitch,
-                               canvasItemId: node.id,
-                               activeGroupId: activeGroupId,
-                               canAddInput: canAddInput,
-                               canRemoveInput: canRemoveInput,
-                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                               loopIndices: self.loopIndices)
+                                  document: document,
+                                  node: stitch,
+                                  canvasItemId: node.id,
+                                  activeGroupId: activeGroupId,
+                                  canAddInput: canAddInput,
+                                  canRemoveInput: canRemoveInput,
+                                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                                  loopIndices: self.loopIndices,
+                                  showAboutPopover: self.$showAboutPopover)
     }
     
     @MainActor
