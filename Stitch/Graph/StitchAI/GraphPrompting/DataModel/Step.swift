@@ -151,7 +151,7 @@ extension Step: Codable {
 
 extension Step {
     // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
-    func convertToType() -> Result<any StepActionable, StitchAIStepHandlingError> {
+    func parseAsStepAction() -> Result<any StepActionable, StitchAIStepHandlingError> {
         switch self.stepType {
         case .addNode:
             return StepActionAddNode.fromStep(self).map { $0 as any StepActionable}

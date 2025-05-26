@@ -30,7 +30,8 @@ struct RecordingWrapper: Codable {
 
 struct CurrentAITask {
     var task: Task<Void, Never>
-    var nodeIdMap: [StitchAIUUID: NodeId]
+    var nodeIdMap: [StitchAIUUID: NodeId] = .init()
+    var currentAttempt: Int = 1
 }
 
 final actor StitchAIManager {

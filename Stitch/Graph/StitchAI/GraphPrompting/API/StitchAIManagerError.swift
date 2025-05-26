@@ -42,6 +42,7 @@ enum StitchAIStreamingError: Error {
     case timeout
     case maxTimeouts
     case maxRetriesError(Int, String)
+    case currentlyInARetryDelay
     case rateLimit
     case invalidURL
     case requestCancelled // e.g. by user, or because stream naturally completed
@@ -54,7 +55,7 @@ extension StitchAIStreamingError {
         switch self {
         case .timeout, .rateLimit:
             return true
-        case .maxTimeouts, .maxRetriesError, .invalidURL, .requestCancelled, .internetConnectionFailed, .other:
+        case .maxTimeouts, .maxRetriesError, .currentlyInARetryDelay, .invalidURL, .requestCancelled, .internetConnectionFailed, .other:
             return false // under these scenarios, we do not re-attempt the request
         }
     }
@@ -69,6 +70,8 @@ extension StitchAIStreamingError: CustomStringConvertible {
             return "We hit the max number of allowed time outs."
         case .maxRetriesError(let maxRetries, let errorDescription):
             return "Request failed after \(maxRetries) attempts. Last error:\n\(errorDescription)"
+        case .currentlyInARetryDelay:
+            return "Could not start a request because we are currently waiting for a retry delay to finish."
         case .rateLimit:
             return "Rate limited."
         case .invalidURL:

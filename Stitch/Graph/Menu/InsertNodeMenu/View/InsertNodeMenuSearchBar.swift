@@ -37,6 +37,44 @@ struct InsertNodeMenuSearchBar: View {
         store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
     }
     
+    func userSubmitted() {
+        if self.isAIMode {
+            // Invalidate tip in future once AI submission is completed
+            self.launchTip.invalidate(reason: .actionPerformed)
+            
+            self.isLoadingStitchAI = true
+            
+            dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
+        } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
+            dispatch(AddNodeButtonPressed())
+        }
+        // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
+        self.isFocused = false
+    }
+    
+    var rightSideButton: some View {
+        HStack {
+            Group {
+                if isLoadingAIResult {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(STITCH_TITLE_FONT_COLOR)
+                } else {
+                    Button(action: {
+                        self.userSubmitted()
+                    }, label: {
+                        Image(systemName: "plus.app")
+                    })
+                    .frame(width: 36, height: 36)
+                    .buttonStyle(.borderless)
+                }
+            }
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+            .padding(.trailing, 20)
+            .animation(.linear(duration: 0.2), value: isLoadingAIResult)
+        }
+    }
+    
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             TextField("Search or enter AI prompt...", text: $queryString)
@@ -45,38 +83,12 @@ struct InsertNodeMenuSearchBar: View {
                 .padding(.leading, 16)
                 .padding(.trailing, 60)
                 .overlay(alignment: .center) {
-                    HStack {
-                        Group {
-                            if isLoadingAIResult {
-                                ProgressView()
-                                    .scaleEffect(1.5)
-//                                    .tint(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
-                                    .tint(STITCH_TITLE_FONT_COLOR)
-                            } else {
-                                Image(systemName: "plus.app")
-                                    .frame(width: 36, height: 36)
-                            }
-                        }
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, 20)
-                        .animation(.linear(duration: 0.2), value: isLoadingAIResult)
-                    }
+                    rightSideButton
                 }
                 .font(.system(size: 24))
                 .disableAutocorrection(true)
                 .onSubmit {
-                    if self.isAIMode {
-                        // Invalidate tip in future once AI submission is completed
-                        self.launchTip.invalidate(reason: .actionPerformed)
-                        
-                        self.isLoadingStitchAI = true
-                        
-                        dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
-                    } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
-                        dispatch(AddNodeButtonPressed())
-                    }
-                    // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
-                    self.isFocused = false
+                    self.userSubmitted()
                 }
                 .onAppear {
                      // log("InsertNodeMenuSearchBar: onAppear: inner")

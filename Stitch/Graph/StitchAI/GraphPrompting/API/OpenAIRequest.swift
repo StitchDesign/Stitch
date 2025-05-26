@@ -38,6 +38,8 @@ struct OpenAIRequest {
 
 extension StitchAIManager {
 
+//    func handleNonRetry
+    
     // Used when we need to kick off a request, either initially or as a retry
     @MainActor
     func getOpenAIStreamingTask(request: OpenAIRequest,
@@ -58,24 +60,32 @@ extension StitchAIManager {
                 
                 // Handle successful response
                 // Note: does not fire until we properly handle the whole request
-                aiManager.openAIStreamingCompleted(originalPrompt: request.prompt,
-                                                   document: document)
+                await MainActor.run { [weak document] in
+                    guard let document = document else {
+                        fatalErrorIfDebug("getOpenAIStreamingTask: no document")
+                        return
+                    }
+                    aiManager.openAIStreamingCompleted(originalPrompt: request.prompt,
+                                                       document: document)
+                }
                 
             case .some(let error):
                 log("getOpenAIStreamingTask: error: \(error.description)")
                 
                 // If the error was a timeout or rate limit, we'll want to try again:
                 if error.shouldRetryRequest {
-                    await aiManager.retryRequest(request: request,
-                                                 attempt: attempt,
-                                                 document: document)
+                    await aiManager.retryOrShowErrorModal(
+                        request: request,
+                        attempt: attempt,
+                        document: document)
                 }
                 
                 // Else, if e.g. 'no internet connection', we won't try again and will show error modal to the user.
                 else {
+                    // TODO: do we really need to do this on `MainActor.run`? See also note in `retryOrShowErrorModal`
                     await MainActor.run { [weak document] in
                         guard let document = document else {
-                            log("getOpenAIStreamingTask: no document")
+                            fatalErrorIfDebug("getOpenAIStreamingTask: no document")
                             return
                         }
                         document.handleNonRetryableError(error, request)
@@ -125,13 +135,13 @@ extension StitchAIManager {
     // fka `makeRequest`
     func makeOpenAIStreamingRequest(_ request: OpenAIRequest,
                                     attempt: Int, // = 1,
-                                    lastCapturedError: String? = nil) async -> StitchAIStreamingError? {
+                                    lastCapturedError: String = "last error from makeOpenAIStreamingRequest") async -> StitchAIStreamingError? {
                         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
             log("All StitchAI retry attempts exhausted", .logToServer)
             return .maxRetriesError(request.config.maxRetries,
-                                    lastCapturedError ?? "")
+                                    lastCapturedError)
         }
         
         guard let urlRequest = Self.getURLRequestForOpenAI(request: request,

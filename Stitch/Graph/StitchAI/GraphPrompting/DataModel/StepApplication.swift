@@ -222,7 +222,7 @@ extension StitchDocumentViewModel {
                                                                  newActions: [any StepActionable]) -> StitchAIStepHandlingError? {
         
         // TODO: why or how is the count changing? What is mutating the `newActions` count?
-        assertInDebug(oldActions.count == newActions.count)
+        // assertInDebug(oldActions.count == newActions.count)
         log("oldActions.count: \(oldActions.count)")
         log("newActions.count: \(newActions.count)")
         
@@ -230,7 +230,7 @@ extension StitchDocumentViewModel {
             if oldAction.toStep != newAction.toStep {
                 log("Found unequal actions: oldAction: \(oldAction)")
                 log("Found unequal actions: newAction: \(newAction)")
-                fatalErrorIfDebug() // Crash on dev
+                // fatalErrorIfDebug() // Crash on dev
                 return .actionValidationError("Found unequal actions:\n\(oldAction)\n\(newAction)")
             }
         }

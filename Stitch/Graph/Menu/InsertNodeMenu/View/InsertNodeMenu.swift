@@ -63,10 +63,10 @@ struct InsertNodeMenuView: View {
             .cornerRadius(InsertNodeMenuWithModalBackground.shownMenuCornerRadius)
         // Background view guarantees focus state for search bar
             .background {
-                TipView(self.launchTip, arrowEdge: .bottom)
+                TipView(self.launchTip, arrowEdge: .top)
                     .width(400)
                     .fixedSize()
-                    .offset(y: -(menuHeight / 2) - 64)
+                    .offset(y: (menuHeight / 2) + 64)
             }
     }
 

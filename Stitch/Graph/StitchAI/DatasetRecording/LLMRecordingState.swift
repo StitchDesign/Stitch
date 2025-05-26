@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 import StitchEngine
+import OrderedCollections
 
 
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
@@ -30,6 +31,13 @@ enum LLMRecordingModal: Equatable, Hashable {
 }
 
 struct LLMRecordingState {
+    
+    var currentlyInARetryDelay: Bool = false
+    
+    // TODO: should this live on StitchAIManager's `currentTask` ?
+    // Tracks steps as they come in
+    var streamedSteps: OrderedSet<Step> = .init()
+    
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     

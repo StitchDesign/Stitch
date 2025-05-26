@@ -178,12 +178,19 @@ struct SubmitUserPromptToOpenAI: StitchDocumentEvent {
             fatalErrorIfDebug("GenerateAINode: no aiManager")
             return
         }
-                
+        
+        // Make sure current task is completely wiped
+        aiManager.cancelCurrentRequest()
+        aiManager.currentTask = nil
+        
         let graph = state.visibleGraph
         
         // Clear previous streamed steps
-        graph.streamedSteps = .init()
+        state.llmRecording.streamedSteps = .init()
         
+        // Clear the previous actions
+        state.llmRecording.actions = .init()
+                
         // Set loading state
         withAnimation { // added
             state.insertNodeMenuState.isGeneratingAIResult = true
