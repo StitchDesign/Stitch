@@ -21,9 +21,6 @@ let stringDefault: PortValue = .string(.init(.empty))
 let boolDefaultTrue: PortValue = .bool(true)
 let boolDefaultFalse: PortValue = .bool(false)
 
-let intDefaultTrue: PortValue = .int(1)
-let intDefaultFalse: PortValue = .int(0)
-
 let defaultNumber: PortValue = .number(0)
 let numberDefaultTrue: PortValue = .number(1)
 let numberDefaultFalse: PortValue = .number(0)
@@ -128,8 +125,6 @@ extension PortValue {
             return stringDefault
         case .bool:
             return boolDefaultFalse
-        case .int:
-            return intDefaultFalse
         case .number:
             return numberDefaultFalse
         case .layerDimension:

@@ -27,9 +27,6 @@ extension String {
         case .bool:
             return parseUpdate(nodeType.defaultPortValue, x)
         
-        case .int:
-            return parseUpdate(nodeType.defaultPortValue, x)
-            
         case .number:
             return numberParser(x)
         
@@ -315,9 +312,6 @@ extension PortValue {
 //        
 //        case .bool(let x):
 //            return .string(self.display)
-//        
-//        case .int(let x):
-//            return .number(Double(x))
 //            
 //        case .number(let x):
 //            return .number(x)

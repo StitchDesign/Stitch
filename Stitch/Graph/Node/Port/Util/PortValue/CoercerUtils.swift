@@ -27,8 +27,6 @@ func coerceToTruthyOrFalsey(_ value: PortValue,
     switch value {
     case .bool(let x):
         return x
-    case .int(let x):
-        return x > 0
     case .number(let x):
         return x > 0.0
     case .layerDimension(let x):
@@ -76,8 +74,6 @@ extension PortValues {
             return stringCoercer(values)
         case .bool:
             return boolCoercer(values, graphTime: currentGraphTime)
-        case .int:
-            return intCoercer(values, graphTime: currentGraphTime)
         case .number:
             return numberCoercer(values, graphTime: currentGraphTime)
         case .layerDimension:

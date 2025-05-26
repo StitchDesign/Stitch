@@ -98,7 +98,7 @@ extension PortValue {
         case .asyncMedia:
             return .asyncMedia
 
-        case .number, .int:
+        case .number:
             return .number
 
         case .string:

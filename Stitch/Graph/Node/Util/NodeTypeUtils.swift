@@ -31,8 +31,6 @@ extension UserVisibleType {
             return "String"
         case .bool:
             return "Bool"
-        case .int:
-            return "Int"
         case .color:
             return "Color"
         case .number:
@@ -162,8 +160,6 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
         return .string
     case .bool:
         return .bool
-    case .int:
-        return .int
     case .color:
         return .color
     case .number:
@@ -295,8 +291,6 @@ extension UserVisibleType {
             return numberDefaultFalse
         case .layerDimension:
             return layerDimensionDefaultFalse
-        case .int:
-            return intDefaultFalse
         case .bool:
             return boolDefaultFalse
         case .color:

@@ -12,23 +12,6 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
-
-// MARK: INT
-
-// TODO: `int` is a legacy PortValue.type to be removed ?
-func intCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
-        case .int:
-            return value
-        default:
-            return value.coerceToTruthyOrFalsey(graphTime) ? intDefaultTrue : intDefaultFalse
-        }
-    }
-}
-
-
-
 // MARK: NUMBER
 
 // e.g. a PortValue.number-type input is receiving a new list of values, which may need to be duck-typed to PortValue.number
@@ -47,8 +30,6 @@ extension PortValue {
         // Number-like types
         case .number(let x):
             return x
-        case .int(let x):
-            return Double(x)
         case .layerDimension(let x):
             return x.asNumber
         case .size(let x):
@@ -117,9 +98,6 @@ extension PortValue {
         case .layerDimension(let x):
             return x
 
-        case .int(let x):
-            return LayerDimension.number(CGFloat(x))
-            
         // If value is a number,
         // wrap it in a regular number.
         case .number(let x):
@@ -179,8 +157,6 @@ extension PortValue {
             return x
         case .number(let x):
             return LayerSize(width: x, height: x)
-        case .int(let x):
-            return CGSize(width: x, height: x).toLayerSize
         case .position(let x):
             return LayerSize(width: x.x, height: x.y)
         case .layerDimension(let x):
@@ -249,8 +225,6 @@ extension PortValue {
             return x.asAlgebraicCGSize.toCGPoint
         case .layerDimension(let x):
             return StitchPosition(x: x.asNumber, y: x.asNumber)
-        case .int(let x):
-            return x.toStitchPosition
         case .point3D(let x):
             return x.toStitchPosition
         case .point4D(let x):
@@ -309,8 +283,6 @@ extension PortValue {
             return x
         case .number(let x):
             return x.toPoint3D
-        case .int(let x):
-            return x.toPoint3D
         case .size(let x):
             return x.asAlgebraicCGSize.toPoint3D
         case .position(let x):
@@ -367,8 +339,6 @@ extension PortValue {
         case .point4D(let x):
             return x
         case .number(let x):
-            return x.toPoint4D
-        case .int(let x):
             return x.toPoint4D
         case .size(let x):
             return x.asAlgebraicCGSize.toPoint4D
@@ -427,8 +397,6 @@ extension PortValue {
         switch self {
         case .number(let x):
             return .fromSingleNumber(x)
-        case .int(let x):
-            return .fromSingleNumber(Double(x))
         case .size(let x):
             let x = x.asAlgebraicCGSize
             return .fromSingleNumber(x.width)
@@ -517,8 +485,6 @@ extension PortValue {
         switch self {
         case .number(let x):
             return .fromSingleNumber(x)
-        case .int(let x):
-            return .fromSingleNumber(Double(x))
         case .size(let x):
             let x = x.asAlgebraicCGSize
             return .init(top: x.height, right: x.width, bottom: x.height, left: x.width)
