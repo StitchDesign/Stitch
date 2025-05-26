@@ -589,12 +589,31 @@ struct StepActionSetInput: StepActionable {
     }
 }
 
-struct StepActionEditJSNode: StepActionable {
+struct StepActionEditJSNode {
     static let stepType: StepType = .editJSNode
     
-    var script: String
-    var inputDefinitions: [JavaScriptPortDefinition]
-    var outputDefinitions: [JavaScriptPortDefinition]
+    var settings: JavaScriptNodeSettings
+    
+}
+extension StepActionEditJSNode: StepActionable {
+    init(script: String,
+         inputDefinitions: [JavaScriptPortDefinition],
+         outputDefinitions: [JavaScriptPortDefinition]) {
+        self.init(settings: .init(script: script,
+                                  inputDefinitions: inputDefinitions,
+                                  outputDefinitions: outputDefinitions)
+        )
+    }
+    
+    var script: String {
+        self.settings.script
+    }
+    var inputDefinitions: [JavaScriptPortDefinition] {
+        self.settings.inputDefinitions
+    }
+    var outputDefinitions: [JavaScriptPortDefinition] {
+        self.settings.outputDefinitions
+    }
     
     static func fromStep(_ action: Step) throws -> StepActionEditJSNode {
         guard let script = action.script,
@@ -642,9 +661,7 @@ struct StepActionEditJSNode: StepActionable {
         document.aiManager?.jsRequestNodeId = nil
         
         // Sets new data and recalculate
-        patchNode.processNewJavascript(response: self,
-                                       node: node,
-                                       graph: graph)
+        patchNode.processNewJavascript(response: self.settings)
     }
     
     func removeAction(graph: GraphState, document: StitchDocumentViewModel) {

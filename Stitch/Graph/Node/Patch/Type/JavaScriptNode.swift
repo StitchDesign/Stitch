@@ -80,28 +80,6 @@ JSON.stringify(result)
     }
 }
 
-// TODO: move to existing v32 in PatchNodeEntity SSK
-typealias JavaScriptNodeSettings = StepActionEditJSNode
-//struct JavaScriptNodeSettings: Hashable {
-//    let script: String
-//    let inputDefinitions: [JavaScriptPortDefinition]
-//    let outputDefinitions: [JavaScriptPortDefinition]
-//    
-//    init?(from aiStep: Step) {
-//        guard let script = aiStep.script,
-//              let inputs: [JavaScriptPortDefinition] = .init(from: aiStep.inputDefinitions),
-//              let outputs: [JavaScriptPortDefinition] = .init(from: aiStep.outputDefinitions) else {
-//            // TODO: error here
-//            print("JavaScript node: unable extract all requested data from: \(aiStep)")
-//            return nil
-//        }
-//        
-//        self.script = script
-//        self.inputDefinitions = inputs
-//        self.outputDefinitions = outputs
-//    }
-//}
-
 extension Array where Element == JavaScriptPortDefinition {
     init?(from aiSteps: [Step]?) {
         guard let aiSteps = aiSteps else {
@@ -122,18 +100,15 @@ extension Array where Element == JavaScriptPortDefinition {
     }
 }
 
-struct JavaScriptPortDefinition: Hashable, Codable {
-    let label: String
-    let strictType: NodeType
-    
+extension JavaScriptPortDefinition {
     init?(from aiStep: Step) {
         guard let type = aiStep.valueType,
               let label = aiStep.label else {
             return nil
         }
         
-        self.label = label
-        self.strictType = type
+        self.init(label: label,
+                  strictType: type)
     }
     
     var aiStep: Step { .init(valueType: self.strictType, label: label) }
@@ -155,14 +130,9 @@ extension PatchNodeViewModel {
     /// 2. Processes changes to inputs and outputs
     /// 3. Recalculates node
     @MainActor
-    func processNewJavascript(response: JavaScriptNodeSettings,
-                              node: NodeViewModel,
-                              graph: GraphState) {
+    func processNewJavascript(response: JavaScriptNodeSettings) {
         let newJavaScriptSettings = response
         self.javaScriptNodeSettings = response
-        
-        // Calculate node
-        graph.scheduleForNextGraphStep(self.id)
         
         // Determine ports to remove
         if self.inputsObservers.count > newJavaScriptSettings.inputDefinitions.count {
@@ -222,8 +192,5 @@ extension PatchNodeViewModel {
                 self.canvasObserver.outputViewModels.append(newRowViewModel)
             }
         }
-        
-        // Saves information and determines if graph data needs to be updated
-//        graph.encodeProjectInBackground()
     }
 }
