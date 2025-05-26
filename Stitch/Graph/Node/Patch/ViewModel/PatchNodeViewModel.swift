@@ -46,7 +46,7 @@ final class PatchNodeViewModel: Sendable {
     // Splitter types are for group input, output, or inline nodes
     @MainActor var splitterNode: SplitterNodeEntity?
     
-    @MainActor var javaScriptNodeSettings: JavaScriptNodeSettings?
+    @MainActor var javaScriptNodeSettings: JavaScriptNodeSettings? = nil
         
     @MainActor
     init(from schema: PatchNodeEntity) {
@@ -78,6 +78,11 @@ final class PatchNodeViewModel: Sendable {
         
         self.inputsObservers = inputsObservers
         self.outputsObservers = outputsObservers
+        
+        // Setup JavaScript settings
+        if let jsSettings = schema.javaScriptNodeSettings {
+            self.processNewJavascript(response: jsSettings)
+        }
     }
 }
 
@@ -97,6 +102,7 @@ extension PatchNodeViewModel: SchemaObserver {
         if self.patch != schema.patch {
             self.patch = schema.patch
         }
+        
         if self.userVisibleType != schema.userVisibleType {
             guard let oldType = self.userVisibleType,
                   let newType = schema.userVisibleType else {
@@ -116,10 +122,16 @@ extension PatchNodeViewModel: SchemaObserver {
                                          activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
             }
         }
+        
         if let oldSplitterNodeEntity = self.splitterNode,
            let newSplitterNodeEntity = schema.splitterNode,
            oldSplitterNodeEntity != newSplitterNodeEntity {
             self.splitterNode = newSplitterNodeEntity
+        }
+        
+        if let newJsSettings = schema.javaScriptNodeSettings,
+           self.javaScriptNodeSettings != newJsSettings {
+            self.processNewJavascript(response: newJsSettings)
         }
     }
 
@@ -131,7 +143,8 @@ extension PatchNodeViewModel: SchemaObserver {
                         canvasEntity: self.canvasObserver.createSchema(),
                         userVisibleType: self.userVisibleType,
                         splitterNode: self.splitterNode,
-                        mathExpression: self.mathExpression)
+                        mathExpression: self.mathExpression,
+                        javaScriptNodeSettings: self.javaScriptNodeSettings)
     }
     
     func onPrototypeRestart(document: StitchDocumentViewModel) { }
@@ -176,7 +189,8 @@ extension PatchNodeViewModel {
                                      canvasEntity: canvasEntity,
                                      userVisibleType: userVisibleType,
                                      splitterNode: splitterNode,
-                                     mathExpression: mathExpression)
+                                     mathExpression: mathExpression,
+                                     javaScriptNodeSettings: nil)
         self.init(from: entity)
         self.initializeDelegate(delegate, graph: graph, activeIndex: activeIndex)
         self.splitterNode = splitterNode
@@ -322,7 +336,8 @@ extension NodeViewModel {
                                               canvasEntity: canvasEntity,
                                               userVisibleType: userVisibleType,
                                               splitterNode: splitterNode,
-                                              mathExpression: nil)
+                                              mathExpression: nil,
+                                              javaScriptNodeSettings: nil)
         
         let nodeEntity = NodeEntity(id: id,
                                     nodeTypeEntity: .patch(patchNodeEntity),

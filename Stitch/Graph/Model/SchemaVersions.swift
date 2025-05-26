@@ -110,6 +110,8 @@ public typealias StitchSystem = CurrentStitchSystem.StitchSystem
 public typealias StitchSystemType = CurrentStitchSystemType.StitchSystemType
 public typealias DeviceAppearance = CurrentDeviceAppearance.DeviceAppearance
 public typealias MaterialThickness = CurrentMaterialThickness.MaterialThickness
+public typealias JavaScriptNodeSettings = CurrentJavaScriptNodeSettings.JavaScriptNodeSettings
+public typealias JavaScriptPortDefinition = CurrentJavaScriptPortDefinition.JavaScriptPortDefinition
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument
