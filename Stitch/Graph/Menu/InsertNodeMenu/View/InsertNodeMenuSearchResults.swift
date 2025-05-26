@@ -10,15 +10,15 @@ import StitchSchemaKit
 
 struct InsertNodeMenuSearchResults: View {
 
-    @State private var nodeResultSizes: [UUID: CGRect] = .init()
+    @State private var nodeResultSizes: [InsertNodeMenuOption: CGRect] = .init()
     @State private var localId = UUID()
 
     @Environment(\.appTheme) var theme
 
     // All the nodes and components (default or custom) that met the entered search criteria
-    let searchResults: [InsertNodeMenuOptionData]
+    let searchResults: [InsertNodeMenuOption]
 
-    let activeSelection: InsertNodeMenuOptionData?
+    let activeSelection: InsertNodeMenuOption?
 
     // Updated by bottomFooter's FooterSizeReader
     @Binding var footerRect: CGRect
@@ -26,15 +26,15 @@ struct InsertNodeMenuSearchResults: View {
     let show: Bool
     
     // TODO: iterate through DefaultComponents enum
-    var defaultComponents: [InsertNodeMenuOptionData] {
+    var defaultComponents: [InsertNodeMenuOption] {
         searchResults.defaultComponents
     }
 
-    var customComponents: [InsertNodeMenuOptionData] {
+    var customComponents: [InsertNodeMenuOption] {
         searchResults.customComponents
     }
 
-    var nodes: [InsertNodeMenuOptionData] {
+    var nodes: [InsertNodeMenuOption] {
         searchResults.nodes
     }
 
@@ -45,7 +45,7 @@ struct InsertNodeMenuSearchResults: View {
                     
                     if !nodes.isEmpty {
                         Section {
-                            ForEach(nodes, id: \.self) {
+                            ForEach(nodes) {
 
                                 let isLast = $0.id == nodes.last?.id
 
@@ -56,8 +56,8 @@ struct InsertNodeMenuSearchResults: View {
                                     // else we lose `.ultraThinMaterial` effect
                                     .padding(.bottom, isLast ? INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING : 0)
                                     .background(InsertNodeResultSizeReader(
-                                                    id: $0.id,
-                                                    title: $0.data.displayTitle,
+                                                    option: $0,
+                                                    title: $0.displayTitle,
                                                     nodeResultSizes: self.$nodeResultSizes))
                             }
                         } header: {
@@ -79,24 +79,24 @@ struct InsertNodeMenuSearchResults: View {
             .onChange(of: activeSelection, initial: true) { _, newActiveSelection in
                 
                 // Note: using guard statements for easier debugging
-                guard let newActiveSelection: InsertNodeMenuOptionData = newActiveSelection else {
+                guard let newActiveSelection: InsertNodeMenuOption = newActiveSelection else {
                     // log("InsertNodeMenuSearchResults: no active selection")
                     return
                 }
                 
-                guard let bounds = self.nodeResultSizes[newActiveSelection.id] else {
-                    // log("InsertNodeMenuSearchResults: no bounds for selection \(newActiveSelection.data.displayTitle), will default to regular proxy.scrollTo")
+                guard let bounds = self.nodeResultSizes[newActiveSelection] else {
+                    // log("InsertNodeMenuSearchResults: no bounds for selection \(newActiveSelection.displayTitle), will default to regular proxy.scrollTo")
                     proxy.scrollTo(newActiveSelection.id)
                     return
                 }
                 
                 guard self.footerRect.intersects(bounds) else {
-                    // log("InsertNodeMenuSearchResults: no intersection for footerRect \(footerRect) and bounds \(bounds) of selection \(newActiveSelection.data.displayTitle), will default to regular proxy.scrollTo")
+                    // log("InsertNodeMenuSearchResults: no intersection for footerRect \(footerRect) and bounds \(bounds) of selection \(newActiveSelection.displayTitle), will default to regular proxy.scrollTo")
                     proxy.scrollTo(newActiveSelection.id)
                     return
                 }
                 
-                // log("InsertNodeMenuSearchResults: special API: had intersection for footerRect \(footerRect) and bounds \(bounds) of selection \(newActiveSelection.data.displayTitle)")
+                // log("InsertNodeMenuSearchResults: special API: had intersection for footerRect \(footerRect) and bounds \(bounds) of selection \(newActiveSelection.displayTitle)")
                 
                 proxy.scrollTo(newActiveSelection.id,
                                anchor: .init(x: 0, y: 0.775))
@@ -115,21 +115,21 @@ struct InsertNodeMenuSearchResults: View {
     }
 
     @MainActor
-    func searchResultButton(_ option: InsertNodeMenuOptionData) -> some View {
+    func searchResultButton(_ option: InsertNodeMenuOption) -> some View {
         VStack(spacing: 0) {
 
             StitchButton(action: {
                 dispatch(InsertNodeSelectionChanged(selection: option))
             }, label: {
                 HStack {
-                    StitchTextView(string: option.data.displayTitle)
+                    StitchTextView(string: option.displayTitle)
                         .fontWeight(.light)
                         .offset(x: 8)
                     Spacer()
                 }
                 .background {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(option.data == activeSelection?.data ? selectionColor : Color.clear)
+                        .fill(option == activeSelection ? selectionColor : Color.clear)
                         .frame(width: INSERT_NODE_MENU_SEARCH_RESULTS_BUTTON_WIDTH,
                                height: INSERT_NODE_MENU_SEARCH_RESULTS_BUTTON_HEIGHT)
                 }

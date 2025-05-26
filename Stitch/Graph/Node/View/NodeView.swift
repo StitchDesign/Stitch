@@ -52,7 +52,7 @@ struct NodeView: View {
                    existingCache: node.viewCache) {
             nodeBody
                 .popover(isPresented: $showAboutPopover) {
-                    Text("Popover Content")
+                    NodeDescriptionView(option: self.stitch.kind.insertNodeMenuOption)
                         .padding()
                 }
                 .opacity(node.viewCache.isDefined ? 1 : 0)

@@ -36,9 +36,9 @@ struct InsertNodeFooterSizeReader: View {
 
 struct InsertNodeResultSizeReader: View {
 
-    let id: UUID // id of InsertNodeMenuOptionData
+    let option: InsertNodeMenuOption
     let title: String // debug
-    @Binding var nodeResultSizes: [UUID: CGRect]
+    @Binding var nodeResultSizes: [InsertNodeMenuOption: CGRect]
 
     var body: some View {
         GeometryReader { proxy in
@@ -49,7 +49,7 @@ struct InsertNodeResultSizeReader: View {
                     // log("InsertNodeResultSizeReader: onChange: newValue.size: \(newValue.size)")
                     nodeResultSizes.updateValue(
                         newValue,
-                        forKey: id)
+                        forKey: option)
                 }
         }
     }
