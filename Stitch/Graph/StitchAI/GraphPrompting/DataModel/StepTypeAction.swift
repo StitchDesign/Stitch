@@ -597,8 +597,7 @@ struct StepActionEditJSNode: StepActionable {
     var outputDefinitions: [JavaScriptPortDefinition]
     
     static func fromStep(_ action: Step) throws -> StepActionEditJSNode {
-        guard let nodeId = action.nodeId?.value,
-              let script = action.script,
+        guard let script = action.script,
               let inputs: [JavaScriptPortDefinition] = .init(from: action.inputDefinitions),
               let outputs: [JavaScriptPortDefinition] = .init(from: action.outputDefinitions) else {
             // TODO: error here
@@ -633,26 +632,30 @@ struct StepActionEditJSNode: StepActionable {
     func applyAction(document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
         
-        fatalError()
-//        guard let node = graph.getNode(self.nodeId),
-//              let patchNode = node.patchNode else {
-//            throw StitchAIManagerError.apiResponseError
-//        }
-//        
-//        // Sets new data and recalculate
-//        patchNode.processNewJavascript(response: self,
-//                                       graph: graph)
+        guard let nodeId = document.aiManager?.jsRequestNodeId,
+              let node = graph.getNode(nodeId),
+              let patchNode = node.patchNode else {
+            throw StitchAIManagerError.apiResponseError
+        }
+        
+        // Reset request
+        document.aiManager?.jsRequestNodeId = nil
+        
+        // Sets new data and recalculate
+        patchNode.processNewJavascript(response: self,
+                                       graph: graph)
     }
     
     func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
-        fatalError()
+        // Nothing to do
     }
     
     func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
-        fatalError()
+        // Nothing to do
     }
     
     func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionEditJSNode {
-        fatalError()
+        // Do nothing
+        return self
     }
 }
