@@ -17,28 +17,6 @@ let CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER: CGFloat = 600.0 // needed for 
 let CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER: CGFloat = 300.0 // needed for when nodes are at same topo depth level
 
 extension Array where Element == any StepActionable {
-    /// Ensures newly created nodes won't overwrite the graph.
-    func remapNodeIdsForNewNodes() -> Self {
-        // Old : New pairings
-        var idMap = [NodeId : NodeId]()
-        
-        self.forEach {
-            if let addNodeAction = $0 as? StepActionAddNode {
-                idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
-            }
-            
-            if let addNodeAction = $0 as? StepActionLayerGroupCreated {
-                idMap.updateValue(.init(), forKey: addNodeAction.nodeId)
-            }
-        }
-        
-        let convertedIdSteps = self.map { step in
-            step.remapNodeIds(nodeIdMap: idMap)
-        }
-        
-        return convertedIdSteps
-    }
-    
     func nodesCreatedByLLMActions() -> IdSet {
         let createdNodes = self.reduce(into: IdSet()) { partialResult, step in
             if let addNodeAction = step as? StepActionAddNode {
@@ -60,7 +38,6 @@ extension StitchDocumentViewModel {
         // Wipe old error reason
         self.llmRecording.actionsError = nil
         
-          
         // TODO: handle the fact that OpenAI may send us the same node ids over and over again; i.e. ids will be unique across all the actions sent for a given request, but ids may be same across multiple different requests; e.g. first request for "Add 1 and 2 and then Divide by 3" will use NodeIds X and Y, but then a second request for "Multiply 3 and 3 and Subtract by 9" will use the same NodeIds X and Y
 //        var convertedActions = convertedActions
 //        if isNewRequest {

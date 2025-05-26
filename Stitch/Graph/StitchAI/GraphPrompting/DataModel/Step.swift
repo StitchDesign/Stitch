@@ -149,14 +149,21 @@ extension Step: Codable {
     }
 }
 
-extension StepActionable {
-    var toPortCoordinate: NodeIOCoordinate? {
-        let step = self.toStep
-        
-        guard let nodeId = step.nodeId ?? step.toNodeId,
-              let port = step.port else { return nil }
-        
-        return .init(portType: port, nodeId: nodeId.value)
+extension Step {
+    // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
+    func convertToType() -> Result<any StepActionable, StitchAIStepHandlingError> {
+        switch self.stepType {
+        case .addNode:
+            return StepActionAddNode.fromStep(self).map { $0 as any StepActionable}
+        case .connectNodes:
+            return StepActionConnectionAdded.fromStep(self).map { $0 as any StepActionable}
+        case .changeValueType:
+            return StepActionChangeValueType.fromStep(self).map { $0 as any StepActionable}
+        case .setInput:
+            return StepActionSetInput.fromStep(self).map { $0 as any StepActionable}
+        case .sidebarGroupCreated:
+            return StepActionLayerGroupCreated.fromStep(self).map { $0 as any StepActionable}
+        }
     }
 }
 

@@ -9,22 +9,6 @@ import Foundation
 
 extension StitchAIManager {
     
-    @MainActor
-    func maybeRetryOnError(request: OpenAIRequest,
-                           errorFromOpeningStream: StitchAIStreamingError?,
-                           errorFromValidation: StitchAIStepHandlingError?,
-                           attempt: Int,
-                           document: StitchDocumentViewModel) async {
-        
-        let shouldRetry = errorFromOpeningStream?.shouldRetryRequest ?? errorFromValidation?.shouldRetryRequest ?? false
-        
-        if shouldRetry {
-            await self.retryRequest(request: request, attempt: attempt, document: document)
-        } else {
-            log("Will not retry request, had errorFromOpeningStream: \(errorFromOpeningStream?.description) and errorFromValidation \(errorFromValidation?.description)")
-        }
-    }
-    
     // TODO: we attempt the request again when OpenAI has sent us data that either could not be parsed or could not be validated; should we also re-attempt when OpenAI gives us a timeout error?
     @MainActor
     func retryRequest(request: OpenAIRequest,
@@ -38,6 +22,9 @@ extension StitchAIManager {
         // Immediately cancel the current task
         aiManager.currentTask?.task.cancel()
         aiManager.currentTask = nil
+        
+        // Before starting a new task, remove the effects of the existing actions
+        document.deapplyActions(actions: document.llmRecording.actions)
         
         // Calculate an exponential backoff delay and then re-attempt the task
         // Calculate exponential backoff delay: 2^attempt * base delay
@@ -77,9 +64,9 @@ struct ChunkProcessed: StitchDocumentEvent {
             return
         }
                 
-        // TODO: get rid of this? or keep around for helpful debug?
+        // Helpful for debug to keep around the streamed-in Steps while a given task is active
         state.visibleGraph.streamedSteps.append(newStep)
-
+            
         // Parsing the Step is not async, but retry-on-failure *is*, since we wait some small delay.
         // Note also: recreating the task needs to be done on the main thread, since the current task lives on the main thread.
         let parseAttempt: Result<any StepActionable, StitchAIStepHandlingError> = newStep.convertToType()
@@ -91,35 +78,41 @@ struct ChunkProcessed: StitchDocumentEvent {
                 return
             }
             
-            // Would this closure retain (= memory leak) the AI-manager ?
-            //            let handleError = { (error: StitchAIStepHandlingError) in
-            //                await aiManager.maybeRetryOnError(request: request,
-            //                                            errorFromOpeningStream: nil,
-            //                                            errorFromValidation: error,
-            //                                            attempt: currentAttempt,
-            //                                            document: state)
-            //            }
+            guard var nodeIdMap = aiManager.currentTask?.nodeIdMap else {
+                log("Did not have current task (i.e. OpenAI request)")
+                return
+            }
             
             switch parseAttempt {
                 
-            case .failure(let error):
-                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: error: \(error) for request.prompt: \(request.prompt)")
-                await aiManager.maybeRetryOnError(request: request,
-                                                  errorFromOpeningStream: nil,
-                                                  errorFromValidation: error,
-                                                  attempt: currentAttempt,
-                                                  document: state)
+            case .failure(let parsingError):
+                log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: parsingError: \(parsingError) for request.prompt: \(request.prompt)")
+                if parsingError.shouldRetryRequest {
+                    await aiManager.retryRequest(request: request, attempt: currentAttempt, document: state)
+                }
                 
-            case .success(let parsedStep):
+            case .success(var parsedStep):
                 log("ChunkProcessed: successfully parsed step, parsedStep: \(parsedStep)")
+                
+                // Note: OpenAI can apparently send us the same UUIDs across completely different requests. So, we never actually use the `Step.nodeId: StitchAIUUID`; instead, we create a new, guaranteed-always-unique NodeId and update the parsed steps as they come in.
+                // TODO: update the system prompt to force OpenAI to send genuinely unique UUIDs everytime
+                if newStep.stepType.introducesNewNode,
+                   let newStepNodeId: StitchAIUUID = newStep.nodeId {
+                    nodeIdMap.updateValue(
+                        // a new, ALWAYS unique Stitch node id
+                        NodeId(),
+                        // the node id OpenAI sent us, may be repeated across requests
+                        forKey: newStepNodeId
+                    )
+                }
+                parsedStep = parsedStep.remapNodeIds(nodeIdMap: nodeIdMap)
+                
                 if let validationError = state.onNewStepReceived(originalSteps: state.llmRecording.actions,
                                                                  newStep: parsedStep) {
                     log("ChunkProcessed: FAILED TO APPLY LLM ACTIONS: validationError: \(validationError) for request.prompt: \(request.prompt)")
-                    await aiManager.maybeRetryOnError(request: request,
-                                                      errorFromOpeningStream: nil,
-                                                      errorFromValidation: validationError,
-                                                      attempt: currentAttempt,
-                                                      document: state)
+                    if validationError.shouldRetryRequest {
+                        await aiManager.retryRequest(request: request, attempt: currentAttempt, document: state)
+                    }
                 } else {
                     log("ChunkProcessed: SUCCESSFULLY APPLIED NEW STEP")
                 }
@@ -127,8 +120,6 @@ struct ChunkProcessed: StitchDocumentEvent {
         } // Task
     }
 }
-
-
 
 extension StitchDocumentViewModel {
     

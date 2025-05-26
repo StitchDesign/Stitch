@@ -30,9 +30,11 @@ protocol StepActionable: Hashable, Codable, Sendable, Identifiable {
     
     func validate(createdNodes: [NodeId : PatchOrLayer]) -> Result<[NodeId: PatchOrLayer], StitchAIStepHandlingError>
     
-    /// Maps IDs to some new value.
-    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self
+    // Maps the Step's node ids (sent to us by OpenAI) to a StitchNode
+    func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self
 }
+
+typealias AIStepParsingNodeIdMap = [StitchAIUUID: NodeId]
 
 extension StepActionable {
     var id: Int { self.hashValue }
@@ -50,15 +52,15 @@ struct StepActionLayerGroupCreated: StepActionable {
              children: children)
     }
     
-    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionLayerGroupCreated {
+    func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> StepActionLayerGroupCreated {
         var copy = self
         
         // Update the node id of the layer group itself...
-        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
         
         // ... and its children
         copy.children = copy.children.map({ (childId: NodeId) in
-            if let newChildId = nodeIdMap.get(childId) {
+            if let newChildId = nodeIdMap.get(.init(value: childId)) {
                 log("StepActionLayerGroupCreated: remapNodeIds: NEW newChildId: \(newChildId)")
                 return newChildId
             } else {
@@ -105,24 +107,6 @@ struct StepActionLayerGroupCreated: StepActionable {
     }
 }
 
-extension Step {
-    // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
-    func convertToType() -> Result<any StepActionable, StitchAIStepHandlingError> {
-        switch self.stepType {
-        case .addNode:
-            return StepActionAddNode.fromStep(self).map { $0 as any StepActionable}
-        case .connectNodes:
-            return StepActionConnectionAdded.fromStep(self).map { $0 as any StepActionable}
-        case .changeValueType:
-            return StepActionChangeValueType.fromStep(self).map { $0 as any StepActionable}
-        case .setInput:
-            return StepActionSetInput.fromStep(self).map { $0 as any StepActionable}
-        case .sidebarGroupCreated:
-            return StepActionLayerGroupCreated.fromStep(self).map { $0 as any StepActionable}
-        }
-    }
-}
-
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
 
 
@@ -138,9 +122,9 @@ struct StepActionAddNode: StepActionable {
              nodeName: nodeName)
     }
     
-    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+    func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
-        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
         return copy
     }
     
@@ -203,11 +187,11 @@ struct StepActionConnectionAdded: StepActionable {
         )
     }
     
-    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+    func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
         
-        copy.toNodeId = nodeIdMap.get(self.toNodeId) ?? self.toNodeId
-        copy.fromNodeId = nodeIdMap.get(self.fromNodeId) ?? self.fromNodeId
+        copy.toNodeId = nodeIdMap.get(.init(value: self.toNodeId)) ?? self.toNodeId
+        copy.fromNodeId = nodeIdMap.get(.init(value: self.fromNodeId)) ?? self.fromNodeId
 
         return copy
     }
@@ -312,10 +296,10 @@ struct StepActionChangeValueType: StepActionable {
              valueType: valueType)
     }
     
-    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+    func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
         
-        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
+        copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
 
         return copy
     }
@@ -383,16 +367,13 @@ struct StepActionSetInput: StepActionable {
              valueType: value.toNodeType)
     }
     
-    func remapNodeIds(nodeIdMap: [UUID: UUID]) -> Self {
+    func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
-        
-        copy.nodeId = nodeIdMap.get(self.nodeId) ?? self.nodeId
-        
+        copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
         if let interactionId = copy.value.getInteractionId?.asNodeId {
-            let newId = nodeIdMap.get(interactionId) ?? interactionId
+            let newId = nodeIdMap.get(.init(value: interactionId)) ?? interactionId
             copy.value = .assignedLayer(LayerNodeId(newId))
         }
-
         return copy
     }
     
@@ -456,5 +437,16 @@ struct StepActionSetInput: StepActionable {
             return .failure(.actionValidationError("SetInput: Node \(self.nodeId.debugFriendlyId) does not yet exist"))
         }
         return .success(createdNodes)
+    }
+}
+
+extension StepActionable {
+    var toPortCoordinate: NodeIOCoordinate? {
+        let step = self.toStep
+        
+        guard let nodeId = step.nodeId ?? step.toNodeId,
+              let port = step.port else { return nil }
+        
+        return .init(portType: port, nodeId: nodeId.value)
     }
 }
