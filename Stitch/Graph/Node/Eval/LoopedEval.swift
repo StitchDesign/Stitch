@@ -321,7 +321,7 @@ func loopedEval<EvalOpResult>(node: PatchNode,
                               evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
     #if DEV_DEBUG
     // Wrong eval helper if node has ephemeral state
-    assert(node.kind.graphNode?.createEphemeralObserver() == nil)
+    assert(node.patchOrLayer?.graphNode?.createEphemeralObserver() == nil)
     #endif
     
     // MARK: we no longer lengthen outputs due to empty values at initialization, conditional existence needs to be handled at eval

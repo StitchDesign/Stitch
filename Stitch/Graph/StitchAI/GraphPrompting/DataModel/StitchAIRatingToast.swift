@@ -73,7 +73,8 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                     finalActions: state.llmRecording.actions.map(\.toStep),
                     deviceUUID: deviceUUID,
                     isCorrection: false,
-                    rating: rating)
+                    rating: rating,
+                    requiredRetry: false)
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
             }

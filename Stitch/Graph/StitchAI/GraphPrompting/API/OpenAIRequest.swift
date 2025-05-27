@@ -42,7 +42,8 @@ extension StitchAIManager {
     @MainActor
     func getOpenAIStreamingTask(request: OpenAIRequest,
                                 attempt: Int,
-                                document: StitchDocumentViewModel) -> Task<Void, Never> {
+                                document: StitchDocumentViewModel,
+                                canShareAIRetries: Bool) -> Task<Void, Never> {
         
         Task(priority: .high) { [weak self] in
             
@@ -78,8 +79,10 @@ extension StitchAIManager {
                 if error.shouldRetryRequest {
                     await aiManager.retryOrShowErrorModal(
                         request: request,
+                        steps: Array(document.llmRecording.streamedSteps),
                         attempt: attempt,
-                        document: document)
+                        document: document,
+                        canShareAIRetries: canShareAIRetries)
                 }
                 
                 // Else, if e.g. 'no internet connection', we won't try again and will show error modal to the user.

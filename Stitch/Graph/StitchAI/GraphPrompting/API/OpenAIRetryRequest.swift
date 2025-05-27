@@ -123,7 +123,8 @@ extension StitchAIManager {
         let task = aiManager.getOpenAIStreamingTask(
             request: request,
             attempt: attempt + 1,
-            document: document)
+            document: document,
+            canShareAIRetries: canShareAIRetries)
         
         aiManager.currentTask = .init(
             task: task,

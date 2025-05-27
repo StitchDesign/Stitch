@@ -167,16 +167,17 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 
 /// Process search results in the insert node menu sheet
 /// fka `GenerateAINode`
-struct SubmitUserPromptToOpenAI: StitchDocumentEvent {
+struct SubmitUserPromptToOpenAI: StitchStoreEvent {
     let prompt: String
     
-    func handle(state: StitchDocumentViewModel) {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(prompt)")
         
-        guard let aiManager = state.aiManager else {
+        guard let state = store.currentDocument,
+                let aiManager = state.aiManager else {
             fatalErrorIfDebug("GenerateAINode: no aiManager")
-            return
+            return .noChange
         }
         
         // Make sure current task is completely wiped
@@ -220,8 +221,11 @@ struct SubmitUserPromptToOpenAI: StitchDocumentEvent {
             aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAIStreamingTask(
                 request: request,
                 attempt: 1,
-                document: state))
+                document: state,
+                canShareAIRetries: store.canShareAIRetries))
         }
+        
+        return .noChange
     }
 }
 

@@ -52,8 +52,10 @@ struct ChunkProcessed: StitchStoreEvent {
                 if parsingError.shouldRetryRequest {
                     await aiManager.retryOrShowErrorModal(
                         request: request,
+                        steps: Array(state.llmRecording.streamedSteps),
                         attempt: currentAttempt,
-                        document: state)
+                        document: state,
+                        canShareAIRetries: store.canShareAIRetries)
                 }
                 
             case .success(var parsedStep):
@@ -74,8 +76,10 @@ struct ChunkProcessed: StitchStoreEvent {
                     if validationError.shouldRetryRequest {
                         await aiManager.retryOrShowErrorModal(
                             request: request,
+                            steps: Array(state.llmRecording.streamedSteps),
                             attempt: currentAttempt,
-                            document: state)
+                            document: state,
+                            canShareAIRetries: store.canShareAIRetries)
                     }
                 } else {
                     log("ChunkProcessed: SUCCESSFULLY APPLIED NEW STEP")
