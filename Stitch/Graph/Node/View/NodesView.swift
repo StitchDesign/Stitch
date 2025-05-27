@@ -10,23 +10,20 @@ import StitchSchemaKit
 
 struct PatchCanvasEmptyStateView: View {
     var body: some View {
-        VStack {
-            HStack {
-                ProjectEmptyStateView(title: "Patch Canvas",
-                                      description: "Add your patch nodes here.",
-                                      alignment: .leading) {
-                    NodeEmptyStateAboutButtonsView(isPatch: true)
-                }
-                                      .padding()
-                                      .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
-                                      .cornerRadius(16)
-                                      .padding()
-                
-                Spacer()
+//        VStack {
+//            Spacer()
+//
+            ProjectEmptyStateView(title: "Patch Canvas",
+                                  description: "Add your patch nodes here.") {
+                NodeEmptyStateAboutButtonsView(isPatch: true)
             }
-            
-            Spacer()
-        }
+                                  .frame(width: NodeEmptyStateAboutButtonsView.defaultWidth)
+                                  .padding()
+                                  .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
+                                  .cornerRadius(16)
+//                                  .padding()
+//        }
+//        .padding(.bottom, 40)
     }
 }
 

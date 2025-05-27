@@ -89,6 +89,9 @@ struct ProjectSidebarEmptyView: View {
 }
 
 struct NodeEmptyStateAboutButtonsView: View {
+    static let defaultWidth: CGFloat = 200
+    private static let defaultButtonWidth: CGFloat = 160
+    
     let isPatch: Bool
     
     var label: String {
@@ -101,15 +104,22 @@ struct NodeEmptyStateAboutButtonsView: View {
         } label: {
             Image(systemName: "uiwindow.split.2x1")
             Text("Insert Node")
+            
+            Spacer()
+            
             KeyboardShortcutButtonLabel(imageNames: ["command", "return"])
         }
+        .frame(width: Self.defaultButtonWidth)
         
         Button {
             log("hi")
         } label: {
             Image(systemName: "text.page")
             Text("About \(label)")
+            
+            Spacer()
         }
+        .frame(width: Self.defaultButtonWidth)
     }
 }
 
@@ -152,8 +162,9 @@ struct ProjectEmptyStateView<ButtonsView: View>: View {
                 buttonsView()
                     .buttonStyle(.borderless) // only way to get multiple images in one button to appear
                     .padding(8)
+//                    .frame(maxWidth: .infinity)
                     .background(.windowBackground)
-                    .cornerRadius(4)
+                    .cornerRadius(8)
             }
         }
     }

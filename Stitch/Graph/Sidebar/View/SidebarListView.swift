@@ -94,6 +94,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         // Empty state
         if allFlattenedItems.isEmpty {
             ProjectSidebarEmptyView(document: document)
+                .frame(width: NodeEmptyStateAboutButtonsView.defaultWidth)
         }
         
         // Normal layers sidebar view

@@ -82,6 +82,7 @@ The Layer Inspector displays inputs for\na selected layer from the layer sidebar
                 Text("Open Layer Sidebar")
             }
         }
+            .frame(width: 300)
     }
     
     @MainActor @ViewBuilder
