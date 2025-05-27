@@ -71,6 +71,8 @@ struct GraphBaseView: View {
                     }
                     Spacer()
                 }
+            } else if graph.nodes.isEmpty {
+                PatchCanvasEmptyStateView()
             }
             
             if document.llmRecording.modal == .approveAndSubmit {

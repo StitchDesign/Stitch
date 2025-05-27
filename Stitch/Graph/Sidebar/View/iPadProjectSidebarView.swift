@@ -77,23 +77,7 @@ struct ProjectSidebarEmptyView: View {
         if let document = document {
             SidebarEmptyStateView(title: Self.title,
                                   description: "Layers will populate here.") {
-                HStack {
-                    Button {
-                        log("hi")
-                    } label: {
-//                        Image(systemName: "command")
-//                        Image(systemName: "return")
-                        Text("⌘↩")
-                        Text("Insert Node")
-                    }
-                    
-                    Button {
-                        log("hi")
-                    } label: {
-                        Image(systemName: "text.page")
-                        Text("About Layers")
-                    }
-                }
+                NodeEmptyStateAboutButtonsView(isPatch: false)
             }
         } else {
             SidebarEmptyStateView(title: Self.title,
@@ -104,29 +88,89 @@ struct ProjectSidebarEmptyView: View {
     }
 }
 
+struct NodeEmptyStateAboutButtonsView: View {
+    let isPatch: Bool
+    
+    var label: String {
+        isPatch ? "Patches" : "Layers"
+    }
+    
+    var body: some View {
+        Button {
+            log("hi")
+        } label: {
+            Image(systemName: "uiwindow.split.2x1")
+            Text("Insert Node")
+            KeyboardShortcutButtonLabel(imageNames: ["command", "return"])
+        }
+        
+        Button {
+            log("hi")
+        } label: {
+            Image(systemName: "text.page")
+            Text("About \(label)")
+        }
+    }
+}
+
 // TODO: move
 struct SidebarEmptyStateView<ButtonsView: View>: View {
     let title: String
     let description: String
+    var alignment: HorizontalAlignment = .center
     @ViewBuilder var buttonsView: () -> ButtonsView
     
     var body: some View {
         VStack {
             Spacer()
-            
-            VStack {
-                Text(title)
-                    .font(.largeTitle)
-                    .padding(4)
-                
-                Text(description)
-                    .foregroundColor(.secondary)
-                
-                buttonsView()
-                    .padding()
-            }
-            
+            ProjectEmptyStateView(title: title,
+                                  description: description,
+                                  alignment: alignment,
+                                  buttonsView: buttonsView)
             Spacer()
+        }
+    }
+}
+
+struct ProjectEmptyStateView<ButtonsView: View>: View {
+    let title: String
+    let description: String
+    var alignment: HorizontalAlignment = .center
+    @ViewBuilder var buttonsView: () -> ButtonsView
+    
+    var body: some View {
+        VStack(alignment: alignment) {
+            Text(title)
+                .font(.largeTitle)
+                .padding(.vertical, 4)
+            
+            Text(description)
+                .padding(.bottom, 16)
+            //                    .foregroundColor(.secondary) // Can't get to work on left sidebar
+            
+            VStack(alignment: alignment, spacing: 4) {
+                buttonsView()
+                    .buttonStyle(.borderless) // only way to get multiple images in one button to appear
+                    .padding(8)
+                    .background(.windowBackground)
+                    .cornerRadius(4)
+            }
+        }
+    }
+}
+
+struct KeyboardShortcutButtonLabel: View {
+    let imageNames: [String]
+    
+    var body: some View {
+        HStack(spacing: .zero) {
+            ForEach(imageNames, id: \.self) { imageName in
+                Image(systemName: imageName)
+            }
+            .imageScale(.small)
+            .offset(y: 1)        // tweak vertical alignment
+            .foregroundStyle(.secondary)
+            .fixedSize()
         }
     }
 }
