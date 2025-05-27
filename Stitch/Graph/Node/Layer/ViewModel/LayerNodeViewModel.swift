@@ -496,6 +496,11 @@ extension LayerNodeViewModel: SchemaObserver {
             $0.onPrototypeRestart(document: document)
         }
     }
+    
+    @MainActor
+    var isGroupLayer: Bool {
+        layer == .group || layer == .realityView
+    }
 }
 
 extension LayerNodeViewModel {
