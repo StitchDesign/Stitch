@@ -319,7 +319,7 @@ func loopedEval<EvalOpResult>(inputsValues: PortValuesList,
 @MainActor
 func loopedEval<EvalOpResult>(node: PatchNode,
                               evalOp: @escaping OpWithIndex<EvalOpResult>) -> [EvalOpResult] {
-    #if DEBUG
+    #if DEV_DEBUG
     // Wrong eval helper if node has ephemeral state
     assert(node.kind.graphNode?.createEphemeralObserver() == nil)
     #endif
