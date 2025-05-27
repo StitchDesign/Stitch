@@ -8,7 +8,7 @@
 import Foundation
 
 /// Configuration settings for OpenAI API requests
-struct OpenAIRequestConfig {
+struct OpenAIRequestConfig: Equatable, Hashable {
     let maxRetries: Int        // Maximum number of retry attempts for failed requests
     let timeoutInterval: TimeInterval   // Request timeout duration in seconds
     let retryDelay: TimeInterval       // Delay between retry attempts

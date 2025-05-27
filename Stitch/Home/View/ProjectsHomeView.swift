@@ -73,10 +73,25 @@ struct ProjectsHomeView: View {
         // Shows undo delete toast when GraphUI state has recenetly deleted project ID
         // Should onExpireAction only fire an action if alertState.deletedGraphId still defined ?
         .toast(willShow: alertState.deletedGraphId.isDefined,
-               messageLeft: "File Deleted",
-               messageRight: "Undo",
-               onTapAction: self.undoToastTapped,
-               onExpireAction: store.projectDeleteToastExpired)
+               onExpireAction: store.projectDeleteToastExpired,
+               toastContent: {
+            StitchButton(
+                action: self.undoToastTapped,
+                label: {
+                    Text("File Deleted")
+                    Divider()
+                        .width(1)
+                        .overlay(.white)
+                    Text("Undo")
+                })
+            .opacity(0.8)
+            .font(.system(size: 14))
+            .fontWeight(.medium)
+            .padding(.horizontal, 12)
+            .frame(height: 40)
+            .background(Color(uiColor: .systemGray4))
+            .cornerRadius(22)
+        })
         .stitchSheet(isPresented: alertState.showAppSettings,
                      titleLabel: "Settings",
                      hideAction: store.hideAppSettingsSheet,

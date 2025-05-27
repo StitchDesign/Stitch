@@ -98,11 +98,13 @@ extension StitchAIManager {
         self.currentTask = nil
     }
     
-    @MainActor static func getDeviceUUID() throws -> String? {
+    // Should the app really be running, if we can't 
+    @MainActor static func getDeviceUUID() -> String? {
         guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {
             log("Unable to retrieve device UUID", .logToServer)
 #if DEV_DEBUG || DEBUG
-            throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
+//            throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
+            fatalErrorIfDebug()
 #endif
             return nil
         }
@@ -110,11 +112,12 @@ extension StitchAIManager {
         return deviceUUID
     }
     
-    // User had to edit/augment some actions created by the LLM;
-    func uploadEditedActions(prompt: String,
-                             finalActions: [Step],
-                             deviceUUID: String,
-                             isCorrection: Bool) async throws {
+    func uploadActionsToSupabase(prompt: String,
+                                 finalActions: [Step],
+                                 deviceUUID: String,
+                                 isCorrection: Bool,
+                                 rating: StitchAIRating) async throws {
+                
         let wrapper = RecordingWrapper(
             prompt: prompt,
             actions: finalActions)

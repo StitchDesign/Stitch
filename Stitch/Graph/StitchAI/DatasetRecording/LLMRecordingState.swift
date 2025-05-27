@@ -31,6 +31,20 @@ enum LLMRecordingModal: Equatable, Hashable {
     
     // Modal from which user can enter a natural language prompt for the fresh training example they have *just finished creating*
     case enterPromptForTrainingData
+    
+    // Modal (toast) from which user can rate the just-completed streaming request
+    case ratingToast(OpenAIRequest)
+}
+
+extension LLMRecordingModal {
+    var isRatingToast: Bool {
+        switch self {
+        case .ratingToast:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 struct LLMRecordingState {

@@ -19,7 +19,7 @@ let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
-struct OpenAIRequest {
+struct OpenAIRequest: Equatable, Hashable {
     private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
     let prompt: String             // User's input prompt
     let systemPrompt: String       // System-level instructions loaded from file
@@ -67,6 +67,7 @@ extension StitchAIManager {
                         return
                     }
                     aiManager.openAIStreamingCompleted(originalPrompt: request.prompt,
+                                                       request: request,
                                                        document: document)
                 }
                 
@@ -247,6 +248,7 @@ extension StitchAIManager {
     // fka `openAIRequestCompleted`
     @MainActor
     func openAIStreamingCompleted(originalPrompt: String,
+                                  request: OpenAIRequest,
                                   document: StitchDocumentViewModel) {
         log("openAIStreamingCompleted called")
         
@@ -265,6 +267,8 @@ extension StitchAIManager {
 //        document.llmRecording.mode = .augmentation
         document.llmRecording.mode = .normal
         
+        document.llmRecording.modal = .ratingToast(request)
+                
         document.encodeProjectInBackground()
     }
 }

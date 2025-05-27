@@ -702,6 +702,7 @@
 		EC90D13B2800ED80000A6EA8 /* AdjustmentBarPreferenceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC90D13A2800ED80000A6EA8 /* AdjustmentBarPreferenceData.swift */; };
 		EC91034729109CE7007C548E /* SoulverNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC91034629109CE7007C548E /* SoulverNode.swift */; };
 		EC91034A29109DF3007C548E /* SoulverCore in Frameworks */ = {isa = PBXBuildFile; productRef = EC91034929109DF3007C548E /* SoulverCore */; };
+		EC913A722DE54A0E0056CEE1 /* StitchAIRatingToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */; };
 		EC91B56429AE7891006E823D /* NodesOnlyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC91B56329AE7891006E823D /* NodesOnlyView.swift */; };
 		EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9233812AE84EC00009168F /* NoKeyPressHostingController.swift */; };
 		EC9348A42CE3F86000772117 /* OpenAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9348A32CE3F86000772117 /* OpenAIRequest.swift */; };
@@ -1713,6 +1714,7 @@
 		EC90A7072AF0015E007EE504 /* StitchTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchTheme.swift; sourceTree = "<group>"; };
 		EC90D13A2800ED80000A6EA8 /* AdjustmentBarPreferenceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustmentBarPreferenceData.swift; sourceTree = "<group>"; };
 		EC91034629109CE7007C548E /* SoulverNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoulverNode.swift; sourceTree = "<group>"; };
+		EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRatingToast.swift; sourceTree = "<group>"; };
 		EC91B56329AE7891006E823D /* NodesOnlyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodesOnlyView.swift; sourceTree = "<group>"; };
 		EC9233812AE84EC00009168F /* NoKeyPressHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoKeyPressHostingController.swift; sourceTree = "<group>"; };
 		EC9348A32CE3F86000772117 /* OpenAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequest.swift; sourceTree = "<group>"; };
@@ -4089,6 +4091,7 @@
 			children = (
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
 				B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */,
+				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
 				B5EFD5BF2D64EC23006A68FB /* OpenAISchema */,
 				B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */,
@@ -5225,6 +5228,7 @@
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
 				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
+				EC913A722DE54A0E0056CEE1 /* StitchAIRatingToast.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
 				ECAFD0902D48792600101226 /* LLMModalViews.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,

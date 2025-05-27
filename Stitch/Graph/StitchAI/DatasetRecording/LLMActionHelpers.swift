@@ -68,17 +68,19 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
             let actionsAsSteps = state.llmRecording.actions
             log("ShowLLMApprovalModal: actions: \(actionsAsSteps)")
             
-            guard let deviceUUID = try StitchAIManager.getDeviceUUID() else {
+            guard let deviceUUID = StitchAIManager.getDeviceUUID() else {
                 log("SubmitLLMActionsToSupabase error: no device ID found.")
                 return
             }
             
             Task { [weak supabaseManager] in
-                try await supabaseManager?.uploadEditedActions(
+                try await supabaseManager?.uploadActionsToSupabase(
                     prompt: state.llmRecording.promptForJustCompletedTrainingData,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
-                    isCorrection: state.llmRecording.mode == .augmentation)
+                    isCorrection: state.llmRecording.mode == .augmentation,
+                    // corrections and fresh training sets always get highest rating
+                    rating: .fiveStars)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()
