@@ -7,7 +7,6 @@
 
 import Foundation
 import StitchSchemaKit
-import StitchViewKit
 import SwiftUI
 import OrderedCollections
 
@@ -15,7 +14,7 @@ typealias SidebarLayerList = [SidebarLayerData]
 
 typealias OrderedSidebarLayers = SidebarLayerList
 
-extension Array where Element: StitchNestedListElementObservable {
+extension Array where Element: SidebarItemSwipable {
     /// Returns ids just at a single hierarchy without recursively gathering other ids.
     var idsAtHierarchy: Set<Element.ID> {
         self.map { $0.id }

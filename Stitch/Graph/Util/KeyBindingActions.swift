@@ -62,7 +62,7 @@ struct ArrowKeyPressed: StitchDocumentEvent {
     }
 
     @MainActor
-    private static func willNavigateActiveNodeSelection(_ document: StitchDocumentViewModel) -> InsertNodeMenuOptionData? {
+    private static func willNavigateActiveNodeSelection(_ document: StitchDocumentViewModel) -> InsertNodeMenuOption? {
         let insertNodeMenuState = document.insertNodeMenuState
 
         guard insertNodeMenuState.show else {
@@ -71,11 +71,11 @@ struct ArrowKeyPressed: StitchDocumentEvent {
         return insertNodeMenuState.activeSelection
     }
 
-    private static func nodeMenuSelectionArrowUp(activeSelection: InsertNodeMenuOptionData,
-                                                 queryResults: [InsertNodeMenuOptionData]) -> InsertNodeMenuOptionData {
+    private static func nodeMenuSelectionArrowUp(activeSelection: InsertNodeMenuOption,
+                                                 queryResults: [InsertNodeMenuOption]) -> InsertNodeMenuOption {
         // Find current index of active selection
         guard let currentIndex = queryResults
-                .firstIndex(where: { $0.data == activeSelection.data }),
+                .firstIndex(where: { $0 == activeSelection }),
               let nextResult = queryResults[safe: currentIndex - 1] else {
             return activeSelection
         }
@@ -83,11 +83,11 @@ struct ArrowKeyPressed: StitchDocumentEvent {
         return nextResult
     }
 
-    private static func nodeMenuSelectionArrowDown(activeSelection: InsertNodeMenuOptionData,
-                                                   queryResults: [InsertNodeMenuOptionData]) -> InsertNodeMenuOptionData {
+    private static func nodeMenuSelectionArrowDown(activeSelection: InsertNodeMenuOption,
+                                                   queryResults: [InsertNodeMenuOption]) -> InsertNodeMenuOption {
 
         // Find current index of active selection
-        guard let currentIndex = queryResults.firstIndex(where: { $0.data == activeSelection.data}),
+        guard let currentIndex = queryResults.firstIndex(where: { $0 == activeSelection}),
               let prevResult = queryResults[safe: currentIndex + 1] else {
             return activeSelection
         }

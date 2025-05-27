@@ -163,6 +163,10 @@ final class GraphState: Sendable {
         }
         
         self.syncMediaFiles(mediaFiles)
+        
+        // Assign layer graph delegate before syncing
+        self.layersSidebarViewModel.graphDelegate = self
+        
         self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)
     }
 }
@@ -584,19 +588,12 @@ extension GraphState {
         }
     }
     
-    @MainActor
-    private func updateSynchronousProperties(from schema: GraphEntity) {
+    @MainActor func update(from schema: GraphEntity, rootUrl: URL?) {
         assertInDebug(self.id.value == schema.id)
         
         if self.name != schema.name {
             self.name = schema.name
         }
-        
-        self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
-    }
-    
-    @MainActor func update(from schema: GraphEntity, rootUrl: URL?) {
-        self.updateSynchronousProperties(from: schema)
         
         // If we're not in a test context (closest proxy = simulator),
         // rootUrl should be non-nil.
@@ -611,6 +608,9 @@ extension GraphState {
         }
         
         self.syncNodes(with: schema.nodes)
+        
+        // Must update sidebar after nodes sync
+        self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
         
         // Determines if graph data needs updating
         self.documentDelegate?.refreshGraphUpdaterId()

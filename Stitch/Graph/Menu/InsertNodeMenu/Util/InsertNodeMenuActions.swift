@@ -76,7 +76,7 @@ struct CloseAndResetInsertNodeMenu: StitchDocumentEvent {
 struct AddNodeButtonPressed: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         
-        guard let nodeKind = state.insertNodeMenuState.activeSelection?.data.kind else {
+        guard let nodeKind = state.insertNodeMenuState.activeSelection?.kind else {
             return
         }
         
