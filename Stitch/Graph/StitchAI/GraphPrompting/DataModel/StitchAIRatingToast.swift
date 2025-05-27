@@ -60,26 +60,26 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             return
         }
         
-        //        Task(priority: .high) { [weak state] in
-        //            guard let state = state,
-        //                  let aiManager = state.aiManager else {
-        //                fatalErrorIfDebug("AIRatingSubmitted: Did not have AI Manager")
-        //                return
-        //            }
-        //
-        //            do {
-        //                try await aiManager.uploadActionsToSupabase(
-        //                    prompt: request.prompt,
-        //                    finalActions: state.llmRecording.actions.map(\.toStep),
-        //                    deviceUUID: deviceUUID,
-        //                    isCorrection: false,
-        //                    rating: rating)
-        //            } catch {
-        //                log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
-        //            }
-        //        }
+        Task(priority: .high) { [weak state] in
+            guard let state = state,
+                  let aiManager = state.aiManager else {
+                fatalErrorIfDebug("AIRatingSubmitted: Did not have AI Manager")
+                return
+            }
+            
+            do {
+                try await aiManager.uploadActionsToSupabase(
+                    prompt: request.prompt,
+                    finalActions: state.llmRecording.actions.map(\.toStep),
+                    deviceUUID: deviceUUID,
+                    isCorrection: false,
+                    rating: rating)
+            } catch {
+                log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
+            }
+        }
                         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             withAnimation {
                 if state.llmRecording.modal.isRatingToast {
                     log("AIRatingSubmitted: will hide modal")
@@ -115,7 +115,7 @@ struct StitchAIRatingToast: View {
     @State var tappedStar: Int?
     
     // TODO: make var on document
-//    @State var show: Bool = true
+    @State var show: Bool = true
     
     var body: some View {
         VStack(spacing: 8) {
@@ -135,11 +135,11 @@ struct StitchAIRatingToast: View {
                                 fatalErrorIfDebug()
                             }
                             
-//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-//                                withAnimation {
-//                                    self.show = false
-//                                }
-//                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                                withAnimation {
+                                    self.show = false
+                                }
+                            }
                         })
                 } // ForEach
             }  // HStack
@@ -147,6 +147,6 @@ struct StitchAIRatingToast: View {
         .padding()
         .background(.regularMaterial)
         .cornerRadius(8)
-//        .opacity(show ? 1 : 0)
+        .opacity(show ? 1 : 0)
     }
 }

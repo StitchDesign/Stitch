@@ -15,6 +15,7 @@ struct Payload: Codable {
     let user_id: String
     var actions: RecordingWrapper
     let correction: Bool
+    let score: CGFloat
 }
 
 struct RecordingWrapper: Codable {
@@ -117,7 +118,7 @@ extension StitchAIManager {
                                  deviceUUID: String,
                                  isCorrection: Bool,
                                  rating: StitchAIRating) async throws {
-                
+        
         let wrapper = RecordingWrapper(
             prompt: prompt,
             actions: finalActions)
@@ -126,13 +127,15 @@ extension StitchAIManager {
         let payload = Payload(
             user_id: deviceUUID,
             actions: wrapper,
-            correction: isCorrection)
+            correction: isCorrection,
+            score: rating.rawValue)
         
         log(" Uploading payload:")
         log("  - User ID: \(deviceUUID)")
         log("  - Prompt: \(wrapper.prompt)")
         log("  - Total actions: \(wrapper.actions.count)")
         log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
+        log("  - Rating: \(rating.rawValue)")
         
         do {
             // Use the edited payload for insertion
