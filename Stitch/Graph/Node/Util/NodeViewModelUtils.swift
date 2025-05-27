@@ -209,12 +209,6 @@ extension NodeViewModel {
     var layerNodeId: LayerNodeId {
         LayerNodeId(self.id)
     }
-
-    @MainActor
-    var isGroupLayer: Bool {
-        guard let layer = self.kind.getLayer else { return false }
-        return layer == .group || layer == .realityView
-    }
     
     @MainActor
     func inputCoordinate(at portId: Int) -> InputCoordinate? {
