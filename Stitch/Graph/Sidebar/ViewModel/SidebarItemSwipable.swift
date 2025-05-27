@@ -11,6 +11,7 @@ import StitchViewKit
 protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Identifiable where Self.ID: Equatable & CustomStringConvertible,
                                                                                                  SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
+    associatedtype AboutPopoverView: View
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
     typealias EncodedItemData = SidebarViewModel.EncodedItemData
     
@@ -45,6 +46,8 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     @MainActor func isMasking(graph: GraphReader) -> Bool
     
     @MainActor var isHovered: Bool { get set }
+    
+    @MainActor var showAboutPopover: Bool { get set }
     
     @MainActor
     init(data: Self.EncodedItemData,
@@ -82,6 +85,9 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor
     func update(from schema: Self.EncodedItemData)
+    
+    @ViewBuilder
+    func aboutPopoverView() -> AboutPopoverView
 }
 
 extension SidebarItemSwipable {

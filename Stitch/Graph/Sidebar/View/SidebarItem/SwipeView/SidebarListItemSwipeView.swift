@@ -79,6 +79,9 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             theme.fontColor
                 .opacity(backgroundOpacity)
         }
+        .popover(isPresented: self.$gestureViewModel.showAboutPopover) {
+            self.gestureViewModel.aboutPopoverView()
+        }
         .onHover { [weak gestureViewModel, weak sidebarViewModel] hovering in
             // MARK: - SUPER DUPER IMPORTANT TO WEAKLY REFERENCE **EVERYTHING** ELSE SEE RETAIN CYCLES
             
