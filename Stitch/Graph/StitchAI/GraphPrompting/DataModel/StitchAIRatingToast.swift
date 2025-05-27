@@ -55,7 +55,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             return
         }
         
-        guard case .ratingToast(let request) = state.llmRecording.modal else {
+        guard case .ratingToast(let userPrompt) = state.llmRecording.modal else {
             log("AIRatingSubmitted error: did not have roating toast")
             return
         }
@@ -69,7 +69,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             
             do {
                 try await aiManager.uploadActionsToSupabase(
-                    prompt: request.prompt,
+                    prompt: userPrompt,
                     finalActions: state.llmRecording.actions.map(\.toStep),
                     deviceUUID: deviceUUID,
                     isCorrection: false,
@@ -93,7 +93,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
 
 struct AIRatingToastExpiredWithoutRating: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        log("AIRatingToastExpiredWithoutRating: state.llmRecording.modal is currently: \(state.llmRecording.modal)")
+        // log("AIRatingToastExpiredWithoutRating: state.llmRecording.modal is currently: \(state.llmRecording.modal)")
         withAnimation {
             if state.llmRecording.modal.isRatingToast {
                 log("AIRatingToastExpiredWithoutRating: will hide modal")

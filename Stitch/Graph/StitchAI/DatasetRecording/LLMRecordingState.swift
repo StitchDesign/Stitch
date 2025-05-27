@@ -33,7 +33,7 @@ enum LLMRecordingModal: Equatable, Hashable {
     case enterPromptForTrainingData
     
     // Modal (toast) from which user can rate the just-completed streaming request
-    case ratingToast(OpenAIRequest)
+    case ratingToast(userInputPrompt: String) // OpenAIRequest.prompt i.e. user's natural language input
 }
 
 extension LLMRecordingModal {

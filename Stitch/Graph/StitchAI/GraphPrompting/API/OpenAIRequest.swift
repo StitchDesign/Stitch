@@ -270,7 +270,7 @@ extension StitchAIManager {
 //        document.llmRecording.mode = .augmentation
         document.llmRecording.mode = .normal
         
-        document.llmRecording.modal = .ratingToast(request)
+        document.llmRecording.modal = .ratingToast(userInputPrompt: request.prompt)
                 
         document.encodeProjectInBackground()
     }
