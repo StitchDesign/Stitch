@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import StitchViewKit
 
 // MARK: SIDEBAR ITEM SWIPE CONSTANTS
 
@@ -62,13 +61,12 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     init(data: SidebarLayerData,
          parentDelegate: SidebarItemGestureViewModel?,
          sidebarViewModel: LayersSidebarViewModel) {
-        guard let layer = sidebarViewModel.graphDelegate?.getNode(data.id)?.layerNode?.layer else {
-            fatalErrorIfDebug()
-            return
-        }
+        
+        let layer = sidebarViewModel.graphDelegate?.getNode(data.id)?.layerNode?.layer
+        assertInDebug(layer != nil)
         
         self.id = data.id
-        self.layer = layer
+        self.layer = layer ?? .rectangle
         self.isExpandedInSidebar = data.isExpandedInSidebar
         self.parentDelegate = parentDelegate
         self.sidebarDelegate = sidebarViewModel
@@ -79,15 +77,6 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
                                         sidebarViewModel: sidebarViewModel)
         }
     }
-    
-//    @MainActor
-//    init(id: NodeViewModel.ID,
-//         children: [SidebarItemGestureViewModel]?,
-//         isExpandedInSidebar: Bool?) {
-//        self.id = id
-//        self.children = children
-//        self.isExpandedInSidebar = isExpandedInSidebar
-//    }
     
     @ViewBuilder
     func aboutPopoverView() -> some View {

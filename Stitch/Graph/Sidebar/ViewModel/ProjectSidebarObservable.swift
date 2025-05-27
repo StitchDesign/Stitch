@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import StitchViewKit
 
 protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
                                                                Self.ItemViewModel.SidebarViewModel == Self {

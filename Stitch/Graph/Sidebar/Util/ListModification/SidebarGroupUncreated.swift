@@ -70,3 +70,18 @@ extension LayersSidebarViewModel {
         graph.updateGraphData(document)
     }
 }
+
+extension Array where Element: SidebarItemSwipable {
+    @MainActor func ungroup(selectedGroupId: Element.ID) -> [Element] {
+        self.flatMap { element -> [Element] in
+            guard element.id == selectedGroupId else {
+                // Recursively search children
+                element.children = element.children?.ungroup(selectedGroupId: selectedGroupId)
+                return [element]
+            }
+            
+            // If match for selected group: remove group and add its children
+            return element.children ?? []
+        }
+    }
+}

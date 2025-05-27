@@ -50,3 +50,36 @@ extension LayersSidebarViewModel {
         }
     }
 }
+
+extension Array where Element: SidebarItemSwipable {
+    /// Places an element after the location of some ID.
+    @MainActor mutating func remove(_ elementWithId: Element.ID) {
+        for (index, item) in self.enumerated() {
+            // Remove here if matching case
+            if item.id == elementWithId {
+                self.remove(at: index)
+                
+                // Exit recursion on success
+                return
+            }
+            
+            // Recursively check children
+            item.children?.remove(elementWithId)
+            self[index] = item
+        }
+    }
+    
+    /// Places an element after the location of some ID.
+    @MainActor mutating func remove(_ elementIdSet: Set<Element.ID>) {
+        self = self.compactMap { item -> Element? in
+            if elementIdSet.contains(item.id) {
+                return nil
+            }
+            
+            // Recursively check children
+            item.children?.remove(elementIdSet)
+            
+            return item
+        }
+    }
+}
