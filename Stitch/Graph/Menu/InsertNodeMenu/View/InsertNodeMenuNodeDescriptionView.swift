@@ -27,6 +27,16 @@ struct InsertNodeMenuNodeDescriptionView: View {
     }
 }
 
+struct GraphNodeDescriptionView: View {
+    let option: InsertNodeMenuOption
+    
+    var body: some View {
+        NodeDescriptionView(option: option)
+            .frame(width: 500)  // maxWidth breaks the popover, cutting content short at times
+            .padding()
+    }
+}
+
 struct NodeDescriptionView: View {
     let option: InsertNodeMenuOption
     
