@@ -192,7 +192,7 @@ struct CanvasItemMenuButtonsView: View {
             }
             
             // About link to documentation for this node
-            nodeTagMenuButton(label: "About") {
+            nodeTagMenuButton(label: "Get Info") {
                 self.showAboutPopover = true
             }
         }
