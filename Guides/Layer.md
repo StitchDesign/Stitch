@@ -93,7 +93,19 @@ A cylinder 3D shape, which can be used inside a Reality View.
 * Metallic
 
 ## Group
+Groups multiple layers into a single composite layer. Use this to organize layers hierarchically and apply transforms, clipping, or effects to an entire set of child layers at once.
 
+*Inputs*
+* Layer contents (the child layers to render inside the group)
+* Position (X/Y)
+* Rotation X
+* Rotation Y
+* Rotation Z
+* Size (Width/Height)
+* Opacity
+* Scale
+* Anchoring
+* Z-Index
 
 ## Hit Area
 Adds interaction to a specific rectangle in the Preview Window.

@@ -31,10 +31,10 @@ struct InsertNodeMenuState: Hashable {
     var show = false
     // Moved here from StitchDocumentViewModel, since only used by 
     var doubleTapLocation: CGPoint?
-    var searchResults: [InsertNodeMenuOptionData] = allSearchOptions
+    var searchResults: [InsertNodeMenuOption] = allSearchOptions
     // Ensures an option is selected when the menu appears
     // Assumption: can be nil if user filters for a string no node matches, e.g. "QW@#1"
-    var activeSelection: InsertNodeMenuOptionData? = Self.startingActiveSelection
+    var activeSelection: InsertNodeMenuOption? = Self.startingActiveSelection
     var searchQuery: String?
     var isGeneratingAINode: Bool = false
     var isFromAIGeneration: Bool = false {
@@ -50,13 +50,13 @@ struct InsertNodeMenuState: Hashable {
     static let startingActiveSelection = allSearchOptions.first
     // TODO: needs to be dynamic, since we now must load in custom components
     
-    static var allSearchOptions: [InsertNodeMenuOptionData] {
+    static var allSearchOptions: [InsertNodeMenuOption] {
         // Must appear in the same order as we display them in InsertNodeMenu,
         // else key up and down break.
         Layer.searchableLayers
-            .map { InsertNodeMenuOptionData(data: .layer($0)) } +
+            .map { .layer($0) } +
             Patch.searchablePatches
-            .map { InsertNodeMenuOptionData(data: .patch($0)) }
+            .map { .patch($0) }
         //            Layer.searchableLayers
         //            .map { InsertNodeMenuOptionData(data: .layer($0)) }
         //            + DefaultComponents.allCases

@@ -27,10 +27,9 @@ struct CanvasItemMenuButtonsView: View {
     let canAddInput: Bool
     // Also false when we only have minimum number of inputs
     let canRemoveInput: Bool
-    
     let atleastOneCommentBoxSelected: Bool
-    
     var loopIndices: [Int]?
+    @Binding var showAboutPopover: Bool
 
     // MARK: very important to process this outside of NodeTagMenuButtonsView: doing so fixes a bug where the node type menu becomes unresponsive if values are constantly changing on iPad.
     @MainActor
@@ -190,6 +189,11 @@ struct CanvasItemMenuButtonsView: View {
                     //                    createCommentBoxButton
                     //                }
                 }
+            }
+            
+            // About link to documentation for this node
+            nodeTagMenuButton(label: "About") {
+                self.showAboutPopover = true
             }
         }
     }

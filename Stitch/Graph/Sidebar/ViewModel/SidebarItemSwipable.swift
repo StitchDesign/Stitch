@@ -6,11 +6,23 @@
 //
 
 import SwiftUI
-import StitchViewKit
 
-protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Identifiable where Self.ID: Equatable & CustomStringConvertible,
+protocol StitchNestedListElement: Identifiable, Equatable where Self.ID: Equatable {
+    var children: [Self]? { get set }
+    
+    var isExpandedInSidebar: Bool? { get set }
+
+    init(id: Self.ID,
+         children: [Self]?,
+         isExpandedInSidebar: Bool?)
+    
+    static func createId() -> Self.ID
+}
+
+protocol SidebarItemSwipable: AnyObject, Observable, Sendable, Identifiable where Self.ID: Equatable & CustomStringConvertible,
                                                                                                  SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
+    associatedtype AboutPopoverView: View
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
     typealias EncodedItemData = SidebarViewModel.EncodedItemData
     
@@ -45,6 +57,8 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     @MainActor func isMasking(graph: GraphReader) -> Bool
     
     @MainActor var isHovered: Bool { get set }
+    
+    @MainActor var showAboutPopover: Bool { get set }
     
     @MainActor
     init(data: Self.EncodedItemData,
@@ -82,12 +96,26 @@ protocol SidebarItemSwipable: StitchNestedListElementObservable, Sendable, Ident
     
     @MainActor
     func update(from schema: Self.EncodedItemData)
+    
+    @ViewBuilder
+    func aboutPopoverView() -> AboutPopoverView
 }
 
 extension SidebarItemSwipable {
     @MainActor
     func isSelected(sidebar: Self.SidebarViewModel) -> Bool {
         self.isPrimarilySelected(sidebar: sidebar)
+    }
+    
+    /// Recursively grabs all elements from self and children.
+    @MainActor var allElementIds: Set<Self.ID> {
+        let ids = Set([self.id])
+        guard let children = self.children else {
+            return ids
+        }
+        
+        let childrenIds = Set(children.flatMap { $0.allElementIds })
+        return ids.union(childrenIds)
     }
     
     @MainActor
@@ -693,5 +721,22 @@ extension Array where Element: SidebarItemSwipable {
         
         // Default scenarios result in placing after some other element
         return .afterElement(recommendedItem)
+    }
+}
+
+extension Array where Element: SidebarItemSwipable {
+    @MainActor func get(_ id: Element.ID) -> Element? {
+        for item in self {
+            if id == item.id {
+                return item
+            }
+            
+            // Recursively check children
+            if let result = item.children?.get(id) {
+                return result
+            }
+        }
+        
+        return nil
     }
 }

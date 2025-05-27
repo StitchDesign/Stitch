@@ -13,22 +13,23 @@ struct ComponentDisplayData: Equatable, Hashable {
     var name: String // i.e. GroupNode.name
 }
 
-struct InsertNodeMenuOptionData: Hashable, Identifiable, Equatable {
-    var id = UUID() // id not needed?
-    var data: InsertNodeMenuOption
-}
-
 extension NodeViewModel {
     @MainActor
-    var asActiveSelection: InsertNodeMenuOptionData {
-        switch self.kind {
+    var asActiveSelection: InsertNodeMenuOption {
+        self.kind.insertNodeMenuOption
+    }
+}
+
+extension NodeKind {
+    var insertNodeMenuOption: InsertNodeMenuOption {
+        switch self {
         case .patch(let x):
-            return .init(data: .patch(x))
+            return .patch(x)
         case .layer(let x):
-            return .init(data: .layer(x))
+            return .layer(x)
         default:
             fatalErrorIfDebug()
-            return .init(data: .patch(.splitter))
+            return .patch(.splitter)
         }
     }
 }
@@ -38,6 +39,12 @@ enum InsertNodeMenuOption: Hashable, Equatable {
          layer(Layer),
          customComponent(ComponentDisplayData),
          defaultComponent(DefaultComponents)
+}
+
+extension InsertNodeMenuOption: Identifiable {
+    var id: String {
+        self.displayTitle
+    }
 }
 
 extension InsertNodeMenuOption {
@@ -93,16 +100,16 @@ extension InsertNodeMenuOption {
     }
 }
 
-extension [InsertNodeMenuOptionData] {
-    var defaultComponents: [InsertNodeMenuOptionData] {
-        self.filter(\.data.isDefaultComponent)
+extension [InsertNodeMenuOption] {
+    var defaultComponents: [InsertNodeMenuOption] {
+        self.filter(\.isDefaultComponent)
     }
 
-    var customComponents: [InsertNodeMenuOptionData] {
-        self.filter(\.data.isCustomComponent)
+    var customComponents: [InsertNodeMenuOption] {
+        self.filter(\.isCustomComponent)
     }
 
-    var nodes: [InsertNodeMenuOptionData] {
-        self.filter { !$0.data.isCustomComponent && !$0.data.isDefaultComponent }
+    var nodes: [InsertNodeMenuOption] {
+        self.filter { !$0.isCustomComponent && !$0.isDefaultComponent }
     }
 }

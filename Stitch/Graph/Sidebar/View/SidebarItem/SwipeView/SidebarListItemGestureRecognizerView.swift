@@ -318,20 +318,20 @@ extension SidebarItemGestureViewModel {
             var buttons: [UIMenuElement] = []
             
             if sidebarViewModel.canUngroup() {
-                buttons.append(UIAction(title: "Ungroup", image: nil) { action in
+                buttons.stitchAppend(title: "Ungroup") {
                     // Handle action here
                     self.sidebarDelegate?.sidebarGroupUncreated()
-                })
+                }
             }
             
             if sidebarViewModel.canBeGrouped() {
-                buttons.append(UIAction(title: "Group", image: nil) { action in
+                buttons.stitchAppend(title: "Group") {
                     sidebarViewModel.sidebarGroupCreated()
-                })
+                }
             }
             
             if sidebarViewModel.canDuplicate() {
-                let groupButton = UIAction(title: "Duplicate", image: nil) { action in
+                let groupButton = UIAction(title: "Duplicate") { _ in
                     dispatch(SidebarSelectedItemsDuplicated())
                 }
                 buttons.append(groupButton)
@@ -342,9 +342,9 @@ extension SidebarItemGestureViewModel {
             let atLeastOneSelected = !activeSelections.isEmpty
             
             if atLeastOneSelected {
-                buttons.append(UIAction(title: "Delete", image: nil) { action in
+                buttons.stitchAppend(title: "Delete") {
                     dispatch(SidebarSelectedItemsDeleted())
-                })
+                }
             }
                       
             let onlyOneSelected = activeSelections.count == 1
@@ -353,10 +353,10 @@ extension SidebarItemGestureViewModel {
                let layerNodeId = selections.primary.first,
                let isVisible = graph.getLayerNode(layerNodeId)?.hasSidebarVisibility {
                 
-                buttons.append(UIAction(title: isVisible ? "Hide Layer" : "Unhide Layer", image: nil) { action in
+                buttons.stitchAppend(title: isVisible ? "Hide Layer" : "Unhide Layer") {
                     // dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
                     dispatch(SelectedLayersVisiblityUpdated(selectedLayers: .init([layerNodeId])))
-                })
+                }
             }
             
             if activeSelections.count > 1 {
@@ -366,23 +366,37 @@ extension SidebarItemGestureViewModel {
                 // If all selections already hidden, do not show option to hide them
                 let allSelectionsHidden = activelySelectedLayerNodes.allSatisfy { !$0.hasSidebarVisibility }
                 if !allSelectionsHidden {
-                    buttons.append(UIAction(title: "Hide Layers", image: nil) { action in
+                    buttons.stitchAppend(title: "Hide Layers") {
                         dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
                                                                 newVisibilityStatus: false))
-                    })
+                    }
                 }
                 
                 // If all selections already shown, do not show option to "unhide" them
                 let allSelectionsShown = activelySelectedLayerNodes.allSatisfy { $0.hasSidebarVisibility }
                 if !allSelectionsShown {
-                    buttons.append(UIAction(title: "Unhide Layers", image: nil) { action in
+                    buttons.stitchAppend(title: "Unhide Layers") {
                         dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
                                                                 newVisibilityStatus: true))
-                    })
+                    }
                 }
+            }
+            
+            // About info
+            buttons.stitchAppend(title: "About") {
+                self.showAboutPopover = true
             }
             
             return UIMenu(title: "", children: buttons)
         }
+    }
+}
+
+extension Array where Element == UIMenuElement {
+    @MainActor
+    mutating func stitchAppend(title: String, callback: @escaping () -> Void) {
+        self.append(UIAction(title: title, image: nil) { _ in
+            callback()
+        })
     }
 }

@@ -158,7 +158,7 @@ struct ToggleSidebars: StitchStoreEvent {
 }
 
 struct InsertNodeSelectionChanged: StitchDocumentEvent {
-    let selection: InsertNodeMenuOptionData
+    let selection: InsertNodeMenuOption
 
     func handle(state: StitchDocumentViewModel) {
         state.insertNodeMenuState.activeSelection = selection
@@ -225,12 +225,12 @@ struct InsertNodeQuery: StitchDocumentEvent {
     }
 }
 
-extension [InsertNodeMenuOptionData] {
+extension [InsertNodeMenuOption] {
     static let ALL_NODE_SEARCH_OPTIONS = InsertNodeMenuState.allSearchOptions
 }
 
 func searchForNodes(by query: String,
-                    searchOptions: [InsertNodeMenuOptionData]) -> [InsertNodeMenuOptionData] {
+                    searchOptions: [InsertNodeMenuOption]) -> [InsertNodeMenuOption] {
 
     let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
@@ -245,7 +245,7 @@ func searchForNodes(by query: String,
         if targetPhrase.hasPrefix(trimmedQuery) {
             // If what they typed is the start of our target phrase, show the node
             if let prototypeStartNode = searchOptions.first(where: {
-                $0.data.displayTitle.lowercased().contains("on prototype start")
+                $0.displayTitle.lowercased().contains("on prototype start")
             }) {
                 return [prototypeStartNode]
             }
@@ -257,7 +257,7 @@ func searchForNodes(by query: String,
 //        if targetPhrase.hasPrefix(trimmedQuery) {
 //            // If what they typed is the start of our target phrase, show the node
 //            if let splitTextNode = searchOptions.first(where: {
-//                $0.data.displayTitle.lowercased().contains("split text")
+//                $0.displayTitle.lowercased().contains("split text")
 //            }) {
 //                return [splitTextNode]
 //            }
@@ -266,21 +266,21 @@ func searchForNodes(by query: String,
 
     // Handle exact symbol matches next
     switch trimmedQuery {
-    case "+": return [.init(data: .patch(.add))]
-    case "-": return [.init(data: .patch(.subtract))]
-    case "*": return [.init(data: .patch(.multiply))]
-    case "/": return [.init(data: .patch(.divide))]
-    case "**", "^": return [.init(data: .patch(.power))]
+    case "+": return [.patch(.add)]
+    case "-": return [.patch(.subtract)]
+    case "*": return [.patch(.multiply)]
+    case "/": return [.patch(.divide)]
+    case "**", "^": return [.patch(.power)]
     default: break
     }
     
     // Split results into title matches and description matches
     let titleMatches = searchOptions.filter { option in
-        option.data.displayTitle.localizedCaseInsensitiveContains(trimmedQuery)
+        option.displayTitle.localizedCaseInsensitiveContains(trimmedQuery)
     }
     
     let descriptionMatches = searchOptions.filter { option in
-        option.data.displayDescription
+        option.displayDescription
             .replacingOccurrences(of: "*", with: "")
             .replacingOccurrences(of: "/", with: "")
             .localizedCaseInsensitiveContains(trimmedQuery)
@@ -293,7 +293,7 @@ func searchForNodes(by query: String,
     let textBasedMatches = searchOptions.filter { option in
         guard !results.contains(option) else { return false }
         
-        if case .patch(let patchData) = option.data {
+        if case .patch(let patchData) = option {
             switch patchData {
             case .add: return "add".hasPrefix(trimmedQuery) || "plus".hasPrefix(trimmedQuery)
             case .subtract: return "subtract".hasPrefix(trimmedQuery) || "minus".hasPrefix(trimmedQuery)
@@ -318,8 +318,8 @@ func searchForNodes(by query: String,
             return firstInTitleMatches
         }
         
-        let firstTitle = first.data.displayTitle.lowercased()
-        let secondTitle = second.data.displayTitle.lowercased()
+        let firstTitle = first.displayTitle.lowercased()
+        let secondTitle = second.displayTitle.lowercased()
 
         // Then exact matches
         if firstTitle == trimmedQuery { return true }
@@ -358,14 +358,14 @@ struct InsertNodeQuery_REPL: View {
 
     let query: String = "a"
 
-    var results: [InsertNodeMenuOptionData] {
+    var results: [InsertNodeMenuOption] {
         searchForNodes(by: query,
                        searchOptions: .ALL_NODE_SEARCH_OPTIONS)
     }
 
     var body: some View {
         ForEach(results, id: \.id) {
-            Text($0.data.displayTitle)
+            Text($0.displayTitle)
         }
     }
 }

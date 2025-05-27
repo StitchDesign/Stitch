@@ -7,7 +7,6 @@
 
 import SwiftUI
 import StitchSchemaKit
-import StitchViewKit
 
 struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
 
