@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
-import StitchViewKit
 
 struct CopyPasteGraphDestinationInfo: Equatable {
     let destinationGraphOffset: CGPoint

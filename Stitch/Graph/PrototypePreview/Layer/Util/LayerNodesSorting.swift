@@ -451,7 +451,6 @@ func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to th
     return layerTypesAtThisLevel
 }
 
-import StitchViewKit
 extension Array where Element: StitchNestedListElement & Equatable {
     
     func insertSidebarLayerData(_ itemId: Element.ID, parent: Element.ID) -> Element? {

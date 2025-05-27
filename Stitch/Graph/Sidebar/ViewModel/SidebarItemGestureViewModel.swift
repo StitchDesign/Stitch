@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import StitchViewKit
 
 // MARK: SIDEBAR ITEM SWIPE CONSTANTS
 
@@ -30,6 +29,8 @@ let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
     let id: NodeId
+    let layer: Layer
+    
     @MainActor var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
     @MainActor var children: [SidebarItemGestureViewModel]?
     
@@ -45,6 +46,8 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     
     @MainActor var isHovered = false
     
+    @MainActor var showAboutPopover = false
+    
     @MainActor weak var sidebarDelegate: LayersSidebarViewModel?
     
     @MainActor weak var parentDelegate: SidebarItemGestureViewModel? {
@@ -58,7 +61,12 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     init(data: SidebarLayerData,
          parentDelegate: SidebarItemGestureViewModel?,
          sidebarViewModel: LayersSidebarViewModel) {
+        
+        let layer = sidebarViewModel.graphDelegate?.getNode(data.id)?.layerNode?.layer
+        assertInDebug(layer != nil)
+        
         self.id = data.id
+        self.layer = layer ?? .rectangle
         self.isExpandedInSidebar = data.isExpandedInSidebar
         self.parentDelegate = parentDelegate
         self.sidebarDelegate = sidebarViewModel
@@ -70,13 +78,9 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
         }
     }
     
-    @MainActor
-    init(id: NodeViewModel.ID,
-         children: [SidebarItemGestureViewModel]?,
-         isExpandedInSidebar: Bool?) {
-        self.id = id
-        self.children = children
-        self.isExpandedInSidebar = isExpandedInSidebar
+    @ViewBuilder
+    func aboutPopoverView() -> some View {
+        GraphNodeDescriptionView(option: NodeKind.layer(self.layer).insertNodeMenuOption)
     }
 }
 

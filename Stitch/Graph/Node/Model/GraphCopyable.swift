@@ -9,8 +9,6 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 import StitchSchemaKit
-import StitchViewKit
-
 
 typealias AsyncCallback = @Sendable () async -> Void
 
@@ -554,7 +552,7 @@ extension Array where Element: StitchNestedListElement {
     }
 }
 
-extension Array where Element: StitchNestedListElementObservable {
+extension Array where Element: SidebarItemSwipable {
     /// Returns a subset of layers in sidebar given some selected set.
     @MainActor func getSubset(from ids: Set<Element.ID>) -> [Element] {
         self.flatMap { sidebarData in

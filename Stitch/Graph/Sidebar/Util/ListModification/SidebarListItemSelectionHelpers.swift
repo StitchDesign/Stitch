@@ -8,7 +8,6 @@
 import StitchSchemaKit
 import Foundation
 import SwiftUI
-import StitchViewKit
 
 extension ProjectSidebarObservable {
     // TODO: finalize this logic; it's not as simple as "the range between last-clicked and just-clicked" nor is it "the range between just-clicked and least-distant-currently-selected"
