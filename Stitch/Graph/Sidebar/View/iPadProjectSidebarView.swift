@@ -24,7 +24,7 @@ struct StitchSidebarView: View {
                                syncStatus: syncStatus)
 
         } else {
-            Text("Coming soon: Stitch Components")
+            ProjectSidebarEmptyView(document: nil)
         }
     }
 }
@@ -65,5 +65,68 @@ struct ProjectSidebarView: View {
         .toolbarBackground(.visible, for: .automatic)
         .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
 #endif
+    }
+}
+
+struct ProjectSidebarEmptyView: View {
+    static let title = "Layer Sidebar"
+    
+    let document: StitchDocumentViewModel?
+    
+    var body: some View {
+        if let document = document {
+            SidebarEmptyStateView(title: Self.title,
+                                  description: "Layers will populate here.") {
+                HStack {
+                    Button {
+                        log("hi")
+                    } label: {
+//                        Image(systemName: "command")
+//                        Image(systemName: "return")
+                        Text("⌘↩")
+                        Text("Insert Node")
+                    }
+                    
+                    Button {
+                        log("hi")
+                    } label: {
+                        Image(systemName: "text.page")
+                        Text("About Layers")
+                    }
+                }
+            }
+        } else {
+            SidebarEmptyStateView(title: Self.title,
+                                  description: "Layers will populate here.") {
+                EmptyView()
+            }
+        }
+    }
+}
+
+// TODO: move
+struct SidebarEmptyStateView<ButtonsView: View>: View {
+    let title: String
+    let description: String
+    @ViewBuilder var buttonsView: () -> ButtonsView
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            
+            VStack {
+                Text(title)
+                    .font(.largeTitle)
+                    .padding(4)
+                
+                Text(description)
+                    .foregroundColor(.secondary)
+                
+                buttonsView()
+                    .padding()
+            }
+            
+            Spacer()
+        }
     }
 }

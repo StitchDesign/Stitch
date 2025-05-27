@@ -64,27 +64,23 @@ struct LayerInspectorView: View {
                 emptyState
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .scrollContentBackground(.hidden)
         .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
     }
     
     @ViewBuilder
     var emptyState: some View {
-        VStack {
-            Text("No Layer Selected")
-                .font(.title)
-            Text("""
+        SidebarEmptyStateView(title: "No Layer Selected",
+                              description: """
 The Layer Inspector displays inputs for\na selected layer from the layer sidebar.
-""")
-            .font(.caption)
-            
+""") {
             Button(action: {
                 document.leftSidebarOpen = true
             }) {
                 Image(systemName: "sidebar.left")
                 Text("Open Layer Sidebar")
             }
-            .padding()
         }
     }
     
