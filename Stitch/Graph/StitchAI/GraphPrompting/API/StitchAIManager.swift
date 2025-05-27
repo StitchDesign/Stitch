@@ -16,6 +16,7 @@ struct Payload: Codable {
     var actions: RecordingWrapper
     let correction: Bool
     let score: CGFloat
+    let required_retry: Bool
 }
 
 struct RecordingWrapper: Codable {
@@ -117,7 +118,8 @@ extension StitchAIManager {
                                  finalActions: [Step],
                                  deviceUUID: String,
                                  isCorrection: Bool,
-                                 rating: StitchAIRating) async throws {
+                                 rating: StitchAIRating,
+                                 requiredRetry: Bool) async throws {
         
         let wrapper = RecordingWrapper(
             prompt: prompt,
@@ -128,7 +130,8 @@ extension StitchAIManager {
             user_id: deviceUUID,
             actions: wrapper,
             correction: isCorrection,
-            score: rating.rawValue)
+            score: rating.rawValue,
+            required_retry: requiredRetry)
         
         log(" Uploading payload:")
         log("  - User ID: \(deviceUUID)")

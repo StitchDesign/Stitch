@@ -38,6 +38,7 @@ struct AppThemeChangedEvent: AppEvent {
 
 extension Bool {
     static let defaultIsOptionRequiredForShortcuts = true
+    static let defaultCanShareAIRetries = true
 }
 
 struct OptionRequiredForShortcutsChanged: StitchStoreEvent {
@@ -54,6 +55,25 @@ struct OptionRequiredForShortcutsChanged: StitchStoreEvent {
         UserDefaults.standard.setValue(
             newValue.description,
             forKey: SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME)
+        
+        return .shouldPersist
+    }
+}
+
+struct CanShareAIRetriesChanged: StitchStoreEvent {
+
+    let newValue: Bool
+    
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        
+        log("CanShareAIRetriesChanged: store.isOptionRequiredForShortcut was: \(store.canShareAIRetries)")
+        log("CanShareAIRetriesChanged: newValue.description: \(newValue.description)")
+        store.canShareAIRetries = newValue
+        log("CanShareAIRetriesChanged: store.canShareAIRetries is now: \(store.canShareAIRetries)")
+        
+        UserDefaults.standard.setValue(
+            newValue.description,
+            forKey: SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME)
         
         return .shouldPersist
     }
