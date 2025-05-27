@@ -96,7 +96,8 @@ struct ProjectsHomeView: View {
                      titleLabel: "Settings",
                      hideAction: store.hideAppSettingsSheet,
                      sheetBody: {
-            AppSettingsView(isOptionRequiredForShortcut: store.isOptionRequiredForShortcut)
+            AppSettingsView(isOptionRequiredForShortcut: store.isOptionRequiredForShortcut,
+                            canShareAIRetries: store.canShareAIRetries)
         })
         .stitchSheet(isPresented: store.showsSampleProjectModal,
                      titleLabel: "Sample Projects",

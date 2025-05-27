@@ -80,7 +80,9 @@ struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
                     deviceUUID: deviceUUID,
                     isCorrection: state.llmRecording.mode == .augmentation,
                     // corrections and fresh training sets always get highest rating
-                    rating: .fiveStars)
+                    rating: .fiveStars,
+                    // these actions + prompt did not require a retry
+                    requiredRetry: false)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()

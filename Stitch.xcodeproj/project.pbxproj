@@ -613,6 +613,8 @@
 		EC65AC332DC1A3500046E59C /* InputFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */; };
 		EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC342DC1AB580046E59C /* OutputFieldView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
+		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
+		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
 		EC68590B2DB078B7004BF315 /* ArrayUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68590A2DB078B7004BF315 /* ArrayUtils.swift */; };
 		EC688E332DCAA73300C6737D /* FileImportHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC688E322DCAA73300C6737D /* FileImportHelpers.swift */; };
@@ -1628,6 +1630,8 @@
 		EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldValueView.swift; sourceTree = "<group>"; };
 		EC65AC342DC1AB580046E59C /* OutputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
+		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
+		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
 		EC68590A2DB078B7004BF315 /* ArrayUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayUtils.swift; sourceTree = "<group>"; };
 		EC688E322DCAA73300C6737D /* FileImportHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImportHelpers.swift; sourceTree = "<group>"; };
@@ -4078,6 +4082,8 @@
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
 				EC8826CE2DCD2EAC003529BA /* OpenAIStreamHelpers.swift */,
 				EC86AD562DCC1E7700E9B00E /* OpenAIRequestHelpers.swift */,
+				EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */,
+				EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */,
 				EC75FA8B2DE034C600FF87E8 /* OpenAIRequestConfig.swift */,
 				E48A07912D38C528002E8A98 /* StitchAIManager.swift */,
 				E42CFD472D4414F10034CCFF /* Secrets.swift */,
@@ -5153,6 +5159,7 @@
 				EC067CE82BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift in Sources */,
 				B5B95B9A2CB6D6B400DA64B3 /* StitchSystemEncoder.swift in Sources */,
 				ECEAFE61270E1E0D007DF78D /* OperationEvaluationHelpers.swift in Sources */,
+				EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */,
 				EC41FFC32943A74E00BF8671 /* CGPointUtils.swift in Sources */,
 				EC1E7A6B287CCC8A00144D05 /* NodeKindUtils.swift in Sources */,
 				EC83D8922926E1CB00255311 /* GraphUIScrollActions.swift in Sources */,
@@ -5662,6 +5669,7 @@
 				ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
 				EC98326B2B69D324003F9462 /* PossibleEdgesView.swift in Sources */,
+				EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */,
 				ECA929FC260A693800281B52 /* DragInteractionPatchNode.swift in Sources */,
 				B5FEE4CA28AEF88100B50BCD /* AppSettingsView.swift in Sources */,
 				E4F8AABD2BD6ED9600E9BA4D /* AngularGradientNode.swift in Sources */,

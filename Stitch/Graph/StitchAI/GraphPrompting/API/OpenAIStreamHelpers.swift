@@ -10,19 +10,25 @@ import JsonStream
 import SwiftyJSON
 
 
-struct ChunkProcessed: StitchDocumentEvent {
+struct ChunkProcessed: StitchStoreEvent {
     let newStep: Step
     let request: OpenAIRequest
     let currentAttempt: Int
     
     @MainActor
-    func handle(state: StitchDocumentViewModel) {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        
         log("ChunkProcessed: newStep: \(newStep)")
         
+        guard let state = store.currentDocument else {
+            log("ChunkProcessed: no current document")
+            return .noChange
+        }
+        
         guard let aiManager = state.aiManager else {
-            fatalErrorIfDebug("handleErrorWhenApplyingChunk: no ai manager")
+            fatalErrorIfDebug("ChunkProcessed: no ai manager")
             // TODO: show error modal to user?
-            return
+            return .noChange
         }
                 
         // Helpful for debug to keep around the streamed-in Steps while a given task is active
@@ -35,7 +41,7 @@ struct ChunkProcessed: StitchDocumentEvent {
             
             guard let aiManager = aiManager,
                   var nodeIdMap = aiManager.currentTask?.nodeIdMap else {
-                log("Did not have AI manager and/or current task")
+                log("ChunkProcessed: Did not have AI manager and/or current task")
                 return
             }
             
@@ -76,6 +82,10 @@ struct ChunkProcessed: StitchDocumentEvent {
                 }
             }
         } // Task
+        
+        
+        // TODO: actually, the Task should be returned as a side-effect
+        return .noChange
     }
 }
 
