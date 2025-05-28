@@ -1,5 +1,5 @@
 //
-//  ResponsesAPITestView.swift
+//  ResponsesAPIDemoView.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 5/27/25.
@@ -8,7 +8,6 @@
 import SwiftUI
 import Foundation
 import SwiftyJSON
-
 
 struct ResponsesAPIDemoView: View {
     
@@ -67,11 +66,15 @@ struct ResponsesAPIDemoView: View {
                                      userPrompt: String) async throws {
 
         // Build the JSON payload and configure URLRequest
-        let request = getURLRequestForResponsesAPI(
+        guard let request = getURLRequestForResponsesAPI(
             userPrompt: userPrompt,
             apiKey: apiKey,
             // model: "o4-mini-2025-04-16")
-            model: "ft:o4-mini-2025-04-16:ve::BaQU8UVH")
+            model: "ft:o4-mini-2025-04-16:ve::BaQU8UVH") else {
+            fatalErrorIfDebug()
+            // TODO: return
+            return
+        }
         
         
         // Open the byte-stream

@@ -433,6 +433,7 @@
 		EC22DDE12DE3D5E20070299C /* NodeRowObserverLabels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC22DDE02DE3D5E10070299C /* NodeRowObserverLabels.swift */; };
 		EC23C5802DE7BEC400E5FC64 /* ResponsesAPIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC23C57F2DE7BEC400E5FC64 /* ResponsesAPIRequest.swift */; };
 		EC23C5822DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC23C5812DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift */; };
+		EC23C5852DE7C2CD00E5FC64 /* ResponsesAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC23C5842DE7C2CD00E5FC64 /* ResponsesAPIDemoView.swift */; };
 		EC24E37F28516D7D0078A9B7 /* animationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC24E37E28516D7D0078A9B7 /* animationTests.swift */; };
 		EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC252402269F5C71003ABF8F /* EditJSONEntry.swift */; };
 		EC252405269F5CB7003ABF8F /* PickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */; };
@@ -605,7 +606,6 @@
 		EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60E57B27178DDD00AABE71 /* LayerUtils.swift */; };
 		EC631402265C418D00BD45B2 /* LoopSelectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC631401265C418D00BD45B2 /* LoopSelectNode.swift */; };
 		EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */; };
-		EC649D832DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC649D822DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift */; };
 		EC649D852DE6C56A0026DBC4 /* TestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC649D842DE6C56A0026DBC4 /* TestKey.swift */; };
 		EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */; };
 		EC650BDB2686702800C4CCC9 /* SpeakerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */; };
@@ -1456,6 +1456,7 @@
 		EC22DDE02DE3D5E10070299C /* NodeRowObserverLabels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverLabels.swift; sourceTree = "<group>"; };
 		EC23C57F2DE7BEC400E5FC64 /* ResponsesAPIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPIRequest.swift; sourceTree = "<group>"; };
 		EC23C5812DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPIResponse.swift; sourceTree = "<group>"; };
+		EC23C5842DE7C2CD00E5FC64 /* ResponsesAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPIDemoView.swift; sourceTree = "<group>"; };
 		EC24E37E28516D7D0078A9B7 /* animationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = animationTests.swift; sourceTree = "<group>"; };
 		EC252402269F5C71003ABF8F /* EditJSONEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditJSONEntry.swift; sourceTree = "<group>"; };
 		EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerValueEntry.swift; sourceTree = "<group>"; };
@@ -1626,7 +1627,6 @@
 		EC60E57B27178DDD00AABE71 /* LayerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerUtils.swift; sourceTree = "<group>"; };
 		EC631401265C418D00BD45B2 /* LoopSelectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSelectNode.swift; sourceTree = "<group>"; };
 		EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingEdgesView.swift; sourceTree = "<group>"; };
-		EC649D822DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPIDemoView.swift; sourceTree = "<group>"; };
 		EC649D842DE6C56A0026DBC4 /* TestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestKey.swift; sourceTree = "<group>"; };
 		EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundImportNode.swift; sourceTree = "<group>"; };
 		EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerNode.swift; sourceTree = "<group>"; };
@@ -4212,7 +4212,7 @@
 		EC23C5832DE7C21E00E5FC64 /* OpenAIResponsesAPI */ = {
 			isa = PBXGroup;
 			children = (
-				EC649D822DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift */,
+				EC23C5842DE7C2CD00E5FC64 /* ResponsesAPIDemoView.swift */,
 				EC23C57F2DE7BEC400E5FC64 /* ResponsesAPIRequest.swift */,
 				EC23C5812DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift */,
 			);
@@ -5261,7 +5261,6 @@
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,
-				EC649D832DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift in Sources */,
 				ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */,
 				EC1658822B6AFDDA00FE4AE6 /* EdgeEditingModeInputLabel.swift in Sources */,
 				ECC738312BB6360B00A680B5 /* AnchorGridIconView.swift in Sources */,
@@ -5769,6 +5768,7 @@
 				20308FA725AD1721008CE3BE /* ContentView.swift in Sources */,
 				EC11B5A52898848F0097E5A8 /* AdjustmentBarStepScale.swift in Sources */,
 				ECF0B0F42877E45A001D7CFC /* ColorOrbValueButtonView.swift in Sources */,
+				EC23C5852DE7C2CD00E5FC64 /* ResponsesAPIDemoView.swift in Sources */,
 				EC4CFB6526FE480700D085F3 /* StitchSoundFile.swift in Sources */,
 				ECEEA5022AFD9EC800C7CE86 /* TagMenuHelperViews.swift in Sources */,
 				E42CFD482D4414F10034CCFF /* Secrets.swift in Sources */,
