@@ -402,7 +402,7 @@ struct StepActionSetInput: StepActionable {
                 OpenAISchema(type: .number),
                 OpenAISchema(type: .string),
                 OpenAISchema(type: .boolean),
-                OpenAISchema(type: .object)
+                OpenAISchema(type: .object, additionalProperties: false)
               ]),
               valueType: OpenAISchemaRef(ref: "ValueType")
         )
