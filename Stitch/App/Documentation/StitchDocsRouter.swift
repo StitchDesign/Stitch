@@ -145,22 +145,10 @@ extension StitchDocsRouter {
                          for page: StitchDocsPage) -> String? {
         map.get(page)?.get(title)
     }
-
-//    /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.
-//    private static func forPatch(_ patch: Patch) -> String? {
-//        forTitle(NodeKind.patch(patch).getDisplayTitle(customName: nil),
-//                 for: .patch)
-//    }
-//    
-//    /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.
-//    private static func forLayer(_ layer: Layer) -> String? {
-//        forTitle(NodeKind.layer(layer).getDisplayTitle(customName: nil),
-//                 for: .layer)
-//    }
-
+    
     // MARK: Cached data -------------------------------------------------------
     
-    private static let map: [StitchDocsPage: [String: String]] = {
+    static let map: [StitchDocsPage: [String: String]] = {
         var dict = [StitchDocsPage: [String: String]]()
         
         for page in StitchDocsPage.allCases {
