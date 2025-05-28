@@ -250,5 +250,12 @@ struct ProjectsHomeCommands: Commands {
                 dispatch(DeleteShortcutKeyPressed())
             }
         }
+        
+        CommandGroup(replacing: .help) {
+            Button("View Documentation…") {
+                guard let url = URL(string: StitchDocsRouter.docsUrlPath) else { return }
+                UIApplication.shared.open(url)
+            }
+        }
     }
 }

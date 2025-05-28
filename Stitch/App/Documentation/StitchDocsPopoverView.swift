@@ -56,7 +56,7 @@ struct StitchDocsTextView: View {
         guard let page = self.docsSubpagePath else { return nil }
         
         // 1. Base URL of your docs folder
-        let base = "https://github.com/StitchDesign/Stitch/blob/development/Guides/"
+        let base = StitchDocsRouter.docsUrlPath
         let sec = title
         
         // 2. Construct the full URL string
