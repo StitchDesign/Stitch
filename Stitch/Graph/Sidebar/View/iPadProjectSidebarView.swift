@@ -90,8 +90,13 @@ struct ProjectSidebarEmptyView: View {
 }
 
 struct NodeEmptyStateAboutButtonsView: View {
+#if targetEnvironment(macCatalyst)
     static let defaultWidth: CGFloat = 200
     private static let defaultButtonWidth: CGFloat = 160
+#else
+    static let defaultWidth: CGFloat = 260
+    private static let defaultButtonWidth: CGFloat = 200
+#endif
     @State private var willShowAboutPopover = false
     
     let isPatch: Bool
@@ -133,7 +138,6 @@ struct NodeEmptyStateAboutButtonsView: View {
 struct SidebarEmptyStateView<ButtonsView: View>: View {
     let title: String
     let description: String
-    var alignment: HorizontalAlignment = .center
     @ViewBuilder var buttonsView: () -> ButtonsView
     
     var body: some View {
@@ -141,7 +145,6 @@ struct SidebarEmptyStateView<ButtonsView: View>: View {
             Spacer()
             ProjectEmptyStateView(title: title,
                                   description: description,
-                                  alignment: alignment,
                                   buttonsView: buttonsView)
             Spacer()
         }
@@ -151,24 +154,27 @@ struct SidebarEmptyStateView<ButtonsView: View>: View {
 struct ProjectEmptyStateView<ButtonsView: View>: View {
     let title: String
     let description: String
-    var alignment: HorizontalAlignment = .center
     @ViewBuilder var buttonsView: () -> ButtonsView
     
     var body: some View {
-        VStack(alignment: alignment) {
+        VStack {
             Text(title)
+            #if targetEnvironment(macCatalyst)
                 .font(.largeTitle)
+            #else
+                .font(.title)
+            #endif
                 .padding(.vertical, 4)
             
             Text(description)
+                .multilineTextAlignment(.center)
                 .padding(.bottom, 16)
             //                    .foregroundColor(.secondary) // Can't get to work on left sidebar
             
-            VStack(alignment: alignment, spacing: 4) {
+            VStack(spacing: 4) {
                 buttonsView()
                     .buttonStyle(.borderless) // only way to get multiple images in one button to appear
                     .padding(8)
-//                    .frame(maxWidth: .infinity)
                     .background(.windowBackground)
                     .cornerRadius(8)
             }

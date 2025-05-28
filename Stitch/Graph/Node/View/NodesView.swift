@@ -13,7 +13,7 @@ struct PatchCanvasEmptyStateView: View {
     
     var body: some View {
         ProjectEmptyStateView(title: "Patch Canvas",
-                              description: "Add your patch nodes here.") {
+                              description: "Add patch nodes here.") {
             NodeEmptyStateAboutButtonsView(isPatch: true,
                                            document: document)
         }
