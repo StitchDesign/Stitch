@@ -30,7 +30,7 @@ struct StitchDocsTextView: View {
     var descriptionTitle: AttributedString {
         do {
             return try AttributedString(
-                styledMarkdown: "# \(title)",
+                styledMarkdown: "# \(title)\n",
                 isTitle: true)
         } catch {
             fatalErrorIfDebug(error.localizedDescription)
@@ -76,6 +76,8 @@ struct StitchDocsTextView: View {
         // 4. Build the AttributedString with link attribute
         var attr = AttributedString("View documentation.")
         attr.link = url
+        attr.foregroundColor = .accentColor        // tint
+        attr.underlineStyle  = .single             // underline
         return attr
     }
     
