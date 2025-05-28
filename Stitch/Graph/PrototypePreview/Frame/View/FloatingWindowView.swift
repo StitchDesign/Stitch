@@ -69,16 +69,7 @@ struct FloatingWindowView: View {
                     floatingWindowHandle
                         .offset(x: -Self.xOffset)
                 }
-            } // .background
-            .offset(x: self.finalXOffset)
-        
-        // TODO: which animation most closely matches the Inspector? (without .animation, we jump when inspector opened or closed)
-//            .animation(.linear, value: self.finalXOffset)
-//            .animation(.easeOut, value: self.finalXOffset)
-//            .animation(.easeInout, value: self.finalXOffset)
-//            .animation(.spring, value: self.finalXOffset)
-            .animation(.default, value: self.finalXOffset)
-            
+            } // .background            
             .matchedGeometryEffect(id: projectId, in: namespace)
         }
     }
@@ -220,10 +211,6 @@ struct FloatingWindowView: View {
                 // Reset active translation
                 self.previewWindowSizing.activeAdjustedTranslation = .zero
             })
-    }
-    
-    var finalXOffset: CGFloat {
-        store.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
     }
 }
 

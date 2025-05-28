@@ -280,10 +280,10 @@ func searchForNodes(by query: String,
     }
     
     let descriptionMatches = searchOptions.filter { option in
-        option.displayDescription
+        option.displayDescription?
             .replacingOccurrences(of: "*", with: "")
             .replacingOccurrences(of: "/", with: "")
-            .localizedCaseInsensitiveContains(trimmedQuery)
+            .localizedCaseInsensitiveContains(trimmedQuery) ?? false
     }
     
     // Using OrderedSet to handle duplicates

@@ -251,14 +251,15 @@ extension NodeKind: CaseIterable {
         return patchCases + layerCases
     }
     
-    var nodeDescriptionBody: String {
+    var nodeDescriptionBody: String? {
         switch self {
         case .patch(let patch):
             return patch.nodeDescriptionBody
         case .layer(let layer):
             return layer.nodeDescriptionBody
         default:
-            fatalError()
+            fatalErrorIfDebug()
+            return nil
         }
     }
 }

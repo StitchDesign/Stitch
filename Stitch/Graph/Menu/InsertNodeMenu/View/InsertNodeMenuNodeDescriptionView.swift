@@ -27,78 +27,20 @@ struct InsertNodeMenuNodeDescriptionView: View {
     }
 }
 
-struct GraphNodeDescriptionView: View {
-    let option: InsertNodeMenuOption
-    
-    var body: some View {
-        NodeDescriptionView(option: option)
-            .frame(width: 500)  // maxWidth breaks the popover, cutting content short at times
-            .padding()
-    }
-}
-
 struct NodeDescriptionView: View {
     let option: InsertNodeMenuOption
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            let descriptionTitle = try? AttributedString(
-                styledMarkdown: "# \(option.displayTitle)",
-                isTitle: true)
-            
-            Text(descriptionTitle ?? "Failed to retrieve Markdown-formatted title")
-            
-            let descriptionBody = try? AttributedString(
-                styledMarkdown: option.displayDescription,
-                isTitle: false)
-            
-            Text(descriptionBody ?? "Failed to retrieve Markdown-formatted body")
+    var displayDescription: String {
+        guard let description = option.displayDescription else {
+            fatalErrorIfDebug()
+            return ""
         }
+        
+        return description
     }
-}
-
-// https://blog.eidinger.info/3-surprises-when-using-markdown-in-swiftui
-
-extension AttributedString {
-    init(styledMarkdown markdownString: String,
-         isTitle: Bool) throws {
-        var output = try AttributedString(
-            markdown: markdownString,
-            options: .init(
-                allowsExtendedAttributes: true,
-                // .full accepts # for header, but ignores new lines
-                // .inlineOnlyPreservingWhitespace ignores # for header, but accepts new lines
-                interpretedSyntax: isTitle ? .full : .inlineOnlyPreservingWhitespace,
-                failurePolicy: .returnPartiallyParsedIfPossible
-            ),
-            baseURL: nil
-        )
-
-        for (intentBlock, intentRange) in output.runs[AttributeScopes.FoundationAttributes.PresentationIntentAttribute.self].reversed() {
-            guard let intentBlock = intentBlock else { continue }
-            for intent in intentBlock.components {
-                switch intent.kind {
-                case .header(level: let level):
-                    switch level {
-                    case 1:
-                        output[intentRange].font = HEADER_LEVEL_1_FONT
-                    case 2:
-                        output[intentRange].font = HEADER_LEVEL_2_FONT
-                    case 3:
-                        output[intentRange].font = .system(.title3).bold()
-                    default:
-                        break
-                    }
-                default:
-                    break
-                }
-            }
-
-            if intentRange.lowerBound != output.startIndex {
-                output.characters.insert(contentsOf: "\n", at: intentRange.lowerBound)
-            }
-        }
-
-        self = output
+    
+    var body: some View {
+        StitchDocsTextView(title: option.displayTitle,
+                              description: self.displayDescription)
     }
 }

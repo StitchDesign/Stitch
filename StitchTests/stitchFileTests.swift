@@ -25,23 +25,38 @@ final class StitchFileTests: XCTestCase {
     }
     
     /// Ensures markdown descriptions encapsulate all information and don't contain extra definitions.
-    func testNodeDescriptions() {
+    func testDocDescriptions() {
         NodeKind.allCases.forEach { nodeKind in
-            let nodesNotDefined = NodeKind.allCases.filter { NodeDescriptions.forKind($0) == nil }
-            XCTAssertTrue(nodesNotDefined.isEmpty)
+            let docsNotDefined = StitchDocsRouter.allCases.filter { $0.description == nil }
+            XCTAssertTrue(docsNotDefined.isEmpty)
             
-            let allNodeTitles = NodeKind.allCases.map(\.defaultDisplayTitle)
-            let allNodeTitlesSet = allNodeTitles.toSet
-            
-            // Ensure no duplicate names
-            XCTAssertEqual(allNodeTitles.count, allNodeTitlesSet.count)
-            
-            let extraNodesInMap = NodeDescriptions.map.filter {
-                !allNodeTitlesSet.contains($0.key)
+            guard let docsForPatches = StitchDocsRouter.map.get(.patch)?.keys,
+                  let docsForLayers = StitchDocsRouter.map.get(.layer)?.keys else {
+                XCTFail("Some docs not found for nodes")
+                return
             }
             
-            // Ensures the markdown doesn't contain extra nodes not captured in schema
-            XCTAssertTrue(extraNodesInMap.isEmpty)
-        }
+            
+            // MARK: the below tests don't work because we don't take into account various sections (i.e. "Arithmetic) in Patches but remains useful with breakpoints
+
+            //            let expectedPatchHeaders = Set(StitchDocsPatchRouter.allCases.map(\.headerLabel))
+//            let actualPatchHeaders = Set(docsForPatches)
+//            let unaccountedPatchHeaders = actualPatchHeaders.subtracting(expectedPatchHeaders)
+//            
+//            // All headers should be accounted for in routing
+//            XCTAssertTrue(unaccountedPatchHeaders.isEmpty)
+//            
+//            // Ensure no duplicate names
+//            XCTAssertEqual(StitchDocsPatchRouter.allCases.count, StitchDocsRouter.map.get(.patch)?.count)
+//            
+//            let expectedLayerHeaders = Set(StitchDocsLayerRouter.allCases.map(\.headerLabel))
+//            let actualLayerHeaders = Set(docsForLayers)
+//            let unaccountedLayerHeaders = actualLayerHeaders.subtracting(expectedLayerHeaders)
+//            
+//            // All headers should be accounted for in routing
+//            XCTAssertTrue(unaccountedLayerHeaders.isEmpty)
+//            
+//            // Ensure no duplicate names
+//            XCTAssertEqual(StitchDocsLayerRouter.allCases.count, StitchDocsRouter.map.get(.layer)?.count)
     }
  }

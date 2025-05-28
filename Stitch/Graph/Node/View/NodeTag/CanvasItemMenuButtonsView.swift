@@ -191,9 +191,11 @@ struct CanvasItemMenuButtonsView: View {
                 }
             }
             
-            // About link to documentation for this node
-            nodeTagMenuButton(label: "About") {
-                self.showAboutPopover = true
+            // About link to documentation for this node--only if its one of the core nodes
+            if self.node.kind.insertNodeMenuOption != nil {
+                nodeTagMenuButton(label: "Get Info") {
+                    self.showAboutPopover = true
+                }
             }
         }
     }
