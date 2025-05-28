@@ -26,16 +26,14 @@ final class StitchFileTests: XCTestCase {
     
     /// Ensures markdown descriptions encapsulate all information and don't contain extra definitions.
     func testDocDescriptions() {
-        NodeKind.allCases.forEach { nodeKind in
-            let docsNotDefined = StitchDocsRouter.allCases.filter { $0.description == nil }
-            XCTAssertTrue(docsNotDefined.isEmpty)
-            
-            guard let docsForPatches = StitchDocsRouter.map.get(.patch)?.keys,
-                  let docsForLayers = StitchDocsRouter.map.get(.layer)?.keys else {
-                XCTFail("Some docs not found for nodes")
-                return
-            }
-            
+        let docsNotDefined = StitchDocsRouter.allCases.filter { $0.description == nil }
+        XCTAssertTrue(docsNotDefined.isEmpty)
+        
+        guard let docsForPatches = StitchDocsRouter.map.get(.patch)?.keys,
+              let docsForLayers = StitchDocsRouter.map.get(.layer)?.keys else {
+            XCTFail("Some docs not found for nodes")
+            return
+        }
             
             // MARK: the below tests don't work because we don't take into account various sections (i.e. "Arithmetic) in Patches but remains useful with breakpoints
 
