@@ -35,7 +35,7 @@ extension StitchDocsRouter: CaseIterable {
         StitchDocsLayerRouter.allCases.map(Self.layer)
     }
     
-    private var page: StitchDocsPage {
+    var page: StitchDocsPage {
         switch self {
         case .overview:
             return .overview
