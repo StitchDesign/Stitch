@@ -69,7 +69,7 @@ struct LayerInspectorRowButton: View {
         }
         
         if canBeAddedToCanvas, usesThemeColor {
-            return false
+            return true
         }
         
         return false
