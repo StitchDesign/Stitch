@@ -11,10 +11,12 @@ import StitchSchemaKit
 struct StitchDocsPopoverView: View {
     let title: String
     let description: String
+    var docsSubpagePath: String?
     
     var body: some View {
         StitchDocsTextView(title: title,
-                           description: description)
+                           description: description,
+                           docsSubpagePath: docsSubpagePath)
         .frame(width: 500)  // maxWidth breaks the popover, cutting content short at times
         .padding()
     }
@@ -23,6 +25,7 @@ struct StitchDocsPopoverView: View {
 struct StitchDocsTextView: View {
     let title: String
     let description: String
+    var docsSubpagePath: String?
     
     var descriptionTitle: AttributedString {
         do {
@@ -46,10 +49,46 @@ struct StitchDocsTextView: View {
         }
     }
     
+    
+    /// Builds an AttributedString that reads “View in documentation.”
+    /// and links to the given page (and anchor) under your Guides folder.
+    var documentationLink: AttributedString? {
+        guard let page = self.docsSubpagePath else { return nil }
+        
+        // 1. Base URL of your docs folder
+        let base = "https://github.com/StitchDesign/Stitch/blob/development/Guides/"
+        let sec = title
+        
+        // 2. Construct the full URL string
+        var urlString = base + page + ".md"
+        if !sec.isEmpty {
+            // ensure the fragment is URL-escaped if needed
+            let fragment = sec.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed) ?? sec
+            urlString += "#\(fragment)"
+        }
+        
+        // 3. Safely make a URL
+        guard let url = URL(string: urlString) else {
+            // Fallback to base if something weird happens
+            return AttributedString("View documentation.")
+        }
+        
+        // 4. Build the AttributedString with link attribute
+        var attr = AttributedString("View documentation.")
+        attr.link = url
+        return attr
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(descriptionTitle)
             Text(descriptionBody)
+            
+            if let documentationLink = documentationLink {
+                Text("""
+\n\(documentationLink)
+""")
+            }
         }
     }
 }
@@ -65,6 +104,7 @@ extension StitchDocsPopoverView {
         }
         
         self.description = description
+        self.docsSubpagePath = router.page.markdownFileName
     }
 }
 
