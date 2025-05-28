@@ -205,7 +205,7 @@ extension StitchDocumentViewModel {
         node.getAllCanvasObservers().forEach {
             $0.parentGroupNodeId = self.groupNodeFocused?.groupNodeId
         }
-        self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
+        graph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
         // TODO: if we calculate the graph BEFORE we "initialize the delegate", would graph eval "fail"?
         node.initializeDelegate(graph: self.visibleGraph,
@@ -215,6 +215,14 @@ extension StitchDocumentViewModel {
         // EXCEPT for group layer nodes, which update sidebar with different logic
         if let layerNode = node.layerNode,
            layerNode.layer != .group {
+            let isFirstLayer = graph.layersSidebarViewModel.items.isEmpty
+            
+            // Open sidebars if first created layer
+            if isFirstLayer {
+                self.leftSidebarOpen = true
+                self.storeDelegate?.showsLayerInspector = true
+            }
+            
             graph.updateLayerSidebar(with: layerNode)
         }
         
