@@ -56,7 +56,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
         }
         
         guard case .ratingToast(let userPrompt) = state.llmRecording.modal else {
-            log("AIRatingSubmitted error: did not have roating toast")
+            log("AIRatingSubmitted error: did not have rating toast")
             return
         }
         

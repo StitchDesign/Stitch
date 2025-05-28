@@ -431,6 +431,8 @@
 		EC226C692BD8862900411EB7 /* PreviewShadowModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */; };
 		EC22972D268D337900E6DC8D /* MicrophoneFeedNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC22972C268D337900E6DC8D /* MicrophoneFeedNode.swift */; };
 		EC22DDE12DE3D5E20070299C /* NodeRowObserverLabels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC22DDE02DE3D5E10070299C /* NodeRowObserverLabels.swift */; };
+		EC23C5802DE7BEC400E5FC64 /* ResponsesAPIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC23C57F2DE7BEC400E5FC64 /* ResponsesAPIRequest.swift */; };
+		EC23C5822DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC23C5812DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift */; };
 		EC24E37F28516D7D0078A9B7 /* animationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC24E37E28516D7D0078A9B7 /* animationTests.swift */; };
 		EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC252402269F5C71003ABF8F /* EditJSONEntry.swift */; };
 		EC252405269F5CB7003ABF8F /* PickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */; };
@@ -603,7 +605,7 @@
 		EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60E57B27178DDD00AABE71 /* LayerUtils.swift */; };
 		EC631402265C418D00BD45B2 /* LoopSelectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC631401265C418D00BD45B2 /* LoopSelectNode.swift */; };
 		EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */; };
-		EC649D832DE6B2CC0026DBC4 /* ResponsesAPITestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC649D822DE6B2CC0026DBC4 /* ResponsesAPITestView.swift */; };
+		EC649D832DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC649D822DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift */; };
 		EC649D852DE6C56A0026DBC4 /* TestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC649D842DE6C56A0026DBC4 /* TestKey.swift */; };
 		EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */; };
 		EC650BDB2686702800C4CCC9 /* SpeakerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */; };
@@ -1452,6 +1454,8 @@
 		EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewShadowModifier.swift; sourceTree = "<group>"; };
 		EC22972C268D337900E6DC8D /* MicrophoneFeedNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneFeedNode.swift; sourceTree = "<group>"; };
 		EC22DDE02DE3D5E10070299C /* NodeRowObserverLabels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverLabels.swift; sourceTree = "<group>"; };
+		EC23C57F2DE7BEC400E5FC64 /* ResponsesAPIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPIRequest.swift; sourceTree = "<group>"; };
+		EC23C5812DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPIResponse.swift; sourceTree = "<group>"; };
 		EC24E37E28516D7D0078A9B7 /* animationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = animationTests.swift; sourceTree = "<group>"; };
 		EC252402269F5C71003ABF8F /* EditJSONEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditJSONEntry.swift; sourceTree = "<group>"; };
 		EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerValueEntry.swift; sourceTree = "<group>"; };
@@ -1622,7 +1626,7 @@
 		EC60E57B27178DDD00AABE71 /* LayerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerUtils.swift; sourceTree = "<group>"; };
 		EC631401265C418D00BD45B2 /* LoopSelectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSelectNode.swift; sourceTree = "<group>"; };
 		EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingEdgesView.swift; sourceTree = "<group>"; };
-		EC649D822DE6B2CC0026DBC4 /* ResponsesAPITestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPITestView.swift; sourceTree = "<group>"; };
+		EC649D822DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsesAPIDemoView.swift; sourceTree = "<group>"; };
 		EC649D842DE6C56A0026DBC4 /* TestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestKey.swift; sourceTree = "<group>"; };
 		EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundImportNode.swift; sourceTree = "<group>"; };
 		EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerNode.swift; sourceTree = "<group>"; };
@@ -3146,7 +3150,6 @@
 			isa = PBXGroup;
 			children = (
 				200BD85A254F66EB00692903 /* StitchApp.swift */,
-				EC649D822DE6B2CC0026DBC4 /* ResponsesAPITestView.swift */,
 				EC649D842DE6C56A0026DBC4 /* TestKey.swift */,
 				8B2A221826A3B5BE002D08BA /* FeatureFlags.swift */,
 				B5617A7C2C175C5500B53DAF /* Resources */,
@@ -4084,6 +4087,7 @@
 		E4D0D2D22CE6AD5F00E482E4 /* API */ = {
 			isa = PBXGroup;
 			children = (
+				EC23C5832DE7C21E00E5FC64 /* OpenAIResponsesAPI */,
 				B5FF449D2D5D0AF70083B34E /* StitchAIManagerError.swift */,
 				EC9348A32CE3F86000772117 /* OpenAIRequest.swift */,
 				EC8826CE2DCD2EAC003529BA /* OpenAIStreamHelpers.swift */,
@@ -4203,6 +4207,16 @@
 				EC2F62962A0D718600D86A50 /* ShapeCommand.swift */,
 			);
 			path = Shapes;
+			sourceTree = "<group>";
+		};
+		EC23C5832DE7C21E00E5FC64 /* OpenAIResponsesAPI */ = {
+			isa = PBXGroup;
+			children = (
+				EC649D822DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift */,
+				EC23C57F2DE7BEC400E5FC64 /* ResponsesAPIRequest.swift */,
+				EC23C5812DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift */,
+			);
+			path = OpenAIResponsesAPI;
 			sourceTree = "<group>";
 		};
 		EC27A0E42AF482EF00FFD018 /* StitchColorPicker */ = {
@@ -5247,7 +5261,7 @@
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,
-				EC649D832DE6B2CC0026DBC4 /* ResponsesAPITestView.swift in Sources */,
+				EC649D832DE6B2CC0026DBC4 /* ResponsesAPIDemoView.swift in Sources */,
 				ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */,
 				EC1658822B6AFDDA00FE4AE6 /* EdgeEditingModeInputLabel.swift in Sources */,
 				ECC738312BB6360B00A680B5 /* AnchorGridIconView.swift in Sources */,
@@ -5360,6 +5374,7 @@
 				B55500EB2C1BAD0E0081C3F1 /* ColorInvertModifier.swift in Sources */,
 				B53265F0298FAAC200FB10B0 /* AsyncSingletonMediaEval.swift in Sources */,
 				EC2942432BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift in Sources */,
+				EC23C5822DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift in Sources */,
 				EC28CCA2287E35F500987792 /* PatchEvaluation.swift in Sources */,
 				ECB9A8672AEB48FF006E65EE /* HSLSliderView.swift in Sources */,
 				EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */,
@@ -5948,6 +5963,7 @@
 				20308FAB25AD1721008CE3BE /* MiscUtils.swift in Sources */,
 				EC8C1AAB2D7799A90058D969 /* InputNodeRowViewModel.swift in Sources */,
 				EC004DD32B44D24300C5DB33 /* CanvasSketchUtils.swift in Sources */,
+				EC23C5802DE7BEC400E5FC64 /* ResponsesAPIRequest.swift in Sources */,
 				EC6B2E122D76273600804E38 /* PortPreviewPopoverView.swift in Sources */,
 				ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */,
 				EC26144F2B897BD800BEB066 /* PositionUnpackNode.swift in Sources */,

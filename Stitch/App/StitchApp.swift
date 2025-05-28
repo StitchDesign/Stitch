@@ -40,96 +40,82 @@ struct StitchApp: App {
         }
         FirebaseApp.configure()
     }
-//    
-//    var body: some Scene {
-//        WindowGroup {
-//            JsonStreamTest()
-//        }
-//    }
-    
-    
+
     var body: some Scene {
         WindowGroup {
-            ResponsesAPITestView()
-        }
-    }
-    
-    
-//    var body: some Scene {
-//        WindowGroup {
-//            // iPad uses StitchRouter to use the project zoom in/out animation
-//            StitchRootView(store: self.store)
-//                .onAppear {
-////                    do {
-////                        // For 4o
-////                        try StitchAITrainingData.validateTrainingData(from: "stitch-training")
-////    
-////                        // For o4-mini
-////                        try StitchAIReasoningTrainingData.validateTrainingData(from: "stitch-v0.1.17-RFT-VALIDATION")
-////                    } catch {
-////                        print("StitchAITrainingData error: \(error)")
-////                    }
-//                    
-//                    // Load and configure the state of all the tips of the app
-//                    try? Tips.configure()
-//                    
-//                    // For testing
-//                    #if DEV_DEBUG
-//                    try? Tips.resetDatastore()
-//                    #endif
-//                    
-//                    dispatch(DirectoryUpdatedOnAppOpen())
-//                    
-//                    SentrySDK.start { options in
-//                        guard let secrets = try? Secrets() else {
-//                            return
-//                        }
-//                        
-//                        options.dsn = secrets.sentryDSN
-//                        options.enableMetricKit = true
-//                        options.enableMetricKitRawPayload = true
-//                        options.debug = false
+            // iPad uses StitchRouter to use the project zoom in/out animation
+            StitchRootView(store: self.store)
+                .onAppear {
+//                    do {
+//                        // For 4o
+//                        try StitchAITrainingData.validateTrainingData(from: "stitch-training")
+//    
+//                        // For o4-mini
+//                        try StitchAIReasoningTrainingData.validateTrainingData(from: "stitch-v0.1.17-RFT-VALIDATION")
+//                    } catch {
+//                        print("StitchAITrainingData error: \(error)")
 //                    }
-//                    
-//                    #if !DEBUG
-//                    Self.configureFirebaseIfPossible()
-//                    #endif
-//
-//                    // Close mac sharing window in case open
-//                    #if targetEnvironment(macCatalyst)
-//                    dismissWindow(id: RecordingView.windowId)
-//                    #endif
-//
-//                }
-//                .environment(self.store)
-//                .environment(self.store.environment)
-//                .environment(self.store.environment.fileManager)
-//            // Inject theme as environment variable
-//                .environment(\.appTheme, self.store.appTheme)
-//                .environment(\.edgeStyle, self.store.edgeStyle)
-//                .environment(\.isOptionRequiredForShortcut, self.store.isOptionRequiredForShortcut)
-//        }
-//        
-//
-//        // TODO: why does XCode complain about `.windowStyle not available on iOS` even when using `#if targetEnvironment(macCatalyst)`?
-//        // TODO: why do `!os(iOS)` or `os(macOS)` statements not seem to run?
-//        // #if targetEnvironment(macCatalyst)
-//        // #if os(macOS)
-//        // #if !os(iOS)
-//        //        .windowStyle(HiddenTitleBarWindowStyle())
-//        //        .windowStyle(.hiddenTitleBar)
-//        //        #endif
-//        .commands {
-//            StitchCommands(store: store,
-//                           activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
-//          
-//        }
-//        
-//        #if targetEnvironment(macCatalyst)
-//        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
-//            MacScreenSharingView(store: store)
-//        }
-//        #endif
-//    }
+                    
+                    // Load and configure the state of all the tips of the app
+                    try? Tips.configure()
+                    
+                    // For testing
+                    #if DEV_DEBUG
+                    try? Tips.resetDatastore()
+                    #endif
+                    
+                    dispatch(DirectoryUpdatedOnAppOpen())
+                    
+                    SentrySDK.start { options in
+                        guard let secrets = try? Secrets() else {
+                            return
+                        }
+                        
+                        options.dsn = secrets.sentryDSN
+                        options.enableMetricKit = true
+                        options.enableMetricKitRawPayload = true
+                        options.debug = false
+                    }
+                    
+                    #if !DEBUG
+                    Self.configureFirebaseIfPossible()
+                    #endif
+
+                    // Close mac sharing window in case open
+                    #if targetEnvironment(macCatalyst)
+                    dismissWindow(id: RecordingView.windowId)
+                    #endif
+
+                }
+                .environment(self.store)
+                .environment(self.store.environment)
+                .environment(self.store.environment.fileManager)
+            // Inject theme as environment variable
+                .environment(\.appTheme, self.store.appTheme)
+                .environment(\.edgeStyle, self.store.edgeStyle)
+                .environment(\.isOptionRequiredForShortcut, self.store.isOptionRequiredForShortcut)
+        }
+        
+
+        // TODO: why does XCode complain about `.windowStyle not available on iOS` even when using `#if targetEnvironment(macCatalyst)`?
+        // TODO: why do `!os(iOS)` or `os(macOS)` statements not seem to run?
+        // #if targetEnvironment(macCatalyst)
+        // #if os(macOS)
+        // #if !os(iOS)
+        //        .windowStyle(HiddenTitleBarWindowStyle())
+        //        .windowStyle(.hiddenTitleBar)
+        //        #endif
+        .commands {
+            StitchCommands(store: store,
+                           activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
+          
+        }
+        
+        #if targetEnvironment(macCatalyst)
+        WindowGroup("Screen Sharing", id: "mac-screen-sharing") {
+            MacScreenSharingView(store: store)
+        }
+        #endif
+    }
 }
 
