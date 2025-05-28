@@ -12,6 +12,10 @@ The Patch Canvas is your logic workspace:
 * **Wireless Broadcaster / Receiver** – pass values across the canvas without drawing edges.
 * **Search** – press `CMD` + `ENTER` to open the node browser.
 
+![StitchUI](Guides_Assets/StitchUI.png)
+
+
+
 ## Layer Sidebar
 
 The Layer Sidebar shows every visual element as a hierarchical list:
@@ -21,9 +25,13 @@ The Layer Sidebar shows every visual element as a hierarchical list:
 * Hover any item to view its corresponding layer in the prototype previewer.
 * Right‑click a layer for quick actions such as rename, group, or get more info.
 
+![LayerSideBarGrouping](Guides_Assets/LayerSidebarGrouping.gif)
+
 ## Preview Window
 
 The Preview Window renders your prototype exactly as it will appear on‑device. Interact with it to trigger gestures or keyboard events that flow back into the canvas.
+
+![PreviewWindow](Guides_Assets/PreviewWindow.gif)
 
 ## Typical Workflow
 
