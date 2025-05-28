@@ -154,6 +154,38 @@ Platform: \(Self.platform)
             .labelStyle(.titleAndIcon)
         }
     }
+
+    var discordButton: some View {
+        StitchButton {
+            if let url = URL(string: "https://discord.gg/eRk7D8jsD7") {
+                openURL(url)
+            }
+        } label: {
+            Label {
+                Text("Discord")
+            } icon: {
+                Image("discord")
+                    .resizable()
+                    .scaledToFit()
+            }
+            .labelStyle(.titleAndIcon)
+        }
+    }
+
+    var docsButton: some View {
+        StitchButton {
+            if let url = URL(string: "https://github.com/StitchDesign/Stitch/tree/development/Guides") {
+                openURL(url)
+            }
+        } label: {
+            Label {
+                Text("Open Documentation")
+            } icon: {
+                Image(systemName: "book")
+            }
+            .labelStyle(.titleAndIcon)
+        }
+    }
     
     var body: some View {
         Menu {
@@ -162,6 +194,8 @@ Platform: \(Self.platform)
             }
             emailButton
             gitHubButton
+            discordButton
+            docsButton
         } label: {
 #if !targetEnvironment(macCatalyst)
             if showLabel {
