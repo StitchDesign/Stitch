@@ -25,10 +25,6 @@ The Layer Sidebar shows every visual element as a hierarchical list:
 
 The Preview Window renders your prototype exactly as it will appear on‑device. Interact with it to trigger gestures or keyboard events that flow back into the canvas.
 
-## Data Flow Overview
-
-Patch Canvas → Layer Property → Preview Window
-
 ## Typical Workflow
 
 1. Lay out your interface in the Layer Sidebar.
@@ -37,4 +33,4 @@ Patch Canvas → Layer Property → Preview Window
 4. Iterate in real time; adjust values until it feels right.
 5. Use Groups and wireless patches to keep the graph readable.
 
-These three surfaces—Patch Canvas, Layer Sidebar and Preview—form the core mental model of Stitch. Master them and you can build almost anything without writing code.
+These three surfaces—Patch Canvas, Layer Sidebar, and Preview—form the core mental model of Stitch. Master them and you can build almost anything without writing code.
