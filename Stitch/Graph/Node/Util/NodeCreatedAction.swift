@@ -212,7 +212,9 @@ extension StitchDocumentViewModel {
                                 document: self)
         
         // Update sidebar data after node has been added to state
-        if let layerNode = node.layerNode {
+        // EXCEPT for group layer nodes, which update sidebar with different logic
+        if let layerNode = node.layerNode,
+           layerNode.layer != .group {
             graph.updateLayerSidebar(with: layerNode)
         }
         
