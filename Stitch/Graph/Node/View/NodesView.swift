@@ -9,21 +9,18 @@ import SwiftUI
 import StitchSchemaKit
 
 struct PatchCanvasEmptyStateView: View {
+    let document: StitchDocumentViewModel
+    
     var body: some View {
-//        VStack {
-//            Spacer()
-//
-            ProjectEmptyStateView(title: "Patch Canvas",
-                                  description: "Add your patch nodes here.") {
-                NodeEmptyStateAboutButtonsView(isPatch: true)
-            }
-                                  .frame(width: NodeEmptyStateAboutButtonsView.defaultWidth)
-                                  .padding()
-                                  .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
-                                  .cornerRadius(16)
-//                                  .padding()
-//        }
-//        .padding(.bottom, 40)
+        ProjectEmptyStateView(title: "Patch Canvas",
+                              description: "Add your patch nodes here.") {
+            NodeEmptyStateAboutButtonsView(isPatch: true,
+                                           document: document)
+        }
+                              .frame(width: NodeEmptyStateAboutButtonsView.defaultWidth)
+                              .padding()
+                              .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
+                              .cornerRadius(16)
     }
 }
 

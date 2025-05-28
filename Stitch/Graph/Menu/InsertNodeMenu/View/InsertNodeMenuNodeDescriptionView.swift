@@ -40,6 +40,15 @@ struct GraphNodeDescriptionView: View {
 struct NodeDescriptionView: View {
     let option: InsertNodeMenuOption
     
+    var displayDescription: String {
+        guard let description = option.displayDescription else {
+            fatalErrorIfDebug()
+            return ""
+        }
+        
+        return description
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             let descriptionTitle = try? AttributedString(
@@ -49,7 +58,7 @@ struct NodeDescriptionView: View {
             Text(descriptionTitle ?? "Failed to retrieve Markdown-formatted title")
             
             let descriptionBody = try? AttributedString(
-                styledMarkdown: option.displayDescription,
+                styledMarkdown: self.displayDescription,
                 isTitle: false)
             
             Text(descriptionBody ?? "Failed to retrieve Markdown-formatted body")

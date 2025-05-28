@@ -59,7 +59,7 @@ extension InsertNodeMenuOption {
         }
     }
 
-    var displayDescription: String {
+    var displayDescription: String? {
         switch self {
         case .patch(let patch):
             return patch.nodeDescription

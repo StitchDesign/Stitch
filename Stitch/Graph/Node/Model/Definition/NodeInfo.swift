@@ -26,6 +26,8 @@ extension NodeInfo {
         let graph = GraphState()
         
         let patchNodeInfo = Patch.allCases.map { patch in
+            assertInDebug(patch.nodeDescription != nil)
+            
             let node = patch.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
@@ -43,11 +45,13 @@ extension NodeInfo {
                             inputs: NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType).inputs,
                             outputs: NodeKind.patch(patch).rowDefinitions(for: node.userVisibleType).outputs,
                             //                            supportedTypes: supportedTypes,
-                            nodeDescription: patch.nodeDescription,
+                            nodeDescription: patch.nodeDescription ?? "",
                             supportsNewInputs: patch.inputCountChanged.isDefined)
         }
 
         let layerNodeInfo = Layer.allCases.map { layer in
+            assertInDebug(layer.nodeDescription != nil)
+            
             let node = layer.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
@@ -57,7 +61,7 @@ extension NodeInfo {
                             inputs: NodeKind.layer(layer).rowDefinitions(for: node.userVisibleType).inputs,
                             outputs: NodeKind.layer(layer).rowDefinitions(for: node.userVisibleType).outputs,
                             //                            supportedTypes: .init(),
-                            nodeDescription: layer.nodeDescription,
+                            nodeDescription: layer.nodeDescription ?? "",
                             supportsNewInputs: false)
         }
 

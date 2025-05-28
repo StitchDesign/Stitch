@@ -45,7 +45,7 @@ struct StitchProjectOverlayView: View {
         ZStack {
             // Show empty state view so long as debug mode isn't on and nodes are invisible
             if document.visibleGraph.nodes.isEmpty && !document.isDebugMode {
-                PatchCanvasEmptyStateView()
+                PatchCanvasEmptyStateView(document: document)
             }
             
             HStack(spacing: .zero) {

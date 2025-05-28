@@ -77,7 +77,8 @@ struct ProjectSidebarEmptyView: View {
         if let document = document {
             SidebarEmptyStateView(title: Self.title,
                                   description: "Layers will populate here.") {
-                NodeEmptyStateAboutButtonsView(isPatch: false)
+                NodeEmptyStateAboutButtonsView(isPatch: false,
+                                               document: document)
             }
         } else {
             SidebarEmptyStateView(title: Self.title,
@@ -91,8 +92,10 @@ struct ProjectSidebarEmptyView: View {
 struct NodeEmptyStateAboutButtonsView: View {
     static let defaultWidth: CGFloat = 200
     private static let defaultButtonWidth: CGFloat = 160
+    @State private var willShowAboutPopover = false
     
     let isPatch: Bool
+    let document: StitchDocumentViewModel
     
     var label: String {
         isPatch ? "Patches" : "Layers"
@@ -100,7 +103,7 @@ struct NodeEmptyStateAboutButtonsView: View {
     
     var body: some View {
         Button {
-            log("hi")
+            document.insertNodeMenuState.show = true
         } label: {
             Image(systemName: "uiwindow.split.2x1")
             Text("Insert Node")
@@ -118,6 +121,9 @@ struct NodeEmptyStateAboutButtonsView: View {
             Text("About \(label)")
             
             Spacer()
+        }
+        .popover(isPresented: $willShowAboutPopover) {
+            Text("hey")
         }
         .frame(width: Self.defaultButtonWidth)
     }
