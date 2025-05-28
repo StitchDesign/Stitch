@@ -8,13 +8,54 @@
 import SwiftUI
 import StitchSchemaKit
 
-enum StitchDocsRouter: CaseIterable {
+enum StitchDocsRouter {
+    case overview(StitchDocsOverviewRouter)
+    case patch(StitchDocsPatchRouter)
+    case layer(StitchDocsLayerRouter)
+}
+
+extension StitchDocsRouter: CaseIterable {
+    static var allCases: [StitchDocsRouter] {
+        StitchDocsOverviewRouter.allCases.map(Self.overview) +
+        StitchDocsPatchRouter.allCases.map(Self.patch) +
+        StitchDocsLayerRouter.allCases.map(Self.layer)
+    }
+    
+    private var page: StitchDocsPage {
+        switch self {
+        case .overview:
+            return .overview
+        case .patch:
+            return .patch
+        case .layer:
+            return .layer
+        }
+    }
+    
+    private var header: String {
+        switch self {
+        case .overview(let stitchDocsOverviewRouter):
+            return stitchDocsOverviewRouter.rawValue
+        case .patch(let stitchDocsPatchRouter):
+            return stitchDocsPatchRouter.headerLabel
+        case .layer(let stitchDocsLayerRouter):
+            return stitchDocsLayerRouter.headerLabel
+        }
+    }
+    
+    /// Returns description text from markdown file.
+    var description: String? {
+        StitchDocsRouter.forTitle(self.header, for: self.page)
+    }
+}
+
+enum StitchDocsPage: CaseIterable {
     case overview
     case patch
     case layer
 }
 
-extension StitchDocsRouter: Hashable {
+extension StitchDocsPage: Hashable {
     var markdownFileName: String {
         switch self {
         case .overview:
@@ -34,9 +75,51 @@ extension StitchDocsRouter: Hashable {
     }
 }
 
-enum StitchDocsOverviewRouter: String {
+enum StitchDocsOverviewRouter: String, CaseIterable {
     case layerSidebar = "Layer Sidebar"
     case patchCanvas = "Patch Canvas"
+}
+
+enum StitchDocsPatchRouter {
+    case header
+    case patch(Patch)
+}
+
+extension StitchDocsPatchRouter: CaseIterable {
+    static var allCases: [StitchDocsPatchRouter] {
+        [.header] + Patch.allCases.map { .patch($0) }
+    }
+    
+    var headerLabel: String {
+        switch self {
+        case .header:
+            return StitchDocsPage.patch.markdownFileName
+            
+        case .patch(let patch):
+            return patch.defaultDisplayTitle()
+        }
+    }
+}
+
+enum StitchDocsLayerRouter {
+    case header
+    case layer(Layer)
+}
+
+extension StitchDocsLayerRouter: CaseIterable {
+    static var allCases: [StitchDocsLayerRouter] {
+        [.header] + Layer.allCases.map { .layer($0) }
+    }
+    
+    var headerLabel: String {
+        switch self {
+        case .header:
+            return StitchDocsPage.layer.markdownFileName
+            
+        case .layer(let layer):
+            return layer.defaultDisplayTitle()
+        }
+    }
 }
 
 extension StitchDocsRouter {
@@ -44,29 +127,29 @@ extension StitchDocsRouter {
     // MARK: Public helpers ----------------------------------------------------
 
     /// Markdown body for a given display title (“Pop Animation”, “3D Model”, …)
-    static func forTitle(_ title: String,
-                         for page: StitchDocsRouter) -> String? {
+    private static func forTitle(_ title: String,
+                         for page: StitchDocsPage) -> String? {
         map.get(page)?.get(title)
     }
 
-    /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.
-    static func forPatch(_ patch: Patch) -> String? {
-        forTitle(NodeKind.patch(patch).getDisplayTitle(customName: nil),
-                 for: .patch)
-    }
-    
-    /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.
-    static func forLayer(_ layer: Layer) -> String? {
-        forTitle(NodeKind.layer(layer).getDisplayTitle(customName: nil),
-                 for: .layer)
-    }
+//    /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.
+//    private static func forPatch(_ patch: Patch) -> String? {
+//        forTitle(NodeKind.patch(patch).getDisplayTitle(customName: nil),
+//                 for: .patch)
+//    }
+//    
+//    /// Convenience shim that pulls the title from `NodeKind.getDisplayTitle()`.
+//    private static func forLayer(_ layer: Layer) -> String? {
+//        forTitle(NodeKind.layer(layer).getDisplayTitle(customName: nil),
+//                 for: .layer)
+//    }
 
     // MARK: Cached data -------------------------------------------------------
     
-    private static let map: [StitchDocsRouter: [String: String]] = {
-        var dict = [StitchDocsRouter: [String: String]]()
+    private static let map: [StitchDocsPage: [String: String]] = {
+        var dict = [StitchDocsPage: [String: String]]()
         
-        for page in StitchDocsRouter.allCases {
+        for page in StitchDocsPage.allCases {
             guard let markdownUrl = page.markdownFileUrl,
                   let markdownString  = try? String(contentsOf: markdownUrl, encoding: .utf8) else {
                 fatalErrorIfDebug("⚠️ Could not load \(page) from bundle")

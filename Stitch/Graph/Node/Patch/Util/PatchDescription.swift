@@ -20,6 +20,6 @@ extension Patch {
     }
 
     var nodeDescriptionBody: String? {
-        StitchDocsRouter.forPatch(self)
+        StitchDocsRouter.patch(.patch(self)).description
     }
 }

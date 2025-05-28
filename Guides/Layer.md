@@ -1,6 +1,4 @@
-# Layer Nodes
-
-## What is a Layer?
+# Layer
 
 A **layer** is a visual element that renders in the Prototype Preview window — everything from simple rectangles to 3D models. Layers are listed in the **Layer Sidebar** where you can reorder, group, and nest them just like in a traditional design tool. Layer properties (position, size, opacity, etc.) can be driven by the **Layer Inspector**, accessed by selecting the right-hand sidebar icon in the toolbar.
 

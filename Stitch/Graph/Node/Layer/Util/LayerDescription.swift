@@ -19,6 +19,6 @@ extension Layer {
     }
 
     var nodeDescriptionBody: String? {
-        StitchDocsRouter.forLayer(self)
+        StitchDocsRouter.layer(.layer(self)).description
     }
 }
