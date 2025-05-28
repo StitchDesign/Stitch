@@ -23,6 +23,9 @@ struct StitchDocsPopoverView: View {
 }
 
 struct StitchDocsTextView: View {
+    @Environment(\.appTheme) private var theme
+    @Environment(\.openURL) private var openURL
+    
     let title: String
     let description: String
     var docsSubpagePath: String?
@@ -30,7 +33,7 @@ struct StitchDocsTextView: View {
     var descriptionTitle: AttributedString {
         do {
             return try AttributedString(
-                styledMarkdown: "# \(title)\n",
+                styledMarkdown: "# \(title)",
                 isTitle: true)
         } catch {
             fatalErrorIfDebug(error.localizedDescription)
@@ -52,7 +55,7 @@ struct StitchDocsTextView: View {
     
     /// Builds an AttributedString that reads “View in documentation.”
     /// and links to the given page (and anchor) under your Guides folder.
-    var documentationLink: AttributedString? {
+    var documentationLink: URL? {
         guard let page = self.docsSubpagePath else { return nil }
         
         // 1. Base URL of your docs folder
@@ -70,26 +73,29 @@ struct StitchDocsTextView: View {
         // 3. Safely make a URL
         guard let url = URL(string: urlString) else {
             // Fallback to base if something weird happens
-            return AttributedString("View documentation.")
+            return nil
         }
         
-        // 4. Build the AttributedString with link attribute
-        var attr = AttributedString("View documentation.")
-        attr.link = url
-        attr.foregroundColor = .accentColor        // tint
-        attr.underlineStyle  = .single             // underline
-        return attr
+        return url
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(descriptionTitle)
+#if !targetEnvironment(macCatalyst)
+                .font(.title)
+#endif
+                .padding(.bottom)
+            
             Text(descriptionBody)
+                .padding(.bottom)
             
             if let documentationLink = documentationLink {
-                Text("""
-\n\(documentationLink)
-""")
+                Text("View documentation.")
+                    .foregroundColor(theme.themeData.edgeColor)
+                    .onTapGesture {
+                        openURL(documentationLink)
+                    }
             }
         }
     }
