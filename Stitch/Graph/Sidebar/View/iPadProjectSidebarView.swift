@@ -24,7 +24,7 @@ struct StitchSidebarView: View {
                                syncStatus: syncStatus)
 
         } else {
-            Text("Coming soon: Stitch Components")
+            ProjectSidebarEmptyView(document: nil)
         }
     }
 }
@@ -65,5 +65,129 @@ struct ProjectSidebarView: View {
         .toolbarBackground(.visible, for: .automatic)
         .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
 #endif
+    }
+}
+
+struct ProjectSidebarEmptyView: View {
+    static let title = "Layer Sidebar"
+    
+    let document: StitchDocumentViewModel?
+    
+    var body: some View {
+        if let document = document {
+            SidebarEmptyStateView(title: Self.title,
+                                  description: "Layers will populate here.") {
+                NodeEmptyStateAboutButtonsView(isPatch: false,
+                                               document: document)
+            }
+        } else {
+            SidebarEmptyStateView(title: Self.title,
+                                  description: "Layers will populate here.") {
+                EmptyView()
+            }
+        }
+    }
+}
+
+struct NodeEmptyStateAboutButtonsView: View {
+    static let defaultWidth: CGFloat = 200
+    private static let defaultButtonWidth: CGFloat = 160
+    @State private var willShowAboutPopover = false
+    
+    let isPatch: Bool
+    let document: StitchDocumentViewModel
+    
+    var label: String {
+        isPatch ? "Patches" : "Layers"
+    }
+    
+    var body: some View {
+        Button {
+            document.insertNodeMenuState.show = true
+        } label: {
+            Image(systemName: "uiwindow.split.2x1")
+            Text("Insert Node")
+            
+            Spacer()
+            
+            KeyboardShortcutButtonLabel(imageNames: ["command", "return"])
+        }
+        .frame(width: Self.defaultButtonWidth)
+        
+        Button {
+            self.willShowAboutPopover = true
+        } label: {
+            Image(systemName: "text.page")
+            Text("About \(label)")
+            
+            Spacer()
+        }
+        .popover(isPresented: $willShowAboutPopover) {
+            StitchDocsPopoverView(router: isPatch ? .patch(.header) : .layer(.header))
+        }
+        .frame(width: Self.defaultButtonWidth)
+    }
+}
+
+// TODO: move
+struct SidebarEmptyStateView<ButtonsView: View>: View {
+    let title: String
+    let description: String
+    var alignment: HorizontalAlignment = .center
+    @ViewBuilder var buttonsView: () -> ButtonsView
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            ProjectEmptyStateView(title: title,
+                                  description: description,
+                                  alignment: alignment,
+                                  buttonsView: buttonsView)
+            Spacer()
+        }
+    }
+}
+
+struct ProjectEmptyStateView<ButtonsView: View>: View {
+    let title: String
+    let description: String
+    var alignment: HorizontalAlignment = .center
+    @ViewBuilder var buttonsView: () -> ButtonsView
+    
+    var body: some View {
+        VStack(alignment: alignment) {
+            Text(title)
+                .font(.largeTitle)
+                .padding(.vertical, 4)
+            
+            Text(description)
+                .padding(.bottom, 16)
+            //                    .foregroundColor(.secondary) // Can't get to work on left sidebar
+            
+            VStack(alignment: alignment, spacing: 4) {
+                buttonsView()
+                    .buttonStyle(.borderless) // only way to get multiple images in one button to appear
+                    .padding(8)
+//                    .frame(maxWidth: .infinity)
+                    .background(.windowBackground)
+                    .cornerRadius(8)
+            }
+        }
+    }
+}
+
+struct KeyboardShortcutButtonLabel: View {
+    let imageNames: [String]
+    
+    var body: some View {
+        HStack(spacing: .zero) {
+            ForEach(imageNames, id: \.self) { imageName in
+                Image(systemName: imageName)
+            }
+            .imageScale(.small)
+            .offset(y: 1)        // tweak vertical alignment
+            .foregroundStyle(.secondary)
+            .fixedSize()
+        }
     }
 }

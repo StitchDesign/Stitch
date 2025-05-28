@@ -10,12 +10,16 @@ import StitchSchemaKit
 
 extension Patch {
 
-    var nodeDescription: String {
+    var nodeDescription: String? {
+        guard let description = self.nodeDescriptionBody else {
+            return nil
+        }
+        
         // Add new line
-        "\n\(self.nodeDescriptionBody)"
+        return "\n\(description)"
     }
 
-    var nodeDescriptionBody: String {
-        NodeDescriptions.forKind(.patch(self))!
+    var nodeDescriptionBody: String? {
+        StitchDocsRouter.patch(.patch(self)).description
     }
 }

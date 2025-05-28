@@ -383,7 +383,7 @@ extension SidebarItemGestureViewModel {
             }
             
             // About info
-            buttons.stitchAppend(title: "About") {
+            buttons.stitchAppend(title: "Get Info") {
                 self.showAboutPopover = true
             }
             

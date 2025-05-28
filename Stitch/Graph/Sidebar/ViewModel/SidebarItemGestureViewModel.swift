@@ -80,7 +80,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     
     @ViewBuilder
     func aboutPopoverView() -> some View {
-        GraphNodeDescriptionView(option: NodeKind.layer(self.layer).insertNodeMenuOption)
+        StitchDocsPopoverView(router: .layer(.layer(self.layer)))
     }
 }
 

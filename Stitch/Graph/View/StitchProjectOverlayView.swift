@@ -18,11 +18,34 @@ struct StitchProjectOverlayView: View {
         document.showPreviewWindow && !document.isScreenRecording
     }
     
+    var finalXOffset: CGFloat {
+        store.showsLayerInspector ? FloatingWindowView.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : FloatingWindowView.xOffset
+    }
+    
     var body: some View {
         VStack {
             if document.groupNodeFocused?.component != nil {
                 ComponentNavBarView(graph: document.visibleGraph,
                                     store: store)
+            }
+            
+            overlayContent
+            
+            Spacer()
+        }
+        // Hack to disable the split view sidebar swipe
+        .gesture(
+            DragGesture()
+                .onChanged { _ in }
+        )
+    }
+    
+    @ViewBuilder
+    var overlayContent: some View {
+        ZStack {
+            // Show empty state view so long as debug mode isn't on and nodes are invisible
+            if document.visibleGraph.patchNodes.isEmpty && !document.isDebugMode {
+                PatchCanvasEmptyStateView(document: document)
             }
             
             HStack(spacing: .zero) {
@@ -41,13 +64,8 @@ struct StitchProjectOverlayView: View {
             // Hides prototype on debug mode
             // Opacity needed for some keybinding detection (i.e. spacebar drag)
             .opacity(document.isDebugMode ? 0 : 1)
-            
-            Spacer()
         }
-        // Hack to disable the split view sidebar swipe
-        .gesture(
-            DragGesture()
-                .onChanged { _ in }
-        )
+        .offset(x: self.finalXOffset)
+        .animation(.default, value: self.finalXOffset)
     }
 }
