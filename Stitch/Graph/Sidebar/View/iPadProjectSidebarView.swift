@@ -115,7 +115,7 @@ struct NodeEmptyStateAboutButtonsView: View {
         .frame(width: Self.defaultButtonWidth)
         
         Button {
-            log("hi")
+            self.willShowAboutPopover = true
         } label: {
             Image(systemName: "text.page")
             Text("About \(label)")
@@ -123,7 +123,7 @@ struct NodeEmptyStateAboutButtonsView: View {
             Spacer()
         }
         .popover(isPresented: $willShowAboutPopover) {
-            Text("hey")
+            StitchDocsPopoverView(router: isPatch ? .patch(.header) : .layer(.header))
         }
         .frame(width: Self.defaultButtonWidth)
     }

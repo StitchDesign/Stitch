@@ -41,6 +41,7 @@
 		8B77BA792713CED400255C40 /* GraphUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B77BA782713CED300255C40 /* GraphUI.swift */; };
 		8B77BA7B2713D35C00255C40 /* GraphUIActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B77BA7A2713D35C00255C40 /* GraphUIActions.swift */; };
 		8BD59DA526CCB93400F38DFF /* SchemaConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */; };
+		B500F3682DE6BF1600904992 /* StitchDocsPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B500F3672DE6BF1400904992 /* StitchDocsPopoverView.swift */; };
 		B50192062C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */; };
 		B50192092C6D100E00A048ED /* LayerInputObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192082C6D100E00A048ED /* LayerInputObserver.swift */; };
 		B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B501920B2C6D144D00A048ED /* StitchEngine */; };
@@ -1072,6 +1073,7 @@
 		8B77BA782713CED300255C40 /* GraphUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphUI.swift; sourceTree = "<group>"; };
 		8B77BA7A2713D35C00255C40 /* GraphUIActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphUIActions.swift; sourceTree = "<group>"; };
 		8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaConversionTests.swift; sourceTree = "<group>"; };
+		B500F3672DE6BF1400904992 /* StitchDocsPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocsPopoverView.swift; sourceTree = "<group>"; };
 		B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputUnpackedPortObserver.swift; sourceTree = "<group>"; };
 		B50192082C6D100E00A048ED /* LayerInputObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputObserver.swift; sourceTree = "<group>"; };
 		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
@@ -3965,6 +3967,7 @@
 		B5EE9A972DE68FB000DB85C3 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
+				B500F3672DE6BF1400904992 /* StitchDocsPopoverView.swift */,
 				B5EE9A982DE68FBB00DB85C3 /* StitchDocsRouter.swift */,
 			);
 			path = Documentation;
@@ -5537,6 +5540,7 @@
 				B55500CC2C1BA3F60081C3F1 /* PortEdgeUI.swift in Sources */,
 				B539C2EA2B92BF3D00C6CEC3 /* DocumentEncodable.swift in Sources */,
 				B5368D132A886C1900FE3489 /* InteractionLayer.swift in Sources */,
+				B500F3682DE6BF1600904992 /* StitchDocsPopoverView.swift in Sources */,
 				ECC2BCED2B9CD43100D5F942 /* SidebarListItemGroupActions.swift in Sources */,
 				ECD8871C29410BF500003B47 /* LoopFilterNode.swift in Sources */,
 				ECC2BCE52B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift in Sources */,

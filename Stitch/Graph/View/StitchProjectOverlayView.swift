@@ -44,7 +44,7 @@ struct StitchProjectOverlayView: View {
     var overlayContent: some View {
         ZStack {
             // Show empty state view so long as debug mode isn't on and nodes are invisible
-            if document.visibleGraph.nodes.isEmpty && !document.isDebugMode {
+            if document.visibleGraph.patchNodes.isEmpty && !document.isDebugMode {
                 PatchCanvasEmptyStateView(document: document)
             }
             

@@ -15,6 +15,20 @@ enum StitchDocsRouter {
 }
 
 extension StitchDocsRouter: CaseIterable {
+    init(from nodeKind: NodeKind) {
+        switch nodeKind {
+        case .patch(let patch):
+            self = .patch(.patch(patch))
+            
+        case .layer(let layer):
+            self = .layer(.layer(layer))
+            
+        default:
+            fatalErrorIfDebug()
+            self = .patch(.patch(.splitter))
+        }
+    }
+    
     static var allCases: [StitchDocsRouter] {
         StitchDocsOverviewRouter.allCases.map(Self.overview) +
         StitchDocsPatchRouter.allCases.map(Self.patch) +
@@ -32,7 +46,7 @@ extension StitchDocsRouter: CaseIterable {
         }
     }
     
-    private var header: String {
+    var headerLabel: String {
         switch self {
         case .overview(let stitchDocsOverviewRouter):
             return stitchDocsOverviewRouter.rawValue
@@ -45,7 +59,7 @@ extension StitchDocsRouter: CaseIterable {
     
     /// Returns description text from markdown file.
     var description: String? {
-        StitchDocsRouter.forTitle(self.header, for: self.page)
+        StitchDocsRouter.forTitle(self.headerLabel, for: self.page)
     }
 }
 

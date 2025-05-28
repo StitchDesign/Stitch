@@ -97,7 +97,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Sendable, Identifiable wher
     @MainActor
     func update(from schema: Self.EncodedItemData)
     
-    @ViewBuilder
+    @ViewBuilder @MainActor
     func aboutPopoverView() -> AboutPopoverView
 }
 

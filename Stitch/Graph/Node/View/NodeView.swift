@@ -46,19 +46,13 @@ struct NodeView: View {
     var isLayerNode: Bool {
         self.stitch.kind.isLayer
     }
-    
-    var option: InsertNodeMenuOption? {
-        self.stitch.kind.insertNodeMenuOption
-    }
 
     var body: some View {
         NodeLayout(observer: node,
                    existingCache: node.viewCache) {
             nodeBody
                 .popover(isPresented: $showAboutPopover) {
-                    if let option = self.option {
-                        GraphNodeDescriptionView(option: option)
-                    }
+                    StitchDocsPopoverView(router: .init(from: self.stitch.kind))
                 }
                 .opacity(node.viewCache.isDefined ? 1 : 0)
             .onAppear {

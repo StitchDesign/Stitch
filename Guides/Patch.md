@@ -1,6 +1,6 @@
 # Patch
 
-A **patch** is the smallest unit of logic in Stitch. Much like a function in traditional code, each patch has *inputs* on the left and *outputs* on the right. You build behavior by dragging patches onto the **Patch Canvas**, connecting their ports with cables, and letting data flow from one to the next in real‑time.
+A **patch** is the smallest unit of logic in Stitch. Much like a function in traditional code, each patch has inputs on the left and outputs on the right. You build behavior by dragging patches onto the **Patch Canvas**, connecting their ports with cables, and letting data flow from one to the next in real‑time.
 
 ## Arithmetic & Math
 
