@@ -15,21 +15,20 @@ struct ComponentDisplayData: Equatable, Hashable {
 
 extension NodeViewModel {
     @MainActor
-    var asActiveSelection: InsertNodeMenuOption {
+    var asActiveSelection: InsertNodeMenuOption? {
         self.kind.insertNodeMenuOption
     }
 }
 
 extension NodeKind {
-    var insertNodeMenuOption: InsertNodeMenuOption {
+    var insertNodeMenuOption: InsertNodeMenuOption? {
         switch self {
         case .patch(let x):
             return .patch(x)
         case .layer(let x):
             return .layer(x)
         default:
-            fatalErrorIfDebug()
-            return .patch(.splitter)
+            return nil
         }
     }
 }
@@ -59,7 +58,7 @@ extension InsertNodeMenuOption {
         }
     }
 
-    var displayDescription: String {
+    var displayDescription: String? {
         switch self {
         case .patch(let patch):
             return patch.nodeDescription

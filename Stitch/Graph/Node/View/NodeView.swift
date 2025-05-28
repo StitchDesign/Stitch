@@ -52,7 +52,7 @@ struct NodeView: View {
                    existingCache: node.viewCache) {
             nodeBody
                 .popover(isPresented: $showAboutPopover) {
-                    GraphNodeDescriptionView(option: self.stitch.kind.insertNodeMenuOption)
+                    StitchDocsPopoverView(router: .init(from: self.stitch.kind))
                 }
                 .opacity(node.viewCache.isDefined ? 1 : 0)
             .onAppear {
