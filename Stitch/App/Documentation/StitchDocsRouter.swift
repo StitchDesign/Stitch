@@ -29,6 +29,8 @@ extension StitchDocsRouter: CaseIterable {
         }
     }
     
+    static let docsUrlPath: String = "https://github.com/StitchDesign/Stitch/blob/development/Guides/"
+    
     static var allCases: [StitchDocsRouter] {
         StitchDocsOverviewRouter.allCases.map(Self.overview) +
         StitchDocsPatchRouter.allCases.map(Self.patch) +
