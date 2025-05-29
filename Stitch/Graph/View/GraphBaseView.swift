@@ -119,14 +119,13 @@ struct GraphBaseView: View {
                 }
         } // ZStack
         
-        .modifier(ActivelyDrawnEdge(
-            graph: graph,
-            scale: document.graphMovement.zoomData))
+        .modifier(ActivelyDrawnEdge(graph: graph,
+                                    scale: document.graphMovement.zoomData))
         .coordinateSpace(name: Self.coordinateNamespace)
         
-        .toast(willShow: document.llmRecording.showRatingToast,
-               onExpireAction: { dispatch(AIRatingToastExpiredWithoutRating()) },
-               toastContent: { StitchAIRatingToast() })
+        .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
+                           onExpireAction: { dispatch(AIRatingToastExpiredWithoutRating()) },
+                           toastContent: { StitchAIRatingToast() })
         
         .background {
             GeometryReader { geometry in

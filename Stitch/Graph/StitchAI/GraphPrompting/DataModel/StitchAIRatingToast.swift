@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-enum StitchAIRating: CGFloat, Equatable, Hashable {
+enum StitchAIRating: CGFloat, Equatable, Hashable, CaseIterable {
     case oneStar = 0.0
     case twoStars = 0.25
     case threeStars = 0.5
@@ -130,10 +130,8 @@ struct StitchAIRatingToast: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(self.tappedStar != nil ? "Thanks!" : "Rate results")
-            StitchAIRatingStarsView { (rating: StitchAIRating) in
-                
+            SelectAStitchAIRatingView { (rating: StitchAIRating) in
                 dispatch(AIRatingSubmitted(rating: rating))
-                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     withAnimation {
                         self.show = false
@@ -148,25 +146,33 @@ struct StitchAIRatingToast: View {
     }
 }
 
-struct StitchAIRatingStarsView: View {
+struct SelectAStitchAIRatingView: View {
     
-    @State var tappedStar: Int?
-    
+    @State var currentRating: StitchAIRating?
     var onRatingSelected: (StitchAIRating) -> Void
     
     var body: some View {
+        StitchAIRatingStarsView(currentRating: currentRating) { (rating: StitchAIRating) in
+            self.currentRating = rating
+            self.onRatingSelected(rating)
+        }  // HStack
+    }
+}
+
+
+struct StitchAIRatingStarsView: View {
+    
+    var currentRating: StitchAIRating?
+    var onTap: ((StitchAIRating) -> Void)?
+    
+    var body: some View {
         HStack {
-            ForEach(1...5, id: \.self) { starNumber in
-                let fill = tappedStar.map { starNumber <= $0 } ?? false
+            ForEach(StitchAIRating.allCases, id: \.self) { rating in
+                let fill = currentRating.map { rating.rawValue <= $0.rawValue } ?? false
                 Image(systemName: fill ? "star.fill" : "star")
-                    .onTapGesture(perform: {
-                        self.tappedStar = starNumber
-                        if let rating = StitchAIRating(starNumber) {
-                            self.onRatingSelected(rating)
-                        } else {
-                            fatalErrorIfDebug()
-                        }
-                    })
+                    .onTapGesture {
+                        self.onTap?(rating)
+                    }
             } // ForEach
         }  // HStack
     }

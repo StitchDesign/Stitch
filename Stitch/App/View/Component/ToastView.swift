@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 /// Shows a temporary toast notification on the bottom of the view.
 /// Source: https://swiftuirecipes.com/blog/swiftui-toast
-struct Toast<ToastContent>: ViewModifier where ToastContent: View {
+struct BottomCenterToast<ToastContent>: ViewModifier where ToastContent: View {
     let willShow: Bool
     var config: ToastConfig = ToastConfig()
     var onExpireAction: (() -> Void)?
@@ -55,20 +55,6 @@ struct Toast<ToastContent>: ViewModifier where ToastContent: View {
     }
 }
 
-//struct Toast_Previews: PreviewProvider {
-//    static var previews: some View {
-//        GeometryReader { geometry in
-//            VStack {}
-//                .frame(geometry.size)
-//        }
-//        .previewDevice(IPAD_PREVIEW_DEVICE_NAME)
-//        .modifier(Toast(willShow: true,
-//                        messageLeft: "File Deleted",
-//                        messageRight: "Undo",
-//                        isShowing: true))
-//    }
-//}
-
 struct ToastConfig {
     let duration: TimeInterval
     let transition: AnyTransition
@@ -86,7 +72,7 @@ struct ToastConfig {
 }
 
 extension View {
-    func toast<ToastContent: View>(
+    func bottomCenterToast<ToastContent: View>(
         willShow: Bool,
         config: ToastConfig = ToastConfig(),
         onExpireAction: (() -> Void)?,
@@ -94,9 +80,10 @@ extension View {
     ) -> some View {
         
         self.modifier(
-            Toast(willShow: willShow,
-                  config: config,
-                  onExpireAction: onExpireAction,
-                  toastContent: toastContent))
+            BottomCenterToast(willShow: willShow,
+                              config: config,
+                              onExpireAction: onExpireAction,
+                              toastContent: toastContent)
+        )
     }
 }

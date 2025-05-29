@@ -209,6 +209,11 @@ extension GraphState {
             document.showCatalystProjectTitleModal = false
         }
         
+        // Let ESC key close our developer-focused modal for submitting an existing graph as a training example
+        if document.llmRecording.modal == .submitExistingGraphAsTrainingExample {
+            document.llmRecording.modal = .none
+        }
+        
         if document.openPortPreview != nil {
             document.openPortPreview = nil
         }

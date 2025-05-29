@@ -49,7 +49,7 @@ struct ExistingGraphSubmittedAsTrainingExample: StitchDocumentEvent {
         state.llmRecording.actions = actionsFromExistingGraph
         
         state.llmRecording.promptForTrainingDataOrCompletedRequest = prompt
-        
+        state.llmRecording.rating = rating
         
         // Shows the edit modal, BUT DOES NOT put us into "correction mode" (i.e. we're not correcting a response from OpenAI).
         // User will then review the actions via the 'edit before submit' and 'approve and submit' modals before final submission to Supabase.
@@ -67,21 +67,53 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
     
     @State var prompt: String = ""
     @State var rating: StitchAIRating? = nil
-    
+  
     var body: some View {
         
-        VStack {
-            HStack {
-                StitchTextView(string: "Prompt: ")
-                TextField("", text: self.$prompt)
-            }
-            
-            HStack {
-                StitchTextView(string: "Rating:")
-                StitchAIRatingStarsView { (rating: StitchAIRating) in
-                    self.rating = rating
+        VStack(alignment: .leading) {
+            enterPrompt
+            enterRating
+            cancelOrSubmit
+        }
+        .frame(width: 340)
+        .padding()
+        .background(.regularMaterial)
+        .cornerRadius(8)
+    }
+    
+    
+    var enterPrompt: some View {
+        HStack {
+            StitchTextView(string: "Prompt: ")
+            TextField("", text: self.$prompt)
+                .frame(width: 260)
+                .padding(6)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray)
                 }
+        }
+    }
+    
+    var enterRating: some View {
+        HStack {
+            StitchTextView(string: "Rating: ")
+            SelectAStitchAIRatingView { (rating: StitchAIRating) in
+                self.rating = rating
             }
+        }
+    }
+    
+    var cancelOrSubmit: some View {
+        HStack {
+
+            Spacer()
+            
+            Button(action: {
+                dispatch(StitchAIActionReviewCancelled())
+            }, label: {
+                Text("Cancel")
+            })
             
             Button(action: {
                 if let rating = rating {
@@ -94,7 +126,15 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
             })
             .disabled(prompt.isEmpty && !rating.isDefined)
             
+            Spacer()
         }
+        
+        // TODO: HStack with Spacers on a parent with fixed width = put child in center; can we `.alignmentGuide` to center instead?
+        // https://holyswift.app/the-basics-of-swiftui-alignment-guides/
+        
+//            .alignmentGuide(.leading) { dimensions in
+//                dimensions.width / 2
+//            }
     }
+    
 }
-

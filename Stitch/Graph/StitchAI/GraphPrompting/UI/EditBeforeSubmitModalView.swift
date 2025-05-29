@@ -18,6 +18,11 @@ struct EditBeforeSubmitModalView: View {
     var recordingState: LLMRecordingState {
         self.document.llmRecording
     }
+    
+    // TODO: Shouldn't we *always* have a prompt at this point ?
+    var prompt: String {
+        recordingState.promptForTrainingDataOrCompletedRequest?.value ?? ""
+    }
 
     var body: some View {
         VStack {
@@ -25,9 +30,18 @@ struct EditBeforeSubmitModalView: View {
                 .font(.title2)
                 .padding(.top)
             
-            StitchTextView(string: "Prompt: \(recordingState.promptForTrainingDataOrCompletedRequest)")
+            StitchTextView(string: "Prompt: \(prompt)")
                 .font(.headline)
-                .padding(.top)
+                .padding([.top])
+            
+            // TODO: shouldn't we *always* have a rating at this point ?
+            if let rating = recordingState.rating {
+                HStack {
+                    StitchTextView(string: "Rating: ")
+                    StitchAIRatingStarsView(currentRating: rating)
+                }
+                .padding([.top, .bottom])
+            }
             
             List {
                 // TODO: MAY 24: is hashValue okay here?

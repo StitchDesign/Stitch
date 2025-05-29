@@ -72,7 +72,7 @@ struct ProjectsHomeView: View {
         
         // Shows undo delete toast when GraphUI state has recenetly deleted project ID
         // Should onExpireAction only fire an action if alertState.deletedGraphId still defined ?
-        .toast(willShow: alertState.deletedGraphId.isDefined,
+        .bottomCenterToast(willShow: alertState.deletedGraphId.isDefined,
                onExpireAction: store.projectDeleteToastExpired,
                toastContent: {
             StitchButton(

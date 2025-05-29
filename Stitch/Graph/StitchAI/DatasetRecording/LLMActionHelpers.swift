@@ -24,7 +24,7 @@ struct ShowApproveAndSubmitModal: StitchDocumentEvent {
         
         case .normal:
             // Directly submit to Supabase
-            dispatch(ActionsApprovedAndSubmittedToSupabase())
+            state.submitApprovedActionsToSupabase()
             return
         
         case .augmentation:
