@@ -40,7 +40,7 @@ struct StitchApp: App {
         }
         FirebaseApp.configure()
     }
-    
+
     var body: some Scene {
         WindowGroup {
             // iPad uses StitchRouter to use the project zoom in/out animation
@@ -118,3 +118,4 @@ struct StitchApp: App {
         #endif
     }
 }
+

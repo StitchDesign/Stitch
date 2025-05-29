@@ -72,7 +72,6 @@ struct InsertNodeMenuSearchResults: View {
             // Note: seems like best way to reset scrollview's position upon re-open, while also avoiding unintended animations etc.
             .id(self.localId)
             
-            
             // Note: If current selection is below the frosted footer,
             // then use scrollProxy.scrollTo such that the current selection ends up
             // just above the footer.
@@ -105,11 +104,11 @@ struct InsertNodeMenuSearchResults: View {
 
         } // ScrollViewReader
         // Hide the list if no search results, so that we don't show headers etc.
-            .onChange(of: self.show) { oldValue, newValue in
+        .onChange(of: self.show) { oldValue, newValue in
             self.localId = .init()
         }
     }
-
+    
     var selectionColor: Color {
         theme.themeData.edgeColor
     }

@@ -142,7 +142,7 @@ extension GraphState {
         let graph = self
         
         guard let node = graph.getNode(id) else {
-            log("deleteNode: node not found")
+            log("deleteNode: node \(id) not found")
             return
         }
         

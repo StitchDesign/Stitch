@@ -39,4 +39,15 @@ enum StepType: String, Equatable, Codable {
             return "Create Sidebar Group"
         }
     }
+    
+    var introducesNewNode: Bool {
+        switch self {
+        case .addNode, .sidebarGroupCreated:
+            return true
+        case .connectNodes, .changeValueType, .setInput:
+            return false
+        }
+    }
 }
+
+

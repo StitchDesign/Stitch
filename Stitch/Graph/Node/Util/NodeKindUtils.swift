@@ -169,32 +169,6 @@ extension NodeKind {
         }
     }
 
-    @MainActor
-    func defaultInputs(for type: UserVisibleType?) -> PortValuesList {
-        self.rowDefinitions(for: type).inputs.map { $0.defaultValues }
-    }
-
-    @MainActor
-    func createDefaultNode(id: NodeId,
-                           activeIndex: ActiveIndex,
-                           graphDelegate: GraphState) -> NodeViewModel? {
-        switch self {
-        case .patch(let patch):
-            return patch.defaultNode(id: id,
-                                     position: .zero,
-                                     zIndex: .zero,
-                                     graphDelegate: graphDelegate)
-        case .layer(let layer):
-            return layer.defaultNode(id: id,
-                                     position: .zero,
-                                     zIndex: .zero,
-                                     graphDelegate: graphDelegate)
-        case .group:
-            // Not intended here
-            fatalError()
-        }
-    }
-    
     /// Considers special nodes which loop inputs.
     @MainActor func determineMaxLoopCount(from valuesList: PortValuesList) -> Int {
         switch self {
@@ -229,6 +203,13 @@ extension NodeKind {
         case .layer(let x):
             return x.defaultDisplayTitle()
         }
+    }
+}
+
+extension PatchOrLayer {
+    @MainActor
+    func defaultInputs(for type: UserVisibleType?) -> PortValuesList {
+        self.rowDefinitionsOldOrNewStyle(for: type).inputs.map { $0.defaultValues }
     }
     
     // Some inputs don't need to coerce PortValues and can instead copy values directly

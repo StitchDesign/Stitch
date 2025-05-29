@@ -52,7 +52,7 @@ func textReplaceEval(inputs: PortValuesList,
             with: replace,
             options: !isCaseSensitive ? [.caseInsensitive] : [])
 
-        log("textReplaceEval: result: \(result)")
+        // log("textReplaceEval: result: \(result)")
 
         return .string(.init(result))
     }

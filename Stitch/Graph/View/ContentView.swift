@@ -140,8 +140,8 @@ struct ContentView: View, KeyboardReadable {
                 self.showFullScreenAnimateCompleted = true
             }
         })
-        .stitchSheet(isPresented: document.llmRecording.promptState.showModal,
-                     titleLabel: "LLM Recording",
+        .stitchSheet(isPresented: document.llmRecording.modal == .enterPromptForTrainingData,
+                     titleLabel: "Provide a prompt for the just-recorded graph",
                      hideAction: document.closedLLMRecordingPrompt,
                      sheetBody: {
             LLMAssignPromptToScratchLLMExampleModalView()

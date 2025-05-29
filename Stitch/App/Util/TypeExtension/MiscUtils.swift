@@ -59,6 +59,10 @@ extension Optional {
     var isDefined: Bool {
         self != nil
     }
+    
+    var isNotDefined: Bool {
+        self == nil
+    }
 }
 
 extension Result {
@@ -69,6 +73,13 @@ extension Result {
         case .failure:
             return nil
         }
+    }
+    /// Returns the error if this is a `.failure`, or `nil` if `.success`
+    var error: Failure? {
+        guard case .failure(let err) = self else {
+            return nil
+        }
+        return err
     }
     
     var isFailure: Bool {

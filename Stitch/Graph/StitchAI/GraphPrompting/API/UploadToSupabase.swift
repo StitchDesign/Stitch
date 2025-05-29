@@ -1,24 +1,22 @@
 //
-//  SupabaseManager.swift
+//  UploadToSupabase.swift
 //  Stitch
-//  Created by Nicholas Arner on 1/10/25.
+//
+//  Created by Christian J Clampitt on 5/27/25.
 //
 
 import Foundation
 import PostgREST
 import UIKit
 import SwiftUI
-import SwiftyJSON
-import Sentry
 
-struct LLMRecordingPayload: Encodable, Sendable {
-    let actions: String
-}
 
 struct Payload: Codable {
     let user_id: String
     var actions: RecordingWrapper
     let correction: Bool
+    let score: CGFloat
+    let required_retry: Bool
 }
 
 struct RecordingWrapper: Codable {
@@ -26,96 +24,50 @@ struct RecordingWrapper: Codable {
     var actions: [LLMStepAction]
 }
 
-final actor StitchAIManager {
-    let secrets: Secrets
-
-    var postgrest: PostgrestClient
-    var tableName: String
-    
-    @MainActor var currentTask: Task<Void, Never>?
-    @MainActor weak var documentDelegate: StitchDocumentViewModel?
-
-    init?() throws {
-        guard let secrets = try Secrets() else {
-            return nil
-        }
-        
-        self.secrets = secrets
-        
-        // Initialize with empty values first
-        self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""),
-                                         schema: "",
-                                         headers: [:])
-        self.tableName = ""
-        
-        // Extract required environment variables
-        let supabaseURL = secrets.supabaseURL
-        let supabaseAnonKey = secrets.supabaseAnonKey
-        let tableName = secrets.tableName
-        
-        // Initialize the PostgREST client
-        guard let baseURL = URL(string: supabaseURL),
-              let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
-            fatalErrorIfDebug(" Invalid Supabase URL")
-            return
-        }
-        
-        // Assign the actual values only if everything succeeds
-        self.tableName = tableName
-        self.postgrest = PostgrestClient(
-            url: apiURL,
-            schema: "public",
-            headers: [
-                "apikey": supabaseAnonKey,
-                "Authorization": "Bearer \(supabaseAnonKey)"
-            ]
-        )
-    }
-}
-
 extension StitchAIManager {
-    @MainActor
-    func cancelCurrentRequest() {
-        guard let currentTask = self.currentTask else {
-            return
-        }
-        
-        currentTask.cancel()
-        self.currentTask = nil
-    }
-    
-    @MainActor static func getDeviceUUID() throws -> String? {
+    // Should the app really be running, if we can't
+    @MainActor static func getDeviceUUID() -> String? {
         guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {
             log("Unable to retrieve device UUID", .logToServer)
 #if DEV_DEBUG || DEBUG
-            throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
-            #endif
+//            throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
+            fatalErrorIfDebug()
+#endif
             return nil
         }
         
         return deviceUUID
     }
     
-    // User had to edit/augment some actions created by the LLM;
-    func uploadEditedActions(prompt: String,
-                             finalActions: [Step],
-                             deviceUUID: String,
-                             isCorrection: Bool) async throws {
+    func uploadActionsToSupabase(prompt: UserAIPrompt,
+                                 finalActions: [Step],
+                                 deviceUUID: String,
+                                 isCorrection: Bool,
+                                 
+                                 // How did the user rate the result? Always lowest-rating for retries; always highest-rating for manually created training data
+                                 rating: StitchAIRating,
+                                 
+                                 // Did the actions sent to us by OpenAI for this prompt require a retry?
+                                 requiredRetry: Bool) async throws {
+        
         let wrapper = RecordingWrapper(
-            prompt: prompt,
+            prompt: prompt.value,
             actions: finalActions)
         
         // Not good to have as a var in an async context?
         let payload = Payload(
             user_id: deviceUUID,
             actions: wrapper,
-            correction: isCorrection)
+            correction: isCorrection,
+            score: rating.rawValue,
+            required_retry: requiredRetry)
         
         log(" Uploading payload:")
         log("  - User ID: \(deviceUUID)")
         log("  - Prompt: \(wrapper.prompt)")
         log("  - Total actions: \(wrapper.actions.count)")
         log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
+        log("  - Rating: \(rating.rawValue)")
         
         do {
             // Use the edited payload for insertion
@@ -159,16 +111,5 @@ extension StitchAIManager {
             throw error
         }
     }
-}
-
-class PresenterDismissalHandler: NSObject, UIAdaptivePresentationControllerDelegate {
-    let onDismiss: () -> Void
     
-    init(onDismiss: @escaping () -> Void) {
-        self.onDismiss = onDismiss
-    }
-    
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        onDismiss()
-    }
 }

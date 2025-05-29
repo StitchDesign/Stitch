@@ -166,33 +166,66 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 }
 
 /// Process search results in the insert node menu sheet
-struct GenerateAINode: StitchDocumentEvent {
+/// fka `GenerateAINode`
+struct SubmitUserPromptToOpenAI: StitchStoreEvent {
     let prompt: String
     
-    func handle(state: StitchDocumentViewModel) {
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(prompt)")
         
-        assertInDebug(state.aiManager?.secrets != nil)
+        guard let state = store.currentDocument,
+                let aiManager = state.aiManager else {
+            fatalErrorIfDebug("GenerateAINode: no aiManager")
+            return .noChange
+        }
+        
+        // Make sure current task is completely wiped
+        aiManager.cancelCurrentRequest()
+        aiManager.currentTask = nil
         
         let graph = state.visibleGraph
         
+        // Clear previous streamed steps
+        state.llmRecording.streamedSteps = .init()
+        
+        // Clear the previous actions
+        state.llmRecording.actions = .init()
+                
         // Set loading state
-        state.insertNodeMenuState.isGeneratingAINode = true
+        withAnimation { // added
+            state.insertNodeMenuState.isGeneratingAIResult = true
+        }
         
         // Set flag to indicate this is from AI generation
         state.insertNodeMenuState.isFromAIGeneration = true
         
         print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
-        
-        // Dispatch OpenAI request
-        do {
-            let request = try OpenAIRequest(prompt: prompt,
-                                            graph: graph)
-            state.aiManager?.handleRequest(request)
-        } catch {
+
+        // Note: do/catch vs Result doesn't really matter? Ideally we want to pass on error messages, so `if let x = try? ...` isn't a good idea.
+        // TODO: if we can't build the systemPrompt, then the app shouldn't even be running; don't make code-contributor handle impossible scenarios
+        switch Result(catching: { try StitchAIManager.systemPrompt(graph: graph) }) {
+            
+        case .failure(let error):
+            // Nothing for user to do?
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
+            
+        case .success(let systemPrompt):
+            let request = OpenAIRequest(prompt: prompt,
+                                        systemPrompt: systemPrompt)
+            
+            // Track initial graph state
+            state.llmRecording.initialGraphState = state.visibleGraph.createSchema()
+            
+            // Create the task and set it on the manager
+            aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAIStreamingTask(
+                request: request,
+                attempt: 1,
+                document: state,
+                canShareAIRetries: store.canShareAIRetries))
         }
+        
+        return .noChange
     }
 }
 

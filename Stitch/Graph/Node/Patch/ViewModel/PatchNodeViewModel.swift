@@ -18,6 +18,8 @@ typealias NodeViewModels = [NodeViewModel]
 @Observable
 final class PatchNodeViewModel: Sendable {
     let id: NodeId
+    
+    // TODO: does this really need to be `@MainActor var` ? It's pure data (i.e. thread-independent) and should also be a `let` because can never change across the life 
     @MainActor var patch: Patch
     
     @MainActor
@@ -57,8 +59,8 @@ final class PatchNodeViewModel: Sendable {
         self.splitterNode = schema.splitterNode
         
         // Create initial inputs and outputs using default data
-        let rowDefinitions = NodeKind.patch(schema.patch)
-            .rowDefinitions(for: schema.userVisibleType)
+        let rowDefinitions = PatchOrLayer.patch(schema.patch)
+            .rowDefinitionsOldOrNewStyle(for: schema.userVisibleType)
         
         // Must set inputs before calling eval below
         let inputsObservers = schema.inputs

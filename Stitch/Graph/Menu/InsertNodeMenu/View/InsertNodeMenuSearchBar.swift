@@ -33,35 +33,62 @@ struct InsertNodeMenuSearchBar: View {
         return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
     }
     
+    var isLoadingAIResult: Bool {
+        store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
+    }
+    
+    func userSubmitted() {
+        if self.isAIMode {
+            // Invalidate tip in future once AI submission is completed
+            self.launchTip.invalidate(reason: .actionPerformed)
+            
+            self.isLoadingStitchAI = true
+            
+            dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
+        } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
+            dispatch(AddNodeButtonPressed())
+        }
+        // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
+        self.isFocused = false
+    }
+    
+    var rightSideButton: some View {
+        HStack {
+            Group {
+                if isLoadingAIResult {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(STITCH_TITLE_FONT_COLOR)
+                } else {
+                    Button(action: {
+                        self.userSubmitted()
+                    }, label: {
+                        Image(systemName: "plus.app")
+                    })
+                    .frame(width: 36, height: 36)
+                    .buttonStyle(.borderless)
+                }
+            }
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+            .padding(.trailing, 20)
+            .animation(.linear(duration: 0.2), value: isLoadingAIResult)
+        }
+    }
+    
     var body: some View {
         let searchInput = VStack(spacing: .zero) {
             TextField("Search or enter AI prompt...", text: $queryString)
                 .focused($isFocused)
                 .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
-                .padding(.leading, 52)
-                .padding(.trailing, 12)
-                .overlay(HStack {
-                    let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
-                    Image(systemName: isAIMode ? "sparkles" : "magnifyingglass")
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 15)
-                        .animation(.linear(duration: 0.2), value: isAIMode)
-                })
+                .padding(.leading, 16)
+                .padding(.trailing, 60)
+                .overlay(alignment: .center) {
+                    rightSideButton
+                }
                 .font(.system(size: 24))
                 .disableAutocorrection(true)
                 .onSubmit {
-                    if self.isAIMode {
-                        // Invalidate tip in future once AI submission is completed
-                        self.launchTip.invalidate(reason: .actionPerformed)
-                        
-                        self.isLoadingStitchAI = true
-                        
-                        dispatch(GenerateAINode(prompt: queryString))
-                    } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection) != nil {
-                        dispatch(AddNodeButtonPressed())
-                    }
-                    // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
-                    self.isFocused = false
+                    self.userSubmitted()
                 }
                 .onAppear {
                      // log("InsertNodeMenuSearchBar: onAppear: inner")
@@ -77,7 +104,7 @@ struct InsertNodeMenuSearchBar: View {
                     }
                 }
         }
-        // we apparently need both `.onAppear`'s to set .isFocused = true ?
+        // We apparently need both `.onAppear`'s to set .isFocused = true ?
         // Note: do not wipe queryString in .onChange(of: self.isFocused), otherwise we lose the user's string when user switches back to the Stitch window in Catalyst.
         .onAppear {
             // log("InsertNodeMenuSearchBar: onAppear: outer")
@@ -112,7 +139,6 @@ struct InsertNodeMenuSearchBar: View {
                                     name: .insertNodeMenuSearchbar) {
             searchInput
         }
-        .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
-
+                                    .height(INSERT_NODE_MENU_SEARCH_BAR_HEIGHT) // need to set height again
     }
 }

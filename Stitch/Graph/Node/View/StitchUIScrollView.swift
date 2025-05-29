@@ -298,7 +298,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
+        // log("StitchUIScrollView: gestureRecognizer: shouldRecognizeSimultaneouslyWith")
         return true
     }
 
@@ -402,7 +402,7 @@ final class StitchScrollCoordinator<Content: View>: NSObject, UIScrollViewDelega
         // Do not check borders for ~1 second after (1) jumping to an item on the canvas or (2) zooming in/out
         
         guard !self.borderCheckingDisabled else {
-            log("StitchScrollCoordinator check border: border checking disabled")
+            // log("StitchScrollCoordinator check border: border checking disabled")
             Self.updateGraphScrollData(scrollView)
             return
         }

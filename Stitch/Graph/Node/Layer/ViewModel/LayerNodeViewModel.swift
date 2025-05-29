@@ -197,8 +197,8 @@ final class LayerNodeViewModel {
         let graphNode = schema.layer.layerGraphNode
         
         // Create initial inputs and outputs using default data
-        let rowDefinitions = NodeKind.layer(schema.layer)
-            .rowDefinitions(for: nil)
+        let rowDefinitions = PatchOrLayer.layer(schema.layer)
+            .rowDefinitionsOldOrNewStyle(for: nil)
         
         self.id = schema.id
         self.layer = schema.layer

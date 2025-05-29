@@ -8,7 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
-extension NodeKind {
+extension PatchOrLayer {
 
     var legacyRowDefinitions: NodeRowDefinitions {
 
@@ -2358,14 +2358,9 @@ extension NodeKind {
                 )
 
             default:
-                #if DEBUG
-                fatalError("Make sure node is defined using GraphNode")
-                #endif
+                fatalErrorIfDebug("Make sure node is defined using GraphNode")
                 return .init(inputs: [], outputs: [])
             }
-        case .group:
-            // Shouldn't be called for groups
-            return .init(inputs: [], outputs: [])
         }
     }
 }

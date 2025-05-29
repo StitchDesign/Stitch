@@ -342,14 +342,14 @@ extension PortValues {
     /// Gets outputs from  a list of inputs + outputs, defaulting to default outputs if no outputs passed in list.
     @MainActor
     func prevOutputs(node: NodeViewModel) -> PortValues {
-        self.prevOutputs(nodeKind: node.kind) ?? node.defaultOutputs
+        node.kind.patchOrLayer.flatMap { self.prevOutputs(nodeKind: $0) } ?? node.defaultOutputs
     }
     
     /// Gets outputs from  a list of inputs + outputs.
     @MainActor
-    func prevOutputs(nodeKind: NodeKind) -> PortValues? {
+    func prevOutputs(nodeKind: PatchOrLayer) -> PortValues? {
         // Just get inputs count, user visible type doesn't matter
-        let inputsCount = nodeKind.rowDefinitions(for: nil).inputs.count
+        let inputsCount = nodeKind.rowDefinitionsOldOrNewStyle(for: nil).inputs.count
         
         let firstOutputIndex = inputsCount
         guard self.count > firstOutputIndex else {

@@ -12,7 +12,7 @@ import StitchSchemaKit
 extension NodeViewModel {
     @MainActor
     var defaultOutputs: PortValues {
-        guard let values = self.kind.graphNode?.rowDefinitions(for: self.userVisibleType).outputs
+        guard let values = self.kind.patchOrLayer?.graphNode?.rowDefinitions(for: self.userVisibleType).outputs
             .map({ $0.value }),
               !values.isEmpty else {
             return []
@@ -36,7 +36,7 @@ extension NodeViewModel {
                 // Grabs packed or unpacked data depending on what's used
                 portObserver.allInputData.map { $0.rowObserver }
             }
-        case .group(let canvas):
+        case .group(let _):
             return getSplitterInputRowObservers(for: self.id, from: graph)
         case .component(let component):
             return component.inputsObservers

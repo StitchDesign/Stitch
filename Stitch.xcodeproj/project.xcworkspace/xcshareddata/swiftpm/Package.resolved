@@ -118,6 +118,15 @@
       }
     },
     {
+      "identity" : "json-stream",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Topolyte/json-stream.git",
+      "state" : {
+        "revision" : "703a39ce871e97c4c3831ad8f681d26f4d884559",
+        "version" : "1.0.3"
+      }
+    },
+    {
       "identity" : "leveldb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/leveldb.git",
