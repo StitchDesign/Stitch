@@ -28,11 +28,11 @@ extension Color {
 }
 
 func initialLayerColor() -> Color {
-    #if DEV_DEBUG
-    return .randomAssortedColor
-    #else
+//    #if DEV_DEBUG
+//    return .randomAssortedColor
+//    #else
     return .LAYER_DEFAULT_COLOR
-    #endif
+//    #endif
 }
 
 // A single line of text seems to be 25 high

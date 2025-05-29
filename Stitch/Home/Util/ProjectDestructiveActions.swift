@@ -19,6 +19,8 @@ extension StitchStore {
             return
         }
 
+        document.aiManager?.cancelCurrentRequest()
+        
         self.navPath = []
         self.deleteProject(document: document.createSchema())
     }

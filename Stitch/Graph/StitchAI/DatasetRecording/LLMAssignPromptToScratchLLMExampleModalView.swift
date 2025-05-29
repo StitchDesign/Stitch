@@ -33,6 +33,6 @@ struct LLMPromptEdited: StitchDocumentEvent {
     let prompt: String
     
     func handle(state: StitchDocumentViewModel) {
-        state.llmRecording.promptState.prompt = prompt
+        state.llmRecording.promptForTrainingDataOrCompletedRequest = .init(prompt)
     }
 }

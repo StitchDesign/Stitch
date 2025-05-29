@@ -100,8 +100,8 @@ extension NodeDefinition {
     static var outputCountVariesByType: Bool { false }
 
     static func createEphemeralObserver() -> NodeEphemeralObservable? { nil }
-    static var kind: NodeKind { Self.graphKind.kind }
-    static var defaultTitle: String { Self.kind.getDisplayTitle(customName: nil) }
+    static var kind: PatchOrLayer { Self.graphKind.kind }
+    static var defaultTitle: String { Self.kind.asNodeKind.getDisplayTitle(customName: nil) }
 
     // TODO: separate functions for creating Patch vs Layer nodes; Layer nodes themselves never take canvas-position
     @MainActor
@@ -126,7 +126,7 @@ enum NodeDefinitionKind {
 }
 
 extension NodeDefinitionKind {
-    var kind: NodeKind {
+    var kind: PatchOrLayer {
         switch self {
         case .patch(let patchGraphNode):
             return .patch(patchGraphNode.patch)

@@ -13,9 +13,19 @@ struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
     static let USE_COMPONENTS = false
     static let USE_AI_MODE = true
-    #if STITCH_AI_REASONING
+    
+    // TODO: put this behind a different compiler flag? ... Want to make available for Adam as well.
+#if STITCH_AI_REASONING || DEBUG || DEV_DEBUG
+    static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = true
+#else
+    static let SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON = false
+#endif
+    
+    
+#if STITCH_AI_REASONING
     static let STITCH_AI_REASONING = true
-    #else
+#else
     static let STITCH_AI_REASONING = false
-    #endif
+#endif
+    
 }

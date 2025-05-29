@@ -61,25 +61,24 @@ extension StitchAINodeSectionDescription {
          graph: GraphState) {
         let nodesInSection: [StitchAINodeIODescription] = section
             .getNodesForSection()
-            .compactMap { nodeKind -> StitchAINodeIODescription? in
+            .compactMap { patchOrLayer -> StitchAINodeIODescription? in
                 // Use node definitions, if available
-                if let graphNode = nodeKind.graphNode {
+                if let graphNode = patchOrLayer.graphNode {
                     return .init(graphNode)
                 }
                 
                 // Backup plan: create default node, extract data from there
-                guard let defaultNode = nodeKind.createDefaultNode(id: .init(),
-                                                                   activeIndex: .init(.zero),
-                                                                   graphDelegate: graph) else {
+                guard let defaultNode = patchOrLayer.createDefaultNode(id: .init(),
+                                                                       activeIndex: .init(.zero),
+                                                                       graphDelegate: graph) else {
                     fatalErrorIfDebug()
                     return nil
                 }
                 
                 let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
-                    StitchAIPortValueDescription(label: inputObserver
-                        .label(node: defaultNode,
-                               coordinate: .input(inputObserver.id),
-                               graph: graph),
+                    StitchAIPortValueDescription(label: inputObserver.label(node: defaultNode,
+                                                                            coordinate: .input(inputObserver.id),
+                                                                            graph: graph),
                                                  value: inputObserver.getActiveValue(activeIndex: .init(.zero)))
                 }
                 
@@ -89,17 +88,17 @@ extension StitchAINodeSectionDescription {
                 }
                 
                 let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
-                    StitchAIPortValueDescription(label: outputObserver
-                        .label(node: defaultNode,
-                               coordinate: .output(outputObserver.id),
-                               graph: graph),
-                                                 value: outputObserver.getActiveValue(activeIndex: .init(.zero)))
+                    StitchAIPortValueDescription(
+                        label: outputObserver.label(node: defaultNode,
+                                                    coordinate: .output(outputObserver.id),
+                                                    graph: graph),
+                        value: outputObserver.getActiveValue(activeIndex: .init(.zero)))
                 }
                 
                 assertInDebug(inputs.first { $0.value == .none } == nil)
                 assertInDebug(outputs.first { $0.value == .none } == nil)
                 
-                return .init(nodeKind: nodeKind.asLLMStepNodeName,
+                return .init(nodeKind: patchOrLayer.asLLMStepNodeName,
                              inputs: inputs,
                              outputs: outputs)
             }
@@ -116,8 +115,6 @@ struct StitchAINodeIODescription: Encodable {
 }
 
 extension StitchAINodeIODescription {
-    
-    
     @MainActor
     init(_ NodeInfo: any NodeDefinition.Type) {
         self.nodeKind = NodeInfo.graphKind.kind.asLLMStepNodeName

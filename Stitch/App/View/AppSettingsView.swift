@@ -139,6 +139,7 @@ let DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME = "DefaultPreviewWindowDevice"
 let SAVED_APP_THEME_KEY_NAME = "SavedAppTheme"
 let SAVED_EDGE_STYLE_KEY_NAME = "SavedEdgeStyle"
 let SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME = "SavedIsOptionRequiredForShortcuts"
+let SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME = "CanShareAIRetries"
 
 struct AppSettingsView: View {
     // Obtains last camera preference setting, if any
@@ -152,7 +153,11 @@ struct AppSettingsView: View {
     
     @AppStorage(SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME) private var savedIsOptionRequiredForShortcuts: String = Bool.defaultIsOptionRequiredForShortcuts.description
     
+    @AppStorage(SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME) private var savedCanShareAIRetries: String = Bool.defaultIsOptionRequiredForShortcuts.description
+    
+
     var isOptionRequiredForShortcut: Bool
+    var canShareAIRetries: Bool
     
     @Environment(\.appTheme) var theme
     @Environment(\.edgeStyle) var edgeStyle
@@ -167,6 +172,7 @@ struct AppSettingsView: View {
             edgeStylePicker
             defaultPreviewWindowDevicePicker
             isOptionRequiredForShortcutsPicker
+            canShareAIRetriesPicker
         }
     }
 
@@ -288,6 +294,27 @@ struct AppSettingsView: View {
         }
     }
     
+    @ViewBuilder
+    var canShareAIRetriesPicker: some View {
+        logInView("AppSettingsView: canShareAIRetriesPicker: self.canShareAIRetries: \(self.canShareAIRetries)")
+        
+        let isRequired = self.canShareAIRetries
+        let icon: String = isRequired ? "checkmark.square" : "square"
+        
+        VStack(alignment: .leading) {
+            HStack(alignment: .center) {
+                Text("Share AI Retries").fontWeight(.bold)
+                Image(systemName: icon)
+                    .onTapGesture {
+                        dispatch(CanShareAIRetriesChanged(newValue: !isRequired))
+                    }
+            }
+            .padding(.bottom, 2)
+            
+            StitchCaptionView("Help improve StitchAI by sending us AI request retries")
+        }
+    }
+    
             
     func getCameraSelection(cameraID: String?) -> AVCaptureDevicePickerOption? {
         guard let cameraID = cameraID,
@@ -303,6 +330,9 @@ struct AppSettingsView: View {
 
 struct AppSettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        AppSettingsView(isOptionRequiredForShortcut: true)
+        AppSettingsView(
+            isOptionRequiredForShortcut: true,
+            canShareAIRetries: true
+        )
     }
 }

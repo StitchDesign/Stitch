@@ -411,9 +411,9 @@ func createPatchNode(from importedMediaURL: URL,
         label: importedMediaURL.filename)
 
     guard let node = mediaType.nodeKind.graphNode?.createViewModel(id: nodeId,
-                                                                   position: position.toCGPoint,
-                                                                   zIndex: zIndex,
-                                                                   graphDelegate: graphDelegate) else {
+                                                                       position: position.toCGPoint,
+                                                                       zIndex: zIndex,
+                                                                       graphDelegate: graphDelegate) else {
         log("createPatchNode: unknown file encountered with extension \(importedMediaURL.pathExtension)")
         return .failure(.mediaFileUnsupported(importedMediaURL.pathExtension))
     }

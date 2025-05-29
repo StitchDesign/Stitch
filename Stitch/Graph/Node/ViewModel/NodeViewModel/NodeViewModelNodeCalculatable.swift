@@ -293,7 +293,7 @@ extension NodeViewModel: NodeCalculatable {
             }
 
             // New-style eval which doesn't require filling out a switch statement
-            guard let nodeType = self.kind.graphNode else {
+            guard let nodeType = self.kind.patchOrLayer?.graphNode else {
                 fatalErrorIfDebug()
                 return nil
             }

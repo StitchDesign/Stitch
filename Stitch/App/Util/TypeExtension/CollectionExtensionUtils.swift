@@ -72,6 +72,13 @@ extension Dictionary {
 
         return self.get(id)
     }
+    
+    // Pure version of standard library's `updateValue`
+    func updatedValue(_ value: Self.Value, forKey: Self.Key) -> Self {
+        var dict = self
+        dict.updateValue(value, forKey: forKey)
+        return dict
+    }
 }
 
 // Works for sorting GroupNodeId, which conforms to

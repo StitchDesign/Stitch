@@ -17,7 +17,7 @@ struct LayerGroupIdChanged: StitchDocumentEvent {
         
         // If this layer node now has a layer group parent, block the position and unblock
         guard let layerNode = graph.getLayerNode(nodeId) else {
-            log("LayerGroupIdChanged: could not find layer node for node \(nodeId)")
+            // log("LayerGroupIdChanged: could not find layer node for node \(nodeId)")
             return
         }
         

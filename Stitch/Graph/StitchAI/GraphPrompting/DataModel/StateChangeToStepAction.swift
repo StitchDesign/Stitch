@@ -51,7 +51,7 @@ extension NodeType {
     }
 }
 
-extension NodeKind {
+extension PatchOrLayer {
     var asLLMStepNodeName: String {
         switch self {
         case .patch(let x):
@@ -59,9 +59,6 @@ extension NodeKind {
             return x.aiDisplayTitle
         case .layer(let x):
             return x.aiDisplayTitle
-        case .group:
-            fatalErrorIfDebug("NodeKind: asLLMStepNodeName: should never create a group node with step actions")
-            return ""
         }
     }
 }

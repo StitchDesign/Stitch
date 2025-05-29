@@ -57,7 +57,7 @@ extension SupportedMediaFormat {
         return nil
     }
 
-    var nodeKind: NodeKind {
+    var nodeKind: PatchOrLayer {
         switch self {
         case .image:
             return .patch(.imageImport)

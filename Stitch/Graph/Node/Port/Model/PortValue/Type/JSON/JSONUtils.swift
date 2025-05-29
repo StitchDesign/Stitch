@@ -88,7 +88,9 @@ func getValueAtKey(_ json: JSON, _ key: String) -> JSON? {
 
 extension Data {
     var toJSON: JSON? {
-        let json = JSON(self)
+//        let json = JSON(self)
+        let json = (try? SwiftyJSON.JSON(data: self,
+                                        options: .fragmentsAllowed)) ?? JSON(self)
 
         // If created-JSON is empty, then the JSON was improperly formatted.
         if isNullJSON(json) {

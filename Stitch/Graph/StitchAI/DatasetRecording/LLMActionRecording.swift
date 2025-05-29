@@ -44,17 +44,9 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func startLLMAugmentationMode() {
-        
-        log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
-        
-        
-        // TODO: these logs are telling us that self.llmRecording.actions is empty (we're not sure how or where they were made empty?); can we populate the actions again, before we open the "edit before submit" modal ?
-        
-        let derivedActions = self.deriveNewAIActions()
-        self.llmRecording.actions = derivedActions
-        
-        // First store the current AI-generated actions
-        log("🤖 💾 Storing AI-Generated Actions: \(self.llmRecording.actions)")
+
+        log("🔄 🤖 ENTERING AUGMENTATION MODE 🤖 🔄")
+        log("🤖 💾 AI-Generated Actions: \(self.llmRecording.actions)")
         
         // Invalidate the StitchAI tip -- don't need to show it to the user again
         self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
@@ -63,6 +55,15 @@ extension StitchDocumentViewModel {
         // Set augmentation mode
         self.llmRecording.mode = .augmentation
         
+        self.showEditBeforeSubmitModal()
+    }
+    
+    // Note: in some cases we want to show the edit-before-submit modal even though we're not correcting a response from OpenAI
+    @MainActor
+    func showEditBeforeSubmitModal() {
+        // We should never enter edit-before-submit modal if we don't have actions
+        assertInDebug(!self.llmRecording.actions.isEmpty)
+        
         // Open the Edit-before-submit modal
         self.llmRecording.modal = .editBeforeSubmit
         
@@ -70,15 +71,9 @@ extension StitchDocumentViewModel {
         self.insertNodeMenuState.isFromAIGeneration = false
         log("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
         
-        // Start recording
+        // Start recording (so we pick up graph changes as new actions etc.)
         self.llmRecordingStarted()
     }
-}
-
-/// What we write to JSON/JSONL file
-struct LLMRecordingData: Equatable, Encodable {
-    let actions: LLMStepActions
-    let prompt: String
 }
 
 extension StitchDocumentViewModel {
@@ -87,10 +82,7 @@ extension StitchDocumentViewModel {
     func llmRecordingStarted() {
         print("📼 ⚡️ LLM Recording Started - isRecording set to true ⚡️ 📼")
         print("🎯 Current Recording Mode: \(self.llmRecording.mode)")
-        
-        // Debug print current actions before starting recording
-//        print("🤖 Current Actions at Recording Start: \(self.llmRecording.actions.asJSONDisplay())")
-        
+                
         self.llmRecording.isRecording = true
         
         // Save initial graph entity state for tracking changes
@@ -105,12 +97,6 @@ extension StitchDocumentViewModel {
         print("🎯 Current Recording Mode: \(currentMode)")
         self.llmRecording.isRecording = false
         
-        // Debug print all actions
-//        print("🤖 Complete Action Sequence: \(self.llmRecording.actions.asJSONDisplay())")
-        
-        // Cache the json of all actions
-        self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.asJSONDisplay()
-        
         // If we stopped recording and have LLMActions
         if !self.llmRecording.actions.isEmpty {
             if currentMode == .augmentation {
@@ -118,7 +104,7 @@ extension StitchDocumentViewModel {
                 self.closedLLMRecordingPrompt()
             } else if !self.llmRecording.hasShownModalInNormalMode {
                 print("📼 📝 Opening LLM Recording Prompt Modal 📝 📼")
-                self.llmRecording.promptState.showModal = true
+                self.llmRecording.modal = .enterPromptForTrainingData
                 self.llmRecording.hasShownModalInNormalMode = true
                 self.reduxFocusedField = .llmRecordingModal
             }
@@ -130,7 +116,7 @@ extension StitchDocumentViewModel {
         log("📼 💾 Closing LLM Recording Prompt - Saving Data 💾 📼")
         log("🎯 Current Mode for Upload: \(currentMode)")
         
-        self.llmRecording.promptState.showModal = false
+        self.llmRecording.modal = .none
         self.reduxFocusedField = nil
         
         let actions = self.llmRecording.actions
@@ -141,6 +127,6 @@ extension StitchDocumentViewModel {
             return
         }
         
-        self.showLLMEditModal()
+        self.showEditBeforeSubmitModal()
     }
 }

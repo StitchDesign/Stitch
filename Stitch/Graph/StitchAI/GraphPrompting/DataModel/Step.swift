@@ -9,6 +9,16 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
+typealias Steps = [Step]
+
+extension Step: Identifiable {
+    var id: Int { self.hashValue }
+}
+
+// Note: `Step` as a type is basically one 'step' away from JSON,
+// i.e. it's very generic and in majority of (or in all?) cases
+// we actually want the more specific `StepActionable` type.
+
 /// Represents a single step/action in the visual programming sequence
 struct Step: Hashable {
     var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
@@ -45,10 +55,6 @@ struct Step: Hashable {
     }
 }
 
-extension Step: Identifiable {
-    var id: Int { self.hashValue }
-}
-
 extension Step: Codable {
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
@@ -69,7 +75,7 @@ extension Step: Codable {
         // `encodeIfPresent` cleans up JSON by removing properties
         try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
-        try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
+        try container.encodeIfPresent(nodeName?.asLLMStepNodeName, forKey: .nodeName)
         
         // Handle port encoding differently based on type
         if let portValue = port?.asLLMStepPort() {
@@ -97,7 +103,7 @@ extension Step: Codable {
         let stepTypeString = try container.decode(String.self, forKey: .stepType)
         
         guard let stepType = StepType(rawValue: stepTypeString) else {
-            throw StitchAIManagerError.stepActionDecoding(stepTypeString)
+            throw StitchAIParsingError.stepActionDecoding(stepTypeString)
         }
         
         self.stepType = stepType
@@ -137,19 +143,45 @@ extension Step: Codable {
             if let stitchAIError = error as? StitchAIManagerError {
                 throw stitchAIError
             } else {
-                throw StitchAIManagerError.portValueDecodingError(error.localizedDescription)
+                throw StitchAIParsingError.portValueDecodingError(error.localizedDescription)
             }
         }
     }
 }
 
-extension StepActionable {
-    var toPortCoordinate: NodeIOCoordinate? {
-        let step = self.toStep
-        
-        guard let nodeId = step.nodeId ?? step.toNodeId,
-              let port = step.port else { return nil }
-        
-        return .init(portType: port, nodeId: nodeId.value)
+extension Step {
+    // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
+    func parseAsStepAction() -> Result<any StepActionable, StitchAIStepHandlingError> {
+        switch self.stepType {
+        case .addNode:
+            return StepActionAddNode.fromStep(self).map { $0 as any StepActionable}
+        case .connectNodes:
+            return StepActionConnectionAdded.fromStep(self).map { $0 as any StepActionable}
+        case .changeValueType:
+            return StepActionChangeValueType.fromStep(self).map { $0 as any StepActionable}
+        case .setInput:
+            return StepActionSetInput.fromStep(self).map { $0 as any StepActionable}
+        case .sidebarGroupCreated:
+            return StepActionLayerGroupCreated.fromStep(self).map { $0 as any StepActionable}
+        }
+    }
+}
+
+extension Stitch.Step: CustomStringConvertible {
+    /// Provides detailed string representation of a Step
+    public var description: String {
+        return """
+        Step(
+            stepType: "\(stepType)",
+            nodeId: \(nodeId?.value.uuidString ?? "nil"),
+            nodeName: \(nodeName?.asLLMStepNodeName ?? "nil"),
+            port: \(port?.asLLMStepPort() ?? "nil"),
+            fromNodeId: \(fromNodeId?.value.uuidString ?? "nil"),
+            toNodeId: \(toNodeId?.value.uuidString ?? "nil"),
+            value: \(String(describing: value)),
+            nodeType: \(valueType?.display ?? "nil")
+            children: \(children?.description ?? "nil")
+        )
+        """
     }
 }

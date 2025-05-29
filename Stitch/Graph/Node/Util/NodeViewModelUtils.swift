@@ -19,7 +19,7 @@ extension NodeViewModel {
         let kind = T.graphKind.kind
         let userVisibleType = kind.graphNode?.graphKind.patch?.defaultUserVisibleType
         
-        let defaultInputs = kind.rowDefinitions(for: userVisibleType).inputs
+        let defaultInputs = kind.rowDefinitionsOldOrNewStyle(for: userVisibleType).inputs
             .enumerated()
             .map { portId, inputData in
                 var coordinate: NodeIOCoordinate
@@ -166,10 +166,16 @@ extension NodeViewModel {
 
         self.userVisibleType = newType
         
+        // TODO: actually, this is only for patch nodes!
+        guard let patchOrLayer = self.kind.patchOrLayer else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         self.getAllInputsObservers().enumerated().forEach { index, inputObserver in
             inputObserver.changeInputType(
                 to: newType,
-                nodeKind: self.kind,
+                nodeKind: patchOrLayer,
                 currentGraphTime: currentGraphTime,
                 computedState: self.computedStates?[safe: index],
                 activeIndex: activeIndex,

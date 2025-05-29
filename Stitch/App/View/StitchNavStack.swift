@@ -79,6 +79,8 @@ struct StitchNavStack: View {
                                                   document: document,
                                                   alertState: store.alertState)
                                 .onDisappear {
+                                    document.aiManager?.cancelCurrentRequest()
+                                    
                                     // Remove document from project loader
                                     // MARK: logic needs to be here as its the one place guaranteed to have the project
                                     projectLoader.documentViewModel = nil
@@ -100,6 +102,11 @@ struct StitchNavStack: View {
                 .onChange(of: store.navPath.first) { _, currentProject in
                     let currentGraphId = currentProject?.project?.id
                     
+                    if !store.isCurrentProjectSelected,
+                       let document = store.currentDocument {
+                        document.aiManager?.cancelCurrentRequest()
+                    }
+                    
                     // Rest undo if project closed
                     if !store.isCurrentProjectSelected {
                         store.environment.undoManager.undoManager.removeAllActions()
@@ -110,6 +117,8 @@ struct StitchNavStack: View {
                     store.allProjectUrls?.forEach { projectLoader in
                         if projectLoader.id != currentGraphId &&
                             projectLoader.documentViewModel != nil {
+                            projectLoader.documentViewModel?.aiManager?.cancelCurrentRequest()
+                            
                             // In case references are stored here (but probably not)
                             projectLoader.lastEncodedDocument = nil
                             

@@ -156,7 +156,7 @@ final class StitchDocumentViewModel: Sendable {
             self.aiManager = try StitchAIManager()
         } catch {
             self.aiManager = nil
-            log("StitchStore error: could not init secrets file with error: \(error)")
+            fatalErrorIfDebug("StitchStore error: could not init secrets file with error: \(error)")
         }
         
         self.lastEncodedDocument = schema
@@ -186,7 +186,6 @@ final class StitchDocumentViewModel: Sendable {
                             isInitialization: Bool = false) {
         self.documentEncoder?.delegate = self
         self.graphStepManager.delegate = self
-        self.aiManager?.documentDelegate = self
         self.storeDelegate = store
         
         guard let documentEncoder = self.documentEncoder else {
@@ -319,7 +318,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         hasher.combine(upstreamConnections)
         hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
-        hasher.combine(aiActions)
+        hasher.combine(aiActions.map(\.toStep)) // downcast to Step
         hasher.combine(splitterLabels)
         
         let newGraphUpdaterId = hasher.finalize()
@@ -335,23 +334,23 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         self.projectLoader?.loadingDocument = .loading
         
         // Checks if AI edit mode is enabled and if actions should be updated
-        
         let recordingOrCorrecting = self.llmRecording.isRecording || self.llmRecording.mode == .augmentation
-        
+
+        // If we are recording graph changes as LLM-actions,
+        // and we're not currently 'applying an existing LLM-action',
+        // then we should generate new steps
         if recordingOrCorrecting && !self.llmRecording.isApplyingActions {
             let oldActions = self.llmRecording.actions
-            let newActions = self.deriveNewAIActions()
+            let newActions = Self.deriveNewAIActions(
+                oldGraphEntity: self.llmRecording.initialGraphState,
+                visibleGraph: self.visibleGraph)
             
-            if oldActions != newActions {
+            if oldActions.map(\.toStep) != newActions.map(\.toStep) {
                 self.llmRecording.actions = newActions
                 
                 if self.llmRecording.willAutoValidate {
-                    do {
-                        try self.reapplyActions()
-                    } catch let error as StitchAIManagerError {
+                    if let error: StitchAIStepHandlingError = self.reapplyActionsDuringEditMode(steps: newActions) {
                         self.llmRecording.actionsError = error.description
-                    } catch {
-                        self.llmRecording.actionsError = error.localizedDescription
                     }
                 }
             }

@@ -10,13 +10,14 @@ import SwiftUI
 import StitchSchemaKit
 import StitchEngine
 
-extension NodeKind {
+// Only relevant for patches, never layers or groups or components
+extension PatchOrLayer {
     @MainActor
     func rowIsTypeStatic(nodeType: UserVisibleType?,
                          portId: Int) -> Bool {
         // Note: whether a row is type-static or not does not depend on node type,
         // but node type determines how many rows there are.
-        self.rowDefinitions(for: nodeType)
+        self.rowDefinitionsOldOrNewStyle(for: nodeType)
             .inputs[safe: portId]?
             .isTypeStatic ?? false
     }
@@ -27,7 +28,7 @@ extension InputNodeRowObserver {
     // used only for type coercion
     @MainActor
     func changeInputType(to newType: UserVisibleType,
-                         nodeKind: NodeKind,
+                         nodeKind: PatchOrLayer,
                          currentGraphTime: TimeInterval,
                          computedState: ComputedNodeState?,
                          activeIndex: ActiveIndex,

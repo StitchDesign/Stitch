@@ -172,6 +172,12 @@ struct CatalystTopBarGraphButtons: View {
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
             
+            if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
+                CatalystNavBarButton("sparkles") {
+                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
+                }
+            }
+            
             CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
                 dispatch(LLMRecordingToggled())
             }
