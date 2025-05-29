@@ -17,6 +17,10 @@ enum StitchAIRating: CGFloat, Equatable, Hashable {
 }
 
 extension StitchAIRating {
+    var isPerfectRating: Bool {
+        self == .fiveStars
+    }
+    
     init?(_ int: Int) {
         switch int {
         case 1:
@@ -48,7 +52,6 @@ struct AIRatingSubmitted: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         // Make Supabase request
         log("AIRatingSubmitted: rating: \(rating)")
-        // fatalErrorIfDebug()
                 
         guard let deviceUUID = StitchAIManager.getDeviceUUID() else {
             log("AIRatingSubmitted error: no device ID found.")
@@ -78,9 +81,15 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
             }
+            
+            // If non-perfect rating, then
+            // start augmentation mode, so user can issue a correction.
+            if !rating.isPerfectRating {
+                state.startLLMAugmentationMode()
+            }
         }
                         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             withAnimation {
                 if state.llmRecording.modal.isRatingToast {
                     log("AIRatingSubmitted: will hide modal")

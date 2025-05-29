@@ -247,6 +247,8 @@ extension StitchAIManager {
     }
     
 
+    // Note: this actually fires WHENEVER the stream is closed, e.g. even when task is cancelled
+    
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
     // fka `openAIRequestCompleted`
     @MainActor
@@ -270,7 +272,11 @@ extension StitchAIManager {
 //        document.llmRecording.mode = .augmentation
         document.llmRecording.mode = .normal
         
-        document.llmRecording.modal = .ratingToast(userInputPrompt: request.prompt)
+        // Only ask for rating if we received some actions
+        if !document.llmRecording.streamedSteps.isEmpty {
+            document.llmRecording.modal = .ratingToast(userInputPrompt: request.prompt)
+        }
+        
                 
         document.encodeProjectInBackground()
     }

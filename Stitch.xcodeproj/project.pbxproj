@@ -606,7 +606,6 @@
 		EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60E57B27178DDD00AABE71 /* LayerUtils.swift */; };
 		EC631402265C418D00BD45B2 /* LoopSelectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC631401265C418D00BD45B2 /* LoopSelectNode.swift */; };
 		EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */; };
-		EC649D852DE6C56A0026DBC4 /* TestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC649D842DE6C56A0026DBC4 /* TestKey.swift */; };
 		EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */; };
 		EC650BDB2686702800C4CCC9 /* SpeakerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */; };
 		EC65AC292DC111E00046E59C /* InputFieldBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */; };
@@ -1627,7 +1626,6 @@
 		EC60E57B27178DDD00AABE71 /* LayerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerUtils.swift; sourceTree = "<group>"; };
 		EC631401265C418D00BD45B2 /* LoopSelectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSelectNode.swift; sourceTree = "<group>"; };
 		EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingEdgesView.swift; sourceTree = "<group>"; };
-		EC649D842DE6C56A0026DBC4 /* TestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestKey.swift; sourceTree = "<group>"; };
 		EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundImportNode.swift; sourceTree = "<group>"; };
 		EC650BDA2686702800C4CCC9 /* SpeakerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerNode.swift; sourceTree = "<group>"; };
 		EC65AC282DC111E00046E59C /* InputFieldBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldBackgroundView.swift; sourceTree = "<group>"; };
@@ -3150,7 +3148,6 @@
 			isa = PBXGroup;
 			children = (
 				200BD85A254F66EB00692903 /* StitchApp.swift */,
-				EC649D842DE6C56A0026DBC4 /* TestKey.swift */,
 				8B2A221826A3B5BE002D08BA /* FeatureFlags.swift */,
 				B5617A7C2C175C5500B53DAF /* Resources */,
 				B56FFB392C18F23000623CC7 /* Shortcut */,
@@ -5274,7 +5271,6 @@
 				EC7A4FC0267A89D500487CDA /* VideoDisplayView.swift in Sources */,
 				ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */,
 				B5C603A5275D9BE200EA2999 /* CameraUtil.swift in Sources */,
-				EC649D852DE6C56A0026DBC4 /* TestKey.swift in Sources */,
 				ECDD303B27A882A200E91530 /* GlobalDispatch.swift in Sources */,
 				EC1D03BF2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift in Sources */,
 				EC609DBC293530B700BF60A5 /* CollectionExtensionUtils.swift in Sources */,

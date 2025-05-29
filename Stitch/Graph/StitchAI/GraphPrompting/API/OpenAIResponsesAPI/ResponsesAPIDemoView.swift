@@ -51,7 +51,7 @@ struct ResponsesAPIDemoView: View {
             Task(priority: .high) {
                 do {
                     try await streamResponseWithReasoning(
-                        apiKey: TEST_KEY,
+                        apiKey: "",
                         userPrompt: self.userPrompt
                     )
                 } catch {

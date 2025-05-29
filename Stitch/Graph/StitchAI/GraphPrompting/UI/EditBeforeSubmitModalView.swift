@@ -20,9 +20,12 @@ struct EditBeforeSubmitModalView: View {
 
     var body: some View {
         VStack {
+            StitchTextView(string: "Help us improve Stitch AI by showing how us the graph should be.")
+                .font(.title2)
+                .padding(.top)
+            
             StitchTextView(string: "Prompt: \(recordingState.promptForJustCompletedTrainingData)")
                 .font(.headline)
-                .padding(.top)
             
             List {
                 // TODO: MAY 24: is hashValue okay here?
