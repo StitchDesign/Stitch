@@ -33,11 +33,11 @@ struct InsertNodeMenuState: Hashable {
     // Moved here from StitchDocumentViewModel, since only used by insert node menu
     var doubleTapLocation: CGPoint?
     
-    var searchResults: [InsertNodeMenuOptionData] = allSearchOptions
+    var searchResults: [InsertNodeMenuOption] = allSearchOptions
     
     // Ensures an option is selected when the menu appears
     // Assumption: can be nil if user filters for a string no node matches, e.g. "QW@#1"
-    var activeSelection: InsertNodeMenuOptionData? = Self.startingActiveSelection
+    var activeSelection: InsertNodeMenuOption? = Self.startingActiveSelection
 
     var searchQuery: String?
     

@@ -209,6 +209,6 @@ extension PatchOrLayer {
             }
         }
         
-        throw StitchAIManagerError.nodeNameParsing(nodeName)
+        throw StitchAIParsingError.nodeNameParsing(nodeName)
     }
 }

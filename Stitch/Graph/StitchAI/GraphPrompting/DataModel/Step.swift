@@ -103,7 +103,7 @@ extension Step: Codable {
         let stepTypeString = try container.decode(String.self, forKey: .stepType)
         
         guard let stepType = StepType(rawValue: stepTypeString) else {
-            throw StitchAIManagerError.stepActionDecoding(stepTypeString)
+            throw StitchAIParsingError.stepActionDecoding(stepTypeString)
         }
         
         self.stepType = stepType
@@ -143,7 +143,7 @@ extension Step: Codable {
             if let stitchAIError = error as? StitchAIManagerError {
                 throw stitchAIError
             } else {
-                throw StitchAIManagerError.portValueDecodingError(error.localizedDescription)
+                throw StitchAIParsingError.portValueDecodingError(error.localizedDescription)
             }
         }
     }

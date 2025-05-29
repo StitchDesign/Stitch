@@ -240,7 +240,7 @@ extension JSONDecoder {
             let result = try self.decode(T.self, from: data)
             return result
         } catch {
-            throw StitchAIManagerError.decodeObjectFromString(string, error.localizedDescription)
+            throw StitchAIParsingError.decodeObjectFromString(string, error.localizedDescription)
         }
     }
 }
@@ -273,7 +273,7 @@ extension KeyedDecodingContainerProtocol {
             let result = try newDecoder.decode(T.self, from: data)
             return result
         } catch {
-            throw StitchAIManagerError.decodeObjectFromString(string, error.localizedDescription)
+            throw StitchAIParsingError.decodeObjectFromString(string, error.localizedDescription)
         }
     }
 }
@@ -312,7 +312,7 @@ extension NodeIOPortType {
                                                 portType: .packed)
             self = .keyPath(layerInputType)
         } else {
-            throw StitchAIManagerError.portTypeDecodingError(port)
+            throw StitchAIParsingError.portTypeDecodingError(port)
         }
     }
 }
@@ -322,7 +322,7 @@ extension NodeType {
         guard let match = NodeType.allCases.first(where: {
             $0.asLLMStepNodeType == llmString
         }) else {
-            throw StitchAIManagerError.nodeTypeParsing(llmString)
+            throw StitchAIParsingError.nodeTypeParsing(llmString)
         }
         
         self = match
