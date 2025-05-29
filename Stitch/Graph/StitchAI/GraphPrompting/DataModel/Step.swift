@@ -11,7 +11,8 @@ import SwiftyJSON
 
 /// Represents a single step/action in the visual programming sequence
 struct Step: Hashable {
-    var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
+    // MARK: optional step type enables JavaScript node support for using same types
+    var stepType: StepType?        // Type of step (e.g., "add_node", "connect_nodes")
     var nodeId: StitchAIUUID?        // Identifier for the node
     var nodeName: PatchOrLayer?      // Display name for the node
     var port: NodeIOPortType?  // Port identifier (can be string or number)
@@ -22,7 +23,13 @@ struct Step: Hashable {
     var valueType: NodeType?     // Type of the node
     var children: NodeIdSet? // Child nodes if this is a group
     
-    init(stepType: StepType,
+    // js node
+    var script: String?
+    var inputDefinitions: [Step]?
+    var outputDefinitions: [Step]?
+    var label: String?
+    
+    init(stepType: StepType? = nil,
          nodeId: UUID? = nil,
          nodeName: PatchOrLayer? = nil,
          port: NodeIOPortType? = nil,
@@ -31,7 +38,11 @@ struct Step: Hashable {
          toNodeId: UUID? = nil,
          value: PortValue? = nil,
          valueType: NodeType? = nil,
-         children: NodeIdSet? = nil) {
+         children: NodeIdSet? = nil,
+         script: String? = nil,
+         inputDefinitions: [Step]? = nil,
+         outputDefinitions: [Step]? = nil,
+         label: String? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
@@ -61,13 +72,17 @@ extension Step: Codable {
         case value
         case valueType = "value_type"
         case children = "children"
+        case script
+        case inputDefinitions = "input_definitions"
+        case outputDefinitions = "output_definitions"
+        case label
     }
     
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // `encodeIfPresent` cleans up JSON by removing properties
-        try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
+        try container.encodeIfPresent(stepType?.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asNodeKind.asLLMStepNodeName, forKey: .nodeName)
         
@@ -85,6 +100,10 @@ extension Step: Codable {
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
         try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
+        try container.encodeIfPresent(script, forKey: .script)
+        try container.encodeIfPresent(inputDefinitions, forKey: .inputDefinitions)
+        try container.encodeIfPresent(outputDefinitions, forKey: .outputDefinitions)
+        try container.encodeIfPresent(label, forKey: .label)
     
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
@@ -94,17 +113,19 @@ extension Step: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let stepTypeString = try container.decode(String.self, forKey: .stepType)
-        
-        guard let stepType = StepType(rawValue: stepTypeString) else {
-            throw StitchAIManagerError.stepActionDecoding(stepTypeString)
+        if let stepTypeString = try container.decodeIfPresent(String.self, forKey: .stepType),
+           let stepType = StepType(rawValue: stepTypeString) {
+            self.stepType = stepType
         }
         
-        self.stepType = stepType
         self.nodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .nodeId)
         self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(Int.self, forKey: .fromPort)
+        self.script = try container.decodeIfPresent(String.self, forKey: .script)
+        self.inputDefinitions = try container.decodeIfPresent([Step].self, forKey: .inputDefinitions)
+        self.outputDefinitions = try container.decodeIfPresent([Step].self, forKey: .outputDefinitions)
+        self.label = try container.decodeIfPresent(String.self, forKey: .label)
         
         if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
             self.nodeName = try .fromLLMNodeName(nodeNameString)

@@ -52,7 +52,8 @@ extension NodeViewModel {
                 canvasEntity: canvasEntity,
                 userVisibleType: patchNode.defaultUserVisibleType,
                 splitterNode: splitter,
-                mathExpression: patchNode.patch == .mathExpression ? "" : nil)
+                mathExpression: patchNode.patch == .mathExpression ? "" : nil,
+                javaScriptNodeSettings: nil)
             
             let nodeEntity = NodeEntity(id: id,
                                         nodeTypeEntity: .patch(patchNode),

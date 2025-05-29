@@ -34,6 +34,7 @@ final actor StitchAIManager {
     
     @MainActor var currentTask: Task<Void, Never>?
     @MainActor weak var documentDelegate: StitchDocumentViewModel?
+    @MainActor var jsRequestNodeId: NodeId?
 
     init?() throws {
         guard let secrets = try Secrets() else {
@@ -82,6 +83,7 @@ extension StitchAIManager {
         
         currentTask.cancel()
         self.currentTask = nil
+        self.jsRequestNodeId = nil
     }
     
     @MainActor static func getDeviceUUID() throws -> String? {

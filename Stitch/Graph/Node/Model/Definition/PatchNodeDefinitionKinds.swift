@@ -335,6 +335,8 @@ extension Patch {
             return SpringFromResponseAndDampingRatioNode.self
         case .springFromSettlingDurationAndDampingRatio:
             return SpringFromSettlingDurationAndDampingRatioNode.self
+        case .javascript:
+            return JavaScriptNode.self
         }
     }
 }

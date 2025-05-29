@@ -168,12 +168,26 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 /// Process search results in the insert node menu sheet
 struct GenerateAINode: StitchDocumentEvent {
     let prompt: String
+    let requestType: OpenAIRequest.RequestType
     
     func handle(state: StitchDocumentViewModel) {
+        state.stitchAIRequest(requestType,
+                              prompt: prompt)
+    }
+}
+
+extension StitchDocumentViewModel {
+    @MainActor
+    func stitchAIRequest(_ requestType: OpenAIRequest.RequestType,
+                         prompt: String) {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(prompt)")
+        let state = self
         
-        assertInDebug(state.aiManager?.secrets != nil)
+        guard let secrets = state.aiManager?.secrets else {
+            fatalErrorIfDebug("Invalid AI request when no secrets were made.")
+            return
+        }
         
         let graph = state.visibleGraph
         
@@ -188,6 +202,8 @@ struct GenerateAINode: StitchDocumentEvent {
         // Dispatch OpenAI request
         do {
             let request = try OpenAIRequest(prompt: prompt,
+                                            requestType: requestType,
+                                            secrets: secrets,
                                             graph: graph)
             state.aiManager?.handleRequest(request)
         } catch {

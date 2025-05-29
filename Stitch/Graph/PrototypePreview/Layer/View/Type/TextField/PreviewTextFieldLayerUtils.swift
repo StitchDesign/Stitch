@@ -85,7 +85,7 @@ extension FocusedUserEditField {
         case .commentBox:
             return nil
             
-        case .projectTitle, .jsonPopoverOutput, .insertNodeMenu, .textFieldLayer, .any, .llmRecordingModal, .stitchAIPromptModal, .sidebarLayerTitle, .previewWindowSettingsWidth, .previewWindowSettingsHeight, .prototypeWindow, .prototypeTextField, .sidebar, .nodeInputPortSelection, .aiPreviewerTextField:
+        default:
             return nil
         }
     }

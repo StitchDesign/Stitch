@@ -33,22 +33,47 @@ struct OpenAIRequestConfig {
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
 struct OpenAIRequest {
+    enum RequestType {
+        case stitchAIGraph
+        case jsNode
+    }
+    
     private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
     let prompt: String             // User's input prompt
-    let systemPrompt: String       // System-level instructions loaded from file
     let config: OpenAIRequestConfig // Request configuration settings
+    let payloadData: Data
     
     /// Initialize a new request with prompt and optional configuration
     @MainActor
     init(prompt: String,
+         requestType: RequestType,
+         secrets: Secrets,
          config: OpenAIRequestConfig = .default,
          graph: GraphState) throws {
+        let encoder = JSONEncoder()
+        
         self.prompt = prompt
         self.config = config
         
         // Load system prompt from bundled file
-        let loadedPrompt = try StitchAIManager.systemPrompt(graph: graph)
-        self.systemPrompt = loadedPrompt
+        switch requestType {
+        case .stitchAIGraph:
+            let systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
+
+            // Construct http payload
+            let payload = try StitchAIRequest(secrets: secrets,
+                                              userPrompt: prompt,
+                                              systemPrompt: systemPrompt)
+            self.payloadData = try encoder.encode(payload)
+        case .jsNode:
+            let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
+            
+            // Construct http payload
+            let payload = try EditJsNodeRequest(secrets: secrets,
+                                                userPrompt: prompt,
+                                                systemPrompt: systemPrompt)
+            self.payloadData = try encoder.encode(payload)
+        }
     }
 }
 
@@ -143,8 +168,6 @@ extension StitchAIManager {
                              attempt: Int = 1,
                              lastCapturedError: String? = nil) async throws -> [Step] {
         let config = request.config
-        let prompt = request.prompt
-        let systemPrompt = request.systemPrompt
         
         guard let _ = self.documentDelegate else {
             throw StitchAIManagerError.documentNotFound(request)
@@ -171,17 +194,9 @@ extension StitchAIManager {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(self.secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
         
-        // Construct request payload
-        let payload = try StitchAIRequest(secrets: secrets,
-                                          userPrompt: prompt,
-                                          systemPrompt: systemPrompt)
-        
         // Serialize and send request
         do {
-            let encoder = JSONEncoder()
-//            encoder.outputFormatting = [.withoutEscapingSlashes]
-            let jsonData = try encoder.encode(payload)
-            urlRequest.httpBody = jsonData
+            urlRequest.httpBody = request.payloadData
             log("Making request attempt \(attempt) of \(config.maxRetries)")
             // log("Request payload: \(payload.description)")
         } catch {

@@ -1689,3 +1689,6 @@ Works with:
 *Outputs*
 * The constituent values that make up the input
 
+### JavaScript
+
+A node that uses JavaScript code underneath the hood. Can be created using Stitch AI.

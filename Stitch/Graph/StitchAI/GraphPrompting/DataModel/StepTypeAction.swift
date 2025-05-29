@@ -16,6 +16,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
     case sidebarGroupCreated(StepActionLayerGroupCreated)
+    case editJSNode(StepActionEditJSNode)
     
     var stepType: StepType {
         switch self {
@@ -29,6 +30,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionSetInput.stepType
         case .sidebarGroupCreated:
             return StepActionLayerGroupCreated.stepType
+        case .editJSNode:
+            return StepActionEditJSNode.stepType
         }
     }
     
@@ -44,12 +47,16 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return x.toStep
         case .sidebarGroupCreated(let x):
             return x.toStep
+        case .editJSNode(let x):
+            return x.toStep
         }
     }
     
     static func fromStep(_ action: Step) throws -> Self {
         let stepType = action.stepType
         switch stepType {
+        case .none:
+            throw StitchAIManagerError.actionValidationError("No step defined.")
             
         case .addNode:
             let x = try StepActionAddNode.fromStep(action)
@@ -70,6 +77,10 @@ enum StepTypeAction: Equatable, Hashable, Codable {
         case .sidebarGroupCreated:
             let x = try StepActionLayerGroupCreated.fromStep(action)
             return .sidebarGroupCreated(x)
+
+        case .editJSNode:
+            let x = try StepActionEditJSNode.fromStep(action)
+            return .editJSNode(x)
         }
     }
 }
@@ -144,6 +155,8 @@ extension Step {
     func convertToType() throws -> any StepActionable {
         let stepType = self.stepType
         switch stepType {
+        case .none:
+            throw StitchAIManagerError.actionValidationError("No step defined.")
             
         case .addNode:
             return try StepActionAddNode.fromStep(self)
@@ -159,6 +172,9 @@ extension Step {
         
         case .sidebarGroupCreated:
             return try StepActionLayerGroupCreated.fromStep(self)
+            
+        case .editJSNode:
+            return try StepActionEditJSNode.fromStep(self)
         }
     }
 }
@@ -570,5 +586,94 @@ struct StepActionSetInput: StepActionable {
             throw StitchAIManagerError
                 .actionValidationError("SetInput: Node \(self.nodeId.debugFriendlyId) does not yet exist")
         }
+    }
+}
+
+struct StepActionEditJSNode {
+    static let stepType: StepType = .editJSNode
+    
+    var settings: JavaScriptNodeSettings
+    
+}
+extension StepActionEditJSNode: StepActionable {
+    init(script: String,
+         inputDefinitions: [JavaScriptPortDefinition],
+         outputDefinitions: [JavaScriptPortDefinition]) {
+        self.init(settings: .init(script: script,
+                                  inputDefinitions: inputDefinitions,
+                                  outputDefinitions: outputDefinitions)
+        )
+    }
+    
+    var script: String {
+        self.settings.script
+    }
+    var inputDefinitions: [JavaScriptPortDefinition] {
+        self.settings.inputDefinitions
+    }
+    var outputDefinitions: [JavaScriptPortDefinition] {
+        self.settings.outputDefinitions
+    }
+    
+    static func fromStep(_ action: Step) throws -> StepActionEditJSNode {
+        guard let script = action.script,
+              let inputs: [JavaScriptPortDefinition] = .init(from: action.inputDefinitions),
+              let outputs: [JavaScriptPortDefinition] = .init(from: action.outputDefinitions) else {
+            // TODO: error here
+            print("JavaScript node: unable extract all requested data from: \(action)")
+            throw StitchAIManagerError.apiResponseError
+        }
+        
+        return .init(script: script,
+                     inputDefinitions: inputs,
+                     outputDefinitions: outputs)
+    }
+    
+    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [
+        .stepType, .script, .inputDefinitions, .outputDefinitions
+    ]
+    
+    var toStep: Step {
+        Step(stepType: .editJSNode,
+             script: script,
+             inputDefinitions: inputDefinitions.map(\.aiStep),
+             outputDefinitions: outputDefinitions.map(\.aiStep))
+    }
+    
+    static func createStructuredOutputs() -> StitchAIStepSchema {
+        .init(stepType: .editJSNode,
+              script: OpenAISchema(type: .string),
+              inputDefinitions: OpenAISchemaRef(ref: "PortDefinitions"),
+              outputDefinitions: OpenAISchemaRef(ref: "PortDefinitions")
+        )
+    }
+    
+    func applyAction(document: StitchDocumentViewModel) throws {
+        let graph = document.visibleGraph
+        
+        guard let nodeId = document.aiManager?.jsRequestNodeId,
+              let node = graph.getNode(nodeId),
+              let patchNode = node.patchNode else {
+            throw StitchAIManagerError.apiResponseError
+        }
+        
+        // Reset request
+        document.aiManager?.jsRequestNodeId = nil
+        
+        // Sets new data and recalculate
+        patchNode.processNewJavascript(response: self.settings)
+    }
+    
+    func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
+        // Nothing to do
+    }
+    
+    func validate(createdNodes: inout [NodeId : PatchOrLayer]) throws {
+        // Nothing to do
+    }
+    
+    func remapNodeIds(nodeIdMap: [UUID : UUID]) -> StepActionEditJSNode {
+        // Do nothing
+        return self
     }
 }

@@ -9,23 +9,17 @@ import SwiftUI
 import StitchSchemaKit
 import SwiftyJSON
 
-extension StitchAIManager {
-    static let structuredOutputs = StitchAIStructuredOutputsPayload()
-    
-    static func printStructuredOutputsSchema() {
-        do {
-            let schema = try structuredOutputs.printSchema()
-            print(schema)
-        } catch {
-            print("Failed to print schema:", error)
-        }
-    }
-}
-
 struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
     var defs = StitchAIStructuredOutputsDefinitions()
     var schema = StitchAIStructuredOutputsSchema()
-    
+}
+
+struct EditJsNodeStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
+    var defs = EditJsNodeStructuredOutputsDefinitions()
+    var schema = EditJsNodeStructuredOutputsSchema()
+}
+
+extension OpenAISchemaDefinable {
     func printSchema() throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
@@ -45,6 +39,16 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
                               title: Self.title)
 }
 
+struct EditJsNodeStructuredOutputsSchema: OpenAISchemaCustomizable {
+    static let title = "VisualProgrammingActions"
+    
+    var properties = EditJsNodeStepsSchema()
+    
+    var schema = OpenAISchema(type: .object,
+                              required: ["steps"],
+                              additionalProperties: false,
+                              title: Self.title)
+}
 struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
@@ -74,6 +78,20 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     )
 }
 
+struct EditJsNodeStructuredOutputsDefinitions: Encodable {
+    // Step actions
+    let EditJsNodeAction = StepStructuredOutputs(StepActionEditJSNode.self)
+    
+    // Types
+    let ValueType = OpenAISchemaEnum(values:
+                                        NodeType.allCases
+        .filter { $0 != .none }
+        .map { $0.asLLMStepNodeType }
+    )
+
+    // TODO: add port definitions to structured outputs
+}
+
 struct StitchAIStepsSchema: Encodable {
     let steps = OpenAISchema(type: .array,
                              description: "The actions taken to create a graph",
@@ -83,6 +101,15 @@ struct StitchAIStepsSchema: Encodable {
                                 .init(ref: "ChangeValueTypeAction"),
                                 .init(ref: "SetInputAction"),
                                 .init(ref: "SidebarGroupCreatedAction")
+                             ])
+    )
+}
+
+struct EditJsNodeStepsSchema: Encodable {
+    let steps = OpenAISchema(type: .array,
+                             description: "The action needed to create a JavaScript node",
+                             items: OpenAIGeneric(refs: [
+                                .init(ref: "EditJsNodeAction")
                              ])
     )
 }
@@ -118,6 +145,10 @@ struct StitchAIStepSchema: Encodable {
     var value: OpenAIGeneric? = nil
     var valueType: OpenAISchemaRef? = nil
     var children: OpenAISchemaRef? = nil
+    var script: OpenAISchema? = nil
+    var inputDefinitions: OpenAISchemaRef? = nil
+    var outputDefinitions: OpenAISchemaRef? = nil
+    var label: OpenAISchema? = nil
     
     func encode(to encoder: Encoder) throws {
         // Reuses coding keys from Step struct
@@ -136,5 +167,9 @@ struct StitchAIStepSchema: Encodable {
         try container.encodeIfPresent(value, forKey: .value)
         try container.encodeIfPresent(valueType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
+        try container.encodeIfPresent(script, forKey: .script)
+        try container.encodeIfPresent(inputDefinitions, forKey: .inputDefinitions)
+        try container.encodeIfPresent(outputDefinitions, forKey: .outputDefinitions)
+        try container.encodeIfPresent(label, forKey: .label)
     }
 }

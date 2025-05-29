@@ -35,12 +35,48 @@ struct StitchAIRequest: OpenAIRequestable {
     }
 }
 
+struct EditJsNodeRequest: OpenAIRequestable {
+    let model: String
+    let n: Int
+    let temperature: Double
+    let response_format: EditJsNodeResponseFormat
+    let messages: [OpenAIMessage]
+    
+    init(secrets: Secrets,
+         userPrompt: String,
+         systemPrompt: String) throws {
+        let responseFormat = EditJsNodeResponseFormat()
+        let structuredOutputs = responseFormat.json_schema.schema
+        
+        self.model = secrets.openAIModel
+        self.n = 1
+        self.temperature = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
+        self.response_format = responseFormat
+        self.messages = [
+            .init(role: .system,
+                  content: systemPrompt + "Make sure your response follows this schema: \(try structuredOutputs.encodeToPrintableString())"),
+            .init(role: .user,
+                  content: userPrompt)
+        ]
+    }
+}
+
 struct StitchAIResponseFormat: OpenAIResponseFormatable {
     let type = "json_schema"
     let json_schema = StitchAIJsonSchema()
 }
 
+struct EditJsNodeResponseFormat: OpenAIResponseFormatable {
+    let type = "json_schema"
+    let json_schema = EditJsNodeJsonSchema()
+}
+
 struct StitchAIJsonSchema: OpenAIJsonSchema {
     let name = StitchAIStructuredOutputsSchema.title
     let schema = StitchAIStructuredOutputsPayload()
+}
+
+struct EditJsNodeJsonSchema: OpenAIJsonSchema {
+    let name = EditJsNodeStructuredOutputsSchema.title
+    let schema = EditJsNodeStructuredOutputsPayload()
 }

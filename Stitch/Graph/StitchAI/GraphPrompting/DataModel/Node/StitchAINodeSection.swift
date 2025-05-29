@@ -83,7 +83,7 @@ extension Patch {
     var section: NodeSection {
         switch self {
             // MARK: General Nodes
-        case .splitter, .random, .counter, .flipSwitch:
+        case .splitter, .random, .counter, .flipSwitch, .javascript:
             return .general
             
             // MARK: Math Operation Nodes
