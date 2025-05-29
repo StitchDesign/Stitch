@@ -61,13 +61,40 @@ struct LayerInspectorView: View {
                     layerInputObserverDict: layerInspectorData.inputs,
                     layerOutputs: layerInspectorData.outputs)
             } else {
-                // Empty List, so have same background
-                List { }
-//                EmptyView()
+                emptyState
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .scrollContentBackground(.hidden)
         .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
+    }
+    
+    var description: String {
+#if targetEnvironment(macCatalyst)
+"""
+The Layer Inspector displays inputs for\na selected layer from the layer sidebar.
+"""
+#else
+        "The Layer Inspector displays inputs for a selected layer from the layer sidebar."
+#endif
+    }
+    
+    @ViewBuilder
+    var emptyState: some View {
+        SidebarEmptyStateView(title: "No Layer Selected",
+                              description: self.description) {
+            Button(action: {
+                document.leftSidebarOpen = true
+            }) {
+                Image(systemName: "sidebar.left")
+                Text("Open Layer Sidebar")
+            }
+        }
+#if targetEnvironment(macCatalyst)
+.frame(width: 300)
+#else
+.padding(.horizontal)
+#endif
     }
     
     @MainActor @ViewBuilder

@@ -196,6 +196,7 @@ extension StitchDocumentViewModel {
     // Used by insert-node-menu and sidebar-group-creation
     @MainActor
     func handleNewlyCreatedNode(node: NodeViewModel) {
+        let graph = self.visibleGraph
 
         // Note: DO NOT RESET THE ACTIVE NODE MENU SELECTION UNTIL ANIMATION HAS COMPLETED
         // Reset selection for insert node menu
@@ -204,16 +205,31 @@ extension StitchDocumentViewModel {
         node.getAllCanvasObservers().forEach {
             $0.parentGroupNodeId = self.groupNodeFocused?.groupNodeId
         }
-        self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
+        graph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
         // TODO: if we calculate the graph BEFORE we "initialize the delegate", would graph eval "fail"?
         node.initializeDelegate(graph: self.visibleGraph,
                                 document: self)
         
-        self.visibleGraph.calculateFullGraph()
+        // Update sidebar data after node has been added to state
+        // EXCEPT for group layer nodes, which update sidebar with different logic
+        if let layerNode = node.layerNode,
+           layerNode.layer != .group {
+            let isFirstLayer = graph.layersSidebarViewModel.items.isEmpty
+            
+            // Open sidebars if first created layer
+            if isFirstLayer {
+                self.leftSidebarOpen = true
+                self.storeDelegate?.showsLayerInspector = true
+            }
+            
+            graph.updateLayerSidebar(with: layerNode)
+        }
+        
+        graph.calculateFullGraph()
         
         // Reset nodes layout cache
-        self.visibleGraph.visibleNodesViewModel.resetVisibleCanvasItemsCache()
+        graph.visibleNodesViewModel.resetVisibleCanvasItemsCache()
         
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?
@@ -223,9 +239,31 @@ extension StitchDocumentViewModel {
 
         self.graphMovement.draggedCanvasItem = nil
     }
+    
 }
 
 extension GraphState {
+    @MainActor
+    func updateLayerSidebar(with newLayerNode: LayerNodeViewModel) {
+        // Update sidebar data
+        var sidebarLayerData = SidebarLayerData(id: newLayerNode.id)
+        
+        // Creates group node data for reality node
+        if newLayerNode.isGroupLayer {
+            sidebarLayerData.children = []
+            sidebarLayerData.isExpandedInSidebar = true
+        }
+        
+        var newSidebarData = self.layersSidebarViewModel.createdOrderedEncodedData()
+        newSidebarData.insert(sidebarLayerData, at: 0)
+        self.layersSidebarViewModel.update(from: newSidebarData)
+        
+        // Focus this, and only this, layer node in inspector
+        self.layersSidebarViewModel.resetEditModeSelections()
+        self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
+        self.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
+        self.resetSelectedCanvasItems()
+    }
 
     @MainActor
     func createNode(graphTime: TimeInterval,
@@ -264,25 +302,6 @@ extension GraphState {
                 position: center.toCGSize,
                 zIndex: highestZIndex + 1,
                 graphDelegate: self)
-        
-        // Update sidebar data
-        var sidebarLayerData = SidebarLayerData(id: layerNode.id)
-        
-        // Creates group node data for reality node
-        if layerNode.isGroupLayer {
-            sidebarLayerData.children = []
-            sidebarLayerData.isExpandedInSidebar = true
-        }
-        
-        var newSidebarData = self.layersSidebarViewModel.createdOrderedEncodedData()
-        newSidebarData.insert(sidebarLayerData, at: 0)
-        self.layersSidebarViewModel.update(from: newSidebarData)
-        
-        // Focus this, and only this, layer node in inspector
-        self.layersSidebarViewModel.resetEditModeSelections()
-        self.layersSidebarViewModel.sidebarItemSelectedViaEditMode(sidebarLayerData.id)
-        self.layersSidebarViewModel.selectionState.lastFocused = sidebarLayerData.id
-        self.resetSelectedCanvasItems()
         
         return layerNode
     }

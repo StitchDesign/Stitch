@@ -87,59 +87,43 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
     
     // Note: sidebar-list-items is a flat list;
     // indentation is handled by calculated indentations.
-    @MainActor
+    @MainActor @ViewBuilder
     var listView: some View {
         let allFlattenedItems = self.sidebarViewModel.getVisualFlattenedList()
         
-        return ScrollView(.vertical) {
-            ZStack(alignment: .topLeading) {
-                // HACK
-                if allFlattenedItems.isEmpty {
-                    Color.clear
-                }
-                
-                ForEach(allFlattenedItems) { item in
-                    SidebarListItemSwipeView(
-                        graph: graph,
-                        document: document,
-                        sidebarViewModel: sidebarViewModel,
-                        gestureViewModel: item)
-                } // ForEach
-                
-            } // ZStack
-            
-            // Need to specify the amount space (height) the sidebar items all-together need,
-            // so that scroll view doesn't interfere with e.g. tap gestures on views deeper inside
-            // (e.g. the tap gesture on the circle in edit-mode)
-            .frame(height: Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT * allFlattenedItems.count),
-                   alignment: .top)
-        
-//            #if DEV_DEBUG
-//            .border(.purple)
-//            #endif
-        } // ScrollView // added
-        .scrollContentBackground(.hidden)
-//        .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
-        
-//        .background {
-//            Color.yellow.opacity(0.5)
-//        }
-        
-//        #if DEV_DEBUG
-//        .border(.green)
-//        #endif
-
-        
-#if !targetEnvironment(macCatalyst)
-        .toolbar {
-            SidebarEditButtonView(sidebarViewModel: self.sidebarViewModel)
+        // Empty state
+        if allFlattenedItems.isEmpty {
+            ProjectSidebarEmptyView(document: document)
+                .frame(width: NodeEmptyStateAboutButtonsView.defaultWidth)
         }
+        
+        // Normal layers sidebar view
+        else {
+            ScrollView(.vertical) {
+                ZStack(alignment: .topLeading) {
+                    ForEach(allFlattenedItems) { item in
+                        SidebarListItemSwipeView(
+                            graph: graph,
+                            document: document,
+                            sidebarViewModel: sidebarViewModel,
+                            gestureViewModel: item)
+                    } // ForEach
+                } // ZStack
+                .frame(height: Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT * allFlattenedItems.count),
+                       alignment: .top)
+            } // ScrollView // added
+            .scrollContentBackground(.hidden)
+#if !targetEnvironment(macCatalyst)
+            .toolbar {
+                SidebarEditButtonView(sidebarViewModel: self.sidebarViewModel)
+            }
 #endif
-        // TODO: remove some of these animations ?
-        .animation(.spring(), value: isBeingEdited)        
-        .onChange(of: isBeingEdited) { _, newValue in
-            // This handler enables all animations
-            isBeingEditedAnimated = newValue
+            // TODO: remove some of these animations ?
+            .animation(.spring(), value: isBeingEdited)
+            .onChange(of: isBeingEdited) { _, newValue in
+                // This handler enables all animations
+                isBeingEditedAnimated = newValue
+            }
         }
     }
 }

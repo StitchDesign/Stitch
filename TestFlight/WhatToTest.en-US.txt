@@ -1,12 +1,8 @@
-New
- - Prototyping with scroll views now easier with the “auto” scroll option in layer groups
- - Edge dragging support for the Layer inspector
- - Support for node shortcuts without the Option key via app settings
- - New shortcuts for nodes, including layers
+Improvements to Stitch Understandability
+ - About popovers on patches and layers surface key details without leaving the canvas
+ - Empty graphs now show helpful tips and direct links to documentation
+ - Sidebars open automatically when you create the first layer for smoother onboarding
+ - Layer inspector displays a clear title for better clarity on Layer focus state
 
-Improvements/Fixes
- - Menu commands reorganized for clearer navigation
- - Nodes that support multiple data types are labeled Value instead of Number for better clarity
- - Improved sidebar item selection handling
- - Keyboard node key-press detection only fires when the prototype preview window is focused
- - App no longer switches into AI augmentation mode after an OpenAI request
+Bug Fixes
+ - Network Request patch outputs match the selected node type and update when the type changes
