@@ -240,7 +240,7 @@ extension JSONDecoder {
             let result = try self.decode(T.self, from: data)
             return result
         } catch {
-            throw StitchAIManagerError.decodeObjectFromString(string, error.localizedDescription)
+            throw StitchAIParsingError.decodeObjectFromString(string, error.localizedDescription)
         }
     }
 }
@@ -273,7 +273,7 @@ extension KeyedDecodingContainerProtocol {
             let result = try newDecoder.decode(T.self, from: data)
             return result
         } catch {
-            throw StitchAIManagerError.decodeObjectFromString(string, error.localizedDescription)
+            throw StitchAIParsingError.decodeObjectFromString(string, error.localizedDescription)
         }
     }
 }
@@ -294,203 +294,37 @@ extension PortValue {
     }
 }
 
+extension NodeIOPortType {
+    // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
+    // Note: the older LLMAction port-string-parsing logic was more complicated?
+    init(stringValue: String) throws {
+        let port = stringValue
+  
+        if let portId = Int(port) {
+            // could be patch input/output OR layer output
+            self = .portIndex(portId)
+        } else if let portId = Double(port) {
+            // could be patch input/output OR layer output
+            self = .portIndex(Int(portId))
+        } else if let layerInputPort: LayerInputPort = LayerInputPort.allCases.first(where: { $0.asLLMStepPort == port }) {
+            let layerInputType = LayerInputType(layerInput: layerInputPort,
+                                                // TODO: support unpacked with StitchAI
+                                                portType: .packed)
+            self = .keyPath(layerInputType)
+        } else {
+            throw StitchAIParsingError.portTypeDecodingError(port)
+        }
+    }
+}
 
-// MARK: deprecated, please see StitchAICodableTypes.swift and use `StitchAIStringConvertable`.
-//extension PortValue {
-//    
-//    // a better (PortValue -> JSONFriendlyFormat) conversion than the JFF.init(value:)
-//    
-//    // How we tell the LLM about a PortValue
-//    // (PortValue -> JSONFriendlyFormat)
-//    // JSONFriendlyFormat is how we describe a PortValue to the LLM
-//    // nil = we currently do not properly handle that PortValue type with the LLM
-//    var llmFriendlyDisplay: JSONFriendlyFormat? {
-//        
-//        log("PortValue.llmFriendlyDisplay: self: \(self)")
-//        
-//        switch self {
-//        
-//        case .string(let x):
-//            return .string(x.string)
-//        
-//        case .bool(let x):
-//            return .string(self.display)
-//        
-//        case .int(let x):
-//            return .number(Double(x))
-//            
-//        case .number(let x):
-//            return .number(x)
-//        
-//            // should be a layer size, i.e. a string?
-//        case .layerDimension(let x):
-//            // TODO: JAN 29: is this correct?
-//            return .string(x.description)
-//        
-//        case .transform(let x):
-//            // TODO: JAN 29: use a full dictionary here?
-//            fatalErrorIfDebug()
-//            return nil
-//        
-//        case .plane(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .networkRequestType(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .color(let x):
-//            // TODO: JAN 29: LLM represents colors as hex?
-//            return .string(x.asHexDisplay)
-//        
-//        case .size(let x):
-//            return .layerSizeDictionary(x.asLayerDictionary)
-//        
-//        case .position(let x):
-//            return .dictionary(x.asDictionary)
-//        
-//        case .point3D(let x):
-//            return .dictionary(x.asDictionary)
-//        
-//        case .point4D(let x):
-//            return .dictionary(x.asDictionary)
-//            
-//        case .pulse(let x):
-//            // TODO: JAN 29: how does LLM handle pulses?
-//            return .number(x)
-//        
-//        case .asyncMedia(let x):
-//            // TODO: JAN 29: how does LLM handle media?
-//            fatalErrorIfDebug()
-//            return nil
-//        
-//        case .json(let x):
-//            return .json(x.value)
-//            
-//        case .none:
-//            // TODO: JAN 29: not really used?
-//            return .string("None")
-//        
-//        case .anchoring(let x):
-//            return .dictionary(x.asDictionary)
-//            
-//        case .cameraDirection(let x):
-//            return x.rawValue.asJFFString
-//        
-//        // treat as a string?
-//            // What happens if assigned layer = nil
-//        case .assignedLayer(let x):
-//            // TODO: JAN 29: better way to handle nil with JSONFriendlyFormat
-//            // i.e. x?.id.description ?? "None"
-//            return .string(self.display)
-//            
-//        case .scrollMode(let x):
-//            return x.rawValue.asJFFString
-//        case .textAlignment(let x):
-//            return x.rawValue.asJFFString
-//        case .textVerticalAlignment(let x):
-//            return x.rawValue.asJFFString
-//        case .fitStyle(let x):
-//            return x.rawValue.asJFFString
-//        case .animationCurve(let x):
-//            return x.rawValue.asJFFString
-//        case .lightType(let x):
-//            return x.rawValue.asJFFString
-//        case .layerStroke(let x):
-//            return x.rawValue.asJFFString
-//        case .textTransform(let x):
-//            return x.rawValue.asJFFString
-//        case .dateAndTimeFormat(let x):
-//            return x.rawValue.asJFFString
-//        
-//        // treat as string ? or?
-//        case .shape(let x):
-//            // TODO: JAN 29: PortValue.shape is not really handle properly?
-//            fatalErrorIfDebug()
-//            return nil
-//            
-//        case .scrollJumpStyle(let x):
-//            return x.rawValue.asJFFString
-//        case .scrollDecelerationRate(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .comparable(let x):
-//            // TODO: JAN 29: how to handle
-//            fatalErrorIfDebug()
-//            return nil
-//            
-//        case .delayStyle(let x):
-//            return x.rawValue.asJFFString
-//        case .shapeCoordinates(let x):
-//            return x.rawValue.asJFFString
-//        case .shapeCommandType(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .shapeCommand(let x):
-//            fatalErrorIfDebug()
-//            return nil
-//            
-//        case .orientation(let x):
-//            return x.rawValue.asJFFString
-//        case .cameraOrientation(let x):
-//            return x.rawValue.asJFFString
-//        case .deviceOrientation(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .vnImageCropOption(let x):
-//            fatalErrorIfDebug()
-//            return nil
-//            
-//        case .textDecoration(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .textFont(let x): // a struct
-//            fatalErrorIfDebug()
-//            return nil
-//            
-//        case .blendMode(let x):
-//            return x.rawValue.asJFFString
-//        case .mapType(let x):
-//            return x.rawValue.asJFFString
-//        case .progressIndicatorStyle(let x):
-//            return x.rawValue.asJFFString
-//        case .mobileHapticStyle(let x):
-//            return x.rawValue.asJFFString
-//        case .strokeLineCap(let x):
-//            return x.rawValue.asJFFString
-//        case .strokeLineJoin(let x):
-//            return x.rawValue.asJFFString
-//        case .contentMode(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .spacing(let x):
-//            return x.display.asJFFString
-//            
-//        case .padding(let x):
-//            return .dictionary(x.asDictionary)
-//            
-//        case .sizingScenario(let x):
-//            return x.rawValue.asJFFString
-//        
-//        case .pinTo(let x):
-//            return x.display.asJFFString
-//            
-//        case .deviceAppearance(let x):
-//            return x.rawValue.asJFFString
-//            
-//        case .materialThickness(let x):
-//            return x.rawValue.asJFFString
-//            
-//        case .anchorEntity(let x):
-//            // TODO: JAN 29: handle properly
-//            fatalErrorIfDebug()
-//            return nil
-//        }
-//    }
-//}
-
-extension String {
-    
-    var asJFFString: JSONFriendlyFormat {
-        .string(self)
+extension NodeType {
+    init(llmString: String) throws {
+        guard let match = NodeType.allCases.first(where: {
+            $0.asLLMStepNodeType == llmString
+        }) else {
+            throw StitchAIParsingError.nodeTypeParsing(llmString)
+        }
+        
+        self = match
     }
 }

@@ -64,40 +64,33 @@ struct GraphBaseView: View {
         .overlay {
             // Show debug mode tip view
             if document.isDebugMode {
-                VStack {
-                    HStack {
-                        DebugModePopover()
-                        Spacer()
-                    }
-                    Spacer()
+                TopLeftCornerView {
+                    DebugModePopover()
                 }
             }
             
-            if document.llmRecording.modal == .approveAndSubmit {
-                VStack {
-                    HStack {
-                        LLMApprovalModalView(prompt: document.llmRecording.promptState.prompt)
-                        Spacer()
-                    }
-                    Spacer()
+            switch document.llmRecording.modal {
+                
+            case .editBeforeSubmit:
+                TopLeftCornerView {
+                    EditBeforeSubmitModalView(document: document, graph: graph)
                 }
-            }
-            
-            // Better to show modal here, so user can move around etc.
-            if document.llmRecording.modal == .editBeforeSubmit {
-                VStack {
-                    HStack {
-                        EditBeforeSubmitModalView(
-                            document: document,
-                            graph: graph)
-                        Spacer()
-                    }
-                    Spacer()
+                
+            case .approveAndSubmit:
+                TopLeftCornerView {
+                    ApproveAndSubmitModalView(prompt: document.llmRecording.promptForTrainingDataOrCompletedRequest)
                 }
+                
+            case .submitExistingGraphAsTrainingExample:
+                SubmitExistingGraphAsTrainingExampleModalView()
+                
+            case .none, .enterPromptForTrainingData, .ratingToast:
+                // Either not applicable, or handled elsewhere
+                EmptyView()
             }
         }
     }
-
+    
     @ViewBuilder @MainActor
     var nodesAndCursor: some View {
         ZStack {
@@ -128,8 +121,12 @@ struct GraphBaseView: View {
         
         .modifier(ActivelyDrawnEdge(graph: graph,
                                     scale: document.graphMovement.zoomData))
-        
         .coordinateSpace(name: Self.coordinateNamespace)
+        
+        .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
+                           onExpireAction: { dispatch(AIRatingToastExpiredWithoutRating()) },
+                           toastContent: { StitchAIRatingToast() })
+        
         .background {
             GeometryReader { geometry in
                 Color.clear
@@ -146,6 +143,23 @@ struct GraphBaseView: View {
         } // .background
     }
 }
+
+// Uses spacers and V/HStascks to place a view in the top left corner
+struct TopLeftCornerView<Content: View>: View {
+    
+    @ViewBuilder var content: () -> Content
+    
+    var body: some View {
+        VStack {
+            HStack {
+                content()
+                Spacer()
+            }
+            Spacer()
+        }
+    }
+}
+
 
 struct GraphHoverViewModifier: ViewModifier {
     @Binding var spaceHeld: Bool
@@ -184,3 +198,4 @@ struct GraphHoverViewModifier: ViewModifier {
 #endif
     }
 }
+

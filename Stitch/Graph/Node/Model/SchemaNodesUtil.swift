@@ -16,11 +16,11 @@ extension [NodePortInputEntity] {
         
         // Note: can be called for GroupNode as well?
         guard let patch = kind.getPatch else {
-            fatalErrorIfDebug("createInputObservers is not intended only for layer node inputs")
+            fatalErrorIfDebug("createInputObservers is not intended for layer node inputs")
             return .init()
         }
         
-        let defaultInputs: NodeInputDefinitions = kind.rowDefinitions(for: userVisibleType).inputs
+        let defaultInputs: NodeInputDefinitions = PatchOrLayer.patch(patch).rowDefinitionsOldOrNewStyle(for: userVisibleType).inputs
 
         // Determine count of inputs based on persisted data in case extra rows created
         // Note: look at input count from schema; important for e.g. removing inputs where e.g. LoopBuilder has had inputs removed and so has fewer inputs than the 5 declared in its node row definition

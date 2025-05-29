@@ -32,7 +32,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: self.document.insertNodeMenuState.isGeneratingAINode) { oldValue, newValue in
+            .onChange(of: self.document.insertNodeMenuState.isGeneratingAIResult) { oldValue, newValue in
                 let didCompleteAIRequest = oldValue != newValue && !newValue
                 if didCompleteAIRequest {
                     StitchAITrainingTip.hasCompletedOpenAIRequest = true

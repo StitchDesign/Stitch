@@ -30,11 +30,11 @@ enum LayerData {
 extension LayerData: Identifiable {
     var id: UUID {
         switch self {
-        case .nongroup(let id, let previewCoordinate, let isPinned):
+        case .nongroup(let id, let _, let _):
             return id
-        case .group(let id, let previewCoordinate, let children, let isPinned):
+        case .group(let id, let _, let _, let _):
             return id
-        case .mask(let masked, let masker):
+        case .mask(let masked, let _):
             return masked.first!.id
         }
     }
@@ -45,7 +45,7 @@ extension LayerData: Identifiable {
             return id
         case .group(_, let id, _, _):
             return id
-        case .mask(let masked, let masker):
+        case .mask(let masked, let _):
             return masked.first!.previewCoordinate
         }
     }

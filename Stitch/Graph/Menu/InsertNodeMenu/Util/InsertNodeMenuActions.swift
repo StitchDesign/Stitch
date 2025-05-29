@@ -67,6 +67,8 @@ extension Animation {
 struct CloseAndResetInsertNodeMenu: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         // log("CloseAndResetInsertNodeMenu called")
+        
+        state.aiManager?.cancelCurrentRequest()
 
         state.insertNodeMenuState = InsertNodeMenuState()
     }
@@ -116,6 +118,9 @@ extension StitchDocumentViewModel {
     func nodeCreationCompleted(_ immediatelyCreatedLayerNode: NodeId?) {
                 
          // log("InsertNodeAnimationCompleted called")
+
+        // Cancel any ongoing AI request
+        self.aiManager?.cancelCurrentRequest()
 
         // hide the menu and animated-node
         self.insertNodeMenuState.show = false

@@ -14,10 +14,11 @@ import StitchSchemaKit
 import StitchEngine
 import SwiftUI
 import Vision
+import OrderedCollections
 
 @Observable
 final class GraphState: Sendable {
-        
+    
     #if DEV_DEBUG || DEBUG
     @MainActor var DEBUG_GENERATING_CANVAS_ITEM_ITEM_SIZES: Bool = false
     #else

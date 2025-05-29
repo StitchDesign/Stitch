@@ -63,7 +63,7 @@ extension StitchDocumentViewModel {
         }
         
         // TODO: use Patch's .graphNode method; right now, however, NodeKind.rowDefinitions properly retrieves row definitions whether new or old style
-        let indexOfInputToChange = node.kind.rowDefinitions(for: selectedInputType).inputs
+        let indexOfInputToChange = node.kind.patchOrLayer?.rowDefinitionsOldOrNewStyle(for: selectedInputType).inputs
          // patch.graphNode?.rowDefinitions(for: selectedInputType).inputs
             .firstIndex(where: { !$0.isTypeStatic })
         // Else default to first input
@@ -120,7 +120,7 @@ extension StitchDocumentViewModel {
     @MainActor
     var newCanvasItemInsertionLocation: CGPoint {
         if let doubleTapLocation = self.doubleTapLocation {
-            log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
+            // log("newNodeCenterLocation: had doubleTapLocation: \(doubleTapLocation)")
             return adjustPositionToMultipleOf(doubleTapLocation)
         } else {
             var center = self.viewPortCenter

@@ -11,21 +11,41 @@ import SwiftyJSON
 // TODO: re-introduce the specific enum cases of Step, so that they can be manipulated more easily in views etc.
 struct EditBeforeSubmitModalView: View {
  
+    // Passed down as a Bindable so we can use with SwiftUI's Toggle
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    
+            
     var recordingState: LLMRecordingState {
         self.document.llmRecording
+    }
+    
+    // TODO: Shouldn't we *always* have a prompt at this point ?
+    var prompt: String {
+        recordingState.promptForTrainingDataOrCompletedRequest?.value ?? ""
     }
 
     var body: some View {
         VStack {
-            StitchTextView(string: "Prompt: \(recordingState.promptState.prompt)")
-                .font(.headline)
+            StitchTextView(string: "Help us improve Stitch AI by showing how us the graph should be.")
+                .font(.title2)
                 .padding(.top)
             
+            StitchTextView(string: "Prompt: \(prompt)")
+                .font(.headline)
+                .padding([.top])
+            
+            // TODO: shouldn't we *always* have a rating at this point ?
+            if let rating = recordingState.rating {
+                HStack {
+                    StitchTextView(string: "Rating: ")
+                    StitchAIRatingStarsView(currentRating: rating)
+                }
+                .padding([.top, .bottom])
+            }
+            
             List {
-                ForEach(self.recordingState.actions) { action in
+                // TODO: MAY 24: is hashValue okay here?
+                ForEach(self.recordingState.actions, id: \.hashValue) { action in
                     LLMActionCorrectionView(action: action,
                                             graph: graph)
                 }
@@ -58,7 +78,7 @@ struct EditBeforeSubmitModalView: View {
     var buttons: some View {
         HStack {
             Button(action: {
-                dispatch(LLMAugmentationCancelled())
+                dispatch(StitchAIActionReviewCancelled())
             }) {
                 Text("Cancel")
                     .padding()
@@ -66,7 +86,7 @@ struct EditBeforeSubmitModalView: View {
             
             Button(action: {
                 log("Stitch AI edit modal: will complete and dismiss")
-                dispatch(ShowLLMApprovalModal())
+                dispatch(ShowApproveAndSubmitModal())
             }) {
                 Text("Submit")
                     .padding()
@@ -107,17 +127,18 @@ struct LLMNodeIOPortTypeView: View {
 }
 
 struct LLMActionCorrectionView: View {
-    let action: Step
+    let action: any StepActionable
     @Bindable var graph: GraphState
         
     var body: some View {
         
         VStack(alignment: .leading, spacing: 8) {
             
-            // added
             stepTypeAndDeleteView
             
-            switch try? StepTypeAction.fromStep(action) {
+            // TODO: update views below to work with a proper
+            switch StepTypeAction.fromStep(action.toStep).value {
+                
             case .addNode(let x):
                 StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
 
@@ -184,11 +205,11 @@ struct LLMActionCorrectionView: View {
     @ViewBuilder
     var stepTypeAndDeleteView: some View {
         HStack {
-            StitchTextView(string: "Step Type: \(action.stepType.display)")
+            StitchTextView(string: "Step Type: \(action.toStep.stepType.display)")
             Spacer()
             Image(systemName: "trash")
                 .onTapGesture {
-                    dispatch(LLMActionDeleted(deletedAction: action))
+                    dispatch(StepActionDeletedFromEditModal(deletedStep: action))
                 }
         }
     }
@@ -197,17 +218,11 @@ struct LLMActionCorrectionView: View {
 // Hack for supporting check box on iOS
 struct CheckboxToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
-        // 1
         Button(action: {
-
-            // 2
             configuration.isOn.toggle()
-
         }, label: {
             HStack {
-                // 3
                 Image(systemName: configuration.isOn ? "checkmark.square" : "square")
-
                 configuration.label
             }
         })

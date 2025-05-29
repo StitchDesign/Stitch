@@ -29,6 +29,8 @@ struct StitchRootView: View {
     
     @AppStorage(SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME) private var savedIsOptionRequiredForShortcuts: String = Bool.defaultIsOptionRequiredForShortcuts.description
     
+    @AppStorage(SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME) private var canShareAIRetries: String = Bool.defaultIsOptionRequiredForShortcuts.description
+    
     @MainActor
     var alertState: ProjectAlertState {
         self.store.alertState
@@ -67,7 +69,7 @@ struct StitchRootView: View {
 //#if targetEnvironment(macCatalyst)
                     .overlay(alignment: .center) {
                         if let document = store.currentDocument, showMenu {
-                            InsertNodeMenuWrapper(document: document)
+                            InsertNodeMenuWithModalBackground(document: document)
                         } // if let document
                     } // .overlay
             }
@@ -84,6 +86,8 @@ struct StitchRootView: View {
             dispatch(AppEdgeStyleChangedEvent(newEdgeStyle: .init(rawValue: savedEdgeStyle) ?? .defaultEdgeStyle))
             
             dispatch(OptionRequiredForShortcutsChanged(newValue: .init(savedIsOptionRequiredForShortcuts) ?? Bool.defaultIsOptionRequiredForShortcuts))
+            
+            dispatch(CanShareAIRetriesChanged(newValue: .init(canShareAIRetries) ?? Bool.defaultCanShareAIRetries))
         }
         .onChange(of: self.columnVisibility, initial: true) { oldValue, newValue in
             let fn = { (open: Bool) in dispatch(LeftSidebarSet(open: open)) }

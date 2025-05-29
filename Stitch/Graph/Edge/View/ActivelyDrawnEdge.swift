@@ -26,7 +26,6 @@ struct ActivelyDrawnEdge: ViewModifier {
             return
         }
         
-        
         if let outputNodeId = drawingGesture.outputId.graphItemType.getCanvasItemId,
            let dragLocationInNodesViewCoordinateSpace = graph.dragLocationInNodesViewCoordinateSpace {
             graph.findEligibleCanvasInput(

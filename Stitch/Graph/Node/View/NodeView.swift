@@ -143,7 +143,12 @@ struct NodeView: View {
         .overlay {
             if document.llmRecording.mode == .augmentation &&
                 document.llmRecording.modal == .editBeforeSubmit {
-                let isAICreated = document.llmRecording.actions.containsNewNode(from: stitch.id)
+                
+                // Note: previously we only checked AddNode actions, but we need to 'highlight in blue' not only patch nodes added to the canvas but also layer inputs/fields/outputs;
+                // It's okay to return true on a SetInput or ConnectionAdded action because those actions imply the nodeId's node is on the canvas
+                // TODO: do we need to think through the remapping-node-ids logic here?
+                let isAICreated = document.llmRecording.actions.contains { $0.toStep.nodeId?.value == stitch.id }
+                
                 Color.blue.opacity(isAICreated ? 0.2 : 0)
                     .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                     .allowsHitTesting(!isAICreated)
