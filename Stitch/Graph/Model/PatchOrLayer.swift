@@ -88,7 +88,7 @@ enum PatchOrLayer: Equatable, Codable, Hashable {
         case .layer(let x):
             return .layer(x)
         case .group:
-            fatalErrorIfDebug()
+            // fatalErrorIfDebug()
             return nil
         }
     }
