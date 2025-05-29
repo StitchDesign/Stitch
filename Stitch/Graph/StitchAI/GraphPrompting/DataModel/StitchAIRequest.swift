@@ -22,7 +22,7 @@ struct StitchAIRequest: OpenAIRequestable {
     let stream: Bool
 
     init(secrets: Secrets,
-         userPrompt: String,
+         userPrompt: UserAIPrompt,
          systemPrompt: String) {
         
         self.model = secrets.openAIModel
@@ -33,7 +33,7 @@ struct StitchAIRequest: OpenAIRequestable {
             .init(role: .system,
                   content: systemPrompt + "Make sure your response follows this schema: \(ENCODED_OPEN_AI_STRUCTURED_OUTPUTS)"),
             .init(role: .user,
-                  content: userPrompt)
+                  content: userPrompt.value)
         ]
         
         // We always stream

@@ -141,7 +141,7 @@ struct ContentView: View, KeyboardReadable {
             }
         })
         .stitchSheet(isPresented: document.llmRecording.modal == .enterPromptForTrainingData,
-                     titleLabel: "LLM Recording",
+                     titleLabel: "Provide a prompt for the just-recorded graph",
                      hideAction: document.closedLLMRecordingPrompt,
                      sheetBody: {
             LLMAssignPromptToScratchLLMExampleModalView()

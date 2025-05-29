@@ -15,7 +15,7 @@ import OrderedCollections
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
 enum LLMRecordingMode: Equatable {
-    case normal
+    case normal // What does 'normal' really mean?
     case augmentation
 }
 
@@ -30,10 +30,14 @@ enum LLMRecordingModal: Equatable, Hashable {
     case approveAndSubmit
     
     // Modal from which user can enter a natural language prompt for the fresh training example they have *just finished creating*
+    // TODO: phase this out? Just submit whole graph / selected patches and layers as a training example
     case enterPromptForTrainingData
     
     // Modal (toast) from which user can rate the just-completed streaming request
-    case ratingToast(userInputPrompt: String) // OpenAIRequest.prompt i.e. user's natural language input
+    case ratingToast(userInputPrompt: UserAIPrompt) // OpenAIRequest.prompt i.e. user's natural language input
+    
+    // Modal from which user provides prompt and rating for an existing graph, which is then uploaded to Supabase as an example
+    case submitExistingGraphAsTrainingExample
 }
 
 extension LLMRecordingModal {
@@ -49,15 +53,17 @@ extension LLMRecordingModal {
 
 struct LLMRecordingState {
     
+    // If we're currently in a retry delay, we don't want to
     var currentlyInARetryDelay: Bool = false
     
     // TODO: should this live on StitchAIManager's `currentTask` ?
-    // Tracks steps as they come in
+    // Tracks steps as they stream in
     var streamedSteps: OrderedSet<Step> = .init()
     
-    // Are we actively recording redux-actions which we then turn into LLM-actions?
+    // Are we actively turning graph changes into AI-actions?
     var isRecording: Bool = false
     
+    // TODO: what does
     // Track whether we've shown the modal in normal mode
     var hasShownModalInNormalMode: Bool = false
     
@@ -86,6 +92,26 @@ struct LLMRecordingState {
     // Tracks graph state before recording
     var initialGraphState: GraphEntity?
     
-    // User has been recording a fresh training case; they provide this natural language description of what the training case is about / supposed to be.
-    var promptForJustCompletedTrainingData: String = ""
+    // The prompt we've manually provided for our training example;
+    // OR the saved prompt from a streaming request that has been completed
+    var promptForTrainingDataOrCompletedRequest: UserAIPrompt?
+    
+    var rating: StitchAIRating?
+}
+
+
+// TODO: can we organize AI-related logic/state by use-case ? e.g. generating nodes/layers vs a javascript node, vs creating a training example
+// "correcting actions" would fall under "generating graph"
+// There's a lot of state and views that overlap across use-cases...
+
+enum StitchAIMode: Equatable, Hashable {
+    
+    // Our classic use case: user submits prompt via node menu, which adds layers and patches to the current document
+    case generatingGraph
+    
+    // Our new use case: user submits prompt for a Javascript node, which adds a single JS node to the canvas
+    case generatingJavascriptNode
+    
+    // e.g. turning an existing graph into
+    case creatingTrainingData
 }

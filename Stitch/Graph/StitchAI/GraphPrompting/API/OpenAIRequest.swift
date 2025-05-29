@@ -21,7 +21,7 @@ let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 /// Main event handler for initiating OpenAI API requests
 struct OpenAIRequest: Equatable, Hashable {
     private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
-    let prompt: String             // User's input prompt
+    let prompt: UserAIPrompt             // User's input prompt
     let systemPrompt: String       // System-level instructions loaded from file
     let config: OpenAIRequestConfig // Request configuration settings
     
@@ -30,7 +30,7 @@ struct OpenAIRequest: Equatable, Hashable {
     init(prompt: String,
          config: OpenAIRequestConfig = .default,
          systemPrompt: String) {
-        self.prompt = prompt
+        self.prompt = .init(prompt)
         self.config = config
         self.systemPrompt = systemPrompt
     }
@@ -252,7 +252,7 @@ extension StitchAIManager {
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
     // fka `openAIRequestCompleted`
     @MainActor
-    func openAIStreamingCompleted(originalPrompt: String,
+    func openAIStreamingCompleted(originalPrompt: UserAIPrompt,
                                   request: OpenAIRequest,
                                   document: StitchDocumentViewModel) {
         log("openAIStreamingCompleted called")
@@ -266,7 +266,7 @@ extension StitchAIManager {
          document.insertNodeMenuState.isGeneratingAIResult = false
 
         log(" Storing Original AI Generated Actions ")
-        document.llmRecording.promptForJustCompletedTrainingData = originalPrompt
+        document.llmRecording.promptForTrainingDataOrCompletedRequest = originalPrompt
         
         // Enable edit mode for actions after successful request
 //        document.llmRecording.mode = .augmentation

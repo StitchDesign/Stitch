@@ -10,9 +10,9 @@ import Foundation
 
 extension StitchDocumentViewModel {
 
+    // TODO: should this be based on `StitchDocument`, so that we can support components with actions etc. ? ... have to update the LLM-actions to include graphId ?
     @MainActor
     static func deriveNewAIActions(oldGraphEntity: GraphEntity?,
-//                                   visibleGraph: GraphReader) -> [Step] {
                                    visibleGraph: GraphReader) -> [any StepActionable] {
         // Can this truly be optional ?
         guard let oldGraphEntity = oldGraphEntity else {

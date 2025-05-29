@@ -11,9 +11,10 @@ import SwiftyJSON
 // TODO: re-introduce the specific enum cases of Step, so that they can be manipulated more easily in views etc.
 struct EditBeforeSubmitModalView: View {
  
+    // Passed down as a Bindable so we can use with SwiftUI's Toggle
     @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
-    
+            
     var recordingState: LLMRecordingState {
         self.document.llmRecording
     }
@@ -24,8 +25,9 @@ struct EditBeforeSubmitModalView: View {
                 .font(.title2)
                 .padding(.top)
             
-            StitchTextView(string: "Prompt: \(recordingState.promptForJustCompletedTrainingData)")
+            StitchTextView(string: "Prompt: \(recordingState.promptForTrainingDataOrCompletedRequest)")
                 .font(.headline)
+                .padding(.top)
             
             List {
                 // TODO: MAY 24: is hashValue okay here?
@@ -62,7 +64,7 @@ struct EditBeforeSubmitModalView: View {
     var buttons: some View {
         HStack {
             Button(action: {
-                dispatch(LLMAugmentationCancelled())
+                dispatch(StitchAIActionReviewCancelled())
             }) {
                 Text("Cancel")
                     .padding()
@@ -70,7 +72,7 @@ struct EditBeforeSubmitModalView: View {
             
             Button(action: {
                 log("Stitch AI edit modal: will complete and dismiss")
-                dispatch(ShowLLMApprovalModal())
+                dispatch(ShowApproveAndSubmitModal())
             }) {
                 Text("Submit")
                     .padding()
@@ -118,7 +120,6 @@ struct LLMActionCorrectionView: View {
         
         VStack(alignment: .leading, spacing: 8) {
             
-            // added
             stepTypeAndDeleteView
             
             // TODO: update views below to work with a proper
@@ -194,7 +195,7 @@ struct LLMActionCorrectionView: View {
             Spacer()
             Image(systemName: "trash")
                 .onTapGesture {
-                    dispatch(LLMActionDeletedFromEditModal(deletedStep: action))
+                    dispatch(StepActionDeletedFromEditModal(deletedStep: action))
                 }
         }
     }

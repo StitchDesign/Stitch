@@ -92,6 +92,15 @@ enum PatchOrLayer: Equatable, Codable, Hashable {
             return nil
         }
     }
+    
+    var description: String {
+        switch self {
+        case .patch(let patch):
+            return patch.defaultDisplayTitle()
+        case .layer(let layer):
+            return layer.defaultDisplayTitle()
+        }
+    }
 }
 
 extension Patch {

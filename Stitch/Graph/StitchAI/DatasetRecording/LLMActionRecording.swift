@@ -44,22 +44,9 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func startLLMAugmentationMode() {
-        
-        log("🔄 🤖 TRANSITIONING FROM AI MODE TO RECORDING - ENTERING AUGMENTATION MODE 🤖 🔄")
-        
-        
-        // TODO: these logs are telling us that self.llmRecording.actions is empty (we're not sure how or where they were made empty?); can we populate the actions again, before we open the "edit before submit" modal ?
-        
-        // TODO: why are deriving new actions? Don't we want to correct the actions that were just created
-        
-//        let derivedActions = Self.deriveNewAIActions(
-//            oldGraphEntity: self.llmRecording.initialGraphState,
-//            visibleGraph: self.visibleGraph)
-//        
-//        self.llmRecording.actions = derivedActions
-        
-        // First store the current AI-generated actions
-        log("🤖 💾 Storing AI-Generated Actions: \(self.llmRecording.actions)")
+
+        log("🔄 🤖 ENTERING AUGMENTATION MODE 🤖 🔄")
+        log("🤖 💾 AI-Generated Actions: \(self.llmRecording.actions)")
         
         // Invalidate the StitchAI tip -- don't need to show it to the user again
         self.stitchAITrainingTip.invalidate(reason: .actionPerformed)
@@ -68,6 +55,15 @@ extension StitchDocumentViewModel {
         // Set augmentation mode
         self.llmRecording.mode = .augmentation
         
+        self.showEditBeforeSubmitModal()
+    }
+    
+    // Note: in some cases we want to show the edit-before-submit modal even though we're not correcting a response from OpenAI
+    @MainActor
+    func showEditBeforeSubmitModal() {
+        // We should never enter edit-before-submit modal if we don't have actions
+        assertInDebug(!self.llmRecording.actions.isEmpty)
+        
         // Open the Edit-before-submit modal
         self.llmRecording.modal = .editBeforeSubmit
         
@@ -75,7 +71,7 @@ extension StitchDocumentViewModel {
         self.insertNodeMenuState.isFromAIGeneration = false
         log("🔄 🤖 AI Generation Mode Cleared - Actions Preserved for Correction 🤖 🔄")
         
-        // Start recording
+        // Start recording (so we pick up graph changes as new actions etc.)
         self.llmRecordingStarted()
     }
 }
@@ -131,6 +127,6 @@ extension StitchDocumentViewModel {
             return
         }
         
-        self.showLLMEditModal()
+        self.showEditBeforeSubmitModal()
     }
 }

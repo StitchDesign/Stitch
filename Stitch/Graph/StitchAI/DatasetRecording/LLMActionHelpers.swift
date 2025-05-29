@@ -7,107 +7,123 @@
 
 import Foundation
 
-// WE CANCELLED THE WHOLE THING
-struct LLMAugmentationCancelled: StitchDocumentEvent {
-    
+
+struct StitchAIActionReviewCancelled: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        log("LLMAugmentationCancelled called")
+        log("StitchAIActionReviewCancelled called")
         state.llmRecording = .init()
     }
 }
 
-struct ShowLLMApprovalModal: StitchDocumentEvent {
+struct ShowApproveAndSubmitModal: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
-        log("ShowLLMApprovalModal called")
+        log("ShowApproveAndSubmitModal called")
         
-        // Skip approval UI for normal mode
-        if state.llmRecording.mode == .normal {
+        switch state.llmRecording.mode {
+        
+        case .normal:
             // Directly submit to Supabase
-            dispatch(SubmitLLMActionsToSupabase())
+            dispatch(ActionsApprovedAndSubmittedToSupabase())
             return
+        
+        case .augmentation:
+            // End recording when we open the final submit
+            state.llmRecordingEnded()
+            
+            // Show modal
+            state.llmRecording.modal = .approveAndSubmit
         }
-        
-        // End recording when we open the final submit
-        state.llmRecordingEnded()
-        
-        // Show modal
-        state.llmRecording.modal = .approveAndSubmit
     }
 }
 
-struct ShowLLMEditModal: StitchDocumentEvent {
+struct ShowEditBeforeSubmitModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        log("ShowLLMEditModal called")
-        state.showLLMEditModal()
+        log("ShowEditBeforeSubmitModal called")
+        state.showEditBeforeSubmitModal()
+    }
+}
+
+struct ActionsApprovedAndSubmittedToSupabase: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        state.submitApprovedActionsToSupabase()
     }
 }
 
 extension StitchDocumentViewModel {
-    @MainActor
-    func showLLMEditModal() {
-        self.llmRecording.isRecording = true
-        self.llmRecording.modal = .editBeforeSubmit
-    }
-}
-
-struct SubmitLLMActionsToSupabase: StitchDocumentEvent {
     
-    func handle(state: StitchDocumentViewModel) {
-        log("SubmitLLMActionsToSupabase called")
+    // User has reviewed actions via the 'Edit Before Submit' modal and now has reviewed the graph via 'Approve And Submit' modal
+    @MainActor
+    func submitApprovedActionsToSupabase() {
         
-        guard let supabaseManager = state.aiManager else {
-            log("SubmitLLMActionsToSupabase error: no supabase")
+        let state = self
+        
+        log("SubmitLLMActionsToSupabase called")
+        log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
+        
+        let actionsAsSteps = state.llmRecording.actions
+        log("ShowLLMApprovalModal: actions: \(actionsAsSteps)")
+        
+        guard let deviceUUID = StitchAIManager.getDeviceUUID() else {
+            fatalErrorIfDebug("SubmitLLMActionsToSupabase error: no device ID found.")
             return
         }
         
-        do {
-            log("📼 ⬆️ Uploading recording data to Supabase ⬆️ 📼")
-            
-            // TODO: JAN 25: these should be from the edited whatever...
-            let actionsAsSteps = state.llmRecording.actions
-            log("ShowLLMApprovalModal: actions: \(actionsAsSteps)")
-            
-            guard let deviceUUID = StitchAIManager.getDeviceUUID() else {
-                log("SubmitLLMActionsToSupabase error: no device ID found.")
+        guard let promptForTrainingDataOrCompletedRequest = state.llmRecording.promptForTrainingDataOrCompletedRequest else {
+            fatalErrorIfDebug("SubmitLLMActionsToSupabase error: did not have prompt saved")
+            return
+        }
+        
+        // When submitting actions to Supabase, we *must* have a rating.
+        // Submitting a correction = 5 star rating
+        // Submitting a training example = whatever rating we gave in the earlier modal
+        let isCorrection = state.llmRecording.mode == .augmentation
+        let rating: StitchAIRating = isCorrection ? .fiveStars : (state.llmRecording.rating ?? .fiveStars)
+        #if DEV_DEBUG
+        if state.llmRecording.rating.isNotDefined && !isCorrection { fatalErrorIfDebug() }
+        #endif
+                
+        Task { [weak state] in
+            guard let state = state,
+                  let supabaseManager = state.aiManager else {
+                log("SubmitLLMActionsToSupabase error: no supabase")
                 return
             }
             
-            Task { [weak supabaseManager] in
-                try await supabaseManager?.uploadActionsToSupabase(
-                    prompt: state.llmRecording.promptForJustCompletedTrainingData,
+            do {
+                try await supabaseManager.uploadActionsToSupabase(
+                    prompt: promptForTrainingDataOrCompletedRequest,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
-                    isCorrection: state.llmRecording.mode == .augmentation,
-                    // corrections and fresh training sets always get highest rating
-                    rating: .fiveStars,
+                    isCorrection: isCorrection,
+                    rating: rating,
                     // these actions + prompt did not require a retry
                     requiredRetry: false)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 state.llmRecording = .init()
+            } catch let encodingError as EncodingError {
+                log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
+                state.llmRecording = .init()
+            } catch let fileError as NSError {
+                log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
+                state.llmRecording = .init()
+            } catch {
+                log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
+                state.llmRecording = .init()
             }
-            
-        } catch let encodingError as EncodingError {
-            log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
-            state.llmRecording = .init()
-        } catch let fileError as NSError {
-            log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
-            state.llmRecording = .init()
-        } catch {
-            log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
-            state.llmRecording = .init()
         }
     }
 }
 
 
-struct LLMActionDeletedFromEditModal: StitchDocumentEvent {
+
+struct StepActionDeletedFromEditModal: StitchDocumentEvent {
     let deletedStep: any StepActionable
     
     func handle(state: StitchDocumentViewModel) {
-        log("LLMActionDeletedFromEditModal: deletedStep: \(deletedStep)")
-        log("LLMActionDeletedFromEditModal: state.llmRecording.actions was: \(state.llmRecording.actions)")
+        log("StepActionDeletedFromEditModal: deletedStep: \(deletedStep)")
+        log("StepActionDeletedFromEditModal: state.llmRecording.actions was: \(state.llmRecording.actions)")
         
         guard let deletedStep: any StepActionable = state.llmRecording.actions.first(where: { $0.toStep == deletedStep.toStep }) else {
             fatalErrorIfDebug()
@@ -130,7 +146,7 @@ struct LLMActionDeletedFromEditModal: StitchDocumentEvent {
         // so that user instantly sees what changed.
         if let error = state.reapplyActionsDuringEditMode(steps: state.llmRecording.actions) {
             // TODO: show this to the user?
-            log("LLMActionDeletedFromEditModal: error when reapplying actions: \(error)")
+            log("StepActionDeletedFromEditModal: error when reapplying actions: \(error)")
         }
     }
 }

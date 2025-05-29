@@ -39,7 +39,7 @@ extension StitchAIManager {
         return deviceUUID
     }
     
-    func uploadActionsToSupabase(prompt: String,
+    func uploadActionsToSupabase(prompt: UserAIPrompt,
                                  finalActions: [Step],
                                  deviceUUID: String,
                                  isCorrection: Bool,
@@ -51,7 +51,7 @@ extension StitchAIManager {
                                  requiredRetry: Bool) async throws {
         
         let wrapper = RecordingWrapper(
-            prompt: prompt,
+            prompt: prompt.value,
             actions: finalActions)
         
         // Not good to have as a var in an async context?

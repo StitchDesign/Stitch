@@ -624,6 +624,7 @@
 		EC68A6FC288B311A00689F92 /* SplitterTypeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FB288B311A00689F92 /* SplitterTypeActions.swift */; };
 		EC68A6FE288B314A00689F92 /* GroupNodeCreationActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FD288B314A00689F92 /* GroupNodeCreationActions.swift */; };
 		EC68A700288B31A000689F92 /* GroupNodeDestructionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */; };
+		EC6914E02DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */; };
 		EC69451C2ABD3BF6003ED2CF /* EdgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC69451B2ABD3BF6003ED2CF /* EdgeView.swift */; };
 		EC6AAE6B2B52337F00D07E3C /* IconName.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6AAE6A2B52337F00D07E3C /* IconName.swift */; };
 		EC6B2E122D76273600804E38 /* PortPreviewPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6B2E112D76273600804E38 /* PortPreviewPopoverView.swift */; };
@@ -1644,6 +1645,7 @@
 		EC68A6FB288B311A00689F92 /* SplitterTypeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterTypeActions.swift; sourceTree = "<group>"; };
 		EC68A6FD288B314A00689F92 /* GroupNodeCreationActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeCreationActions.swift; sourceTree = "<group>"; };
 		EC68A6FF288B31A000689F92 /* GroupNodeDestructionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeDestructionActions.swift; sourceTree = "<group>"; };
+		EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITrainingExampleFromExistingGraph.swift; sourceTree = "<group>"; };
 		EC69451B2ABD3BF6003ED2CF /* EdgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeView.swift; sourceTree = "<group>"; };
 		EC6AAE6A2B52337F00D07E3C /* IconName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconName.swift; sourceTree = "<group>"; };
 		EC6B2E112D76273600804E38 /* PortPreviewPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortPreviewPopoverView.swift; sourceTree = "<group>"; };
@@ -4105,6 +4107,7 @@
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
 				B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */,
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
+				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
 				B5EFD5BF2D64EC23006A68FB /* OpenAISchema */,
 				B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */,
@@ -5839,6 +5842,7 @@
 				EC2942452BA13E6100D14CD1 /* SidebarItemSelectionActions.swift in Sources */,
 				EC1213D528873BF10012234C /* AnimationEvaluationHelpers.swift in Sources */,
 				ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */,
+				EC6914E02DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift in Sources */,
 				EC9AB1372BD4299500F22730 /* PreviewWindowDeviceUtils.swift in Sources */,
 				B56FFB362C18F06900623CC7 /* BouncyConverter.swift in Sources */,
 				EC844A6C2B5F259C00C79B0B /* StitchFontDropdown.swift in Sources */,

@@ -130,33 +130,44 @@ struct StitchAIRatingToast: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(self.tappedStar != nil ? "Thanks!" : "Rate results")
-            HStack {
-                ForEach(1...5, id: \.self) { starNumber in
-                    
-                    let fill = tappedStar.map { starNumber <= $0 } ?? false
-                    
-                    Image(systemName: fill ? "star.fill" : "star")
-                        .onTapGesture(perform: {
-                            self.tappedStar = starNumber
-                            
-                            if let rating = StitchAIRating(starNumber) {
-                                dispatch(AIRatingSubmitted(rating: rating))
-                            } else {
-                                fatalErrorIfDebug()
-                            }
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                                withAnimation {
-                                    self.show = false
-                                }
-                            }
-                        })
-                } // ForEach
-            }  // HStack
+            StitchAIRatingStarsView { (rating: StitchAIRating) in
+                
+                dispatch(AIRatingSubmitted(rating: rating))
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    withAnimation {
+                        self.show = false
+                    }
+                }
+            }
         } // VStack
         .padding()
         .background(.regularMaterial)
         .cornerRadius(8)
         .opacity(show ? 1 : 0)
+    }
+}
+
+struct StitchAIRatingStarsView: View {
+    
+    @State var tappedStar: Int?
+    
+    var onRatingSelected: (StitchAIRating) -> Void
+    
+    var body: some View {
+        HStack {
+            ForEach(1...5, id: \.self) { starNumber in
+                let fill = tappedStar.map { starNumber <= $0 } ?? false
+                Image(systemName: fill ? "star.fill" : "star")
+                    .onTapGesture(perform: {
+                        self.tappedStar = starNumber
+                        if let rating = StitchAIRating(starNumber) {
+                            self.onRatingSelected(rating)
+                        } else {
+                            fatalErrorIfDebug()
+                        }
+                    })
+            } // ForEach
+        }  // HStack
     }
 }
