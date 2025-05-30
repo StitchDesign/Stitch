@@ -65,6 +65,8 @@ struct ShowCreateTrainingDataFromExistingGraphModal: StitchDocumentEvent {
 
 struct SubmitExistingGraphAsTrainingExampleModalView: View {
     
+    let promptFromPreviousExistingGraphSubmittedAsTrainingData: UserAIPrompt?
+    
     @State var prompt: String = ""
     @State var rating: StitchAIRating? = nil
   
@@ -77,6 +79,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
         }
         .frame(width: 340)
         .padding()
+        
 #if targetEnvironment(macCatalyst)
         .background(.regularMaterial)
 #else
@@ -88,6 +91,11 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
 #endif
         
         .cornerRadius(8)
+        .onAppear {
+            if let existingPrompt = self.promptFromPreviousExistingGraphSubmittedAsTrainingData {
+                self.prompt = existingPrompt.value
+            }
+        }
     }
     
     
