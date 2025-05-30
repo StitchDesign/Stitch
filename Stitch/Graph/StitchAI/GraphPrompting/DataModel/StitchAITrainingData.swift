@@ -75,13 +75,25 @@ extension StitchAIReasoningTrainingData: StitchAITrainingDataValidatable {
     }
 }
 
+// MARK: - Supports BOTH shapes
 struct StitchAIActionsTrainingData: Decodable {
     let actions: [Step]
 
     init(from decoder: Decoder) throws {
-        // The JSON is **directly** an array of `Step`.
-        let container = try decoder.singleValueContainer()
-        self.actions = try container.decode([Step].self)
+        //Try the new, bare-array form first.
+        if let single = try? decoder.singleValueContainer(),
+           let steps  = try? single.decode([Step].self) {
+            self.actions = steps
+            return
+        }
+
+        //Fallback to legacy keyed form `{ "actions": [...] }`
+        let keyed = try decoder.container(keyedBy: CodingKeys.self)
+        self.actions = try keyed.decode([Step].self, forKey: .actions)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case actions
     }
 }
 
