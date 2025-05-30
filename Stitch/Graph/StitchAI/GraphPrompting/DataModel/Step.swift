@@ -9,6 +9,14 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
+//protocol OpenAIStructuredOutputs: Codable {
+//    associatedtype Schema: Encodable
+//    associatedtype CodingKeys: CodingKey, CaseIterable, RawRepresentable
+//    
+////    static var structuredOutputsCodingKeys: Set<Self.CodingKeys> { get }
+//    static func createStructuredOutputs() -> Schema
+//}
+
 typealias Steps = [Step]
 
 extension Step: Identifiable {
@@ -34,10 +42,7 @@ struct Step: Hashable {
     var children: NodeIdSet? // Child nodes if this is a group
     
     // js node
-    var script: String?
-    var inputDefinitions: [Step]?
-    var outputDefinitions: [Step]?
-    var label: String?
+    var jsNodeSettings: JavaScriptNodeSettings?
     
     init(stepType: StepType,
          nodeId: UUID? = nil,
@@ -49,10 +54,7 @@ struct Step: Hashable {
          value: PortValue? = nil,
          valueType: NodeType? = nil,
          children: NodeIdSet? = nil,
-         script: String? = nil,
-         inputDefinitions: [Step]? = nil,
-         outputDefinitions: [Step]? = nil,
-         label: String? = nil) {
+         jsNodeSettings: JavaScriptNodeSettings? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
@@ -63,6 +65,7 @@ struct Step: Hashable {
         self.value = value
         self.valueType = valueType
         self.children = children
+        self.jsNodeSettings = jsNodeSettings
     }
 }
 
@@ -78,10 +81,7 @@ extension Step: Codable {
         case value
         case valueType = "value_type"
         case children = "children"
-        case script
-        case inputDefinitions = "input_definitions"
-        case outputDefinitions = "output_definitions"
-        case label
+        case jsNodeSettings
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -106,10 +106,7 @@ extension Step: Codable {
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
         try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
-        try container.encodeIfPresent(script, forKey: .script)
-        try container.encodeIfPresent(inputDefinitions, forKey: .inputDefinitions)
-        try container.encodeIfPresent(outputDefinitions, forKey: .outputDefinitions)
-        try container.encodeIfPresent(label, forKey: .label)
+        try container.encodeIfPresent(jsNodeSettings, forKey: .jsNodeSettings)
     
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
@@ -130,10 +127,8 @@ extension Step: Codable {
         self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(Int.self, forKey: .fromPort)
-        self.script = try container.decodeIfPresent(String.self, forKey: .script)
-        self.inputDefinitions = try container.decodeIfPresent([Step].self, forKey: .inputDefinitions)
-        self.outputDefinitions = try container.decodeIfPresent([Step].self, forKey: .outputDefinitions)
-        self.label = try container.decodeIfPresent(String.self, forKey: .label)
+        self.jsNodeSettings = try container.decodeIfPresent(JavaScriptNodeSettings.self,
+                                                            forKey: .jsNodeSettings)
         
         if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
             self.nodeName = try .fromLLMNodeName(nodeNameString)

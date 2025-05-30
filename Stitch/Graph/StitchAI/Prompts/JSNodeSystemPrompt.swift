@@ -20,23 +20,8 @@ extension StitchAIManager {
 2. You will receive as input a 2D list of a specific JSON type. Your output must also be a 2D list using the same type. Each element in the 2D list represents a port in a node. Each port contains a list of values, hence the 2D list.
 3. Unless specified by the user, the JavaScript code you create will break down the problem within each loop index. For example, if each input contains a count of 3 values, then the javascript eval with solve the problem individual using the 0, 1, and 2 indices of the input. As an example, inputs of [[1,2,3],[4,5,6]] for a node that adds 2 numbers would return [[5,7,9]].
 4. The JavaScript function must have the `function evaluate(inputs)` signature.
-5. You must return a JSON response with this exact schema, ensuring "step_type" is always equal to "create_js_node":
-```
-{
-  "step_type": "create_js_node",
-  "script": String,
-  "input_definitions": [PortDefinition],
-  "output_definitions": [PortDefinition]
-}
-```
-Where `PortDefinition` is defined as:
-```
-{
-  "label": String,
-  "value_type": String,
-}
-```
-Where `label` stores a short, user-friendly label description of a port. The length of `inputDefinitions` must exactly match the length of input ports expected in the `evaluate` function signature, and `outputDefinitions` length must exactly match the length of output ports returned by `evaluate`.
+5. You must return a JSON response with the exact schema specified in structured outputs.
+6. For JavaScript node settings, `label` stores a short, user-friendly label description of a port. The length of `inputDefinitions` must exactly match the length of input ports expected in the `evaluate` function signature, and `outputDefinitions` length must exactly match the length of output ports returned by `evaluate`.
     
 Each input and output port is a list of JSONs with a value and its corresponding type:
 ```
