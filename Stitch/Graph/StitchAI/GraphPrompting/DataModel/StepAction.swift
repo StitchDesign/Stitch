@@ -469,9 +469,7 @@ extension StepActionEditJSNode: StepActionable {
     }
     
     static func fromStep(_ action: Step) -> Result<Self, StitchAIStepHandlingError> {
-        guard let script = action.script,
-              let inputs: [JavaScriptPortDefinition] = .init(from: action.inputDefinitions),
-              let outputs: [JavaScriptPortDefinition] = .init(from: action.outputDefinitions) else {
+        guard let settings = action.jsNodeSettings else {
             print("JavaScript node: unable extract all requested data from: \(action)")
             return .failure(.stepDecoding(.editJSNode, action))
         }

@@ -68,6 +68,44 @@ extension OpenAISchemaDefinable {
     }
 }
 
+protocol OpenAIProperitesObject: Encodable {
+    associatedtype ObjectType: Encodable
+    
+    var properties: ObjectType { get }
+    var schemaData: OpenAISchema { get }
+    
+//    init(properties: ObjectType,
+//         schemaData: OpenAISchema)
+}
+
+//extension OpenAIProperitesObject {
+//    init(properties: ObjectType,
+//         type: OpenAISchemaType,
+//         const: String? = nil,
+//         required: [String]? = nil,
+//         additionalProperties: Bool? = nil,
+//         title: String? = nil,
+//         description: String? = nil,
+//         items: OpenAIGeneric? = nil) {
+//        self.init(properties: properties,
+//                  schemaData: OpenAISchema(type: type,
+//                                           const: const,
+//                                           required: required,
+//                                           additionalProperties: additionalProperties,
+//                                           title: title,
+//                                           description: description,
+//                                           items: items))
+//    }
+//    
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: OpenAISchema.CodingKeys.self)
+//        
+//        // reuses coding keys for schema data
+//        try self.schemaData.encode(to: encoder)
+//        try container.encode(self.properties, forKey: .properties)
+//    }
+//}
+
 struct OpenAISchema {
     var type: OpenAISchemaType
     var const: String? = nil
@@ -87,10 +125,16 @@ extension OpenAISchema: Encodable {
         case required
         case additionalProperties
         case items
+        case properties
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try self.encode(to: encoder, container: &container)
+    }
+    
+    func encode(to encoder: Encoder,
+                container: inout KeyedEncodingContainer<OpenAISchema.CodingKeys>) throws {
         try container.encode(self.type, forKey: .type)
         try container.encodeIfPresent(self.description, forKey: .description)
         try container.encodeIfPresent(self.const, forKey: .const)
@@ -141,17 +185,20 @@ struct OpenAIGeneric: Encodable {
     }
     
     func encode(to encoder: Encoder) throws {
+        // Specify generic "anyOf" property if multiple types
+        let isGeneric = types.count + refs.count > 1
+        
         var container = encoder.container(keyedBy: CodingKeys.self)
-        var arrayContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
+        var unkeyedContainer = isGeneric ? container.nestedUnkeyedContainer(forKey: .anyOf) : encoder.unkeyedContainer()
         
         // Add types to array
         for type in self.types {
-            try arrayContainer.encode(type)
+            try unkeyedContainer.encode(type)
         }
         
         // Add refs to array
         for ref in self.refs {
-            try arrayContainer.encode(ref)
+            try unkeyedContainer.encode(ref)
         }
     }
 }

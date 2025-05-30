@@ -33,6 +33,7 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
     
     var properties = StitchAIStepsSchema()
     
+    // TODO: is this why strict: true broke?
     var schema = OpenAISchema(type: .object,
                               required: ["steps"],
                               additionalProperties: false,
@@ -40,15 +41,11 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
 }
 
 struct EditJsNodeStructuredOutputsSchema: OpenAISchemaCustomizable {
-    static let title = "VisualProgrammingActions"
+    static let title = "EditJSNode"
     
-    var properties = EditJsNodeStepsSchema()
-    
-    var schema = OpenAISchema(type: .object,
-                              required: ["steps"],
-                              additionalProperties: false,
-                              title: Self.title)
+    let properties = JsNodeSettingsSchema()
 }
+
 struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
@@ -80,7 +77,7 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
 
 struct EditJsNodeStructuredOutputsDefinitions: Encodable {
     // Step actions
-    let EditJsNodeAction = StepStructuredOutputs(StepActionEditJSNode.self)
+    static let JavaScriptNodeSettings = JsNodeSettingsSchema()
     
     // Types
     let ValueType = OpenAISchemaEnum(values:
@@ -105,14 +102,14 @@ struct StitchAIStepsSchema: Encodable {
     )
 }
 
-struct EditJsNodeStepsSchema: Encodable {
-    let steps = OpenAISchema(type: .array,
-                             description: "The action needed to create a JavaScript node",
-                             items: OpenAIGeneric(refs: [
-                                .init(ref: "EditJsNodeAction")
-                             ])
-    )
-}
+//struct EditJsNodeStepsSchema: Encodable {
+//    let steps = OpenAISchema(type: .array,
+//                             description: "The settings required to setup a JavaScript node",
+//                             items: OpenAIGeneric(refs: [
+//                                .init(ref: "JavaScriptNodeSettings")
+//                             ])
+//    )
+//}
 
 struct StepStructuredOutputs: OpenAISchemaCustomizable {
     var properties: StitchAIStepSchema
@@ -134,6 +131,30 @@ struct StepStructuredOutputs: OpenAISchemaCustomizable {
     }
 }
 
+struct JsNodeProperties: OpenAIProperitesObject {
+    let properties = JsNodeSettingsSchema()
+    let schemaData = OpenAISchema(type: .object,
+                                  required: ["script", "inputDefinitions", "outputDefinitions"])
+}
+
+struct JsNodeSettingsSchema: Encodable {
+    let script = OpenAISchema(type: .string)
+    let inputDefinitions = OpenAISchema(type: .array,
+                                        items: [.])
+//    let outputDefinitions = OpenAISchemaRef
+}
+
+struct PortDefinitionProperties: OpenAIProperitesObject {
+    let properties = PortDefinitionSchema()
+    let schemaData = OpenAISchema(type: .object,
+                                  required: ["label", "strictType"])
+}
+
+struct PortDefinitionSchema: Encodable {
+    let label = OpenAISchema(type: .string)
+    let strictType = OpenAISchemaRef(ref: "ValueType")
+}
+
 struct StitchAIStepSchema: Encodable {
     var stepType: StepType
     var nodeId: OpenAISchema? = nil
@@ -145,10 +166,6 @@ struct StitchAIStepSchema: Encodable {
     var value: OpenAIGeneric? = nil
     var valueType: OpenAISchemaRef? = nil
     var children: OpenAISchemaRef? = nil
-    var script: OpenAISchema? = nil
-    var inputDefinitions: OpenAISchemaRef? = nil
-    var outputDefinitions: OpenAISchemaRef? = nil
-    var label: OpenAISchema? = nil
     
     func encode(to encoder: Encoder) throws {
         // Reuses coding keys from Step struct
@@ -167,9 +184,5 @@ struct StitchAIStepSchema: Encodable {
         try container.encodeIfPresent(value, forKey: .value)
         try container.encodeIfPresent(valueType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
-        try container.encodeIfPresent(script, forKey: .script)
-        try container.encodeIfPresent(inputDefinitions, forKey: .inputDefinitions)
-        try container.encodeIfPresent(outputDefinitions, forKey: .outputDefinitions)
-        try container.encodeIfPresent(label, forKey: .label)
     }
 }
