@@ -38,7 +38,7 @@ struct JavaScriptNode: PatchNodeDefinition {
         let aiDataFromInputs = inputValuesList.map { inputValues in
             inputValues
                 .map {
-                    Step(value: $0, valueType: $0.toNodeType)
+                    Step(stepType: .editJSNode, value: $0, valueType: $0.toNodeType)
                 }
         }
         
@@ -111,7 +111,7 @@ extension JavaScriptPortDefinition {
                   strictType: type)
     }
     
-    var aiStep: Step { .init(valueType: self.strictType, label: label) }
+    var aiStep: Step { .init(stepType: .editJSNode, valueType: self.strictType, label: label) }
 }
 
 extension PortValuesList {

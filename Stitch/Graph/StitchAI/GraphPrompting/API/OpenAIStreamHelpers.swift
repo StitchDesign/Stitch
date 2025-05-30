@@ -104,7 +104,7 @@ func provideGenuinelyUniqueUUIDForAIStep<T: StepActionable>(
     
     var nodeIdMap = nodeIdMap
     
-    if unparsedStep.stepType?.introducesNewNode ?? false,
+    if unparsedStep.stepType.introducesNewNode,
        let newStepNodeId: StitchAIUUID = unparsedStep.nodeId {
         // log("ChunkProcessed: nodeIdMap was: \(nodeIdMap)")
         nodeIdMap.updateValue(

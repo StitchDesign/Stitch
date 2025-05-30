@@ -22,7 +22,7 @@ extension Step: Identifiable {
 /// Represents a single step/action in the visual programming sequence
 struct Step: Hashable {
     // MARK: optional step type enables JavaScript node support for using same types
-    var stepType: StepType?        // Type of step (e.g., "add_node", "connect_nodes")
+    var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
     var nodeId: StitchAIUUID?        // Identifier for the node
     var nodeName: PatchOrLayer?      // Display name for the node
     var port: NodeIOPortType?  // Port identifier (can be string or number)
@@ -39,7 +39,7 @@ struct Step: Hashable {
     var outputDefinitions: [Step]?
     var label: String?
     
-    init(stepType: StepType? = nil,
+    init(stepType: StepType,
          nodeId: UUID? = nil,
          nodeName: PatchOrLayer? = nil,
          port: NodeIOPortType? = nil,
@@ -88,7 +88,7 @@ extension Step: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // `encodeIfPresent` cleans up JSON by removing properties
-        try container.encodeIfPresent(stepType?.rawValue, forKey: .stepType)
+        try container.encode(stepType.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asLLMStepNodeName, forKey: .nodeName)
         
@@ -125,6 +125,7 @@ extension Step: Codable {
             throw StitchAIParsingError.stepActionDecoding(stepTypeString)
         }
         
+        self.stepType = stepType
         self.nodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .nodeId)
         self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
@@ -175,8 +176,6 @@ extension Step {
     // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
     func parseAsStepAction() -> Result<any StepActionable, StitchAIStepHandlingError> {
         switch self.stepType {
-        case .none:
-            return .failure(.stepActionDecoding("none type"))
         case .addNode:
             return StepActionAddNode.fromStep(self).map { $0 as any StepActionable}
         case .connectNodes:
