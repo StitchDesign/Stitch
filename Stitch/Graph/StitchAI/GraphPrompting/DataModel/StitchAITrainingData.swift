@@ -27,7 +27,7 @@ extension StitchAITrainingData: StitchAITrainingDataValidatable {
             .enumerated()
             .compactMap { (index, message) in
             guard let messageData = message.data(using: .utf8) else {
-                print("StitchAITraining failure: no data created")
+                print("❌ StitchAITraining failure at example \(index+1): Could not convert message to Data")
                 return nil
             }
             
@@ -35,7 +35,9 @@ extension StitchAITrainingData: StitchAITrainingDataValidatable {
                 let actionsData = try jsonDecoder.decode(StitchAIActionsTrainingData.self, from: messageData)
                 return actionsData
             } catch {
-                print("StitchAITrainingData validation error with example \(index+1): Step decoding failed with error: \(error)")
+                print("❌ StitchAITrainingData validation error at example \(index+1): Step decoding failed")
+                print("   Error: \(error)")
+                print("   Message content: \(message)")
                 return nil
             }
         }
@@ -45,7 +47,7 @@ extension StitchAITrainingData: StitchAITrainingDataValidatable {
 }
 
 // MARK: - o4-mini (reasoning) data ------------------------------------------
-/// New format: no `"completion"` field – the assistant’s `content` **is** the
+/// New format: no `"completion"` field – the assistant's `content` **is** the
 /// array of `Step`s.
 /// Old format (still accepted): a top-level `"completion"` object.
 struct StitchAIReasoningTrainingData: Decodable {
@@ -57,20 +59,36 @@ extension StitchAIReasoningTrainingData: StitchAITrainingDataValidatable {
     static func getTrainingData(from datasetExamples: [Self]) -> [StitchAIActionsTrainingData] {
         let decoder = JSONDecoder()
 
-        return datasetExamples.compactMap { example in
+        return datasetExamples.enumerated().compactMap { (index, example) in
             // 1️⃣ Preferred: explicit `"completion"`
-            if let completion = example.completion { return completion }
+            if let completion = example.completion { 
+                print("✅ Example \(index+1): Using explicit completion field")
+                return completion 
+            }
 
             // 2️⃣ Fallback: pull from last assistant message
-            guard
-                let assistantContent = example.messages.last(where: { $0.role == .assistant })?.content,
-                let data            = assistantContent.data(using: .utf8),
-                let actions         = try? decoder.decode(StitchAIActionsTrainingData.self, from: data)
-            else {
-                print("StitchAIReasoningTrainingData – could not extract actions from messages")
+            guard let assistantContent = example.messages.last(where: { $0.role == .assistant })?.content else {
+                print("❌ Example \(index+1): No assistant message found")
+                print("   Available message roles: \(example.messages.map { $0.role.rawValue })")
                 return nil
             }
-            return actions
+            
+            guard let data = assistantContent.data(using: .utf8) else {
+                print("❌ Example \(index+1): Could not convert assistant content to Data")
+                print("   Content: \(assistantContent)")
+                return nil
+            }
+            
+            do {
+                let actions = try decoder.decode(StitchAIActionsTrainingData.self, from: data)
+                print("✅ Example \(index+1): Successfully decoded actions from assistant message (\(actions.actions.count) actions)")
+                return actions
+            } catch {
+                print("❌ Example \(index+1): Could not decode StitchAIActionsTrainingData from assistant message")
+                print("   Error: \(error)")
+                print("   Assistant content: \(assistantContent)")
+                return nil
+            }
         }
     }
 }
@@ -103,70 +121,128 @@ enum StitchAITrainingError: Error {
 
 extension StitchAITrainingDataValidatable {
     static func validateTrainingData(from filename: String) throws {
+        print("🔍 Starting validation for dataset: \(filename)")
+        
         let trainingData = try Self.decodeTrainingData(from: filename)
+        print("📊 Loaded \(trainingData.count) examples from \(filename)")
         
         let actionsDataList: [StitchAIActionsTrainingData] = Self.getTrainingData(from: trainingData)
+        print("✨ Successfully extracted actions from \(actionsDataList.count)/\(trainingData.count) examples")
+        
+        var totalValidationErrors = 0
+        var successfulExamples = 0
         
         for (index, actionsData) in actionsDataList.enumerated() {
+            print("\n🔎 Validating example \(index+1) with \(actionsData.actions.count) actions...")
+            
             var validationErrors: [String] = []
-            for step in actionsData.actions {
-                if StepTypeAction.fromStep(step) == nil {
-                    validationErrors.append("Invalid action produced from step: \(step)")
+            
+            for (stepIndex, step) in actionsData.actions.enumerated() {
+                let stepResult = StepTypeAction.fromStep(step)
+                
+                switch stepResult {
+                case .success:
+                    // Step is valid
+                    continue
+                case .failure(let error):
+                    let errorMessage = "Step \(stepIndex+1): \(error) - Step details: \(step.description)"
+                    validationErrors.append(errorMessage)
                 }
             }
             
-            guard validationErrors.isEmpty else {
-                print("StitchAITrainingData validation error with example \(index+1): Step action validation failed with the following errors:\n")
-                for errorMessage in validationErrors {
-                    print(errorMessage)
+            if validationErrors.isEmpty {
+                print("✅ Example \(index+1): All \(actionsData.actions.count) actions are valid")
+                successfulExamples += 1
+            } else {
+                print("❌ Example \(index+1): \(validationErrors.count) validation errors found:")
+                for (errorIndex, errorMessage) in validationErrors.enumerated() {
+                    print("   \(errorIndex+1). \(errorMessage)")
                 }
-                continue
+                totalValidationErrors += validationErrors.count
             }
-            
-            print("StitchAITrainingData validation successful at \(index + 1)")
+        }
+        
+        print("\n📈 Validation Summary for \(filename):")
+        print("   Total examples: \(trainingData.count)")
+        print("   Successfully extracted: \(actionsDataList.count)")
+        print("   Valid examples: \(successfulExamples)")
+        print("   Failed examples: \(actionsDataList.count - successfulExamples)")
+        print("   Total validation errors: \(totalValidationErrors)")
+        
+        if successfulExamples == actionsDataList.count {
+            print("🎉 All examples passed validation!")
+        } else {
+            print("⚠️  Some examples failed validation - see details above")
         }
     }
     
     static func decodeTrainingData(from filename: String) throws -> [Self] {
+        print("📁 Reading file: \(filename).jsonl")
+        
         let jsonArray = try Self.convertJSONLToJSON(from: filename)
+        print("📄 Parsed \(jsonArray.count) JSON objects from JSONL file")
         
         let decoder = JSONDecoder()
 
         let data = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted])
         
-        let messages = try decoder.decode([Self].self,
-                                          from: data)
-        
-        return messages
+        do {
+            let messages = try decoder.decode([Self].self, from: data)
+            print("✅ Successfully decoded \(messages.count) training examples")
+            return messages
+        } catch {
+            print("❌ Failed to decode training data: \(error)")
+            throw error
+        }
     }
     
     static func convertJSONLToJSON(from filename: String) throws -> [Any] {
         guard let fileURL = Bundle.main.url(forResource: filename, withExtension: "jsonl") else {
+            print("❌ File not found: \(filename).jsonl")
             throw StitchAITrainingError.fileNotFound
         }
         
         // Read the entire content of the file as a single String
         let fileContents = try String(contentsOf: fileURL, encoding: .utf8)
+        print("📖 Read file contents (\(fileContents.count) characters)")
         
         // Split the file contents by newlines
         let lines = fileContents.components(separatedBy: .newlines)
+        print("📝 Split into \(lines.count) lines")
         
         // Parse each line into a JSON object
         var jsonObjects: [Any] = []
+        var emptyLines = 0
+        var parseErrors = 0
         
-        for line in lines {
+        for (lineIndex, line) in lines.enumerated() {
             let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
             
             // Skip empty lines
-            guard !trimmedLine.isEmpty else { continue }
+            guard !trimmedLine.isEmpty else { 
+                emptyLines += 1
+                continue 
+            }
             
             // Convert the line to Data
             if let data = trimmedLine.data(using: .utf8) {
-                // Deserialize the JSON object
-                let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
-                jsonObjects.append(jsonObject)
+                do {
+                    // Deserialize the JSON object
+                    let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+                    jsonObjects.append(jsonObject)
+                } catch {
+                    parseErrors += 1
+                    print("❌ Line \(lineIndex+1): JSON parsing error - \(error)")
+                    print("   Content: \(trimmedLine.prefix(200))...")
+                }
             }
         }
+        
+        print("📊 Parsing summary:")
+        print("   Total lines: \(lines.count)")
+        print("   Empty lines: \(emptyLines)")
+        print("   Parse errors: \(parseErrors)")
+        print("   Valid JSON objects: \(jsonObjects.count)")
         
         return jsonObjects
     }
