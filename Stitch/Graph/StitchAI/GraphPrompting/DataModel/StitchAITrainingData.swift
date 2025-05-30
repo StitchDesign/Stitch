@@ -61,9 +61,9 @@ extension StitchAIReasoningTrainingData: StitchAITrainingDataValidatable {
 
         return datasetExamples.enumerated().compactMap { (index, example) in
             // 1️⃣ Preferred: explicit `"completion"`
-            if let completion = example.completion { 
+            if let completion = example.completion {
                 print("✅ Example \(index+1): Using explicit completion field")
-                return completion 
+                return completion
             }
 
             // 2️⃣ Fallback: pull from last assistant message
@@ -131,6 +131,7 @@ extension StitchAITrainingDataValidatable {
         
         var totalValidationErrors = 0
         var successfulExamples = 0
+        var failedExamples = 0
         
         for (index, actionsData) in actionsDataList.enumerated() {
             print("\n🔎 Validating example \(index+1) with \(actionsData.actions.count) actions...")
@@ -159,21 +160,35 @@ extension StitchAITrainingDataValidatable {
                     print("   \(errorIndex+1). \(errorMessage)")
                 }
                 totalValidationErrors += validationErrors.count
+                failedExamples += 1
             }
         }
         
-        print("\n📈 Validation Summary for \(filename):")
-        print("   Total examples: \(trainingData.count)")
-        print("   Successfully extracted: \(actionsDataList.count)")
-        print("   Valid examples: \(successfulExamples)")
-        print("   Failed examples: \(actionsDataList.count - successfulExamples)")
-        print("   Total validation errors: \(totalValidationErrors)")
+        let extractionFailures = trainingData.count - actionsDataList.count
         
-        if successfulExamples == actionsDataList.count {
-            print("🎉 All examples passed validation!")
+        print("\n" + String(repeating: "=", count: 60))
+        print("📈 FINAL VALIDATION SUMMARY for \(filename):")
+        print(String(repeating: "=", count: 60))
+        print("   📄 Total examples in file: \(trainingData.count)")
+        print("   ⚡ Successfully extracted actions: \(actionsDataList.count)")
+        print("   ❌ Failed to extract actions: \(extractionFailures)")
+        print("   ✅ Valid examples (passed all checks): \(successfulExamples)")
+        print("   🔴 Failed examples (validation errors): \(failedExamples)")
+        print("   💥 Total validation errors across all examples: \(totalValidationErrors)")
+        print(String(repeating: "=", count: 60))
+        
+        if extractionFailures == 0 && successfulExamples == actionsDataList.count {
+            print("🎉 PERFECT! All examples passed validation!")
         } else {
-            print("⚠️  Some examples failed validation - see details above")
+            if extractionFailures > 0 {
+                print("⚠️  \(extractionFailures) examples failed during action extraction")
+            }
+            if failedExamples > 0 {
+                print("⚠️  \(failedExamples) examples failed validation checks")
+            }
+            print("📝 See detailed errors above for debugging information")
         }
+        print(String(repeating: "=", count: 60) + "\n")
     }
     
     static func decodeTrainingData(from filename: String) throws -> [Self] {
@@ -219,9 +234,9 @@ extension StitchAITrainingDataValidatable {
             let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
             
             // Skip empty lines
-            guard !trimmedLine.isEmpty else { 
+            guard !trimmedLine.isEmpty else {
                 emptyLines += 1
-                continue 
+                continue
             }
             
             // Convert the line to Data
@@ -238,7 +253,7 @@ extension StitchAITrainingDataValidatable {
             }
         }
         
-        print("📊 Parsing summary:")
+        print("📊 JSONL Parsing summary:")
         print("   Total lines: \(lines.count)")
         print("   Empty lines: \(emptyLines)")
         print("   Parse errors: \(parseErrors)")
