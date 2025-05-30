@@ -65,20 +65,37 @@ struct ShowCreateTrainingDataFromExistingGraphModal: StitchDocumentEvent {
 
 struct SubmitExistingGraphAsTrainingExampleModalView: View {
     
+    let promptFromPreviousExistingGraphSubmittedAsTrainingData: UserAIPrompt?
+    
     @State var prompt: String = ""
     @State var rating: StitchAIRating? = nil
   
     var body: some View {
         
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 12) {
             enterPrompt
             enterRating
             cancelOrSubmit
         }
         .frame(width: 340)
         .padding()
+        
+#if targetEnvironment(macCatalyst)
         .background(.regularMaterial)
+#else
+        .background(.ultraThickMaterial)
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.gray)
+        }
+#endif
+        
         .cornerRadius(8)
+        .onAppear {
+            if let existingPrompt = self.promptFromPreviousExistingGraphSubmittedAsTrainingData {
+                self.prompt = existingPrompt.value
+            }
+        }
     }
     
     
@@ -114,6 +131,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
             }, label: {
                 Text("Cancel")
             })
+            .buttonStyle(.bordered)
             
             Button(action: {
                 if let rating = rating {
@@ -125,8 +143,10 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
                 Text("Submit")
             })
             .disabled(prompt.isEmpty && !rating.isDefined)
+            .buttonStyle(.bordered)
             
             Spacer()
+            
         }
         
         // TODO: HStack with Spacers on a parent with fixed width = put child in center; can we `.alignmentGuide` to center instead?

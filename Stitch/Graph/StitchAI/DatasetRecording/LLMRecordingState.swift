@@ -95,6 +95,7 @@ struct LLMRecordingState {
     // The prompt we've manually provided for our training example;
     // OR the saved prompt from a streaming request that has been completed
     var promptForTrainingDataOrCompletedRequest: UserAIPrompt?
+    var promptFromPreviousExistingGraphSubmittedAsTrainingData: UserAIPrompt?
     
     var rating: StitchAIRating?
 }
