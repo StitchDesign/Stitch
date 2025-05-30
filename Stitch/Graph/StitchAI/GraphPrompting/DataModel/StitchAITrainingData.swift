@@ -60,6 +60,12 @@ extension StitchAIReasoningTrainingData: StitchAITrainingDataValidatable {
 
 struct StitchAIActionsTrainingData: Decodable {
     let actions: [Step]
+
+    init(from decoder: Decoder) throws {
+        // The JSON is **directly** an array of `Step`.
+        let container = try decoder.singleValueContainer()
+        self.actions = try container.decode([Step].self)
+    }
 }
 
 enum StitchAITrainingError: Error {
@@ -75,10 +81,8 @@ extension StitchAITrainingDataValidatable {
         for (index, actionsData) in actionsDataList.enumerated() {
             var validationErrors: [String] = []
             for step in actionsData.actions {
-                do {
-                    let _ = try StepTypeAction.fromStep(step)
-                } catch {
-                    validationErrors.append("Error: \(error)\nAction: \(step)")
+                if StepTypeAction.fromStep(step) == nil {
+                    validationErrors.append("Invalid action produced from step: \(step)")
                 }
             }
             
@@ -138,4 +142,3 @@ extension StitchAITrainingDataValidatable {
         return jsonObjects
     }
 }
-
