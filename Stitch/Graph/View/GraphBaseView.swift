@@ -82,7 +82,7 @@ struct GraphBaseView: View {
                 }
                 
             case .submitExistingGraphAsTrainingExample:
-                SubmitExistingGraphAsTrainingExampleModalView()
+                SubmitExistingGraphAsTrainingExampleModalView(promptFromPreviousExistingGraphSubmittedAsTrainingData: document.llmRecording.promptFromPreviousExistingGraphSubmittedAsTrainingData)
                 
             case .none, .enterPromptForTrainingData, .ratingToast:
                 // Either not applicable, or handled elsewhere

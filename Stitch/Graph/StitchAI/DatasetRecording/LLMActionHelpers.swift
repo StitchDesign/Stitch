@@ -101,7 +101,13 @@ extension StitchDocumentViewModel {
                     requiredRetry: false)
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
+                let existingPrompt = state.llmRecording.promptForTrainingDataOrCompletedRequest
+                
                 state.llmRecording = .init()
+                
+                // Save the prompt just if we're exposing the training example helpers
+                state.llmRecording.promptFromPreviousExistingGraphSubmittedAsTrainingData = existingPrompt
+                
             } catch let encodingError as EncodingError {
                 log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
                 state.llmRecording = .init()

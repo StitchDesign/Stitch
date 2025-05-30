@@ -115,6 +115,12 @@ struct iPadGraphTopBarButtons: View {
                              iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
             .opacity(hasActiveGroupFocused ? 1 : 0)
             
+            if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
+                iPadNavBarButton(action: {
+                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
+                }, iconName: .sfSymbol("sparkles"))
+            }
+            
             if !isDebugMode {
                 // toggle preview window
                 iPadNavBarButton(
