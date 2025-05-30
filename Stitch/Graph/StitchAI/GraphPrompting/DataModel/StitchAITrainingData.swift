@@ -44,17 +44,34 @@ extension StitchAITrainingData: StitchAITrainingDataValidatable {
     }
 }
 
-// used by o4-mini
+// MARK: - o4-mini (reasoning) data ------------------------------------------
+/// New format: no `"completion"` field – the assistant’s `content` **is** the
+/// array of `Step`s.
+/// Old format (still accepted): a top-level `"completion"` object.
 struct StitchAIReasoningTrainingData: Decodable {
-    let messages: [OpenAIMessage]
-    
-    // used by reasoning models
-    let completion: StitchAIActionsTrainingData
+    let messages:   [OpenAIMessage]
+    let completion: StitchAIActionsTrainingData?     // optional now
 }
 
 extension StitchAIReasoningTrainingData: StitchAITrainingDataValidatable {
     static func getTrainingData(from datasetExamples: [Self]) -> [StitchAIActionsTrainingData] {
-        datasetExamples.map(\.completion)
+        let decoder = JSONDecoder()
+
+        return datasetExamples.compactMap { example in
+            // 1️⃣ Preferred: explicit `"completion"`
+            if let completion = example.completion { return completion }
+
+            // 2️⃣ Fallback: pull from last assistant message
+            guard
+                let assistantContent = example.messages.last(where: { $0.role == .assistant })?.content,
+                let data            = assistantContent.data(using: .utf8),
+                let actions         = try? decoder.decode(StitchAIActionsTrainingData.self, from: data)
+            else {
+                print("StitchAIReasoningTrainingData – could not extract actions from messages")
+                return nil
+            }
+            return actions
+        }
     }
 }
 
