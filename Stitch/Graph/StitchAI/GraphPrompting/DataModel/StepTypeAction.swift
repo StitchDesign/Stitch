@@ -54,9 +54,6 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     
     static func fromStep(_ action: Step) -> Result<Self, StitchAIStepHandlingError> {
         switch action.stepType {
-        case .none:
-            // TODO: remove none type handling
-            fatalError()
         case .addNode:
             return StepActionAddNode.fromStep(action).map(Self.addNode)
         case .connectNodes:

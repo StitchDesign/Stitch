@@ -446,7 +446,6 @@ struct StepActionEditJSNode {
     static let stepType: StepType = .editJSNode
     
     var settings: JavaScriptNodeSettings
-    
 }
 
 extension StepActionEditJSNode: StepActionable {
@@ -487,7 +486,7 @@ extension StepActionEditJSNode: StepActionable {
     ]
     
     var toStep: Step {
-        Step(stepType: .editJSNode,
+        Step(stepType: Self.stepType,
              script: script,
              inputDefinitions: inputDefinitions.map(\.aiStep),
              outputDefinitions: outputDefinitions.map(\.aiStep))

@@ -50,9 +50,9 @@ struct OpenAIRequest {
             self.systemPrompt = systemPrompt
             
             // Construct http payload
-            let payload = try StitchAIRequest(secrets: secrets,
-                                              userPrompt: prompt,
-                                              systemPrompt: systemPrompt)
+            let payload = StitchAIRequest(secrets: secrets,
+                                          userPrompt: prompt,
+                                          systemPrompt: systemPrompt)
             self.payloadData = try encoder.encode(payload)
         case .jsNode:
             let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
