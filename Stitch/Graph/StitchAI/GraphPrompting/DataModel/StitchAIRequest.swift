@@ -23,7 +23,8 @@ struct StitchAIRequest: OpenAIRequestable {
 
     init(secrets: Secrets,
          userPrompt: String,
-         systemPrompt: String) {
+         systemPrompt: String,
+         willStream: Bool) {
         
         self.model = secrets.openAIModel
         self.n = 1
@@ -36,8 +37,7 @@ struct StitchAIRequest: OpenAIRequestable {
                   content: userPrompt)
         ]
         
-        // We always stream
-        self.stream = true
+        self.stream = willStream
     }
 }
 
