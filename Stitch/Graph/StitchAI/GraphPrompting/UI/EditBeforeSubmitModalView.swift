@@ -193,8 +193,8 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "Children: \(x.children.map { $0.debugFriendlyId }.joined(separator: ", "))")
                 }
                 
-            case .editJSNode:
-                StitchTextView(string: "Edit JS Node")
+//            case .editJSNode:
+//                StitchTextView(string: "Edit JS Node")
                 
             case .none:
                 FatalErrorIfDebugView()

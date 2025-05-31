@@ -12,7 +12,7 @@ import SwiftyJSON
 //protocol OpenAIStructuredOutputs: Codable {
 //    associatedtype Schema: Encodable
 //    associatedtype CodingKeys: CodingKey, CaseIterable, RawRepresentable
-//    
+//
 ////    static var structuredOutputsCodingKeys: Set<Self.CodingKeys> { get }
 //    static func createStructuredOutputs() -> Schema
 //}
@@ -181,8 +181,8 @@ extension Step {
             return StepActionSetInput.fromStep(self).map { $0 as any StepActionable}
         case .sidebarGroupCreated:
             return StepActionLayerGroupCreated.fromStep(self).map { $0 as any StepActionable}
-        case .editJSNode:
-            return StepActionEditJSNode.fromStep(self).map { $0 as any StepActionable}
+//        case .editJSNode:
+//            return StepActionEditJSNode.fromStep(self).map { $0 as any StepActionable}
         }
     }
 }

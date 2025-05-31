@@ -74,7 +74,7 @@ struct StitchAIResponseFormat: OpenAIResponseFormatable {
 
 struct EditJsNodeResponseFormat: OpenAIResponseFormatable {
     let type = "json_schema"
-    let json_schema = EditJsNodeJsonSchema()
+    let json_schema = EditJsNodeStructuredOutputsPayload()
 }
 
 struct StitchAIJsonSchema: OpenAIJsonSchema {
@@ -82,10 +82,8 @@ struct StitchAIJsonSchema: OpenAIJsonSchema {
     let schema = StitchAIStructuredOutputsPayload()
 }
 
-struct EditJsNodeJsonSchema: OpenAIJsonSchema {
-    let name = "EditJSNode"
-    let strict = true
-    let schema = JsNodeSettingsSchema(properties: JsNodeSettingsSchema(),
-                                    type: .object,
-                                    required: ["script", "inputDefinitions", "outputDefinitions"])
-}
+//struct EditJsNodeJsonSchema: OpenAIJsonSchema {
+//    let schema = OpenAISchema(type: .object,
+//                              properties: JsNodeSettingsSchema(),
+//                              required: ["script", "inputDefinitions", "outputDefinitions"])
+//}
