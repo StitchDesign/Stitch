@@ -170,11 +170,11 @@ extension StitchAITrainingDataValidatable {
         print("📈 FINAL VALIDATION SUMMARY for \(filename):")
         print(String(repeating: "=", count: 60))
         print("   📄 Total examples in file: \(trainingData.count)")
-        print("   ⚡ Successfully extracted actions: \(actionsDataList.count)")
-        print("   ❌ Failed to extract actions: \(extractionFailures)")
-        print("   ✅ Valid examples (passed all checks): \(successfulExamples)")
-        print("   🔴 Failed examples (validation errors): \(failedExamples)")
-        print("   💥 Total validation errors across all examples: \(totalValidationErrors)")
+        print("   ❌ Failed action extraction: \(extractionFailures)")
+        print("   ✅ Successfully extracted actions: \(actionsDataList.count)")
+        print("   🔴 Failed validation: \(failedExamples)")
+        print("   ✅ Passed validation: \(successfulExamples)")
+        print("   💥 Total validation errors: \(totalValidationErrors)")
         print(String(repeating: "=", count: 60))
         
         if extractionFailures == 0 && successfulExamples == actionsDataList.count {
