@@ -114,63 +114,6 @@ extension StitchAIPortValue: Codable {
     }
 }
 
-//struct StitchAIEncoding {
-//    let value: any Encodable
-//    let encodingFn: (inout any UnkeyedEncodingContainer) throws -> Void
-//}
-//
-//extension StitchAIEncoding: Encodable {
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.unkeyedContainer()
-//        try encodingFn(&container)
-//    }
-//}
-
-//struct StitchAIJavaScriptNodeSettings: Encodable {
-//    let script: String
-//    let input_definitions: [StitchAIJavaScriptPortDefinition]
-//    let output_definitions: [StitchAIEncoding]
-//}
-//
-//struct StitchAIJavaScriptPortDefinition: Encodable {
-//    let label: String
-//    let strict_type: NodeType
-//}
-
-//extension Array where Element == JavaScriptPortDefinition {
-//    init?(from aiSteps: [Step]?) {
-//        guard let aiSteps = aiSteps else {
-//            return nil
-//        }
-//        
-//        var definitions = [JavaScriptPortDefinition]()
-//        
-//        for step in aiSteps {
-//            guard let definition = JavaScriptPortDefinition(from: step) else {
-//                return nil
-//            }
-//            
-//            definitions.append(definition)
-//        }
-//        
-//        self = definitions
-//    }
-//}
-
-//extension JavaScriptPortDefinition {
-//    init?(from aiStep: Step) {
-//        guard let type = aiStep.valueType,
-//              let label = aiStep.label else {
-//            return nil
-//        }
-//        
-//        self.init(label: label,
-//                  strictType: type)
-//    }
-//    
-//    var aiStep: Step { .init(stepType: .editJSNode, valueType: self.strictType, label: label) }
-//}
-
 extension PortValuesList {
     init(javaScriptNodeResult: [[Step]]) {
         self = javaScriptNodeResult.map { outputResults in

@@ -81,9 +81,3 @@ struct StitchAIJsonSchema: OpenAIJsonSchema {
     let name = StitchAIStructuredOutputsSchema.title
     let schema = StitchAIStructuredOutputsPayload()
 }
-
-//struct EditJsNodeJsonSchema: OpenAIJsonSchema {
-//    let schema = OpenAISchema(type: .object,
-//                              properties: JsNodeSettingsSchema(),
-//                              required: ["script", "inputDefinitions", "outputDefinitions"])
-//}

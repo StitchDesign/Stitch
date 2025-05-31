@@ -68,44 +68,6 @@ extension OpenAISchemaDefinable {
     }
 }
 
-//protocol OpenAIProperitesObject: Encodable {
-//    associatedtype ObjectType: Encodable
-//    
-//    var properties: ObjectType { get }
-//    var schemaData: OpenAISchema { get }
-//    
-////    init(properties: ObjectType,
-////         schemaData: OpenAISchema)
-//}
-
-//extension OpenAIProperitesObject {
-//    init(properties: ObjectType,
-//         type: OpenAISchemaType,
-//         const: String? = nil,
-//         required: [String]? = nil,
-//         additionalProperties: Bool? = nil,
-//         title: String? = nil,
-//         description: String? = nil,
-//         items: OpenAIGeneric? = nil) {
-//        self.init(properties: properties,
-//                  schemaData: OpenAISchema(type: type,
-//                                           const: const,
-//                                           required: required,
-//                                           additionalProperties: additionalProperties,
-//                                           title: title,
-//                                           description: description,
-//                                           items: items))
-//    }
-//    
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: OpenAISchema.CodingKeys.self)
-//        
-//        // reuses coding keys for schema data
-//        try self.schemaData.encode(to: encoder)
-//        try container.encode(self.properties, forKey: .properties)
-//    }
-//}
-
 struct OpenAISchema {
     var type: OpenAISchemaType
     var properties: (any Encodable & Sendable)?
