@@ -122,15 +122,16 @@ extension LLMRecordingState {
 
 struct StitchAIRatingToast: View {
     
-    @State var tappedStar: Int?
+    @State private var submitted: Bool = false
+    @State private var show: Bool = true
     
-    // TODO: make var on document
-    @State var show: Bool = true
+    @State var currentRating: StitchAIRating?
     
     var body: some View {
         VStack(spacing: 8) {
-            Text(self.tappedStar != nil ? "Thanks!" : "Rate results")
-            SelectAStitchAIRatingView { (rating: StitchAIRating) in
+            Text(self.submitted ? "Thanks!" : "Rate results")
+            SelectAStitchAIRatingView(currentRating: self.$currentRating) { (rating: StitchAIRating) in
+                self.submitted = true
                 dispatch(AIRatingSubmitted(rating: rating))
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     withAnimation {
@@ -148,7 +149,7 @@ struct StitchAIRatingToast: View {
 
 struct SelectAStitchAIRatingView: View {
     
-    @State var currentRating: StitchAIRating?
+    @Binding var currentRating: StitchAIRating?
     var onRatingSelected: (StitchAIRating) -> Void
     
     var body: some View {

@@ -68,8 +68,19 @@ struct StitchRootView: View {
                 splitView
 //#if targetEnvironment(macCatalyst)
                     .overlay(alignment: .center) {
-                        if let document = store.currentDocument, showMenu {
-                            InsertNodeMenuWithModalBackground(document: document)
+                        if let document = store.currentDocument {
+                            
+                            if showMenu {
+                                InsertNodeMenuWithModalBackground(document: document)
+                            }
+                            
+                            if document.llmRecording.modal == .submitExistingGraphAsTrainingExample {
+                                SubmitExistingGraphAsTrainingExampleModalView(
+                                    promptFromPreviousExistingGraphSubmittedAsTrainingData: document.llmRecording.promptFromPreviousExistingGraphSubmittedAsTrainingData,
+                                    ratingFromPreviousExistingGraphSubmittedAsTrainingData: document.llmRecording.ratingFromPreviousExistingGraphSubmittedAsTrainingData
+                                )
+                            }
+                            
                         } // if let document
                     } // .overlay
             }
