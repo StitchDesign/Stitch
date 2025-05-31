@@ -172,7 +172,7 @@ struct OpenAIGeneric: Encodable, Sendable {
         }
         
         else {
-            var container = encoder.unkeyedContainer()
+            var container = encoder.singleValueContainer()
             
             // Add types to array
             for type in self.types {
