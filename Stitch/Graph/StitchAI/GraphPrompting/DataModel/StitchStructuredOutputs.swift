@@ -44,14 +44,6 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
                               title: Self.title)
 }
 
-//struct EditJsNodeStructuredOutputsSchema: Encodable {
-////    static let title = "EditJSNode"
-//    
-//    var schema = OpenAISchema(type: .object,
-//                              properties: JsNodeSettingsSchema(),
-//                              required: ["script", "inputDefinitions", "outputDefinitions"])
-//}
-
 struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
     let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
@@ -102,15 +94,6 @@ struct StitchAIStepsSchema: Encodable {
     )
 }
 
-//struct EditJsNodeStepsSchema: Encodable {
-//    let steps = OpenAISchema(type: .array,
-//                             description: "The settings required to setup a JavaScript node",
-//                             items: OpenAIGeneric(refs: [
-//                                .init(ref: "JavaScriptNodeSettings")
-//                             ])
-//    )
-//}
-
 struct StepStructuredOutputs: OpenAISchemaCustomizable {
     var properties: StitchAIStepSchema
     var schema: OpenAISchema
@@ -131,12 +114,6 @@ struct StepStructuredOutputs: OpenAISchemaCustomizable {
     }
 }
 
-//struct JsNodeProperties: OpenAIProperitesObject {
-//    let properties = JsNodeSettingsSchema()
-//    let schemaData = OpenAISchema(type: .object,
-//                                  required: ["script", "inputDefinitions", "outputDefinitions"])
-//}
-
 struct JsNodeSettingsSchema: Encodable {
     static let portDefinitions = OpenAISchema(type: .array,
                                               required: ["label", "strict_type"],
@@ -146,12 +123,6 @@ struct JsNodeSettingsSchema: Encodable {
     let input_definitions = Self.portDefinitions
     let output_definitions = Self.portDefinitions
 }
-
-//struct PortDefinitionProperties: OpenAIProperitesObject {
-//    let properties = PortDefinitionSchema()
-//    let schema_data = OpenAISchema(type: .object,
-//                                   required: ["label", "strictType"])
-//}
 
 struct PortDefinitionSchema: Encodable {
     let label = OpenAISchema(type: .string)

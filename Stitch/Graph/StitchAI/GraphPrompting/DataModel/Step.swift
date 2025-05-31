@@ -9,14 +9,6 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-//protocol OpenAIStructuredOutputs: Codable {
-//    associatedtype Schema: Encodable
-//    associatedtype CodingKeys: CodingKey, CaseIterable, RawRepresentable
-//
-////    static var structuredOutputsCodingKeys: Set<Self.CodingKeys> { get }
-//    static func createStructuredOutputs() -> Schema
-//}
-
 typealias Steps = [Step]
 
 extension Step: Identifiable {
