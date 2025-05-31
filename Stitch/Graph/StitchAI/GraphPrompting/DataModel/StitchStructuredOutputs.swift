@@ -12,6 +12,7 @@ import SwiftyJSON
 struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
     var defs = StitchAIStructuredOutputsDefinitions()
     var schema = StitchAIStructuredOutputsSchema()
+    var strict = true
 }
 
 struct EditJsNodeStructuredOutputsPayload: OpenAIJsonSchema, Encodable {
