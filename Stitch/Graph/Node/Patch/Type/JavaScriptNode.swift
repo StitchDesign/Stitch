@@ -29,17 +29,14 @@ struct JavaScriptNode: PatchNodeDefinition {
             return .init(outputsValues: [])
         }
         
-        guard let script = patchNode.javaScriptNodeSettings?.script else {
+        guard let jsSettings = patchNode.javaScriptNodeSettings else {
             return .init(outputsValues: [])
         }
 
         // Construct inputs into JSON
         let inputValuesList = node.inputsValuesList
         let aiDataFromInputs = inputValuesList.map { inputValues in
-            inputValues
-                .map {
-                    Step(stepType: .editJSNode, value: $0, valueType: $0.toNodeType)
-                }
+            inputValues.map(StitchAIPortValue.init)
         }
         
         // Encode ➜ JSON ➜ Foundation object ➜ JS
@@ -53,7 +50,7 @@ struct JavaScriptNode: PatchNodeDefinition {
         
         // 3. Evaluate a script
         let result = jsContext.evaluateScript("""
-\(script)
+\(jsSettings.script)
 // Get result from eval using node_inputs, which is passed from Swift land
 let result = evaluate(node_inputs)
 
@@ -80,39 +77,99 @@ JSON.stringify(result)
     }
 }
 
-extension Array where Element == JavaScriptPortDefinition {
-    init?(from aiSteps: [Step]?) {
-        guard let aiSteps = aiSteps else {
-            return nil
-        }
-        
-        var definitions = [JavaScriptPortDefinition]()
-        
-        for step in aiSteps {
-            guard let definition = JavaScriptPortDefinition(from: step) else {
-                return nil
-            }
-            
-            definitions.append(definition)
-        }
-        
-        self = definitions
+// TODO: move
+struct StitchAIPortValue {
+    let value: PortValue
+    
+    init(_ value: PortValue) {
+        self.value = value
     }
 }
 
-extension JavaScriptPortDefinition {
-    init?(from aiStep: Step) {
-        guard let type = aiStep.valueType,
-              let label = aiStep.label else {
-            return nil
-        }
-        
-        self.init(label: label,
-                  strictType: type)
+extension StitchAIPortValue: Codable {
+    enum CodingKeys: String, CodingKey {
+        case value
+        case type = "value_type"
     }
     
-    var aiStep: Step { .init(stepType: .editJSNode, valueType: self.strictType, label: label) }
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // extract type
+        let nodeTypeString = try container.decode(String.self, forKey: .type)
+        let nodeType = try NodeType(llmString: nodeTypeString)
+        
+        // portvalue
+        let portValueType = nodeType.portValueTypeForStitchAI
+        let decodedValue = try container.decode(portValueType, forKey: .value)
+        let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
+        self.value = value
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(value.toNodeType.asLLMStepNodeType, forKey: .type)
+        try container.encode(value.anyCodable, forKey: .value)
+    }
 }
+
+//struct StitchAIEncoding {
+//    let value: any Encodable
+//    let encodingFn: (inout any UnkeyedEncodingContainer) throws -> Void
+//}
+//
+//extension StitchAIEncoding: Encodable {
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.unkeyedContainer()
+//        try encodingFn(&container)
+//    }
+//}
+
+//struct StitchAIJavaScriptNodeSettings: Encodable {
+//    let script: String
+//    let input_definitions: [StitchAIJavaScriptPortDefinition]
+//    let output_definitions: [StitchAIEncoding]
+//}
+//
+//struct StitchAIJavaScriptPortDefinition: Encodable {
+//    let label: String
+//    let strict_type: NodeType
+//}
+
+//extension Array where Element == JavaScriptPortDefinition {
+//    init?(from aiSteps: [Step]?) {
+//        guard let aiSteps = aiSteps else {
+//            return nil
+//        }
+//        
+//        var definitions = [JavaScriptPortDefinition]()
+//        
+//        for step in aiSteps {
+//            guard let definition = JavaScriptPortDefinition(from: step) else {
+//                return nil
+//            }
+//            
+//            definitions.append(definition)
+//        }
+//        
+//        self = definitions
+//    }
+//}
+
+//extension JavaScriptPortDefinition {
+//    init?(from aiStep: Step) {
+//        guard let type = aiStep.valueType,
+//              let label = aiStep.label else {
+//            return nil
+//        }
+//        
+//        self.init(label: label,
+//                  strictType: type)
+//    }
+//    
+//    var aiStep: Step { .init(stepType: .editJSNode, valueType: self.strictType, label: label) }
+//}
 
 extension PortValuesList {
     init(javaScriptNodeResult: [[Step]]) {

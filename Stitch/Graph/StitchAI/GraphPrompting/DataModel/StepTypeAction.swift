@@ -16,7 +16,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
     case sidebarGroupCreated(StepActionLayerGroupCreated)
-    case editJSNode(StepActionEditJSNode)
+//    case editJSNode(StepActionEditJSNode)
     
     var stepType: StepType {
         switch self {
@@ -30,8 +30,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionSetInput.stepType
         case .sidebarGroupCreated:
             return StepActionLayerGroupCreated.stepType
-        case .editJSNode:
-            return StepActionEditJSNode.stepType
+//        case .editJSNode:
+//            return StepActionEditJSNode.stepType
         }
     }
     
@@ -47,8 +47,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return x.toStep
         case .sidebarGroupCreated(let x):
             return x.toStep
-        case .editJSNode(let x):
-            return x.toStep
+//        case .editJSNode(let x):
+//            return x.toStep
         }
     }
     
@@ -64,8 +64,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionSetInput.fromStep(action).map(Self.setInput)
         case .sidebarGroupCreated:
             return StepActionLayerGroupCreated.fromStep(action).map(Self.sidebarGroupCreated)
-        case .editJSNode:
-            return StepActionEditJSNode.fromStep(action).map(Self.editJSNode)
+//        case .editJSNode:
+//            return StepActionEditJSNode.fromStep(action).map(Self.editJSNode)
         }
     }
 }

@@ -14,9 +14,13 @@ struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
     var schema = StitchAIStructuredOutputsSchema()
 }
 
-struct EditJsNodeStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
-    var defs = EditJsNodeStructuredOutputsDefinitions()
-    var schema = EditJsNodeStructuredOutputsSchema()
+struct EditJsNodeStructuredOutputsPayload: OpenAIJsonSchema, Encodable {
+    let defs = EditJsNodeStructuredOutputsDefinitions()
+    let schema = OpenAISchema(type: .object,
+                              properties: JsNodeSettingsSchema(),
+                              required: ["script", "inputDefinitions", "outputDefinitions"])
+    let strict = true
+    let name = "EditJSNode"
 }
 
 extension OpenAISchemaDefinable {
@@ -40,11 +44,13 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
                               title: Self.title)
 }
 
-struct EditJsNodeStructuredOutputsSchema: OpenAISchemaCustomizable {
-    static let title = "EditJSNode"
-    
-    let properties = JsNodeSettingsSchema()
-}
+//struct EditJsNodeStructuredOutputsSchema: Encodable {
+////    static let title = "EditJSNode"
+//    
+//    var schema = OpenAISchema(type: .object,
+//                              properties: JsNodeSettingsSchema(),
+//                              required: ["script", "inputDefinitions", "outputDefinitions"])
+//}
 
 struct StitchAIStructuredOutputsDefinitions: Encodable {
     // Step actions
@@ -76,17 +82,11 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
 }
 
 struct EditJsNodeStructuredOutputsDefinitions: Encodable {
-    // Step actions
-    static let JavaScriptNodeSettings = JsNodeSettingsSchema()
-    
     // Types
-    let ValueType = OpenAISchemaEnum(values:
-                                        NodeType.allCases
+    let ValueType = OpenAISchemaEnum(values: NodeType.allCases
         .filter { $0 != .none }
         .map { $0.asLLMStepNodeType }
     )
-
-    // TODO: add port definitions to structured outputs
 }
 
 struct StitchAIStepsSchema: Encodable {
@@ -131,28 +131,31 @@ struct StepStructuredOutputs: OpenAISchemaCustomizable {
     }
 }
 
-struct JsNodeProperties: OpenAIProperitesObject {
-    let properties = JsNodeSettingsSchema()
-    let schemaData = OpenAISchema(type: .object,
-                                  required: ["script", "inputDefinitions", "outputDefinitions"])
-}
+//struct JsNodeProperties: OpenAIProperitesObject {
+//    let properties = JsNodeSettingsSchema()
+//    let schemaData = OpenAISchema(type: .object,
+//                                  required: ["script", "inputDefinitions", "outputDefinitions"])
+//}
 
 struct JsNodeSettingsSchema: Encodable {
+    static let portDefinitions = OpenAISchema(type: .array,
+                                              required: ["label", "strict_type"],
+                                              items: OpenAIGeneric(types: [PortDefinitionSchema()]))
+    
     let script = OpenAISchema(type: .string)
-    let inputDefinitions = OpenAISchema(type: .array,
-                                        items: [.])
-//    let outputDefinitions = OpenAISchemaRef
+    let input_definitions = Self.portDefinitions
+    let output_definitions = Self.portDefinitions
 }
 
-struct PortDefinitionProperties: OpenAIProperitesObject {
-    let properties = PortDefinitionSchema()
-    let schemaData = OpenAISchema(type: .object,
-                                  required: ["label", "strictType"])
-}
+//struct PortDefinitionProperties: OpenAIProperitesObject {
+//    let properties = PortDefinitionSchema()
+//    let schema_data = OpenAISchema(type: .object,
+//                                   required: ["label", "strictType"])
+//}
 
 struct PortDefinitionSchema: Encodable {
     let label = OpenAISchema(type: .string)
-    let strictType = OpenAISchemaRef(ref: "ValueType")
+    let strict_type = OpenAISchemaRef(ref: "ValueType")
 }
 
 struct StitchAIStepSchema: Encodable {
