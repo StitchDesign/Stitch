@@ -30,6 +30,7 @@ struct OpenAIRequest {
     let systemPrompt: String
     let config: OpenAIRequestConfig // Request configuration settings
     let payloadData: Data
+    let willStream: Bool
     
     /// Initialize a new request with prompt and optional configuration
     @MainActor
@@ -48,15 +49,18 @@ struct OpenAIRequest {
         case .stitchAIGraph:
             let systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
             self.systemPrompt = systemPrompt
+            self.willStream = true
             
             // Construct http payload
             let payload = StitchAIRequest(secrets: secrets,
                                           userPrompt: prompt,
-                                          systemPrompt: systemPrompt)
+                                          systemPrompt: systemPrompt,
+                                          willStream: true)
             self.payloadData = try encoder.encode(payload)
         case .jsNode:
             let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
             self.systemPrompt = systemPrompt
+            self.willStream = false
             
             // Construct http payload
             let payload = try EditJsNodeRequest(secrets: secrets,
@@ -83,10 +87,11 @@ extension StitchAIManager {
                 return
             }
             
-            switch await aiManager.startOpenAIStreamingRequest(
+            switch await aiManager.startOpenAIRequest(
                 request,
                 attempt: attempt,
-                lastCapturedError: document.llmRecording.actionsError ?? "") {
+                lastCapturedError: document.llmRecording.actionsError ?? "",
+                document: document) {
             
             case .none: // No error!
                 log("getOpenAIStreamingTask: succeeded")
@@ -154,7 +159,8 @@ extension StitchAIManager {
 
         let payload = StitchAIRequest(secrets: secrets,
                                       userPrompt: prompt,
-                                      systemPrompt: systemPrompt)
+                                      systemPrompt: systemPrompt,
+                                      willStream: request.willStream)
         
         let encoder = JSONEncoder()
         // encoder.outputFormatting = [.withoutEscapingSlashes]
@@ -169,9 +175,10 @@ extension StitchAIManager {
     
     /// Execute the API request with retry logic
     // fka `makeRequest`
-    func startOpenAIStreamingRequest(_ request: OpenAIRequest,
-                                     attempt: Int,
-                                     lastCapturedError: String) async -> StitchAIStreamingError? {
+    func startOpenAIRequest(_ request: OpenAIRequest,
+                            attempt: Int,
+                            lastCapturedError: String,
+                            document: StitchDocumentViewModel) async -> StitchAIStreamingError? {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
@@ -186,10 +193,11 @@ extension StitchAIManager {
             return nil
         }
         
-        let streamOpeningResult = await self.openStream(
+        let streamOpeningResult = await self.makeRequest(
             for: urlRequest,
             with: request,
-            attempt: attempt)
+            attempt: attempt,
+            document: document)
         
         switch streamOpeningResult {
             

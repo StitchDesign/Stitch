@@ -12,6 +12,10 @@ import Foundation
 import StitchSchemaKit
 import SwiftyJSON
 
+//struct OpenAIDataResponse: Codable {
+//    var data: OpenAIResponse
+//}
+
 /// Represents the complete response structure from OpenAI's API
 struct OpenAIResponse: Codable {
     var id: String                // Unique identifier for the API response
