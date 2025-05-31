@@ -197,8 +197,8 @@ extension StitchAIManager {
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
     private func openStream(for urlRequest: URLRequest,
-                    with request: OpenAIRequest,
-                    attempt: Int) async -> Result<URLResponse, Error> {
+                            with request: OpenAIRequest,
+                            attempt: Int) async -> Result<URLResponse, Error> {
         
         var currentChunk: [UInt8] = []
         
