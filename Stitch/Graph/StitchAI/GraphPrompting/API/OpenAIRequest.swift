@@ -47,15 +47,16 @@ struct OpenAIRequest {
         // Load system prompt from bundled file
         switch requestType {
         case .stitchAIGraph:
+            let willStream = false
             let systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
             self.systemPrompt = systemPrompt
-            self.willStream = true
+            self.willStream = willStream
             
             // Construct http payload
             let payload = StitchAIRequest(secrets: secrets,
                                           userPrompt: prompt,
                                           systemPrompt: systemPrompt,
-                                          willStream: true)
+                                          willStream: willStream)
             self.payloadData = try encoder.encode(payload)
         case .jsNode:
             let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
