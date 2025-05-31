@@ -66,9 +66,10 @@ struct ShowCreateTrainingDataFromExistingGraphModal: StitchDocumentEvent {
 struct SubmitExistingGraphAsTrainingExampleModalView: View {
     
     let promptFromPreviousExistingGraphSubmittedAsTrainingData: UserAIPrompt?
+    let ratingFromPreviousExistingGraphSubmittedAsTrainingData: StitchAIRating?
     
     @State var prompt: String = ""
-    @State var rating: StitchAIRating? = nil
+    @State var currentRating: StitchAIRating? = nil
   
     var body: some View {
         
@@ -95,6 +96,9 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
             if let existingPrompt = self.promptFromPreviousExistingGraphSubmittedAsTrainingData {
                 self.prompt = existingPrompt.value
             }
+            if let existingRating = self.ratingFromPreviousExistingGraphSubmittedAsTrainingData {
+                self.currentRating = existingRating
+            }
         }
     }
     
@@ -115,8 +119,9 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
     var enterRating: some View {
         HStack {
             StitchTextView(string: "Rating: ")
-            SelectAStitchAIRatingView { (rating: StitchAIRating) in
-                self.rating = rating
+            SelectAStitchAIRatingView(currentRating: self.$currentRating) { (rating: StitchAIRating) in
+                // TODO: no longer necessary now that we're passing down the binding; clean up this view a bit
+                self.currentRating = rating
             }
         }
     }
@@ -134,7 +139,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
             .buttonStyle(.bordered)
             
             Button(action: {
-                if let rating = rating {
+                if let rating = currentRating {
                     dispatch(ExistingGraphSubmittedAsTrainingExample(
                         prompt: .init(self.prompt),
                         rating: rating))
@@ -142,7 +147,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
             }, label: {
                 Text("Submit")
             })
-            .disabled(prompt.isEmpty && !rating.isDefined)
+            .disabled(prompt.isEmpty && !currentRating.isDefined)
             .buttonStyle(.bordered)
             
             Spacer()

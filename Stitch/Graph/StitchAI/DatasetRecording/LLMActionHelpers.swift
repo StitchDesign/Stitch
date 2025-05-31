@@ -105,8 +105,10 @@ extension StitchDocumentViewModel {
                 
                 state.llmRecording = .init()
                 
-                // Save the prompt just if we're exposing the training example helpers
+                // Save the prompt and rating just if we're exposing the training example helpers
+                // TODO: can probably pass down this state etc. ?
                 state.llmRecording.promptFromPreviousExistingGraphSubmittedAsTrainingData = existingPrompt
+                state.llmRecording.ratingFromPreviousExistingGraphSubmittedAsTrainingData = rating
                 
             } catch let encodingError as EncodingError {
                 log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")

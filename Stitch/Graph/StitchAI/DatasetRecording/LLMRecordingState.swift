@@ -98,6 +98,7 @@ struct LLMRecordingState {
     var promptFromPreviousExistingGraphSubmittedAsTrainingData: UserAIPrompt?
     
     var rating: StitchAIRating?
+    var ratingFromPreviousExistingGraphSubmittedAsTrainingData: StitchAIRating?
 }
 
 

@@ -80,11 +80,8 @@ struct GraphBaseView: View {
                 TopLeftCornerView {
                     ApproveAndSubmitModalView(prompt: document.llmRecording.promptForTrainingDataOrCompletedRequest)
                 }
-                
-            case .submitExistingGraphAsTrainingExample:
-                SubmitExistingGraphAsTrainingExampleModalView(promptFromPreviousExistingGraphSubmittedAsTrainingData: document.llmRecording.promptFromPreviousExistingGraphSubmittedAsTrainingData)
-                
-            case .none, .enterPromptForTrainingData, .ratingToast:
+                                
+            case .none, .enterPromptForTrainingData, .ratingToast, .submitExistingGraphAsTrainingExample:
                 // Either not applicable, or handled elsewhere
                 EmptyView()
             }
