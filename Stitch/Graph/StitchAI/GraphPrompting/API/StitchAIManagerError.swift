@@ -14,6 +14,9 @@ enum StitchAIStepHandlingError: Error {
     case stepActionDecoding(String)
     case stepDecoding(StepType, Step)
     case actionValidationError(String)
+    case typeMigrationFailed(any Encodable & Sendable)
+    case sskMigrationFailed(SSKError)
+    case other(any Error)
 }
 
 extension StitchAIStepHandlingError {
@@ -21,6 +24,8 @@ extension StitchAIStepHandlingError {
         switch self {
         case .stepActionDecoding, .stepDecoding, .actionValidationError:
             return true
+        case .typeMigrationFailed, .sskMigrationFailed, .other:
+            return false
         }
     }
 }
@@ -35,6 +40,12 @@ extension StitchAIStepHandlingError: CustomStringConvertible {
             return "Unable to decode: \(stepType) with step payload:\n\(step)"
         case .actionValidationError(let string):
             return "Action validation error: \(string)"
+        case .typeMigrationFailed(let type):
+            return "Unable to convert type: \(type)"
+        case .sskMigrationFailed(let error):
+            return "Migration failed for schema with error: \(error)"
+        case .other(let error):
+            return "\(error)"
         }
     }
 }
@@ -133,10 +144,12 @@ extension StitchAIParsingError: CustomStringConvertible {
 // MARK: Misc/legacy errors
 
 // TODO: which are just for us developers (to be logged), vs actionable for the user?
-enum StitchAIManagerError<AIRequest: StitchAIRequestable>: Error {
+enum StitchAIManagerError: Error {
     case contentDataDecodingError(String, String)
-    case other(AIRequest, Error)
     case secretsNotFound
+    case nodeTypeNotSupported(String)
+    case responseDecodingFailure(String)
+    case portValueDescriptionNotSupported
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -144,10 +157,14 @@ extension StitchAIManagerError: CustomStringConvertible {
         switch self {
         case .contentDataDecodingError(let contentData, let errorResponse):
             return "Unable to parse step actions from: \(contentData) with error: \(errorResponse)"
-        case .other(_, let error):
-            return "OpenAI Request error: \(error.localizedDescription)"
         case .secretsNotFound:
             return "No secrets file found."
+        case .nodeTypeNotSupported(let nodeType):
+            return "No node type found for: \(nodeType)"
+        case .responseDecodingFailure(let errorMessage):
+            return "OpenAI respopnse decoding failed with the following error: \(errorMessage)"
+        case .portValueDescriptionNotSupported:
+            return "PortValue descriptions aren't supported due to PorValue version mismatch between the AI schema and SSK."
         }
     }
 }

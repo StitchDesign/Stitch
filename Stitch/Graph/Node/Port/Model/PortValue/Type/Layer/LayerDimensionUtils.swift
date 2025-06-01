@@ -9,12 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension String {
-    static let AUTO_SIZE_STRING = "auto"
-    static let FILL_SIZE_STRING = "fill"
-    static let HUG_SIZE_STRING = "hug"
-}
-
 // percent:
 // 1 = 100%
 // 0.5 = 50%
@@ -44,26 +38,6 @@ func parsePercentage(_ edit: String) -> Double? {
 extension Double {
     var asPercentage: String {
         "\(self)%"
-    }
-}
-
-extension LayerDimension: CustomStringConvertible {
-    // MARK: string coercison causes perf loss (GitHub issue #3120)
-    public var description: String {
-        switch self {
-        case .auto:
-            return .AUTO_SIZE_STRING
-        case .parentPercent(let x):
-            //            return "\(x.coerceToUserFriendlyString)%"
-            return "\(x.description)%"
-        case .number(let x):
-            //            return x.coerceToUserFriendlyString
-            return x.description
-        case .fill:
-            return .FILL_SIZE_STRING
-        case .hug:
-            return .HUG_SIZE_STRING
-        }
     }
 }
 
@@ -131,11 +105,11 @@ extension LayerDimension {
 
     // TODO: restrict edits to the logic described in `getFilteredChoices` in `InputValueView`
     static func fromUserEdit(edit: String) -> LayerDimension? {
-        if edit == .AUTO_SIZE_STRING {
+        if edit == LayerDimension.AUTO_SIZE_STRING {
             return .auto
-        } else if edit == .FILL_SIZE_STRING {
+        } else if edit == LayerDimension.FILL_SIZE_STRING {
             return .fill
-        } else if edit == .HUG_SIZE_STRING {
+        } else if edit == LayerDimension.HUG_SIZE_STRING {
             return .hug
         } else if let n = parsePercentage(edit) {
             return .parentPercent(n)

@@ -131,9 +131,9 @@ struct NodeView: View {
                   text: $aiJsNodePrompt)
         .onSubmit {
             do {
-                let jsAIRequest = try EditJSNodeRequest(prompt: aiJsNodePrompt,
-                                                        document: document,
-                                                        nodeId: stitch.id)
+                let jsAIRequest = try AIEditJSNodeRequest(prompt: aiJsNodePrompt,
+                                                          document: document,
+                                                          nodeId: stitch.id)
                 jsAIRequest.makeRequest(canShareAIRetries: store.canShareAIRetries,
                                         document: document)
             } catch {

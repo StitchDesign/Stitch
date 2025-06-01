@@ -20,11 +20,11 @@ extension LayerDimensionField {
     var stringValue: String {
         switch self {
         case .auto:
-            return .AUTO_SIZE_STRING
+            return LayerDimension.AUTO_SIZE_STRING
         case .fill:
-            return .FILL_SIZE_STRING
+            return LayerDimension.FILL_SIZE_STRING
         case .hug:
-            return .HUG_SIZE_STRING
+            return LayerDimension.HUG_SIZE_STRING
         case .number(let double):
             return GlobalFormatter.string(for: double) ?? double.description
         case .percent(let double):
