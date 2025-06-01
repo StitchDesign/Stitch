@@ -328,8 +328,6 @@ struct ActiveIndexChangedAction: StitchDocumentEvent {
     let index: ActiveIndex
 
     func handle(state: StitchDocumentViewModel) {
-//        let graph = state.visibleGraph
-        
         state.activeIndex = index
         
         // TODO: See `NodesOnlyView`'s `.onChange`
