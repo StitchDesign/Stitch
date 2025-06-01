@@ -133,9 +133,9 @@ extension StitchAIParsingError: CustomStringConvertible {
 // MARK: Misc/legacy errors
 
 // TODO: which are just for us developers (to be logged), vs actionable for the user?
-enum StitchAIManagerError: Error {
+enum StitchAIManagerError<AIRequest: StitchAIRequestable>: Error {
     case contentDataDecodingError(String, String)
-    case other(OpenAIRequest, Error)
+    case other(AIRequest, Error)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {

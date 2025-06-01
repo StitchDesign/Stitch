@@ -159,8 +159,9 @@ extension StitchAIManager {
                     fatalErrorIfDebug()
                     return .failure(StitchAIManagerError.other(request, NSError()))
                 }
-                                
-                let result = try AIRequest.processRepopnse(message: firstChoice.message)
+                
+                let initialDecodedResult = try AIRequest.parseOpanAIResponse(content: firstChoice.message.content)
+                let result = try AIRequest.validateRepopnse(decodedResult: initialDecodedResult)
                 
                 try await MainActor.run { [weak self, weak document] in
                     guard let aiManager = self,

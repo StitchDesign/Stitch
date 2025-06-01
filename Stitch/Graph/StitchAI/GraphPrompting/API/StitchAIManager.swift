@@ -37,8 +37,6 @@ final actor StitchAIManager {
     var tableName: String
     
     @MainActor var currentTask: CurrentAITask?
-    // @MainActor weak var documentDelegate: StitchDocumentViewModel?
-    @MainActor var jsRequestNodeId: NodeId?
 
     init?() throws {
         guard let secrets = try Secrets() else {

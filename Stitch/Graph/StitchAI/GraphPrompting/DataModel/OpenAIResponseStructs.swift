@@ -92,11 +92,13 @@ struct MessageStruct: Codable {
     var content: String         // Actual content of the message
     var refusal: String?       // Optional refusal message if content was denied
     var annotations: [String]?  // Optional annotations
-    
+}
+
+extension StitchAIRequestable {
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed
     /// - Returns: Parsed ContentJSON structure
-    func parseStitchAIContent() throws -> StitchAIContentJSON {
+    static func parseOpanAIResponse(content: String) throws -> Self.InitialDecodedResult {
         guard let contentData = content.data(using: .utf8) else {
             print("Debug - raw content: \(content)")
             throw DecodingError.dataCorrupted(DecodingError.Context(
@@ -108,13 +110,13 @@ struct MessageStruct: Codable {
         let decoder = getStitchDecoder()
         
         do {
-            let result = try decoder.decode(StitchAIContentJSON.self, from: contentData)
-            print("MessageStruct: successfully decoded with \(result.steps.count) steps with json:\n\(self.content)")
+            let result = try decoder.decode(Self.InitialDecodedResult.self, from: contentData)
+            print("MessageStruct: successfully decoded with \(result)")
             return result
-        } catch let error as StitchAIManagerError {
+        } catch let error as StitchAIManagerError<Self> {
             throw error
         } catch {
-            throw StitchAIManagerError.contentDataDecodingError(self.content, error.localizedDescription)
+            throw StitchAIManagerError<Self>.contentDataDecodingError(content, error.localizedDescription)
         }
     }
 }

@@ -140,9 +140,7 @@ extension StitchAIManager {
         
         switch streamOpeningResult {
             
-        case .success(let result):
-            let (contentJSON, response) = result
-            
+        case .success(let response):            
             // Even if we had a successful response, may have hit a rate limit?
             // TODO: is this still necessary for streaming requests?
             return handlePossibleRateLimit(
