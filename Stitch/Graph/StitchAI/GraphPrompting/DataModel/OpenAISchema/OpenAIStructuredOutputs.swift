@@ -66,6 +66,13 @@ extension OpenAISchemaDefinable {
         
         try self.schema.encode(to: encoder)
     }
+    
+    func printSchema() throws -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        let data = try encoder.encode(self)
+        return String(data: data, encoding: .utf8) ?? "Failed to encode schema"
+    }
 }
 
 struct OpenAISchema {

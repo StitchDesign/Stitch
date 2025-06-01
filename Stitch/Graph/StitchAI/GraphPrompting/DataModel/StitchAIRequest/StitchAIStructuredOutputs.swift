@@ -1,35 +1,17 @@
 //
-//  StructuredOutputs.swift
+//  StitchAIStructuredOutputs.swift
 //  Stitch
 //
-//  Created by Elliot Boschwitz on 2/16/25.
+//  Created by Elliot Boschwitz on 6/1/25.
 //
 
 import SwiftUI
 import StitchSchemaKit
-import SwiftyJSON
 
 struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable {
     let defs = StitchAIStructuredOutputsDefinitions()
     let schema = StitchAIStructuredOutputsSchema()
     let strict = true
-}
-
-struct EditJsNodeStructuredOutputsPayload: OpenAISchemaDefinable {
-    let defs = EditJsNodeStructuredOutputsDefinitions()
-    let schema = OpenAISchema(type: .object,
-                              properties: JsNodeSettingsSchema(),
-                              required: ["script", "input_definitions", "output_definitions"])
-    let strict = true
-}
-
-extension OpenAISchemaDefinable {
-    func printSchema() throws -> String {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted]
-        let data = try encoder.encode(self)
-        return String(data: data, encoding: .utf8) ?? "Failed to encode schema"
-    }
 }
 
 struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
@@ -73,14 +55,6 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     )
 }
 
-struct EditJsNodeStructuredOutputsDefinitions: Encodable {
-    // Types
-    let ValueType = OpenAISchemaEnum(values: NodeType.allCases
-        .filter { $0 != .none }
-        .map { $0.asLLMStepNodeType }
-    )
-}
-
 struct StitchAIStepsSchema: Encodable {
     let steps = OpenAISchema(type: .array,
                              description: "The actions taken to create a graph",
@@ -112,21 +86,6 @@ struct StepStructuredOutputs: OpenAISchemaCustomizable {
         self.properties = properties
         self.schema = schema
     }
-}
-
-struct JsNodeSettingsSchema: Encodable {
-    static let portDefinitions = OpenAISchema(type: .array,
-                                              required: ["label", "strict_type"],
-                                              items: OpenAIGeneric(types: [PortDefinitionSchema()]))
-    
-    let script = OpenAISchema(type: .string)
-    let input_definitions = Self.portDefinitions
-    let output_definitions = Self.portDefinitions
-}
-
-struct PortDefinitionSchema: Encodable {
-    let label = OpenAISchema(type: .string)
-    let strict_type = OpenAISchemaRef(ref: "ValueType")
 }
 
 struct StitchAIStepSchema: Encodable {
