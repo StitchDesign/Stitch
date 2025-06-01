@@ -16,6 +16,7 @@ enum StepTypeAction: Equatable, Hashable, Codable {
     case changeValueType(StepActionChangeValueType)
     case setInput(StepActionSetInput)
     case sidebarGroupCreated(StepActionLayerGroupCreated)
+//    case editJSNode(StepActionEditJSNode)
     
     var stepType: StepType {
         switch self {
@@ -29,6 +30,8 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return StepActionSetInput.stepType
         case .sidebarGroupCreated:
             return StepActionLayerGroupCreated.stepType
+//        case .editJSNode:
+//            return StepActionEditJSNode.stepType
         }
     }
     
@@ -44,21 +47,25 @@ enum StepTypeAction: Equatable, Hashable, Codable {
             return x.toStep
         case .sidebarGroupCreated(let x):
             return x.toStep
+//        case .editJSNode(let x):
+//            return x.toStep
         }
     }
     
     static func fromStep(_ action: Step) -> Result<Self, StitchAIStepHandlingError> {
         switch action.stepType {
         case .addNode:
-            return StepActionAddNode.fromStep(action).map { StepTypeAction.addNode($0) }
+            return StepActionAddNode.fromStep(action).map(Self.addNode)
         case .connectNodes:
-            return StepActionConnectionAdded.fromStep(action).map { .connectNodes($0) }
+            return StepActionConnectionAdded.fromStep(action).map(Self.connectNodes)
         case .changeValueType:
-            return StepActionChangeValueType.fromStep(action).map { .changeValueType($0) }
+            return StepActionChangeValueType.fromStep(action).map(Self.changeValueType)
         case .setInput:
-            return StepActionSetInput.fromStep(action).map { .setInput($0) }
+            return StepActionSetInput.fromStep(action).map(Self.setInput)
         case .sidebarGroupCreated:
-            return StepActionLayerGroupCreated.fromStep(action).map { .sidebarGroupCreated($0) }
+            return StepActionLayerGroupCreated.fromStep(action).map(Self.sidebarGroupCreated)
+//        case .editJSNode:
+//            return StepActionEditJSNode.fromStep(action).map(Self.editJSNode)
         }
     }
 }

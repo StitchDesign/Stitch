@@ -49,6 +49,7 @@
 		B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */; };
 		B5072B882DD2FD0500C4597B /* StitchAITips.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5072B872DD2FCFB00C4597B /* StitchAITips.swift */; };
 		B5084A592DD5AAC100E03F27 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = B5084A582DD5AAC100E03F27 /* StitchSchemaKit */; };
+		B5098C3B2DEBFC91003C154A /* StitchAIRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */; };
 		B50AD530292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */; };
 		B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */; };
 		B50AD536292C9F69003CC61E /* InsertNodeMenuSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD535292C9F69003CC61E /* InsertNodeMenuSearchBar.swift */; };
@@ -286,11 +287,13 @@
 		B5EFD5B82D5E69C1006A68FB /* StitchAINodeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B72D5E69BC006A68FB /* StitchAINodeSection.swift */; };
 		B5EFD5BA2D62D510006A68FB /* StitchStructuredOutputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */; };
 		B5EFD5BC2D63EC5D006A68FB /* OpenAIStructuredOutputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */; };
-		B5EFD5C12D64EC5F006A68FB /* StitchAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */; };
+		B5EFD5C12D64EC5F006A68FB /* StitchAIRequestBodyFormattable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */; };
 		B5EFD5C32D64EC86006A68FB /* OpenAIRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */; };
 		B5EFD5C72D650D4A006A68FB /* StitchAITrainingData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */; };
 		B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */; };
 		B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */; };
+		B5F3D0AF2DE2E4FF00103676 /* JavaScriptNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F3D0AE2DE2E4FA00103676 /* JavaScriptNode.swift */; };
+		B5F3D0B22DE3CBCE00103676 /* JSNodeSystemPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F3D0B12DE3CBC600103676 /* JSNodeSystemPrompt.swift */; };
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
 		B5F88D6A2D2D6D8B00B5A45A /* StitchProjectOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F88D692D2D6D8500B5A45A /* StitchProjectOverlayView.swift */; };
 		B5F8D6A82C224A6600B99E5C /* LayerNodeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F8D6A72C224A6600B99E5C /* LayerNodeData.swift */; };
@@ -1094,6 +1097,7 @@
 		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
 		B5072B872DD2FCFB00C4597B /* StitchAITips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITips.swift; sourceTree = "<group>"; };
+		B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestable.swift; sourceTree = "<group>"; };
 		B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuNodeDescriptionView.swift; sourceTree = "<group>"; };
 		B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchResults.swift; sourceTree = "<group>"; };
 		B50AD535292C9F69003CC61E /* InsertNodeMenuSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchBar.swift; sourceTree = "<group>"; };
@@ -1317,11 +1321,13 @@
 		B5EFD5B72D5E69BC006A68FB /* StitchAINodeSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAINodeSection.swift; sourceTree = "<group>"; };
 		B5EFD5B92D62D50B006A68FB /* StitchStructuredOutputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchStructuredOutputs.swift; sourceTree = "<group>"; };
 		B5EFD5BB2D63EC58006A68FB /* OpenAIStructuredOutputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIStructuredOutputs.swift; sourceTree = "<group>"; };
-		B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequest.swift; sourceTree = "<group>"; };
+		B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBodyFormattable.swift; sourceTree = "<group>"; };
 		B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequestable.swift; sourceTree = "<group>"; };
 		B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITrainingData.swift; sourceTree = "<group>"; };
 		B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLayerViewModifier.swift; sourceTree = "<group>"; };
 		B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReducer.swift; sourceTree = "<group>"; };
+		B5F3D0AE2DE2E4FA00103676 /* JavaScriptNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JavaScriptNode.swift; sourceTree = "<group>"; };
+		B5F3D0B12DE3CBC600103676 /* JSNodeSystemPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSNodeSystemPrompt.swift; sourceTree = "<group>"; };
 		B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "WhatToTest.en-US.txt"; sourceTree = "<group>"; };
 		B5F88D692D2D6D8500B5A45A /* StitchProjectOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchProjectOverlayView.swift; sourceTree = "<group>"; };
 		B5F8D6A72C224A6600B99E5C /* LayerNodeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeData.swift; sourceTree = "<group>"; };
@@ -4021,6 +4027,15 @@
 			path = OpenAISchema;
 			sourceTree = "<group>";
 		};
+		B5F3D0B02DE3CBBA00103676 /* Prompts */ = {
+			isa = PBXGroup;
+			children = (
+				B5F3D0B12DE3CBC600103676 /* JSNodeSystemPrompt.swift */,
+				B5EFD5B02D5D8967006A68FB /* StitchAISystemPrompt.swift */,
+			);
+			path = Prompts;
+			sourceTree = "<group>";
+		};
 		B5F5FD412B3755C200BBD9A2 /* TestFlight */ = {
 			isa = PBXGroup;
 			children = (
@@ -4051,8 +4066,8 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
+				B5F3D0B02DE3CBBA00103676 /* Prompts */,
 				B521A1002DE19D5400662B13 /* View */,
-				B5EFD5B02D5D8967006A68FB /* StitchAISystemPrompt.swift */,
 				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
 				E4D0D2D42CE6ADF400E482E4 /* GraphPrompting */,
 			);
@@ -4123,7 +4138,8 @@
 			isa = PBXGroup;
 			children = (
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
-				B5EFD5C02D64EC5C006A68FB /* StitchAIRequest.swift */,
+				B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */,
+				B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */,
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
 				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
@@ -4727,6 +4743,7 @@
 				ECFC87302936ECBD004A065A /* OptionSenderNode.swift */,
 				EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */,
 				ECA92A2B260A6A3C00281B52 /* TimeNode.swift */,
+				B5F3D0AE2DE2E4FA00103676 /* JavaScriptNode.swift */,
 				ECD1407629397804005CEA9C /* DeviceTimeNode.swift */,
 				ECFC872E2936CE09004A065A /* StopwatchNode.swift */,
 				EC55EB902936A936005EF38B /* DateAndTimeFormatterNode.swift */,
@@ -5143,6 +5160,8 @@
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
 				B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */,
 				E48A07922D38C528002E8A98 /* StitchAIManager.swift in Sources */,
+				B5F3D0AF2DE2E4FF00103676 /* JavaScriptNode.swift in Sources */,
+				E48A07922D38C528002E8A98 /* StitchAIManager.swift in Sources */,
 				B5EFD5B82D5E69C1006A68FB /* StitchAINodeSection.swift in Sources */,
 				EC86AD572DCC1E7700E9B00E /* OpenAIRequestHelpers.swift in Sources */,
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
@@ -5394,6 +5413,7 @@
 				EC28CCA2287E35F500987792 /* PatchEvaluation.swift in Sources */,
 				ECB9A8672AEB48FF006E65EE /* HSLSliderView.swift in Sources */,
 				EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */,
+				B5098C3B2DEBFC91003C154A /* StitchAIRequestable.swift in Sources */,
 				20D9D79425D5A78900F5C7A4 /* Parsers.swift in Sources */,
 				ECB9A8652AEB48A2006E65EE /* StitchColorPickerView.swift in Sources */,
 				B55500EF2C1BADB20081C3F1 /* PreviewCommonMisc.swift in Sources */,
@@ -5470,7 +5490,7 @@
 				B55500DD2C1BA9E40081C3F1 /* PreviewTextFieldLayerUtils.swift in Sources */,
 				EC91034729109CE7007C548E /* SoulverNode.swift in Sources */,
 				B55500ED2C1BAD610081C3F1 /* PreviewAbsoluteShapeLayerModifier.swift in Sources */,
-				B5EFD5C12D64EC5F006A68FB /* StitchAIRequest.swift in Sources */,
+				B5EFD5C12D64EC5F006A68FB /* StitchAIRequestBodyFormattable.swift in Sources */,
 				ECA92A28260A6A3400281B52 /* DelayNode.swift in Sources */,
 				ECB9A86B2AEB4935006E65EE /* SaturationSliderView.swift in Sources */,
 				B57C8EAF2DE5408300942EDF /* GroupCandidate.swift in Sources */,
@@ -5960,6 +5980,7 @@
 				EC4914A229359AC300D74344 /* TextEndsWithNode.swift in Sources */,
 				B59660982C1A498800BE75D7 /* StitchMLModel.swift in Sources */,
 				ECC2BCD72B9B73C900D5F942 /* SidebarListItemGestureRecognizerView.swift in Sources */,
+				B5F3D0B22DE3CBCE00103676 /* JSNodeSystemPrompt.swift in Sources */,
 				EC560E0B293A758600350046 /* LoopCountNode.swift in Sources */,
 				EC91B56429AE7891006E823D /* NodesOnlyView.swift in Sources */,
 				ECBB853F25E9BA5500C1EE40 /* PreviewText.swift in Sources */,
@@ -6919,7 +6940,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 937b763c43c1bc7cd5b3182455b9eef01c218a5b;
+				revision = 0f774fb40e720ffc18d3fb0d1b3d2f2653eb46f8;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {

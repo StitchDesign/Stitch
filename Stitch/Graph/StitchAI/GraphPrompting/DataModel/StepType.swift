@@ -24,6 +24,7 @@ enum StepType: String, Equatable, Codable {
     case changeValueType = "change_value_type"
     case setInput = "set_input"
     case sidebarGroupCreated = "sidebar_group_created"
+//    case editJSNode = "edit_js_node"
     
     var display: String {
         switch self {
@@ -37,6 +38,8 @@ enum StepType: String, Equatable, Codable {
             return "Set Input"
         case .sidebarGroupCreated:
             return "Create Sidebar Group"
+//        case .editJSNode:
+//            return "Edit JavaScript Node"
         }
     }
     

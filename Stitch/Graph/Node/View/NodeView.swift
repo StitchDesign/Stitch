@@ -10,7 +10,11 @@ import UIKit
 import StitchSchemaKit
 
 struct NodeView: View {
+    @Environment(StitchStore.self) private var store
     @State private var showAboutPopover = false
+    @State private var aiJsNodePrompt: String = ""
+    @FocusedValue(\.focusedField) private var focusedField
+    @FocusState var isFocused: Bool
     
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel
@@ -120,15 +124,54 @@ struct NodeView: View {
     
     @State private var nodeBodyHovered: Bool = false
     
+    @ViewBuilder
+    func javascriptNodeField(patchNode: PatchNodeViewModel) -> some View {
+        @Bindable var patchNode = patchNode
+        TextField("Javascript here...",
+                  text: $aiJsNodePrompt)
+        .onSubmit {
+            do {
+                let jsAIRequest = try EditJSNodeRequest(prompt: aiJsNodePrompt,
+                                                        document: document,
+                                                        nodeId: stitch.id)
+                jsAIRequest.makeRequest(canShareAIRetries: store.canShareAIRetries,
+                                        document: document)
+            } catch {
+                log("javascriptNodeField error: \(error.localizedDescription)")
+            }
+        }
+        .focusedValue(\.focusedField, .javascriptNodePrompt(stitch.id))
+        .focused(self.$isFocused)
+        .onChange(of: isFocused) {
+            if isFocused {
+                document.reduxFocusedField = .javascriptNodePrompt(stitch.id)
+            }
+        }
+        .onChange(of: document.reduxFocusedField) {
+            if document.reduxFocusedField != .javascriptNodePrompt(stitch.id) {
+                self.isFocused = false
+            }
+        }
+        .frame(width: 200, height: 15)
+        .padding()
+        .background(.ultraThickMaterial)
+    }
+    
     @MainActor
     var nodeBody: some View {
         VStack(alignment: .leading, spacing: .zero) {
             nodeTitle
             
             CanvasItemBodyDivider()
-            
+                        
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
+            
+            // TODO: remove this logic, there won't be a custom view like this for JS node
+            if stitch.kind == .patch(.javascript),
+                let patchNode = stitch.patchNode {
+                javascriptNodeField(patchNode: patchNode)
+            }
         }
         .onChange(of: self.node.sizeByLocalBounds) {
             // also a useful hack for updating node layout after type changes
@@ -180,7 +223,9 @@ struct NodeView: View {
         HStack(alignment: .top, spacing: NODE_BODY_SPACING) {
             inputsViews()
                 .zIndex(9999)
+            
             Spacer()
+            
             outputsViews()
                 .zIndex(-9999)
         }
