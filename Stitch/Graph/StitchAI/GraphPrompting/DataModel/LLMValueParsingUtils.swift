@@ -27,9 +27,6 @@ extension String {
         case .bool:
             return parseUpdate(nodeType.defaultPortValue, x)
         
-        case .int:
-            return parseUpdate(nodeType.defaultPortValue, x)
-            
         case .number:
             return numberParser(x)
         

@@ -143,8 +143,6 @@ extension PortValue {
             return GlobalFormatter.string(for: x) ?? x.description
         case let .layerDimension(x):
             return x.description
-        case let .int(x):
-            return x.description
         case let .bool(x):
             return x.description
         case let .color(x):
