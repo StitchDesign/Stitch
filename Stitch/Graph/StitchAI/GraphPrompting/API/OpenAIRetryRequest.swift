@@ -12,11 +12,11 @@ extension StitchAIManager {
     
     // Either successfully retries -- or shows error modal for a non-retryable error
     @MainActor
-    func retryOrShowErrorModal(request: OpenAIRequest,
-                               steps: Steps,
-                               attempt: Int,
-                               document: StitchDocumentViewModel,
-                               canShareAIRetries: Bool) async {
+    func retryOrShowErrorModal<AIRequest>(request: AIRequest,
+                                          steps: Steps,
+                                          attempt: Int,
+                                          document: StitchDocumentViewModel,
+                                          canShareAIRetries: Bool) async where AIRequest: StitchAIRequestable {
         
         log("StitchAIManager: retryOrShowErrorModal called: attempt: \(attempt), request.prompt: \(request.userPrompt)")
         
@@ -43,11 +43,11 @@ extension StitchAIManager {
     
     // TODO: we attempt the request again when OpenAI has sent us data that either could not be parsed or could not be validated; should we also re-attempt when OpenAI gives us a timeout error?
     @MainActor
-    private func _retryRequest(request: OpenAIRequest,
-                               steps: Steps,
-                               attempt: Int,
-                               document: StitchDocumentViewModel,
-                               canShareAIRetries: Bool) async -> StitchAIStreamingError? {
+    private func _retryRequest<AIRequest>(request: AIRequest,
+                                          steps: Steps,
+                                          attempt: Int,
+                                          document: StitchDocumentViewModel,
+                                          canShareAIRetries: Bool) async -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         log("StitchAIManager: _retryRequest called: attempt: \(attempt)")
         
@@ -141,8 +141,8 @@ extension StitchAIManager {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func handleNonRetryableError(_ error: StitchAIStreamingError,
-                                 _ request: OpenAIRequest) {
+    func handleNonRetryableError<AIRequest>(_ error: StitchAIStreamingError,
+                                            _ request: AIRequest) where AIRequest: StitchAIRequestable {
         
         log("handleNonRetryableError: will not retry request")
         

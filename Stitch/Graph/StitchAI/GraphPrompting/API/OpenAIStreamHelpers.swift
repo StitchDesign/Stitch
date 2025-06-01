@@ -124,11 +124,11 @@ func provideGenuinelyUniqueUUIDForAIStep<T: StepActionable>(
 }
 
 extension StitchAIManager {
-    func makeRequest(for urlRequest: URLRequest,
-                     with request: OpenAIRequest,
-                     attempt: Int,
-                     document: StitchDocumentViewModel) async -> Result<URLResponse, Error> {
-        if request.willStream {
+    func makeRequest<AIRequest>(for urlRequest: URLRequest,
+                                with request: AIRequest,
+                                attempt: Int,
+                                document: StitchDocumentViewModel) async -> Result<(AIRequest.ResponseFormat, URLResponse), Error> where AIRequest: StitchAIRequestable {
+        if AIRequest.willStream {
             return await self.openStream(for: urlRequest,
                                    with: request,
                                    attempt: attempt)
@@ -140,10 +140,10 @@ extension StitchAIManager {
         }
     }
     
-    private func makeNonStreamedRequest(for urlRequest: URLRequest,
-                                with request: OpenAIRequest,
-                                attempt: Int,
-                                document: StitchDocumentViewModel) async -> Result<URLResponse, Error> {
+    private func makeNonStreamedRequest<AIRequest>(for urlRequest: URLRequest,
+                                                   with request: AIRequest,
+                                                   attempt: Int,
+                                                   document: StitchDocumentViewModel) async -> Result<(AIRequest.ResponseFormat, URLResponse), Error> where AIRequest: StitchAIRequestable {
         let result = await Result {
             try await URLSession.shared.data(for: urlRequest)
         }
@@ -160,34 +160,41 @@ extension StitchAIManager {
                     return .failure(StitchAIManagerError.other(request, NSError()))
                 }
                 
-                let contentJSON = try firstChoice.message.parseContent()
-                let convertedSteps = contentJSON.steps.map { $0.parseAsStepAction() }
+                switch AIRequest.processResponse(message: firstChoice.message) {
+                
+                    
+                }
+                
+                // TODO: your new helpers here
+                
+                //.parseContent()
+//                return .success((contentJSON, success.1))
+//                let convertedSteps = contentJSON.steps.map { $0.parseAsStepAction() }
                 
                 // Catch steps that didn't convert
-                let nonConvertedSteps = convertedSteps.compactMap { $0.error }
-                guard nonConvertedSteps.isEmpty else {
-                    log("makeNonStreamedRequest: encountered the following errors convertings steps:\n\(nonConvertedSteps.map { "\($0)\n" })")
-                    return .failure(nonConvertedSteps.first!)
-                }
-                
-                // Process actions
-                await MainActor.run { [weak self, weak document] in
-                    guard let document = document else { return }
-                    
-                    if let error = document.validateAndApplyActions(convertedSteps.compactMap(\.value)) {
-                        fatalErrorIfDebug(error.description)
-                    }
-                    self?.openAIStreamingCompleted(originalPrompt: request.userPrompt,
-                                                   request: request,
-                                                   document: document)
-                }
+//                let nonConvertedSteps = convertedSteps.compactMap { $0.error }
+//                guard nonConvertedSteps.isEmpty else {
+//                    log("makeNonStreamedRequest: encountered the following errors convertings steps:\n\(nonConvertedSteps.map { "\($0)\n" })")
+//                    return .failure(nonConvertedSteps.first!)
+//                }
+//                
+//                // Process actions
+//                await MainActor.run { [weak self, weak document] in
+//                    guard let document = document else { return }
+//                    
+//                    if let error = document.validateAndApplyActions(convertedSteps.compactMap(\.value)) {
+//                        fatalErrorIfDebug(error.description)
+//                    }
+//                    self?.openAIStreamingCompleted(originalPrompt: request.userPrompt,
+//                                                   request: request,
+//                                                   document: document)
+//                }
             } catch {
                 print(error)
                 return .failure(StitchAIManagerError.other(request, error))
             }
-            
-            return .success(success.1)
         case .failure(let failure):
+            print("makeNonStreamedRequest failure: \(failure)")
             return .failure(failure)
         }
     }
@@ -198,7 +205,7 @@ extension StitchAIManager {
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
     private func openStream(for urlRequest: URLRequest,
                             with request: OpenAIRequest,
-                            attempt: Int) async -> Result<URLResponse, Error> {
+                            attempt: Int) async -> Result<(ContentJSON, URLResponse), Error> {
         
         var currentChunk: [UInt8] = []
         
@@ -258,7 +265,10 @@ extension StitchAIManager {
                 // log("allContentTokens: \(allContentTokens)")
                 let finalMessage = String(allContentTokens.joined())
                 log("finalMessage: \(finalMessage)")
-                return .success(response)
+
+                // TODO: come back
+                return .failure(NSError())
+                //                return .success(response)
             } catch {
                 log("Could not get byte from bytes: \(error.localizedDescription)")
                 return .failure(error)

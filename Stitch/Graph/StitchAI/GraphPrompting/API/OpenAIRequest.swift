@@ -19,56 +19,128 @@ let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
-struct OpenAIRequest {
-    enum RequestType {
-        case stitchAIGraph
-        case jsNode
-    }
+protocol StitchAIRequestable {
+    associatedtype Body: StitchAIRequestBodyFormattable
+    associatedtype DecodedResult
+    typealias ResponseFormat = Body.ResponseFormat
     
-    private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
+    var userPrompt: String { get }             // User's input prompt
+    var systemPrompt: String { get }
+    var config: OpenAIRequestConfig { get } // Request configuration settings
+    var body: Body { get }
+    static var willStream: Bool { get }
+    
+    static func processRepopnse(message: MessageStruct) throws -> DecodedResult
+    
+    @MainActor
+    func onSuccessfulRequest(result: DecodedResult,
+                             aiManager: StitchAIManager,
+                             document: StitchDocumentViewModel) throws
+}
+
+extension StitchAIRequestable {
+    func getPayloadData() throws -> Data {
+        let encoder = JSONEncoder()
+        return try encoder.encode(self.body)
+    }
+}
+
+struct StitchAIRequest: StitchAIRequestable {
+    private static let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
+    
     let userPrompt: String             // User's input prompt
     let systemPrompt: String
     let config: OpenAIRequestConfig // Request configuration settings
-    let payloadData: Data
-    let willStream: Bool
+    let body: StitchAIRequestBody
+    static let willStream: Bool = true
+    
+    enum StitchAIRequestError: Error {
+        case emptySteps
+        case validationFailed(StitchAIStepHandlingError)
+    }
     
     /// Initialize a new request with prompt and optional configuration
     @MainActor
     init(prompt: String,
-         requestType: RequestType,
          secrets: Secrets,
          config: OpenAIRequestConfig = .default,
          graph: GraphState) throws {
-        let encoder = JSONEncoder()
-        
         self.userPrompt = prompt
         self.config = config
         
         // Load system prompt from bundled file
-        switch requestType {
-        case .stitchAIGraph:
-            let willStream = false
-            let systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
-            self.systemPrompt = systemPrompt
-            self.willStream = willStream
-            
-            // Construct http payload
-            let payload = StitchAIRequest(secrets: secrets,
-                                          userPrompt: prompt,
-                                          systemPrompt: systemPrompt,
-                                          willStream: willStream)
-            self.payloadData = try encoder.encode(payload)
-        case .jsNode:
-            let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
-            self.systemPrompt = systemPrompt
-            self.willStream = false
-            
-            // Construct http payload
-            let payload = try EditJsNodeRequest(secrets: secrets,
-                                                userPrompt: prompt,
-                                                systemPrompt: systemPrompt)
-            self.payloadData = try encoder.encode(payload)
+        let systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
+        self.systemPrompt = systemPrompt
+        
+        // Construct http payload
+        self.body = StitchAIRequestBody(secrets: secrets,
+                                        userPrompt: prompt,
+                                        systemPrompt: systemPrompt)
+    }
+    
+    static func processRepopnse(message: MessageStruct) throws -> [any StepActionable] {
+        let contentJSON = try message.parseStitchAIContent()
+        let convertedSteps = contentJSON.steps.map { $0.parseAsStepAction() }
+        
+        // Catch steps that didn't convert
+        let nonConvertedSteps = convertedSteps.compactMap { $0.error }
+        guard nonConvertedSteps.isEmpty else {
+            log("makeNonStreamedRequest: empty results")
+            throw StitchAIRequestError.emptySteps
         }
+        
+        return convertedSteps.compactMap(\.value)
+    }
+    
+    @MainActor
+    func onSuccessfulRequest(result: [any StepActionable],
+                             aiManager: StitchAIManager,
+                             document: StitchDocumentViewModel) throws {
+        if let error = document.validateAndApplyActions(result) {
+            fatalErrorIfDebug(error.description)
+            throw StitchAIRequestError.validationFailed(error)
+        }
+        
+        aiManager.openAIStreamingCompleted(originalPrompt: self.userPrompt,
+                                           request: self,
+                                           document: document)
+    }
+}
+
+struct EditJSNodeRequest: StitchAIRequestable {
+    let userPrompt: String             // User's input prompt
+    let systemPrompt: String
+    let config: OpenAIRequestConfig // Request configuration settings
+    let body: EditJsNodeRequestBody
+    static let willStream: Bool = false
+    
+    @MainActor
+    init(prompt: String,
+         secrets: Secrets,
+         config: OpenAIRequestConfig = .default,
+         graph: GraphState) {
+        self.userPrompt = prompt
+        self.config = config
+        
+        // Load system prompt from bundled file
+        let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
+        self.systemPrompt = systemPrompt
+        
+        // Construct http payload
+        self.body = EditJsNodeRequestBody(secrets: secrets,
+                                          userPrompt: prompt,
+                                          systemPrompt: systemPrompt)
+    }
+    
+    static func processRepopnse(message: MessageStruct) throws -> JavaScriptNodeSettings {
+        
+    }
+    
+    @MainActor
+    func onSuccessfulRequest(result: JavaScriptNodeSettings,
+                             aiManager: StitchAIManager,
+                             document: StitchDocumentViewModel) throws {
+        
     }
 }
 
@@ -76,10 +148,10 @@ extension StitchAIManager {
     
     // Used when we need to kick off a request, either initially or as a retry
     @MainActor
-    func getOpenAIStreamingTask(request: OpenAIRequest,
-                                attempt: Int,
-                                document: StitchDocumentViewModel,
-                                canShareAIRetries: Bool) -> Task<Void, Never> {
+    func getOpenAIStreamingTask<AIRequest>(request: AIRequest,
+                                           attempt: Int,
+                                           document: StitchDocumentViewModel,
+                                           canShareAIRetries: Bool) -> Task<Void, Never> where AIRequest: StitchAIRequestable {
         
         Task(priority: .high) { [weak self] in
             
@@ -144,8 +216,8 @@ extension StitchAIManager {
     }
         
     // Note: the failures that can happen in here are catastrophic and meant for us as developers, not something the user can take action on
-    static func getURLRequestForOpenAI(request: OpenAIRequest,
-                                       secrets: Secrets) -> URLRequest? {
+    static func getURLRequestForOpenAI<AIRequest>(request: AIRequest,
+                                                  secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
         
         let config = request.config
         let prompt = request.userPrompt
@@ -158,10 +230,7 @@ extension StitchAIManager {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
 
-        let payload = StitchAIRequest(secrets: secrets,
-                                      userPrompt: prompt,
-                                      systemPrompt: systemPrompt,
-                                      willStream: request.willStream)
+        let payload = try? request.getPayloadData()
         
         let encoder = JSONEncoder()
         // encoder.outputFormatting = [.withoutEscapingSlashes]
@@ -176,10 +245,10 @@ extension StitchAIManager {
     
     /// Execute the API request with retry logic
     // fka `makeRequest`
-    func startOpenAIRequest(_ request: OpenAIRequest,
-                            attempt: Int,
-                            lastCapturedError: String,
-                            document: StitchDocumentViewModel) async -> StitchAIStreamingError? {
+    func startOpenAIRequest<AIRequest>(_ request: AIRequest,
+                                       attempt: Int,
+                                       lastCapturedError: String,
+                                       document: StitchDocumentViewModel) async -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
@@ -202,7 +271,9 @@ extension StitchAIManager {
         
         switch streamOpeningResult {
             
-        case .success(let response):
+        case .success(let result):
+            let (contentJSON, response) = result
+            
             // Even if we had a successful response, may have hit a rate limit?
             // TODO: is this still necessary for streaming requests?
             return handlePossibleRateLimit(
@@ -218,8 +289,8 @@ extension StitchAIManager {
         }
     }
      
-    private func handlePossibleRateLimit(response: URLResponse,
-                                 request: OpenAIRequest) -> StitchAIStreamingError? {
+    private func handlePossibleRateLimit<AIRequest>(response: URLResponse,
+                                                    request: AIRequest) -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         // Check HTTP status code
         if let httpResponse = response as? HTTPURLResponse,
@@ -240,9 +311,9 @@ extension StitchAIManager {
     
     // An error that occurred when we attempted to open the stream, or as the stream was open
     // Note: NOT the same as an error when validating or applying parsed Steps; for that, see `handleErrorWhenApplyingChunk`
-    private func handleOpenAIStreamingError(_ error: Error,
-                                    attempt: Int,
-                                    request: OpenAIRequest) -> StitchAIStreamingError? {
+    private func handleOpenAIStreamingError<AIRequest>(_ error: Error,
+                                                       attempt: Int,
+                                                       request: AIRequest) -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         log("OpenAI request failed: \(error)")
         
@@ -292,9 +363,9 @@ extension StitchAIManager {
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
     // fka `openAIRequestCompleted`
     @MainActor
-    func openAIStreamingCompleted(originalPrompt: String,
-                                  request: OpenAIRequest,
-                                  document: StitchDocumentViewModel) {
+    func openAIStreamingCompleted<AIRequest>(originalPrompt: String,
+                                             request: AIRequest,
+                                             document: StitchDocumentViewModel) where AIRequest: StitchAIRequestable {
         log("openAIStreamingCompleted called")
         
         document.reduxFocusedField = nil

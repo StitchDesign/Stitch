@@ -10,9 +10,9 @@ import StitchSchemaKit
 import SwiftyJSON
 
 struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
-    var defs = StitchAIStructuredOutputsDefinitions()
-    var schema = StitchAIStructuredOutputsSchema()
-    var strict = true
+    let defs = StitchAIStructuredOutputsDefinitions()
+    let schema = StitchAIStructuredOutputsSchema()
+    let strict = true
 }
 
 struct EditJsNodeStructuredOutputsPayload: OpenAIJsonSchema, Encodable {

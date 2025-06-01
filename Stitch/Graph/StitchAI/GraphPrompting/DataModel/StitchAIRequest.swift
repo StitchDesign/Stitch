@@ -12,55 +12,57 @@ import StitchSchemaKit
 let OPEN_AI_STRUCTURED_OUTPUTS = StitchAIResponseFormat().json_schema.schema
 let ENCODED_OPEN_AI_STRUCTURED_OUTPUTS = try! OPEN_AI_STRUCTURED_OUTPUTS.encodeToPrintableString()
 
-// https://platform.openai.com/docs/api-reference/making-requests
-struct StitchAIRequest: OpenAIRequestable {
-    let model: String
-    let n: Int
-    let temperature: Double
-    let response_format: StitchAIResponseFormat
-    let messages: [OpenAIMessage]
-    let stream: Bool
+protocol StitchAIRequestBodyFormattable: Encodable {
+    associatedtype ResponseFormat: Encodable
+    
+    var model: String { get }
+    var n: Int { get }
+    var temperature: Double { get }
+    var response_format: ResponseFormat { get }
+    var messages: [OpenAIMessage] { get }
+    var stream: Bool { get }
+}
 
+// https://platform.openai.com/docs/api-reference/making-requests
+struct StitchAIRequestBody : StitchAIRequestBodyFormattable {
+    let model: String
+    let n: Int = 1
+    let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
+    let response_format = StitchAIResponseFormat()
+    let messages: [OpenAIMessage]
+    let stream: Bool = StitchAIRequest.willStream
+    
     init(secrets: Secrets,
          userPrompt: String,
-         systemPrompt: String,
-         willStream: Bool) {
-        
+         systemPrompt: String) {
         self.model = secrets.openAIModel
-        self.n = 1
-        self.temperature = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
-        self.response_format = StitchAIResponseFormat()
         self.messages = [
             .init(role: .system,
                   content: systemPrompt + "Make sure your response follows this schema: \(ENCODED_OPEN_AI_STRUCTURED_OUTPUTS)"),
             .init(role: .user,
                   content: userPrompt)
         ]
-        
-        self.stream = willStream
     }
 }
 
-struct EditJsNodeRequest: OpenAIRequestable {
+struct EditJsNodeRequestBody: StitchAIRequestBodyFormattable {
     let model: String
-    let n: Int
-    let temperature: Double
-    let response_format: EditJsNodeResponseFormat
+    let n: Int = 1
+    let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
+    let response_format = EditJsNodeResponseFormat()
     let messages: [OpenAIMessage]
+    let stream = EditJSNodeRequest.willStream
     
     init(secrets: Secrets,
          userPrompt: String,
-         systemPrompt: String) throws {
+         systemPrompt: String) {
         let responseFormat = EditJsNodeResponseFormat()
         let structuredOutputs = responseFormat.json_schema.schema
         
         self.model = secrets.openAIModel
-        self.n = 1
-        self.temperature = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
-        self.response_format = responseFormat
         self.messages = [
             .init(role: .system,
-                  content: systemPrompt + "Make sure your response follows this schema: \(try structuredOutputs.encodeToPrintableString())"),
+                  content: systemPrompt + "Make sure your response follows this schema: \(try! structuredOutputs.encodeToPrintableString())"),
             .init(role: .user,
                   content: userPrompt)
         ]

@@ -96,7 +96,7 @@ struct MessageStruct: Codable {
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed
     /// - Returns: Parsed ContentJSON structure
-    func parseContent() throws -> ContentJSON {
+    func parseStitchAIContent() throws -> StitchAIContentJSON {
         guard let contentData = content.data(using: .utf8) else {
             print("Debug - raw content: \(content)")
             throw DecodingError.dataCorrupted(DecodingError.Context(
@@ -108,7 +108,7 @@ struct MessageStruct: Codable {
         let decoder = getStitchDecoder()
         
         do {
-            let result = try decoder.decode(ContentJSON.self, from: contentData)
+            let result = try decoder.decode(StitchAIContentJSON.self, from: contentData)
             print("MessageStruct: successfully decoded with \(result.steps.count) steps with json:\n\(self.content)")
             return result
         } catch let error as StitchAIManagerError {
@@ -120,11 +120,11 @@ struct MessageStruct: Codable {
 }
 
 /// Represents the structured content of a message
-struct ContentJSON: Codable {
+struct StitchAIContentJSON: Codable {
     var steps: [Step] // Array of steps in the visual programming sequence
 }
 
-extension ContentJSON {
+extension StitchAIContentJSON {
     static func exampleData() -> Self {
         let id0 = UUID()
         let id1 = UUID()
