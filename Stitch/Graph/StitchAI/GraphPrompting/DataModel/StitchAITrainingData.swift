@@ -210,7 +210,7 @@ extension StitchAITrainingDataValidatable {
                     // Step is valid
                     continue
                 case .failure(let error):
-                    let errorMessage = "Step \(stepIndex+1): \(error) - Step details: \(step.description)"
+                    let errorMessage = "Step \(stepIndex+1) [type: \(step.stepType.rawValue)]: \(error.description)"
                     validationErrors.append(errorMessage)
                 }
             }
