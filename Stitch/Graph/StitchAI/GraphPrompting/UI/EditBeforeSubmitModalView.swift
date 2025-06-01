@@ -21,7 +21,7 @@ struct EditBeforeSubmitModalView: View {
     
     // TODO: Shouldn't we *always* have a prompt at this point ?
     var prompt: String {
-        recordingState.promptForTrainingDataOrCompletedRequest?.value ?? ""
+        recordingState.promptForTrainingDataOrCompletedRequest ?? ""
     }
 
     var body: some View {
@@ -192,6 +192,9 @@ struct LLMActionCorrectionView: View {
                 if !x.children.isEmpty {
                     StitchTextView(string: "Children: \(x.children.map { $0.debugFriendlyId }.joined(separator: ", "))")
                 }
+                
+//            case .editJSNode:
+//                StitchTextView(string: "Edit JS Node")
                 
             case .none:
                 FatalErrorIfDebugView()

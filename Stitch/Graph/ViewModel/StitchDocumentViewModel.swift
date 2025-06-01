@@ -313,6 +313,9 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         // Labels for splitter nodes
         let splitterLabels = GraphState.getGroupPortLabels(graph: graph)
         
+        // JavaScript settings changes--ensures port labels get updated
+        let javaScriptSettings = nodes.values.map(\.patchNode?.javaScriptNodeSettings)
+        
         hasher.combine(nodeCount)
         hasher.combine(canvasItems)
         hasher.combine(upstreamConnections)
@@ -320,6 +323,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         hasher.combine(groupNodeIdFocused)
         hasher.combine(aiActions.map(\.toStep)) // downcast to Step
         hasher.combine(splitterLabels)
+        hasher.combine(javaScriptSettings)
         
         let newGraphUpdaterId = hasher.finalize()
         // log("calculateGraphUpdaterId: newGraphUpdaterId: \(newGraphUpdaterId)")

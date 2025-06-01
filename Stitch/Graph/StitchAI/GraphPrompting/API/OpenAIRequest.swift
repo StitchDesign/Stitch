@@ -13,38 +13,14 @@ import SwiftUI
 import Sentry
 import SwiftyJSON
 
-// If this is not a valid URL, we should not even be able to run the app.
-let OPEN_AI_BASE_URL_STRING = "https://api.openai.com/v1/chat/completions"
-let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
-
-// Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
-/// Main event handler for initiating OpenAI API requests
-struct OpenAIRequest: Equatable, Hashable {
-    private let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
-    let prompt: UserAIPrompt             // User's input prompt
-    let systemPrompt: String       // System-level instructions loaded from file
-    let config: OpenAIRequestConfig // Request configuration settings
-    
-    /// Initialize a new request with prompt and optional configuration
-    @MainActor
-    init(prompt: String,
-         config: OpenAIRequestConfig = .default,
-         systemPrompt: String) {
-        self.prompt = .init(prompt)
-        self.config = config
-        self.systemPrompt = systemPrompt
-    }
-}
-
 extension StitchAIManager {
     
     // Used when we need to kick off a request, either initially or as a retry
     @MainActor
-    func getOpenAIStreamingTask(request: OpenAIRequest,
-                                attempt: Int,
-                                document: StitchDocumentViewModel,
-                                canShareAIRetries: Bool) -> Task<Void, Never> {
-        
+    func getOpenAITask<AIRequest>(request: AIRequest,
+                                  attempt: Int,
+                                  document: StitchDocumentViewModel,
+                                  canShareAIRetries: Bool) -> Task<Void, Never> where AIRequest: StitchAIRequestable {
         Task(priority: .high) { [weak self] in
             
             guard let aiManager = self else {
@@ -52,10 +28,11 @@ extension StitchAIManager {
                 return
             }
             
-            switch await aiManager.startOpenAIStreamingRequest(
+            switch await aiManager.startOpenAIRequest(
                 request,
                 attempt: attempt,
-                lastCapturedError: document.llmRecording.actionsError ?? "") {
+                lastCapturedError: document.llmRecording.actionsError ?? "",
+                document: document) {
             
             case .none: // No error!
                 log("getOpenAIStreamingTask: succeeded")
@@ -67,7 +44,7 @@ extension StitchAIManager {
                         fatalErrorIfDebug("getOpenAIStreamingTask: no document")
                         return
                     }
-                    aiManager.openAIStreamingCompleted(originalPrompt: request.prompt,
+                    aiManager.openAIStreamingCompleted(originalPrompt: request.userPrompt,
                                                        request: request,
                                                        document: document)
                 }
@@ -107,12 +84,10 @@ extension StitchAIManager {
     }
         
     // Note: the failures that can happen in here are catastrophic and meant for us as developers, not something the user can take action on
-    static func getURLRequestForOpenAI(request: OpenAIRequest,
-                                       secrets: Secrets) -> URLRequest? {
+    static func getURLRequestForOpenAI<AIRequest>(request: AIRequest,
+                                                  secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
         
         let config = request.config
-        let prompt = request.prompt
-        let systemPrompt = request.systemPrompt
                 
         // Configure request headers and parameters
         var urlRequest = URLRequest(url: OPEN_AI_BASE_URL)
@@ -121,26 +96,18 @@ extension StitchAIManager {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
 
-        let payload = StitchAIRequest(secrets: secrets,
-                                      userPrompt: prompt,
-                                      systemPrompt: systemPrompt)
+        let bodyPayload = try? request.getPayloadData()
+        urlRequest.httpBody = bodyPayload
         
-        let encoder = JSONEncoder()
-        // encoder.outputFormatting = [.withoutEscapingSlashes]
-        guard let jsonData = try? encoder.encode(payload) else {
-            fatalErrorIfDebug("Could not encode payload")
-            return nil
-        }
-        
-        urlRequest.httpBody = jsonData
         return urlRequest
     }
     
     /// Execute the API request with retry logic
     // fka `makeRequest`
-    func startOpenAIStreamingRequest(_ request: OpenAIRequest,
-                                     attempt: Int,
-                                     lastCapturedError: String) async -> StitchAIStreamingError? {
+    func startOpenAIRequest<AIRequest>(_ request: AIRequest,
+                                       attempt: Int,
+                                       lastCapturedError: String,
+                                       document: StitchDocumentViewModel) async -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
@@ -155,10 +122,11 @@ extension StitchAIManager {
             return nil
         }
         
-        let streamOpeningResult = await self.openStream(
+        let streamOpeningResult = await self.makeRequest(
             for: urlRequest,
             with: request,
-            attempt: attempt)
+            attempt: attempt,
+            document: document)
         
         switch streamOpeningResult {
             
@@ -178,8 +146,8 @@ extension StitchAIManager {
         }
     }
      
-    private func handlePossibleRateLimit(response: URLResponse,
-                                 request: OpenAIRequest) -> StitchAIStreamingError? {
+    private func handlePossibleRateLimit<AIRequest>(response: URLResponse,
+                                                    request: AIRequest) -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         // Check HTTP status code
         if let httpResponse = response as? HTTPURLResponse,
@@ -200,9 +168,9 @@ extension StitchAIManager {
     
     // An error that occurred when we attempted to open the stream, or as the stream was open
     // Note: NOT the same as an error when validating or applying parsed Steps; for that, see `handleErrorWhenApplyingChunk`
-    private func handleOpenAIStreamingError(_ error: Error,
-                                    attempt: Int,
-                                    request: OpenAIRequest) -> StitchAIStreamingError? {
+    private func handleOpenAIStreamingError<AIRequest>(_ error: Error,
+                                                       attempt: Int,
+                                                       request: AIRequest) -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         log("OpenAI request failed: \(error)")
         
@@ -252,9 +220,9 @@ extension StitchAIManager {
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
     // fka `openAIRequestCompleted`
     @MainActor
-    func openAIStreamingCompleted(originalPrompt: UserAIPrompt,
-                                  request: OpenAIRequest,
-                                  document: StitchDocumentViewModel) {
+    func openAIStreamingCompleted<AIRequest>(originalPrompt: String,
+                                             request: AIRequest,
+                                             document: StitchDocumentViewModel) where AIRequest: StitchAIRequestable {
         log("openAIStreamingCompleted called")
         
         document.reduxFocusedField = nil
@@ -274,7 +242,7 @@ extension StitchAIManager {
         
         // Only ask for rating if we received some actions
         if !document.llmRecording.streamedSteps.isEmpty {
-            document.llmRecording.modal = .ratingToast(userInputPrompt: request.prompt)
+            document.llmRecording.modal = .ratingToast(userInputPrompt: request.userPrompt)
         }
         
                 

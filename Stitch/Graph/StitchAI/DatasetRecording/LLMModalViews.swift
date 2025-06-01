@@ -11,14 +11,14 @@ import SwiftUI
 // Final approval modal
 struct ApproveAndSubmitModalView: View {
     
-    let prompt: UserAIPrompt?
+    let prompt: String?
     
     var body: some View {
         VStack(alignment: .leading) {
             Text("Does this graph look correct?")
                 .font(.headline)
             
-            Text("Prompt: \(prompt?.value ?? "")")
+            Text("Prompt: \(prompt ?? "")")
                 .font(.subheadline)
             
             HStack {

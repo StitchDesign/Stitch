@@ -21,6 +21,7 @@ extension Step: Identifiable {
 
 /// Represents a single step/action in the visual programming sequence
 struct Step: Hashable {
+    // MARK: optional step type enables JavaScript node support for using same types
     var stepType: StepType        // Type of step (e.g., "add_node", "connect_nodes")
     var nodeId: StitchAIUUID?        // Identifier for the node
     var nodeName: PatchOrLayer?      // Display name for the node
@@ -32,6 +33,9 @@ struct Step: Hashable {
     var valueType: NodeType?     // Type of the node
     var children: NodeIdSet? // Child nodes if this is a group
     
+    // js node
+    var jsNodeSettings: JavaScriptNodeSettings?
+    
     init(stepType: StepType,
          nodeId: UUID? = nil,
          nodeName: PatchOrLayer? = nil,
@@ -41,7 +45,8 @@ struct Step: Hashable {
          toNodeId: UUID? = nil,
          value: PortValue? = nil,
          valueType: NodeType? = nil,
-         children: NodeIdSet? = nil) {
+         children: NodeIdSet? = nil,
+         jsNodeSettings: JavaScriptNodeSettings? = nil) {
         self.stepType = stepType
         self.nodeId = .init(value: nodeId)
         self.nodeName = nodeName
@@ -52,6 +57,7 @@ struct Step: Hashable {
         self.value = value
         self.valueType = valueType
         self.children = children
+        self.jsNodeSettings = jsNodeSettings
     }
 }
 
@@ -67,13 +73,14 @@ extension Step: Codable {
         case value
         case valueType = "value_type"
         case children = "children"
+        case jsNodeSettings
     }
     
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // `encodeIfPresent` cleans up JSON by removing properties
-        try container.encodeIfPresent(stepType.rawValue, forKey: .stepType)
+        try container.encode(stepType.rawValue, forKey: .stepType)
         try container.encodeIfPresent(nodeId, forKey: .nodeId)
         try container.encodeIfPresent(nodeName?.asLLMStepNodeName, forKey: .nodeName)
         
@@ -91,6 +98,7 @@ extension Step: Codable {
         try container.encodeIfPresent(toNodeId, forKey: .toNodeId)
         try container.encodeIfPresent(valueType?.asLLMStepNodeType, forKey: .valueType)
         try container.encodeIfPresent(children, forKey: .children)
+        try container.encodeIfPresent(jsNodeSettings, forKey: .jsNodeSettings)
     
         if let valueCodable = value?.anyCodable {
             try container.encodeIfPresent(valueCodable, forKey: .value)
@@ -111,6 +119,8 @@ extension Step: Codable {
         self.fromNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .fromNodeId)
         self.toNodeId = try container.decodeIfPresent(StitchAIUUID.self, forKey: .toNodeId)
         self.fromPort = try container.decodeIfPresent(Int.self, forKey: .fromPort)
+        self.jsNodeSettings = try container.decodeIfPresent(JavaScriptNodeSettings.self,
+                                                            forKey: .jsNodeSettings)
         
         if let nodeNameString = try container.decodeIfPresent(String.self, forKey: .nodeName) {
             self.nodeName = try .fromLLMNodeName(nodeNameString)
@@ -140,7 +150,7 @@ extension Step: Codable {
                 log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
             }
             
-            if let stitchAIError = error as? StitchAIManagerError {
+            if let stitchAIError = error as? StitchAIManagerError<StitchAIRequest> {
                 throw stitchAIError
             } else {
                 throw StitchAIParsingError.portValueDecodingError(error.localizedDescription)
@@ -163,6 +173,8 @@ extension Step {
             return StepActionSetInput.fromStep(self).map { $0 as any StepActionable}
         case .sidebarGroupCreated:
             return StepActionLayerGroupCreated.fromStep(self).map { $0 as any StepActionable}
+//        case .editJSNode:
+//            return StepActionEditJSNode.fromStep(self).map { $0 as any StepActionable}
         }
     }
 }
