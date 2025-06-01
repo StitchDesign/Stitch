@@ -66,7 +66,7 @@ JSON.stringify(result)
         print("javascript result: \(stringResult)")
         
         do {
-            let aiDecodedResults = try getStitchDecoder().decode([[Step]].self,
+            let aiDecodedResults = try getStitchDecoder().decode([[StitchAIPortValue]].self,
                                                                  from: dataResult)
             let outputValuesList = PortValuesList(javaScriptNodeResult: aiDecodedResults)
             return .init(outputsValues: outputValuesList)
@@ -115,7 +115,7 @@ extension StitchAIPortValue: Codable {
 }
 
 extension PortValuesList {
-    init(javaScriptNodeResult: [[Step]]) {
+    init(javaScriptNodeResult: [[StitchAIPortValue]]) {
         self = javaScriptNodeResult.map { outputResults in
             outputResults.compactMap { aiDecodedResult in
                 aiDecodedResult.value
@@ -173,9 +173,9 @@ extension PatchNodeViewModel {
             inputObserver.updateValuesInInput([inputDefinition.strictType.defaultPortValue])
         }
         
-        newJavaScriptSettings.outputDefinitions.enumerated().forEach { portIndex, label in
+        newJavaScriptSettings.outputDefinitions.enumerated().forEach { portIndex, outputDefinition in
             if self.outputsObservers[safe: portIndex] == nil {
-                let defaultValue = PortValue.string(.init(""))
+                let defaultValue = outputDefinition.strictType.defaultPortValue
                 let newObserver = OutputNodeRowObserver(values: [defaultValue],
                                                         id: .init(portId: portIndex,
                                                                   nodeId: self.id))
