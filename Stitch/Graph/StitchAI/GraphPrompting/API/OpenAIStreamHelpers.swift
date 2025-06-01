@@ -12,7 +12,7 @@ import SwiftyJSON
 
 struct ChunkProcessed: StitchStoreEvent {
     let newStep: Step
-    let request: OpenAIRequest
+    let request: StitchAIRequest
     let currentAttempt: Int
     
     @MainActor
@@ -127,7 +127,7 @@ extension StitchAIManager {
     func makeRequest<AIRequest>(for urlRequest: URLRequest,
                                 with request: AIRequest,
                                 attempt: Int,
-                                document: StitchDocumentViewModel) async -> Result<(AIRequest.ResponseFormat, URLResponse), Error> where AIRequest: StitchAIRequestable {
+                                document: StitchDocumentViewModel) async -> Result<URLResponse, Error> where AIRequest: StitchAIRequestable {
         if AIRequest.willStream {
             return await self.openStream(for: urlRequest,
                                    with: request,
@@ -143,7 +143,7 @@ extension StitchAIManager {
     private func makeNonStreamedRequest<AIRequest>(for urlRequest: URLRequest,
                                                    with request: AIRequest,
                                                    attempt: Int,
-                                                   document: StitchDocumentViewModel) async -> Result<(AIRequest.ResponseFormat, URLResponse), Error> where AIRequest: StitchAIRequestable {
+                                                   document: StitchDocumentViewModel) async -> Result<URLResponse, Error> where AIRequest: StitchAIRequestable {
         let result = await Result {
             try await URLSession.shared.data(for: urlRequest)
         }
@@ -159,36 +159,21 @@ extension StitchAIManager {
                     fatalErrorIfDebug()
                     return .failure(StitchAIManagerError.other(request, NSError()))
                 }
+                                
+                let result = try AIRequest.processRepopnse(message: firstChoice.message)
                 
-                switch AIRequest.processResponse(message: firstChoice.message) {
-                
+                try await MainActor.run { [weak self, weak document] in
+                    guard let aiManager = self,
+                          let document = document else {
+                        return
+                    }
                     
+                    try request.onSuccessfulRequest(result: result,
+                                                    aiManager: aiManager,
+                                                    document: document)
                 }
                 
-                // TODO: your new helpers here
-                
-                //.parseContent()
-//                return .success((contentJSON, success.1))
-//                let convertedSteps = contentJSON.steps.map { $0.parseAsStepAction() }
-                
-                // Catch steps that didn't convert
-//                let nonConvertedSteps = convertedSteps.compactMap { $0.error }
-//                guard nonConvertedSteps.isEmpty else {
-//                    log("makeNonStreamedRequest: encountered the following errors convertings steps:\n\(nonConvertedSteps.map { "\($0)\n" })")
-//                    return .failure(nonConvertedSteps.first!)
-//                }
-//                
-//                // Process actions
-//                await MainActor.run { [weak self, weak document] in
-//                    guard let document = document else { return }
-//                    
-//                    if let error = document.validateAndApplyActions(convertedSteps.compactMap(\.value)) {
-//                        fatalErrorIfDebug(error.description)
-//                    }
-//                    self?.openAIStreamingCompleted(originalPrompt: request.userPrompt,
-//                                                   request: request,
-//                                                   document: document)
-//                }
+                return .success(success.1)
             } catch {
                 print(error)
                 return .failure(StitchAIManagerError.other(request, error))
@@ -203,9 +188,9 @@ extension StitchAIManager {
     
     // MARK: - Streaming helpers
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
-    private func openStream(for urlRequest: URLRequest,
-                            with request: OpenAIRequest,
-                            attempt: Int) async -> Result<(ContentJSON, URLResponse), Error> {
+    private func openStream<AIRequest>(for urlRequest: URLRequest,
+                                       with request: AIRequest,
+                                       attempt: Int) async -> Result<URLResponse, Error> where AIRequest: StitchAIRequestable {
         
         var currentChunk: [UInt8] = []
         
@@ -213,7 +198,7 @@ extension StitchAIManager {
         var allContentTokens = [String]()
         
         // Tracks tokens; 'semi-reset' when we encounter a new step
-        var contentTokensSinceLastStep = [String]()
+        var contentTokensSinceLastResponse = [String]()
         
         // `bytes(for:)` returns an `AsyncSequence` of individual `UInt8`s
         // let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
@@ -242,17 +227,14 @@ extension StitchAIManager {
                        let contentToken = chunkDataString.getContentToken() {
                         
                         allContentTokens.append(contentToken)
-                        contentTokensSinceLastStep.append(contentToken)
+                        contentTokensSinceLastResponse.append(contentToken)
                         
-                        if let (newStep, newTokens) = parseStepFromTokenStream(tokens: contentTokensSinceLastStep) {
-                            contentTokensSinceLastStep = newTokens
+                        if let (newStep, newTokens) = AIRequest.decodeFromTokenStream(tokens: contentTokensSinceLastResponse) {
+                            contentTokensSinceLastResponse = newTokens
                             
                             DispatchQueue.main.async {
-                                dispatch(ChunkProcessed(
-                                    newStep: newStep,
-                                    request: request,
-                                    currentAttempt: attempt
-                                ))
+                                request.onSuccessfulDecodingChunk(result: newStep,
+                                                                  currentAttempt: attempt)
                             }
                         }
                     }
@@ -266,9 +248,7 @@ extension StitchAIManager {
                 let finalMessage = String(allContentTokens.joined())
                 log("finalMessage: \(finalMessage)")
 
-                // TODO: come back
-                return .failure(NSError())
-                //                return .success(response)
+                return .success(response)
             } catch {
                 log("Could not get byte from bytes: \(error.localizedDescription)")
                 return .failure(error)
@@ -337,39 +317,40 @@ extension String {
 }
 
 
-/*
- Iterate through the list of passed-in tokens,
- progressively building another list of tokens which can be turned into a string
- that can be parsed as a Step.
- 
- If we find a Step, we return:
- `(the Step we found, the list of tokens starting with the token where we found the Step)`
- */
-// fka `streamDataHelper`
-func parseStepFromTokenStream(tokens: [String]) -> (Step, [String])? {
-    
-    // TODO: not needed, since we reset upon finding a Step anyway ?
-    var tokensSoFar = [String]()
-    
-    for (tokenIndex, token) in tokens.enumerated() {
+extension StitchAIRequestable {
+    /*
+     Iterate through the list of passed-in tokens,
+     progressively building another list of tokens which can be turned into a string
+     that can be parsed as a Step.
+     
+     If we find a Step, we return:
+     `(the Step we found, the list of tokens starting with the token where we found the Step)`
+     */
+    // fka `streamDataHelper`
+    static func decodeFromTokenStream(tokens: [String]) -> (Self.TokenDecodedResult, [String])? {
         
-        tokensSoFar.append(token)
+        // TODO: not needed, since we reset upon finding a Step anyway ?
+        var tokensSoFar = [String]()
         
-        let message: String = String(tokensSoFar.joined())
-        // Always remove the steps prefix
-            .removeStepsPrefix()
+        for (tokenIndex, token) in tokens.enumerated() {
+            
+            tokensSoFar.append(token)
+            
+            let message: String = String(tokensSoFar.joined())
+            // Always remove the steps prefix
+                .removeStepsPrefix()
+            
+            if let result: Self.TokenDecodedResult = message.eagerlyParseAsT() {
+                log("found decoded token: \(result)")
+                let newTokens = tail(of: tokens, from: tokenIndex)
+                // print("\n newMessage: \(String(newTokens.joined()))")
+                return (result, newTokens)
+            }
+        } // for token in
         
-        if let step: Step = message.eagerlyParseAsT() {
-            log("found step: \(step)")
-            let newTokens = tail(of: tokens, from: tokenIndex)
-            // print("\n newMessage: \(String(newTokens.joined()))")
-            return (step, newTokens)
-        }
-    } // for token in
-    
-    // Didn't find anything
-    return nil
-    
+        // Didn't find anything
+        return nil
+    }
 }
 
 func tail<T>(of list: [T], from index: Int) -> [T] {
