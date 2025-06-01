@@ -32,7 +32,7 @@ struct InsertNodeMenuSearchBar: View {
         let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
         return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
     }
-    
+
     var isLoadingAIResult: Bool {
         store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
     }

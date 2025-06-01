@@ -133,9 +133,10 @@ extension StitchAIParsingError: CustomStringConvertible {
 // MARK: Misc/legacy errors
 
 // TODO: which are just for us developers (to be logged), vs actionable for the user?
-enum StitchAIManagerError: Error {
+enum StitchAIManagerError<AIRequest: StitchAIRequestable>: Error {
     case contentDataDecodingError(String, String)
-    case other(OpenAIRequest, Error)
+    case other(AIRequest, Error)
+    case secretsNotFound
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -145,6 +146,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Unable to parse step actions from: \(contentData) with error: \(errorResponse)"
         case .other(_, let error):
             return "OpenAI Request error: \(error.localizedDescription)"
+        case .secretsNotFound:
+            return "No secrets file found."
         }
     }
 }

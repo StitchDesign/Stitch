@@ -12,13 +12,13 @@ extension StitchAIManager {
     
     // Either successfully retries -- or shows error modal for a non-retryable error
     @MainActor
-    func retryOrShowErrorModal(request: OpenAIRequest,
-                               steps: Steps,
-                               attempt: Int,
-                               document: StitchDocumentViewModel,
-                               canShareAIRetries: Bool) async {
+    func retryOrShowErrorModal<AIRequest>(request: AIRequest,
+                                          steps: Steps,
+                                          attempt: Int,
+                                          document: StitchDocumentViewModel,
+                                          canShareAIRetries: Bool) async where AIRequest: StitchAIRequestable {
         
-        log("StitchAIManager: retryOrShowErrorModal called: attempt: \(attempt), request.prompt: \(request.prompt)")
+        log("StitchAIManager: retryOrShowErrorModal called: attempt: \(attempt), request.prompt: \(request.userPrompt)")
         
         if let retryError = await _retryRequest(request: request,
                                                 steps: steps,
@@ -43,11 +43,11 @@ extension StitchAIManager {
     
     // TODO: we attempt the request again when OpenAI has sent us data that either could not be parsed or could not be validated; should we also re-attempt when OpenAI gives us a timeout error?
     @MainActor
-    private func _retryRequest(request: OpenAIRequest,
-                               steps: Steps,
-                               attempt: Int,
-                               document: StitchDocumentViewModel,
-                               canShareAIRetries: Bool) async -> StitchAIStreamingError? {
+    private func _retryRequest<AIRequest>(request: AIRequest,
+                                          steps: Steps,
+                                          attempt: Int,
+                                          document: StitchDocumentViewModel,
+                                          canShareAIRetries: Bool) async -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
         
         log("StitchAIManager: _retryRequest called: attempt: \(attempt)")
         
@@ -77,7 +77,7 @@ extension StitchAIManager {
                 
                 do {
                     try await aiManager.uploadActionsToSupabase(
-                        prompt: request.prompt,
+                        prompt: request.userPrompt,
                         // Send the raw-streamed steps
                         finalActions: Array(document.llmRecording.streamedSteps),
                         deviceUUID: deviceUUID,
@@ -120,7 +120,7 @@ extension StitchAIManager {
         // This can somehow fail?
         // assertInDebug(slept.isDefined)
             
-        let task = aiManager.getOpenAIStreamingTask(
+        let task = aiManager.getOpenAITask(
             request: request,
             attempt: attempt + 1,
             document: document,
@@ -141,8 +141,8 @@ extension StitchAIManager {
 extension StitchDocumentViewModel {
     
     @MainActor
-    func handleNonRetryableError(_ error: StitchAIStreamingError,
-                                 _ request: OpenAIRequest) {
+    func handleNonRetryableError<AIRequest>(_ error: StitchAIStreamingError,
+                                            _ request: AIRequest) where AIRequest: StitchAIRequestable {
         
         log("handleNonRetryableError: will not retry request")
         
@@ -158,6 +158,6 @@ extension StitchDocumentViewModel {
         self.aiManager?.currentTask = nil
         
         self.showErrorModal(message: error.description,
-                            userPrompt: request.prompt)
+                            userPrompt: request.userPrompt)
     }
 }

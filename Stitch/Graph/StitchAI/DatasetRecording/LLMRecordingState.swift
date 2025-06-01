@@ -34,7 +34,7 @@ enum LLMRecordingModal: Equatable, Hashable {
     case enterPromptForTrainingData
     
     // Modal (toast) from which user can rate the just-completed streaming request
-    case ratingToast(userInputPrompt: UserAIPrompt) // OpenAIRequest.prompt i.e. user's natural language input
+    case ratingToast(userInputPrompt: String) // OpenAIRequest.prompt i.e. user's natural language input
     
     // Modal from which user provides prompt and rating for an existing graph, which is then uploaded to Supabase as an example
     case submitExistingGraphAsTrainingExample
@@ -94,8 +94,8 @@ struct LLMRecordingState {
     
     // The prompt we've manually provided for our training example;
     // OR the saved prompt from a streaming request that has been completed
-    var promptForTrainingDataOrCompletedRequest: UserAIPrompt?
-    var promptFromPreviousExistingGraphSubmittedAsTrainingData: UserAIPrompt?
+    var promptForTrainingDataOrCompletedRequest: String?
+    var promptFromPreviousExistingGraphSubmittedAsTrainingData: String?
     
     var rating: StitchAIRating?
     var ratingFromPreviousExistingGraphSubmittedAsTrainingData: StitchAIRating?

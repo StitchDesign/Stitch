@@ -171,59 +171,15 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
     let prompt: String
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
-        print("🤖 Prompt: \(prompt)")
-        
-        guard let state = store.currentDocument,
-                let aiManager = state.aiManager else {
-            fatalErrorIfDebug("GenerateAINode: no aiManager")
+        guard let document = store.currentDocument,
+              let aiManager = document.aiManager else {
             return .noChange
         }
         
-        // Make sure current task is completely wiped
-        aiManager.cancelCurrentRequest()
-        aiManager.currentTask = nil
-        
-        let graph = state.visibleGraph
-        
-        // Clear previous streamed steps
-        state.llmRecording.streamedSteps = .init()
-        
-        // Clear the previous actions
-        state.llmRecording.actions = .init()
-                
-        // Set loading state
-        withAnimation { // added
-            state.insertNodeMenuState.isGeneratingAIResult = true
-        }
-        
-        // Set flag to indicate this is from AI generation
-        state.insertNodeMenuState.isFromAIGeneration = true
-        
-        print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
-
-        // Note: do/catch vs Result doesn't really matter? Ideally we want to pass on error messages, so `if let x = try? ...` isn't a good idea.
-        // TODO: if we can't build the systemPrompt, then the app shouldn't even be running; don't make code-contributor handle impossible scenarios
-        switch Result(catching: { try StitchAIManager.systemPrompt(graph: graph) }) {
-            
-        case .failure(let error):
-            // Nothing for user to do?
-            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
-            
-        case .success(let systemPrompt):
-            let request = OpenAIRequest(prompt: prompt,
-                                        systemPrompt: systemPrompt)
-            
-            // Track initial graph state
-            state.llmRecording.initialGraphState = state.visibleGraph.createSchema()
-            
-            // Create the task and set it on the manager
-            aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAIStreamingTask(
-                request: request,
-                attempt: 1,
-                document: state,
-                canShareAIRetries: store.canShareAIRetries))
-        }
+        try? StitchAIRequest.createAndMakeRequest(prompt: prompt,
+                                                  canShareAIRetries: store.canShareAIRetries,
+                                                  aiManager: aiManager,
+                                                  document: document)
         
         return .noChange
     }
@@ -372,8 +328,6 @@ struct ActiveIndexChangedAction: StitchDocumentEvent {
     let index: ActiveIndex
 
     func handle(state: StitchDocumentViewModel) {
-        let graph = state.visibleGraph
-        
         state.activeIndex = index
         
         // TODO: See `NodesOnlyView`'s `.onChange`

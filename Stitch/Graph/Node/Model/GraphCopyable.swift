@@ -147,7 +147,8 @@ extension PatchNodeEntity: GraphCopyable {
                      splitterNode: self.splitterNode?.createCopy(newId: newId,
                                                                  mappableData: mappableData,
                                                                  copiedNodeIds: copiedNodeIds),
-                     mathExpression: self.mathExpression)
+                     mathExpression: self.mathExpression,
+                     javaScriptNodeSettings: self.javaScriptNodeSettings)
     }
 }
 

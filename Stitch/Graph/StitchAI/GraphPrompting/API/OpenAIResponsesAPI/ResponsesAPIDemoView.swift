@@ -147,7 +147,7 @@ struct ResponsesAPIDemoView: View {
                         allContentTokens.append(delta)
                         contentTokensSinceLastStep.append(delta)
                         // Try parsing a new Step from the buffered tokens
-                        if let (newStep, newTokens) = parseStepFromTokenStream(tokens: contentTokensSinceLastStep) {
+                        if let (newStep, newTokens) = StitchAIRequest.decodeFromTokenStream(tokens: contentTokensSinceLastStep) {
                             contentTokensSinceLastStep = newTokens
                             log("Eagerly parsed new Step: \(newStep)")
                             self.streamedSteps.append(newStep)

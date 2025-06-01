@@ -9,23 +9,21 @@ import SwiftUI
 import StitchSchemaKit
 import SwiftyJSON
 
-extension StitchAIManager {
-    static let structuredOutputs = StitchAIStructuredOutputsPayload()
-    
-    static func printStructuredOutputsSchema() {
-        do {
-            let schema = try structuredOutputs.printSchema()
-            print(schema)
-        } catch {
-            print("Failed to print schema:", error)
-        }
-    }
+struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable {
+    let defs = StitchAIStructuredOutputsDefinitions()
+    let schema = StitchAIStructuredOutputsSchema()
+    let strict = true
 }
 
-struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
-    var defs = StitchAIStructuredOutputsDefinitions()
-    var schema = StitchAIStructuredOutputsSchema()
-    
+struct EditJsNodeStructuredOutputsPayload: OpenAISchemaDefinable {
+    let defs = EditJsNodeStructuredOutputsDefinitions()
+    let schema = OpenAISchema(type: .object,
+                              properties: JsNodeSettingsSchema(),
+                              required: ["script", "input_definitions", "output_definitions"])
+    let strict = true
+}
+
+extension OpenAISchemaDefinable {
     func printSchema() throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
@@ -39,6 +37,7 @@ struct StitchAIStructuredOutputsSchema: OpenAISchemaCustomizable {
     
     var properties = StitchAIStepsSchema()
     
+    // TODO: is this why strict: true broke?
     var schema = OpenAISchema(type: .object,
                               required: ["steps"],
                               additionalProperties: false,
@@ -74,6 +73,14 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     )
 }
 
+struct EditJsNodeStructuredOutputsDefinitions: Encodable {
+    // Types
+    let ValueType = OpenAISchemaEnum(values: NodeType.allCases
+        .filter { $0 != .none }
+        .map { $0.asLLMStepNodeType }
+    )
+}
+
 struct StitchAIStepsSchema: Encodable {
     let steps = OpenAISchema(type: .array,
                              description: "The actions taken to create a graph",
@@ -105,6 +112,21 @@ struct StepStructuredOutputs: OpenAISchemaCustomizable {
         self.properties = properties
         self.schema = schema
     }
+}
+
+struct JsNodeSettingsSchema: Encodable {
+    static let portDefinitions = OpenAISchema(type: .array,
+                                              required: ["label", "strict_type"],
+                                              items: OpenAIGeneric(types: [PortDefinitionSchema()]))
+    
+    let script = OpenAISchema(type: .string)
+    let input_definitions = Self.portDefinitions
+    let output_definitions = Self.portDefinitions
+}
+
+struct PortDefinitionSchema: Encodable {
+    let label = OpenAISchema(type: .string)
+    let strict_type = OpenAISchemaRef(ref: "ValueType")
 }
 
 struct StitchAIStepSchema: Encodable {
