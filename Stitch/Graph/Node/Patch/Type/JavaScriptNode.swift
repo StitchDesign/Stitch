@@ -35,6 +35,7 @@ struct JavaScriptNode: PatchNodeDefinition {
 
         // Construct inputs into JSON
         let inputValuesList = node.inputsValuesList
+        let prevOutputsValuesList = node.outputs
         let aiDataFromInputs = inputValuesList.map { inputValues in
             inputValues.map(StitchAIPortValue.init)
         }
@@ -72,7 +73,7 @@ JSON.stringify(result)
             return .init(outputsValues: outputValuesList)
         } catch {
             print("JavaScript node decoding error: \(error.localizedDescription)")
-            return .init(outputsValues: [])
+            return .init(outputsValues: prevOutputsValuesList)
         }
     }
 }
