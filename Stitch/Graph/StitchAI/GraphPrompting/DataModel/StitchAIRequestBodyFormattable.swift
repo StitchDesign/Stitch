@@ -76,10 +76,15 @@ struct StitchAIResponseFormat: OpenAIResponseFormatable {
 
 struct EditJsNodeResponseFormat: OpenAIResponseFormatable {
     let type = "json_schema"
-    let json_schema = EditJsNodeStructuredOutputsPayload()
+    let json_schema = EditJsNodeJsonSchema()
 }
 
 struct StitchAIJsonSchema: OpenAIJsonSchema {
     let name = StitchAIStructuredOutputsSchema.title
     let schema = StitchAIStructuredOutputsPayload()
+}
+
+struct EditJsNodeJsonSchema: OpenAIJsonSchema {
+    let name = "EditJSNode"
+    let schema = EditJsNodeStructuredOutputsPayload()
 }

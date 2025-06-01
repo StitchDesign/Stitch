@@ -194,3 +194,43 @@ extension PatchNodeViewModel {
         }
     }
 }
+
+/// Redundant data structures needed for encoding node type for AI.
+struct JavaScriptNodeSettingsAI: Codable {
+    var script: String
+    var input_definitions: [JavaScriptPortDefinitionAI]
+    var output_definitions: [JavaScriptPortDefinitionAI]
+}
+
+extension JavaScriptPortDefinition {
+    init(_ portDefinition: JavaScriptPortDefinitionAI) {
+        self.init(label: portDefinition.label,
+                  strictType: portDefinition.strict_type)
+    }
+}
+
+struct JavaScriptPortDefinitionAI: Codable {
+    var label: String
+    var strict_type: NodeType
+}
+
+extension JavaScriptPortDefinitionAI {
+    enum CodingKeys : String, CodingKey {
+        case label
+        case strict_type
+    }
+    
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.label, forKey: .label)
+        try container.encode(self.strict_type.asLLMStepNodeType, forKey: .strict_type)
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let typeString = try container.decode(String.self, forKey: .strict_type)
+        
+        self.label = try container.decode(String.self, forKey: .label)
+        self.strict_type = try NodeType(llmString: typeString)
+    }
+}

@@ -48,7 +48,7 @@ extension OpenAISchemaCustomizable {
 
 protocol OpenAISchemaDefinable: Encodable {
     associatedtype Defs: Encodable
-    associatedtype Schema: OpenAISchemaCustomizable
+    associatedtype Schema: Encodable
     
     var defs: Defs { get }
     

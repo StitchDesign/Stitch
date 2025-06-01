@@ -259,9 +259,10 @@ struct EditJSNodeRequest: StitchAIRequestable {
             canShareAIRetries: canShareAIRetries))
     }
     
-    static func validateRepopnse(decodedResult: JavaScriptNodeSettings) throws -> JavaScriptNodeSettings {
-        // TBD
-        decodedResult
+    static func validateRepopnse(decodedResult: JavaScriptNodeSettingsAI) throws -> JavaScriptNodeSettings {
+        .init(script: decodedResult.script,
+              inputDefinitions: decodedResult.input_definitions.map(JavaScriptPortDefinition.init),
+              outputDefinitions: decodedResult.output_definitions.map(JavaScriptPortDefinition.init))
     }
     
     @MainActor

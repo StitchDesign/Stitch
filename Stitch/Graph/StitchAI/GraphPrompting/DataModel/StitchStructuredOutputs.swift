@@ -9,19 +9,18 @@ import SwiftUI
 import StitchSchemaKit
 import SwiftyJSON
 
-struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable, Encodable {
+struct StitchAIStructuredOutputsPayload: OpenAISchemaDefinable {
     let defs = StitchAIStructuredOutputsDefinitions()
     let schema = StitchAIStructuredOutputsSchema()
     let strict = true
 }
 
-struct EditJsNodeStructuredOutputsPayload: OpenAIJsonSchema, Encodable {
+struct EditJsNodeStructuredOutputsPayload: OpenAISchemaDefinable {
     let defs = EditJsNodeStructuredOutputsDefinitions()
     let schema = OpenAISchema(type: .object,
                               properties: JsNodeSettingsSchema(),
-                              required: ["script", "inputDefinitions", "outputDefinitions"])
+                              required: ["script", "input_definitions", "output_definitions"])
     let strict = true
-    let name = "EditJSNode"
 }
 
 extension OpenAISchemaDefinable {
