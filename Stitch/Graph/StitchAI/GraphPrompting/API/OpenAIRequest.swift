@@ -17,11 +17,10 @@ extension StitchAIManager {
     
     // Used when we need to kick off a request, either initially or as a retry
     @MainActor
-    func getOpenAIStreamingTask<AIRequest>(request: AIRequest,
-                                           attempt: Int,
-                                           document: StitchDocumentViewModel,
-                                           canShareAIRetries: Bool) -> Task<Void, Never> where AIRequest: StitchAIRequestable {
-        
+    func getOpenAITask<AIRequest>(request: AIRequest,
+                                  attempt: Int,
+                                  document: StitchDocumentViewModel,
+                                  canShareAIRetries: Bool) -> Task<Void, Never> where AIRequest: StitchAIRequestable {
         Task(priority: .high) { [weak self] in
             
             guard let aiManager = self else {
@@ -140,7 +139,7 @@ extension StitchAIManager {
         
         switch streamOpeningResult {
             
-        case .success(let response):            
+        case .success(let response):
             // Even if we had a successful response, may have hit a rate limit?
             // TODO: is this still necessary for streaming requests?
             return handlePossibleRateLimit(

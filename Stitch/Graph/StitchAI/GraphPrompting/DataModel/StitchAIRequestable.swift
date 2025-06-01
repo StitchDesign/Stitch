@@ -16,13 +16,10 @@ let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 /// Main event handler for initiating OpenAI API requests
 protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, TokenDecodedResult: Decodable {
     associatedtype Body: StitchAIRequestBodyFormattable
-    
     // Initial payload that's expected from OpenAI response
     associatedtype InitialDecodedResult
-    
     // Final data type after all processing, may equal InitialDecodedResult
     associatedtype FinalDecodedResult
-    
     // Type that's processed from streaming
     associatedtype TokenDecodedResult
     typealias ResponseFormat = Body.ResponseFormat
@@ -33,8 +30,11 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     var body: Body { get }
     static var willStream: Bool { get }
     
+    @MainActor
+    func makeRequest(canShareAIRetries: Bool,
+                     document: StitchDocumentViewModel)
     
-    ///
+    /// Validates a successfully decoded response and outputs a possibly different data structure.
     static func validateRepopnse(decodedResult: InitialDecodedResult) throws -> FinalDecodedResult
     
     @MainActor
@@ -91,6 +91,72 @@ struct StitchAIRequest: StitchAIRequestable {
                                         systemPrompt: systemPrompt)
     }
     
+    @MainActor
+    static func createAndMakeRequest(prompt: String,
+                                     canShareAIRetries: Bool,
+                                     aiManager: StitchAIManager,
+                                     document: StitchDocumentViewModel) throws {
+        guard let secrets = document.aiManager?.secrets,
+              let aiManager = document.aiManager else {
+            fatalErrorIfDebug("GenerateAINode: no aiManager")
+            return
+        }
+        
+        let graph = document.visibleGraph
+        
+        do {
+            let request = try StitchAIRequest(prompt: prompt,
+                                              secrets: secrets,
+                                              graph: graph)
+            request.makeRequest(canShareAIRetries: canShareAIRetries,
+                                document: document)
+        } catch {
+            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
+        }
+    }
+    
+    @MainActor
+    func makeRequest(canShareAIRetries: Bool,
+                     document: StitchDocumentViewModel) {
+        print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
+        print("🤖 Prompt: \(self.userPrompt)")
+        
+        guard let aiManager = document.aiManager else {
+            fatalErrorIfDebug("GenerateAINode: no aiManager")
+            return
+        }
+        
+        // Make sure current task is completely wiped
+        aiManager.cancelCurrentRequest()
+        aiManager.currentTask = nil
+        
+        // Clear previous streamed steps
+        document.llmRecording.streamedSteps = .init()
+        
+        // Clear the previous actions
+        document.llmRecording.actions = .init()
+                
+        // Set loading state
+        withAnimation { // added
+            document.insertNodeMenuState.isGeneratingAIResult = true
+        }
+        
+        // Set flag to indicate this is from AI generation
+        document.insertNodeMenuState.isFromAIGeneration = true
+        
+        print("🤖 isFromAIGeneration set to: \(document.insertNodeMenuState.isFromAIGeneration)")
+        
+        // Track initial graph state
+        document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
+        
+        // Create the task and set it on the manager
+        aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAITask(
+            request: self,
+            attempt: 1,
+            document: document,
+            canShareAIRetries: canShareAIRetries))
+    }
+    
     static func validateRepopnse(decodedResult: StitchAIContentJSON) throws -> [any StepActionable] {
         let convertedSteps = decodedResult.steps.map { $0.parseAsStepAction() }
         
@@ -145,6 +211,22 @@ struct EditJSNodeRequest: StitchAIRequestable {
     
     @MainActor
     init(prompt: String,
+         config: OpenAIRequestConfig = .default,
+         document: StitchDocumentViewModel,
+         nodeId: NodeId) throws {
+        guard let secrets = document.aiManager?.secrets else {
+            throw StitchAIManagerError<EditJSNodeRequest>.secretsNotFound
+        }
+        
+        self.init(prompt: prompt,
+                  secrets: secrets,
+                  config: config,
+                  graph: document.visibleGraph,
+                  nodeId: nodeId)
+    }
+    
+    @MainActor
+    init(prompt: String,
          secrets: Secrets,
          config: OpenAIRequestConfig = .default,
          graph: GraphState,
@@ -161,6 +243,22 @@ struct EditJSNodeRequest: StitchAIRequestable {
         self.body = EditJsNodeRequestBody(secrets: secrets,
                                           userPrompt: prompt,
                                           systemPrompt: systemPrompt)
+    }
+    
+    @MainActor
+    func makeRequest(canShareAIRetries: Bool,
+                     document: StitchDocumentViewModel) {
+        guard let aiManager = document.aiManager else {
+            fatalErrorIfDebug("GenerateAINode: no aiManager")
+            return
+        }
+        
+        // Create the task and set it on the manager
+        aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAITask(
+            request: self,
+            attempt: 1,
+            document: document,
+            canShareAIRetries: canShareAIRetries))
     }
     
     static func validateRepopnse(decodedResult: JavaScriptNodeSettings) throws -> JavaScriptNodeSettings {

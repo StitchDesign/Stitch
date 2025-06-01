@@ -85,7 +85,6 @@ extension StitchAIManager {
         
         currentTask.task.cancel()
         self.currentTask = nil
-        self.jsRequestNodeId = nil
     }
 }
 

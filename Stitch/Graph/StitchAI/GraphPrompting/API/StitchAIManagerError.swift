@@ -136,6 +136,7 @@ extension StitchAIParsingError: CustomStringConvertible {
 enum StitchAIManagerError<AIRequest: StitchAIRequestable>: Error {
     case contentDataDecodingError(String, String)
     case other(AIRequest, Error)
+    case secretsNotFound
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -145,6 +146,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "Unable to parse step actions from: \(contentData) with error: \(errorResponse)"
         case .other(_, let error):
             return "OpenAI Request error: \(error.localizedDescription)"
+        case .secretsNotFound:
+            return "No secrets file found."
         }
     }
 }

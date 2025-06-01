@@ -130,10 +130,15 @@ struct NodeView: View {
         TextField("Javascript here...",
                   text: $aiJsNodePrompt)
         .onSubmit {
-            document.aiManager?.jsRequestNodeId = stitch.id
-            document.stitchAIRequest(.jsNode,
-                                     prompt: aiJsNodePrompt,
-                                     canShareAIRetries: store.canShareAIRetries)
+            do {
+                let jsAIRequest = try EditJSNodeRequest(prompt: aiJsNodePrompt,
+                                                        document: document,
+                                                        nodeId: stitch.id)
+                jsAIRequest.makeRequest(canShareAIRetries: store.canShareAIRetries,
+                                        document: document)
+            } catch {
+                log("javascriptNodeField error: \(error.localizedDescription)")
+            }
         }
         .focusedValue(\.focusedField, .javascriptNodePrompt(stitch.id))
         .focused(self.$isFocused)

@@ -169,73 +169,19 @@ struct InsertNodeSelectionChanged: StitchDocumentEvent {
 /// fka `GenerateAINode`
 struct SubmitUserPromptToOpenAI: StitchStoreEvent {
     let prompt: String
-    let requestType: OpenAIRequest.RequestType
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.currentDocument?.stitchAIRequest(requestType,
-                                               prompt: prompt,
-                                               canShareAIRetries: store.canShareAIRetries)
+        guard let document = store.currentDocument,
+              let aiManager = document.aiManager else {
+            return .noChange
+        }
+        
+        try? StitchAIRequest.createAndMakeRequest(prompt: prompt,
+                                                  canShareAIRetries: store.canShareAIRetries,
+                                                  aiManager: aiManager,
+                                                  document: document)
         
         return .noChange
-    }
-}
-
-extension StitchDocumentViewModel {
-    @MainActor
-    func stitchAIRequest(_ requestType: OpenAIRequest.RequestType,
-                         prompt: String,
-                         canShareAIRetries: Bool) {
-        print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
-        print("🤖 Prompt: \(prompt)")
-        let state = self
-        
-        guard let secrets = state.aiManager?.secrets,
-              let aiManager = state.aiManager else {
-            fatalErrorIfDebug("GenerateAINode: no aiManager")
-            return
-        }
-        
-        // Make sure current task is completely wiped
-        aiManager.cancelCurrentRequest()
-        aiManager.currentTask = nil
-
-        let graph = state.visibleGraph
-        
-        // Clear previous streamed steps
-        state.llmRecording.streamedSteps = .init()
-        
-        // Clear the previous actions
-        state.llmRecording.actions = .init()
-                
-        // Set loading state
-        withAnimation { // added
-            state.insertNodeMenuState.isGeneratingAIResult = true
-        }
-        
-        // Set flag to indicate this is from AI generation
-        state.insertNodeMenuState.isFromAIGeneration = true
-        
-        print("🤖 isFromAIGeneration set to: \(state.insertNodeMenuState.isFromAIGeneration)")
-        
-        // Dispatch OpenAI request
-        do {
-            let request = try OpenAIRequest(prompt: prompt,
-                                            requestType: requestType,
-                                            secrets: secrets,
-                                            graph: graph)
-
-            // Track initial graph state
-            state.llmRecording.initialGraphState = state.visibleGraph.createSchema()
-            
-            // Create the task and set it on the manager
-            aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAIStreamingTask(
-                request: request,
-                attempt: 1,
-                document: state,
-                canShareAIRetries: canShareAIRetries))
-        } catch {
-            fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
-        }
     }
 }
 

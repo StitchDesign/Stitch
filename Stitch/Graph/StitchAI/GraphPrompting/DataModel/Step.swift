@@ -150,7 +150,7 @@ extension Step: Codable {
                 log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
             }
             
-            if let stitchAIError = error as? StitchAIManagerError {
+            if let stitchAIError = error as? StitchAIManagerError<StitchAIRequest> {
                 throw stitchAIError
             } else {
                 throw StitchAIParsingError.portValueDecodingError(error.localizedDescription)
