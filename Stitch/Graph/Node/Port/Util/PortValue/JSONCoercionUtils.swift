@@ -138,7 +138,7 @@ extension PortValue {
         case .vnImageCropOption(let x):
             return x.rawValue.description
             
-        case .string,  .bool,  .int,  .number,  .layerDimension,  .transform,  .color,  .size,  .position,  .point3D,  .point4D,  .pulse,  .asyncMedia,  .json,  .none,  .anchoring,  .assignedLayer,  .shape,  .comparable,  .shapeCommand,  .textFont,  .spacing,  .padding,  .pinTo,  .anchorEntity:
+        case .string,  .bool,  .number,  .layerDimension,  .transform,  .color,  .size,  .position,  .point3D,  .point4D,  .pulse,  .asyncMedia,  .json,  .none,  .anchoring,  .assignedLayer,  .shape,  .comparable,  .shapeCommand,  .textFont,  .spacing,  .padding,  .pinTo,  .anchorEntity:
             // log("rawValueString: will return nil")
             return nil
         }

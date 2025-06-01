@@ -16,8 +16,6 @@ extension PortValue {
             return x.string
         case .bool(let x):
             return x
-        case .int(let x):
-            return x
         case .number(let x):
             return x
         case .layerDimension(let x):
@@ -149,8 +147,6 @@ extension UserVisibleType {
             return String.self
         case .bool:
             return Bool.self
-        case .int:
-            return Int.self
         case .number:
             return Double.self
         case .layerDimension:
@@ -272,11 +268,6 @@ extension UserVisibleType {
                 throw StitchAIParsingError.typeCasting
             }
             return .bool(x)
-        case .int:
-            guard let x = anyValue as? Int else {
-                throw StitchAIParsingError.typeCasting
-            }
-            return .int(x)
         case .number:
             guard let x = anyValue as? Double else {
                 throw StitchAIParsingError.typeCasting
