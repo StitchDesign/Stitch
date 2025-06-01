@@ -45,8 +45,6 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     @MainActor
     func onSuccessfulDecodingChunk(result: TokenDecodedResult,
                                    currentAttempt: Int)
-    
-    func getPayloadData() throws -> Data
 }
 
 extension StitchAIRequestable {

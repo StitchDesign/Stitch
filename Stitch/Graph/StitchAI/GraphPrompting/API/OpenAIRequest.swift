@@ -88,8 +88,6 @@ extension StitchAIManager {
                                                   secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
         
         let config = request.config
-        let prompt = request.userPrompt
-        let systemPrompt = request.systemPrompt
                 
         // Configure request headers and parameters
         var urlRequest = URLRequest(url: OPEN_AI_BASE_URL)
@@ -98,16 +96,9 @@ extension StitchAIManager {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
 
-        let payload = try? request.getPayloadData()
+        let bodyPayload = try? request.getPayloadData()
+        urlRequest.httpBody = bodyPayload
         
-        let encoder = JSONEncoder()
-        // encoder.outputFormatting = [.withoutEscapingSlashes]
-        guard let jsonData = try? encoder.encode(payload) else {
-            fatalErrorIfDebug("Could not encode payload")
-            return nil
-        }
-        
-        urlRequest.httpBody = jsonData
         return urlRequest
     }
     
