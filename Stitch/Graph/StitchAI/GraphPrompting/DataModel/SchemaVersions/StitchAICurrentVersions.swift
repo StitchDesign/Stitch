@@ -13,6 +13,8 @@ typealias CurrentStitchAIUUID = StitchAIUUID_V0
 typealias CurrentStitchAIColor = StitchAIColor_V0
 typealias CurrentStitchAISize = StitchAISize_V0
 typealias CurrentStitchAISizeDimension = StitchAISizeDimension_V0
+typealias CurrentJavaScriptNodeSettingsAI = JavaScriptNodeSettingsAI_V0
+typealias CurrentJavaScriptPortDefinitionAI = JavaScriptPortDefinitionAI_V0
 
 typealias Step = CurrentStep.Step
 typealias StepType = CurrentStepType.StepType
@@ -23,3 +25,5 @@ typealias StitchAIUUID = CurrentStitchAIUUID.StitchAIUUID
 typealias StitchAIColor = CurrentStitchAIColor.StitchAIColor
 typealias StitchAISize = CurrentStitchAISize.StitchAISize
 typealias StitchAISizeDimension = CurrentStitchAISizeDimension.StitchAISizeDimension
+typealias JavaScriptNodeSettingsAI = CurrentJavaScriptNodeSettingsAI.JavaScriptNodeSettingsAI
+typealias JavaScriptPortDefinitionAI = CurrentJavaScriptPortDefinitionAI.JavaScriptPortDefinitionAI
