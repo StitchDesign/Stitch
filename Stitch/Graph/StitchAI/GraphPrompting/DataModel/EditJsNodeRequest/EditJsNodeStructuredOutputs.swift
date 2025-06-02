@@ -18,7 +18,7 @@ struct EditJsNodeStructuredOutputsPayload: OpenAISchemaDefinable {
 
 struct EditJsNodeStructuredOutputsDefinitions: Encodable {
     // Types
-    let ValueType = OpenAISchemaEnum(values: NodeType.allCases
+    let ValueType = OpenAISchemaEnum(values: StitchAINodeType.allCases
         .filter { $0 != .none }
         .map { $0.asLLMStepNodeType }
     )

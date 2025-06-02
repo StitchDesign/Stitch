@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import StitchSchemaKit
 
 typealias StepActionables = [any StepActionable]
 
@@ -114,7 +115,7 @@ struct StepActionAddNode: StepActionable {
     static let stepType: StepType = .addNode
     
     var nodeId: NodeId
-    var nodeName: PatchOrLayer
+    var nodeName: PatchOrLayerAI
 
     var toStep: Step {
         Step(stepType: Self.stepType,
@@ -149,9 +150,15 @@ struct StepActionAddNode: StepActionable {
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
         // log("StepActionAddNode: applyAction: self.nodeId: \(self.nodeId)")
-        let _ = document.nodeInserted(choice: self.nodeName,
-                                      nodeId: self.nodeId)
-        return nil
+        do {
+            let migratedNodeName = try self.nodeName.convert(to: PatchOrLayer.self)
+            let _ = document.nodeInserted(choice: migratedNodeName,
+                                          nodeId: self.nodeId)
+
+            return nil
+        } catch {
+            return .typeMigrationFailed(self.nodeName)
+        }
     }
     
     func removeAction(graph: GraphState,
@@ -164,7 +171,12 @@ struct StepActionAddNode: StepActionable {
     
     // TODO: what does `validate` mean here ? Are we "making x valid" or "determining whether x is valid" ?
     func validate(createdNodes: [NodeId : PatchOrLayer]) -> Result<[NodeId: PatchOrLayer], StitchAIStepHandlingError> {
-        .success(createdNodes.updatedValue(self.nodeName, forKey: self.nodeId))
+        do {
+            let migratedNodeName = try self.nodeName.convert(to: PatchOrLayer.self)
+            return .success(createdNodes.updatedValue(migratedNodeName, forKey: self.nodeId))
+        } catch {
+            return .failure(.typeMigrationFailed(self.nodeName))
+        }
     }
 }
 
@@ -173,7 +185,7 @@ struct StepActionConnectionAdded: StepActionable {
     static let stepType = StepType.connectNodes
     
     // effectively the 'to port'
-    let port: NodeIOPortType // integer or key path
+    let port: CurrentStep.NodeIOPortType // integer or key path
     var toNodeId: NodeId
     
     let fromPort: Int //NodeIOPortType // integer or key path
@@ -226,42 +238,54 @@ struct StepActionConnectionAdded: StepActionable {
     
     static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .port, .fromPort, .fromNodeId, .toNodeId]
     
-    var inputPort: NodeIOCoordinate {
-        .init(portType: self.port, nodeId: self.toNodeId)
+    func createInputPort() throws -> NodeIOCoordinate {
+        let migratedPort = try self.port.convert(to: NodeIOPortType.self)
+        return .init(portType: migratedPort, nodeId: self.toNodeId)
     }
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
-        let edge: PortEdgeData = PortEdgeData(
-            from: .init(portType: .portIndex(self.fromPort), nodeId: self.fromNodeId),
-            to: self.inputPort)
-        
-        let _ = document.visibleGraph.edgeAdded(edge: edge)
-        
-        // Create canvas node if destination is layer
-        if let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position,
-           let destinationNode = document.visibleGraph.getNode(self.toNodeId),
-           destinationNode.kind.isLayer {
-            guard let layerInput = self.port.keyPath?.layerInput else {
-                // fatalErrorIfDebug()
-                return .actionValidationError("expected layer node keypath but got: \(self.port)")
+        do {
+            let inputPort = try self.createInputPort()
+            let edge: PortEdgeData = PortEdgeData(
+                from: .init(portType: .portIndex(self.fromPort), nodeId: self.fromNodeId),
+                to: inputPort)
+            
+            let _ = document.visibleGraph.edgeAdded(edge: edge)
+            
+            // Create canvas node if destination is layer
+            if let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position,
+               let destinationNode = document.visibleGraph.getNode(self.toNodeId),
+               destinationNode.kind.isLayer {
+                guard let layerInput = inputPort.keyPath?.layerInput else {
+                    // fatalErrorIfDebug()
+                    return .actionValidationError("expected layer node keypath but got: \(self.port)")
+                }
+                
+                var position = fromNodeLocation
+                position.x += 200
+                
+                document.addLayerInputToCanvas(node: destinationNode,
+                                               layerInput: layerInput,
+                                               draggedOutput: nil,
+                                               canvasHeightOffset: nil,
+                                               position: position)
             }
             
-            var position = fromNodeLocation
-            position.x += 200
-            
-            document.addLayerInputToCanvas(node: destinationNode,
-                                           layerInput: layerInput,
-                                           draggedOutput: nil,
-                                           canvasHeightOffset: nil,
-                                           position: position)
+        } catch {
+            return .typeMigrationFailed(self.port)
         }
         
         return nil
     }
     
     func removeAction(graph: GraphState, document: StitchDocumentViewModel) {
-        graph.removeEdgeAt(input: self.inputPort)
+        do {
+            let inputPort = try self.createInputPort()
+            graph.removeEdgeAt(input: inputPort)
+        } catch {
+            fatalErrorIfDebug("Unexpected type conversion error for \(self.port)")
+        }
     }
     
     // Note: The protocol's `validate` signature is too broad here; we can only return optionally return `StitchAIStepHandlingError`
@@ -290,7 +314,7 @@ struct StepActionChangeValueType: StepActionable {
     static let stepType = StepType.changeValueType
     
     var nodeId: NodeId
-    var valueType: NodeType
+    var valueType: StitchAINodeType
     
     var toStep: Step {
         Step(stepType: Self.stepType,
@@ -327,10 +351,17 @@ struct StepActionChangeValueType: StepActionable {
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
-        // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
-        let _ = document.visibleGraph.nodeTypeChanged(nodeId: self.nodeId,
-                                                      newNodeType: self.valueType,
-                                                      activeIndex: document.activeIndex)
+        do {
+            let migratedType = try self.valueType.migrate()
+            
+            // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
+            let _ = document.visibleGraph.nodeTypeChanged(nodeId: self.nodeId,
+                                                          newNodeType: migratedType,
+                                                          activeIndex: document.activeIndex)
+        } catch {
+            return .typeMigrationFailed(self.valueType)
+        }
+        
         return nil
     }
     
@@ -343,11 +374,17 @@ struct StepActionChangeValueType: StepActionable {
             return .failure(.actionValidationError("ChangeValueType: no patch for node \(self.nodeId.debugFriendlyId)"))
         }
         
-        guard patch.availableNodeTypes.contains(self.valueType) else {
-            return .failure(.actionValidationError("ChangeValueType: invalid node type \(self.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(self.nodeId.debugFriendlyId)"))
+        do {
+            let migratedType = try self.valueType.migrate()
+            
+            guard patch.availableNodeTypes.contains(migratedType) else {
+                return .failure(.actionValidationError("ChangeValueType: invalid node type \(self.valueType.display) for patch \(patch.defaultDisplayTitle()) on node \(self.nodeId.debugFriendlyId)"))
+            }
+            
+            return .success(createdNodes)
+        } catch {
+            return .failure(.typeMigrationFailed(self.valueType))
         }
-        
-        return .success(createdNodes)
     }
 }
 
@@ -356,9 +393,9 @@ struct StepActionSetInput: StepActionable {
     static let stepType = StepType.setInput
     
     var nodeId: NodeId
-    let port: NodeIOPortType // integer or key path
-    var value: PortValue
-    let valueType: NodeType
+    let port: CurrentStep.NodeIOPortType // integer or key path
+    var value: CurrentStep.PortValue
+    let valueType: StitchAINodeType
     
     // encoding
     var toStep: Step {
@@ -366,15 +403,15 @@ struct StepActionSetInput: StepActionable {
              nodeId: nodeId,
              port: port,
              value: value,
-             valueType: value.toNodeType)
+             valueType: value.nodeType)
     }
     
     func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
         copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
-        if let interactionId = copy.value.getInteractionId?.asNodeId {
+        if let interactionId = copy.value.getInteractionId {
             let newId = nodeIdMap.get(.init(value: interactionId)) ?? interactionId
-            copy.value = .assignedLayer(LayerNodeId(newId))
+            copy.value = .assignedLayer(CurrentStep.LayerNodeId(newId))
         }
         return copy
     }
@@ -413,18 +450,31 @@ struct StepActionSetInput: StepActionable {
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
         let graph = document.visibleGraph
-        let inputCoordinate = InputCoordinate(portType: self.port,
-                                              nodeId: self.nodeId)
-        guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
-            log("applyAction: could not apply setInput")
-            // fatalErrorIfDebug()
-            return .actionValidationError("Could not retrieve input \(inputCoordinate)")
+        
+        do {
+            let migratedPort = try self.port.convert(to: NodeIOPortType.self)
+            let migratedValue = try self.value.migrate()
+            
+            let inputCoordinate = InputCoordinate(portType: migratedPort,
+                                                  nodeId: self.nodeId)
+            guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
+                log("applyAction: could not apply setInput")
+                // fatalErrorIfDebug()
+                return .actionValidationError("Could not retrieve input \(inputCoordinate)")
+            }
+            
+            // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
+            graph.inputEditCommitted(input: input,
+                                     value: migratedValue,
+                                     activeIndex: document.activeIndex)
+        } catch let error as StitchAIStepHandlingError {
+            return error
+        } catch let error as SSKError {
+            return .sskMigrationFailed(error)
+        } catch {
+            return .other(error)
         }
         
-        // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
-        graph.inputEditCommitted(input: input,
-                                 value: self.value,
-                                 activeIndex: document.activeIndex)
         return nil
     }
     
@@ -533,7 +583,7 @@ struct StepActionSetInput: StepActionable {
 //}
 
 extension StepActionable {
-    var toPortCoordinate: NodeIOCoordinate? {
+    var toPortCoordinate: CurrentStep.NodeIOCoordinate? {
         let step = self.toStep
         
         guard let nodeId = step.nodeId ?? step.toNodeId,

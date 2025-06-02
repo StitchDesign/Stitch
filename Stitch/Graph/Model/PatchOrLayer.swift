@@ -69,9 +69,10 @@ extension PatchOrLayerNode {
 }
 
 // i.e. NodeKind, excluding Group Nodes and Components
-enum PatchOrLayer: Equatable, Codable, Hashable {
-    case patch(Patch), layer(Layer)
-    
+extension PatchOrLayer {
+//enum PatchOrLayer: Equatable, Codable, Hashable {
+//    case patch(Patch), layer(Layer)
+//    
     var asNodeKind: NodeKind {
         switch self {
         case .patch(let patch):
@@ -80,7 +81,7 @@ enum PatchOrLayer: Equatable, Codable, Hashable {
             return .layer(layer)
         }
     }
-    
+
     static func from(nodeKind: NodeKind) -> Self? {
         switch nodeKind {
         case .patch(let x):
@@ -92,15 +93,15 @@ enum PatchOrLayer: Equatable, Codable, Hashable {
             return nil
         }
     }
-    
-    var description: String {
-        switch self {
-        case .patch(let patch):
-            return patch.defaultDisplayTitle()
-        case .layer(let layer):
-            return layer.defaultDisplayTitle()
-        }
-    }
+//    
+//    var description: String {
+//        switch self {
+//        case .patch(let patch):
+//            return patch.defaultDisplayTitle()
+//        case .layer(let layer):
+//            return layer.defaultDisplayTitle()
+//        }
+//    }
 }
 
 extension Patch {
@@ -173,7 +174,9 @@ extension PatchOrLayer {
             return layer.graphNode
         }
     }
-    
+}
+
+extension CurrentStep.PatchOrLayer {
     // Note: Swift `init?` is tricky for returning nil vs initializing self; we have to both initialize self *and* return, else we continue past if/else branches etc.;
     // let's prefer functions with clearer return values
     static func fromLLMNodeName(_ nodeName: String) throws -> Self {
@@ -181,8 +184,8 @@ extension PatchOrLayer {
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
                         
             // Tricky: can't use `Patch(rawValue:)` constructor since newer patches use a non-camelCase rawValue
-            if let patch = Patch.allCases.first(where: {
-                // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot"
+            if let patch = PatchAI.allCases.first(where: {
+                // e.g. Patch.squareRoot 1-> "Square Root" -> "squareRoot"
                 let patchDisplay = $0.defaultDisplayTitle().toCamelCase()
                 return patchDisplay == nodeKindName
             }) {
@@ -202,7 +205,7 @@ extension PatchOrLayer {
                 return .patch(.arcTan2)
             }
             
-            else if let layer = Layer.allCases.first(where: {
+            else if let layer = LayerAI.allCases.first(where: {
                 $0.defaultDisplayTitle().toCamelCase() == nodeKindName
             }) {
                 return .layer(layer)
@@ -210,5 +213,23 @@ extension PatchOrLayer {
         }
         
         throw StitchAIParsingError.nodeNameParsing(nodeName)
+    }
+    
+//    var asNodeKind: CurrentStep.NodeKind {
+//        switch self {
+//        case .patch(let patch):
+//            return .patch(patch)
+//        case .layer(let layer):
+//            return .layer(layer)
+//        }
+//    }
+//    
+    var description: String {
+        switch self {
+        case .patch(let patch):
+            return patch.defaultDisplayTitle()
+        case .layer(let layer):
+            return layer.defaultDisplayTitle()
+        }
     }
 }

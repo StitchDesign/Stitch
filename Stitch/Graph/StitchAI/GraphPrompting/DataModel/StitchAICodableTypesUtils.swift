@@ -13,68 +13,6 @@ import SwiftyJSON
  Saves JSON-friendly versions of data structures saved in `PortValue`.
  */
 
-struct StitchAIPosition: Codable {
-    var x: Double
-    var y: Double
-}
-
-struct StitchAISize: Codable {
-    var width: StitchAISizeDimension
-    var height: StitchAISizeDimension
-}
-
-struct StitchAIColor: StitchAIStringConvertable {
-    var value: Color
-}
-
-extension StitchAIColor: Encodable {
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(value.encodableString)
-    }
-}
-
-struct StitchAIPortValue {
-    let value: PortValue
-    
-    init(_ value: PortValue) {
-        self.value = value
-    }
-}
-
-extension StitchAIPortValue: Codable {
-    enum CodingKeys: String, CodingKey {
-        case value
-        case type = "value_type"
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        // extract type
-        let nodeTypeString = try container.decode(String.self, forKey: .type)
-        let nodeType = try NodeType(llmString: nodeTypeString)
-        
-        // portvalue
-        let portValueType = nodeType.portValueTypeForStitchAI
-        let decodedValue = try container.decode(portValueType, forKey: .value)
-        let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
-        self.value = value
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(value.toNodeType.asLLMStepNodeType, forKey: .type)
-        try container.encode(value.anyCodable, forKey: .value)
-    }
-}
-
-struct StitchAIUUID: StitchAIStringConvertable {
-    var value: UUID
-}
-
-
 extension UUID: StitchAIValueStringConvertable {
     var encodableString: String {
         self.description
@@ -96,24 +34,6 @@ extension Color: StitchAIValueStringConvertable {
         }
         
         self = color
-    }
-}
-
-struct StitchAISizeDimension: StitchAIStringConvertable {
-    var value: LayerDimension
-}
-
-extension LayerDimension: StitchAIValueStringConvertable {
-    var encodableString: String {
-        self.description
-    }
-    
-    public init?(_ description: String) {
-        guard let result = Self.fromUserEdit(edit: description) else {
-            return nil
-        }
-        
-        self = result
     }
 }
 
@@ -172,5 +92,17 @@ extension StitchAIStringConvertable {
                 )
             )
         }
+    }
+}
+
+extension Encodable {
+    /// Re-decodes a function into another type, useful for type conversions when properties are exactly the same. Commonly used for versioned schemas that haven't changed.
+    func convert<T>(to type: T.Type) throws -> T where T: Decodable {
+        let encoder = getStitchEncoder()
+        let decoder = getStitchDecoder()
+        
+        let data = try encoder.encode(self)
+        let convertedType = try decoder.decode(T.self, from: data)
+        return convertedType
     }
 }

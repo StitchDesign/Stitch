@@ -8,6 +8,17 @@
 import SwiftUI
 import StitchSchemaKit
 
+extension CurrentStep.NodeKind {
+    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription_V31.StitchAINodeKindDescription] {
+        // Filter out the scroll interaction node
+        let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
+        return allDescriptions.filter { description in
+            !description.nodeKind.contains("scrollInteraction")
+        }
+    }
+}
+
+/// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
 extension NodeKind {
     static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
         // Filter out the scroll interaction node
@@ -18,37 +29,20 @@ extension NodeKind {
     }
 }
 
-protocol NodeKindDescribable: CaseIterable {
-    func defaultDisplayTitle() -> String
-    
-    var aiNodeDescription: String { get }
-    
-    static var titleDisplay: String { get }
-}
-
-extension NodeKindDescribable {
-    var aiDisplayTitle: String {
-        self.defaultDisplayTitle().toCamelCase() + " || \(Self.titleDisplay)"
-    }
-    
-    static var allAiDescriptions: [StitchAINodeKindDescription] {
-        Self.allCases.map {
-            .init($0)
-        }
-    }
-}
-
-struct StitchAINodeKindDescription: Encodable {
-    var nodeKind: String
-    var description: String
-}
-
-extension StitchAINodeKindDescription {
-    init<T>(_ nodeKindType: T) where T: NodeKindDescribable {
-        self.nodeKind = nodeKindType.aiDisplayTitle
-        self.description = nodeKindType.aiNodeDescription
-    }
-}
+//extension StitchAINodeKindDescription {
+//    init<T>(_ nodeKindType: T) where T: CurrentStep.NodeKindDescribable {
+//        self.nodeKind = nodeKindType.aiDisplayTitle
+//        self.description = nodeKindType.aiNodeDescription
+//    }
+//}
+//
+///// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
+//extension StitchAINodeKindDescription {
+//    init<T>(_ nodeKindType: T) where T: NodeKindDescribable {
+//        self.nodeKind = nodeKindType.aiDisplayTitle
+//        self.description = nodeKindType.aiNodeDescription
+//    }
+//}
 
 struct StitchAINodeSectionDescription: Encodable {
     var header: String
@@ -58,13 +52,13 @@ struct StitchAINodeSectionDescription: Encodable {
 extension StitchAINodeSectionDescription {
     @MainActor
     init(_ section: NodeSection,
-         graph: GraphState) {
-        let nodesInSection: [StitchAINodeIODescription] = section
+         graph: GraphState) throws {
+        let nodesInSection: [StitchAINodeIODescription] = try section
             .getNodesForSection()
             .compactMap { patchOrLayer -> StitchAINodeIODescription? in
                 // Use node definitions, if available
                 if let graphNode = patchOrLayer.graphNode {
-                    return .init(graphNode)
+                    return try .init(graphNode)
                 }
                 
                 // Backup plan: create default node, extract data from there
@@ -75,11 +69,17 @@ extension StitchAINodeSectionDescription {
                     return nil
                 }
                 
-                let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
-                    StitchAIPortValueDescription(label: inputObserver.label(node: defaultNode,
-                                                                            coordinate: .input(inputObserver.id),
-                                                                            graph: graph),
-                                                 value: inputObserver.getActiveValue(activeIndex: .init(.zero)))
+                let inputs: [StitchAIPortValueDescription] = try defaultNode.inputsObservers.map { inputObserver in
+                    let runtimeValue = inputObserver.getActiveValue(activeIndex: .init(.zero))
+                    
+                    // Backwards compat check for runtime's PortValue
+                    let migratedValue = try runtimeValue.convert(to: CurrentStep.PortValue.self)
+                    
+                    return StitchAIPortValueDescription(
+                        label: inputObserver.label(node: defaultNode,
+                                                   coordinate: .input(inputObserver.id),
+                                                   graph: graph),
+                        value: migratedValue)
                 }
                 
                 // Calculate node to get outputs values
@@ -87,12 +87,17 @@ extension StitchAINodeSectionDescription {
                     defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues, graph: graph)
                 }
                 
-                let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
-                    StitchAIPortValueDescription(
+                let outputs: [StitchAIPortValueDescription] = try defaultNode.outputsObservers.map { outputObserver in
+                    let runtimeValue = outputObserver.getActiveValue(activeIndex: .init(.zero))
+                    
+                    // Backwards compat check for runtime's PortValue
+                    let migratedValue = try runtimeValue.convert(to: CurrentStep.PortValue.self)
+                    
+                    return StitchAIPortValueDescription(
                         label: outputObserver.label(node: defaultNode,
                                                     coordinate: .output(outputObserver.id),
                                                     graph: graph),
-                        value: outputObserver.getActiveValue(activeIndex: .init(.zero)))
+                        value: migratedValue)
                 }
                 
                 assertInDebug(inputs.first { $0.value == .none } == nil)
@@ -102,7 +107,7 @@ extension StitchAINodeSectionDescription {
                              inputs: inputs,
                              outputs: outputs)
             }
-
+        
         self.header = section.description
         self.nodes = nodesInSection
     }
@@ -116,25 +121,35 @@ struct StitchAINodeIODescription: Encodable {
 
 extension StitchAINodeIODescription {
     @MainActor
-    init(_ NodeInfo: any NodeDefinition.Type) {
+    init(_ NodeInfo: any NodeDefinition.Type) throws {
         self.nodeKind = NodeInfo.graphKind.kind.asLLMStepNodeName
         let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
         
-        self.inputs = rowDefinitions.inputs.map {
-            .init(label: $0.label,
-                  value: $0.defaultValues.first!)
-        }
-        
-        self.outputs = rowDefinitions.outputs.map {
-            .init(label: $0.label,
-                  value: $0.value)
+        do {
+            self.inputs = try rowDefinitions.inputs.map {
+                // Migrates PortValue data to supported AI version
+                let migratedInput = try $0.defaultValues.first!.convert(to: CurrentStep.PortValue.self)
+                
+                return .init(label: $0.label,
+                             value: migratedInput)
+            }
+            
+            self.outputs = try rowDefinitions.outputs.map {
+                let migratedOutput = try $0.value.convert(to: CurrentStep.PortValue.self)
+                
+                return .init(label: $0.label,
+                             value: migratedOutput)
+            }
+        } catch {
+            log("Error converted node types at StitchAINodeIODescription: \(error.localizedDescription)")
+            throw StitchAIManagerError.portValueDescriptionNotSupported
         }
     }
 }
 
 struct StitchAIPortValueDescription {
     var label: String
-    var value: PortValue
+    var value: CurrentStep.PortValue
 }
 
 extension StitchAIPortValueDescription: Encodable {
@@ -146,7 +161,7 @@ extension StitchAIPortValueDescription: Encodable {
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let nodeType = self.value.toNodeType
+        let nodeType = self.value.nodeType
         
         try container.encodeIfPresent(self.label != "" ? self.label : nil,
                                       forKey: .label)
