@@ -70,6 +70,7 @@
 		B5136F562DED5D2E007F12D0 /* StitchAISizeDimension_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F552DED5D27007F12D0 /* StitchAISizeDimension_V0.swift */; };
 		B5136F592DED5F37007F12D0 /* JavaScriptNodeSettingsAI_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F582DED5F2C007F12D0 /* JavaScriptNodeSettingsAI_V0.swift */; };
 		B5136F5B2DED5F8B007F12D0 /* JavaScriptPortDefinitionAI_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F5A2DED5F89007F12D0 /* JavaScriptPortDefinitionAI_V0.swift */; };
+		B5136F5D2DED6330007F12D0 /* StitchAINodeType_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F5C2DED632B007F12D0 /* StitchAINodeType_V0.swift */; };
 		B51523BA2B8C2F7A000042CF /* ProjectLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51523B92B8C2F79000042CF /* ProjectLoader.swift */; };
 		B51523BC2B8C2FB1000042CF /* DocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */; };
 		B5175C8C28877E2700BF71B6 /* Unsupported Version.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5175C8728877E2700BF71B6 /* Unsupported Version.stitch */; };
@@ -1130,6 +1131,7 @@
 		B5136F552DED5D27007F12D0 /* StitchAISizeDimension_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISizeDimension_V0.swift; sourceTree = "<group>"; };
 		B5136F582DED5F2C007F12D0 /* JavaScriptNodeSettingsAI_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JavaScriptNodeSettingsAI_V0.swift; sourceTree = "<group>"; };
 		B5136F5A2DED5F89007F12D0 /* JavaScriptPortDefinitionAI_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JavaScriptPortDefinitionAI_V0.swift; sourceTree = "<group>"; };
+		B5136F5C2DED632B007F12D0 /* StitchAINodeType_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAINodeType_V0.swift; sourceTree = "<group>"; };
 		B51523B92B8C2F79000042CF /* ProjectLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectLoader.swift; sourceTree = "<group>"; };
 		B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentLoader.swift; sourceTree = "<group>"; };
 		B5175C8728877E2700BF71B6 /* Unsupported Version.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Unsupported Version.stitch"; sourceTree = "<group>"; };
@@ -2302,6 +2304,7 @@
 		B5136F462DED26CB007F12D0 /* Value */ = {
 			isa = PBXGroup;
 			children = (
+				B5136F5C2DED632B007F12D0 /* StitchAINodeType_V0.swift */,
 				B5136F552DED5D27007F12D0 /* StitchAISizeDimension_V0.swift */,
 				B5136F532DED5C54007F12D0 /* StitchAIUUID_V0.swift */,
 				B5136F512DED5C0A007F12D0 /* StitchAIColor_V0.swift */,
@@ -5886,6 +5889,7 @@
 				8B2A221926A3B5BE002D08BA /* FeatureFlags.swift in Sources */,
 				EC53F3BC287E25EE0021095B /* ArcTan2Node.swift in Sources */,
 				ECEF8D0F2BFE9BE5004FABCD /* LayerGroupInteractableViewModifier.swift in Sources */,
+				B5136F5D2DED6330007F12D0 /* StitchAINodeType_V0.swift in Sources */,
 				E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */,
 				B5136F522DED5C0F007F12D0 /* StitchAIColor_V0.swift in Sources */,
 				B55500C22C1B9DF30081C3F1 /* FieldValueUtils.swift in Sources */,

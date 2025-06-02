@@ -14,14 +14,14 @@ struct StitchAISchemaMeta: Encodable {
 
 extension StitchAISchemaMeta {
     static func createSchema() -> Self {
-        let valueTypes = NodeType.allCases.filter { $0 != .none }
+        let valueTypes = StitchAINodeType.allCases.filter { $0 != .none }
         let schema = StitchAISchemaMeta(valueTypes: valueTypes.map { .init(type: $0) })
         return schema
     }
 }
 
 struct StitchAISchemaNodeType {
-    let type: NodeType
+    let type: StitchAINodeType
 }
 
 extension StitchAISchemaNodeType: Encodable {

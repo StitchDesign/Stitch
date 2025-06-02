@@ -134,7 +134,7 @@ extension StitchAINodeIODescription {
 
 struct StitchAIPortValueDescription {
     var label: String
-    var value: PortValue
+    var value: CurrentStitchAIPortValue.PortValue
 }
 
 extension StitchAIPortValueDescription: Encodable {
@@ -146,7 +146,7 @@ extension StitchAIPortValueDescription: Encodable {
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let nodeType = self.value.toNodeType
+        let nodeType = self.value.nodeType
         
         try container.encodeIfPresent(self.label != "" ? self.label : nil,
                                       forKey: .label)
