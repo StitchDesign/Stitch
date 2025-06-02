@@ -81,8 +81,18 @@ JSON.stringify(result)
 extension PortValuesList {
     init(javaScriptNodeResult: [[StitchAIPortValue]]) {
         self = javaScriptNodeResult.map { outputResults in
-            outputResults.compactMap { aiDecodedResult in
-                aiDecodedResult.value
+            outputResults.compactMap { aiDecodedResult -> PortValue? in
+                let value = aiDecodedResult.value
+                
+                // Uses SSK migration to make AI's schema type migrate to the runtime's possibly newer version
+                guard let migratedValue = PortValueVersion
+                    .migrate(entity: value,
+                             version: CurrentStep.documentVersion) else {
+                    fatalErrorIfDebug()
+                    return nil
+                }
+                
+                return migratedValue
             }
         }
     }

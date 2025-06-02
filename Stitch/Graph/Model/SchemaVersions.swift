@@ -126,6 +126,16 @@ public struct StitchDocumentVersion: StitchSchemaVersionType {
     }
 }
 
+public struct PortValueVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = PortValue
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
+
 public struct StitchSystemVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchSystem
     
@@ -213,6 +223,77 @@ extension StitchDocumentVersion {
             return StitchDocument_V31.StitchDocument.self
         case ._V32:
             return StitchDocument_V32.StitchDocument.self
+        }
+    }
+}
+
+extension PortValueVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1:
+            return PortValue_V1.PortValue.self
+        case ._V2:
+            return PortValue_V2.PortValue.self
+        case ._V3:
+            return PortValue_V3.PortValue.self
+        case ._V4:
+            return PortValue_V4.PortValue.self
+        case ._V5:
+            return PortValue_V5.PortValue.self
+        case ._V6:
+            return PortValue_V6.PortValue.self
+        case ._V7:
+            return PortValue_V7.PortValue.self
+        case ._V8:
+            return PortValue_V8.PortValue.self
+        case ._V9:
+            return PortValue_V9.PortValue.self
+        case ._V10:
+            return PortValue_V10.PortValue.self
+        case ._V11:
+            return PortValue_V11.PortValue.self
+        case ._V12:
+            return PortValue_V12.PortValue.self
+        case ._V13:
+            return PortValue_V13.PortValue.self
+        case ._V14:
+            return PortValue_V14.PortValue.self
+        case ._V15:
+            return PortValue_V15.PortValue.self
+        case ._V16:
+            return PortValue_V16.PortValue.self
+        case ._V17:
+            return PortValue_V17.PortValue.self
+        case ._V18:
+            return PortValue_V18.PortValue.self
+        case ._V19:
+            return PortValue_V19.PortValue.self
+        case ._V20:
+            return PortValue_V20.PortValue.self
+        case ._V21:
+            return PortValue_V21.PortValue.self
+        case ._V22:
+            return PortValue_V22.PortValue.self
+        case ._V23:
+            return PortValue_V23.PortValue.self
+        case ._V24:
+            return PortValue_V24.PortValue.self
+        case ._V25:
+            return PortValue_V25.PortValue.self
+        case ._V26:
+            return PortValue_V26.PortValue.self
+        case ._V27:
+            return PortValue_V27.PortValue.self
+        case ._V28:
+            return PortValue_V28.PortValue.self
+        case ._V29:
+            return PortValue_V29.PortValue.self
+        case ._V30:
+            return PortValue_V30.PortValue.self
+        case ._V31:
+            return PortValue_V31.PortValue.self
+        case ._V32:
+            return PortValue_V32.PortValue.self
         }
     }
 }

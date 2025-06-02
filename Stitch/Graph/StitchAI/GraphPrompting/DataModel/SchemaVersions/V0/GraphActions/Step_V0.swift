@@ -30,6 +30,7 @@ enum StitchAISchemaVersion: Int, VersionType {
 enum Step_V0: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V0
+    static let documentVersion = StitchSchemaVersion._V31
     typealias StepType = StepType_V0.StepType
     typealias NodeType = StitchAIPortValue_V0.NodeType
     typealias PortValue = StitchAIPortValue_V0.PortValue
