@@ -113,6 +113,7 @@ public typealias MaterialThickness = CurrentMaterialThickness.MaterialThickness
 public typealias JavaScriptNodeSettings = CurrentJavaScriptNodeSettings.JavaScriptNodeSettings
 public typealias JavaScriptPortDefinition = CurrentJavaScriptPortDefinition.JavaScriptPortDefinition
 public typealias PatchOrLayer = CurrentPatchOrLayer.PatchOrLayer
+public typealias NodeKindDescribable = CurrentNodeKindDescribable.NodeKindDescribable
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument

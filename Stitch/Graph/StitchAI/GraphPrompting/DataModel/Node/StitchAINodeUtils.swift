@@ -18,19 +18,7 @@ extension NodeKind {
     }
 }
 
-protocol NodeKindDescribable: CaseIterable {
-    func defaultDisplayTitle() -> String
-    
-    var aiNodeDescription: String { get }
-    
-    static var titleDisplay: String { get }
-}
-
 extension NodeKindDescribable {
-    var aiDisplayTitle: String {
-        self.defaultDisplayTitle().toCamelCase() + " || \(Self.titleDisplay)"
-    }
-    
     static var allAiDescriptions: [StitchAINodeKindDescription] {
         Self.allCases.map {
             .init($0)
