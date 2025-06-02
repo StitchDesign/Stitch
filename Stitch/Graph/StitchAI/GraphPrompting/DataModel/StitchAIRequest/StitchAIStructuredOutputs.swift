@@ -42,7 +42,7 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
                                 description: "Array of node UUIDs",
                                 items: OpenAIGeneric(types: [OpenAISchema(type: .string)]))
     
-    let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
+    let NodeName = OpenAISchemaEnum(values: CurrentStep.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
     
     let ValueType = OpenAISchemaEnum(values:
                                         StitchAINodeType.allCases
@@ -50,7 +50,7 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
         .map { $0.asLLMStepNodeType }
     )
     
-    let LayerPorts = OpenAISchemaEnum(values: LayerInputPort.allCases
+    let LayerPorts = OpenAISchemaEnum(values: CurrentStep.LayerInputPort.allCases
         .map { $0.asLLMStepPort }
     )
 }

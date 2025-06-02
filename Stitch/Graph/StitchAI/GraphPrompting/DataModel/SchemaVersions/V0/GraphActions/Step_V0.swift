@@ -36,10 +36,12 @@ enum Step_V0: StitchSchemaVersionable {
     typealias NodeKind = NodeKind_V31.NodeKind
     typealias Patch = Patch_V31.Patch
     typealias Layer = Layer_V31.Layer
-    typealias NodeIOPortType = NodeIOPortType_V31.NodeIOPortType
+    typealias NodeIOPortTypeVersion = NodeIOPortType_V31
+    typealias NodeIOPortType = NodeIOPortTypeVersion.NodeIOPortType
     typealias LayerInputPort = LayerInputPort_V31.LayerInputPort
     typealias StitchAIUUid = StitchAIUUID_V0.StitchAIUUID
     typealias PatchOrLayer = PatchOrLayer_V31.PatchOrLayer
+    typealias NodeKindDescribable = NodeKindDescribable_V31.NodeKindDescribable
     
     typealias PreviousInstance = Self.Step
     // MARK: - end
@@ -145,15 +147,20 @@ enum Step_V0: StitchSchemaVersionable {
             } else if let portInt = try? container.decodeIfPresent(Int.self, forKey: .port) {
                 self.port = NodeIOPortType.portIndex(portInt)
             }
+
+            self.children = try container.decodeIfPresent(NodeIdSet.self, forKey: .children)
             
             // MARK: node type required for everything below this line
             guard let nodeTypeString = try container.decodeIfPresent(String.self, forKey: .valueType) else {
                 return
             }
-            let nodeType = try NodeType(llmString: nodeTypeString)
-            self.valueType = nodeType
             
-            self.children = try container.decodeIfPresent(NodeIdSet.self, forKey: .children)
+            guard let nodeType = NodeType(llmString: nodeTypeString) else {
+                // throw StitchAIParsingError.nodeTypeParsing(llmString)
+                return
+            }
+            
+            self.valueType = nodeType
             
             // Parse value given node type
             do {

@@ -8,35 +8,41 @@
 import SwiftUI
 import StitchSchemaKit
 
-extension NodeKind {
-    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
+extension CurrentStep.NodeKind {
+    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription_V31.StitchAINodeKindDescription] {
         // Filter out the scroll interaction node
-        let allDescriptions = PatchAI.allAiDescriptions + LayerAI.allAiDescriptions
+        let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
         return allDescriptions.filter { description in
             !description.nodeKind.contains("scrollInteraction")
         }
     }
 }
 
-extension NodeKindDescribable {
-    static var allAiDescriptions: [StitchAINodeKindDescription] {
-        Self.allCases.map {
-            .init($0)
+/// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
+extension NodeKind {
+    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
+        // Filter out the scroll interaction node
+        let allDescriptions = Patch.allAiDescriptions + Layer.allAiDescriptions
+        return allDescriptions.filter { description in
+            !description.nodeKind.contains("scrollInteraction")
         }
     }
 }
 
-struct StitchAINodeKindDescription: Encodable {
-    var nodeKind: String
-    var description: String
-}
-
-extension StitchAINodeKindDescription {
-    init<T>(_ nodeKindType: T) where T: NodeKindDescribable {
-        self.nodeKind = nodeKindType.aiDisplayTitle
-        self.description = nodeKindType.aiNodeDescription
-    }
-}
+//extension StitchAINodeKindDescription {
+//    init<T>(_ nodeKindType: T) where T: CurrentStep.NodeKindDescribable {
+//        self.nodeKind = nodeKindType.aiDisplayTitle
+//        self.description = nodeKindType.aiNodeDescription
+//    }
+//}
+//
+///// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
+//extension StitchAINodeKindDescription {
+//    init<T>(_ nodeKindType: T) where T: NodeKindDescribable {
+//        self.nodeKind = nodeKindType.aiDisplayTitle
+//        self.description = nodeKindType.aiNodeDescription
+//    }
+//}
 
 struct StitchAINodeSectionDescription: Encodable {
     var header: String

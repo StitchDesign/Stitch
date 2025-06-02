@@ -174,7 +174,9 @@ extension PatchOrLayer {
             return layer.graphNode
         }
     }
-    
+}
+
+extension CurrentStep.PatchOrLayer {
     // Note: Swift `init?` is tricky for returning nil vs initializing self; we have to both initialize self *and* return, else we continue past if/else branches etc.;
     // let's prefer functions with clearer return values
     static func fromLLMNodeName(_ nodeName: String) throws -> Self {
@@ -182,7 +184,7 @@ extension PatchOrLayer {
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
                         
             // Tricky: can't use `Patch(rawValue:)` constructor since newer patches use a non-camelCase rawValue
-            if let patch = Patch.allCases.first(where: {
+            if let patch = PatchAI.allCases.first(where: {
                 // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot"
                 let patchDisplay = $0.defaultDisplayTitle().toCamelCase()
                 return patchDisplay == nodeKindName
@@ -203,7 +205,7 @@ extension PatchOrLayer {
                 return .patch(.arcTan2)
             }
             
-            else if let layer = Layer.allCases.first(where: {
+            else if let layer = LayerAI.allCases.first(where: {
                 $0.defaultDisplayTitle().toCamelCase() == nodeKindName
             }) {
                 return .layer(layer)
