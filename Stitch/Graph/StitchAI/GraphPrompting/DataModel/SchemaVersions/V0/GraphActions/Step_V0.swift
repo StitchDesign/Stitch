@@ -33,6 +33,12 @@ enum Step_V0: StitchSchemaVersionable {
     typealias StepType = StepType_V0.StepType
     typealias NodeType = StitchAIPortValue_V0.NodeType
     typealias PortValue = StitchAIPortValue_V0.PortValue
+    typealias NodeKind = NodeKind_V31.NodeKind
+    typealias Patch = Patch_V31.Patch
+    typealias Layer = Layer_V31.Layer
+    typealias NodeIOPortType = NodeIOPortType_V31.NodeIOPortType
+    typealias LayerInputPort = LayerInputPort_V31.LayerInputPort
+    typealias StitchAIUUid = StitchAIUUID_V0.StitchAIUUID
     
     typealias PreviousInstance = Self.Step
     // MARK: - end
@@ -71,6 +77,50 @@ enum Step_V0: StitchSchemaVersionable {
             self.value = value
             self.valueType = valueType
             self.children = children
+        }
+        
+        enum PatchOrLayer: Codable, Hashable {
+            case patch(Patch), layer(Layer)
+            
+//            var asNodeKind: NodeKind {
+//                switch self {
+//                case .patch(let patch):
+//                    return .patch(patch)
+//                case .layer(let layer):
+//                    return .layer(layer)
+//                }
+//            }
+//            
+//            static func from(nodeKind: NodeKind) -> Self? {
+//                switch nodeKind {
+//                case .patch(let x):
+//                    return .patch(x)
+//                case .layer(let x):
+//                    return .layer(x)
+//                case .group:
+//                    // fatalErrorIfDebug()
+//                    return nil
+//                }
+//            }
+//            
+            var description: String {
+                switch self {
+                case .patch(let patch):
+                    return patch.defaultDisplayTitle()
+                case .layer(let layer):
+                    return layer.defaultDisplayTitle()
+                }
+            }
+            
+            var asLLMStepNodeName: String {
+                switch self {
+                case .patch(let x):
+                    // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot || Patch"
+                    return x.aiDisplayTitle
+                case .layer(let x):
+                    return x.aiDisplayTitle
+                }
+            }
         }
         
         enum CodingKeys: String, CodingKey {

@@ -9,20 +9,6 @@ import Foundation
 import SwiftyJSON
 import SwiftUI
 
-extension NodeIOPortType {
-    func asLLMStepPort() -> Any {
-        switch self {
-        case .keyPath(let x):
-            // Note: StitchAI does not yet support unpacked ports
-            // Note 2: see our OpenAI schema for list of possible `LayerPorts`
-            return x.layerInput.asLLMStepPort
-        case .portIndex(let x):
-            // Return the integer directly instead of converting to string
-            return x
-        }
-    }
-}
-
 extension OutputCoordinate {
     func asLLMStepFromPort() -> Int {
         switch self.portType {
@@ -32,24 +18,6 @@ extension OutputCoordinate {
         case .portIndex(let x):
             // an integer
             return x
-        }
-    }
-}
-
-extension LayerInputPort {
-    var asLLMStepPort: String {
-        self.label(useShortLabel: true)
-    }
-}
-
-extension PatchOrLayer {
-    var asLLMStepNodeName: String {
-        switch self {
-        case .patch(let x):
-            // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot || Patch"
-            return x.aiDisplayTitle
-        case .layer(let x):
-            return x.aiDisplayTitle
         }
     }
 }
