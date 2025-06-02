@@ -47,10 +47,10 @@ struct StitchApp: App {
             StitchRootView(store: self.store)
                 .onAppear {
                     do {
-                        // For 4o
+//                        // For 4o
 //                        try StitchAITrainingData.validateTrainingData(from: "gpt_4o_grader_dataset")
-    
-                        // For o4-mini
+//    
+//                        // For o4-mini
 //                        try StitchAIReasoningTrainingData.validateTrainingData(from: "gpt_o4_mini_reasoner_train")
 //                        try StitchAIReasoningTrainingData.validateTrainingData(from: "gpt_o4_mini_reasoner_valid")
 
