@@ -7,7 +7,6 @@
 
 import SwiftUI
 import StitchSchemaKit
-import SwiftyJSON
 
 enum StitchAIPosition_V0: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
@@ -22,7 +21,7 @@ enum StitchAIPosition_V0: StitchSchemaVersionable {
 }
 
 extension StitchAIPosition_V0.StitchAIPosition: StitchVersionedCodable {
-    // TODO: creat migration for v1
+    // TODO: create migration for v1
     public init(previousInstance: StitchAIPosition_V0.StitchAIPosition) {
         fatalError()
     }

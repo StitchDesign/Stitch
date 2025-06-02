@@ -13,27 +13,6 @@ import SwiftyJSON
  Saves JSON-friendly versions of data structures saved in `PortValue`.
  */
 
-struct StitchAISize: Codable {
-    var width: StitchAISizeDimension
-    var height: StitchAISizeDimension
-}
-
-struct StitchAIColor: StitchAIStringConvertable {
-    var value: Color
-}
-
-extension StitchAIColor: Encodable {
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(value.encodableString)
-    }
-}
-
-struct StitchAIUUID: StitchAIStringConvertable {
-    var value: UUID
-}
-
-
 extension UUID: StitchAIValueStringConvertable {
     var encodableString: String {
         self.description
@@ -56,10 +35,6 @@ extension Color: StitchAIValueStringConvertable {
         
         self = color
     }
-}
-
-struct StitchAISizeDimension: StitchAIStringConvertable {
-    var value: LayerDimension
 }
 
 extension LayerDimension: StitchAIValueStringConvertable {

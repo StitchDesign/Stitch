@@ -46,14 +46,14 @@ enum StitchAIPortValue_V0: StitchSchemaVersionable {
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
-            try container.encode(value.toNodeType.asLLMStepNodeType, forKey: .type)
+            try container.encode(value.nodeType.asLLMStepNodeType, forKey: .type)
             try container.encode(value.anyCodable, forKey: .value)
         }
     }
 }
 
 extension StitchAIPortValue_V0.StitchAIPortValue: StitchVersionedCodable {
-    // TODO: creat migration for v1
+    // TODO: create migration for v1
     public init(previousInstance: StitchAIPortValue_V0.StitchAIPortValue) {
         fatalError()
     }
@@ -195,6 +195,135 @@ extension StitchAIPortValue_V0.PortValue {
             return StitchAIUUID(value: x)
         case .none, .int:
             fatalError()
+        }
+    }
+    
+    var nodeType: StitchAIPortValue_V0.NodeType {
+        switch self {
+        case .int:
+            fatalErrorIfDebug()
+            return .int
+        case .string:
+            return .string
+        case .bool:
+            return .bool
+        case .color:
+            return .color
+        case .number:
+            return .number
+        case .layerDimension:
+            return .layerDimension
+        case .size:
+            return .size
+        case .position:
+            return .position
+        case .point3D:
+            return .point3D
+        case .point4D:
+            return .point4D
+        case .transform:
+            return .transform
+        case .plane:
+            return .plane
+        case .pulse:
+            return .pulse
+        case .asyncMedia:
+            return .media
+        case .json:
+            return .json
+        case .networkRequestType:
+            return .networkRequestType
+        case .none:
+            return .none
+        case .anchoring:
+            return .anchoring
+        case .cameraDirection:
+            return .cameraDirection
+        case .assignedLayer:
+            return .interactionId
+        case .scrollMode:
+            return .scrollMode
+        case .textAlignment:
+            return .textAlignment
+        case .textVerticalAlignment:
+            return .textVerticalAlignment
+        case .fitStyle:
+            return .fitStyle
+        case .animationCurve:
+            return .animationCurve
+        case .lightType:
+            return .lightType
+        case .layerStroke:
+            return .layerStroke
+        case .textTransform:
+            return .textTransform
+        case .dateAndTimeFormat:
+            return .dateAndTimeFormat
+        case .shape:
+            return .shape
+        case .scrollJumpStyle:
+            return .scrollJumpStyle
+        case .scrollDecelerationRate:
+            return .scrollDecelerationRate
+        case .comparable(let type):
+            switch type {
+            case .none:
+                return .none
+            case .number:
+                return .number
+            case .string:
+                return .string
+            case .bool:
+                return .bool
+            }
+        case .delayStyle:
+            return .delayStyle
+        case .shapeCoordinates:
+            return .shapeCoordinates
+        case .shapeCommand:
+            return .shapeCommand
+        case .shapeCommandType:
+            return .shapeCommandType
+        case .orientation:
+            return .orientation
+        case .cameraOrientation:
+            return .cameraOrientation
+        case .deviceOrientation:
+            return .deviceOrientation
+        case .vnImageCropOption:
+            return .vnImageCropOption
+        case .textDecoration:
+            return .textDecoration
+        case .textFont:
+            return .textFont
+        case .blendMode:
+            return .blendMode
+        case .mapType:
+            return .mapType
+        case .progressIndicatorStyle:
+            return .progressIndicatorStyle
+        case .mobileHapticStyle:
+            return .mobileHapticStyle
+        case .strokeLineCap:
+            return .strokeLineCap
+        case .strokeLineJoin:
+            return .strokeLineJoin
+        case .contentMode:
+            return .contentMode
+        case .spacing:
+            return .spacing
+        case .padding:
+            return .padding
+        case .sizingScenario:
+            return .sizingScenario
+        case .pinTo:
+            return .pinToId
+        case .materialThickness:
+            return .materialThickness
+        case .deviceAppearance:
+            return .deviceAppearance
+        case .anchorEntity:
+            return .anchorEntity
         }
     }
 }
