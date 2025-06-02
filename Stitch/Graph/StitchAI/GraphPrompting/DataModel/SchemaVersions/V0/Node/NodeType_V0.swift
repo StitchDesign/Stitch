@@ -9,7 +9,7 @@ import StitchSchemaKit
 import Vision
 
 // MARK: update at cadence when Stitch AI utils update node type
-extension StitchAIPortValue_V0.NodeType {    
+extension StitchAIPortValue_V0.NodeType {
     /*
      Note: StitchAI treats certain PortValues in an LLM-friendly way, e.g.
      - Color as a hex
@@ -186,8 +186,9 @@ extension StitchAIPortValue_V0.NodeType {
                 throw StitchAIParsingError.typeCasting
             }
             
-            let size = LayerSize(width: aiSize.width.value,
-                                 height: aiSize.height.value)
+            let size = CurrentStitchAIPortValue
+                .LayerSize(width: aiSize.width.value,
+                           height: aiSize.height.value)
             
             return .size(size)
         case .position:
@@ -350,7 +351,7 @@ extension StitchAIPortValue_V0.NodeType {
             }
             return .vnImageCropOption(x)
         case .textDecoration:
-            guard let x = anyValue as? LayerTextDecoration else {
+            guard let x = anyValue as? CurrentStitchAIPortValue.TextDecoration else {
                 throw StitchAIParsingError.typeCasting
             }
             return .textDecoration(x)

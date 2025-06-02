@@ -156,8 +156,7 @@ enum Step_V0: StitchSchemaVersionable {
             }
             
             guard let nodeType = NodeType(llmString: nodeTypeString) else {
-                // throw StitchAIParsingError.nodeTypeParsing(llmString)
-                return
+                throw StitchAIParsingError.nodeTypeParsing(nodeTypeString)
             }
             
             self.valueType = nodeType
