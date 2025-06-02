@@ -275,7 +275,7 @@ extension KeyedDecodingContainerProtocol {
     }
 }
 
-extension PortValue {
+extension PortValue_V32.PortValue {
     init?(decoderContainer: KeyedDecodingContainer<Step.CodingKeys>,
           type: UserVisibleType) throws {
         let portValueType = type.portValueTypeForStitchAI

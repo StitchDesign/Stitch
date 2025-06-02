@@ -881,8 +881,8 @@
 		ECCEB26E2963B10F007E35D1 /* CustomShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26D2963B10F007E35D1 /* CustomShape.swift */; };
 		ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */; };
 		ECCF23512D4C6C5A00BC2F2F /* StepTypeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */; };
-		ECCF23532D4C6C7B00BC2F2F /* StepType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23522D4C6C7B00BC2F2F /* StepType.swift */; };
-		ECCF23552D4C6C9300BC2F2F /* Step.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23542D4C6C9300BC2F2F /* Step.swift */; };
+		ECCF23532D4C6C7B00BC2F2F /* StepType_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23522D4C6C7B00BC2F2F /* StepType_V0.swift */; };
+		ECCF23552D4C6C9300BC2F2F /* Step_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23542D4C6C9300BC2F2F /* Step_V0.swift */; };
 		ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */; };
 		ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */; };
 		ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3652C35E09400E94D60 /* LengthDimension.swift */; };
@@ -1109,6 +1109,7 @@
 		B50F41702C1F52C00082262F /* LayerInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorView.swift; sourceTree = "<group>"; };
 		B5136F3D2DECF95B007F12D0 /* EditJsNodeStructuredOutputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditJsNodeStructuredOutputs.swift; sourceTree = "<group>"; };
 		B5136F3F2DECF962007F12D0 /* StitchAIStructuredOutputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIStructuredOutputs.swift; sourceTree = "<group>"; };
+		B5136F412DED0857007F12D0 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B51523B92B8C2F79000042CF /* ProjectLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectLoader.swift; sourceTree = "<group>"; };
 		B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentLoader.swift; sourceTree = "<group>"; };
 		B5175C8728877E2700BF71B6 /* Unsupported Version.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Unsupported Version.stitch"; sourceTree = "<group>"; };
@@ -1906,8 +1907,8 @@
 		ECCEB26D2963B10F007E35D1 /* CustomShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomShape.swift; sourceTree = "<group>"; };
 		ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadFloatingWindowHandleView.swift; sourceTree = "<group>"; };
 		ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepTypeAction.swift; sourceTree = "<group>"; };
-		ECCF23522D4C6C7B00BC2F2F /* StepType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepType.swift; sourceTree = "<group>"; };
-		ECCF23542D4C6C9300BC2F2F /* Step.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step.swift; sourceTree = "<group>"; };
+		ECCF23522D4C6C7B00BC2F2F /* StepType_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepType_V0.swift; sourceTree = "<group>"; };
+		ECCF23542D4C6C9300BC2F2F /* Step_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step_V0.swift; sourceTree = "<group>"; };
 		ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPaddingModifier.swift; sourceTree = "<group>"; };
 		ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericalLayerDimension.swift; sourceTree = "<group>"; };
 		ECCFB3652C35E09400E94D60 /* LengthDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LengthDimension.swift; sourceTree = "<group>"; };
@@ -2139,6 +2140,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B5136F412DED0857007F12D0 /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */,
@@ -2256,6 +2258,23 @@
 				B5136F3D2DECF95B007F12D0 /* EditJsNodeStructuredOutputs.swift */,
 			);
 			path = EditJsNodeRequest;
+			sourceTree = "<group>";
+		};
+		B5136F422DED0A84007F12D0 /* SchemaVersions */ = {
+			isa = PBXGroup;
+			children = (
+				B5136F432DED0AAF007F12D0 /* V0 */,
+			);
+			path = SchemaVersions;
+			sourceTree = "<group>";
+		};
+		B5136F432DED0AAF007F12D0 /* V0 */ = {
+			isa = PBXGroup;
+			children = (
+				ECCF23542D4C6C9300BC2F2F /* Step_V0.swift */,
+				ECCF23522D4C6C7B00BC2F2F /* StepType_V0.swift */,
+			);
+			path = V0;
 			sourceTree = "<group>";
 		};
 		B521A0F32DE0295700662B13 /* Guides */ = {
@@ -4155,6 +4174,7 @@
 		E4D0D2D32CE6AD6A00E482E4 /* DataModel */ = {
 			isa = PBXGroup;
 			children = (
+				B5136F422DED0A84007F12D0 /* SchemaVersions */,
 				B5136F3C2DECF94B007F12D0 /* EditJsNodeRequest */,
 				B5136F3B2DECF943007F12D0 /* StitchAIRequest */,
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
@@ -4168,8 +4188,6 @@
 				B555FB3C2D56C50C00E1D349 /* StitchAICodableTypes.swift */,
 				B59602142D568396007C7AA9 /* StitchAITypeCasting.swift */,
 				E40B2F542CB86F2B005F5479 /* OpenAIResponseStructs.swift */,
-				ECCF23542D4C6C9300BC2F2F /* Step.swift */,
-				ECCF23522D4C6C7B00BC2F2F /* StepType.swift */,
 				ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */,
 				ECA347CC2DE2921B00B6A8B8 /* StepAction.swift */,
 				ECA347CE2DE292A100B6A8B8 /* StepApplication.swift */,
@@ -5894,7 +5912,7 @@
 				B58723BD2B28D5FE00EAB0E5 /* NodeEntity.swift in Sources */,
 				B55500FB2C1BC2FF0081C3F1 /* SidebarListItemSwipeButton.swift in Sources */,
 				B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */,
-				ECCF23532D4C6C7B00BC2F2F /* StepType.swift in Sources */,
+				ECCF23532D4C6C7B00BC2F2F /* StepType_V0.swift in Sources */,
 				EC53C0EE2D543A32002ECAEB /* LayerInspectorRowButton.swift in Sources */,
 				B56FFB3E2C18F52600623CC7 /* StitchFileResult.swift in Sources */,
 				B54D0BAF2957811A00F3B2F9 /* ProjectsListItemLoadedView.swift in Sources */,
@@ -5986,7 +6004,7 @@
 				B555FB412D59CD3E00E1D349 /* StitchAISchema.swift in Sources */,
 				B59602152D56839C007C7AA9 /* StitchAITypeCasting.swift in Sources */,
 				ECD887232941494800003B47 /* LayerNodeId.swift in Sources */,
-				ECCF23552D4C6C9300BC2F2F /* Step.swift in Sources */,
+				ECCF23552D4C6C9300BC2F2F /* Step_V0.swift in Sources */,
 				B55500C62C1B9F9D0081C3F1 /* FieldValueMedia.swift in Sources */,
 				B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */,
 				EC96B0462B8D097D00B58227 /* MoveToPackNode.swift in Sources */,
