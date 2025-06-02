@@ -11,7 +11,8 @@ import StitchSchemaKit
 enum StitchAIPortValue_V0: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V0
-    typealias PortValue = PortValue_V31.PortValue
+    typealias PortValueVersion = PortValue_V31
+    typealias PortValue = PortValueVersion.PortValue
     typealias NodeType = UserVisibleType_V31.UserVisibleType
     typealias PreviousInstance = Self.StitchAIPortValue
     // MARK: - end
@@ -59,6 +60,20 @@ extension StitchAIPortValue_V0.StitchAIPortValue: StitchVersionedCodable {
 }
 
 extension StitchAIPortValue_V0.PortValue {
+    init?(decoderContainer: KeyedDecodingContainer<Step_V0.Step.CodingKeys>,
+          type: StitchAIPortValue_V0.NodeType) throws {
+        let portValueType = type.portValueTypeForStitchAI
+        
+        guard let decodedValue = try decoderContainer
+            .decodeIfPresentSitchAI(portValueType, forKey: .value) else {
+            // No value
+            return nil
+        }
+        
+        let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
+        self = value
+    }
+    
     var anyCodable: any Codable {
         switch self {
         case .string(let x):

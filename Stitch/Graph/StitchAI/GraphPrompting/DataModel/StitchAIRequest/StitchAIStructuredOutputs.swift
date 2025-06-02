@@ -45,7 +45,7 @@ struct StitchAIStructuredOutputsDefinitions: Encodable {
     let NodeName = OpenAISchemaEnum(values: NodeKind.getAiNodeDescriptions().map(\.nodeKind))
     
     let ValueType = OpenAISchemaEnum(values:
-                                        NodeType.allCases
+                                        StitchAINodeType.allCases
         .filter { $0 != .none }
         .map { $0.asLLMStepNodeType }
     )

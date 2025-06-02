@@ -275,22 +275,6 @@ extension KeyedDecodingContainerProtocol {
     }
 }
 
-extension PortValue_V32.PortValue {
-    init?(decoderContainer: KeyedDecodingContainer<Step.CodingKeys>,
-          type: UserVisibleType) throws {
-        let portValueType = type.portValueTypeForStitchAI
-        
-        guard let decodedValue = try decoderContainer
-            .decodeIfPresentSitchAI(portValueType, forKey: .value) else {
-            // No value
-            return nil
-        }
-        
-        let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
-        self = value
-    }
-}
-
 extension NodeIOPortType {
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
     // Note: the older LLMAction port-string-parsing logic was more complicated?

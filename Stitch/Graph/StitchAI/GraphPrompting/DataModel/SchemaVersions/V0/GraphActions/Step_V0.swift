@@ -150,8 +150,9 @@ enum Step_V0: StitchSchemaVersionable {
             
             // Parse value given node type
             do {
-                self.value = try PortValue(decoderContainer: container,
-                                           type: nodeType)
+                self.value = try CurrentStitchAIPortValue
+                    .PortValue(decoderContainer: container,
+                               type: nodeType)
             } catch {
                 if stepType == .setInput {
                     log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
