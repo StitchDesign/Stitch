@@ -15,7 +15,7 @@ enum StitchAISizeDimension_V0: StitchSchemaVersionable {
     // MARK: - end
     
     struct StitchAISizeDimension: StitchAIStringConvertable {
-        var value: LayerDimension
+        var value: LayerDimension_V31.LayerDimension
     }
 }
 
@@ -23,5 +23,19 @@ extension StitchAISizeDimension_V0.StitchAISizeDimension: StitchVersionedCodable
     // TODO: create migration for v1
     public init(previousInstance: StitchAISizeDimension_V0.StitchAISizeDimension) {
         fatalError()
+    }
+}
+
+extension StitchAISizeDimension_V0.StitchAISizeDimension {
+    var encodableString: String {
+        self.value.description
+    }
+    
+    public init?(_ description: String) {
+        guard let result = Self.fromUserEdit(edit: description) else {
+            return nil
+        }
+        
+        self = result
     }
 }

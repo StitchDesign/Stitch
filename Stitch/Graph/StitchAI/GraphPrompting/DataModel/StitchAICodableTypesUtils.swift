@@ -37,20 +37,6 @@ extension Color: StitchAIValueStringConvertable {
     }
 }
 
-extension LayerDimension: StitchAIValueStringConvertable {
-    var encodableString: String {
-        self.description
-    }
-    
-    public init?(_ description: String) {
-        guard let result = Self.fromUserEdit(edit: description) else {
-            return nil
-        }
-        
-        self = result
-    }
-}
-
 protocol StitchAIValueStringConvertable: Codable, LosslessStringConvertible, Hashable {
     var encodableString: String { get }
 }

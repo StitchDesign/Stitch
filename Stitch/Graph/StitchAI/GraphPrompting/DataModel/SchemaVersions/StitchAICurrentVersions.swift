@@ -27,3 +27,5 @@ typealias StitchAISize = CurrentStitchAISize.StitchAISize
 typealias StitchAISizeDimension = CurrentStitchAISizeDimension.StitchAISizeDimension
 typealias JavaScriptNodeSettingsAI = CurrentJavaScriptNodeSettingsAI.JavaScriptNodeSettingsAI
 typealias JavaScriptPortDefinitionAI = CurrentJavaScriptPortDefinitionAI.JavaScriptPortDefinitionAI
+typealias PatchAI = CurrentStep.Patch
+typealias LayerAI = CurrentStep.Layer

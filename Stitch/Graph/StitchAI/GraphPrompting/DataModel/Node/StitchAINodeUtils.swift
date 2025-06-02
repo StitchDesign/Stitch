@@ -11,7 +11,7 @@ import StitchSchemaKit
 extension NodeKind {
     static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
         // Filter out the scroll interaction node
-        let allDescriptions = Patch.allAiDescriptions + Layer.allAiDescriptions
+        let allDescriptions = PatchAI.allAiDescriptions + LayerAI.allAiDescriptions
         return allDescriptions.filter { description in
             !description.nodeKind.contains("scrollInteraction")
         }
