@@ -17,8 +17,6 @@ typealias LLMStepActions = [LLMStepAction]
 // TODO: make parameters more specific? e.g. `nodeName` should be `PatchOrLayer?`
 // instead of `String?`
 
-typealias StepType = StepType_V0.StepType
-
 enum StepType_V0: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V0

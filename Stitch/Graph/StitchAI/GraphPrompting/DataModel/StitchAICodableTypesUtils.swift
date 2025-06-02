@@ -13,11 +13,6 @@ import SwiftyJSON
  Saves JSON-friendly versions of data structures saved in `PortValue`.
  */
 
-struct StitchAIPosition: Codable {
-    var x: Double
-    var y: Double
-}
-
 struct StitchAISize: Codable {
     var width: StitchAISizeDimension
     var height: StitchAISizeDimension
@@ -31,42 +26,6 @@ extension StitchAIColor: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value.encodableString)
-    }
-}
-
-struct StitchAIPortValue {
-    let value: PortValue
-    
-    init(_ value: PortValue) {
-        self.value = value
-    }
-}
-
-extension StitchAIPortValue: Codable {
-    enum CodingKeys: String, CodingKey {
-        case value
-        case type = "value_type"
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        // extract type
-        let nodeTypeString = try container.decode(String.self, forKey: .type)
-        let nodeType = try NodeType(llmString: nodeTypeString)
-        
-        // portvalue
-        let portValueType = nodeType.portValueTypeForStitchAI
-        let decodedValue = try container.decode(portValueType, forKey: .value)
-        let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
-        self.value = value
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(value.toNodeType.asLLMStepNodeType, forKey: .type)
-        try container.encode(value.anyCodable, forKey: .value)
     }
 }
 

@@ -27,13 +27,13 @@ enum StitchAISchemaVersion: Int, VersionType {
     case _V1 = 1
 }
 
-typealias Step = Step_V0.Step
-
 enum Step_V0: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V0
     typealias StepType = StepType_V0.StepType
-    typealias PortValue = PortValue_V32.PortValue
+    typealias NodeType = StitchAIPortValue_V0.NodeType
+    typealias PortValue = StitchAIPortValue_V0.PortValue
+    
     typealias PreviousInstance = Self.Step
     // MARK: - end
     
