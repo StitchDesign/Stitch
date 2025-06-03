@@ -35,7 +35,12 @@ struct CommonEditingView: View {
     var nodeKind: NodeKind
        
     var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
-        isFieldInMultifieldInput && isForLayerInspector && !isForFlyout
+        isFieldInMultifieldInput
+        && isForLayerInspector
+        && !isForFlyout
+        
+        // Shadow offset is sepcial case where single flyout row uses two fields instead of one
+        && layerInput != .shadowOffset
     }
         
     @MainActor
