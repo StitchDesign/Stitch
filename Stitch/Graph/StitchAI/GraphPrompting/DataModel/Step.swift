@@ -132,15 +132,19 @@ extension Step: Codable {
             self.port = NodeIOPortType.portIndex(portInt)
         }
         
+        // Important: Layer Groups do not have node type, so we must decode children
+        self.children = try container.decodeIfPresent(NodeIdSet.self, forKey: .children)
+        
+        
+        // TODO: put this logic below into a single function 
+
         // MARK: node type required for everything below this line
         guard let nodeTypeString = try container.decodeIfPresent(String.self, forKey: .valueType) else {
             return
         }
         let nodeType = try NodeType(llmString: nodeTypeString)
         self.valueType = nodeType
-        
-        self.children = try container.decodeIfPresent(NodeIdSet.self, forKey: .children)
-        
+                
         // Parse value given node type
         do {
             self.value = try PortValue(decoderContainer: container,
