@@ -116,8 +116,8 @@ struct PreviewTextFieldLayer: View {
                 }
             }
             .onChange(of: self.viewModel.textFieldInput) { oldValue, newValue in
-                 log("TextField: onChange: self.edit: oldValue: \(oldValue)")
-                 log("TextField: onChange: self.edit: newValue: \(newValue)")
+                // log("TextField: onChange: self.edit: oldValue: \(oldValue)")
+                // log("TextField: onChange: self.edit: newValue: \(newValue)")
                 // TODO: slight delay not necessary?
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.001) {
                     dispatch(TextFieldInputEdited(id: id, newEdit: newValue))
