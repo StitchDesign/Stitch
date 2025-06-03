@@ -46,6 +46,10 @@ extension JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI {
         let typeString = try container.decode(String.self, forKey: .strict_type)
         
         self.label = try container.decode(String.self, forKey: .label)
-        self.strict_type = try JavaScriptPortDefinitionAI_V0.NodeType(llmString: typeString)
+        guard let strictType = JavaScriptPortDefinitionAI_V0.NodeType(llmString: typeString) else {
+            throw StitchAIManagerError.nodeTypeNotSupported(typeString)
+        }
+        
+        self.strict_type = strictType
     }
 }

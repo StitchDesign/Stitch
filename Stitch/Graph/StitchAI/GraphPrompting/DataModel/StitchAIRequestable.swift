@@ -213,7 +213,7 @@ struct EditJSNodeRequest: StitchAIRequestable {
          document: StitchDocumentViewModel,
          nodeId: NodeId) throws {
         guard let secrets = document.aiManager?.secrets else {
-            throw StitchAIManagerError<EditJSNodeRequest>.secretsNotFound
+            throw StitchAIManagerError.secretsNotFound
         }
         
         self.init(prompt: prompt,

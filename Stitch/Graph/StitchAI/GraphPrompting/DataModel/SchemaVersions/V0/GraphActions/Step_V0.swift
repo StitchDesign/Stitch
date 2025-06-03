@@ -172,7 +172,7 @@ enum Step_V0: StitchSchemaVersionable {
                     log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
                 }
                 
-                if let stitchAIError = error as? StitchAIManagerError<StitchAIRequest> {
+                if let stitchAIError = error as? StitchAIManagerError {
                     throw stitchAIError
                 } else {
                     throw StitchAIParsingError.portValueDecodingError(error.localizedDescription)

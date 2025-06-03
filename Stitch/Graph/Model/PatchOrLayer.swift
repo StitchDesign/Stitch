@@ -73,15 +73,15 @@ extension PatchOrLayer {
 //enum PatchOrLayer: Equatable, Codable, Hashable {
 //    case patch(Patch), layer(Layer)
 //    
-//    var asNodeKind: NodeKind {
-//        switch self {
-//        case .patch(let patch):
-//            return .patch(patch)
-//        case .layer(let layer):
-//            return .layer(layer)
-//        }
-//    }
-//    
+    var asNodeKind: NodeKind {
+        switch self {
+        case .patch(let patch):
+            return .patch(patch)
+        case .layer(let layer):
+            return .layer(layer)
+        }
+    }
+
     static func from(nodeKind: NodeKind) -> Self? {
         switch nodeKind {
         case .patch(let x):
