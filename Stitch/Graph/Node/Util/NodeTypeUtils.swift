@@ -137,6 +137,8 @@ extension UserVisibleType {
             return "Device Appearance"
         case .anchorEntity:
             return "Anchor Entity"
+        case .keyboardType:
+            return "Keyboard Type"
         }
     }
 }
@@ -277,6 +279,8 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
         return .deviceAppearance
     case .anchorEntity:
         return .anchorEntity
+    case .keyboardType:
+        return .keyboardType
     }
 }
 
@@ -398,6 +402,8 @@ extension UserVisibleType {
             return .materialThickness(.defaultMaterialThickness)
         case .anchorEntity:
             return .anchorEntity(nil)
+        case .keyboardType:
+            return KeyboardType.defaultKeyboardTypePortValue
         }
     }
 }

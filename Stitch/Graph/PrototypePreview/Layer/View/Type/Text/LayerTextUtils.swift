@@ -9,6 +9,15 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension KeyboardType: PortValueEnum {
+    static let defaultKeyboardType = Self.defaultKeyboard
+    static let defaultKeyboardTypePortValue = PortValue.keyboardType(Self.defaultKeyboard)
+    
+    static var portValueTypeGetter: PortValueTypeGetter<Self> {
+        PortValue.keyboardType
+    }
+}
+
 extension LayerTextDecoration: PortValueEnum {
     static let defaultLayerTextDecoration = Self.none
     static let defaultLayerTextDecorationPortValue = PortValue.textDecoration(Self.defaultLayerTextDecoration)

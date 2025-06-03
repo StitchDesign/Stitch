@@ -170,6 +170,8 @@ extension PortValue {
             return .layerGroupOrientationDropdown
         case .anchorEntity:
             return .anchorEntity
+        case .keyboardType:
+            return .singleDropdown(.keyboardType)
         }
     }
 

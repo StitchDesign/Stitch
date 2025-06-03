@@ -250,6 +250,8 @@ extension PortValue {
             return x.rawValue
         case .anchorEntity(let x):
             return x?.description ?? "None"
+        case .keyboardType(let x):
+            return x.rawValue
         }
         /*
          See https://github.com/vpl-codesign/stitch/issues/3022

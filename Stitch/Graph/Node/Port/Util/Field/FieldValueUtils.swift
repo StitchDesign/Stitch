@@ -231,6 +231,11 @@ extension PortValue {
                 return [[.dropdown(value.rawValue,
                                    DeviceAppearance.choices)]]
                 
+            case .keyboardType:
+                let value = self.getKeyboardType ?? KeyboardType.defaultKeyboardType
+                return [[.dropdown(value.rawValue,
+                                   KeyboardType.choices)]]
+                
             } // case .singleDropdown
             
         case .textFontDropdown:

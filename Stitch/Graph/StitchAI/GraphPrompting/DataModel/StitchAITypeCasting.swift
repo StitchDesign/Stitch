@@ -131,6 +131,8 @@ extension PortValue {
             return StitchAIUUID(value: x)
         case .none:
             fatalError()
+        case .keyboardType(let x):
+            return x
         }
     }
 }
@@ -253,6 +255,8 @@ extension UserVisibleType {
             return PinToId.self
         case .none:
             fatalError()
+        case .keyboardType:
+            return KeyboardType.self
         }
     }
     
@@ -551,6 +555,11 @@ extension UserVisibleType {
             return .pinTo(x)
         case .none:
             fatalError()
+        case .keyboardType:
+            guard let x = anyValue as? KeyboardType else {
+                throw StitchAIParsingError.typeCasting
+            }
+            return .keyboardType(x)
         }
     }
 }

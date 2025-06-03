@@ -207,6 +207,8 @@ extension String {
             // TODO: JAN 29: handle properly
             fatalErrorIfDebug()
             return nil
+        case .keyboardType:
+            return KeyboardType(rawValue: x).map(PortValue.keyboardType)
         }
     }
 }

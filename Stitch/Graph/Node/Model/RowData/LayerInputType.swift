@@ -304,6 +304,12 @@ extension LayerInputPort {
             return pulseDefaultFalse
         case .textToSet:
             return stringDefault
+        case .isSecureEntry:
+            return boolDefaultFalse
+        case .isSpellCheckEnabled:
+            return boolDefaultFalse
+        case .selectedKeyboard:
+            return boolDefaultFalse
         }
     }
     
@@ -568,6 +574,12 @@ extension LayerInputPort {
             return \.setTextPort
         case .textToSet:
             return \.textToSetPort
+        case .isSecureEntry:
+            return \.isSecureEntryPort
+        case .isSpellCheckEnabled:
+            return \.isSpellCheckEnabledPort
+        case .selectedKeyboard:
+            return \.selectedKeyboardPort
         }
     }
     
@@ -836,6 +848,12 @@ extension LayerViewModel {
             return self.height3D
         case .isScrollAuto:
             return self.isScrollAuto
+        case .isSecureEntry:
+            return self.isSecureEntry
+        case .isSpellCheckEnabled:
+            return self.isSpellCheckEnabled
+        case .selectedKeyboard:
+            return self.selectedKeyboard
         }
     }
     
@@ -1102,6 +1120,12 @@ extension LayerViewModel {
             self.height3D = value
         case .isScrollAuto:
             self.isScrollAuto = value
+        case .isSecureEntry:
+            self.isSecureEntry = value
+        case .isSpellCheckEnabled:
+            self.isSpellCheckEnabled = value
+        case .selectedKeyboard:
+            self.selectedKeyboard = value
         }
     }
 }
@@ -1356,6 +1380,12 @@ extension LayerInputPort {
             return \.height3DPort
         case .isScrollAuto:
             return \.isScrollAutoPort
+        case .isSecureEntry:
+            return \.isSecureEntryPort
+        case .isSpellCheckEnabled:
+            return \.isSpellCheckEnabledPort
+        case .selectedKeyboard:
+            return \.selectedKeyboardPort
         }
     }
     
@@ -1784,6 +1814,12 @@ extension LayerInputPort {
             return "Height"
         case .isScrollAuto:
             return "Auto Scroll"
+        case .isSecureEntry:
+            return "Secure Entry"
+        case .isSpellCheckEnabled:
+            return "Spellcheck Enabled"
+        case .selectedKeyboard:
+            return "Keyboard Type"
         }
     }
 

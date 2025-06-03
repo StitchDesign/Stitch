@@ -112,6 +112,7 @@ public typealias DeviceAppearance = CurrentDeviceAppearance.DeviceAppearance
 public typealias MaterialThickness = CurrentMaterialThickness.MaterialThickness
 public typealias JavaScriptNodeSettings = CurrentJavaScriptNodeSettings.JavaScriptNodeSettings
 public typealias JavaScriptPortDefinition = CurrentJavaScriptPortDefinition.JavaScriptPortDefinition
+public typealias KeyboardType = CurrentKeyboardType.KeyboardType
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument
