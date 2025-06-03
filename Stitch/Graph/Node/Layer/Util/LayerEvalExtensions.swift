@@ -15,7 +15,7 @@ extension Layer {
         case .canvasSketch:
             return .node(canvasSketchEval)
         case .textField:
-            return .node(textFieldLayerEval)
+            return .graph(textFieldLayerEval)
         case .switchLayer:
             return .graphStep(switchLayerEval)
         case .group:

@@ -296,6 +296,14 @@ extension LayerInputPort {
             return .number(100)
         case .isScrollAuto:
             return .bool(true)
+        case .beginEditing:
+            return pulseDefaultFalse
+        case .endEditing:
+            return pulseDefaultFalse
+        case .setText:
+            return pulseDefaultFalse
+        case .textToSet:
+            return stringDefault
         }
     }
     
@@ -552,6 +560,14 @@ extension LayerInputPort {
             return \.height3DPort
         case .isScrollAuto:
             return \.isScrollAutoPort
+        case .beginEditing:
+            return \.beginEditingPort
+        case .endEditing:
+            return \.endEditingPort
+        case .setText:
+            return \.setTextPort
+        case .textToSet:
+            return \.textToSetPort
         }
     }
     
@@ -565,7 +581,7 @@ extension LayerInputPort {
     }
 }
 
-extension LayerViewModel {    
+extension LayerViewModel {
     /// Key paths for children preview layers.
     @MainActor
     func getValue(for inputType: LayerInputPort) -> PortValue {
@@ -674,6 +690,14 @@ extension LayerViewModel {
             return self.textDecoration
         case .textFont:
             return self.textFont
+        case .beginEditing:
+            return self.beginEditing
+        case .endEditing:
+            return self.endEditing
+        case .setText:
+            return self.setText
+        case .textToSet:
+            return self.textToSet
         case .image:
             return self.image
         case .video:
@@ -819,7 +843,7 @@ extension LayerViewModel {
     @MainActor
     func updatePreviewLayerInput(_ value: PortValue,
                                  inputType: LayerInputPort) {
-        switch inputType {            
+        switch inputType {
             // Required for all layers
         case .position:
             self.position = value
@@ -920,6 +944,14 @@ extension LayerViewModel {
             self.textDecoration = value
         case .textFont:
             self.textFont = value
+        case .beginEditing:
+            self.beginEditing = value
+        case .endEditing:
+            self.endEditing = value
+        case .setText:
+            self.setText = value
+        case .textToSet:
+            self.textToSet = value
         case .image:
             self.image = value
         case .video:
@@ -1174,6 +1206,14 @@ extension LayerInputPort {
             return \.textDecorationPort
         case .textFont:
             return \.textFontPort
+        case .beginEditing:
+            return \.beginEditingPort
+        case .endEditing:
+            return \.endEditingPort
+        case .setText:
+            return \.setTextPort
+        case .textToSet:
+            return \.textToSetPort
         case .image:
             return \.imagePort
         case .video:
@@ -1602,6 +1642,14 @@ extension LayerInputPort {
             return useShortLabel ? "Decoration" : "Text Decoration"
         case .textFont:
             return useShortLabel ? "Font" : "Text Font"
+        case .beginEditing:
+            return "Begin Editing"
+        case .endEditing:
+            return "End Editing"
+        case .setText:
+            return "Set Text"
+        case .textToSet:
+            return "Text To Set"
         case .image:
             return "Image"
         case .video:

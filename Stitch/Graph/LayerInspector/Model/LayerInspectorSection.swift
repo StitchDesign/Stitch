@@ -183,7 +183,11 @@ extension LayerInspectorSection {
                 .fontSize,
                 .textAlignment,
                 .verticalAlignment,
-                .textDecoration
+                .textDecoration,
+                .beginEditing,
+                .endEditing,
+                .setText,
+                .textToSet
             ]
         
         case .stroke:
