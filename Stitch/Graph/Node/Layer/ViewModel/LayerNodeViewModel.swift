@@ -102,6 +102,10 @@ final class LayerNodeViewModel {
     var verticalAlignmentPort: LayerInputObserver
     var textDecorationPort: LayerInputObserver
     var textFontPort: LayerInputObserver
+    var beginEditingPort: LayerInputObserver
+    var endEditingPort: LayerInputObserver
+    var setTextPort: LayerInputObserver
+    var textToSetPort: LayerInputObserver
     var imagePort: LayerInputObserver
     var videoPort: LayerInputObserver
     var fitStylePort: LayerInputObserver
@@ -272,6 +276,10 @@ final class LayerNodeViewModel {
         self.verticalAlignmentPort = .init(from: schema, port: .verticalAlignment)
         self.textDecorationPort = .init(from: schema, port: .textDecoration)
         self.textFontPort = .init(from: schema, port: .textFont)
+        self.beginEditingPort = .init(from: schema, port: .beginEditing)
+        self.endEditingPort = .init(from: schema, port: .endEditing)
+        self.setTextPort = .init(from: schema, port: .setText)
+        self.textToSetPort = .init(from: schema, port: .textToSet)
         self.imagePort = .init(from: schema, port: .image)
         self.videoPort = .init(from: schema, port: .video)
         self.fitStylePort = .init(from: schema, port: .fitStyle)
