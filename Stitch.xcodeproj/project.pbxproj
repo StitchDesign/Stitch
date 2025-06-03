@@ -655,6 +655,7 @@
 		EC7A4FC0267A89D500487CDA /* VideoDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */; };
 		EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */; };
 		EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */ = {isa = PBXBuildFile; fileRef = EC7ADBFD2683EC9C00A8B318 /* fur_elise.m4a */; };
+		EC7EF1832DEF654E0048AC38 /* FocusHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7EF1822DEF654E0048AC38 /* FocusHelpers.swift */; };
 		EC80448E2944303B00DCFCF4 /* ShapeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC80448D2944303A00DCFCF4 /* ShapeUtils.swift */; };
 		EC804494294431C800DCFCF4 /* LayerEvalHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC804493294431C800DCFCF4 /* LayerEvalHelpers.swift */; };
 		EC8044982944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8044972944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift */; };
@@ -1682,6 +1683,7 @@
 		EC7A4FBF267A89D500487CDA /* VideoDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoDisplayView.swift; sourceTree = "<group>"; };
 		EC7ADBFC2683EC9C00A8B318 /* fur_elise.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = fur_elise.mp3; sourceTree = "<group>"; };
 		EC7ADBFD2683EC9C00A8B318 /* fur_elise.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = fur_elise.m4a; sourceTree = "<group>"; };
+		EC7EF1822DEF654E0048AC38 /* FocusHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusHelpers.swift; sourceTree = "<group>"; };
 		EC80448D2944303A00DCFCF4 /* ShapeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeUtils.swift; sourceTree = "<group>"; };
 		EC804493294431C800DCFCF4 /* LayerEvalHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerEvalHelpers.swift; sourceTree = "<group>"; };
 		EC8044972944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerLoopNodeCoordinate.swift; sourceTree = "<group>"; };
@@ -2835,6 +2837,7 @@
 				B55500B32C1B986C0081C3F1 /* FieldGroupType.swift */,
 				B55500B52C1B98B00081C3F1 /* SingleDropdownKind.swift */,
 				ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */,
+				EC7EF1822DEF654E0048AC38 /* FocusHelpers.swift */,
 				B55500BA2C1B99810081C3F1 /* FieldViewModelType.swift */,
 				ECE35EE527CEE80B00CB8F5C /* FieldValue.swift */,
 				B55500C52C1B9F9D0081C3F1 /* FieldValueMedia.swift */,
@@ -5159,6 +5162,7 @@
 				EC1224A32B98F1E20011D687 /* StitchBlendMode.swift in Sources */,
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
 				B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */,
+				EC7EF1832DEF654E0048AC38 /* FocusHelpers.swift in Sources */,
 				E48A07922D38C528002E8A98 /* StitchAIManager.swift in Sources */,
 				B5F3D0AF2DE2E4FF00103676 /* JavaScriptNode.swift in Sources */,
 				E48A07922D38C528002E8A98 /* StitchAIManager.swift in Sources */,

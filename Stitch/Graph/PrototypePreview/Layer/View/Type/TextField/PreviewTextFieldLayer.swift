@@ -82,7 +82,6 @@ struct PreviewTextFieldLayer: View {
     
     @MainActor
     var textFieldView: some View {
-        
         TextField(placeholder,
                   text: $viewModel.textFieldInput)
             .focusedValue(\.focusedField, .prototypeTextField(self.id))
@@ -116,9 +115,9 @@ struct PreviewTextFieldLayer: View {
                     dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
                 }
             }
-            .onChange(of: self.viewModel.textFieldInput) { _, newValue in
-                // log("TextField: onChange: self.edit: oldValue: \(oldValue)")
-                // log("TextField: onChange: self.edit: newValue: \(newValue)")
+            .onChange(of: self.viewModel.textFieldInput) { oldValue, newValue in
+                 log("TextField: onChange: self.edit: oldValue: \(oldValue)")
+                 log("TextField: onChange: self.edit: newValue: \(newValue)")
                 // TODO: slight delay not necessary?
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.001) {
                     dispatch(TextFieldInputEdited(id: id, newEdit: newValue))
@@ -144,7 +143,6 @@ struct PreviewTextFieldLayer: View {
     }
     
     var body: some View {
-
         previewTextField.modifier(PreviewCommonModifier(
             document: document,
             graph: graph,
