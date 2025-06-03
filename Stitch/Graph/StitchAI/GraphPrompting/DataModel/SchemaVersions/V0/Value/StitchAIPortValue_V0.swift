@@ -16,6 +16,7 @@ enum StitchAIPortValue_V0: StitchSchemaVersionable {
     typealias NodeType = UserVisibleType_V31.UserVisibleType
     typealias LayerSize = LayerSize_V31.LayerSize
     typealias TextDecoration = LayerTextDecoration_V31.LayerTextDecoration
+    typealias CustomShape = CustomShape_V31.CustomShape
     typealias PreviousInstance = Self.StitchAIPortValue
     // MARK: - end
     

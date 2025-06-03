@@ -5,71 +5,76 @@
 //  Created by Elliot Boschwitz on 6/1/25.
 //
 
+import SwiftUI
+import StitchSchemaKit
+
 extension StitchAIPortValue_V0.NodeType {
-    var defaultPortValue: PortValue {
+    var defaultPortValue: StitchAIPortValue_V0.PortValue {
         //    log("nodeTypeToPortValue: nodeType: \(nodeType)")
         switch self {
         case .string:
-            return stringDefault
+            return .string(.init(""))
         case .number, .int:
-            return numberDefaultFalse
+            return .number(.zero)
         case .layerDimension:
-            return layerDimensionDefaultFalse
+            return .number(.zero)
         case .bool:
-            return boolDefaultFalse
+            return .bool(false)
         case .color:
-            return colorDefaultFalse
+            return .color(falseColor)
         // NOT CORRECT FOR size, position, point3D etc.
         // because eg position becomes
         case .size:
-            return defaultSizeFalse
+            return .size(.init(width: 0, height: 0))
         case .position:
-            return defaultPositionFalse
+            return .position(.init(x: 0, y: 0))
         case .point3D:
-            return point3DDefaultFalse
+            return .point3D(.init(x: 0, y: 0, z: 0))
         case .point4D:
-            return point4DDefaultFalse
-            //TODO: Change
+            return .point4D(.init(x: 0, y: 0, z: 0, w: 0))
         case .transform:
-            return defaultTransformAnchor
+            return .transform(.init())
         case .pulse:
-            return pulseDefaultFalse
+            return .pulse(.zero)
         case .media:
-            return mediaDefault
+            return .asyncMedia(nil)
         case .json:
-            return jsonDefault
+            return .json(.init(.init(parseJSON: jsonDefaultRaw)))
         case .none:
             return .none
         case .anchoring:
-            return .anchoring(.defaultAnchoring)
+            return .anchoring(.init(x: 0, y: 0))
         case .cameraDirection:
-            return cameraDirectionDefault
+            return .cameraDirection(.front)
         case .interactionId:
-            return interactionIdDefault
+            return .assignedLayer(nil)
         case .scrollMode:
-            return scrollModeDefault
+            return .scrollMode(.free)
         case .textAlignment:
-            return defaultTextAlignment
+            return .textAlignment(.left)
         case .textVerticalAlignment:
-            return defaultTextVerticalAlignment
+            return .textVerticalAlignment(.top)
         case .fitStyle:
-            return .fitStyle(.defaultMediaFitStyle)
+            return .fitStyle(.fill)
         case .animationCurve:
-            return .animationCurve(defaultAnimationCurve)
+            return .animationCurve(.linear)
         case .lightType:
-            return .lightType(defaultLightType)
+            return .lightType(.ambient)
         case .layerStroke:
-            return .layerStroke(.defaultStroke)
+            return .layerStroke(.none)
         case .textTransform:
-            return .textTransform(.defaultTransform)
+            return .textTransform(.uppercase)
         case .dateAndTimeFormat:
-            return .dateAndTimeFormat(.defaultFormat)
+            return .dateAndTimeFormat(.medium)
         case .shape:
-            return .shape(.triangleShapePatchNodeDefault)
+            return .shape(.init(.triangle(
+                .init(p1: TriangleData.defaultTriangleP1,
+                      p2: TriangleData.defaultTriangleP2,
+                      p3: TriangleData.defaultTriangleP3))))
         case .scrollJumpStyle:
-            return .scrollJumpStyle(.scrollJumpStyleDefault)
+            return .scrollJumpStyle(.instant)
         case .scrollDecelerationRate:
-            return .scrollDecelerationRate(.scrollDecelerationRateDefault)
+            return .scrollDecelerationRate(.normal)
         case .plane:
             return .plane(.any)
         case .networkRequestType:
@@ -79,47 +84,55 @@ extension StitchAIPortValue_V0.NodeType {
         case .shapeCoordinates:
             return .shapeCoordinates(.relative)
         case .shapeCommand:
-            return .shapeCommand(.defaultFalseShapeCommand)
+            return .shapeCommand(.moveTo(point: .init(x: 0, y: 0)))
         case .shapeCommandType:
-            return .shapeCommandType(.defaultFalseShapeCommandType)
+            return .shapeCommandType(.moveTo)
         case .orientation:
-            return .orientation(.defaultOrientation)
+            return .orientation(.none)
         case .cameraOrientation:
-            return .cameraOrientation(.landscapeRight)
+#if targetEnvironment(macCatalyst)
+            return .cameraOrientation(.portrait)  // Will be converted to landscapeLeft by convertOrientation
+#else
+            return .cameraOrientation(.landscapeRight)  // Default for iPad
+#endif
         case .deviceOrientation:
-            return .deviceOrientation(.defaultDeviceOrientation)
+            return .deviceOrientation(.portrait)
         case .vnImageCropOption:
-            return .vnImageCropOption(.centerCrop).defaultFalseValue
+            return .vnImageCropOption(.centerCrop)
         case .textDecoration:
-            return .textDecoration(.defaultLayerTextDecoration)
+            return .textDecoration(.none)
         case .textFont:
-            return .textFont(.defaultStitchFont)
+            return .textFont(.init(fontChoice: .sf,
+                                   fontWeight: .SF_regular))
         case .blendMode:
-            return .blendMode(.defaultBlendMode)
+            return .blendMode(.normal)
         case .mapType:
-            return .mapType(.defaultMapType)
+            return .mapType(.standard)
         case .mobileHapticStyle:
-            return .mobileHapticStyle(.defaultMobileHapticStyle)
+            return .mobileHapticStyle(.heavy)
         case .progressIndicatorStyle:
             return .progressIndicatorStyle(.circular)
         case .strokeLineCap:
-            return .strokeLineCap(.defaultStrokeLineCap)
+            return .strokeLineCap(.round)
         case .strokeLineJoin:
-            return .strokeLineJoin(.defaultStrokeLineJoin)
+            return .strokeLineJoin(.round)
         case .contentMode:
-            return .contentMode(.defaultContentMode)
+            return .contentMode(.fit)
         case .spacing:
-            return .spacing(.defaultStitchSpacing)
+            return .spacing(.number(.zero))
         case .padding:
-            return .padding(.defaultPadding)
+            return .padding(.init(top: .zero,
+                                  right: .zero,
+                                  bottom: .zero,
+                                  left: .zero))
         case .sizingScenario:
-            return .sizingScenario(.defaultSizingScenario)
+            return .sizingScenario(.auto)
         case .pinToId:
-            return .pinTo(.defaultPinToId)
+            return .pinTo(PinToId_V31.PinToId.root)
         case .deviceAppearance:
-            return .deviceAppearance(.defaultDeviceAppearance)
+            return .deviceAppearance(.system)
         case .materialThickness:
-            return .materialThickness(.defaultMaterialThickness)
+            return .materialThickness(.regular)
         case .anchorEntity:
             return .anchorEntity(nil)
         }
