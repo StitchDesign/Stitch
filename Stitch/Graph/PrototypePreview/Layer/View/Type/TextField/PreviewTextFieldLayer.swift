@@ -80,10 +80,44 @@ struct PreviewTextFieldLayer: View {
         }
     }
     
+    var isSpellCheckEnabled: Bool {
+        if let enabled = viewModel.isSpellCheckEnabled.getBool {
+            return enabled
+        }
+        return false
+    }
+    
+    var keyboardType: KeyboardType {
+        if let keyboardType = viewModel.selectedKeyboard.getKeyboardType {
+            return keyboardType
+        }
+        return KeyboardType.defaultKeyboard
+    }
+    
+    var isSecureEntry: Bool {
+        if let isSecureEntry = viewModel.isSecureEntry.getBool {
+            return isSecureEntry
+        }
+        return false
+    }
+    
+    var regularVsSecureEntryField: some View {
+        Group {
+            if self.isSecureEntry {
+                SecureField(placeholder,
+                            text: $viewModel.textFieldInput)
+            } else {
+                TextField(placeholder,
+                          text: $viewModel.textFieldInput)
+            }
+        }
+    }
+    
     @MainActor
     var textFieldView: some View {
-        TextField(placeholder,
-                  text: $viewModel.textFieldInput)
+//        TextField(placeholder,
+//                  text: $viewModel.textFieldInput)
+        regularVsSecureEntryField
             .focusedValue(\.focusedField, .prototypeTextField(self.id))
             .onChange(of: self.document.reduxFocusedField) { _, focusedField in
                 // Disables focus state here with other graph taps
@@ -94,7 +128,11 @@ struct PreviewTextFieldLayer: View {
                     self.isFocused = false
                 }
             }
-            .autocorrectionDisabled()
+        
+            .keyboardType(self.keyboardType.asUIKeyboardType)
+        
+        // Only auto-correct if spellcheck is enabled
+            .autocorrectionDisabled(!self.isSpellCheckEnabled)
             .autocapitalization(.none)
             .multilineTextAlignment(textAlignment.asMultilineAlignment ?? .leading)
             .focused($isFocused)

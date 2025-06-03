@@ -187,7 +187,10 @@ extension LayerInspectorSection {
                 .beginEditing,
                 .endEditing,
                 .setText,
-                .textToSet
+                .textToSet,
+                .isSecureEntry,
+                .isSpellCheckEnabled,
+                .selectedKeyboard
             ]
         
         case .stroke:

@@ -16,6 +16,36 @@ extension KeyboardType: PortValueEnum {
     static var portValueTypeGetter: PortValueTypeGetter<Self> {
         PortValue.keyboardType
     }
+    
+    /// Convert our enum into the real `UIKeyboardType`
+       var asUIKeyboardType: UIKeyboardType {
+           switch self {
+           case .defaultKeyboard:
+               return .default
+           case .asciiCapable:
+               return .asciiCapable
+           case .numbersAndPunctuation:
+               return .numbersAndPunctuation
+           case .url:
+               return .URL
+           case .numberPad:
+               return .numberPad
+           case .phonePad:
+               return .phonePad
+           case .namePhonePad:
+               return .namePhonePad
+           case .emailAddress:
+               return .emailAddress
+           case .decimalPad:
+               return .decimalPad
+           case .twitter:
+               return .twitter
+           case .webSearch:
+               return .webSearch
+           case .asciiCapableNumberPad:
+               return .asciiCapableNumberPad
+           }
+       }
 }
 
 extension LayerTextDecoration: PortValueEnum {
