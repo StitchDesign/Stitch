@@ -152,10 +152,6 @@ struct InspectorLayerInputView: View {
         layerInputObserver.usesMultifields
     }
     
-//    var hasEligibleEdgeDrag: Bool {
-//        graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver.port
-//    }
-    
     // Use theme color if entire inspector input/output-row is selected,
     // or if this specific field is 'eligible' via drag-output.
     func usesThemeColor(_ field: InputFieldViewModel) -> Bool {
@@ -534,8 +530,11 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     }
     
     var usesThemeColor: Bool {
-        let isEligibleLayerInput = graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver?.port
+        let isEligibleLayerInput = layerInputObserver.isDefined // must check that it's an input, otherwise layer *outputs* always 'use theme color'
+        && graph.edgeDrawingObserver.nearestEligibleEdgeDestination?.getInspectorInputOrField?.layerInput == layerInputObserver?.port
+        
         let isSelectedInspectorRow = graph.propertySidebar.selectedProperty == layerInspectorRowId
+        
         return isEligibleLayerInput || isSelectedInspectorRow
     }
     
