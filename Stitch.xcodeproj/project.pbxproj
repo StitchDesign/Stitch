@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -839,6 +839,7 @@
 		ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBC95FA27613D9200508966 /* evalTests+2.swift */; };
 		ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */; };
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
+		ECBDF9492DEF8D3800E1A4D3 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = ECBDF9482DEF8D3800E1A4D3 /* StitchSchemaKit */; };
 		ECBFDB0B2DB98B4500C1D6D5 /* GraphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBFDB0A2DB98B4500C1D6D5 /* GraphTests.swift */; };
 		ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC175892A43D9440017815D /* LayerDescription.swift */; };
 		ECC2BCCB2B9B72A700D5F942 /* SidebarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCA2B9B72A700D5F942 /* SidebarListView.swift */; };
@@ -2067,6 +2068,7 @@
 				E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */,
 				EC8826CD2DCD04AD003529BA /* JsonStream in Frameworks */,
 				B50BC9E42D77881900311551 /* StitchEngine in Frameworks */,
+				ECBDF9492DEF8D3800E1A4D3 /* StitchSchemaKit in Frameworks */,
 				E42B46DC2DC55B4F009C6890 /* FirebaseAnalytics in Frameworks */,
 				EC91034A29109DF3007C548E /* SoulverCore in Frameworks */,
 				B5E030692D9C5BEF00FDC5A5 /* StitchEngine in Frameworks */,
@@ -4957,6 +4959,7 @@
 				EC8826CC2DCD04AD003529BA /* JsonStream */,
 				B5A99E392DD5645500D3246A /* StitchSchemaKit */,
 				EC843BFF2DEF66D200A38BB9 /* StitchSchemaKit */,
+				ECBDF9482DEF8D3800E1A4D3 /* StitchSchemaKit */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -5045,7 +5048,7 @@
 				ECE5857A2DB6D39C00749ED3 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 				E42B46DA2DC55B4F009C6890 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */,
-				EC843BFE2DEF66D200A38BB9 /* XCLocalSwiftPackageReference "../../StitchSchemaKit" */,
+				ECBDF9472DEF8D3800E1A4D3 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6922,13 +6925,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		EC843BFE2DEF66D200A38BB9 /* XCLocalSwiftPackageReference "../../StitchSchemaKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../StitchSchemaKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -7040,6 +7036,14 @@
 			requirement = {
 				kind = exactVersion;
 				version = 2.6.3;
+			};
+		};
+		ECBDF9472DEF8D3800E1A4D3 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
+			requirement = {
+				kind = revision;
+				revision = 49f0801dfdc0578440a61ffbf4862f84845b470a;
 			};
 		};
 		ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */ = {
@@ -7207,6 +7211,11 @@
 		ECB46CD52DB14D80006EFB93 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
+		};
+		ECBDF9482DEF8D3800E1A4D3 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBDF9472DEF8D3800E1A4D3 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
+			productName = StitchSchemaKit;
 		};
 		ECD5438D29A003F8009D0A30 /* DisplayLink */ = {
 			isa = XCSwiftPackageProductDependency;

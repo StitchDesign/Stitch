@@ -1,5 +1,5 @@
 {
-  "originHash" : "23a36abc3d0dafc4b9843156ba480cecf7bd7177e372ed25c7a128f6fc9f44d0",
+  "originHash" : "04928e13471d76ee462a3a61ccd8c6421b0cfe4d30e6ccfbf0dc65b2902a7095",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -177,6 +177,14 @@
       "location" : "https://github.com/StitchDesign/StitchEngine.git",
       "state" : {
         "revision" : "c3ae3a393f78044480fa8a7f3e67b44fcb1aeaca"
+      }
+    },
+    {
+      "identity" : "stitchschemakit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
+      "state" : {
+        "revision" : "49f0801dfdc0578440a61ffbf4862f84845b470a"
       }
     },
     {
