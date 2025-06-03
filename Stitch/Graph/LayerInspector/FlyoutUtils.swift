@@ -12,7 +12,6 @@ import SwiftUI
 
 extension LayerInputPort {
     
-
     // Note: most cases are just "is this multifield?", with exception of shadow inputs
     // NOTE: THIS IS ONLY USED BY TAB and SHIFT+TAB
     var usesFlyout: Bool {
@@ -27,7 +26,7 @@ extension LayerInputPort {
             return true
             
             // Everything else
-        case .scale, .anchoring, .opacity, .zIndex, .masks, .color, .rotationX, .rotationY, .rotationZ, .lineColor, .lineWidth, .blur, .blendMode, .brightness, .colorInvert, .contrast, .hueRotation, .saturation, .pivot, .enabled, .blurRadius, .backgroundColor, .isClipped, .orientation, .isAnimating, .cameraDirection, .isCameraEnabled, .isShadowsEnabled, .shape, .strokePosition, .strokeWidth, .strokeColor, .strokeStart, .strokeEnd, .strokeLineCap, .strokeLineJoin, .coordinateSystem, .cornerRadius, .canvasLineColor, .canvasLineWidth, .text, .placeholderText, .fontSize, .textAlignment, .verticalAlignment, .textDecoration, .textFont, .image, .video, .model3D, .fitStyle, .clipped, .progressIndicatorStyle, .progress, .mapType, .mapLatLong, .mapSpan, .isSwitchToggled, .startColor, .endColor, .startAnchor, .endAnchor, .centerAnchor, .startAngle, .endAngle, .startRadius, .endRadius, .sfSymbol, .videoURL, .volume, .spacingBetweenGridColumns, .spacingBetweenGridRows, .itemAlignmentWithinGridCell, .sizingScenario, .widthAxis, .heightAxis, .contentMode, .spacing, .isPinned, .pinTo, .pinAnchor, .setupMode, .materialThickness, .deviceAppearance, .scrollXEnabled, .scrollJumpToXStyle, .scrollJumpToX, .scrollYEnabled, .scrollJumpToYStyle, .scrollJumpToY, .anchorEntity, .isEntityAnimating, .translation3DEnabled, .scale3DEnabled, .rotation3DEnabled, .isMetallic, .radius3D, .height3D, .layerGroupAlignment, .isScrollAuto:
+        case .scale, .anchoring, .opacity, .zIndex, .masks, .color, .rotationX, .rotationY, .rotationZ, .lineColor, .lineWidth, .blur, .blendMode, .brightness, .colorInvert, .contrast, .hueRotation, .saturation, .pivot, .enabled, .blurRadius, .backgroundColor, .isClipped, .orientation, .isAnimating, .cameraDirection, .isCameraEnabled, .isShadowsEnabled, .shape, .strokePosition, .strokeWidth, .strokeColor, .strokeStart, .strokeEnd, .strokeLineCap, .strokeLineJoin, .coordinateSystem, .cornerRadius, .canvasLineColor, .canvasLineWidth, .text, .placeholderText, .fontSize, .textAlignment, .verticalAlignment, .textDecoration, .textFont, .image, .video, .model3D, .fitStyle, .clipped, .progressIndicatorStyle, .progress, .mapType, .mapLatLong, .mapSpan, .isSwitchToggled, .startColor, .endColor, .startAnchor, .endAnchor, .centerAnchor, .startAngle, .endAngle, .startRadius, .endRadius, .sfSymbol, .videoURL, .volume, .spacingBetweenGridColumns, .spacingBetweenGridRows, .itemAlignmentWithinGridCell, .sizingScenario, .widthAxis, .heightAxis, .contentMode, .spacing, .isPinned, .pinTo, .pinAnchor, .setupMode, .materialThickness, .deviceAppearance, .scrollXEnabled, .scrollJumpToXStyle, .scrollJumpToX, .scrollYEnabled, .scrollJumpToYStyle, .scrollJumpToY, .anchorEntity, .isEntityAnimating, .translation3DEnabled, .scale3DEnabled, .rotation3DEnabled, .isMetallic, .radius3D, .height3D, .layerGroupAlignment, .isScrollAuto, .beginEditing, .endEditing, .setText, .textToSet:
             
             return false
         }
