@@ -18,7 +18,7 @@ extension LayerSize {
 struct TextFieldLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.textField
-        
+    
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(layerInputs: Self.inputDefinitions,
               outputs: [.init(label: "Field",
@@ -57,7 +57,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
                         graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, 
+                        layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool,
                         parentIsScrollableGrid: Bool,
@@ -104,31 +104,58 @@ struct TextFieldLayerNode: LayerNodeDefinition {
 
 // puts string edit from text-field layer view model into the text-field layer node's output (by index)
 @MainActor
-func textFieldLayerEval(node: NodeViewModel) -> EvalResult {
-
-    guard let layerNodeViewModel = node.layerNode,
-          layerNodeViewModel.layer == .textField else {
+func textFieldLayerEval(node: NodeViewModel,
+                        graph: GraphState) -> EvalResult {
+        
+    guard let document = graph.documentDelegate,
+          let layerNode: LayerNodeViewModel = node.layerNode,
+          layerNode.layer == .textField else {
         fatalErrorIfDebug()
-        return .init(outputsValues: [])
+        return .init(outputsValues: [[stringDefault]])
     }
     
-    let textFieldLayerViewModels = layerNodeViewModel.previewLayerViewModels
-
-    let evalOp: OpWithIndex<PortValue> = { _, loopIndex in
-
+    let graphTime = document.graphStepState.graphTime
+        
+    let evalOp: OpWithIndex<PortValue> = { values, loopIndex in
+        
+        // log("textFieldLayerEval: evalOp: values: \(values)")
+        // log("textFieldLayerEval: evalOp: loopIndex: \(loopIndex)")
+                
         // Note: on the initial evaluation of this layer node, we will not have yet have any `textFieldLayerViewModels`. That's fine; the node eval works fine afterward.
-        let textFieldValueAtIndex = textFieldLayerViewModels[safe: loopIndex]?.textFieldInput ?? ""
-
-        // log("textFieldLayerEval: values: \(values)")
-        // log("textFieldLayerEval: loopIndex: \(loopIndex)")
-        // log("textFieldLayerEval: textFieldValueAtIndex: \(textFieldValueAtIndex)")
-
-        return PortValue.string(.init(textFieldValueAtIndex))
+        guard let layerViewModel = layerNode.previewLayerViewModels[safe: loopIndex] else {
+            return stringDefault // if layer view model not found, return an empty string as output for now
+        }
+        
+        let focusableField = FocusedUserEditField.textFieldLayer(PreviewCoordinate(layerNodeId: node.id, loopIndex: loopIndex))
+        
+        // Focused via `Start Editing` input
+        if layerViewModel.beginEditing.getPulse?.shouldPulse(graphTime) ?? false {
+            // log("textFieldLayerEval: evalOp: will focus")
+            document.reduxFieldFocused(focusedField: focusableField)
+        }
+        
+        // Defocused via `End Editing` input
+        if layerViewModel.endEditing.getPulse?.shouldPulse(graphTime) ?? false {
+            // log("textFieldLayerEval: evalOp: will defocus")
+            document.reduxFieldDefocused(focusedField: focusableField)
+        }
+        
+        // If `Set Text` input pulsed, update the ephemeral state's textFieldInput
+        if layerViewModel.setText.getPulse?.shouldPulse(graphTime) ?? false,
+           let textToSet: String = layerViewModel.textToSet.getString?.string {
+            // log("textFieldLayerEval: evalOp: textToSet: \(textToSet)")
+            layerViewModel.textFieldInput = textToSet
+        }
+           
+        
+        // TextField layer node has a single output: the string value of the TextField (tracked by layer view model's textFieldInput property)
+        // log("textFieldLayerEval: evalOp: layerViewModel.textFieldInput: \(layerViewModel.textFieldInput)")
+        return PortValue.string(.init(layerViewModel.textFieldInput))
     }
-
+    
     let newOutput = loopedEval(node: node, evalOp: evalOp)
     // log("textFieldLayerEval: newOutput: \(newOutput)")
-
+    
     return .init(outputsValues: [newOutput])
 }
 

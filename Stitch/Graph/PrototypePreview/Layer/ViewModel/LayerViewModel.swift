@@ -128,6 +128,10 @@ final class LayerViewModel: Sendable {
     @MainActor var verticalAlignment: PortValue
     @MainActor var textDecoration: PortValue
     @MainActor var textFont: PortValue
+    @MainActor var beginEditing: PortValue
+    @MainActor var endEditing: PortValue
+    @MainActor var setText: PortValue
+    @MainActor var textToSet: PortValue
     @MainActor var image: PortValue
     @MainActor var video: PortValue
     @MainActor var fitStyle: PortValue
@@ -322,6 +326,10 @@ final class LayerViewModel: Sendable {
         self.verticalAlignment = LayerInputPort.verticalAlignment.getDefaultValue(for: layer)
         self.textDecoration = LayerInputPort.textDecoration.getDefaultValue(for: layer)
         self.textFont = LayerInputPort.textFont.getDefaultValue(for: layer)
+        self.beginEditing = LayerInputPort.beginEditing.getDefaultValue(for: layer)
+        self.endEditing = LayerInputPort.endEditing.getDefaultValue(for: layer)
+        self.setText = LayerInputPort.setText.getDefaultValue(for: layer)
+        self.textToSet = LayerInputPort.textToSet.getDefaultValue(for: layer)
         self.image = LayerInputPort.image.getDefaultValue(for: layer)
         self.video = LayerInputPort.video.getDefaultValue(for: layer)
         self.fitStyle = LayerInputPort.fitStyle.getDefaultValue(for: layer)
