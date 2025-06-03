@@ -143,7 +143,7 @@ extension LayerInputObserver {
         case .offsetInGroup:
             // Blocked if the layer either has no parent, or has a z-stack parent, or has a scrollable grid parent
             if !hasParent || hasZStackParent || (hasGridParent && scrollEnabled) ||
-                isParentAutoScroll {
+                (isParentAutoScroll && scrollEnabled) {
                 blockFullInput()
             }
             
