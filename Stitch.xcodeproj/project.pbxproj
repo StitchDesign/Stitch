@@ -596,6 +596,7 @@
 		EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */; };
 		EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */; };
 		EC608BD92DF0EB0B00F843A7 /* StitchAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC608BD82DF0EB0B00F843A7 /* StitchAIRequest.swift */; };
+		EC608BDB2DF0ECB000F843A7 /* EditJSNodeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC608BDA2DF0ECB000F843A7 /* EditJSNodeRequest.swift */; };
 		EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */; };
 		EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */; };
 		EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */; };
@@ -1626,8 +1627,8 @@
 		EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGridData.swift; sourceTree = "<group>"; };
 		EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorPortView.swift; sourceTree = "<group>"; };
 		EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorState.swift; sourceTree = "<group>"; };
-		EC608BD72DF0EA9B00F843A7 /* EditJSNodeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditJSNodeRequest.swift; sourceTree = "<group>"; };
 		EC608BD82DF0EB0B00F843A7 /* StitchAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequest.swift; sourceTree = "<group>"; };
+		EC608BDA2DF0ECB000F843A7 /* EditJSNodeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditJSNodeRequest.swift; sourceTree = "<group>"; };
 		EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtensionUtils.swift; sourceTree = "<group>"; };
@@ -4564,8 +4565,8 @@
 			isa = PBXGroup;
 			children = (
 				B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */,
-				EC608BD72DF0EA9B00F843A7 /* EditJSNodeRequest.swift */,
 				EC608BD82DF0EB0B00F843A7 /* StitchAIRequest.swift */,
+				EC608BDA2DF0ECB000F843A7 /* EditJSNodeRequest.swift */,
 				B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */,
 			);
 			path = AIRequest;
@@ -5499,6 +5500,7 @@
 				B5D689BF275836390086C297 /* ProjectAlertActions.swift in Sources */,
 				ECECF3DD2C095A8F004A4D10 /* TabKeyPressActions.swift in Sources */,
 				ECB5A8162657230600D46D3E /* SampleHoldNode.swift in Sources */,
+				EC608BDB2DF0ECB000F843A7 /* EditJSNodeRequest.swift in Sources */,
 				B53A92292A7D80CC00192E86 /* UpdateVisibleNodes.swift in Sources */,
 				B5ECCB0E2CC94F9600585F1D /* SidebarItemSwipable.swift in Sources */,
 				EC28CC9A287E347A00987792 /* PatchEvaluateExtensions.swift in Sources */,
@@ -6276,7 +6278,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 433;
+				CURRENT_PROJECT_VERSION = 510;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
@@ -6311,7 +6313,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 433;
+				CURRENT_PROJECT_VERSION = 510;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
@@ -6451,7 +6453,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 433;
+				CURRENT_PROJECT_VERSION = 510;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
@@ -6601,7 +6603,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 433;
+				CURRENT_PROJECT_VERSION = 510;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;
@@ -6721,7 +6723,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 433;
+				CURRENT_PROJECT_VERSION = 510;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7KKD7RH9A6;

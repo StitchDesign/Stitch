@@ -1,11 +1,12 @@
 //
-//  EditJSNodeRequest.swift
+//  EditJSONRequest.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 6/4/25.
 //
 
 import Foundation
+import SwiftUI
 
 
 struct EditJSNodeRequest: StitchAIRequestable {

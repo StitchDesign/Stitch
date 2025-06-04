@@ -9,6 +9,8 @@ import Foundation
 import PostgREST
 import UIKit
 import SwiftUI
+import CloudKit
+
 
 struct SupabaseInferenceCallResultPayload: Codable {
     let user_id: String
@@ -16,7 +18,7 @@ struct SupabaseInferenceCallResultPayload: Codable {
     let correction: Bool
     let score: CGFloat
     let required_retry: Bool
-    let user_request_id: UUID? // nil for freshly-created training data
+    let request_id: UUID? // nil for freshly-created training data
 }
 
 struct SupabaseInferenceCallResultRecordingWrapper: Codable {
@@ -25,15 +27,31 @@ struct SupabaseInferenceCallResultRecordingWrapper: Codable {
 }
 
 struct SupabaseUserPromptRequestRow: Codable {
-    let user_request_id: UUID // required
-    let prompt: String
-    let build_number: String
-    let version_number: String
+    let request_id: UUID // required
+    let user_prompt: String // e.g. "
+    let version_number: String // e.g. "1.7.3"
+    let user_id: String
+}
+
+
+
+@MainActor
+func fetchCurrentUserRecordIDAsync() async {
+    let container = CKContainer.default()
+    do {
+        let recordID = try await container.userRecordID()   // or `fetchUserRecordID()` in newer SDKs
+        let userIdString = recordID.recordName
+        print("✅ Fetched user record ID (async):", userIdString)
+        // …use `userIdString` here
+    } catch {
+        print("❌ Error fetching user record ID (async):", error)
+    }
 }
 
 extension StitchAIManager {
     // Should the app really be running, if we can't    
-    @MainActor static func getDeviceUUID() -> String? {
+    @MainActor
+    static func getDeviceUUID() -> String? {
         guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {
             log("Unable to retrieve device UUID", .logToServer)
 #if DEV_DEBUG || DEBUG
@@ -63,18 +81,21 @@ extension StitchAIManager {
                                              // Did the actions sent to us by OpenAI for this prompt require a retry?
                                              requiredRetry: Bool) async throws {
         
+        let recordID: CKRecord.ID = try await CKContainer.default().userRecordID()
+        let userId = recordID.recordName
+        
         let wrapper = SupabaseInferenceCallResultRecordingWrapper(
             prompt: prompt,
             actions: finalActions)
         
         // Not good to have as a var in an async context?
         let payload = SupabaseInferenceCallResultPayload(
-            user_id: deviceUUID,
+            user_id: userId,
             actions: wrapper,
             correction: isCorrection,
             score: rating.rawValue,
             required_retry: requiredRetry,
-            user_request_id: requestId)
+            request_id: requestId)
         
         log(" Uploading inference-call-result payload:")
         log("  - User ID: \(deviceUUID)")
@@ -82,6 +103,7 @@ extension StitchAIManager {
         log("  - Total actions: \(wrapper.actions.count)")
         log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
         log("  - Rating: \(rating.rawValue)")
+        log("  - userId: \(userId)")
         
         try await self._uploadToSupabase(payload: payload,
                                          tableName: self.inferenceCallResultTableName)
@@ -89,27 +111,30 @@ extension StitchAIManager {
     
     func uploadUserPromptRequestToSupabase(prompt: String,
                                            requestId: UUID) async throws {
-        
-        guard let releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-              let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String else {
-            fatalErrorIfDebug("Could not retrieve release and/or build version")
+                
+        guard let releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
+            fatalErrorIfDebug("Could not retrieve release version")
             return
         }
+        
+        let recordID: CKRecord.ID = try await CKContainer.default().userRecordID()
+        let userId = recordID.recordName
         
         log(" Uploading user-prompt-request payload:")
         log("  - requestId: \(requestId)")
         log("  - prompt: \(prompt)")
         log("  - releaseVersion: \(releaseVersion)")
-        log("  - buildVersion: \(buildVersion)")
+        log("  - recordID: \(recordID)")
+        log("  - userId: \(userId)")
         
         let payload = SupabaseUserPromptRequestRow(
-            user_request_id: requestId,
-            prompt: prompt,
-            build_number: buildVersion,
-            version_number: releaseVersion)
+            request_id: requestId,
+            user_prompt: prompt,
+            version_number: releaseVersion,
+            user_id: userId)
         
         try await self._uploadToSupabase(payload: payload,
-                                         tableName: self.inferenceCallResultTableName)
+                                         tableName: self.userPromptTableName)
     }
     
     private func _uploadToSupabase(payload: some Encodable & Sendable,
@@ -126,18 +151,18 @@ extension StitchAIManager {
             return
         } catch DecodingError.keyNotFound(let key, let context) {
             let errorMessage = "SupabaseManager Error: Missing key '\(key.stringValue)' - \(context.debugDescription)"
-            log(errorMessage, .logToServer)
+            fatalErrorIfDebug(errorMessage)
         } catch DecodingError.typeMismatch(let type, let context) {
             let errorMessage = "SupabaseManager Error: Type mismatch for type '\(type)' - \(context.debugDescription)"
-            log(errorMessage, .logToServer)
+            fatalErrorIfDebug(errorMessage)
         } catch DecodingError.valueNotFound(let type, let context) {
             let errorMessage = "SupabaseManager Error: Missing value for type '\(type)' - \(context.debugDescription)"
-            log(errorMessage, .logToServer)
+            fatalErrorIfDebug(errorMessage)
         } catch DecodingError.dataCorrupted(let context) {
             let errorMessage = "SupabaseManager Error: Data corrupted - \(context.debugDescription)"
-            log(errorMessage, .logToServer)
+            fatalErrorIfDebug(errorMessage)
         } catch {
-            log("SupabaseManager Error decoding JSON: \(error.localizedDescription)", .logToServer)
+            fatalErrorIfDebug("SupabaseManager Error decoding JSON: \(error.localizedDescription)")
         }
         
         do {
