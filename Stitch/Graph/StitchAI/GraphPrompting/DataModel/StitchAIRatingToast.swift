@@ -71,10 +71,11 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             }
             
             do {
-                try await aiManager.uploadActionsToSupabase(
+                try await aiManager.uploadInferenceCallResultToSupabase(
                     prompt: userPrompt,
                     finalActions: state.llmRecording.actions.map(\.toStep),
                     deviceUUID: deviceUUID,
+                    requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: false,
                     rating: rating,
                     requiredRetry: false)

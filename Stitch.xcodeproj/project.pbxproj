@@ -595,6 +595,7 @@
 		EC5F51E42BFFBB3300D3DAD7 /* PreviewGridData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */; };
 		EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */; };
 		EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */; };
+		EC608BD92DF0EB0B00F843A7 /* StitchAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC608BD82DF0EB0B00F843A7 /* StitchAIRequest.swift */; };
 		EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */; };
 		EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */; };
 		EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */; };
@@ -1625,6 +1626,8 @@
 		EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGridData.swift; sourceTree = "<group>"; };
 		EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorPortView.swift; sourceTree = "<group>"; };
 		EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorState.swift; sourceTree = "<group>"; };
+		EC608BD72DF0EA9B00F843A7 /* EditJSNodeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditJSNodeRequest.swift; sourceTree = "<group>"; };
+		EC608BD82DF0EB0B00F843A7 /* StitchAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequest.swift; sourceTree = "<group>"; };
 		EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtensionUtils.swift; sourceTree = "<group>"; };
@@ -4145,8 +4148,7 @@
 			isa = PBXGroup;
 			children = (
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
-				B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */,
-				B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */,
+				EC608BD62DF0EA8500F843A7 /* AIRequest */,
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
 				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
@@ -4556,6 +4558,17 @@
 				20521CAF2558B73300270E72 /* CircuitLine.swift */,
 			);
 			path = CircuitLine;
+			sourceTree = "<group>";
+		};
+		EC608BD62DF0EA8500F843A7 /* AIRequest */ = {
+			isa = PBXGroup;
+			children = (
+				B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */,
+				EC608BD72DF0EA9B00F843A7 /* EditJSNodeRequest.swift */,
+				EC608BD82DF0EB0B00F843A7 /* StitchAIRequest.swift */,
+				B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */,
+			);
+			path = AIRequest;
 			sourceTree = "<group>";
 		};
 		EC6205C328A1B19A00AEF7BA /* NodeTag */ = {
@@ -5418,6 +5431,7 @@
 				EC95748729B0231200048382 /* ProjectsHomeCommands.swift in Sources */,
 				B55500EB2C1BAD0E0081C3F1 /* ColorInvertModifier.swift in Sources */,
 				B53265F0298FAAC200FB10B0 /* AsyncSingletonMediaEval.swift in Sources */,
+				EC608BD92DF0EB0B00F843A7 /* StitchAIRequest.swift in Sources */,
 				EC2942432BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift in Sources */,
 				EC23C5822DE7BF7C00E5FC64 /* ResponsesAPIResponse.swift in Sources */,
 				EC28CCA2287E35F500987792 /* PatchEvaluation.swift in Sources */,

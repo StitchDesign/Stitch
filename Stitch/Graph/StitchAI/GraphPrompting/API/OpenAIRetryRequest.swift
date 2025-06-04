@@ -64,9 +64,7 @@ extension StitchAIManager {
             return .maxRetriesError(request.config.maxRetries,
                                     document.llmRecording.actionsError ?? "")
         }
-        
-        
-        
+                
         if canShareAIRetries {
             Task(priority: .high) { [weak self] in
                 guard let aiManager = self,
@@ -76,11 +74,12 @@ extension StitchAIManager {
                 }
                 
                 do {
-                    try await aiManager.uploadActionsToSupabase(
+                    try await aiManager.uploadInferenceCallResultToSupabase(
                         prompt: request.userPrompt,
                         // Send the raw-streamed steps
                         finalActions: Array(document.llmRecording.streamedSteps),
                         deviceUUID: deviceUUID,
+                        requestId: request.id,
                         isCorrection: false,
                         rating: .oneStar,
                         // These actions could not be parsed and/or validated, so
@@ -88,11 +87,9 @@ extension StitchAIManager {
                 } catch  {
                     log("_retryRequest: had error when trying to share retry: \(error)", .logToServer)
                 }
-                
             }
         }
     
-        
         
         let aiManager = self
         

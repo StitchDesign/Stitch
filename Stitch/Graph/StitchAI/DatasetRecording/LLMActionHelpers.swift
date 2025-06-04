@@ -91,10 +91,12 @@ extension StitchDocumentViewModel {
             }
             
             do {
-                try await supabaseManager.uploadActionsToSupabase(
+                try await supabaseManager.uploadInferenceCallResultToSupabase(
                     prompt: promptForTrainingDataOrCompletedRequest,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
+                    // For fresh training example, we won't have this
+                    requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: isCorrection,
                     rating: rating,
                     // these actions + prompt did not require a retry

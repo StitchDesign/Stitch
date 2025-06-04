@@ -10,18 +10,25 @@ import PostgREST
 import UIKit
 import SwiftUI
 
-
-struct Payload: Codable {
+struct SupabaseInferenceCallResultPayload: Codable {
     let user_id: String
-    var actions: RecordingWrapper
+    var actions: SupabaseInferenceCallResultRecordingWrapper
     let correction: Bool
     let score: CGFloat
     let required_retry: Bool
+    let user_request_id: UUID? // nil for freshly-created training data
 }
 
-struct RecordingWrapper: Codable {
+struct SupabaseInferenceCallResultRecordingWrapper: Codable {
     let prompt: String
     var actions: [LLMStepAction]
+}
+
+struct SupabaseUserPromptRequestRow: Codable {
+    let user_request_id: UUID // required
+    let prompt: String
+    let build_number: String
+    let version_number: String
 }
 
 extension StitchAIManager {
@@ -39,35 +46,74 @@ extension StitchAIManager {
         return deviceUUID
     }
     
-    func uploadActionsToSupabase(prompt: String,
-                                 finalActions: [Step],
-                                 deviceUUID: String,
-                                 isCorrection: Bool,
-                                 
-                                 // How did the user rate the result? Always lowest-rating for retries; always highest-rating for manually created training data
-                                 rating: StitchAIRating,
-                                 
-                                 // Did the actions sent to us by OpenAI for this prompt require a retry?
-                                 requiredRetry: Bool) async throws {
+    // fka `uploadActionsToSupabase`
+    func uploadInferenceCallResultToSupabase(prompt: String,
+                                             finalActions: [Step],
+                                             deviceUUID: String,
+                                             
+                                             // Non-nil when uploading data for a request a user has made
+                                             // Nil when uploading freshly-created training example
+                                             requestId: UUID?,
+                                             
+                                             isCorrection: Bool,
+                                             
+                                             // How did the user rate the result? Always lowest-rating for retries; always highest-rating for manually created training data
+                                             rating: StitchAIRating,
+                                             
+                                             // Did the actions sent to us by OpenAI for this prompt require a retry?
+                                             requiredRetry: Bool) async throws {
         
-        let wrapper = RecordingWrapper(
+        let wrapper = SupabaseInferenceCallResultRecordingWrapper(
             prompt: prompt,
             actions: finalActions)
         
         // Not good to have as a var in an async context?
-        let payload = Payload(
+        let payload = SupabaseInferenceCallResultPayload(
             user_id: deviceUUID,
             actions: wrapper,
             correction: isCorrection,
             score: rating.rawValue,
-            required_retry: requiredRetry)
+            required_retry: requiredRetry,
+            user_request_id: requestId)
         
-        log(" Uploading payload:")
+        log(" Uploading inference-call-result payload:")
         log("  - User ID: \(deviceUUID)")
         log("  - Prompt: \(wrapper.prompt)")
         log("  - Total actions: \(wrapper.actions.count)")
         log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
         log("  - Rating: \(rating.rawValue)")
+        
+        try await self._uploadToSupabase(payload: payload,
+                                         tableName: self.inferenceCallResultTableName)
+    }
+    
+    func uploadUserPromptRequestToSupabase(prompt: String,
+                                           requestId: UUID) async throws {
+        
+        guard let releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+              let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String else {
+            fatalErrorIfDebug("Could not retrieve release and/or build version")
+            return
+        }
+        
+        log(" Uploading user-prompt-request payload:")
+        log("  - requestId: \(requestId)")
+        log("  - prompt: \(prompt)")
+        log("  - releaseVersion: \(releaseVersion)")
+        log("  - buildVersion: \(buildVersion)")
+        
+        let payload = SupabaseUserPromptRequestRow(
+            user_request_id: requestId,
+            prompt: prompt,
+            build_number: buildVersion,
+            version_number: releaseVersion)
+        
+        try await self._uploadToSupabase(payload: payload,
+                                         tableName: self.inferenceCallResultTableName)
+    }
+    
+    private func _uploadToSupabase(payload: some Encodable & Sendable,
+                                   tableName: String) async throws {
         
         do {
             // Use the edited payload for insertion
@@ -110,6 +156,7 @@ extension StitchAIManager {
             log("SupabaseManager Unknown error: \(error)", .logToServer)
             throw error
         }
+        
     }
     
 }
