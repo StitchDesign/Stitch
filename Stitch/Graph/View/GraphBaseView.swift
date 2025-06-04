@@ -33,6 +33,20 @@ struct GraphBaseView: View {
 
         nodesAndCursor
             .onAppear {
+                
+                //                // NOTE: better for this logic to live here than in the StitchApp onAppear; so that it can be triggered multiple times without having to restart the app
+                //                do {
+                ////                        // For 4o
+                ////                    try StitchAITrainingData.validateTrainingData(from: "gpt4o-fine-tuning-dataset")
+                ////
+                ////                        // For o4-mini
+                ////                        try StitchAIReasoningTrainingData.validateTrainingData(from: "gpt_o4_mini_reasoner_train")
+                ////                        try StitchAIReasoningTrainingData.validateTrainingData(from: "gpt_o4_mini_reasoner_valid")
+                //
+                //                } catch {
+                //                    print("StitchAITrainingData error: \(error)")
+                //                }
+                
                 #if targetEnvironment(macCatalyst)
                 if self.spaceHeld || document.keypressState.isSpacePressed {
                     NSCursor.openHand.push()
