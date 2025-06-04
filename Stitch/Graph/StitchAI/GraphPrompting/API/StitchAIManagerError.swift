@@ -14,6 +14,9 @@ enum StitchAIStepHandlingError: Error {
     case stepActionDecoding(String)
     case stepDecoding(StepType, Step)
     case actionValidationError(String)
+    case typeMigrationFailed(any Encodable & Sendable)
+    case sskMigrationFailed(SSKError)
+    case other(any Error)
 }
 
 extension StitchAIStepHandlingError {
@@ -21,6 +24,8 @@ extension StitchAIStepHandlingError {
         switch self {
         case .stepActionDecoding, .stepDecoding, .actionValidationError:
             return true
+        case .typeMigrationFailed, .sskMigrationFailed, .other:
+            return false
         }
     }
 }
@@ -35,6 +40,12 @@ extension StitchAIStepHandlingError: CustomStringConvertible {
             return "Unable to decode: \(stepType) with step payload:\n\(step)"
         case .actionValidationError(let string):
             return "Action validation error: \(string)"
+        case .typeMigrationFailed(let type):
+            return "Unable to convert type: \(type)"
+        case .sskMigrationFailed(let error):
+            return "Migration failed for schema with error: \(error)"
+        case .other(let error):
+            return "\(error)"
         }
     }
 }

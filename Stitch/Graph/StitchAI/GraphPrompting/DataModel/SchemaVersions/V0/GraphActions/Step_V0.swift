@@ -42,6 +42,7 @@ enum Step_V0: StitchSchemaVersionable {
     typealias LayerInputPort = LayerInputPort_V31.LayerInputPort
     typealias StitchAIUUid = StitchAIUUID_V0.StitchAIUUID
     typealias PatchOrLayer = PatchOrLayer_V31.PatchOrLayer
+    typealias LayerNodeId = LayerNodeId_V31.LayerNodeId
     typealias NodeKindDescribable = NodeKindDescribable_V31.NodeKindDescribable
     
     typealias PreviousInstance = Self.Step

@@ -511,3 +511,18 @@ extension SizingScenario {
         self.rawValue
     }
 }
+
+extension CurrentStep.PortValue {
+    var getInteractionId: NodeId? {
+        switch self {
+        case .assignedLayer(let x): return x?.id
+        default: return nil
+        }
+    }
+    
+    /// Migrates Stitch AI's PortValue to runtime.
+    func migrate() throws -> PortValue {
+        try PortValueVersion.migrate(entity: self,
+                                     version: CurrentStep.documentVersion)
+    }
+}
