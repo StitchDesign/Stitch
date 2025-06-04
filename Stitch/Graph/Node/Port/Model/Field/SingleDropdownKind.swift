@@ -10,7 +10,7 @@ import StitchSchemaKit
 import Vision
 
 enum SingleDropdownKind {
-    case textAlignment, textVerticalAlignment, textDecoration, blendMode, fitStyle, animationCurve, cameraDirection, cameraOrientation, deviceOrientation, plane, scrollMode, lightType, networkRequestType, layerStroke, textTransform, dateAndTimeFormat, scrollJumpStyle, scrollDecelerationRate, delayStyle, shapeCoordinates, shapeCommandType, vnImageCropAndScale, mapType, progressIndicatorStyle, mobileHapticStyle, strokeLineCap, strokeLineJoin, contentMode, sizingScenario, materialThickness, deviceAppearance
+    case textAlignment, textVerticalAlignment, textDecoration, blendMode, fitStyle, animationCurve, cameraDirection, cameraOrientation, deviceOrientation, plane, scrollMode, lightType, networkRequestType, layerStroke, textTransform, dateAndTimeFormat, scrollJumpStyle, scrollDecelerationRate, delayStyle, shapeCoordinates, shapeCommandType, vnImageCropAndScale, mapType, progressIndicatorStyle, mobileHapticStyle, strokeLineCap, strokeLineJoin, contentMode, sizingScenario, materialThickness, deviceAppearance, keyboardType
 }
 
 extension SingleDropdownKind {
@@ -78,6 +78,8 @@ extension SingleDropdownKind {
             return MaterialThickness.choices
         case .deviceAppearance:
             return DeviceAppearance.choices
+        case .keyboardType:
+            return KeyboardType.choices
         }
     }
 }

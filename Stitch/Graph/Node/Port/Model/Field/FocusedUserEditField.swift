@@ -30,7 +30,6 @@ enum FocusedUserEditField: Equatable, Hashable {
          jsonPopoverOutput(OutputCoordinate),
          commentBox(CommentBoxId),
          insertNodeMenu,
-         textFieldLayer(PreviewCoordinate), // specific loop-index
          any,    // default option
          llmRecordingModal,
          stitchAIPromptModal,
@@ -45,7 +44,7 @@ enum FocusedUserEditField: Equatable, Hashable {
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {
-        case .textFieldLayer(let x):
+        case .prototypeTextField(let x):
             return x
         default:
             return nil

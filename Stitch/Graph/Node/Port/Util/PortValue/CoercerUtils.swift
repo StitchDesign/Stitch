@@ -183,6 +183,8 @@ extension PortValues {
             return materialThicknessCoercer(values)
         case .anchorEntity:
             return self.anchorEntityCoercer(values: self)
+        case .keyboardType(_):
+            return keyboardTypeCoercer(values)
         }
     }
 }

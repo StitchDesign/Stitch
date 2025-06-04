@@ -502,6 +502,15 @@ extension PortValue {
             return nil
         }
     }
+    
+    var getKeyboardType: KeyboardType? {
+        switch self {
+        case .keyboardType(let x):
+            return x
+        default:
+            return nil
+        }
+    }
 }
 
 extension SizingScenario {

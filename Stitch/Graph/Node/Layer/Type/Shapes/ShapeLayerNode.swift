@@ -27,11 +27,23 @@ extension LayerInputPortSet {
     @MainActor
     static let typography: LayerInputPortSet = LayerInspectorSection.typography.sectionData.toOrderedSet
     
+    @MainActor
+    static let textFieldInputs = LayerInputPortSet([
+        .placeholderText,
+        .beginEditing,
+        .endEditing,
+        .setText,
+        .textToSet,
+        .isSecureEntry,
+        .isSpellCheckEnabled,
+        .keyboardType
+    ])
+    
     // For Text layer
     @MainActor
-    static let typographyWithoutPlaceholder: LayerInputPortSet = LayerInspectorSection.typography
+    static let typographyWithoutTextFieldInputs: LayerInputPortSet = LayerInspectorSection.typography
         .sectionData
-        .filter { $0 != .placeholderText }
+        .filter { !Self.textFieldInputs.contains($0) } // TODO: set difference ?
         .toOrderedSet
     
     // For TextField layer

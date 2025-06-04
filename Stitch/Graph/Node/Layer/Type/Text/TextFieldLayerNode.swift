@@ -97,8 +97,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
-            parentIsScrollableGrid: parentIsScrollableGrid,
-            focusedTextFieldLayer: document.reduxFocusedField?.getTextFieldLayerInputEdit)
+            parentIsScrollableGrid: parentIsScrollableGrid)
     }
 }
 
@@ -126,7 +125,7 @@ func textFieldLayerEval(node: NodeViewModel,
             return stringDefault // if layer view model not found, return an empty string as output for now
         }
         
-        let focusableField = FocusedUserEditField.textFieldLayer(PreviewCoordinate(layerNodeId: node.id, loopIndex: loopIndex))
+        let focusableField = FocusedUserEditField.prototypeTextField(PreviewCoordinate(layerNodeId: node.id, loopIndex: loopIndex))
         
         // Focused via `Start Editing` input
         if layerViewModel.beginEditing.getPulse?.shouldPulse(graphTime) ?? false {

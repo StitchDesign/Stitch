@@ -19,7 +19,7 @@ struct TextFieldInputEdited: ProjectEnvironmentEvent {
 
         // set the newEdit in the text field layer node's output (id.nodeId) at the given loop index (id.loopIndex)
 
-         log("TextFieldInputEdited called: id: \(id)")
+        // log("TextFieldInputEdited called: id: \(id)")
 
         guard let layerNodeViewModel = graphState.getLayerNode(id.layerNodeId.id),
               let layerViewModelAtIndex = layerNodeViewModel.previewLayerViewModels[safe: id.loopIndex] else {

@@ -132,6 +132,9 @@ final class LayerViewModel: Sendable {
     @MainActor var endEditing: PortValue
     @MainActor var setText: PortValue
     @MainActor var textToSet: PortValue
+    @MainActor var isSecureEntry: PortValue
+    @MainActor var isSpellCheckEnabled: PortValue
+    @MainActor var keyboardType: PortValue
     @MainActor var image: PortValue
     @MainActor var video: PortValue
     @MainActor var fitStyle: PortValue
@@ -330,6 +333,9 @@ final class LayerViewModel: Sendable {
         self.endEditing = LayerInputPort.endEditing.getDefaultValue(for: layer)
         self.setText = LayerInputPort.setText.getDefaultValue(for: layer)
         self.textToSet = LayerInputPort.textToSet.getDefaultValue(for: layer)
+        self.isSecureEntry = LayerInputPort.isSecureEntry.getDefaultValue(for: layer)
+        self.isSpellCheckEnabled = LayerInputPort.isSpellCheckEnabled.getDefaultValue(for: layer)
+        self.keyboardType = LayerInputPort.keyboardType.getDefaultValue(for: layer)
         self.image = LayerInputPort.image.getDefaultValue(for: layer)
         self.video = LayerInputPort.video.getDefaultValue(for: layer)
         self.fitStyle = LayerInputPort.fitStyle.getDefaultValue(for: layer)
