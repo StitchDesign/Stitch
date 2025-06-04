@@ -18,7 +18,6 @@ enum StitchAISize_V0: StitchSchemaVersionable {
         var width: StitchAISizeDimension
         var height: StitchAISizeDimension
     }
-
 }
 
 extension StitchAISize_V0.StitchAISize: StitchVersionedCodable {
