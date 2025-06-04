@@ -39,9 +39,7 @@ final class LayerNodeViewModel {
     
     // Cached property to identify which of this layer node's inputs/input-fields are on the canvas
     @MainActor var cachedInputCanvasIds = Set<CanvasItemId>()
-    
-    // TODO: temporarily using positionPort as only canvas item location until inspector is done
-    
+        
     var positionPort: LayerInputObserver
     var sizePort: LayerInputObserver
     var scalePort: LayerInputObserver
@@ -96,6 +94,7 @@ final class LayerNodeViewModel {
     var cornerRadiusPort: LayerInputObserver
     var canvasLineColorPort: LayerInputObserver
     var canvasLineWidthPort: LayerInputObserver
+    
     var textPort: LayerInputObserver
     var fontSizePort: LayerInputObserver
     var textAlignmentPort: LayerInputObserver
@@ -106,6 +105,10 @@ final class LayerNodeViewModel {
     var endEditingPort: LayerInputObserver
     var setTextPort: LayerInputObserver
     var textToSetPort: LayerInputObserver
+    var isSecureEntryPort: LayerInputObserver
+    var isSpellCheckEnabledPort: LayerInputObserver
+    var keyboardPort: LayerInputObserver
+    
     var imagePort: LayerInputObserver
     var videoPort: LayerInputObserver
     var fitStylePort: LayerInputObserver
@@ -280,6 +283,10 @@ final class LayerNodeViewModel {
         self.endEditingPort = .init(from: schema, port: .endEditing)
         self.setTextPort = .init(from: schema, port: .setText)
         self.textToSetPort = .init(from: schema, port: .textToSet)
+        self.isSecureEntryPort = .init(from: schema, port: .isSecureEntry)
+        self.isSpellCheckEnabledPort = .init(from: schema, port: .isSpellCheckEnabled)
+        self.keyboardPort = .init(from: schema, port: .keyboardType)
+        
         self.imagePort = .init(from: schema, port: .image)
         self.videoPort = .init(from: schema, port: .video)
         self.fitStylePort = .init(from: schema, port: .fitStyle)
