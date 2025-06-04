@@ -286,3 +286,12 @@ extension UserVisibleType {
         }
     }
 }
+
+extension StitchAINodeType {
+    /// Migrates Stitch AI's node type to runtime.
+    func migrate() throws -> NodeType {
+        try NodeTypeVersion.migrate(entity: self,
+                                    version: CurrentStep.documentVersion)
+    }
+}
+

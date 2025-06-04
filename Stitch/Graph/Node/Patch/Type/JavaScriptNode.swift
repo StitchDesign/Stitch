@@ -85,11 +85,9 @@ extension PortValuesList {
                 let value = aiDecodedResult.value
                 
                 // Uses SSK migration to make AI's schema type migrate to the runtime's possibly newer version
-                guard let migratedValue = PortValueVersion
+                let migratedValue = try PortValueVersion
                     .migrate(entity: value,
-                             version: CurrentStep.documentVersion) else {
-                    throw StitchAIManagerError.schemaMigrationFailed(PortValueVersion.self)
-                }
+                             version: CurrentStep.documentVersion)
                 
                 return migratedValue
             }
@@ -170,11 +168,9 @@ extension PatchNodeViewModel {
 
 extension JavaScriptPortDefinition {
     init(_ portDefinition: JavaScriptPortDefinitionAI) throws {
-        guard let migratedNodeType = NodeTypeVersion
+        let migratedNodeType = try NodeTypeVersion
             .migrate(entity: portDefinition.strict_type,
-                     version: CurrentStep.documentVersion) else {
-            throw StitchAIManagerError.schemaMigrationFailed(NodeTypeVersion.self)
-        }
+                     version: CurrentStep.documentVersion)
         
         self.init(label: portDefinition.label,
                   strictType: migratedNodeType)

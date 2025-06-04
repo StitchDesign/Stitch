@@ -140,7 +140,7 @@ enum StitchAIManagerError: Error {
     case nodeTypeNotSupported(String)
     case responseDecodingFailure(String)
     case portValueDescriptionNotSupported
-    case schemaMigrationFailed(any StitchSchemaVersionType.Type)
+//    case schemaMigrationFailed(any StitchSchemaVersionType.Type)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -156,8 +156,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "OpenAI respopnse decoding failed with the following error: \(errorMessage)"
         case .portValueDescriptionNotSupported:
             return "PortValue descriptions aren't supported due to PorValue version mismatch between the AI schema and SSK."
-        case .schemaMigrationFailed(let versionType):
-            return "Stitch encountered a schema migration error for \(versionType)"
+//        case .schemaMigrationFailed(let versionType):
+//            return "Stitch encountered a schema migration error for \(versionType)"
         }
     }
 }
