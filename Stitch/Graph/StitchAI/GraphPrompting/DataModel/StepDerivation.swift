@@ -91,8 +91,13 @@ extension StitchDocumentViewModel {
                 newLayerGroupSteps.append(StepActionLayerGroupCreated(nodeId: nodeEntity.id,
                                                                       children: children))
             } else {
-                newNodesSteps.append(StepActionAddNode(nodeId: nodeEntity.id,
-                                                       nodeName: nodeName))
+                do {
+                    let migratedNodeName = try nodeName.convert(to: PatchOrLayerAI.self)
+                    newNodesSteps.append(StepActionAddNode(nodeId: nodeEntity.id,
+                                                           nodeName: migratedNodeName))
+                } catch {
+                    fatalErrorIfDebug("deriveNewAIActions error: unexpectedly failed get node kind: \(error)")
+                }
             }
             
             // Value type change if different from default
@@ -100,8 +105,13 @@ extension StitchDocumentViewModel {
             let defaultValueType = nodeEntity.kind.getPatch?.defaultNodeType
             if valueType != defaultValueType,
                let valueType = valueType {
-                newNodeTypesSteps.append(.init(nodeId: nodeEntity.id,
-                                               valueType: valueType))
+                do {
+                    let migratedValueType = try valueType.convert(to: StitchAINodeType.self)
+                    newNodeTypesSteps.append(.init(nodeId: nodeEntity.id,
+                                                   valueType: migratedValueType))
+                } catch {
+                    fatalErrorIfDebug("deriveNewAIActions error: unexpectedly failed get node type: \(error)")
+                }
             }
             
             // Create actions for values and connections
@@ -183,24 +193,38 @@ extension StitchDocumentViewModel {
                                               defaultInputs: PortValues,
                                               newConnectionSteps: inout [StepActionConnectionAdded],
                                               newSetInputSteps: inout [StepActionSetInput]) {
-        switch input {
-        case .upstreamConnection(let upstreamConnection):
-            let connectionStep: StepActionConnectionAdded = .init(port: port.portType,
-                                                                  toNodeId: port.nodeId,
-                                                                  fromPort: upstreamConnection.portId!,
-                                                                  fromNodeId: upstreamConnection.nodeId)
-            newConnectionSteps.append(connectionStep)
-            
-        case .values(let newInputs):
-            if defaultInputs != newInputs {
-                let value = newInputs.first!
+        do {
+            let migratedPortType = try port.portType.convert(to: CurrentStep.NodeIOPortType.self)
+
+            switch input {
+            case .upstreamConnection(let upstreamConnection):
                 
-                let setInputStep = StepActionSetInput(nodeId: port.nodeId,
-                                                      port: port.portType,
-                                                      value: value,
-                                                      valueType: value.toNodeType)
-                newSetInputSteps.append(setInputStep)
+                let connectionStep: StepActionConnectionAdded = .init(port: migratedPortType,
+                                                                      toNodeId: port.nodeId,
+                                                                      fromPort: upstreamConnection.portId!,
+                                                                      fromNodeId: upstreamConnection.nodeId)
+                newConnectionSteps.append(connectionStep)
+                
+            case .values(let newInputs):
+                if defaultInputs != newInputs {
+                    let value = newInputs.first!
+                    
+                    do {
+                        let migratedValue = try value.convert(to: CurrentStep.PortValue.self)
+                        
+                        let setInputStep = StepActionSetInput(nodeId: port.nodeId,
+                                                              port: migratedPortType,
+                                                              value: migratedValue,
+                                                              valueType: migratedValue.nodeType)
+                        newSetInputSteps.append(setInputStep)
+                        
+                    } catch {
+                        fatalErrorIfDebug("deriveNewInputActions: unable to convert value: \(value)\nError: \(error)")
+                    }
+                }
             }
+        } catch {
+            fatalErrorIfDebug("deriveNewInputActions: unable to convert port type: \(port.portType)\nError: \(error)")
         }
     }
 }

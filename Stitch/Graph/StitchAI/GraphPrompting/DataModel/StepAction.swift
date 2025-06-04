@@ -583,7 +583,7 @@ struct StepActionSetInput: StepActionable {
 //}
 
 extension StepActionable {
-    var toPortCoordinate: NodeIOCoordinate? {
+    var toPortCoordinate: CurrentStep.NodeIOCoordinate? {
         let step = self.toStep
         
         guard let nodeId = step.nodeId ?? step.toNodeId,
