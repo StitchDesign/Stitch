@@ -190,7 +190,7 @@ extension LayerInspectorSection {
                 .textToSet,
                 .isSecureEntry,
                 .isSpellCheckEnabled,
-                .selectedKeyboard
+                .keyboardType
             ]
         
         case .stroke:

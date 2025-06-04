@@ -308,8 +308,8 @@ extension LayerInputPort {
             return boolDefaultFalse
         case .isSpellCheckEnabled:
             return boolDefaultFalse
-        case .selectedKeyboard:
-            return boolDefaultFalse
+        case .keyboardType:
+            return KeyboardType.defaultKeyboardTypePortValue
         }
     }
     
@@ -578,8 +578,8 @@ extension LayerInputPort {
             return \.isSecureEntryPort
         case .isSpellCheckEnabled:
             return \.isSpellCheckEnabledPort
-        case .selectedKeyboard:
-            return \.selectedKeyboardPort
+        case .keyboardType:
+            return \.keyboardTypePort
         }
     }
     
@@ -852,8 +852,8 @@ extension LayerViewModel {
             return self.isSecureEntry
         case .isSpellCheckEnabled:
             return self.isSpellCheckEnabled
-        case .selectedKeyboard:
-            return self.selectedKeyboard
+        case .keyboardType:
+            return self.keyboardType
         }
     }
     
@@ -1124,8 +1124,8 @@ extension LayerViewModel {
             self.isSecureEntry = value
         case .isSpellCheckEnabled:
             self.isSpellCheckEnabled = value
-        case .selectedKeyboard:
-            self.selectedKeyboard = value
+        case .keyboardType:
+            self.keyboardType = value
         }
     }
 }
@@ -1384,8 +1384,8 @@ extension LayerInputPort {
             return \.isSecureEntryPort
         case .isSpellCheckEnabled:
             return \.isSpellCheckEnabledPort
-        case .selectedKeyboard:
-            return \.selectedKeyboardPort
+        case .keyboardType:
+            return \.keyboardPort
         }
     }
     
@@ -1818,7 +1818,7 @@ extension LayerInputPort {
             return "Secure Entry"
         case .isSpellCheckEnabled:
             return "Spellcheck Enabled"
-        case .selectedKeyboard:
+        case .keyboardType:
             return "Keyboard Type"
         }
     }

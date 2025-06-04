@@ -51,17 +51,16 @@ struct PreviewTextFieldLayer: View {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     let parentIsScrollableGrid: Bool
-
-    let focusedTextFieldLayer: PreviewCoordinate?
     
     var id: PreviewCoordinate {
         interactiveLayer.id
     }
     
     var usedFocusedField: FocusedUserEditField {
-        .textFieldLayer(id)
+        .prototypeTextField(id)
     }
     
+    // We cannot use TextField while creating a project thumbnail
     @ViewBuilder @MainActor
     var previewTextField: some View {
         // SwiftUI TextField cannot be rendered
@@ -76,7 +75,7 @@ struct PreviewTextFieldLayer: View {
             .opacity(opacity)
             .padding()
         } else {
-            textFieldView
+            textFieldWithOnChangeLogic
         }
     }
     
@@ -88,7 +87,7 @@ struct PreviewTextFieldLayer: View {
     }
     
     var keyboardType: KeyboardType {
-        if let keyboardType = viewModel.selectedKeyboard.getKeyboardType {
+        if let keyboardType = viewModel.keyboardType.getKeyboardType {
             return keyboardType
         }
         return KeyboardType.defaultKeyboard
@@ -106,6 +105,7 @@ struct PreviewTextFieldLayer: View {
             if self.isSecureEntry {
                 SecureField(placeholder,
                             text: $viewModel.textFieldInput)
+                .textContentType(.password)
             } else {
                 TextField(placeholder,
                           text: $viewModel.textFieldInput)
@@ -113,39 +113,43 @@ struct PreviewTextFieldLayer: View {
         }
     }
     
+    
     @MainActor
-    var textFieldView: some View {
-//        TextField(placeholder,
-//                  text: $viewModel.textFieldInput)
+    var textFieldWithOnChangeLogic: some View {
+
         regularVsSecureEntryField
-            .focusedValue(\.focusedField, .prototypeTextField(self.id))
-            .onChange(of: self.document.reduxFocusedField) { _, focusedField in
-                // Disables focus state here with other graph taps
-                switch focusedField {
-                case .prototypeTextField:
-                    return
-                default:
-                    self.isFocused = false
-                }
-            }
         
+        // TODO: no longer needed anymore? replaced by redux-focused-field ?
+             .focusedValue(\.focusedField, .prototypeTextField(self.id))
+
+        // MARK: important: whether text field is focused or not; updated by redux-state changes *but also can trigger updates to redux-state*
+             .focused($isFocused)
+        
+        // QWERTY vs number pad etc.
             .keyboardType(self.keyboardType.asUIKeyboardType)
         
         // Only auto-correct if spellcheck is enabled
             .autocorrectionDisabled(!self.isSpellCheckEnabled)
+            
+        // TODO: allow user to specify auto-capitalization logic?
             .autocapitalization(.none)
+            
             .multilineTextAlignment(textAlignment.asMultilineAlignment ?? .leading)
-            .focused($isFocused)
+        
             .font(.system(size: fontSize.getNumber ?? .DEFAULT_FONT_SIZE,
                           weight: textFont.fontWeight.asFontWeight,
                           design: textFont.fontChoice.asFontDesign))
             .underline(textDecoration.isUnderline, pattern: .solid)
             .strikethrough(textDecoration.isStrikethrough, pattern: .solid)
             .foregroundColor(color)
+        
+        
+        // User submits --> we de-focus
             .onSubmit {
                 dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
             }
-
+        
+        // User tapped on field -> we toggle focus
             .onTapGesture {
                 if self.isFocused {
                     dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
@@ -153,6 +157,16 @@ struct PreviewTextFieldLayer: View {
                     dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
                 }
             }
+        
+            .opacity(opacity)
+            .padding()
+        
+        // VERY IMPORTANT to fix iPad-specific fullscreen-preview issue
+            .background(Color.HITBOX_COLOR)
+        
+        // MARK: onChange methods
+        
+        // User typed in the text-field -> we send updates to layer node's output
             .onChange(of: self.viewModel.textFieldInput) { oldValue, newValue in
                 // log("TextField: onChange: self.edit: oldValue: \(oldValue)")
                 // log("TextField: onChange: self.edit: newValue: \(newValue)")
@@ -161,24 +175,47 @@ struct PreviewTextFieldLayer: View {
                     dispatch(TextFieldInputEdited(id: id, newEdit: newValue))
                 }
             }
-            .opacity(opacity)
-            .padding()
-            .onChange(of: self.focusedTextFieldLayer, initial: true) { _, _ in
-                // log("TextField: onChange: self.focusedTextFieldLayer: oldValue: \(oldValue)")
-                // log("TextField: onChange: self.focusedTextFieldLayer: newValue: \(newValue)")
-                if let focusedId = focusedTextFieldLayer,
-                   focusedId == id {
-                    // log("TextField: onChange: self.focusedTextFieldLayer: will focus")
-                    self.isFocused = true
-                } else {
-                    // log("TextField: onChange: self.focusedTextFieldLayer: will defocus")
+          
+        
+        // Redux-focused-field changed -> we update text field's focus
+            .onChange(of: document.reduxFocusedField, initial: true) { oldValue, newValue in
+                 // log("TextField: onChange: document.reduxFocusedField: oldValue: \(oldValue)")
+                 // log("TextField: onChange: document.reduxFocusedField: newValue: \(newValue)")
+                
+                switch newValue {
+                case .prototypeTextField(let focusedId):
+                    let _focused = focusedId == self.id
+                    // log("TextField: onChange: document.reduxFocusedField: might focus: _focused: \(_focused)")
+                    self.isFocused = _focused
+                default:
+                    // log("TextField: onChange: document.reduxFocusedField: will defocus")
                     self.isFocused = false
                 }
             }
         
-        // VERY IMPORTANT to fix iPad-specific fullscreen-preview issue
-            .background(Color.HITBOX_COLOR)
+        // SwiftUI TextField's focus changed (e.g. because user tapped) --> we update redux
+        // Note: handles an interesting where  tapping on a text field in the prototype window *also* triggers a "prototype window focused" event, which was overriding the redux tracking of this text-field's focused-state
+            .onChange(of: self.isFocused, initial: true) { oldValue, newValue in
+                // log("TextField: onChange: self.isFocused: oldValue: \(oldValue)")
+                // log("TextField: onChange: self.isFocused: newValue: \(newValue)")
+                if newValue {
+                    dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
+                } else {
+                    dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
+                }
+            }
+        
+            .id(self.localId)
+            .onChange(of: self.keyboardType, initial: true) {
+                self.localId = .init()
+            }
+            .onChange(of: self.isSpellCheckEnabled, initial: true) {
+                self.localId = .init()
+            }
     }
+    
+    // Note: must force re-render for keyboard-type (and auto-correct?) change(s) to take effect
+    @State var localId = UUID()
     
     var body: some View {
         previewTextField.modifier(PreviewCommonModifier(

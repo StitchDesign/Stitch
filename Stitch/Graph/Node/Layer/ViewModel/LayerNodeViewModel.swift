@@ -107,7 +107,7 @@ final class LayerNodeViewModel {
     var textToSetPort: LayerInputObserver
     var isSecureEntryPort: LayerInputObserver
     var isSpellCheckEnabledPort: LayerInputObserver
-    var selectedKeyboardPort: LayerInputObserver
+    var keyboardPort: LayerInputObserver
     
     var imagePort: LayerInputObserver
     var videoPort: LayerInputObserver
@@ -285,7 +285,7 @@ final class LayerNodeViewModel {
         self.textToSetPort = .init(from: schema, port: .textToSet)
         self.isSecureEntryPort = .init(from: schema, port: .isSecureEntry)
         self.isSpellCheckEnabledPort = .init(from: schema, port: .isSpellCheckEnabled)
-        self.selectedKeyboardPort = .init(from: schema, port: .selectedKeyboard)
+        self.keyboardPort = .init(from: schema, port: .keyboardType)
         
         self.imagePort = .init(from: schema, port: .image)
         self.videoPort = .init(from: schema, port: .video)
