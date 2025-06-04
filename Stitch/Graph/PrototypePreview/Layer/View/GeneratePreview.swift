@@ -62,9 +62,7 @@ struct GeneratePreview: View {
         .simultaneousGesture(
             TapGesture()
                 .onEnded {
-                    if document.reduxFocusedField != .prototypeWindow {
-                        document.reduxFocusedField = .prototypeWindow
-                    }
+                    document.reduxFieldFocused(focusedField: .prototypeWindow)
                 }
         )
     }

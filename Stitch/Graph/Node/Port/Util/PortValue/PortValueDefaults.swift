@@ -233,6 +233,8 @@ extension PortValue {
             return .deviceAppearance(.defaultDeviceAppearance)
         case .anchorEntity:
             return .anchorEntity(nil)
+        case .keyboardType(_):
+            return KeyboardType.defaultKeyboardTypePortValue
         }
     }
 }

@@ -90,6 +90,26 @@ extension PortValue {
             return .singleDropdown(.deviceOrientation)
         case .vnImageCropOption:
             return .singleDropdown(.vnImageCropAndScale)
+        case .mapType:
+            return .singleDropdown(.mapType)
+        case .progressIndicatorStyle:
+            return .singleDropdown(.progressIndicatorStyle)
+        case .mobileHapticStyle:
+            return .singleDropdown(.mobileHapticStyle)
+        case .strokeLineCap(_):
+            return .singleDropdown(.strokeLineCap)
+        case .strokeLineJoin(_):
+            return .singleDropdown(.strokeLineJoin)
+        case .contentMode(_):
+            return .singleDropdown(.contentMode)
+        case .sizingScenario:
+            return .singleDropdown(.sizingScenario)
+        case .materialThickness:
+            return .singleDropdown(.materialThickness)
+        case .deviceAppearance:
+            return .singleDropdown(.deviceAppearance)
+        case .keyboardType:
+            return .singleDropdown(.keyboardType)
 
         // MARK: - other
         case .bool:
@@ -142,30 +162,11 @@ extension PortValue {
             // TODO: should be able to tap a Shape input/output to see the constituent JSON ?
                 .shape:
             return .readOnly
-        case .mapType:
-            return .singleDropdown(.mapType)
-        case .progressIndicatorStyle:
-            return .singleDropdown(.progressIndicatorStyle)
-        case .mobileHapticStyle:
-            return .singleDropdown(.mobileHapticStyle)
-        case .strokeLineCap(_):
-            return .singleDropdown(.strokeLineCap)
-        case .strokeLineJoin(_):
-            return .singleDropdown(.strokeLineJoin)
-        case .contentMode(_):
-            return .singleDropdown(.contentMode)
-            
         // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
         case .spacing:
             return .spacing
-        case .sizingScenario:
-            return .singleDropdown(.sizingScenario)
         case .pinTo:
             return .pinTo
-        case .materialThickness:
-            return .singleDropdown(.materialThickness)
-        case .deviceAppearance:
-            return .singleDropdown(.deviceAppearance)
         case .orientation:
             return .layerGroupOrientationDropdown
         case .anchorEntity:

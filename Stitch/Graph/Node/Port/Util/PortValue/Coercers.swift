@@ -300,6 +300,23 @@ func materialThicknessCoercer(_ values: PortValues) -> PortValues {
     }
 }
 
+func keyboardTypeCoercer(_ values: PortValues) -> PortValues {
+    values.map {
+        switch $0 {
+        case .keyboardType:
+            return $0
+        case .number(let x):
+            return KeyboardType.fromNumber(x)
+        case .string(let x):
+            return .keyboardType(KeyboardType(rawValue: x.string) ?? KeyboardType.defaultKeyboardType)
+        case .json(let x):
+            return x.value.coerceJSONToPortValue(.keyboardType)
+        default:
+            return .keyboardType(KeyboardType.defaultKeyboardType)
+        }
+    }
+}
+
 func scrollModeCoercer(_ values: PortValues) -> PortValues {
     values.map {
         switch $0 {
