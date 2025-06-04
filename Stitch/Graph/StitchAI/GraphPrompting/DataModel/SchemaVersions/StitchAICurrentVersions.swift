@@ -29,3 +29,4 @@ typealias JavaScriptNodeSettingsAI = CurrentJavaScriptNodeSettingsAI.JavaScriptN
 typealias JavaScriptPortDefinitionAI = CurrentJavaScriptPortDefinitionAI.JavaScriptPortDefinitionAI
 typealias PatchAI = CurrentStep.Patch
 typealias LayerAI = CurrentStep.Layer
+typealias PatchOrLayerAI = CurrentStep.PatchOrLayer

@@ -114,7 +114,7 @@ struct StepActionAddNode: StepActionable {
     static let stepType: StepType = .addNode
     
     var nodeId: NodeId
-    var nodeName: PatchOrLayer
+    var nodeName: PatchOrLayerAI
 
     var toStep: Step {
         Step(stepType: Self.stepType,

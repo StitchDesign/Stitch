@@ -94,3 +94,15 @@ extension StitchAIStringConvertable {
         }
     }
 }
+
+extension Encodable {
+    /// Re-decodes a function into another type, useful for type conversions when properties are exactly the same. Commonly used for versioned schemas that haven't changed.
+    func convert<T>(to type: T.Type) throws -> T where T: Decodable {
+        let encoder = getStitchEncoder()
+        let decoder = getStitchDecoder()
+        
+        let data = try encoder.encode(self)
+        let convertedType = try decoder.decode(T.self, from: data)
+        return convertedType
+    }
+}
