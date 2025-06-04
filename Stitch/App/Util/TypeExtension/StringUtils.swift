@@ -17,6 +17,8 @@ extension String {
         return String(self[fromIndex...])
     }
     
+    // BAD: if the string is *already* camel-case, this function makes it *all lowercase*
+    // e.g. `"layerStroke"` becomes `"layerstroke"`
     func toCamelCase() -> String {
         let sentence = self
         let words = sentence.components(separatedBy: " ")

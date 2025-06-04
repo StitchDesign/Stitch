@@ -46,6 +46,7 @@ extension LayerInputPort {
 extension NodeType {
     // TODO: our OpenAI schema does not define all possible node-types, and those node types that we do define use camelCase
     // TODO: some node types use human-readable strings ("Sizing Scenario"), not camelCase ("sizingScenario") as their raw value; so can't use `NodeType(rawValue:)` constructor
+    // Note: we always encode NodeType as camel-case, e.g. "layerStroke" instead of "Layer Stroke"
     var asLLMStepNodeType: String {
         self.display.toCamelCase()
     }
