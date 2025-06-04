@@ -146,12 +146,10 @@ extension StitchAIParsingError: CustomStringConvertible {
 // TODO: which are just for us developers (to be logged), vs actionable for the user?
 enum StitchAIManagerError: Error {
     case contentDataDecodingError(String, String)
-//    case other(AIRequest, Error)
     case secretsNotFound
     case nodeTypeNotSupported(String)
     case responseDecodingFailure(String)
     case portValueDescriptionNotSupported
-//    case schemaMigrationFailed(any StitchSchemaVersionType.Type)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -167,8 +165,6 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "OpenAI respopnse decoding failed with the following error: \(errorMessage)"
         case .portValueDescriptionNotSupported:
             return "PortValue descriptions aren't supported due to PorValue version mismatch between the AI schema and SSK."
-//        case .schemaMigrationFailed(let versionType):
-//            return "Stitch encountered a schema migration error for \(versionType)"
         }
     }
 }

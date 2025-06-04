@@ -24,6 +24,9 @@ typealias CurrentAIEditJsNodeRequestBody = AIEditJsNodeRequestBody_V0
 typealias CurrentStitchAIRequestBodyFormattable = StitchAIRequestBodyFormattable_V0
 
 typealias Step = CurrentStep.Step
+typealias Steps = [Step]
+typealias LLMStepAction = Step
+typealias LLMStepActions = [LLMStepAction]
 typealias StepType = CurrentStepType.StepType
 typealias StitchAIPortValue = CurrentStitchAIPortValue.StitchAIPortValue
 typealias StitchAIPosition = CurrentStitchAIPosition.StitchAIPosition

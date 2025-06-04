@@ -15,7 +15,6 @@ enum JavaScriptPortDefinitionAI_V0: StitchSchemaVersionable {
     typealias PreviousInstance = Self.JavaScriptPortDefinitionAI
     // MARK: - end
     
-    
     struct JavaScriptPortDefinitionAI: Codable {
         var label: String
         var strict_type: NodeType

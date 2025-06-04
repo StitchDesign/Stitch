@@ -8,25 +8,11 @@
 import Foundation
 import SwiftUI
 import SwiftyJSON
-
-typealias Steps = [Step]
-
-//extension Step: Identifiable {
-//    var id: Int { self.hashValue }
-//}
+import StitchSchemaKit
 
 // Note: `Step` as a type is basically one 'step' away from JSON,
 // i.e. it's very generic and in majority of (or in all?) cases
 // we actually want the more specific `StepActionable` type.
-
-import StitchSchemaKit
-
-// TODO: move
-enum StitchAISchemaVersion: Int, VersionType {
-    case _V0 = 0
-    case _V1 = 1
-}
-
 enum Step_V0: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V0

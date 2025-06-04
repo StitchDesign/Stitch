@@ -70,9 +70,6 @@ extension PatchOrLayerNode {
 
 // i.e. NodeKind, excluding Group Nodes and Components
 extension PatchOrLayer {
-//enum PatchOrLayer: Equatable, Codable, Hashable {
-//    case patch(Patch), layer(Layer)
-//    
     var asNodeKind: NodeKind {
         switch self {
         case .patch(let patch):
@@ -93,15 +90,6 @@ extension PatchOrLayer {
             return nil
         }
     }
-//    
-//    var description: String {
-//        switch self {
-//        case .patch(let patch):
-//            return patch.defaultDisplayTitle()
-//        case .layer(let layer):
-//            return layer.defaultDisplayTitle()
-//        }
-//    }
 }
 
 extension Patch {
@@ -215,15 +203,6 @@ extension CurrentStep.PatchOrLayer {
         throw StitchAIParsingError.nodeNameParsing(nodeName)
     }
     
-//    var asNodeKind: CurrentStep.NodeKind {
-//        switch self {
-//        case .patch(let patch):
-//            return .patch(patch)
-//        case .layer(let layer):
-//            return .layer(layer)
-//        }
-//    }
-//    
     var description: String {
         switch self {
         case .patch(let patch):
