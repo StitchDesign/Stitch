@@ -13,7 +13,7 @@ import StitchSchemaKit
  User-visible types: what the user sees
  ---------------------------------------------------------------- */
 
-typealias NodeType = UserVisibleType
+public typealias NodeType = UserVisibleType
 
 extension UserVisibleType {
     // TODO: handle special case with .string as "String" vs "Text"

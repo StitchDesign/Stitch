@@ -136,6 +136,16 @@ public struct PortValueVersion: StitchSchemaVersionType {
     }
 }
 
+public struct NodeTypeVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = NodeType
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
+
 public struct StitchSystemVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchSystem
     
@@ -294,6 +304,77 @@ extension PortValueVersion {
             return PortValue_V31.PortValue.self
         case ._V32:
             return PortValue_V32.PortValue.self
+        }
+    }
+}
+
+extension NodeTypeVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1:
+            return UserVisibleType_V1.UserVisibleType.self
+        case ._V2:
+            return UserVisibleType_V2.UserVisibleType.self
+        case ._V3:
+            return UserVisibleType_V3.UserVisibleType.self
+        case ._V4:
+            return UserVisibleType_V4.UserVisibleType.self
+        case ._V5:
+            return UserVisibleType_V5.UserVisibleType.self
+        case ._V6:
+            return UserVisibleType_V6.UserVisibleType.self
+        case ._V7:
+            return UserVisibleType_V7.UserVisibleType.self
+        case ._V8:
+            return UserVisibleType_V8.UserVisibleType.self
+        case ._V9:
+            return UserVisibleType_V9.UserVisibleType.self
+        case ._V10:
+            return UserVisibleType_V10.UserVisibleType.self
+        case ._V11:
+            return UserVisibleType_V11.UserVisibleType.self
+        case ._V12:
+            return UserVisibleType_V12.UserVisibleType.self
+        case ._V13:
+            return UserVisibleType_V13.UserVisibleType.self
+        case ._V14:
+            return UserVisibleType_V14.UserVisibleType.self
+        case ._V15:
+            return UserVisibleType_V15.UserVisibleType.self
+        case ._V16:
+            return UserVisibleType_V16.UserVisibleType.self
+        case ._V17:
+            return UserVisibleType_V17.UserVisibleType.self
+        case ._V18:
+            return UserVisibleType_V18.UserVisibleType.self
+        case ._V19:
+            return UserVisibleType_V19.UserVisibleType.self
+        case ._V20:
+            return UserVisibleType_V20.UserVisibleType.self
+        case ._V21:
+            return UserVisibleType_V21.UserVisibleType.self
+        case ._V22:
+            return UserVisibleType_V22.UserVisibleType.self
+        case ._V23:
+            return UserVisibleType_V23.UserVisibleType.self
+        case ._V24:
+            return UserVisibleType_V24.UserVisibleType.self
+        case ._V25:
+            return UserVisibleType_V25.UserVisibleType.self
+        case ._V26:
+            return UserVisibleType_V26.UserVisibleType.self
+        case ._V27:
+            return UserVisibleType_V27.UserVisibleType.self
+        case ._V28:
+            return UserVisibleType_V28.UserVisibleType.self
+        case ._V29:
+            return UserVisibleType_V29.UserVisibleType.self
+        case ._V30:
+            return UserVisibleType_V30.UserVisibleType.self
+        case ._V31:
+            return UserVisibleType_V31.UserVisibleType.self
+        case ._V32:
+            return UserVisibleType_V32.UserVisibleType.self
         }
     }
 }

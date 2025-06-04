@@ -261,8 +261,8 @@ struct EditJSNodeRequest: StitchAIRequestable {
     
     static func validateRepopnse(decodedResult: JavaScriptNodeSettingsAI) throws -> JavaScriptNodeSettings {
         .init(script: decodedResult.script,
-              inputDefinitions: decodedResult.input_definitions.map(JavaScriptPortDefinition.init),
-              outputDefinitions: decodedResult.output_definitions.map(JavaScriptPortDefinition.init))
+              inputDefinitions: try decodedResult.input_definitions.map(JavaScriptPortDefinition.init),
+              outputDefinitions: try decodedResult.output_definitions.map(JavaScriptPortDefinition.init))
     }
     
     @MainActor

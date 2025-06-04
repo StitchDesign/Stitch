@@ -37,7 +37,9 @@ enum StitchAIPortValue_V0: StitchSchemaVersionable {
 
             // extract type
             let nodeTypeString = try container.decode(String.self, forKey: .type)
-            let nodeType = try NodeType(llmString: nodeTypeString)
+            guard let nodeType = NodeType(llmString: nodeTypeString) else {
+                throw StitchAIManagerError.nodeTypeNotSupported(nodeTypeString)
+            }
             
             // portvalue
             let portValueType = nodeType.portValueTypeForStitchAI

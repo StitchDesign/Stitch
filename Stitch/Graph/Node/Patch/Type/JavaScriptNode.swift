@@ -69,7 +69,7 @@ JSON.stringify(result)
         do {
             let aiDecodedResults = try getStitchDecoder().decode([[StitchAIPortValue]].self,
                                                                  from: dataResult)
-            let outputValuesList = PortValuesList(javaScriptNodeResult: aiDecodedResults)
+            let outputValuesList = try PortValuesList(javaScriptNodeResult: aiDecodedResults)
             return .init(outputsValues: outputValuesList)
         } catch {
             print("JavaScript node decoding error: \(error.localizedDescription)")
@@ -79,17 +79,16 @@ JSON.stringify(result)
 }
 
 extension PortValuesList {
-    init(javaScriptNodeResult: [[StitchAIPortValue]]) {
-        self = javaScriptNodeResult.map { outputResults in
-            outputResults.compactMap { aiDecodedResult -> PortValue? in
+    init(javaScriptNodeResult: [[StitchAIPortValue]]) throws {
+        self = try javaScriptNodeResult.map { outputResults in
+            try outputResults.map { aiDecodedResult -> PortValue in
                 let value = aiDecodedResult.value
                 
                 // Uses SSK migration to make AI's schema type migrate to the runtime's possibly newer version
                 guard let migratedValue = PortValueVersion
                     .migrate(entity: value,
                              version: CurrentStep.documentVersion) else {
-                    fatalErrorIfDebug()
-                    return nil
+                    throw StitchAIManagerError.schemaMigrationFailed(PortValueVersion.self)
                 }
                 
                 return migratedValue
@@ -170,8 +169,14 @@ extension PatchNodeViewModel {
 }
 
 extension JavaScriptPortDefinition {
-    init(_ portDefinition: JavaScriptPortDefinitionAI) {
+    init(_ portDefinition: JavaScriptPortDefinitionAI) throws {
+        guard let migratedNodeType = NodeTypeVersion
+            .migrate(entity: portDefinition.strict_type,
+                     version: CurrentStep.documentVersion) else {
+            throw StitchAIManagerError.schemaMigrationFailed(NodeTypeVersion.self)
+        }
+        
         self.init(label: portDefinition.label,
-                  strictType: portDefinition.strict_type)
+                  strictType: migratedNodeType)
     }
 }

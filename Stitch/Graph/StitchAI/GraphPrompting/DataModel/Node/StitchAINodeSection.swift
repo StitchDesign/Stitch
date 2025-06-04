@@ -39,9 +39,9 @@ public enum NodeSection: String, CaseIterable, CustomStringConvertible {
 extension NodeSection {
     // TODO: should we really be passing in a specific GraphState here? aren't these node descriptions independent of any given graph ? None of the defined nodes have connections etc., right?
     @MainActor
-    static func getAllAIDescriptions(graph: GraphState) -> [StitchAINodeSectionDescription] {
-        Self.allCases.map {
-            StitchAINodeSectionDescription.init($0, graph: graph)
+    static func getAllAIDescriptions(graph: GraphState) throws -> [StitchAINodeSectionDescription] {
+        try Self.allCases.map {
+            try StitchAINodeSectionDescription.init($0, graph: graph)
         }
     }
     

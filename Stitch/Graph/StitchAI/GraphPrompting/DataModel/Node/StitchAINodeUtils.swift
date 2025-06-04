@@ -52,53 +52,56 @@ struct StitchAINodeSectionDescription: Encodable {
 extension StitchAINodeSectionDescription {
     @MainActor
     init(_ section: NodeSection,
-         graph: GraphState) {
-        let nodesInSection: [StitchAINodeIODescription] = section
-            .getNodesForSection()
-            .compactMap { patchOrLayer -> StitchAINodeIODescription? in
-                // Use node definitions, if available
-                if let graphNode = patchOrLayer.graphNode {
-                    return .init(graphNode)
-                }
-                
-                // Backup plan: create default node, extract data from there
-                guard let defaultNode = patchOrLayer.createDefaultNode(id: .init(),
-                                                                       activeIndex: .init(.zero),
-                                                                       graphDelegate: graph) else {
-                    fatalErrorIfDebug()
-                    return nil
-                }
-                
-                let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
-                    StitchAIPortValueDescription(label: inputObserver.label(node: defaultNode,
-                                                                            coordinate: .input(inputObserver.id),
-                                                                            graph: graph),
-                                                 value: inputObserver.getActiveValue(activeIndex: .init(.zero)))
-                }
-                
-                // Calculate node to get outputs values
-                if let evalResult = defaultNode.evaluate() {
-                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues, graph: graph)
-                }
-                
-                let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
-                    StitchAIPortValueDescription(
-                        label: outputObserver.label(node: defaultNode,
-                                                    coordinate: .output(outputObserver.id),
-                                                    graph: graph),
-                        value: outputObserver.getActiveValue(activeIndex: .init(.zero)))
-                }
-                
-                assertInDebug(inputs.first { $0.value == .none } == nil)
-                assertInDebug(outputs.first { $0.value == .none } == nil)
-                
-                return .init(nodeKind: patchOrLayer.asLLMStepNodeName,
-                             inputs: inputs,
-                             outputs: outputs)
-            }
+         graph: GraphState) throws {
+        // MARK: this is only supported with the AI schema's PortValue version matches SSK.
+        throw StitchAIManagerError.portValueDescriptionNotSupported
 
-        self.header = section.description
-        self.nodes = nodesInSection
+//        let nodesInSection: [StitchAINodeIODescription] = section
+//            .getNodesForSection()
+//            .compactMap { patchOrLayer -> StitchAINodeIODescription? in
+//                // Use node definitions, if available
+//                if let graphNode = patchOrLayer.graphNode {
+//                    return .init(graphNode)
+//                }
+//                
+//                // Backup plan: create default node, extract data from there
+//                guard let defaultNode = patchOrLayer.createDefaultNode(id: .init(),
+//                                                                       activeIndex: .init(.zero),
+//                                                                       graphDelegate: graph) else {
+//                    fatalErrorIfDebug()
+//                    return nil
+//                }
+//                
+//                let inputs: [StitchAIPortValueDescription] = defaultNode.inputsObservers.map { inputObserver in
+//                    StitchAIPortValueDescription(label: inputObserver.label(node: defaultNode,
+//                                                                            coordinate: .input(inputObserver.id),
+//                                                                            graph: graph),
+//                                                 value: inputObserver.getActiveValue(activeIndex: .init(.zero)))
+//                }
+//                
+//                // Calculate node to get outputs values
+//                if let evalResult = defaultNode.evaluate() {
+//                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues, graph: graph)
+//                }
+//                
+//                let outputs: [StitchAIPortValueDescription] = defaultNode.outputsObservers.map { outputObserver in
+//                    StitchAIPortValueDescription(
+//                        label: outputObserver.label(node: defaultNode,
+//                                                    coordinate: .output(outputObserver.id),
+//                                                    graph: graph),
+//                        value: outputObserver.getActiveValue(activeIndex: .init(.zero)))
+//                }
+//                
+//                assertInDebug(inputs.first { $0.value == .none } == nil)
+//                assertInDebug(outputs.first { $0.value == .none } == nil)
+//                
+//                return .init(nodeKind: patchOrLayer.asLLMStepNodeName,
+//                             inputs: inputs,
+//                             outputs: outputs)
+//            }
+//
+//        self.header = section.description
+//        self.nodes = nodesInSection
     }
 }
 
@@ -110,25 +113,28 @@ struct StitchAINodeIODescription: Encodable {
 
 extension StitchAINodeIODescription {
     @MainActor
-    init(_ NodeInfo: any NodeDefinition.Type) {
-        self.nodeKind = NodeInfo.graphKind.kind.asLLMStepNodeName
-        let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
-        
-        self.inputs = rowDefinitions.inputs.map {
-            .init(label: $0.label,
-                  value: $0.defaultValues.first!)
-        }
-        
-        self.outputs = rowDefinitions.outputs.map {
-            .init(label: $0.label,
-                  value: $0.value)
-        }
+    init(_ NodeInfo: any NodeDefinition.Type) throws {
+        // MARK: this is only supported with the AI schema's PortValue version matches SSK.
+        throw StitchAIManagerError.portValueDescriptionNotSupported
+
+//        self.nodeKind = NodeInfo.graphKind.kind.asLLMStepNodeName
+//        let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
+//        
+//        self.inputs = rowDefinitions.inputs.map {
+//            .init(label: $0.label,
+//                  value: $0.defaultValues.first!)
+//        }
+//        
+//        self.outputs = rowDefinitions.outputs.map {
+//            .init(label: $0.label,
+//                  value: $0.value)
+//        }
     }
 }
 
 struct StitchAIPortValueDescription {
     var label: String
-    var value: PortValue
+    var value: StitchAIPortValue
 }
 
 extension StitchAIPortValueDescription: Encodable {
@@ -140,13 +146,13 @@ extension StitchAIPortValueDescription: Encodable {
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let nodeType = self.value.toNodeType
+        let nodeType = self.value.value.nodeType
         
         try container.encodeIfPresent(self.label != "" ? self.label : nil,
                                       forKey: .label)
         try container.encode(nodeType.asLLMStepNodeType,
                              forKey: .valueType)
-        try container.encode(self.value.anyCodable,
+        try container.encode(self.value.value.anyCodable,
                              forKey: .value)
     }
 }
