@@ -209,6 +209,7 @@
 		B58E3FCB290357E500700656 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E3FCA290357E500700656 /* ToastView.swift */; };
 		B58E97D12DF0B077007913E3 /* AIGraphCreationContentJSON_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */; };
 		B58E97D32DF0B39F007913E3 /* AIEditJsNodeResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D22DF0B39B007913E3 /* AIEditJsNodeResponseFormat_V0.swift */; };
+		B58E97D52DF0B671007913E3 /* AIGraphCreationRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */; };
 		B58F9C24294AE0AA00FFBF2C /* KeyPressState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */; };
 		B58F9C26294AE0E800FFBF2C /* KeyPressActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */; };
 		B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */; };
@@ -1268,6 +1269,7 @@
 		B58E3FCA290357E500700656 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationContentJSON_V0.swift; sourceTree = "<group>"; };
 		B58E97D22DF0B39B007913E3 /* AIEditJsNodeResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeResponseFormat_V0.swift; sourceTree = "<group>"; };
+		B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationRequestBody_V0.swift; sourceTree = "<group>"; };
 		B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressState.swift; sourceTree = "<group>"; };
 		B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressActions.swift; sourceTree = "<group>"; };
 		B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerValueEntry.swift; sourceTree = "<group>"; };
@@ -2286,8 +2288,8 @@
 		B5136F432DED0AAF007F12D0 /* V0 */ = {
 			isa = PBXGroup;
 			children = (
-				B53BF6412DF0AC09004EA770 /* AIEditJsNode */,
 				B53BF63A2DF0A05E004EA770 /* AIGraphCreation */,
+				B53BF6412DF0AC09004EA770 /* AIEditJsNode */,
 				B5136F4C2DED2BE2007F12D0 /* Node */,
 				B5136F472DED26D4007F12D0 /* GraphActions */,
 				B5136F462DED26CB007F12D0 /* Value */,
@@ -2377,6 +2379,7 @@
 		B53BF63A2DF0A05E004EA770 /* AIGraphCreation */ = {
 			isa = PBXGroup;
 			children = (
+				B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */,
 				B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */,
 				B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.swift */,
 				B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */,
@@ -5811,6 +5814,7 @@
 				B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */,
 				B5969F8C2C2CAAA60012F4BD /* NodeRowViewModel.swift in Sources */,
 				B57F3A822947B4BC00DFC0AE /* SideEffectCoordinator.swift in Sources */,
+				B58E97D52DF0B671007913E3 /* AIGraphCreationRequestBody_V0.swift in Sources */,
 				EC83D8942926E23D00255311 /* GraphStateCardinalPoints.swift in Sources */,
 				ECD50AC6285D34790009B564 /* ShortcutViewUtils.swift in Sources */,
 				ECD2124B294D089A00672A3E /* LocationNode.swift in Sources */,

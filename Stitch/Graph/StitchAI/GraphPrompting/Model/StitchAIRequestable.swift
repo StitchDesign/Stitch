@@ -53,6 +53,11 @@ extension StitchAIRequestable {
     }
 }
 
+enum AIGraphCreationRequestError: Error {
+    case emptySteps
+    case validationFailed(StitchAIStepHandlingError)
+}
+
 struct AIGraphCreationRequest: StitchAIRequestable {
     typealias InitialDecodedResult = AIGraphCreationContentJSON
     
@@ -62,11 +67,6 @@ struct AIGraphCreationRequest: StitchAIRequestable {
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AIGraphCreationRequestBody
     static let willStream: Bool = true
-    
-    enum StitchAIRequestError: Error {
-        case emptySteps
-        case validationFailed(StitchAIStepHandlingError)
-    }
     
     /// Initialize a new request with prompt and optional configuration
     @MainActor
@@ -87,8 +87,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                                      canShareAIRetries: Bool,
                                      aiManager: StitchAIManager,
                                      document: StitchDocumentViewModel) throws {
-        guard let secrets = document.aiManager?.secrets,
-              let aiManager = document.aiManager else {
+        guard let secrets = document.aiManager?.secrets else {
             fatalErrorIfDebug("GenerateAINode: no aiManager")
             return
         }
@@ -155,7 +154,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         let nonConvertedSteps = convertedSteps.compactMap { $0.error }
         guard nonConvertedSteps.isEmpty else {
             log("makeNonStreamedRequest: empty results")
-            throw StitchAIRequestError.emptySteps
+            throw AIGraphCreationRequestError.emptySteps
         }
         
         return convertedSteps.compactMap(\.value)
@@ -167,7 +166,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                              document: StitchDocumentViewModel) throws {
         if let error = document.validateAndApplyActions(result) {
             fatalErrorIfDebug(error.description)
-            throw StitchAIRequestError.validationFailed(error)
+            throw AIGraphCreationRequestError.validationFailed(error)
         }
         
         aiManager.openAIStreamingCompleted(originalPrompt: self.userPrompt,
