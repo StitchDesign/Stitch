@@ -25,7 +25,6 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     typealias ResponseFormat = Body.ResponseFormat
     
     var userPrompt: String { get }             // User's input prompt
-    var systemPrompt: String { get }
     var config: OpenAIRequestConfig { get } // Request configuration settings
     var body: Body { get }
     static var willStream: Bool { get }
@@ -54,15 +53,14 @@ extension StitchAIRequestable {
     }
 }
 
-struct StitchAIRequest: StitchAIRequestable {
-    typealias InitialDecodedResult = StitchAIContentJSON
+struct AIGraphCreationRequest: StitchAIRequestable {
+    typealias InitialDecodedResult = AIGraphCreationContentJSON
     
     private static let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
     
     let userPrompt: String             // User's input prompt
-    let systemPrompt: String
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: StitchAIRequestBody
+    let body: AIGraphCreationRequestBody
     static let willStream: Bool = true
     
     enum StitchAIRequestError: Error {
@@ -78,15 +76,10 @@ struct StitchAIRequest: StitchAIRequestable {
          graph: GraphState) throws {
         self.userPrompt = prompt
         self.config = config
-        
-        // Load system prompt from bundled file
-        let systemPrompt = try StitchAIManager.stitchAISystemPrompt(graph: graph)
-        self.systemPrompt = systemPrompt
-        
+
         // Construct http payload
-        self.body = StitchAIRequestBody(secrets: secrets,
-                                        userPrompt: prompt,
-                                        systemPrompt: systemPrompt)
+        self.body = AIGraphCreationRequestBody(secrets: secrets,
+                                               userPrompt: prompt)
     }
     
     @MainActor
@@ -103,9 +96,9 @@ struct StitchAIRequest: StitchAIRequestable {
         let graph = document.visibleGraph
         
         do {
-            let request = try StitchAIRequest(prompt: prompt,
-                                              secrets: secrets,
-                                              graph: graph)
+            let request = try AIGraphCreationRequest(prompt: prompt,
+                                                     secrets: secrets,
+                                                     graph: graph)
             request.makeRequest(canShareAIRetries: canShareAIRetries,
                                 document: document)
         } catch {
@@ -155,7 +148,7 @@ struct StitchAIRequest: StitchAIRequestable {
             canShareAIRetries: canShareAIRetries))
     }
     
-    static func validateRepopnse(decodedResult: StitchAIContentJSON) throws -> [any StepActionable] {
+    static func validateRepopnse(decodedResult: AIGraphCreationContentJSON) throws -> [any StepActionable] {
         let convertedSteps = decodedResult.steps.map { $0.parseAsStepAction() }
         
         // Catch steps that didn't convert
@@ -193,11 +186,10 @@ struct StitchAIRequest: StitchAIRequestable {
     }
 }
 
-struct EditJSNodeRequest: StitchAIRequestable {
+struct AIEditJSNodeRequest: StitchAIRequestable {
     let userPrompt: String             // User's input prompt
-    let systemPrompt: String
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: EditJsNodeRequestBody
+    let body: AIEditJsNodeRequestBody
     static let willStream: Bool = false
     
     // Tracks origin node of request
@@ -233,14 +225,9 @@ struct EditJSNodeRequest: StitchAIRequestable {
         self.config = config
         self.nodeId = nodeId
         
-        // Load system prompt from bundled file
-        let systemPrompt = StitchAIManager.jsNodeSystemPrompt()
-        self.systemPrompt = systemPrompt
-        
         // Construct http payload
-        self.body = EditJsNodeRequestBody(secrets: secrets,
-                                          userPrompt: prompt,
-                                          systemPrompt: systemPrompt)
+        self.body = AIEditJsNodeRequestBody(secrets: secrets,
+                                            userPrompt: prompt)
     }
     
     @MainActor

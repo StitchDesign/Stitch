@@ -16,7 +16,7 @@ protocol StepActionable: Hashable, Codable, Sendable, Identifiable {
         
     static func fromStep(_ action: Step) -> Result<Self, StitchAIStepHandlingError>
     
-    static func createStructuredOutputs() -> StitchAIStepSchema
+    static func createStructuredOutputs() -> AIGraphCreationStepSchema
     
     /// Lists each property tracked in OpenAI's structured outputs.
     static var structuredOutputsCodingKeys: Set<Step.CodingKeys> { get }
@@ -80,7 +80,7 @@ struct StepActionLayerGroupCreated: StepActionable {
         return .failure(.stepDecoding(Self.stepType, action))
     }
     
-    static func createStructuredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
         .init(stepType: .sidebarGroupCreated,
               nodeId: OpenAISchema(type: .string),
               children: OpenAISchemaRef(ref: "NodeIdSet"))
@@ -138,7 +138,7 @@ struct StepActionAddNode: StepActionable {
         return .failure(.stepDecoding(Self.stepType, action))
     }
     
-    static func createStructuredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
         .init(stepType: .addNode,
               nodeId: OpenAISchema(type: .string),
               nodeName: OpenAISchemaRef(ref: "NodeName")
@@ -226,7 +226,7 @@ struct StepActionConnectionAdded: StepActionable {
                               fromNodeId: fromNodeId))
     }
     
-    static func createStructuredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
         .init(stepType: .connectNodes,
               port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
                                   refs: [OpenAISchemaRef(ref: "LayerPorts")]),
@@ -340,7 +340,7 @@ struct StepActionChangeValueType: StepActionable {
         return .failure(.stepDecoding(Self.stepType, action))
     }
     
-    static func createStructuredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
         .init(stepType: .changeValueType,
               nodeId: OpenAISchema(type: .string),
               valueType: OpenAISchemaRef(ref: "ValueType")
@@ -430,7 +430,7 @@ struct StepActionSetInput: StepActionable {
         return .failure(.stepDecoding(Self.stepType, action))
     }
     
-    static func createStructuredOutputs() -> StitchAIStepSchema {
+    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
         .init(stepType: .setInput,
               nodeId: OpenAISchema(type: .string),
               port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
@@ -541,7 +541,7 @@ struct StepActionSetInput: StepActionable {
 //             outputDefinitions: outputDefinitions.map(\.aiStep))
 //    }
 //    
-//    static func createStructuredOutputs() -> StitchAIStepSchema {
+//    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
 //        .init(stepType: .editJSNode,
 //              script: OpenAISchema(type: .string),
 //              inputDefinitions: OpenAISchemaRef(ref: "PortDefinitions"),

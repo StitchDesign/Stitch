@@ -141,7 +141,7 @@ extension StitchAINodeIODescription {
                              value: migratedOutput)
             }
         } catch {
-            log("Error converted node types at StitchAINodeIODescription: \(error.localizedDescription)")
+            log("Error converting node types at StitchAINodeIODescription: \(error.localizedDescription)")
             throw StitchAIManagerError.portValueDescriptionNotSupported
         }
     }

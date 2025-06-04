@@ -12,7 +12,7 @@ import SwiftyJSON
 
 struct ChunkProcessed: StitchStoreEvent {
     let newStep: Step
-    let request: StitchAIRequest
+    let request: AIGraphCreationRequest
     let currentAttempt: Int
     
     @MainActor

@@ -15,6 +15,10 @@ typealias CurrentStitchAISize = StitchAISize_V0
 typealias CurrentStitchAISizeDimension = StitchAISizeDimension_V0
 typealias CurrentJavaScriptNodeSettingsAI = JavaScriptNodeSettingsAI_V0
 typealias CurrentJavaScriptPortDefinitionAI = JavaScriptPortDefinitionAI_V0
+typealias CurrentAIGraphCreationSystemPrompt = AIGraphCreationSystemPrompt_V0
+typealias CurrentAIEditJsSystemPrompt = AIEditJsNodeSystemPrompt_V0
+typealias CurrentAIGraphCreationResponseFormat = AIGraphCreationResponseFormat_V0
+typealias CurrentAIEditJsNodeResponseFormat = AIEditJsNodeResponseFormat_V0
 
 typealias Step = CurrentStep.Step
 typealias StepType = CurrentStepType.StepType
@@ -30,3 +34,5 @@ typealias JavaScriptPortDefinitionAI = CurrentJavaScriptPortDefinitionAI.JavaScr
 typealias PatchAI = CurrentStep.Patch
 typealias LayerAI = CurrentStep.Layer
 typealias PatchOrLayerAI = CurrentStep.PatchOrLayer
+typealias AIGraphCreationStepSchema = CurrentAIGraphCreationResponseFormat.AIGraphCreationStepSchema
+typealias AIGraphCreationContentJSON = AIGraphCreationContentJSON_V0.AIGraphCreationContentJSON
