@@ -210,6 +210,7 @@
 		B58E97D12DF0B077007913E3 /* AIGraphCreationContentJSON_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */; };
 		B58E97D32DF0B39F007913E3 /* AIEditJsNodeResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D22DF0B39B007913E3 /* AIEditJsNodeResponseFormat_V0.swift */; };
 		B58E97D52DF0B671007913E3 /* AIGraphCreationRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */; };
+		B58E97D72DF0B87B007913E3 /* AIEditJsNodeRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E97D62DF0B871007913E3 /* AIEditJsNodeRequestBody_V0.swift */; };
 		B58F9C24294AE0AA00FFBF2C /* KeyPressState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */; };
 		B58F9C26294AE0E800FFBF2C /* KeyPressActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */; };
 		B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */; };
@@ -1270,6 +1271,7 @@
 		B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationContentJSON_V0.swift; sourceTree = "<group>"; };
 		B58E97D22DF0B39B007913E3 /* AIEditJsNodeResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeResponseFormat_V0.swift; sourceTree = "<group>"; };
 		B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationRequestBody_V0.swift; sourceTree = "<group>"; };
+		B58E97D62DF0B871007913E3 /* AIEditJsNodeRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeRequestBody_V0.swift; sourceTree = "<group>"; };
 		B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressState.swift; sourceTree = "<group>"; };
 		B58F9C25294AE0E800FFBF2C /* KeyPressActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressActions.swift; sourceTree = "<group>"; };
 		B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerValueEntry.swift; sourceTree = "<group>"; };
@@ -2288,6 +2290,7 @@
 		B5136F432DED0AAF007F12D0 /* V0 */ = {
 			isa = PBXGroup;
 			children = (
+				B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */,
 				B53BF63A2DF0A05E004EA770 /* AIGraphCreation */,
 				B53BF6412DF0AC09004EA770 /* AIEditJsNode */,
 				B5136F4C2DED2BE2007F12D0 /* Node */,
@@ -2390,6 +2393,7 @@
 		B53BF6412DF0AC09004EA770 /* AIEditJsNode */ = {
 			isa = PBXGroup;
 			children = (
+				B58E97D62DF0B871007913E3 /* AIEditJsNodeRequestBody_V0.swift */,
 				B58E97D22DF0B39B007913E3 /* AIEditJsNodeResponseFormat_V0.swift */,
 				B53BF6422DF0AC22004EA770 /* AIEditJsNodeSystemPrompt_V0.swift */,
 			);
@@ -4260,7 +4264,6 @@
 				B5136F422DED0A84007F12D0 /* SchemaVersions */,
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
 				B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */,
-				B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */,
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
 				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
@@ -5928,6 +5931,7 @@
 				B52A3E632B7F337400B4F1DA /* GraphCopyable.swift in Sources */,
 				EC16587F2B6AFA8D00FE4AE6 /* EdgeEditingActions.swift in Sources */,
 				20308FA725AD1721008CE3BE /* ContentView.swift in Sources */,
+				B58E97D72DF0B87B007913E3 /* AIEditJsNodeRequestBody_V0.swift in Sources */,
 				EC11B5A52898848F0097E5A8 /* AdjustmentBarStepScale.swift in Sources */,
 				ECF0B0F42877E45A001D7CFC /* ColorOrbValueButtonView.swift in Sources */,
 				EC4CFB6526FE480700D085F3 /* StitchSoundFile.swift in Sources */,
