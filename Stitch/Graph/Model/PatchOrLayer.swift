@@ -185,7 +185,7 @@ extension CurrentStep.PatchOrLayer {
                         
             // Tricky: can't use `Patch(rawValue:)` constructor since newer patches use a non-camelCase rawValue
             if let patch = PatchAI.allCases.first(where: {
-                // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot"
+                // e.g. Patch.squareRoot 1-> "Square Root" -> "squareRoot"
                 let patchDisplay = $0.defaultDisplayTitle().toCamelCase()
                 return patchDisplay == nodeKindName
             }) {
@@ -213,5 +213,23 @@ extension CurrentStep.PatchOrLayer {
         }
         
         throw StitchAIParsingError.nodeNameParsing(nodeName)
+    }
+    
+//    var asNodeKind: CurrentStep.NodeKind {
+//        switch self {
+//        case .patch(let patch):
+//            return .patch(patch)
+//        case .layer(let layer):
+//            return .layer(layer)
+//        }
+//    }
+//    
+    var description: String {
+        switch self {
+        case .patch(let patch):
+            return patch.defaultDisplayTitle()
+        case .layer(let layer):
+            return layer.defaultDisplayTitle()
+        }
     }
 }

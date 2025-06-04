@@ -100,7 +100,7 @@ struct EditBeforeSubmitModalView: View {
 
 struct LLMNodeIOPortTypeView: View {
     let nodeName: PatchOrLayer
-    let port: NodeIOPortType
+    let port: CurrentStep.NodeIOPortType
     let generalLabel: String
     
     var body: some View {
@@ -140,7 +140,7 @@ struct LLMActionCorrectionView: View {
             switch StepTypeAction.fromStep(action.toStep).value {
                 
             case .addNode(let x):
-                StitchTextView(string: "Node: \(x.nodeName.asNodeKind.description) \(x.nodeId.debugFriendlyId)")
+                StitchTextView(string: "Node: \(x.nodeName.description) \(x.nodeId.debugFriendlyId)")
 
             case .connectNodes(let x):
                 if let nodeKind = graph.getNode(x.fromNodeId)?.kind,
@@ -184,7 +184,7 @@ struct LLMActionCorrectionView: View {
                     StitchTextView(string: "No Patch/Layer found for Node \(x.nodeId.debugFriendlyId)")
                 }
                 StitchTextView(string: "ValueType: \(x.valueType.display)")
-                StitchTextView(string: "Value: \(x.value.display)")
+                StitchTextView(string: "Value: \(x.value.anyCodable)")
                 
             case .sidebarGroupCreated(let x):
                 StitchTextView(string: "Create Group")

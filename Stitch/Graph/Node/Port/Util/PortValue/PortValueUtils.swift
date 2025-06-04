@@ -502,6 +502,16 @@ extension PortValue {
             return nil
         }
     }
+    
+    var anyCodable: (any Codable)? {
+        do {
+            let migratedPortValue = try self.convert(to: CurrentStep.PortValue.self)
+            return migratedPortValue.anyCodable
+        } catch {
+            fatalErrorIfDebug("PortValue.anyCodable error: \(error)")
+            return nil
+        }
+    }
 }
 
 extension SizingScenario {

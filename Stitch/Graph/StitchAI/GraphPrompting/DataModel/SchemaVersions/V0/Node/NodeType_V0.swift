@@ -8,6 +8,25 @@
 import StitchSchemaKit
 import Vision
 
+extension NodeType {
+    var portValueTypeForStitchAI: Decodable.Type? {
+        do {
+            let convertedType = try self.convert(to: StitchAINodeType.self)
+            return convertedType.portValueTypeForStitchAI
+        } catch {
+            fatalErrorIfDebug("portValueTypeForStitchAI error: \(error)")
+            return nil
+        }
+    }
+    
+    func coerceToPortValueForStitchAI(from anyValue: Any) throws -> PortValue {
+        let convertedType = try self.convert(to: StitchAINodeType.self)
+        let value = try convertedType.coerceToPortValueForStitchAI(from: anyValue)
+        let migratedValue = try value.migrate()
+        return migratedValue
+    }
+}
+
 // MARK: update at cadence when Stitch AI utils update node type
 extension StitchAIPortValue_V0.NodeType {
     /*
