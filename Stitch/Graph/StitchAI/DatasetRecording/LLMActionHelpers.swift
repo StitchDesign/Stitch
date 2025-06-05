@@ -64,7 +64,7 @@ extension StitchDocumentViewModel {
         let actionsAsSteps = state.llmRecording.actions
         log("ShowLLMApprovalModal: actions: \(actionsAsSteps)")
         
-        guard let deviceUUID = StitchAIManager.getDeviceUUID() else {
+        guard let deviceUUID = getDeviceUUID() else {
             fatalErrorIfDebug("SubmitLLMActionsToSupabase error: no device ID found.")
             return
         }
@@ -91,10 +91,12 @@ extension StitchDocumentViewModel {
             }
             
             do {
-                try await supabaseManager.uploadActionsToSupabase(
+                try await supabaseManager.uploadInferenceCallResultToSupabase(
                     prompt: promptForTrainingDataOrCompletedRequest,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
+                    // For fresh training example, we won't have this
+                    requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: isCorrection,
                     rating: rating,
                     // these actions + prompt did not require a retry
@@ -111,13 +113,13 @@ extension StitchDocumentViewModel {
                 state.llmRecording.ratingFromPreviousExistingGraphSubmittedAsTrainingData = rating
                 
             } catch let encodingError as EncodingError {
-                log("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
+                fatalErrorIfDebug("📼 ❌ Encoding error: \(encodingError.localizedDescription) ❌ 📼")
                 state.llmRecording = .init()
             } catch let fileError as NSError {
-                log("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
+                fatalErrorIfDebug("📼 ❌ File system error: \(fileError.localizedDescription) ❌ 📼")
                 state.llmRecording = .init()
             } catch {
-                log("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
+                fatalErrorIfDebug("📼 ❌ Error: \(error.localizedDescription) ❌ 📼")
                 state.llmRecording = .init()
             }
         }

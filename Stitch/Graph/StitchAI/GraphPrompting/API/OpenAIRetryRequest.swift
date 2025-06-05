@@ -64,23 +64,22 @@ extension StitchAIManager {
             return .maxRetriesError(request.config.maxRetries,
                                     document.llmRecording.actionsError ?? "")
         }
-        
-        
-        
+                
         if canShareAIRetries {
             Task(priority: .high) { [weak self] in
                 guard let aiManager = self,
-                      let deviceUUID = StitchAIManager.getDeviceUUID() else {
+                      let deviceUUID = getDeviceUUID() else {
                     log("_retryRequest error: no AI Manager or no device ID found.")
                     return
                 }
                 
                 do {
-                    try await aiManager.uploadActionsToSupabase(
+                    try await aiManager.uploadInferenceCallResultToSupabase(
                         prompt: request.userPrompt,
                         // Send the raw-streamed steps
                         finalActions: Array(document.llmRecording.streamedSteps),
                         deviceUUID: deviceUUID,
+                        requestId: request.id,
                         isCorrection: false,
                         rating: .oneStar,
                         // These actions could not be parsed and/or validated, so
@@ -88,11 +87,9 @@ extension StitchAIManager {
                 } catch  {
                     log("_retryRequest: had error when trying to share retry: \(error)", .logToServer)
                 }
-                
             }
         }
     
-        
         
         let aiManager = self
         
@@ -115,7 +112,7 @@ extension StitchAIManager {
         
         // TODO: can `Task.sleep` really "fail" ?
         log("_retryRequest: Retrying request with backoff delay: \(cappedDelay) seconds")
-        let slept: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
+        let _: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
         
         // This can somehow fail?
         // assertInDebug(slept.isDefined)

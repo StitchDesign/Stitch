@@ -11,7 +11,8 @@ import StitchSchemaKit
 struct Secrets: Equatable {
     var supabaseURL: String
     var supabaseAnonKey: String
-    var tableName: String
+    var userPromptTableName: String
+    var inferenceCallResultTableName: String
     var openAIAPIKey: String
     var openAIModel: String
     var sentryDSN: String
@@ -36,7 +37,8 @@ extension Secrets: Decodable {
     enum CodingKeys: String, CodingKey {
         case supabaseURL = "SUPABASE_URL"
         case supabaseAnonKey = "SUPABASE_ANON_KEY"
-        case tableName = "SUPABASE_TABLE_NAME"
+        case userPromptTableName = "SUPABASE_USER_PROMPT_TABLE_NAME"
+        case inferenceCallResultTableName = "SUPABASE_INFERENCE_CALL_RESULT_TABLE_NAME"
         case openAIAPIKey = "OPEN_AI_API_KEY"
         case openAIModel = "OPEN_AI_MODEL"
         case sentryDSN = "SENTRY_DSN"

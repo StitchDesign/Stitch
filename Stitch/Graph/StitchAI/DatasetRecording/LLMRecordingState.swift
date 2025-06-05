@@ -97,6 +97,9 @@ struct LLMRecordingState {
     var promptForTrainingDataOrCompletedRequest: String?
     var promptFromPreviousExistingGraphSubmittedAsTrainingData: String?
     
+    // id from a user inference call; used
+    var requestIdFromCompletedRequest: UUID?
+    
     var rating: StitchAIRating?
     var ratingFromPreviousExistingGraphSubmittedAsTrainingData: StitchAIRating?
 }
