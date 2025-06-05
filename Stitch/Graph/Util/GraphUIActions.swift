@@ -176,10 +176,10 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             return .noChange
         }
         
-        try? StitchAIRequest.createAndMakeRequest(prompt: prompt,
-                                                  canShareAIRetries: store.canShareAIRetries,
-                                                  aiManager: aiManager,
-                                                  document: document)
+        try? AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
+                                                         canShareAIRetries: store.canShareAIRetries,
+                                                         aiManager: aiManager,
+                                                         document: document)
         
         return .noChange
     }
