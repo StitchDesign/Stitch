@@ -143,7 +143,7 @@ struct StitchTextEditingBindingField: View {
             .onDisappear {
                 
                 // log("StitchTextEditingBindingField: onDisappear")
-                self.isFocused = false // added
+                self.isFocused = false
                 dispatch(TextFieldDisappeared(focusedField: fieldType))
                 if self.initialValue != self.currentEdit && !hasSubmitted {
                     // log("StitchTextEditingBindingField: encode project.")
@@ -225,18 +225,18 @@ struct TextFieldDisappeared: StitchDocumentEvent {
     let focusedField: FocusedUserEditField
     
     func handle(state: StitchDocumentViewModel) {
+        
         if state.reduxFocusedField == focusedField {
             state.reduxFocusedField = nil
         }
         
         /*
-         On iPad, de-rendering a TextField messes up the responder-chain, such that we do not receive a "presses ended" event.
+         IMPORTANT:
+         De-rendering a TextField messes up the responder-chain, such that we do not receive a "presses ended" event.
          So, we manually remove the TAB and SHIFT modifiers when the TextField disappears.
          TAB and SHIFT are the only key presses that could trigger the disappearance of the TextField.
          */
-        #if !targetEnvironment(macCatalyst)
         state.keypressState.modifiers.remove(.tab)
         state.keypressState.modifiers.remove(.shift)
-        #endif
     }
 }
