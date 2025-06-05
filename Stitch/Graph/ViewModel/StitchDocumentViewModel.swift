@@ -459,6 +459,10 @@ extension StitchDocumentViewModel {
             graph.scheduleForNextGraphStep(keyboardNodes)
         }
     }
+    
+    @MainActor var isLoadingAI: Bool {
+        self.aiManager?.currentTask != nil
+    }
 }
 
 

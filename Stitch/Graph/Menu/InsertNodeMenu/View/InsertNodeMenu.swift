@@ -121,7 +121,8 @@ struct InsertNodeMenuView: View {
     @MainActor
     var sheetView: some View {
         VStack(spacing: 0) {
-            InsertNodeMenuSearchBar(launchTip: self.launchTip,
+            InsertNodeMenuSearchBar(document: document,
+                                    launchTip: self.launchTip,
                                     isLoadingStitchAI: $isLoadingStitchAI,
                                     queryString: $queryString,
                                     userSubmitted: userSubmitted)
