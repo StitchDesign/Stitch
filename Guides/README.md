@@ -49,11 +49,10 @@ At this moment, Stitch AI is limited to building smaller components (usually les
 
 ### Data Collection
 
-If opted in, Stitch will collect a minimal set of AI usage data to improve Stitch AI. 
+Sharing a few safe, anonymous signals lets us fix issues quickly and train Stitch AI to suggest the right nodes more often. You can always opt out from App Settings.
 
-What we collect:
+Exactly what we collect:
 1. Strings of AI queries from the Node menu.
 2. Logs from failed results.
-3. AI results upon successful response.
-
-We will also receive user-submitted reviews of completed responses.
+3. AI results from successful response.
+4. Any review feedback you choose to submit.

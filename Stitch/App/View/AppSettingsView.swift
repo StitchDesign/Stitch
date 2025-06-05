@@ -297,7 +297,7 @@ struct AppSettingsView: View {
                 
         VStack(alignment: .leading) {
             HStack(alignment: .center) {
-                Text("Share AI Retries").fontWeight(.bold)
+                Text("Share AI Usage Data").fontWeight(.bold)
     
                 let canShareAIData = self.canShareAIData ?? true
                 let icon: String = canShareAIData ? "checkmark.square" : "square"
