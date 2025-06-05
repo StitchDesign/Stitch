@@ -104,6 +104,19 @@ struct AIGraphCreationRequest: StitchAIRequestable {
             let request = try AIGraphCreationRequest(prompt: prompt,
                                                      secrets: secrets,
                                                      graph: graph)
+            
+            Task(priority: .high) { [weak document] in
+                guard let document = document,
+                      let aiManager = document.aiManager else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                try await aiManager.uploadUserPromptRequestToSupabase(
+                    prompt: prompt,
+                    requestId: request.id)
+            }
+            
             request.makeRequest(canShareAIRetries: canShareAIRetries,
                                 document: document)
         } catch {

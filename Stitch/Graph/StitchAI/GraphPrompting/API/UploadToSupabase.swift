@@ -171,14 +171,14 @@ extension StitchAIManager {
                 .from(tableName)
                 .insert(payload, returning: .minimal)
                 .execute()
-            log(" Data uploaded successfully to Supabase!")
+            log("Data uploaded successfully to Supabase!")
         } catch let error as HTTPError {
             if let errorMessage = String(data: error.data, encoding: .utf8) {
-                log("HTTPError uploading to Supabase Error details: \(errorMessage)", .logToServer)
+                fatalErrorIfDebug("HTTPError uploading to Supabase Error details: \(errorMessage)")
             }
             throw error
         } catch {
-            log("SupabaseManager Unknown error: \(error)", .logToServer)
+            fatalErrorIfDebug("SupabaseManager Unknown error: \(error)")
             throw error
         }
         
