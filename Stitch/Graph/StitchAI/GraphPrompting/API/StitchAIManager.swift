@@ -18,6 +18,8 @@ import Sentry
 //    let recordingState: LLMRecordingState
 //}
 
+
+// Lifecycle is a single stream; if we have to retry, we destroy the existing CurrentAITask and create a new one
 struct CurrentAITask {
     // Streaming request to OpenAI
     var task: Task<Void, Never>
@@ -26,15 +28,14 @@ struct CurrentAITask {
     // See notes for `remapNodeIds`;
     // Populated as we receive and parse each `Step`
     var nodeIdMap: [StitchAIUUID: NodeId] = .init()
-    
-    var currentAttempt: Int = 1
 }
 
 final actor StitchAIManager {
     let secrets: Secrets
 
     var postgrest: PostgrestClient
-    var tableName: String
+  
+//    var tableName: String
     
     @MainActor var currentTask: CurrentAITask?
 
@@ -49,12 +50,12 @@ final actor StitchAIManager {
         self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""),
                                          schema: "",
                                          headers: [:])
-        self.tableName = ""
+//        self.tableName = ""
         
         // Extract required environment variables
         let supabaseURL = secrets.supabaseURL
         let supabaseAnonKey = secrets.supabaseAnonKey
-        let tableName = secrets.tableName
+//        let tableName = secrets.tableName
         
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
@@ -64,7 +65,7 @@ final actor StitchAIManager {
         }
         
         // Assign the actual values only if everything succeeds
-        self.tableName = tableName
+//        self.tableName = tableName
         self.postgrest = PostgrestClient(
             url: apiURL,
             schema: "public",
@@ -77,6 +78,14 @@ final actor StitchAIManager {
 }
 
 extension StitchAIManager {
+    var inferenceCallResultTableName: String {
+        self.secrets.inferenceCallResultTableName
+    }
+    
+    var userPromptTableName: String {
+        self.secrets.userPromptTableName
+    }
+    
     @MainActor
     func cancelCurrentRequest() {
         guard let currentTask = self.currentTask else {
