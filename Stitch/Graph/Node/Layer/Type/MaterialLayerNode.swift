@@ -14,8 +14,6 @@ struct MaterialLayerNode: LayerNodeDefinition {
     static let layer = Layer.material
 
     static let inputDefinitions: LayerInputPortSet = .init([
-        .shape,
-        .color,
         .position,
         .rotationX,
         .rotationY,
@@ -25,7 +23,6 @@ struct MaterialLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .coordinateSystem,
         .pivot,
         .masks,
         .shadowColor,
