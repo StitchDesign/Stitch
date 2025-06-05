@@ -24,7 +24,7 @@ struct FeatureFlags {
 //#endif
     
     
-#if STITCH_AI_REASONING || DEBUG || DEV_DEBUG
+#if STITCH_AI_REASONING
     static let STITCH_AI_REASONING = true
 #else
     static let STITCH_AI_REASONING = false
