@@ -199,7 +199,7 @@ struct ModalBackgroundGestureRecognizer<T: View>: UIViewControllerRepresentable 
     }
 }
 
-class ModalBackgroundGestureDelegate: NSObject, UIGestureRecognizerDelegate {
+final class ModalBackgroundGestureDelegate: NSObject, UIGestureRecognizerDelegate {
   
     var dismissalCallback: () -> Void
 

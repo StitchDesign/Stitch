@@ -119,9 +119,6 @@ extension StitchDocumentViewModel {
                 
          // log("InsertNodeAnimationCompleted called")
 
-        // Cancel any ongoing AI request
-        self.aiManager?.cancelCurrentRequest()
-
         // hide the menu and animated-node
         self.insertNodeMenuState.show = false
 
