@@ -7114,7 +7114,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
 			requirement = {
 				kind = revision;
-				revision = 8f7111c41c030903c1bfa978de2f433eb5703300;
+				revision = 32a6665d18120e2b98ed5cbb6b9f082513469f0c;
 			};
 		};
 		EC39E75A26822ACA00674841 /* XCRemoteSwiftPackageReference "AudioKit" */ = {
