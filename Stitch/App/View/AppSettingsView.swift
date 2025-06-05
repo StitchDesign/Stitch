@@ -158,12 +158,6 @@ struct AppSettingsView: View {
     @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
     
     @AppStorage(StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) private var canShareAIData: Bool?
-    
-//    var isOptionRequiredForShortcut: Bool
-    
-//    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
-//    @Environment(\.edgeStyle) var edgeStyle
-//    @Environment(\.isOptionRequiredForShortcut) var isOptionRequiredForShortcut
         
     let allCameraChoices = getCameraPickerOptions()
 
