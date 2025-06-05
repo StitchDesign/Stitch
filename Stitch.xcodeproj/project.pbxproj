@@ -381,6 +381,8 @@
 		EC0957DC27208C1200B4027F /* GeneratePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0957DB27208C1200B4027F /* GeneratePreview.swift */; };
 		EC0A5ECD28E22A9900B00A9F /* WhenPrototypeStartsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */; };
 		EC0A7A452DDA8EC8004C1698 /* ActivelyDrawnEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */; };
+		EC0B03502DF200E40045E894 /* StitchAIRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */; };
+		EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable.swift */; };
 		EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */; };
 		EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */; };
 		EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */; };
@@ -1428,6 +1430,8 @@
 		EC0957DB27208C1200B4027F /* GeneratePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratePreview.swift; sourceTree = "<group>"; };
 		EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenPrototypeStartsNode.swift; sourceTree = "<group>"; };
 		EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivelyDrawnEdge.swift; sourceTree = "<group>"; };
+		EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestable.swift; sourceTree = "<group>"; };
+		EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBodyFormattable.swift; sourceTree = "<group>"; };
 		EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectanglePatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvalPatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePatchNode.swift; sourceTree = "<group>"; };
@@ -2281,12 +2285,12 @@
 		B5136F432DED0AAF007F12D0 /* V0 */ = {
 			isa = PBXGroup;
 			children = (
-				B5EFD5C02D64EC5C006A68FB /* StitchAIRequestBodyFormattable.swift */,
 				B53BF63A2DF0A05E004EA770 /* AIGraphCreation */,
 				B53BF6412DF0AC09004EA770 /* AIEditJsNode */,
 				B5136F4C2DED2BE2007F12D0 /* Node */,
 				B5136F472DED26D4007F12D0 /* GraphActions */,
 				B5136F462DED26CB007F12D0 /* Value */,
+				EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable.swift */,
 			);
 			path = V0;
 			sourceTree = "<group>";
@@ -4251,9 +4255,9 @@
 			children = (
 				B5136F422DED0A84007F12D0 /* SchemaVersions */,
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
-				B5098C3A2DEBFC8D003C154A /* StitchAIRequestable.swift */,
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
 				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
+				EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
 				B5EFD5BF2D64EC23006A68FB /* OpenAISchema */,
 				B555FB402D59CD3A00E1D349 /* StitchAISchema.swift */,
@@ -5521,7 +5525,6 @@
 				ECB9A8672AEB48FF006E65EE /* HSLSliderView.swift in Sources */,
 				EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */,
 				B5136F4E2DED2C07007F12D0 /* NodeType_V0.swift in Sources */,
-				B5098C3B2DEBFC91003C154A /* StitchAIRequestable.swift in Sources */,
 				20D9D79425D5A78900F5C7A4 /* Parsers.swift in Sources */,
 				ECB9A8652AEB48A2006E65EE /* StitchColorPickerView.swift in Sources */,
 				B55500EF2C1BADB20081C3F1 /* PreviewCommonMisc.swift in Sources */,
@@ -5803,6 +5806,7 @@
 				B5969F8C2C2CAAA60012F4BD /* NodeRowViewModel.swift in Sources */,
 				B57F3A822947B4BC00DFC0AE /* SideEffectCoordinator.swift in Sources */,
 				B58E97D52DF0B671007913E3 /* AIGraphCreationRequestBody_V0.swift in Sources */,
+				EC0B03502DF200E40045E894 /* StitchAIRequestable.swift in Sources */,
 				EC83D8942926E23D00255311 /* GraphStateCardinalPoints.swift in Sources */,
 				ECD50AC6285D34790009B564 /* ShortcutViewUtils.swift in Sources */,
 				ECD2124B294D089A00672A3E /* LocationNode.swift in Sources */,
@@ -5887,6 +5891,7 @@
 				B5D689BB2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift in Sources */,
 				B55500D32C1BA6810081C3F1 /* PreviewWindowSizing.swift in Sources */,
 				8B2A221926A3B5BE002D08BA /* FeatureFlags.swift in Sources */,
+				EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable.swift in Sources */,
 				EC53F3BC287E25EE0021095B /* ArcTan2Node.swift in Sources */,
 				ECEF8D0F2BFE9BE5004FABCD /* LayerGroupInteractableViewModifier.swift in Sources */,
 				B5136F5D2DED6330007F12D0 /* StitchAINodeType_V0.swift in Sources */,

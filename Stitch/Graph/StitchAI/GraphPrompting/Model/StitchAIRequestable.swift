@@ -24,6 +24,7 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     associatedtype TokenDecodedResult
     typealias ResponseFormat = Body.ResponseFormat
     
+    var id: UUID { get }
     var userPrompt: String { get }             // User's input prompt
     var config: OpenAIRequestConfig { get } // Request configuration settings
     var body: Body { get }
@@ -63,6 +64,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
     
     private static let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
     
+    let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AIGraphCreationRequestBody
@@ -74,6 +76,10 @@ struct AIGraphCreationRequest: StitchAIRequestable {
          secrets: Secrets,
          config: OpenAIRequestConfig = .default,
          graph: GraphState) throws {
+        
+        // The id of the user's inference call; does not change across retries etc.
+        self.id = .init()
+        
         self.userPrompt = prompt
         self.config = config
 
@@ -186,6 +192,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
 }
 
 struct AIEditJSNodeRequest: StitchAIRequestable {
+    let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AIEditJsNodeRequestBody
@@ -220,6 +227,10 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
          config: OpenAIRequestConfig = .default,
          graph: GraphState,
          nodeId: NodeId) {
+        
+        // The id of the user's inference call; does not change across retries etc.
+        self.id = .init()
+        
         self.userPrompt = prompt
         self.config = config
         self.nodeId = nodeId
