@@ -67,6 +67,7 @@ final class LayerViewModel: Sendable {
         }
     }
     
+    // TODO: can we use specific types for the LayerViewModel? These types are always the same and known at compile-time (e.g. `position` is always a StitchPosition, `size` is always a LayerSize
     // Ports
     @MainActor var position: PortValue
     @MainActor var size: PortValue
