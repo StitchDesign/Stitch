@@ -41,6 +41,12 @@ struct ProjectSettingsView: View {
                     .frame(maxHeight: previewWindowColorPickerHeight)
                 previewWindowColorBackgroundPicker
             }
+            
+            Divider()
+                .padding(.vertical)
+            
+            // Drop in app settings
+            AppSettingsView()
         }
     }
         
