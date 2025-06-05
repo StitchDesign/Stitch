@@ -157,9 +157,7 @@ enum Step_V0: StitchSchemaVersionable {
                     .PortValue(decoderContainer: container,
                                type: nodeType)
             } catch {
-                if stepType == .setInput {
-                    log("Stitch AI error decoding value for setInput action: \(error.localizedDescription)")
-                }
+                log("Step decoding error for step: \(stepTypeString)\nWith error: \(error.localizedDescription)")
                 
                 if let stitchAIError = error as? StitchAIManagerError {
                     throw stitchAIError

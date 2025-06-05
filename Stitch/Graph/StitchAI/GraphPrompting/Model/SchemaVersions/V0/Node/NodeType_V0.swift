@@ -27,7 +27,7 @@ extension StitchAIPortValue_V0.NodeType {
         case .number:
             return Double.self
         case .layerDimension:
-            return StitchAIPortValue_V0.PortValueVersion.LayerDimension.self
+            return StitchAISizeDimension_V0.StitchAISizeDimension.self
         case .transform:
             return StitchAIPortValue_V0.PortValueVersion.StitchTransform.self
         case .plane:
