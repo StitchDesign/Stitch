@@ -96,7 +96,8 @@ extension StitchAIPortValue_V0.PortValue {
         case .networkRequestType(let x):
             return x
         case .color(let x):
-            return StitchAIColor(value: x)
+//            return StitchAIColor(value: x)
+            return x.asHexDisplay
         case .size(let size):
             return StitchAISize(width: .init(value: size.width),
                                 height: .init(value: size.height))

@@ -7,6 +7,7 @@
 
 import StitchSchemaKit
 import Vision
+import SwiftUI
 
 // MARK: update at cadence when Stitch AI utils update node type
 extension StitchAIPortValue_V0.NodeType {
@@ -181,10 +182,18 @@ extension StitchAIPortValue_V0.NodeType {
             }
             return .networkRequestType(x)
         case .color:
-            guard let stitchAIColor = anyValue as? StitchAIColor else {
+            log("coerceToPortValueForStitchAI: color case")
+//            guard let stitchAIColor = anyValue as? StitchAIColor else {
+            guard let stitchAIColor = anyValue as? String,
+                  let color = Color(stitchAIColor) else {
                 throw StitchAIParsingError.typeCasting
             }
-            return .color(stitchAIColor.value)
+            
+            log("coerceToPortValueForStitchAI: color: \(color)")
+//            return .color(stitchAIColor.value)
+            //let color = Color(stitchAIColor)
+            return .color(color)
+//            return .color(stitchAIColor)
         case .size:
             guard let aiSize = anyValue as? StitchAISize else {
                 throw StitchAIParsingError.typeCasting

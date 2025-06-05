@@ -24,7 +24,8 @@ extension LayerSize {
 }
 
 extension Color {
-    static let LAYER_DEFAULT_COLOR: Color = STITCH_PURPLE
+//    static let LAYER_DEFAULT_COLOR: Color = STITCH_PURPLE
+    static let LAYER_DEFAULT_COLOR: Color = .red
 }
 
 func initialLayerColor() -> Color {
