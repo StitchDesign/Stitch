@@ -122,6 +122,10 @@ struct iPadGraphTopBarButtons: View {
             }
             
             if !isDebugMode {
+                iPadNavBarButton(action: {
+                    dispatch(ToggleInsertNodeMenu())
+                }, iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
+                
                 // toggle preview window
                 iPadNavBarButton(
                     action: PREVIEW_SHOW_TOGGLE_ACTION,
