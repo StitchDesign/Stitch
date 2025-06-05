@@ -39,6 +39,10 @@ struct ExistingGraphSubmittedAsTrainingExample: StitchDocumentEvent {
         state.llmRecording.actions = actionsFromExistingGraph
         
         state.llmRecording.promptForTrainingDataOrCompletedRequest = prompt
+        
+        // Note: we do NOT provide a request_id for the freshly-created training examples
+        // state.llmRecording.requestIdFromCompletedRequest = nil
+        
         state.llmRecording.rating = rating
         
         // Shows the edit modal, BUT DOES NOT put us into "correction mode" (i.e. we're not correcting a response from OpenAI).

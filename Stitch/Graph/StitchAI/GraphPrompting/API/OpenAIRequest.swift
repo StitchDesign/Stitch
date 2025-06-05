@@ -233,18 +233,16 @@ extension StitchAIManager {
          document.insertNodeMenuState.show = false
          document.insertNodeMenuState.isGeneratingAIResult = false
 
-        log(" Storing Original AI Generated Actions ")
+        log("Storing user prompt and request id")
         document.llmRecording.promptForTrainingDataOrCompletedRequest = originalPrompt
+        document.llmRecording.requestIdFromCompletedRequest = request.id
         
-        // Enable edit mode for actions after successful request
-//        document.llmRecording.mode = .augmentation
         document.llmRecording.mode = .normal
         
         // Only ask for rating if we received some actions
         if !document.llmRecording.streamedSteps.isEmpty {
             document.llmRecording.modal = .ratingToast(userInputPrompt: request.userPrompt)
         }
-        
                 
         document.encodeProjectInBackground()
     }
