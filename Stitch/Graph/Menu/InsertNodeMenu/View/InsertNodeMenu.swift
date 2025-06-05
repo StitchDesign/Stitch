@@ -115,7 +115,7 @@ struct InsertNodeMenuView: View {
     }
 
     var isGeneratingAINode: Bool {
-        document.aiManager?.currentTask != nil
+        document.isLoadingAI
     }
     
     @MainActor
@@ -218,7 +218,7 @@ struct InsertNodeMenuView: View {
                     dispatch(AddNodeButtonPressed())
                 }
             }, label: {
-                let isLoading = document.aiManager?.currentTask != nil
+                let isLoading = document.isLoadingAI
                 
                 HStack(spacing: 8) {
                     StitchTextView(string: isAIMode ? "Submit Prompt" : "Add Node",
