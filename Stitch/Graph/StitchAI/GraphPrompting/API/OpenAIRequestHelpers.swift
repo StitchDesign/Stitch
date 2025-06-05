@@ -13,6 +13,6 @@ extension StitchDocumentViewModel {
     @MainActor func handleStitchAIError(_ error: Error) {
         log("Error generating graph with StitchAI: \(error)", .logToServer)
         self.insertNodeMenuState.show = false
-        self.insertNodeMenuState.isGeneratingAIResult = false
+        self.aiManager?.cancelCurrentRequest()
     }
 }

@@ -20,25 +20,40 @@ struct InsertNodeMenuSearchBar: View {
      Post-versioning redo events seem largely broken; but maybe it's safer to keep what we had?
      So we now access the activeSelection from the same source, `@Environment(StitchStore.self)`, in both InsertNodeMenuView and InsertNodeMenuSearchBar.
      */
-    @Environment(StitchStore.self) private var store
+    
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = .defaultTheme
     @FocusState private var isFocused: Bool
     
+    @Bindable var document: StitchDocumentViewModel
     let launchTip: StitchAILaunchTip
     @Binding var isLoadingStitchAI: Bool
     @Binding var queryString: String
     let userSubmitted: () -> Void
 
     var isLoadingAIResult: Bool {
-        store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
+        document.isLoadingAI
     }
     
     var rightSideButton: some View {
         HStack {
             Group {
                 if isLoadingAIResult {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .tint(STITCH_TITLE_FONT_COLOR)
+                    HStack {
+                        Button {
+                            document.aiManager?.cancelCurrentRequest()
+                        } label: {
+                            Text("Cancel")
+                                .font(.headline)
+                        }
+                        .foregroundStyle(theme.themeData.edgeColor)
+                        .padding(.horizontal)
+                        .buttonStyle(.borderless)
+                        
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .tint(STITCH_TITLE_FONT_COLOR)
+                    }
+                    
                 } else {
                     Button(action: {
                         // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
@@ -97,8 +112,8 @@ struct InsertNodeMenuSearchBar: View {
             dispatch(InsertNodeQuery(query: queryString))
         }
         // Note: .onDisappear has a noticeable delay, so relying on it to clear the search-query won't work if user rapidly re-opens the menu.
-        .onChange(of: self.store.currentDocument?.insertNodeMenuState.show) { _, newValue in
-            if let newValue = newValue, newValue {
+        .onChange(of: document.insertNodeMenuState.show) { _, newValue in
+            if newValue {
                 self.queryString = ""
                 // added
                 self.isFocused = true

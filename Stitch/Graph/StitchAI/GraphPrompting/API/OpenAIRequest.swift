@@ -68,18 +68,14 @@ extension StitchAIManager {
                     await MainActor.run { [weak document] in
                         guard let document = document else {
                             fatalErrorIfDebug("getOpenAIStreamingTask: no document")
+                            document?.aiManager?.cancelCurrentRequest()
                             return
                         }
                         document.handleNonRetryableError(error, request)
                     }
                 }
             }
-            
-            // Whether we succeeded or failed,
-            // reset "is generating AI node" on the node menu.
-            await MainActor.run { [weak document] in
-                document?.insertNodeMenuState.isGeneratingAIResult = false
-            }
+
         }
     }
         
@@ -230,9 +226,9 @@ extension StitchAIManager {
         // Set auto-hiding flag before hiding menu
         document.insertNodeMenuState.isAutoHiding = true
         
-         document.insertNodeMenuState.show = false
-         document.insertNodeMenuState.isGeneratingAIResult = false
-
+        document.insertNodeMenuState.show = false
+        document.aiManager?.cancelCurrentRequest()
+        
         log("Storing user prompt and request id")
         document.llmRecording.promptForTrainingDataOrCompletedRequest = originalPrompt
         document.llmRecording.requestIdFromCompletedRequest = request.id
