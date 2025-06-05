@@ -36,20 +36,20 @@ extension EnvironmentValues {
         set { self[ViewFrameKey.self] = newValue }
     }
 
-    var appTheme: StitchTheme {
-        get { self[AppThemeKey.self] }
-        set { self[AppThemeKey.self] = newValue }
-    }
-
-    var isOptionRequiredForShortcut: Bool {
-        get { self[IsOptionRequiredForShortcut.self] }
-        set { self[IsOptionRequiredForShortcut.self] = newValue }
-    }
-    
-    var edgeStyle: EdgeStyle {
-        get { self[EdgeStyleKey.self] }
-        set { self[EdgeStyleKey.self] = newValue }
-    }
+//    var appTheme: StitchTheme {
+//        get { self[AppThemeKey.self] }
+//        set { self[AppThemeKey.self] = newValue }
+//    }
+//
+//    var isOptionRequiredForShortcut: Bool {
+//        get { self[IsOptionRequiredForShortcut.self] }
+//        set { self[IsOptionRequiredForShortcut.self] = newValue }
+//    }
+//    
+//    var edgeStyle: EdgeStyle {
+//        get { self[EdgeStyleKey.self] }
+//        set { self[EdgeStyleKey.self] = newValue }
+//    }
     
     var safeAreaInsets: SafeAreaInsets {
         get { self[SafeAreaInsetsEnvironmentKey.self] }

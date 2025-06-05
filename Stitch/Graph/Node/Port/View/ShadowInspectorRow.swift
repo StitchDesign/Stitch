@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ShadowInputInspectorRow: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     let nodeId: NodeId
     let isSelectedInspectorRow: Bool

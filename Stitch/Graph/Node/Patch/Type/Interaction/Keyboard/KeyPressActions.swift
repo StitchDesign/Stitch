@@ -119,6 +119,10 @@ extension NodesViewModelDict {
 // (in which case we ignore key presses).
 // TODO: project-settings-modal info should be contained on ProjectState, not AppState.
 extension StitchStore {
+    static var isOptionRequiredForShortcut: Bool {
+        (UserDefaults.standard.value(forKey: StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) as? Bool) ?? false
+    }
+    
     @MainActor
     func keyCharacterPressBegan(char: Character) {
                         
@@ -161,7 +165,7 @@ extension StitchStore {
         }
         
         // Else: If option is not required for shortcuts, and shortcuts are not disabled, try to treat the keypress as a shortcut.
-        else if !self.isOptionRequiredForShortcut,
+        else if !Self.isOptionRequiredForShortcut,
                 !document.shouldDisablePatchShortcuts,
                 let patch = char.patchFromShortcutKey(
                     isShiftDown: document.keypressState.isShiftPressed,

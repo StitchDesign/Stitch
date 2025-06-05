@@ -40,7 +40,7 @@ let INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING: CGFloat = INSERT_NODE_MENU_FOOT
 
 
 struct InsertNodeMenuView: View {
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     @State private var footerRect: CGRect = .zero
     @State private var isLoadingStitchAI = false
     private let launchTip = StitchAILaunchTip()

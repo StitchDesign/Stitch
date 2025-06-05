@@ -134,7 +134,7 @@ struct NodeView: View {
                 let jsAIRequest = try AIEditJSNodeRequest(prompt: aiJsNodePrompt,
                                                           document: document,
                                                           nodeId: stitch.id)
-                jsAIRequest.makeRequest(canShareAIRetries: store.canShareAIRetries,
+                jsAIRequest.makeRequest(canShareAIRetries: StitchStore.canShareAIData,
                                         document: document)
             } catch {
                 log("javascriptNodeField error: \(error.localizedDescription)")
