@@ -55,7 +55,7 @@ struct ChunkProcessed: StitchStoreEvent {
                         steps: Array(state.llmRecording.streamedSteps),
                         attempt: currentAttempt,
                         document: state,
-                        canShareAIRetries: store.canShareAIRetries)
+                        canShareAIRetries: StitchStore.canShareAIData)
                 }
                 
             case .success(var parsedStep):
@@ -79,7 +79,7 @@ struct ChunkProcessed: StitchStoreEvent {
                             steps: Array(state.llmRecording.streamedSteps),
                             attempt: currentAttempt,
                             document: state,
-                            canShareAIRetries: store.canShareAIRetries)
+                            canShareAIRetries: StitchStore.canShareAIData)
                     }
                 } else {
                     log("ChunkProcessed: SUCCESSFULLY APPLIED NEW STEP")

@@ -13,7 +13,7 @@ import AVFoundation
 // Formerly `ProjectSettingsView.canvasSizePicker`
 struct PreviewWindowDeviceSelectionView: View {
 
-    @AppStorage(DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) private var defaultPreviewWindowDevice: String = PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
+    @AppStorage(StitchAppSettings.DEFAULT_PREVIEW_WINDOW_DEVICE.rawValue) private var defaultPreviewWindowDevice: String = PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
 
     // ^^ does assigning a value here ALWAYS provide that value, or just a default?
 
@@ -134,34 +134,30 @@ struct PreviewWindowDeviceSelectionView: View {
 
 }
 
-// TODO: make these an enum,
-let DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME = "DefaultPreviewWindowDevice"
-let SAVED_APP_THEME_KEY_NAME = "SavedAppTheme"
-let SAVED_EDGE_STYLE_KEY_NAME = "SavedEdgeStyle"
-let SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME = "SavedIsOptionRequiredForShortcuts"
-let SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME = "CanShareAIRetries"
+// TODO: move
+enum StitchAppSettings: String {
+    case DEFAULT_PREVIEW_WINDOW_DEVICE = "DefaultPreviewWindowDevice"
+    case APP_THEME = "SavedAppTheme"
+    case EDGE_STYLE = "SavedEdgeStyle"
+    case IS_OPTION_REQUIRED_FOR_SHORTCUTS = "SavedIsOptionRequiredForShortcuts"
+    case CAN_SHARE_AI_DATA = "CanShareAIData"
+}
 
 struct AppSettingsView: View {
+//    @State private var showAILogsAlert = false
+    
     // Obtains last camera preference setting, if any
     @AppStorage(CAMERA_PREF_KEY_NAME) private var cameraPrefId: String?
 
-    @AppStorage(DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) private var defaultPreviewWindowDevice: String = PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
+    @AppStorage(StitchAppSettings.DEFAULT_PREVIEW_WINDOW_DEVICE.rawValue) private var defaultPreviewWindowDevice: String = PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
 
-    @AppStorage(SAVED_APP_THEME_KEY_NAME) private var savedAppTheme: String = StitchTheme.defaultTheme.rawValue
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
 
-    @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
+    @AppStorage(StitchAppSettings.EDGE_STYLE.rawValue) private var edgeStyle: EdgeStyle = EdgeStyle.defaultEdgeStyle
     
-    @AppStorage(SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME) private var savedIsOptionRequiredForShortcuts: String = Bool.defaultIsOptionRequiredForShortcuts.description
+    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
     
-    @AppStorage(SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME) private var savedCanShareAIRetries: String = Bool.defaultIsOptionRequiredForShortcuts.description
-    
-
-    var isOptionRequiredForShortcut: Bool
-    var canShareAIRetries: Bool
-    
-    @Environment(\.appTheme) var theme
-    @Environment(\.edgeStyle) var edgeStyle
-//    @Environment(\.isOptionRequiredForShortcut) var isOptionRequiredForShortcut
+    @AppStorage(StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) private var canShareAIData: Bool?
         
     let allCameraChoices = getCameraPickerOptions()
 
@@ -219,7 +215,7 @@ struct AppSettingsView: View {
                 Menu {
                     ForEach(Array(StitchTheme.allCases), id: \.self) { (choice: StitchTheme) in
                         Button(choice.rawValue) {
-                            dispatch(AppThemeChangedEvent(newTheme: choice))
+                            StitchStore.appThemeChanged(newTheme: choice)
                         }
                     } // ForEach
                 } label: {
@@ -244,7 +240,7 @@ struct AppSettingsView: View {
                 Menu {
                     ForEach(Array(EdgeStyle.allCases), id: \.self) { (choice: EdgeStyle) in
                         Button(choice.rawValue) {
-                            dispatch(AppEdgeStyleChangedEvent(newEdgeStyle: choice))
+                            StitchStore.appEdgeStyleChanged(newEdgeStyle: choice)
                         }
                     } // ForEach
                 } label: {
@@ -275,14 +271,14 @@ struct AppSettingsView: View {
 
     @ViewBuilder
     var isOptionRequiredForShortcutsPicker: some View {
-        logInView("AppSettingsView: isOptionRequiredForShortcutsPicker: self.isOptionRequiredForShortcut: \(self.isOptionRequiredForShortcut)")
+        logInView("AppSettingsView: isOptionRequiredForShortcutsPicker: self.isOptionRequiredForShortcut: \(self.isOptionRequiredForShortcuts)")
         
-        let isRequired = self.isOptionRequiredForShortcut
+        let isRequired = self.isOptionRequiredForShortcuts
         let icon: String = isRequired ? "checkmark.square" : "square"
         
         VStack(alignment: .leading) {
             HStack(alignment: .center) {
-                Text("Require Option for shortcuts?").fontWeight(.bold)
+                Text("Require Option Key for Shortcuts").fontWeight(.bold)
                 Image(systemName: icon)
                     .onTapGesture {
                         dispatch(OptionRequiredForShortcutsChanged(newValue: !isRequired))
@@ -296,18 +292,31 @@ struct AppSettingsView: View {
     
     @ViewBuilder
     var canShareAIRetriesPicker: some View {
-        logInView("AppSettingsView: canShareAIRetriesPicker: self.canShareAIRetries: \(self.canShareAIRetries)")
-        
-        let isRequired = self.canShareAIRetries
-        let icon: String = isRequired ? "checkmark.square" : "square"
-        
+        logInView("AppSettingsView: canShareAIRetriesPicker: self.canShareAIRetries: \(self.canShareAIData)")
+                
         VStack(alignment: .leading) {
             HStack(alignment: .center) {
                 Text("Share AI Retries").fontWeight(.bold)
+    
+                let icon: String = (canShareAIData ?? true) ? "checkmark.square" : "square"
                 Image(systemName: icon)
                     .onTapGesture {
-                        dispatch(CanShareAIRetriesChanged(newValue: !isRequired))
+                        dispatch(CanShareAIData(newValue: !(canShareAIData ?? true)))
                     }
+//                if let canShareAIData = self.canShareAIData {
+//                }
+//                else {
+//                    Button("Learn More") {
+//                        self.showAILogsAlert = true
+//                    }
+//                    .alert(isPresented: $showAILogsAlert) {
+//                        Alert(
+//                            title: Text("Current Location Not Available"),
+//                            message: Text("Your current location can’t be " +
+//                                            "determined at this time.")
+//                        )
+//                    }
+//                }
             }
             .padding(.bottom, 2)
             
@@ -330,9 +339,12 @@ struct AppSettingsView: View {
 
 struct AppSettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        AppSettingsView(
-            isOptionRequiredForShortcut: true,
-            canShareAIRetries: true
-        )
+        AppSettingsView()
+    }
+}
+
+extension StitchStore {
+    static var canShareAIData: Bool {
+        (UserDefaults.standard.value(forKey: StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) as? Bool) ?? false
     }
 }

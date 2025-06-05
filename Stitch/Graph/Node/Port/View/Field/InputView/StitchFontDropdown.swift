@@ -23,7 +23,7 @@ struct StitchFontDropdown: View {
         self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.stitchFont.display
     }
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     var body: some View {
         Menu {

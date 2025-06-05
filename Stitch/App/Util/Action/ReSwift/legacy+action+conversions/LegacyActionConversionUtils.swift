@@ -135,8 +135,6 @@ func handleLegacyStateUpdate(store: StitchStore,
                              legacyState: AppState) {
 
     // Updating AppState properties on StitchStore
-    store.edgeStyle.setOnChange(legacyState.edgeStyle)
-    store.appTheme.setOnChange(legacyState.appTheme)
     store.isShowingDrawer.setOnChange(legacyState.isShowingDrawer)
     store.projectIdForTitleEdit.setOnChange(legacyState.projectIdForTitleEdit)
 }

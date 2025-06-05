@@ -13,7 +13,7 @@ struct InsertNodeMenuSearchResults: View {
     @State private var nodeResultSizes: [InsertNodeMenuOption: CGRect] = .init()
     @State private var localId = UUID()
 
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
 
     // All the nodes and components (default or custom) that met the entered search criteria
     let searchResults: [InsertNodeMenuOption]

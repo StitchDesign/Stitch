@@ -16,21 +16,15 @@ enum EdgeStyle: String, CaseIterable {
     static let defaultEdgeStyle: Self = .curve
 }
 
-struct AppEdgeStyleChangedEvent: AppEvent {
-    let newEdgeStyle: EdgeStyle
-
-    func handle(state: AppState) -> AppResponse {
+extension StitchStore {
+    static func appEdgeStyleChanged(newEdgeStyle: EdgeStyle) {
         // log("AppEdgeStyleChangedEvent: newEdgeStyle: \(newEdgeStyle)")
-        var state = state
         // log("AppEdgeStyleChangedEvent: state.edgeStyle was: \(state.edgeStyle)")
-        state.edgeStyle = newEdgeStyle
         // log("AppEdgeStyleChangedEvent: state.edgeStyle is now: \(state.edgeStyle)")
 
         // Also update the UserDefaults:
         UserDefaults.standard.setValue(
             newEdgeStyle.rawValue,
-            forKey: SAVED_EDGE_STYLE_KEY_NAME)
-
-        return .stateOnly(state)
+            forKey: StitchAppSettings.EDGE_STYLE.rawValue)
     }
 }

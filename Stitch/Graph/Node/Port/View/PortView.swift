@@ -25,7 +25,7 @@ let PORT_ENTRY_NON_EXTENDED_BORDER_SIZE = CGSize(
 let NODE_PORT_HEIGHT: CGFloat = 8
 
 struct PortEntryView<PortUIViewModelType: PortUIViewModel>: View {
-    @Environment(\.appTheme) private var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     @Bindable var portUIViewModel: PortUIViewModelType
     @Bindable var graph: GraphState

@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 struct AnchoringGridIconView: View {
 
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     private let iconLength = 100.0
     private let squareLength = 25.0 + 4 // +4 because of padding?
