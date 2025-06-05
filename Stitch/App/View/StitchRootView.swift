@@ -41,7 +41,7 @@ struct StitchRootView: View {
              return false
          }
 
-         return document.insertNodeMenuState.show
+         return document.insertNodeMenuState.show || document.aiManager?.currentTask != nil
      }
     
     var body: some View {

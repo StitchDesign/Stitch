@@ -41,8 +41,7 @@ struct InsertNodeMenuState: Hashable {
 
     var searchQuery: String?
     
-    var isGeneratingAIResult: Bool = false
-    
+
     var isFromAIGeneration: Bool = false {
         didSet {
             if isFromAIGeneration {

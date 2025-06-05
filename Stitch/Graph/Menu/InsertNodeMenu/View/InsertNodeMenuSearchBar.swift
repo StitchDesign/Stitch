@@ -29,7 +29,7 @@ struct InsertNodeMenuSearchBar: View {
     let userSubmitted: () -> Void
 
     var isLoadingAIResult: Bool {
-        store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
+        store.currentDocument?.aiManager?.currentTask != nil
     }
     
     var rightSideButton: some View {

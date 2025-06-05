@@ -144,12 +144,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         
         // Clear the previous actions
         document.llmRecording.actions = .init()
-                
-        // Set loading state
-        withAnimation { // added
-            document.insertNodeMenuState.isGeneratingAIResult = true
-        }
-        
+
         // Set flag to indicate this is from AI generation
         document.insertNodeMenuState.isFromAIGeneration = true
         
@@ -159,11 +154,13 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
         
         // Create the task and set it on the manager
-        aiManager.currentTask = CurrentAITask(task: aiManager.getOpenAITask(
-            request: self,
-            attempt: 1,
-            document: document,
-            canShareAIRetries: canShareAIRetries))
+        aiManager.currentTask = CurrentAITask(
+            task: aiManager.getOpenAITask(
+                request: self,
+                attempt: 1,
+                document: document,
+                canShareAIRetries: canShareAIRetries)
+        )
     }
     
     static func validateRepopnse(decodedResult: AIGraphCreationContentJSON) throws -> [any StepActionable] {

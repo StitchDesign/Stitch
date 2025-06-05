@@ -115,7 +115,7 @@ struct InsertNodeMenuView: View {
     }
 
     var isGeneratingAINode: Bool {
-       document.insertNodeMenuState.isGeneratingAIResult
+        document.aiManager?.currentTask != nil
     }
     
     @MainActor
@@ -163,7 +163,6 @@ struct InsertNodeMenuView: View {
             // Only cancel if not auto-hiding
             if !document.insertNodeMenuState.isAutoHiding {
                 document.aiManager?.cancelCurrentRequest()
-                document.insertNodeMenuState.isGeneratingAIResult = false
             }
             // Reset the flag
             document.insertNodeMenuState.isAutoHiding = false
@@ -188,6 +187,9 @@ struct InsertNodeMenuView: View {
     
     func userSubmitted() {
         if self.isAIMode {
+            // Toggle state for insert node menu (it'll still remain visible with AI request running)
+            document.insertNodeMenuState.show = false
+            
             // Invalidate tip in future once AI submission is completed
             self.launchTip.invalidate(reason: .actionPerformed)
             
@@ -215,7 +217,7 @@ struct InsertNodeMenuView: View {
                     dispatch(AddNodeButtonPressed())
                 }
             }, label: {
-                let isLoading = document.insertNodeMenuState.isGeneratingAIResult
+                let isLoading = document.aiManager?.currentTask != nil
                 
                 HStack(spacing: 8) {
                     StitchTextView(string: isAIMode ? "Submit Prompt" : "Add Node",
