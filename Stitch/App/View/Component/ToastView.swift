@@ -7,20 +7,33 @@
 
 import SwiftUI
 import StitchSchemaKit
+import Combine
 
 /// Shows a temporary toast notification on the bottom of the view.
 /// Source: https://swiftuirecipes.com/blog/swiftui-toast
 struct BottomCenterToast<ToastContent>: ViewModifier where ToastContent: View {
+    private let timer: Publishers.Autoconnect<Timer.TimerPublisher>
+    @State private var isShowing: Bool = false
+    
     let willShow: Bool
     var config: ToastConfig = ToastConfig()
     var onExpireAction: (() -> Void)?
     
     @ViewBuilder var toastContent: () -> ToastContent
 
-    // Displays toast for 10 seconds
-    let timer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
-
-    @State var isShowing: Bool = false
+    init(willShow: Bool,
+         config: ToastConfig,
+         onExpireAction: (() -> Void)? = nil,
+         toastContent: @escaping () -> ToastContent) {
+        self.willShow = willShow
+        self.config = config
+        self.onExpireAction = onExpireAction
+        self.toastContent = toastContent
+        
+        // Displays toast for specified seconds
+        self.timer = Timer
+            .publish(every: config.duration, on: .main, in: .common).autoconnect()
+    }
 
     func body(content: Content) -> some View {
         ZStack {

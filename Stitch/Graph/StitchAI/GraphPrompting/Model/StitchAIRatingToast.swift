@@ -129,7 +129,7 @@ struct StitchAIRatingToast: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            Text(self.submitted ? "Thanks!" : "Rate results")
+            Text(self.submitted ? "Thanks!" : "Rate Stitch AI Results")
             SelectAStitchAIRatingView(currentRating: self.$currentRating) { (rating: StitchAIRating) in
                 self.submitted = true
                 dispatch(AIRatingSubmitted(rating: rating))
