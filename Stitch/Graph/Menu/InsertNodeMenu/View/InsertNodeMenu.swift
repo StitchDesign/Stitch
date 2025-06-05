@@ -40,9 +40,16 @@ let INSERT_NODE_MENU_SCROLL_LIST_BOTTOM_PADDING: CGFloat = INSERT_NODE_MENU_FOOT
 
 
 struct InsertNodeMenuView: View {
+    @Environment(StitchStore.self) private var store
     @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
+    @AppStorage(StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) private var canShareAIData: Bool?
+    
+    @State private var showAILogsAlert = false
+    @State private var showDataCollectionPopover = false
     @State private var footerRect: CGRect = .zero
     @State private var isLoadingStitchAI = false
+    @State private var queryString = ""
+    
     private let launchTip = StitchAILaunchTip()
 
     @Bindable var document: StitchDocumentViewModel
@@ -54,6 +61,10 @@ struct InsertNodeMenuView: View {
     
     var body: some View {
         sheetView
+        // MARK: uncomment lines below to debug AI logs alert
+//            .onAppear {
+//                self.canShareAIData = nil
+//            }
         
         // these are now mostly static?
         // except menuHeight can change on iPad?
@@ -68,6 +79,39 @@ struct InsertNodeMenuView: View {
                     .fixedSize()
                     .offset(y: (menuHeight / 2) + 64)
             }
+            .alert(isPresented: $showAILogsAlert) {
+                Alert(
+                    title: Text("Help Improve Stitch AI"),
+                    message: Text("To keep Stitch AI faster and smarter for you, we’ll collect a tiny amount of anonymous usage data. You can switch this off anytime in App Settings."),
+                    primaryButton: .default(
+                        Text("Start Using Stitch AI"),
+                        action: {
+                            self.canShareAIData = true
+                            dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
+                        }
+                    ),
+                    secondaryButton: .default(
+                        Text("Learn More"),
+                        action: {
+                            // Set to true so that alert only appears once
+                            self.canShareAIData = true
+                            self.showDataCollectionPopover = true
+                        }
+                    )
+                )
+            }
+            .popover(isPresented: $showDataCollectionPopover) {
+                VStack(alignment: .leading) {
+                    StitchDocsPopoverView(router: .overview(.dataCollection))
+                    
+                    Text("Control in App Settings.")
+                        .padding([.horizontal, .bottom])
+                        .foregroundColor(theme.themeData.edgeColor)
+                        .onTapGesture {
+                            store.alertState.showAppSettings = true
+                        }
+                }
+            }
     }
 
     var isGeneratingAINode: Bool {
@@ -78,7 +122,9 @@ struct InsertNodeMenuView: View {
     var sheetView: some View {
         VStack(spacing: 0) {
             InsertNodeMenuSearchBar(launchTip: self.launchTip,
-                                    isLoadingStitchAI: $isLoadingStitchAI)
+                                    isLoadingStitchAI: $isLoadingStitchAI,
+                                    queryString: $queryString,
+                                    userSubmitted: userSubmitted)
             
             if !isGeneratingAINode {
                 HStack(spacing: .zero) {
@@ -126,6 +172,31 @@ struct InsertNodeMenuView: View {
     
     var isAIMode: Bool {
         self.document.aiManager.isDefined && self.insertNodeMenuState.isAIMode
+    }
+    
+    func handleAIQuery() {
+        // User hasn't opted in or out if logs setting is nil
+        let hasUserAcknolwedgedDataCollection = self.canShareAIData != nil
+        
+        guard hasUserAcknolwedgedDataCollection else {
+            self.showAILogsAlert = true
+            return
+        }
+        
+        dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
+    }
+    
+    func userSubmitted() {
+        if self.isAIMode {
+            // Invalidate tip in future once AI submission is completed
+            self.launchTip.invalidate(reason: .actionPerformed)
+            
+            self.isLoadingStitchAI = true
+            
+            self.handleAIQuery()
+        } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
+            dispatch(AddNodeButtonPressed())
+        }
     }
 
     @MainActor
