@@ -69,7 +69,7 @@ JSON.stringify(result)
         do {
             let aiDecodedResults = try getStitchDecoder().decode([[StitchAIPortValue]].self,
                                                                  from: dataResult)
-            let outputValuesList = PortValuesList(javaScriptNodeResult: aiDecodedResults)
+            let outputValuesList = try PortValuesList(javaScriptNodeResult: aiDecodedResults)
             return .init(outputsValues: outputValuesList)
         } catch {
             print("JavaScript node decoding error: \(error.localizedDescription)")
@@ -79,10 +79,17 @@ JSON.stringify(result)
 }
 
 extension PortValuesList {
-    init(javaScriptNodeResult: [[StitchAIPortValue]]) {
-        self = javaScriptNodeResult.map { outputResults in
-            outputResults.compactMap { aiDecodedResult in
-                aiDecodedResult.value
+    init(javaScriptNodeResult: [[StitchAIPortValue]]) throws {
+        self = try javaScriptNodeResult.map { outputResults in
+            try outputResults.map { aiDecodedResult -> PortValue in
+                let value = aiDecodedResult.value
+                
+                // Uses SSK migration to make AI's schema type migrate to the runtime's possibly newer version
+                let migratedValue = try PortValueVersion
+                    .migrate(entity: value,
+                             version: CurrentStep.documentVersion)
+                
+                return migratedValue
             }
         }
     }
@@ -159,42 +166,13 @@ extension PatchNodeViewModel {
     }
 }
 
-/// Redundant data structures needed for encoding node type for AI.
-struct JavaScriptNodeSettingsAI: Codable {
-    var script: String
-    var input_definitions: [JavaScriptPortDefinitionAI]
-    var output_definitions: [JavaScriptPortDefinitionAI]
-}
-
 extension JavaScriptPortDefinition {
-    init(_ portDefinition: JavaScriptPortDefinitionAI) {
-        self.init(label: portDefinition.label,
-                  strictType: portDefinition.strict_type)
-    }
-}
-
-struct JavaScriptPortDefinitionAI: Codable {
-    var label: String
-    var strict_type: NodeType
-}
-
-extension JavaScriptPortDefinitionAI {
-    enum CodingKeys : String, CodingKey {
-        case label
-        case strict_type
-    }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.label, forKey: .label)
-        try container.encode(self.strict_type.asLLMStepNodeType, forKey: .strict_type)
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let typeString = try container.decode(String.self, forKey: .strict_type)
+    init(_ portDefinition: JavaScriptPortDefinitionAI) throws {
+        let migratedNodeType = try NodeTypeVersion
+            .migrate(entity: portDefinition.strict_type,
+                     version: CurrentStep.documentVersion)
         
-        self.label = try container.decode(String.self, forKey: .label)
-        self.strict_type = try NodeType(llmString: typeString)
+        self.init(label: portDefinition.label,
+                  strictType: migratedNodeType)
     }
 }

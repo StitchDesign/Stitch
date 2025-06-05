@@ -94,6 +94,7 @@ extension StitchDocsPage: Hashable {
 enum StitchDocsOverviewRouter: String, CaseIterable {
     case layerSidebar = "Layer Sidebar"
     case patchCanvas = "Patch Canvas"
+    case dataCollection = "Data Collection"
 }
 
 enum StitchDocsPatchRouter {

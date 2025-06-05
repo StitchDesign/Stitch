@@ -8,20 +8,17 @@
 import Foundation
 import SwiftUI
 
-struct AppThemeChangedEvent: AppEvent {
-    let newTheme: StitchTheme
-
-    func handle(state: AppState) -> AppResponse {
+extension StitchStore {
+    @MainActor
+    static func appThemeChanged(newTheme: StitchTheme) {
         // log("AppThemeChangedEvent: newTheme.themeData: \(newTheme.themeData)")
-        var state = state
         // log("AppThemeChangedEvent: state.appTheme was: \(state.appTheme)")
-        state.appTheme = newTheme
         // log("AppThemeChangedEvent: state.appTheme is now: \(state.appTheme)")
 
         // Also update the UserDefaults:
         UserDefaults.standard.setValue(
             newTheme.rawValue,
-            forKey: SAVED_APP_THEME_KEY_NAME)
+            forKey: StitchAppSettings.APP_THEME.rawValue)
 
         // Note: Apple sample 'app icon change' project does not immediately change app icon on iPad: https://developer.apple.com/documentation/xcode/configuring_your_app_to_use_alternate_app_icons#4047495
         // log("AppThemeChangedEvent: UIApplication.shared.supportsAlternateIcons: \(UIApplication.shared.supportsAlternateIcons)")
@@ -31,14 +28,11 @@ struct AppThemeChangedEvent: AppEvent {
             .setAlternateIconName(newTheme.appIconName) { (maybeError: Error?) in
                 log("AppThemeChangedEvent: when changing app icon to \(newTheme.appIconName), encountered error: \(String(describing: maybeError))")
             }
-
-        return .stateOnly(state)
     }
 }
 
 extension Bool {
     static let defaultIsOptionRequiredForShortcuts = true
-    static let defaultCanShareAIRetries = true
 }
 
 struct OptionRequiredForShortcutsChanged: StitchStoreEvent {
@@ -47,34 +41,34 @@ struct OptionRequiredForShortcutsChanged: StitchStoreEvent {
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         
-        log("OptionRequiredForShortcutsChanged: store.isOptionRequiredForShortcut was: \(store.isOptionRequiredForShortcut)")
+        let oldValue = UserDefaults.standard.value(forKey: StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue)
+        log("OptionRequiredForShortcutsChanged: store.isOptionRequiredForShortcut was: \(oldValue ?? "none")")
         log("OptionRequiredForShortcutsChanged: newValue.description: \(newValue.description)")
-        store.isOptionRequiredForShortcut = newValue
-        log("OptionRequiredForShortcutsChanged: store.isOptionRequiredForShortcut is now: \(store.isOptionRequiredForShortcut)")
+        log("OptionRequiredForShortcutsChanged: store.isOptionRequiredForShortcut is now: \(newValue)")
         
         UserDefaults.standard.setValue(
             newValue.description,
-            forKey: SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME)
+            forKey: StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue)
         
-        return .shouldPersist
+        return .noChange
     }
 }
 
-struct CanShareAIRetriesChanged: StitchStoreEvent {
+struct CanShareAIData: StitchStoreEvent {
 
     let newValue: Bool
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        let oldValue = UserDefaults.standard.value(forKey: StitchAppSettings.CAN_SHARE_AI_DATA.rawValue)
         
-        log("CanShareAIRetriesChanged: store.isOptionRequiredForShortcut was: \(store.canShareAIRetries)")
+        log("CanShareAIRetriesChanged: store.isOptionRequiredForShortcut was: \(oldValue ?? "none")")
         log("CanShareAIRetriesChanged: newValue.description: \(newValue.description)")
-        store.canShareAIRetries = newValue
-        log("CanShareAIRetriesChanged: store.canShareAIRetries is now: \(store.canShareAIRetries)")
+        log("CanShareAIRetriesChanged: store.canShareAIRetries is now: \(newValue)")
         
         UserDefaults.standard.setValue(
-            newValue.description,
-            forKey: SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME)
+            newValue,
+            forKey: StitchAppSettings.CAN_SHARE_AI_DATA.rawValue)
         
-        return .shouldPersist
+        return .noChange
     }
 }

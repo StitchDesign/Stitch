@@ -120,7 +120,7 @@ extension GraphState {
 
 struct LayerNamesDropDownChoiceView: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
     

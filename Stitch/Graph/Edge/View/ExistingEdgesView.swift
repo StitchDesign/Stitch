@@ -39,8 +39,8 @@ struct GraphConnectedEdgesView: View {
 }
 
 struct CandidateEdgesView: View {
-    @Environment(\.appTheme) private var theme
-    @Environment(\.edgeStyle) private var edgeStyle
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
+    @AppStorage(StitchAppSettings.EDGE_STYLE.rawValue) private var edgeStyle: EdgeStyle = EdgeStyle.defaultEdgeStyle
     
     @Bindable var graph: GraphState
     
@@ -117,7 +117,7 @@ struct ConnectedEdgeView: View {
         self.edgeAnimationEnabled = edgeAnimationEnabled
     }
     
-    @Environment(\.appTheme) private var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     @Bindable var inputPortUIViewModel: InputPortUIViewModel
     @Bindable var upstreamOutputPortUIViewModel: OutputPortUIViewModel

@@ -11,7 +11,7 @@ import StitchSchemaKit
 // TODO: what "multi" value should we show for a checkbox?
 struct BoolCheckboxView: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     let rowObserver: InputNodeRowObserver? // nil = used in output
     let graph: GraphState

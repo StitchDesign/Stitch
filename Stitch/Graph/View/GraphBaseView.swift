@@ -135,6 +135,7 @@ struct GraphBaseView: View {
         .coordinateSpace(name: Self.coordinateNamespace)
         
         .bottomCenterToast(willShow: document.llmRecording.showRatingToast,
+                           config: .init(duration: 15),
                            onExpireAction: { dispatch(AIRatingToastExpiredWithoutRating()) },
                            toastContent: { StitchAIRatingToast() })
         

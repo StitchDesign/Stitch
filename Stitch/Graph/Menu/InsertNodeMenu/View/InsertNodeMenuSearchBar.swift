@@ -21,35 +21,15 @@ struct InsertNodeMenuSearchBar: View {
      So we now access the activeSelection from the same source, `@Environment(StitchStore.self)`, in both InsertNodeMenuView and InsertNodeMenuSearchBar.
      */
     @Environment(StitchStore.self) private var store
-    
-    @State private var queryString = ""
     @FocusState private var isFocused: Bool
     
     let launchTip: StitchAILaunchTip
     @Binding var isLoadingStitchAI: Bool
-    
-    var isAIMode: Bool {
-        let isAIMode = store.currentDocument?.insertNodeMenuState.isAIMode ?? false
-        return isAIMode && FeatureFlags.USE_AI_MODE && store.currentDocument?.aiManager?.secrets != nil
-    }
+    @Binding var queryString: String
+    let userSubmitted: () -> Void
 
     var isLoadingAIResult: Bool {
         store.currentDocument?.insertNodeMenuState.isGeneratingAIResult ?? false
-    }
-    
-    func userSubmitted() {
-        if self.isAIMode {
-            // Invalidate tip in future once AI submission is completed
-            self.launchTip.invalidate(reason: .actionPerformed)
-            
-            self.isLoadingStitchAI = true
-            
-            dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
-        } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
-            dispatch(AddNodeButtonPressed())
-        }
-        // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
-        self.isFocused = false
     }
     
     var rightSideButton: some View {
@@ -61,6 +41,9 @@ struct InsertNodeMenuSearchBar: View {
                         .tint(STITCH_TITLE_FONT_COLOR)
                 } else {
                     Button(action: {
+                        // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
+                        self.isFocused = false
+                        
                         self.userSubmitted()
                     }, label: {
                         Image(systemName: "plus.app")

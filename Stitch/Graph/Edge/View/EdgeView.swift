@@ -13,7 +13,7 @@ let SELECTED_EDGE_Z_INDEX_BOOST = 99999999.0
 
 struct EdgeView: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     // TODO: optionally pass in the edge for actively-drawn cases
     let edge: PortEdgeUI

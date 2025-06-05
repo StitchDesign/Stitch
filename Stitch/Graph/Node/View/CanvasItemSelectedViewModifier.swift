@@ -11,7 +11,7 @@ import StitchSchemaKit
 // fka `NodeSelectedView`
 struct CanvasItemSelectedViewModifier: ViewModifier {
 
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
 
     let isSelected: Bool
 

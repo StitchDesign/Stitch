@@ -38,7 +38,8 @@ extension PortValue {
         default:
                         
             // Encode the PortValue as a human-readable/friendly JSON (e.g. StitchAIColor instead of SwiftUI.Color)
-            if let encoding: Data = try? getStitchEncoder().encode(self.anyCodable),
+            if let anyCodable = self.anyCodable,
+               let encoding: Data = try? getStitchEncoder().encode(anyCodable),
                let json = try? JSON.init(data: encoding) {
                 // log("jsonCoercer: coerced \(self) to a json \(json) via encoding")
                 return .init(json)
@@ -146,6 +147,32 @@ extension PortValue {
 }
 
 extension JSON {
+    private func decodeToPortValue(from nodeType: NodeType,
+                                   encoded: Data) -> PortValue? {
+        let decoder = JSONDecoder()
+        
+        // TODO: update the Decoder to handle "None" as the representation of `.assignedLayer(nil)`
+        if nodeType == .interactionId,
+           self.string == PortValue.assignedLayer(nil).display {
+            return PortValue.assignedLayer(nil)
+        }
+        
+        guard let portValueType = nodeType.portValueTypeForStitchAI,
+              let decodedAnyValue = try? decoder.decode(portValueType,
+                                                        from: encoded) else {
+            // log("coerceToPortValue: could not decode json \(self) as \(nodeType)")
+            return nil
+        }
+        
+        guard let decodedPortValue = try? nodeType.coerceToPortValueForStitchAI(from: decodedAnyValue) else {
+            // log("coerceToPortValue: could not decode port value for json \(self) as \(nodeType)")
+            return nil
+        }
+        
+        // log("coerceToPortValue: got decodedPortValue: \(decodedPortValue) for existingValue \(nodeType)")
+        return decodedPortValue
+    }
+    
     func coerceJSONToPortValue(_ currentNodeTypeOnInput: NodeType) -> PortValue {
                 
         // log("coerceToPortValue: json type: \(self.type)")
@@ -156,35 +183,12 @@ extension JSON {
             // log("coerceToPortValue: could not encode data; will return JSON as PortValue.json")
             return defaultReturnJSON
         }
-        
-        let decoder = JSONDecoder()
-        
-        let attempToDecodeAs = { (nodeType: NodeType) -> PortValue? in
-            
-            // TODO: update the Decoder to handle "None" as the representation of `.assignedLayer(nil)`
-            if nodeType == .interactionId,
-               self.string == PortValue.assignedLayer(nil).display {
-                return PortValue.assignedLayer(nil)
-            }
-            
-            guard let decodedAnyValue = try? decoder.decode(nodeType.portValueTypeForStitchAI, from: encoded) else {
-                // log("coerceToPortValue: could not decode json \(self) as \(nodeType)")
-                return nil
-            }
-            
-            guard let decodedPortValue: PortValue = try? nodeType.coerceToPortValueForStitchAI(from: decodedAnyValue) else {
-                // log("coerceToPortValue: could not decode port value for json \(self) as \(nodeType)")
-                return nil
-            }
-            
-            // log("coerceToPortValue: got decodedPortValue: \(decodedPortValue) for existingValue \(nodeType)")
-            return decodedPortValue
-        }
-        
+
         // First, attempt to decode JSON as the *input's current node type.*
         // Helpful for cases where, without additional context, the JSON could be equally decoded as more than one PortValue type.
         // e.g. a json-string `fill` could match either to VisualMediaFitStyle or LayerDimension
-        if let valueFromJSON = attempToDecodeAs(currentNodeTypeOnInput) {
+        if let valueFromJSON = self.decodeToPortValue(from: currentNodeTypeOnInput,
+                                                      encoded: encoded) {
             return valueFromJSON
         }
 
@@ -196,7 +200,8 @@ extension JSON {
                 continue
             }
             
-            if let valueFromJSON = attempToDecodeAs(nodeType) {
+            if let valueFromJSON = self.decodeToPortValue(from: nodeType,
+                                                          encoded: encoded) {
                 return valueFromJSON
             }
         } // for nodeType in ...
@@ -206,7 +211,8 @@ extension JSON {
         // rawValue enum cases are all json-strings, which we can be decoded as either String or the specific enum type (e.g. SizingScenario, VisualMediaFitStyle etc.).
         // We want to decode the JSON into the most specific type possible, so e.g. decode the json-string "stretch" as a VisualMediaFitStyle rather than just a String.
         // Thus, we attempt 'decode as String' LAST, after trying other types first.
-        if let valueFromJSON = attempToDecodeAs(.string) {
+        if let valueFromJSON = self.decodeToPortValue(from: .string,
+                                                      encoded: encoded) {
             return valueFromJSON
         }
         

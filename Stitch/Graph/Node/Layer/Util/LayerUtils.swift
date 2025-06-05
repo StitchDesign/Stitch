@@ -51,63 +51,6 @@ extension Layer {
         Set([.group])
     }
 
-    func defaultDisplayTitle() -> String {
-        switch self {
-        case .model3D:
-            return "3D Model"
-        case .text:
-            return "Text"
-        case .oval:
-            return "Oval"
-        case .rectangle:
-            return "Rectangle"
-        case .image:
-            return "Image"
-        case .group:
-            return "Group"
-        case .video:
-            return "Video"
-        case .realityView:
-            return "Reality View"
-        case .shape:
-            return "Shape"
-        case .colorFill:
-            return "Color Fill"
-        case .hitArea:
-            return "Hit Area"
-        case .canvasSketch:
-            return "Canvas Sketch"
-        case .textField:
-            return "Text Field"
-        case .map:
-            return "Map"
-        case .progressIndicator:
-            return "Progress Indicator"
-        case .sfSymbol:
-            return "SF Symbol"
-        case .material:
-            return "Material"
-        case .switchLayer:
-            return "Toggle Switch"
-        case .linearGradient:
-            return "Linear Gradient"
-        case .radialGradient:
-            return "Radial Gradient"
-        case .angularGradient:
-            return "Angular Gradient"
-        case .videoStreaming:
-            return "Video Streaming"
-        case .box:
-            return "Box"
-        case .sphere:
-            return "Sphere"
-        case .cylinder:
-            return "Cylinder"
-        case .cone:
-            return "Cone"
-        }
-    }
-
     // Called both when layer-node first placed on graph
     // and when deserializing.
     @MainActor
