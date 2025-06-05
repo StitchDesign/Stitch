@@ -344,7 +344,7 @@
 		E4F8AABD2BD6ED9600E9BA4D /* AngularGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F8AABC2BD6ED9600E9BA4D /* AngularGradientNode.swift */; };
 		E4FD8D042852581900645432 /* UIKitWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FD8D032852581900645432 /* UIKitWrapper.swift */; };
 		EC004DCD2B4498C200C5DB33 /* CanvasSketchLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DCC2B4498C200C5DB33 /* CanvasSketchLayerNode.swift */; };
-		EC004DD12B449D0700C5DB33 /* CanvasSketchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DD02B449D0700C5DB33 /* CanvasSketchView.swift */; };
+		EC004DD12B449D0700C5DB33 /* PreviewCanvasSketchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DD02B449D0700C5DB33 /* PreviewCanvasSketchView.swift */; };
 		EC004DD32B44D24300C5DB33 /* CanvasSketchUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DD22B44D24300C5DB33 /* CanvasSketchUtils.swift */; };
 		EC004DD52B44EE6000C5DB33 /* LayerEvalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DD42B44EE6000C5DB33 /* LayerEvalExtensions.swift */; };
 		EC004DD92B46438900C5DB33 /* TextFieldLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC004DD82B46438900C5DB33 /* TextFieldLayerNode.swift */; };
@@ -1380,7 +1380,7 @@
 		E4F8AABC2BD6ED9600E9BA4D /* AngularGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AngularGradientNode.swift; sourceTree = "<group>"; };
 		E4FD8D032852581900645432 /* UIKitWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitWrapper.swift; sourceTree = "<group>"; };
 		EC004DCC2B4498C200C5DB33 /* CanvasSketchLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSketchLayerNode.swift; sourceTree = "<group>"; };
-		EC004DD02B449D0700C5DB33 /* CanvasSketchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSketchView.swift; sourceTree = "<group>"; };
+		EC004DD02B449D0700C5DB33 /* PreviewCanvasSketchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCanvasSketchView.swift; sourceTree = "<group>"; };
 		EC004DD22B44D24300C5DB33 /* CanvasSketchUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSketchUtils.swift; sourceTree = "<group>"; };
 		EC004DD42B44EE6000C5DB33 /* LayerEvalExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerEvalExtensions.swift; sourceTree = "<group>"; };
 		EC004DD82B46438900C5DB33 /* TextFieldLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldLayerNode.swift; sourceTree = "<group>"; };
@@ -2581,7 +2581,7 @@
 				ECDD4E0F2CC06FCD003B4F9A /* PreviewMaterialLayer.swift */,
 				EC2BBF052947BCCD005BCCDB /* PreviewColorFillLayer.swift */,
 				EC281EFC2949037E0094BA5D /* PreviewHitAreaLayer.swift */,
-				EC004DD02B449D0700C5DB33 /* CanvasSketchView.swift */,
+				EC004DD02B449D0700C5DB33 /* PreviewCanvasSketchView.swift */,
 				ECD039262641F3C9003926B4 /* PreviewGroup.swift */,
 				EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */,
 				ECC506E8267BB7C700A2D015 /* PreviewVideo.swift */,
@@ -5524,7 +5524,7 @@
 				EC9A48DC2D6FC2D2006A1FC9 /* LayerEphemeralState.swift in Sources */,
 				EC609DCE29354C6E00BF60A5 /* LengthNode.swift in Sources */,
 				ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */,
-				EC004DD12B449D0700C5DB33 /* CanvasSketchView.swift in Sources */,
+				EC004DD12B449D0700C5DB33 /* PreviewCanvasSketchView.swift in Sources */,
 				ECA92A18260A69EB00281B52 /* OptionPickerNode.swift in Sources */,
 				B5221F662D397457009FF89A /* SphereLayerNode.swift in Sources */,
 				EC067CEC2BAB7A9300F8EB82 /* MathExpressionNode.swift in Sources */,
