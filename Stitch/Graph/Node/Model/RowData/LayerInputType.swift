@@ -84,6 +84,8 @@ extension LayerInputPort {
             return .number(.zero)
         case .rotationZ:
             return .number(.zero)
+        
+        // TODO: remove these? Redundant vs `canvasLineColor` and `canvasLineWidth`
         case .lineColor:
             return .color(CanvasSketchLayerNodeHelpers.defaultLineColor)
         case .lineWidth:
