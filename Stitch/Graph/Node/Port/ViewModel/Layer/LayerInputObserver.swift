@@ -186,6 +186,12 @@ extension Int {
     }
 }
 
+extension UnpackedPortType {
+    init(_ fieldIndex: Int) {
+        self = fieldIndex.asUnpackedPortType
+    }
+}
+
 extension LayerInputObserver {
     // Used with a specific flyout-row, to add the field of the canvas
     @MainActor
@@ -193,10 +199,6 @@ extension LayerInputObserver {
         .init(layerInput: self.port,
                      portType: .unpacked(fieldIndex.asUnpackedPortType))
     }
-}
-
-
-extension LayerInputObserver {
     
     // "Does this layer input use multifield fields?"
     // Regardless of packed vs unpacked mode.

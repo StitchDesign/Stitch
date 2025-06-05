@@ -68,9 +68,9 @@ typealias CanvasItemViewModels = [CanvasItemViewModel]
 @Observable
 final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     let id: CanvasItemId
-    @MainActor var position: CGPoint = .zero
+    @MainActor var position: CGPoint = .zero // position on the canvas
     @MainActor var previousPosition: CGPoint = .zero
-    @MainActor var zIndex: Double = .zero
+    @MainActor var zIndex: Double = .zero // z-index on the canvas
     @MainActor var parentGroupNodeId: NodeId?
     
     @MainActor

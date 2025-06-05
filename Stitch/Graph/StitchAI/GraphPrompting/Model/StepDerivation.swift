@@ -130,18 +130,52 @@ extension StitchDocumentViewModel {
                 
             case .layer(let layerNode):
                 for layerInput in layerNode.layer.layerGraphNode.inputDefinitions {
-                    let port = NodeIOCoordinate(portType: .keyPath(.init(layerInput: layerInput,
-                                                                         portType: .packed)),
-                                                nodeId: nodeEntity.id)
-                    let defaultInputValue = layerInput.getDefaultValue(for: layerNode.layer)
+
+                    // default value for whole input
+                    let defaultValueForInput: PortValue = layerInput.getDefaultValue(for: layerNode.layer)
+                    let defaultValuesForEachField: PortValues? = defaultValueForInput.unpackValues()
                     
-                    if let input = layerNode[keyPath: layerInput.schemaPortKeyPath].inputConnections.first {
+                    let input: LayerInputEntity = layerNode[keyPath: layerInput.schemaPortKeyPath]
+                                        
+                    switch input.mode {
+                    
+                    // If the input is packed, potentially create one 'set input' or 'connection added' LLM-action for the whole input
+                    case .packed:
+                        Self.deriveNewInputActions(
+                            input: input.packedData.inputPort,
+                            port: NodeIOCoordinate(portType: .keyPath(LayerInputType(layerInput: layerInput,
+                                                                                     portType: .packed)),
+                                                   nodeId: nodeEntity.id),
+                            defaultInputs: [defaultValueForInput],
+                            newConnectionSteps: &newConnectionSteps,
+                            newSetInputSteps: &newSetInputSteps)
                         
-                        Self.deriveNewInputActions(input: input,
-                                                   port: port,
-                                                   defaultInputs: [defaultInputValue],
-                                                   newConnectionSteps: &newConnectionSteps,
-                                                   newSetInputSteps: &newSetInputSteps)
+                    // If the input is unpacked, potentially create one 'set input' or 'connection added' LLM-action for each field on the input
+                    case .unpacked:
+                        
+                        guard let defaultValuesForEachField: PortValues = defaultValuesForEachField else {
+                            fatalErrorIfDebug() // if we had an unpacked input-observer, then we must be able to unpacked the default port value
+                            continue
+                        }
+                        
+                        input.unpackedData.enumerated().forEach { x in
+                            let field: LayerInputDataEntity = x.element
+                            let fieldIndex: Int = x.offset
+                            
+                            if let defaultValueForField: PortValue = defaultValuesForEachField[safeIndex: fieldIndex] {
+                                let keyPathForField = LayerInputType.init(layerInput: layerInput,
+                                                                          portType: .unpacked(fieldIndex.asUnpackedPortType))
+                                
+                                Self.deriveNewInputActions(input: field.inputPort,
+                                                           port: NodeIOCoordinate(portType: .keyPath(keyPathForField),
+                                                                                  nodeId: nodeEntity.id),
+                                                           defaultInputs: [defaultValueForField],
+                                                           newConnectionSteps: &newConnectionSteps,
+                                                           newSetInputSteps: &newSetInputSteps)
+                            } else {
+                                fatalErrorIfDebug("Did not have default value for field \(fieldIndex); default value for input \(defaultValueForInput)")
+                            }
+                        } // forEach
                     }
                 }
                 
@@ -197,14 +231,17 @@ extension StitchDocumentViewModel {
             let migratedPortType = try port.portType.convert(to: CurrentStep.NodeIOPortType.self)
 
             switch input {
+                
             case .upstreamConnection(let upstreamConnection):
                 
                 let connectionStep: StepActionConnectionAdded = .init(port: migratedPortType,
                                                                       toNodeId: port.nodeId,
                                                                       fromPort: upstreamConnection.portId!,
                                                                       fromNodeId: upstreamConnection.nodeId)
+                log("deriveNewInputActions: connectionStep: \(connectionStep)")
                 newConnectionSteps.append(connectionStep)
-                
+            
+            // If no upstream edge: then check if input has non-default values
             case .values(let newInputs):
                 if defaultInputs != newInputs {
                     let value = newInputs.first!
@@ -216,6 +253,7 @@ extension StitchDocumentViewModel {
                                                               port: migratedPortType,
                                                               value: migratedValue,
                                                               valueType: migratedValue.nodeType)
+                        log("deriveNewInputActions: setInputStep: \(setInputStep)")
                         newSetInputSteps.append(setInputStep)
                         
                     } catch {

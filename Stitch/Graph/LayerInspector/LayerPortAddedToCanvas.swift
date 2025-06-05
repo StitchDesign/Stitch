@@ -444,10 +444,17 @@ struct LayerOutputAddedToCanvas: StitchDocumentEvent {
     let portId: Int
     
     func handle(state: StitchDocumentViewModel) {
+        state.addLayerOutputToCanvas(nodeId: nodeId, portId: portId)
+    }
+}
+
+extension StitchDocumentViewModel {
+    
+    @MainActor
+    func addLayerOutputToCanvas(nodeId: NodeId,
+                                portId: Int) {
         
-        // log("LayerOutputAddedToCanvas: nodeId: \(nodeId)")
-        // log("LayerOutputAddedToCanvas: coordinate: \(coordinate)")
-        let graph = state.visibleGraph
+        let graph = self.visibleGraph
         
         guard let node = graph.getNode(nodeId),
               let layerNode = node.layerNode,
@@ -458,12 +465,12 @@ struct LayerOutputAddedToCanvas: StitchDocumentEvent {
         
         graph.layerOutputAddedToCanvas(node: node,
                                        output: outputPort,
-                                       activeIndex: state.activeIndex,
+                                       activeIndex: self.activeIndex,
                                        portId: portId,
-                                       groupNodeFocused: state.groupNodeFocused?.groupNodeId,
-                                       insertionLocation: state.newCanvasItemInsertionLocation)
+                                       groupNodeFocused: self.groupNodeFocused?.groupNodeId,
+                                       insertionLocation: self.newCanvasItemInsertionLocation)
         
-        state.encodeProjectInBackground()
+        self.encodeProjectInBackground()
     }
 }
 

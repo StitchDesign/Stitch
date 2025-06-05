@@ -246,34 +246,86 @@ struct StepActionConnectionAdded: StepActionable {
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
         do {
-            let inputPort = try self.createInputPort()
+            let inputPort: InputCoordinate = try self.createInputPort()
             let edge: PortEdgeData = PortEdgeData(
                 from: .init(portType: .portIndex(self.fromPort), nodeId: self.fromNodeId),
                 to: inputPort)
             
             let _ = document.visibleGraph.edgeAdded(edge: edge)
             
-            // Create canvas node if destination is layer
-            if let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position,
-               let destinationNode = document.visibleGraph.getNode(self.toNodeId),
-               destinationNode.kind.isLayer {
-                guard let layerInput = inputPort.keyPath?.layerInput else {
-                    // fatalErrorIfDebug()
-                    return .actionValidationError("expected layer node keypath but got: \(self.port)")
+            let fromNodeLocation = document.visibleGraph.getNode(self.fromNodeId)?.nonLayerCanvasItem?.position ?? document.viewPortCenter
+            
+            // If edge's destination was a layer input or input-field,
+            // add that layer input or input-field to the canvas
+            if let error = self.maybeAddLayerInputOrFieldDestinationToCanvas(inputPort: inputPort,
+                                                                             fromNodeLocation: fromNodeLocation,
+                                                                             document: document) {
+                return error
+            }
+            
+            // If edge's origin was a layer output, add that layer output to the canvas.
+            if let originNode = document.visibleGraph.getNode(self.fromNodeId),
+               originNode.kind.isLayer {
+               
+                log("Will add layer output to canvas")
+                
+                // Only call this if we know we had a layer, since it throws a fatalError on debug
+                document.addLayerOutputToCanvas(nodeId: originNode.id,
+                                                portId: self.fromPort)
+                
+                // The edge's destination might also be a layer input or layer input-field, so potentially add that to the canvas too
+                if let error = self.maybeAddLayerInputOrFieldDestinationToCanvas(inputPort: inputPort,
+                                                                                 fromNodeLocation: fromNodeLocation,
+                                                                                 document: document) {
+                    return error
                 }
-                
-                var position = fromNodeLocation
-                position.x += 200
-                
+            }
+            
+        } catch {
+            return .typeMigrationFailed(self.port)
+        }
+        
+        return nil
+    }
+    
+    @MainActor
+    private func maybeAddLayerInputOrFieldDestinationToCanvas(inputPort: InputCoordinate,
+                                                              fromNodeLocation: CGPoint,
+                                                              document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
+        
+        if let destinationNode = document.visibleGraph.getNode(inputPort.nodeId),
+            destinationNode.kind.isLayer {
+            
+            // If the destination node was a layer, then the self.port/inputPort should be a layer-input too
+            guard let layerInputType = inputPort.portType.keyPath else {
+                // fatalErrorIfDebug()
+                return .actionValidationError("expected layer node keypath but got: \(inputPort)")
+            }
+            
+            let layerInput = layerInputType.layerInput
+            
+            // TODO: not needed, since canvas-item positioning should be handled by `positionAIGeneratedNodes` ?
+            var position = fromNodeLocation
+            position.x += 200
+            
+            switch layerInputType.portType {
+            
+            case .packed:
+                log("will added layer input to canvas: layerInput: \(layerInput)")
                 document.addLayerInputToCanvas(node: destinationNode,
                                                layerInput: layerInput,
                                                draggedOutput: nil,
                                                canvasHeightOffset: nil,
                                                position: position)
+                
+            case .unpacked(let unpackedPortType):
+                log("will added layer input-field to canvas: layerInput: \(layerInput), \(unpackedPortType)")
+                document.addLayerFieldToCanvas(layerInput: layerInput,
+                                               nodeId: destinationNode.id,
+                                               fieldIndex: unpackedPortType.rawValue,
+                                               draggedOutput: nil,
+                                               canvasHeightOffset: nil)
             }
-            
-        } catch {
-            return .typeMigrationFailed(self.port)
         }
         
         return nil
