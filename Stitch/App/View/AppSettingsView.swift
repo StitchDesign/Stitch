@@ -144,7 +144,8 @@ enum StitchAppSettings: String {
 }
 
 struct AppSettingsView: View {
-//    @State private var showAILogsAlert = false
+    @State private var showAILogsAlert = false
+    @State private var showDataCollectionPopover = false
     
     // Obtains last camera preference setting, if any
     @AppStorage(CAMERA_PREF_KEY_NAME) private var cameraPrefId: String?
@@ -298,29 +299,25 @@ struct AppSettingsView: View {
             HStack(alignment: .center) {
                 Text("Share AI Retries").fontWeight(.bold)
     
-                let icon: String = (canShareAIData ?? true) ? "checkmark.square" : "square"
+                let canShareAIData = self.canShareAIData ?? true
+                let icon: String = canShareAIData ? "checkmark.square" : "square"
                 Image(systemName: icon)
                     .onTapGesture {
-                        dispatch(CanShareAIData(newValue: !(canShareAIData ?? true)))
+                        dispatch(CanShareAIData(newValue: !canShareAIData))
                     }
-//                if let canShareAIData = self.canShareAIData {
-//                }
-//                else {
-//                    Button("Learn More") {
-//                        self.showAILogsAlert = true
-//                    }
-//                    .alert(isPresented: $showAILogsAlert) {
-//                        Alert(
-//                            title: Text("Current Location Not Available"),
-//                            message: Text("Your current location can’t be " +
-//                                            "determined at this time.")
-//                        )
-//                    }
-//                }
             }
             .padding(.bottom, 2)
             
-            StitchCaptionView("Help improve StitchAI by sending us AI request retries")
+            StitchCaptionView("Sharing your AI requests to Stitch helps improve our AI.")
+            
+            Text("Data we collect.")
+                .foregroundColor(theme.themeData.edgeColor)
+                .onTapGesture {
+                    self.showDataCollectionPopover = true
+                }
+                .popover(isPresented: $showDataCollectionPopover) {
+                    StitchDocsPopoverView(router: .overview(.dataCollection))
+                }
         }
     }
     
