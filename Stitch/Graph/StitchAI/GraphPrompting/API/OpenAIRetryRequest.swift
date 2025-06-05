@@ -68,7 +68,7 @@ extension StitchAIManager {
         if canShareAIRetries {
             Task(priority: .high) { [weak self] in
                 guard let aiManager = self,
-                      let deviceUUID = StitchAIManager.getDeviceUUID() else {
+                      let deviceUUID = getDeviceUUID() else {
                     log("_retryRequest error: no AI Manager or no device ID found.")
                     return
                 }
@@ -112,7 +112,7 @@ extension StitchAIManager {
         
         // TODO: can `Task.sleep` really "fail" ?
         log("_retryRequest: Retrying request with backoff delay: \(cappedDelay) seconds")
-        let slept: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
+        let _: ()? = try? await Task.sleep(nanoseconds: UInt64(cappedDelay * Double(nanoSecondsInSecond)))
         
         // This can somehow fail?
         // assertInDebug(slept.isDefined)

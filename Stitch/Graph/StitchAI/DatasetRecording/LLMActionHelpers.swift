@@ -64,7 +64,7 @@ extension StitchDocumentViewModel {
         let actionsAsSteps = state.llmRecording.actions
         log("ShowLLMApprovalModal: actions: \(actionsAsSteps)")
         
-        guard let deviceUUID = StitchAIManager.getDeviceUUID() else {
+        guard let deviceUUID = getDeviceUUID() else {
             fatalErrorIfDebug("SubmitLLMActionsToSupabase error: no device ID found.")
             return
         }

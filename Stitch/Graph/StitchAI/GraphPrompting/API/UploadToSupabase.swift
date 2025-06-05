@@ -9,7 +9,6 @@ import Foundation
 import PostgREST
 import UIKit
 import SwiftUI
-import CloudKit
 
 
 struct SupabaseInferenceCallResultPayload: Codable {
@@ -34,36 +33,7 @@ struct SupabaseUserPromptRequestRow: Codable {
 }
 
 
-
-@MainActor
-func fetchCurrentUserRecordIDAsync() async {
-    let container = CKContainer.default()
-    do {
-        let recordID = try await container.userRecordID()   // or `fetchUserRecordID()` in newer SDKs
-        let userIdString = recordID.recordName
-        print("✅ Fetched user record ID (async):", userIdString)
-        // …use `userIdString` here
-    } catch {
-        print("❌ Error fetching user record ID (async):", error)
-    }
-}
-
 extension StitchAIManager {
-    // Should the app really be running, if we can't    
-    @MainActor
-    static func getDeviceUUID() -> String? {
-        guard let deviceUUID = UIDevice.current.identifierForVendor?.uuidString else {
-            log("Unable to retrieve device UUID", .logToServer)
-#if DEV_DEBUG || DEBUG
-//            throw NSError(domain: "DeviceIDError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to retrieve device UUID"])
-            fatalErrorIfDebug()
-#endif
-            return nil
-        }
-        
-        return deviceUUID
-    }
-    
     // fka `uploadActionsToSupabase`
     func uploadInferenceCallResultToSupabase(prompt: String,
                                              finalActions: [Step],
@@ -81,8 +51,10 @@ extension StitchAIManager {
                                              // Did the actions sent to us by OpenAI for this prompt require a retry?
                                              requiredRetry: Bool) async throws {
         
-        let recordID: CKRecord.ID = try await CKContainer.default().userRecordID()
-        let userId = recordID.recordName
+        guard let userId = try? await getCloudKitUsername() else {
+            fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
+            return
+        }
         
         let wrapper = SupabaseInferenceCallResultRecordingWrapper(
             prompt: prompt,
@@ -112,19 +84,16 @@ extension StitchAIManager {
     func uploadUserPromptRequestToSupabase(prompt: String,
                                            requestId: UUID) async throws {
                 
-        guard let releaseVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
-            fatalErrorIfDebug("Could not retrieve release version")
+        guard let releaseVersion = await getReleaseVersion(),
+              let userId = try? await getCloudKitUsername() else {
+            fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
             return
         }
-        
-        let recordID: CKRecord.ID = try await CKContainer.default().userRecordID()
-        let userId = recordID.recordName
-        
+                
         log(" Uploading user-prompt-request payload:")
         log("  - requestId: \(requestId)")
         log("  - prompt: \(prompt)")
         log("  - releaseVersion: \(releaseVersion)")
-        log("  - recordID: \(recordID)")
         log("  - userId: \(userId)")
         
         let payload = SupabaseUserPromptRequestRow(

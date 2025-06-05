@@ -53,7 +53,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
         // Make Supabase request
         log("AIRatingSubmitted: rating: \(rating)")
                 
-        guard let deviceUUID = StitchAIManager.getDeviceUUID() else {
+        guard let deviceUUID = getDeviceUUID() else {
             log("AIRatingSubmitted error: no device ID found.")
             return
         }
