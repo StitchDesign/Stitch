@@ -160,7 +160,7 @@ extension PortValue {
         case .position(let x):
             return LayerSize(width: x.x, height: x.y)
         case .layerDimension(let x):
-            return LayerSize(width: x.asNumber, height: x.asNumber)
+            return LayerSize(width: x, height: x)
         case .point3D(let x):
             return LayerSize(width: x.x, height: x.y)
         case .point4D(let x):
