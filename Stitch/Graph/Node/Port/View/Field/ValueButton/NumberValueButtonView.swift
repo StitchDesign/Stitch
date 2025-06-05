@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 struct FieldButtonImage: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     let sfSymbolName: String
     let isSelectedInspectorRow: Bool

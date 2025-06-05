@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LayerInspectorRowButton: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     @Bindable var graph: GraphState
     let layerInputObserver: LayerInputObserver?

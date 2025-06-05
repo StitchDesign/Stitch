@@ -39,7 +39,7 @@ struct InputFieldFrameAndPadding: ViewModifier {
 // Used by canvas fields and, on iPad, when inspector row is selected
 struct InputFieldBackgroundColorView: ViewModifier {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     let isHovering: Bool
     let isFocused: Bool

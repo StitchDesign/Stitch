@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     typealias ItemViewModel = SidebarViewModel.ItemViewModel
     
-    @Environment(\.appTheme) private var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel

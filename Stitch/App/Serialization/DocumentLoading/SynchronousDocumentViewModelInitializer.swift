@@ -40,7 +40,7 @@ func createNewEmptyProject(store: StitchStore) throws -> (ProjectLoader, StitchD
                                                   isDebugMode: false)
 
     // TODO: why do we need to set the previewWindow on the document?
-    let previewDevice = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME)
+    let previewDevice = UserDefaults.standard.string(forKey: StitchAppSettings.DEFAULT_PREVIEW_WINDOW_DEVICE.rawValue)
         .flatMap { PreviewWindowDevice(rawValue: $0) }
     ?? PreviewWindowDevice.defaultPreviewWindowDevice
     

@@ -19,7 +19,7 @@ struct TapToEditTextView: View {
     
     // MARK: ENVIRONMENT STATE
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
             
 
     // MARK: PASSED-IN VIEW PARAMETERS

@@ -11,8 +11,8 @@ import StitchSchemaKit
 typealias DragGestureTypeSignature = _EndedGesture<_ChangedGesture<DragGesture>>
 
 struct CommentBoxView: View {
-
-    @Environment(\.appTheme) private var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
+    
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
 

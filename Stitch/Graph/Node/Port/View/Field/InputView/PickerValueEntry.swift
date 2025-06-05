@@ -20,7 +20,7 @@ struct MediaPickerChoicesView: View {
 
 struct MediaPickerButtons: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     let rowObserver: InputNodeRowObserver
     let node: NodeViewModel

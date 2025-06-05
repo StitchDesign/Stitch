@@ -14,7 +14,7 @@ struct ExpansionBoxView: View {
     let document: StitchDocumentViewModel
     let box: ExpansionBox
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     var color: Color {
         theme.themeData.edgeColor
@@ -45,7 +45,7 @@ struct ExpansionBoxView: View {
 
 ///// Creates a selection box view.
 //struct RoundedRectView: View {
-//    @Environment(\.appTheme) private var theme
+//    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
 //
 //    let rect: CGRect
 //    let scale: CGFloat

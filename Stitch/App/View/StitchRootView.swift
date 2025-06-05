@@ -23,13 +23,13 @@ struct StitchRootView: View {
     
     @Bindable var store: StitchStore
     
-    @AppStorage(SAVED_APP_THEME_KEY_NAME) private var savedAppTheme: String = StitchTheme.defaultTheme.rawValue
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
-    @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
+    @AppStorage(StitchAppSettings.EDGE_STYLE.rawValue) private var edgeStyle: EdgeStyle = EdgeStyle.defaultEdgeStyle
     
-    @AppStorage(SAVED_IS_OPTION_REQUIRED_FOR_SHORTCUTS_KEY_NAME) private var savedIsOptionRequiredForShortcuts: String = Bool.defaultIsOptionRequiredForShortcuts.description
+    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
     
-    @AppStorage(SAVED_CAN_SHARE_AI_RETRIES_KEY_NAME) private var canShareAIRetries: String = Bool.defaultIsOptionRequiredForShortcuts.description
+    @AppStorage(StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) private var canShareAIRetries: Bool = Bool.defaultIsOptionRequiredForShortcuts
     
     @MainActor
     var alertState: ProjectAlertState {
@@ -38,14 +38,6 @@ struct StitchRootView: View {
     
     var isShowingDrawer: Bool {
         self.store.isShowingDrawer
-    }
-    
-    var theme: StitchTheme {
-        self.store.appTheme
-    }
-    
-    var edgeStyle: EdgeStyle {
-        self.store.edgeStyle
     }
     
     // "Is NavigationSplitView's sidebar open or not?"
@@ -91,14 +83,6 @@ struct StitchRootView: View {
             //            dispatch(ImportDefaultComponents())
             
             hideTitleAndSetMinimumWindowSize()
-            
-            dispatch(AppThemeChangedEvent(newTheme: .init(rawValue: savedAppTheme) ?? .defaultTheme))
-            
-            dispatch(AppEdgeStyleChangedEvent(newEdgeStyle: .init(rawValue: savedEdgeStyle) ?? .defaultEdgeStyle))
-            
-            dispatch(OptionRequiredForShortcutsChanged(newValue: .init(savedIsOptionRequiredForShortcuts) ?? Bool.defaultIsOptionRequiredForShortcuts))
-            
-            dispatch(CanShareAIRetriesChanged(newValue: .init(canShareAIRetries) ?? Bool.defaultCanShareAIRetries))
         }
         .onChange(of: self.columnVisibility, initial: true) { oldValue, newValue in
             let fn = { (open: Bool) in dispatch(LeftSidebarSet(open: open)) }
@@ -123,11 +107,8 @@ struct StitchRootView: View {
                 self.columnVisibility = .doubleColumn
             } else {
                 self.columnVisibility = .detailOnly
-            }
-                
+            }       
         }
-        .environment(\.appTheme, theme)
-        .environment(\.edgeStyle, edgeStyle)
     }
     
     // TODO: why doesn't `mySwiftUIScene.windowStyle(.hidden)` compile even when behind `#if targetEnvironment(macCatalyst)` flag ?

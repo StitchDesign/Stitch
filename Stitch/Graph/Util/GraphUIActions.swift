@@ -177,7 +177,7 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         }
         
         try? AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
-                                                         canShareAIRetries: store.canShareAIRetries,
+                                                         canShareAIRetries: StitchStore.canShareAIData,
                                                          aiManager: aiManager,
                                                          document: document)
         
