@@ -243,8 +243,11 @@ extension StitchDocumentViewModel {
             
             // If no upstream edge: then check if input has non-default values
             case .values(let newInputs):
-                if defaultInputs != newInputs {
-                    let value = newInputs.first!
+                if defaultInputs != newInputs,
+                   let value = newInputs.first {
+                    
+                    log("deriveNewInputActions: defaultInputs: \(defaultInputs)")
+                    log("deriveNewInputActions: newInputs: \(newInputs)")
                     
                     do {
                         let migratedValue = try value.convert(to: CurrentStep.PortValue.self)
