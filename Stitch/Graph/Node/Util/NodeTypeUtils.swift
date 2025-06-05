@@ -13,7 +13,7 @@ import StitchSchemaKit
  User-visible types: what the user sees
  ---------------------------------------------------------------- */
 
-typealias NodeType = UserVisibleType
+public typealias NodeType = UserVisibleType
 
 extension UserVisibleType {
     // TODO: handle special case with .string as "String" vs "Text"
@@ -22,123 +22,6 @@ extension UserVisibleType {
             return "Text"
         } else {
             return self.display
-        }
-    }
-    
-    var display: String {
-        switch self {
-        case .string:
-            return "String"
-        case .bool:
-            return "Bool"
-        case .color:
-            return "Color"
-        case .number:
-            return "Number"
-        case .layerDimension:
-            return "Layer Dimension"
-        case .size:
-            return "Size"
-        case .position:
-            return "Position"
-        case .point3D:
-            return "3D Point"
-        case .point4D:
-            return "4D Point"
-        case .transform:
-            return "Transform"
-        case .plane:
-            return "Plane"
-        case .pulse:
-            return "Pulse"
-        case .media:
-            return "Media"
-        case .json:
-            return "JSON"
-        case .networkRequestType:
-            return "Network Request Type"
-        case .none:
-            return "None"
-        case .anchoring:
-            return "Anchor"
-        case .cameraDirection:
-            return "Camera Direction"
-        case .interactionId:
-            return "Layer"
-        case .scrollMode:
-            return "Scroll Mode"
-        case .textAlignment:
-            return "Text Horizontal Alignment"
-        case .textVerticalAlignment:
-            return "Text Vertical Alignment"
-        case .fitStyle:
-            return "Fit"
-        case .animationCurve:
-            return "Animation Curve"
-        case .lightType:
-            return "Light Type"
-        case .layerStroke:
-            return "Layer Stroke"
-        case .textTransform:
-            return "Text Transform"
-        case .dateAndTimeFormat:
-            return "Date and Time Format"
-        case .shape:
-            return "Shape"
-        case .scrollJumpStyle:
-            return "Scroll Jump Style"
-        case .scrollDecelerationRate:
-            return "Scroll Deceleration Rate"
-        case .delayStyle:
-            return "Delay Style"
-        case .shapeCoordinates:
-            return "Shape Coordinates"
-        case .shapeCommand:
-            return "Shape Command"
-        case .shapeCommandType:
-            return "Shape Command Type"
-        case .orientation:
-            return "Orientation"
-        case .cameraOrientation:
-            return "Camera Orientation"
-        case .deviceOrientation:
-            return "Device Orientation"
-        case .vnImageCropOption:
-            return "Image Crop & Scale"
-        case .textDecoration:
-            return "Text Decoration"
-        case .textFont:
-            return "Text Font"
-        case .blendMode:
-            return "Blend Mode"
-        case .mapType:
-            return "Map Type"
-        case .progressIndicatorStyle:
-            return "Progress Style"
-        case .mobileHapticStyle:
-            return "Haptic Style"
-        case .strokeLineCap:
-            return "Stroke Line Cap"
-        case .strokeLineJoin:
-            return "Stroke Line Join"
-        case .contentMode:
-            return "Content Mode"
-        case .spacing:
-            return "Spacing"
-        case .padding:
-            return "Padding"
-        case .sizingScenario:
-            return "Sizing Scenario"
-        case .pinToId:
-            return "Pin To ID"
-        case .materialThickness:
-            return "Materialize Thickness"
-        case .deviceAppearance:
-            return "Device Appearance"
-        case .anchorEntity:
-            return "Anchor Entity"
-        case .keyboardType:
-            return "Keyboard Type"
         }
     }
 }
@@ -406,4 +289,30 @@ extension UserVisibleType {
             return KeyboardType.defaultKeyboardTypePortValue
         }
     }
+    
+    var portValueTypeForStitchAI: Decodable.Type? {
+        do {
+            let convertedType = try self.convert(to: StitchAINodeType.self)
+            return convertedType.portValueTypeForStitchAI
+        } catch {
+            fatalErrorIfDebug("portValueTypeForStitchAI error: \(error)")
+            return nil
+        }
+    }
+    
+    func coerceToPortValueForStitchAI(from anyValue: Any) throws -> PortValue {
+        let convertedType = try self.convert(to: StitchAINodeType.self)
+        let value = try convertedType.coerceToPortValueForStitchAI(from: anyValue)
+        let migratedValue = try value.migrate()
+        return migratedValue
+    }
 }
+
+extension StitchAINodeType {
+    /// Migrates Stitch AI's node type to runtime.
+    func migrate() throws -> NodeType {
+        try NodeTypeVersion.migrate(entity: self,
+                                    version: CurrentStep.documentVersion)
+    }
+}
+

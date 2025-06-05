@@ -12,7 +12,7 @@ import SwiftyJSON
 
 struct ChunkProcessed: StitchStoreEvent {
     let newStep: Step
-    let request: StitchAIRequest
+    let request: AIGraphCreationRequest
     let currentAttempt: Int
     
     @MainActor
@@ -157,7 +157,7 @@ extension StitchAIManager {
                 
                 guard let firstChoice = response.choices.first else {
                     fatalErrorIfDebug()
-                    return .failure(StitchAIManagerError.other(request, NSError()))
+                    return .failure(StitchAIManagerError.responseDecodingFailure("No choice found."))
                 }
                 
                 let initialDecodedResult = try AIRequest.parseOpanAIResponse(content: firstChoice.message.content)
@@ -177,7 +177,7 @@ extension StitchAIManager {
                 return .success(success.1)
             } catch {
                 print(error)
-                return .failure(StitchAIManagerError.other(request, error))
+                return .failure(StitchAIManagerError.responseDecodingFailure(error.localizedDescription))
             }
         case .failure(let failure):
             print("makeNonStreamedRequest failure: \(failure)")

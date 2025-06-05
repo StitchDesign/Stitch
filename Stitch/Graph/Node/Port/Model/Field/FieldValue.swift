@@ -166,11 +166,11 @@ extension FieldValue {
                 return .percent(number)
             }
             // "Auto" condition etc.
-            else if stringValue.lowercased() == .AUTO_SIZE_STRING {
+            else if stringValue.lowercased() == LayerDimension.AUTO_SIZE_STRING {
                 return .auto
-            } else if stringValue.lowercased() == .FILL_SIZE_STRING {
+            } else if stringValue.lowercased() == LayerDimension.FILL_SIZE_STRING {
                 return .fill
-            } else if stringValue.lowercased() == .HUG_SIZE_STRING {
+            } else if stringValue.lowercased() == LayerDimension.HUG_SIZE_STRING {
                 return .hug
             } else {
                 // Number condition
@@ -184,6 +184,6 @@ extension FieldValue {
     }
 
     var isCurrentValueAuto: Bool {
-        self.stringValue == .AUTO_SIZE_STRING
+        self.stringValue == LayerDimension.AUTO_SIZE_STRING
     }
 }
