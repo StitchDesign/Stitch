@@ -23,14 +23,6 @@ struct StitchRootView: View {
     
     @Bindable var store: StitchStore
     
-    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
-    
-    @AppStorage(StitchAppSettings.EDGE_STYLE.rawValue) private var edgeStyle: EdgeStyle = EdgeStyle.defaultEdgeStyle
-    
-    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
-    
-    @AppStorage(StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) private var canShareAIRetries: Bool = Bool.defaultIsOptionRequiredForShortcuts
-    
     @MainActor
     var alertState: ProjectAlertState {
         self.store.alertState

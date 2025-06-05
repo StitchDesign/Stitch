@@ -14,8 +14,6 @@ The Patch Canvas is your logic workspace:
 
 ![StitchUI](Guides_Assets/StitchUI.png)
 
-
-
 ## Layer Sidebar
 
 The Layer Sidebar shows every visual element as a hierarchical list:
@@ -42,3 +40,19 @@ The Preview Window renders your prototype exactly as it will appear on‑device.
 5. Use Groups and wireless patches to keep the graph readable.
 
 These three surfaces—Patch Canvas, Layer Sidebar, and Preview—form the core mental model of Stitch. Master them and you can build almost anything without writing code.
+
+## Stitch AI
+
+Stitch AI builds graphs using natural language. It is accessed from the Node menu.
+
+At this moment, Stitch AI is limited to building smaller components (usually less than 6 nodes).
+
+### Data Collection
+
+Sharing a few safe, anonymous signals lets us fix issues quickly and train Stitch AI to suggest the right nodes more often. You can always opt out from App Settings.
+
+Exactly what we collect:
+1. Strings of AI queries from the Node menu.
+2. Logs from failed results.
+3. AI results from successful response.
+4. Any review feedback you choose to submit.
