@@ -52,7 +52,7 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var llmRecording = LLMRecordingState()
         
-    let aiManager: StitchAIManager?
+    @MainActor var aiManager: StitchAIManager?
     
     // Remains false if an encoding action never happened (used for thumbnail creation)
     @MainActor var didDocumentChange: Bool = false
@@ -155,8 +155,7 @@ final class StitchDocumentViewModel: Sendable {
         do {
             self.aiManager = try StitchAIManager()
         } catch {
-            self.aiManager = nil
-            fatalErrorIfDebug("StitchStore error: could not init secrets file with error: \(error)")
+            log("Stitch AI manager failed to load with error: \(error.localizedDescription)")
         }
         
         self.lastEncodedDocument = schema
@@ -458,6 +457,10 @@ extension StitchDocumentViewModel {
             let keyboardNodes = graph.keyboardNodes
             graph.scheduleForNextGraphStep(keyboardNodes)
         }
+    }
+    
+    @MainActor var isLoadingAI: Bool {
+        self.aiManager?.currentTask != nil
     }
 }
 

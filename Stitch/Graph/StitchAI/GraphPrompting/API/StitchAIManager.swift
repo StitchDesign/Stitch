@@ -11,14 +11,6 @@ import SwiftUI
 import SwiftyJSON
 import Sentry
 
-
-// TODO: put LLMRecordingState struct and StitchAIManager actor into a single parent ?
-//struct StitchAIState {
-//    let aiManager: StitchAIManager
-//    let recordingState: LLMRecordingState
-//}
-
-
 // Lifecycle is a single stream; if we have to retry, we destroy the existing CurrentAITask and create a new one
 struct CurrentAITask {
     // Streaming request to OpenAI

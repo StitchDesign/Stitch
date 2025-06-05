@@ -24,7 +24,7 @@ struct InsertNodeMenuWithModalBackground: View {
     static let shownMenuCornerRadius: CGFloat = 20 // per Figma
     
     var showMenu: Bool {
-        insertNodeMenuState.show
+        insertNodeMenuState.show || self.isLoadingAIRequest
     }
     
     var menuView: some View {
@@ -40,7 +40,7 @@ struct InsertNodeMenuWithModalBackground: View {
     }
     
     var isLoadingAIRequest: Bool {
-        document.insertNodeMenuState.isGeneratingAIResult
+        document.isLoadingAI
     }
     
     var menuYOffset: CGFloat {
@@ -54,6 +54,8 @@ struct InsertNodeMenuWithModalBackground: View {
             ModalBackgroundGestureRecognizer(dismissalCallback: { dispatch(CloseAndResetInsertNodeMenu()) }) {
                 Color.clear
             }
+            // Disable gestures that would otherwise block graph interaction during an AI request
+            .disabled(isLoadingAIRequest)
             
             // Insert Node Menu view
             if showMenu {
