@@ -65,7 +65,7 @@ struct InsertNodeCommands: View {
     }
     
     var isOptionRequired: Bool {
-        store.isOptionRequiredForShortcut
+        StitchStore.isOptionRequiredForShortcut
     }
     
     var modifiersAdjustedForOptionRequirement: EventModifiers {

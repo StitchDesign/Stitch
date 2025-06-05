@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct DrawnEdge: View {
     static let ANIMATION_DURATION = TimeHelpers.ThreeTenthsOfASecondInSeconds
 
-    @Environment(\.edgeStyle) var edgeStyle
+    @AppStorage(StitchAppSettings.EDGE_STYLE.rawValue) private var edgeStyle: EdgeStyle = EdgeStyle.defaultEdgeStyle
 
     let from: CGPoint
     let to: CGPoint

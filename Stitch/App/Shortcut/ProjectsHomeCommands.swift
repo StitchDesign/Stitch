@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 struct ProjectsHomeCommands: Commands {
     @Environment(\.openURL) private var openURL
+    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: String = Bool.defaultIsOptionRequiredForShortcuts.description
     
     @Bindable var store: StitchStore
     @FocusedValue(\.focusedField) private var focusedField
@@ -40,11 +41,6 @@ struct ProjectsHomeCommands: Commands {
         self.store.currentDocument?.reduxFocusedField?.isInputPortSelected ?? false
     }
 
-    // If option is NOT required for shortcuts, then we need to
-    var isOptionRequiredForShortcut: Bool {
-        self.store.isOptionRequiredForShortcut
-    }
-    
     var disabledGraphDelete: Bool {
         guard let document = store.currentDocument else {
             return true

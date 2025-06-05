@@ -13,7 +13,7 @@ let SMALL_CURSOR_LENGTH = LARGE_CURSOR_LENGTH / 3
 
 struct CursorDotView: View {
 
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
 
     let currentDragLocation: CGPoint
     let isFingerOnScreenSelection: Bool

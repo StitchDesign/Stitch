@@ -14,12 +14,6 @@ import StitchSchemaKit
 // - AppStateWithLoadedProject = app state with current project
 // TODO: this is deprecated
 struct AppState: Equatable {
-
-    var edgeStyle: EdgeStyle = .defaultEdgeStyle
-
-    // TODO: should be properly persisted
-    var appTheme: StitchTheme = .defaultTheme
-
     var isShowingDrawer = false
 
     // Tracks ID of project which has a title that's currently getting modified

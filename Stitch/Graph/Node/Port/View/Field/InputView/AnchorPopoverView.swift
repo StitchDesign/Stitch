@@ -22,7 +22,7 @@ let ANCHOR_POPOVER_PADDING = ANCHOR_OPTION_SPACING
 
 struct AnchorPopoverView<RowObserver: NodeRowObserver>: View {
     
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     let rowObserver: RowObserver
     let graph: GraphState

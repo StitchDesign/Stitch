@@ -12,7 +12,7 @@ import GameController
 struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     typealias ItemID = SidebarViewModel.ItemID
 
-    @Environment(\.appTheme) private var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel

@@ -34,12 +34,6 @@ final class StitchStore: Sendable {
     
     @MainActor var isShowingDrawer = false
     
-    // TODO: should be properly persisted
-    @MainActor var edgeStyle: EdgeStyle = .defaultEdgeStyle
-    @MainActor var appTheme: StitchTheme = .defaultTheme
-    @MainActor var isOptionRequiredForShortcut: Bool = .defaultIsOptionRequiredForShortcuts
-    @MainActor var canShareAIRetries: Bool = .defaultCanShareAIRetries
-    
     // MARK: must be stored here to prevent inspector retain cycle
     @MainActor var showsLayerInspector = false
     
@@ -71,8 +65,6 @@ extension StitchStore {
     @MainActor
     func getState() -> AppState {
         AppState(
-            edgeStyle: self.edgeStyle,
-            appTheme: self.appTheme,
             isShowingDrawer: self.isShowingDrawer,
             projectIdForTitleEdit: self.projectIdForTitleEdit
         )

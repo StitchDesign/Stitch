@@ -21,7 +21,7 @@ struct PortPreviewData: Identifiable {
 
 struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 
-    @Environment(\.appTheme) var theme
+    @AppStorage(StitchAppSettings.APP_THEME.rawValue) private var theme: StitchTheme = StitchTheme.defaultTheme
     
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
