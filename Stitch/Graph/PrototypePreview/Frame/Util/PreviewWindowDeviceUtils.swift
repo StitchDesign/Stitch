@@ -23,6 +23,14 @@ extension CGSize {
 /// Differs from the user's device, i.e. the device on which Stitch is running (e.g. MacBook Air).
 typealias PreviewWindowDevice = PreviewSize
 
+enum ScreenDeviceType {
+    case iphone
+    case ipad
+    case macbook
+    case imac
+    case custom
+}
+
 extension PreviewWindowDevice {
     static let defaultPreviewWindowDevice = DEFAULT_PREVIEW_OPTION
     static let defaultPreviewWindowDeviceSize = DEFAULT_PREVIEW_SIZE
@@ -39,9 +47,13 @@ extension PreviewWindowDevice {
     var previewWindowDimensions: CGSize {
         switch self {
         // iPhones
-        case .iPhone14Pro:
+        case .iPhone16Pro:
+            return .init(width: 402, height: 874)
+        case .iPhone16ProMax:
+            return .init(width: 440, height: 956)
+        case .iPhone14Pro, .iPhone15, .iPhone15Pro, .iPhone16:
             return CGSize(width: 393, height: 852)
-        case .iPhone14ProMax:
+        case .iPhone14ProMax, .iPhone15Plus, .iPhone15ProMax, .iPhone16Plus:
             return CGSize(width: 430, height: 932)
         case .iPhone14, .iPhone13, .iPhone13Pro, .iPhone12, .iPhone12Pro:
             return StitchDocument.defaultPreviewWindowSize
@@ -92,38 +104,60 @@ extension PreviewWindowDevice {
             return Self.DEFAULT_PREVIEW_SIZE
         }
     }
-
-    var isIPhone: Bool {
+    
+    var deviceType: ScreenDeviceType {
         switch self {
-        case .iPhone14, .iPhone14Plus, .iPhone14Pro, .iPhone14ProMax, .iPhone13, .iPhone13mini, .iPhone13ProMax, .iPhone13Pro, .iPhone12, .iPhone12mini, .iPhone12ProMax, .iPhone12Pro, .iPhoneSe2ndGen, .iPhone11ProMax, .iPhone11Pro, .iPhone11, .iPhoneSE1stGen:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isIPad: Bool {
-        switch self {
+        case .iPhone16, .iPhone16Plus, .iPhone16Pro, .iPhone16ProMax, .iPhone15, .iPhone15Plus, .iPhone15Pro, .iPhone15ProMax, .iPhone14, .iPhone14Plus, .iPhone14Pro, .iPhone14ProMax, .iPhone13, .iPhone13mini, .iPhone13ProMax, .iPhone13Pro, .iPhone12, .iPhone12mini, .iPhone12ProMax, .iPhone12Pro, .iPhoneSe2ndGen, .iPhone11ProMax, .iPhone11Pro, .iPhone11, .iPhoneSE1stGen:
+            return .iphone
+            
         case .iPadMini6thGen, .iPad9thGen, .iPadPro12Inch, .iPadPro11Inch, .iPadAir4thGen, .iPadMini5thGen, .iPadAir3rdGen, .iPadPro10Inch:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isMacBook: Bool {
-        switch self {
+            return .ipad
+            
         case .MacBook, .MacBookAir, .MacBookPro:
+            return .macbook
+            
+        case .iMacRetina24Inch, .iMacRetina27Inch, .iMacProRetina27Inch:
+            return .imac
+        case .custom:
+            return .custom
+        }
+    }
+    
+    var isIPhone: Bool {
+        switch self.deviceType {
+        case .iphone:
             return true
+            
         default:
             return false
         }
     }
-
-    var isIMac: Bool {
-        switch self {
-        case .iMacRetina24Inch, .iMacRetina27Inch, .iMacProRetina27Inch:
+    
+    var isIPad: Bool {
+        switch self.deviceType {
+        case .ipad:
             return true
+            
+        default:
+            return false
+        }
+    }
+    
+    var isMacBook: Bool {
+        switch self.deviceType {
+        case .macbook:
+            return true
+            
+        default:
+            return false
+        }
+    }
+    
+    var isIMac: Bool {
+        switch self.deviceType {
+        case .imac:
+            return true
+            
         default:
             return false
         }
@@ -131,7 +165,7 @@ extension PreviewWindowDevice {
 }
 
 extension PreviewSize {
-    public static let defaultOption = Self.iPhone14
+    public static let defaultOption = Self.iPhone16
 }
 
 func checkDimensionsMatchDevice(size: CGSize) -> PreviewWindowDevice {
