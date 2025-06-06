@@ -103,12 +103,18 @@ struct PreviewTextFieldLayer: View {
     var regularVsSecureEntryField: some View {
         Group {
             if self.isSecureEntry {
-                SecureField(placeholder,
-                            text: $viewModel.textFieldInput)
+                SecureField("",
+                            text: $viewModel.textFieldInput,
+                            // Use a color that shows up against the common scenario of a white prototype window background
+                            prompt: Text(placeholder).foregroundColor(Color(.lightGray))
+                )
                 .textContentType(.password)
             } else {
-                TextField(placeholder,
-                          text: $viewModel.textFieldInput)
+                TextField("",
+                          text: $viewModel.textFieldInput,
+                          // Use a color that shows up against the common scenario of a white prototype window background
+                          prompt: Text(placeholder).foregroundColor(Color(.lightGray))
+                )
             }
         }
     }
