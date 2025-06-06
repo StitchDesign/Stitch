@@ -188,22 +188,56 @@ Platform: \(Self.platform)
     }
     
     var body: some View {
-        Menu {
-            if let document = self.document {
-                shareWithDocumentButton(document: document)
-            }
-            emailButton
-            gitHubButton
-            discordButton
-            docsButton
-        } label: {
-#if !targetEnvironment(macCatalyst)
-            if showLabel {
-                Text("Contact Stitch")                
-            }
-#endif
+        
+        ZStack {
             
-            Image(systemName: "bubble.left.and.text.bubble.right")
+            CatalystToolbarButton(
+                systemImageName: "bubble.left.and.text.bubble.right", // "gearshape",
+                tooltipText: "Share" //"Open Settings"
+            ) {
+                // log("my action here")
+            }
+            .fixedSize()
+            
+            Menu {
+                if let document = self.document {
+                    shareWithDocumentButton(document: document)
+                }
+                emailButton
+                gitHubButton
+                discordButton
+                docsButton
+            } label: {
+    #if !targetEnvironment(macCatalyst)
+                if showLabel {
+                    Text("Contact Stitch")
+                }
+    #endif
+                
+                EmptyView()
+            }
+            // Note: *must* provide explicit frame
+            .frame(width: 30, height: 30)
         }
+        
+//        Menu {
+//            if let document = self.document {
+//                shareWithDocumentButton(document: document)
+//            }
+//            emailButton
+//            gitHubButton
+//            discordButton
+//            docsButton
+//        } label: {
+//#if !targetEnvironment(macCatalyst)
+//            if showLabel {
+//                Text("Contact Stitch")                
+//            }
+//#endif
+//            
+//            Image(systemName: "bubble.left.and.text.bubble.right")
+//        }
+        
+        
     }
 }
