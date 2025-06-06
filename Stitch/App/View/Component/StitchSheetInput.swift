@@ -16,8 +16,10 @@ struct StitchSheetInput: ViewModifier {
         return content
             .padding(EdgeInsets(top: 0, leading: 6, bottom: 0, trailing: 6))
             .height(40)
-            .background(STITCH_SHEET_INPUT_BACKGROUND_COLOR)
-            .border(Color(uiColor: .systemGray3))
-            .cornerRadius(12)
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(STITCH_SHEET_INPUT_BACKGROUND_COLOR)
+                    .stroke(Color(uiColor: .systemGray3))
+            }
     }
 }
