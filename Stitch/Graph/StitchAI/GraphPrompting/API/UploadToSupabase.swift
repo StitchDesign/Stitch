@@ -108,7 +108,8 @@ extension StitchAIManager {
     
     private func _uploadToSupabase(payload: some Encodable & Sendable,
                                    tableName: String) async throws {
-        
+// Only log to supabase from release branch!
+#if RELEASE
         do {
             // Use the edited payload for insertion
             try await postgrest
@@ -150,7 +151,6 @@ extension StitchAIManager {
             fatalErrorIfDebug("SupabaseManager Unknown error: \(error)")
             throw error
         }
-        
+#endif
     }
-    
 }
