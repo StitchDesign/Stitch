@@ -1500,7 +1500,6 @@ extension PortValue {
             ]
           
         // LayerDimension cannot be unpacked, nor can ShapeCommand
-            
         default:
             return nil
         }
@@ -1643,12 +1642,21 @@ extension LayerInputEntity {
         }
     }
     
-    var inputConnections: [NodeConnectionType] {
+    var inputPortOrFieldPorts: [IncomingEdgeOrManualEdit] {
         switch self.mode {
         case .packed:
             return [self.packedData.inputPort]
         case .unpacked:
             return self.unpackedData.map { $0.inputPort }
+        }
+    }
+    
+    var fieldPortsOnlyIfUnpacked: [IncomingEdgeOrManualEdit]? {
+        switch self.mode {
+        case .packed:
+            return nil
+        case .unpacked:
+            return self.inputPortOrFieldPorts
         }
     }
     
@@ -1661,3 +1669,7 @@ extension LayerInputEntity {
         }
     }
 }
+
+
+// TODO: better name for `NodeConnectionType` ? 'Connection' makes me think of incoming or outgoing edge
+typealias IncomingEdgeOrManualEdit = NodeConnectionType
