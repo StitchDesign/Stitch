@@ -26,17 +26,35 @@ class OpenAIRequestTests: XCTestCase {
     /// Tests conversions to and from decoded state. StitchAI sometimes uses different types, this ensures types are compatible.
     func testStitchAICodables() {
         
-        let types = NodeType.allCases.filter({
+        let types = StitchAINodeType.allCases.filter({
             $0 != .none
         })
         
         for type in types  {
+            let runtimeNodeType: NodeType
+            let aiPortValue: CurrentStep.PortValue
             
             print("testStitchAICodables: testing type: \(type)")
+            do {
+                runtimeNodeType = try NodeTypeVersion
+                    .migrate(entity: type,
+                             version: CurrentStep.documentVersion)
+            } catch {
+                XCTFail("testStitchAICodables failure: unable to migrate type: \(type)\nWith error: \(error.localizedDescription)")
+                return
+            }
             
-            let portValue: PortValue = type.defaultPortValue
-            let valueCodable = portValue.anyCodable
+            let portValue = runtimeNodeType.defaultPortValue
+
+            do {
+                aiPortValue = try portValue.convert(to: CurrentStep.PortValue.self)
+            } catch {
+                XCTFail("testStitchAICodables failure: unable to convert PortValue: \(portValue)\nWith error: \(error.localizedDescription)")
+                return
+            }
+            
             let portValueType = type.portValueTypeForStitchAI
+            let valueCodable = aiPortValue.anyCodable
             
             guard let encoding: Data = try? getStitchEncoder().encode(valueCodable) else {
                 XCTFail("Could not encode type \(type)")
