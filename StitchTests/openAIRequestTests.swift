@@ -13,6 +13,11 @@ import SwiftyJSON
 
 class OpenAIRequestTests: XCTestCase {
     func testSecretsNotNil() throws {
+        // Make sure we simulate first-run experience
+        UserDefaults.standard.setValue(
+            nil,
+            forKey: StitchAppSettings.CAN_SHARE_AI_DATA.rawValue)
+        
         do {
             let secrets = try Secrets()
             XCTAssertNotNil(secrets)
