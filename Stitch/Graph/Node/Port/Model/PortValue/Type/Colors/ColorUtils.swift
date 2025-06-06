@@ -8,6 +8,10 @@ import SwiftUI
 import UIKit
 
 
+func colorEqualityByHex(lhs: Color, rhs: Color) -> Bool {
+    lhs.asHexDisplay == rhs.asHexDisplay
+}
+
 extension Color {
     static let trueColor = Stitch.trueColor
     static let falseColor = Stitch.falseColor

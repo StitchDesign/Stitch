@@ -14,15 +14,16 @@ func hexNode(id: NodeId,
              position: CGPoint = .zero,
              zIndex: Double = 0) -> PatchNode {
 
+    let defaultColor = falseColor
+    let hexStringForDefaultColor = defaultColor.asHexDisplay
+    
     let inputs = toInputs(
         id: id,
-        values: ("Hex", [.string(.init(""))]))
-
-    let color: Color = UIColor(hex: Color.defaultFalseColorHex)?.toColor ?? falseColor
+        values: ("Hex", [.string(.init(hexStringForDefaultColor))]))
 
     let outputs = toOutputs(
         id: id, offset: inputs.count,
-        values: ("Color", [.color(color)]))
+        values: ("Color", [.color(defaultColor)]))
 
     return PatchNode(position: position,
                      zIndex: zIndex,
