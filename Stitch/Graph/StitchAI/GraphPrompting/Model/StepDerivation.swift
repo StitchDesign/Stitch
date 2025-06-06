@@ -206,11 +206,20 @@ extension StitchDocumentViewModel {
                 newConnectionSteps.append(connectionStep)
                 
             case .values(let newInputs):
-                if defaultInputs != newInputs {
-                    let value = newInputs.first!
-                    
+                if let defaultInput = defaultInputs.first,
+                   let newInput = newInputs.first,
+                   defaultInput != newInput {
+                                                            
+                    // Careful: SwiftUI.Color equality is not a simple sRGBA comparison; semantic colors are treated differently (e.g. a 'semantic color' like Color.red may have a different appearance per platform)
+                    // So, we compare colors by equality
+                    if let color1 = defaultInput.getColor,
+                       let color2 = newInput.getColor,
+                       colorEqualityByHex(lhs: color1, rhs: color2) {
+                        return
+                    }
+                
                     do {
-                        let migratedValue = try value.convert(to: CurrentStep.PortValue.self)
+                        let migratedValue = try newInput.convert(to: CurrentStep.PortValue.self)
                         
                         let setInputStep = StepActionSetInput(nodeId: port.nodeId,
                                                               port: migratedPortType,
@@ -219,7 +228,7 @@ extension StitchDocumentViewModel {
                         newSetInputSteps.append(setInputStep)
                         
                     } catch {
-                        fatalErrorIfDebug("deriveNewInputActions: unable to convert value: \(value)\nError: \(error)")
+                        fatalErrorIfDebug("deriveNewInputActions: unable to convert value: \(newInput)\nError: \(error)")
                     }
                 }
             }
