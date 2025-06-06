@@ -41,6 +41,8 @@ extension StitchDocumentViewModel {
 }
 
 struct InsertNodeCommands: View {
+    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequired: Bool = Bool.defaultIsOptionRequiredForShortcuts
+    
     @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
     
@@ -62,10 +64,6 @@ struct InsertNodeCommands: View {
     
     var shouldDisableLayer: Bool {
         document.shouldDisableLayerShortcuts
-    }
-    
-    var isOptionRequired: Bool {
-        StitchStore.isOptionRequiredForShortcut
     }
     
     var modifiersAdjustedForOptionRequirement: EventModifiers {

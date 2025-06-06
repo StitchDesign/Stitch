@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 import StitchSchemaKit
 
 struct EncodeCurrentProject: StitchStoreEvent {
@@ -23,11 +24,13 @@ struct ESCKeyPressed: StitchStoreEvent {
 }
 
 struct KeyCharacterPressBegan: StitchStoreEvent {
+    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
     let char: Character
     
     @MainActor
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.keyCharacterPressBegan(char: char)
+        store.keyCharacterPressBegan(char: char,
+                                     isOptionRequired: isOptionRequiredForShortcuts)
         return .noChange
     }
 }

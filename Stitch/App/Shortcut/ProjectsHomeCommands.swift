@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 struct ProjectsHomeCommands: Commands {
     @Environment(\.openURL) private var openURL
-    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: String = Bool.defaultIsOptionRequiredForShortcuts.description
+    @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
     
     @Bindable var store: StitchStore
     @FocusedValue(\.focusedField) private var focusedField
