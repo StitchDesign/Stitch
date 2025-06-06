@@ -217,8 +217,8 @@ extension StitchDocumentViewModel {
            layerNode.layer != .group {
             let isFirstLayer = graph.layersSidebarViewModel.items.isEmpty
             
-            // Open sidebars if first created layer
-            if isFirstLayer {
+            // Open sidebars if first created layer and not an AI request
+            if isFirstLayer && !self.isLoadingAI {
                 self.leftSidebarOpen = true
                 self.storeDelegate?.showsLayerInspector = true
             }
