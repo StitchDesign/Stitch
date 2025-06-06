@@ -117,19 +117,21 @@ struct PreviewTextFieldLayer: View {
     @MainActor
     var textFieldWithOnChangeLogic: some View {
 
-        regularVsSecureEntryField
+//        regularVsSecureEntryField
+        TextField(placeholder,
+                  text: $viewModel.textFieldInput)
         
         // TODO: no longer needed anymore? replaced by redux-focused-field ?
-             .focusedValue(\.focusedField, .prototypeTextField(self.id))
+//             .focusedValue(\.focusedField, .prototypeTextField(self.id))
 
         // MARK: important: whether text field is focused or not; updated by redux-state changes *but also can trigger updates to redux-state*
              .focused($isFocused)
         
         // QWERTY vs number pad etc.
-            .keyboardType(self.keyboardType.asUIKeyboardType)
+//            .keyboardType(self.keyboardType.asUIKeyboardType)
         
         // Only auto-correct if spellcheck is enabled
-            .autocorrectionDisabled(!self.isSpellCheckEnabled)
+//            .autocorrectionDisabled(!self.isSpellCheckEnabled)
             
         // TODO: allow user to specify auto-capitalization logic?
             .autocapitalization(.none)
@@ -150,13 +152,13 @@ struct PreviewTextFieldLayer: View {
             }
         
         // User tapped on field -> we toggle focus
-            .onTapGesture {
-                if self.isFocused {
-                    dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
-                } else {
-                    dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
-                }
-            }
+//            .onTapGesture {
+//                if self.isFocused {
+//                    dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
+//                } else {
+//                    dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
+//                }
+//            }
         
             .opacity(opacity)
             .padding()
@@ -167,51 +169,51 @@ struct PreviewTextFieldLayer: View {
         // MARK: onChange methods
         
         // User typed in the text-field -> we send updates to layer node's output
-            .onChange(of: self.viewModel.textFieldInput) { oldValue, newValue in
-                // log("TextField: onChange: self.edit: oldValue: \(oldValue)")
-                // log("TextField: onChange: self.edit: newValue: \(newValue)")
-                // TODO: slight delay not necessary?
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.001) {
-                    dispatch(TextFieldInputEdited(id: id, newEdit: newValue))
-                }
-            }
+//            .onChange(of: self.viewModel.textFieldInput) { oldValue, newValue in
+//                // log("TextField: onChange: self.edit: oldValue: \(oldValue)")
+//                // log("TextField: onChange: self.edit: newValue: \(newValue)")
+//                // TODO: slight delay not necessary?
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.001) {
+//                    dispatch(TextFieldInputEdited(id: id, newEdit: newValue))
+//                }
+//            }
           
         
-        // Redux-focused-field changed -> we update text field's focus
-            .onChange(of: document.reduxFocusedField, initial: true) { oldValue, newValue in
-                 // log("TextField: onChange: document.reduxFocusedField: oldValue: \(oldValue)")
-                 // log("TextField: onChange: document.reduxFocusedField: newValue: \(newValue)")
-                
-                switch newValue {
-                case .prototypeTextField(let focusedId):
-                    let _focused = focusedId == self.id
-                    // log("TextField: onChange: document.reduxFocusedField: might focus: _focused: \(_focused)")
-                    self.isFocused = _focused
-                default:
-                    // log("TextField: onChange: document.reduxFocusedField: will defocus")
-                    self.isFocused = false
-                }
-            }
+//        // Redux-focused-field changed -> we update text field's focus
+//            .onChange(of: document.reduxFocusedField, initial: true) { oldValue, newValue in
+//                 // log("TextField: onChange: document.reduxFocusedField: oldValue: \(oldValue)")
+//                 // log("TextField: onChange: document.reduxFocusedField: newValue: \(newValue)")
+//                
+//                switch newValue {
+//                case .prototypeTextField(let focusedId):
+//                    let _focused = focusedId == self.id
+//                    // log("TextField: onChange: document.reduxFocusedField: might focus: _focused: \(_focused)")
+//                    self.isFocused = _focused
+//                default:
+//                    // log("TextField: onChange: document.reduxFocusedField: will defocus")
+//                    self.isFocused = false
+//                }
+//            }
         
         // SwiftUI TextField's focus changed (e.g. because user tapped) --> we update redux
         // Note: handles an interesting where  tapping on a text field in the prototype window *also* triggers a "prototype window focused" event, which was overriding the redux tracking of this text-field's focused-state
-            .onChange(of: self.isFocused, initial: true) { oldValue, newValue in
-                // log("TextField: onChange: self.isFocused: oldValue: \(oldValue)")
-                // log("TextField: onChange: self.isFocused: newValue: \(newValue)")
-                if newValue {
-                    dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
-                } else {
-                    dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
-                }
-            }
+//            .onChange(of: self.isFocused, initial: true) { oldValue, newValue in
+//                // log("TextField: onChange: self.isFocused: oldValue: \(oldValue)")
+//                // log("TextField: onChange: self.isFocused: newValue: \(newValue)")
+//                if newValue {
+//                    dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
+//                } else {
+//                    dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
+//                }
+//            }
         
-            .id(self.localId)
-            .onChange(of: self.keyboardType, initial: true) {
-                self.localId = .init()
-            }
-            .onChange(of: self.isSpellCheckEnabled, initial: true) {
-                self.localId = .init()
-            }
+//            .id(self.localId)
+//            .onChange(of: self.keyboardType, initial: true) {
+//                self.localId = .init()
+//            }
+//            .onChange(of: self.isSpellCheckEnabled, initial: true) {
+//                self.localId = .init()
+//            }
     }
     
     // Note: must force re-render for keyboard-type (and auto-correct?) change(s) to take effect
