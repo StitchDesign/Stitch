@@ -20,6 +20,7 @@ enum LayerInspectorSection: String, CaseIterable, Identifiable, Hashable {
     case scrolling = "Scrolling" // Better?: "Group Scrolling"
     case pinning = "Pinning"
     case typography = "Typography"
+    case textInput = "Text Input"
     case stroke = "Stroke"
     case rotation = "Rotation"
     case layerEffects = "Layer Effects"
@@ -178,12 +179,16 @@ extension LayerInspectorSection {
         case .typography:
             return [
                 .text,
-                .placeholderText,
                 .textFont,
                 .fontSize,
                 .textAlignment,
                 .verticalAlignment,
-                .textDecoration,
+                .textDecoration
+            ]
+            
+        case .textInput:
+            return [
+                .placeholderText,
                 .beginEditing,
                 .endEditing,
                 .setText,
