@@ -272,13 +272,6 @@ struct StepActionConnectionAdded: StepActionable {
                 // Only call this if we know we had a layer, since it throws a fatalError on debug
                 document.addLayerOutputToCanvas(nodeId: originNode.id,
                                                 portId: self.fromPort)
-                
-                // The edge's destination might also be a layer input or layer input-field, so potentially add that to the canvas too
-                if let error = self.maybeAddLayerInputOrFieldDestinationToCanvas(inputPort: inputPort,
-                                                                                 fromNodeLocation: fromNodeLocation,
-                                                                                 document: document) {
-                    return error
-                }
             }
             
         } catch {
@@ -298,7 +291,6 @@ struct StepActionConnectionAdded: StepActionable {
             
             // If the destination node was a layer, then the self.port/inputPort should be a layer-input too
             guard let layerInputType = inputPort.portType.keyPath else {
-                // fatalErrorIfDebug()
                 return .actionValidationError("expected layer node keypath but got: \(inputPort)")
             }
             

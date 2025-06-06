@@ -14,7 +14,7 @@ typealias LayerInputSizes = [LayerInputPort: CGSize]
 extension CGSize {
     // A layer input-fields on the canvas are a single size
     static let ASSUMED_LAYER_FIELD_SIZE: CGSize = .init(width: 200, height: 120)
-    static let ASSUMED_LAYER_OUTPUT_SIZE: CGSize = .init(width: 300, height: 200)
+    static let ASSUMED_LAYER_OUTPUT_SIZE: CGSize = .init(width: 400, height: 200)
 }
 
 struct PatchOrLayerSizes {
@@ -45,7 +45,7 @@ extension CanvasItemViewModel {
                 return PatchOrLayerSizes.layerFieldSize
             }
             
-        case .layerOutput(_):
+        case .layerOutput:
             return PatchOrLayerSizes.layerOutputSize
         }
     }
