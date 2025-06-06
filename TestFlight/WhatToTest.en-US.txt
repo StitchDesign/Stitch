@@ -5,6 +5,7 @@ Headlines
 - New 5-star review system for providing feedback on Stitch AI results
 
 Improvements/Fixes
+- Support for newer iPhones for device preview sizing
 - Project settings improved to include app-wide settings
 - Graph remains interactive while AI loads
 - Insert Node toolbar button returns to iPad

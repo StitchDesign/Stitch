@@ -47,7 +47,6 @@ struct InsertNodeMenuView: View {
     @State private var showAILogsAlert = false
     @State private var showDataCollectionPopover = false
     @State private var footerRect: CGRect = .zero
-    @State private var isLoadingStitchAI = false
     @State private var queryString = ""
     
     private let launchTip = StitchAILaunchTip()
@@ -123,7 +122,6 @@ struct InsertNodeMenuView: View {
         VStack(spacing: 0) {
             InsertNodeMenuSearchBar(document: document,
                                     launchTip: self.launchTip,
-                                    isLoadingStitchAI: $isLoadingStitchAI,
                                     queryString: $queryString,
                                     userSubmitted: userSubmitted)
             
@@ -152,7 +150,7 @@ struct InsertNodeMenuView: View {
             }
         } // VStack
         .background(INSERT_NODE_SEARCH_BACKGROUND)
-        .animation(.stitchAnimation, value: self.isLoadingStitchAI)
+        .animation(.stitchAnimation, value: self.isGeneratingAINode)
         .foregroundColor(INSERT_NODE_MENU_SEARCH_TEXT)
         .cornerRadius(InsertNodeMenuWithModalBackground.shownMenuCornerRadius)
         
@@ -183,19 +181,18 @@ struct InsertNodeMenuView: View {
             return
         }
         
+        // Toggle state for insert node menu (it'll still remain visible with AI request running)
+        // MARK: must follow logic for the data collection alert so that the menu doesn't disappear
+        document.insertNodeMenuState.show = false
+        
         dispatch(SubmitUserPromptToOpenAI(prompt: queryString))
     }
     
     func userSubmitted() {
         if self.isAIMode {
-            // Toggle state for insert node menu (it'll still remain visible with AI request running)
-            document.insertNodeMenuState.show = false
-            
             // Invalidate tip in future once AI submission is completed
             self.launchTip.invalidate(reason: .actionPerformed)
-            
-            self.isLoadingStitchAI = true
-            
+
             self.handleAIQuery()
         } else if (self.store.currentDocument?.insertNodeMenuState.activeSelection).isDefined {
             dispatch(AddNodeButtonPressed())

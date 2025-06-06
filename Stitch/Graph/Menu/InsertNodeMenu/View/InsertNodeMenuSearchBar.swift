@@ -26,7 +26,6 @@ struct InsertNodeMenuSearchBar: View {
     
     @Bindable var document: StitchDocumentViewModel
     let launchTip: StitchAILaunchTip
-    @Binding var isLoadingStitchAI: Bool
     @Binding var queryString: String
     let userSubmitted: () -> Void
 
