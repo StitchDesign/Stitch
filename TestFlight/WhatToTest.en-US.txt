@@ -1,8 +1,19 @@
-Improvements to Stitch Understandability
- - About popovers on patches and layers surface key details without leaving the canvas
- - Empty graphs now show helpful tips and direct links to documentation
- - Sidebars open automatically when you create the first layer for smoother onboarding
- - Layer inspector displays a clear title for better clarity on Layer focus state
+Headlines
+- Text Field layer now supports begin + end editing, set text, secure entry, keyboard type selection, and spellcheck inputs
+- Stitch AI queries now have a much higher rate of success—no more mysterious failures
+- New loading UI streams results in live time as request loads
+- New 5-star review system for providing feedback on Stitch AI results
 
-Bug Fixes
- - Network Request patch outputs match the selected node type and update when the type changes
+Improvements/Fixes
+- Project settings improved to include app-wide settings
+- Graph remains interactive while AI loads
+- Insert Node toolbar button returns to iPad
+- Canvas Sketch layer draws more responsively and honors line color and width
+- Sidebars no longer pop open automatically during AI requests
+- Fixed issue where Shift or CMD keys caused unintended input tabbing
+
+A note on data collection for improving Stitch AI: this update add new logging that provides the team with critical data needed to improve Stitch AI. **You may opt out at any time from the app settings**. These new logs include:
+1. Strings of AI queries from the Node menu.
+2. Logs from failed results.
+3. AI results from successful response.
+4. Any review feedback you choose to submit.
