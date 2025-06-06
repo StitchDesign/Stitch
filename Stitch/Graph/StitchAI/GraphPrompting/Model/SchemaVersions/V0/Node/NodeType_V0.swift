@@ -18,7 +18,7 @@ extension StitchAIPortValue_V0.NodeType {
     var portValueTypeForStitchAI: Decodable.Type {
         switch self {
         case .int:
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
             return Int.self
         case .string:
             return String.self
