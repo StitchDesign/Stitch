@@ -154,16 +154,6 @@ struct PreviewTextFieldLayer: View {
             .onSubmit {
                 dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
             }
-        
-        // User tapped on field -> we toggle focus
-            .onTapGesture {
-                if self.isFocused {
-                    dispatch(ReduxFieldDefocused(focusedField: usedFocusedField))
-                } else {
-                    dispatch(ReduxFieldFocused(focusedField: usedFocusedField))
-                }
-            }
-        
             .opacity(opacity)
             .padding()
         

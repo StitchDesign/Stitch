@@ -62,7 +62,13 @@ struct GeneratePreview: View {
         .simultaneousGesture(
             TapGesture()
                 .onEnded {
-                    document.reduxFieldFocused(focusedField: .prototypeWindow)
+                    switch document.reduxFocusedField {
+                    case .prototypeTextField:
+                        // Having a prototype text field already focused counts as having the prototype window focused; if we switched to .prototypeWindow here, the prototype text field would lose focus
+                        return
+                    default:
+                        document.reduxFieldFocused(focusedField: .prototypeWindow)
+                    }
                 }
         )
     }

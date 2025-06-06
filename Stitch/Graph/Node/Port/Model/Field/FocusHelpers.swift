@@ -91,6 +91,8 @@ extension FocusedUserEditField {
 }
 
 extension StitchDocumentViewModel {
+    
+    // TODO: `.prototypeWindow` and `.prototypeTextField` do not work well together; the first cancels out the second; a quick fix has been implemented in `GeneratePreview` where we would set `focused-field = .prototypeWindow`, but better solution might be to reuse whatever logic makes simultaneous .sidebar and SidebarItem name text-field work well together
     @MainActor
     func reduxFieldFocused(focusedField: FocusedUserEditField) {
         log("reduxFieldFocused: focusedField: \(focusedField)")
