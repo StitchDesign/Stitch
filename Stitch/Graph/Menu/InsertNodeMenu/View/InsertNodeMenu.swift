@@ -201,49 +201,6 @@ struct InsertNodeMenuView: View {
             dispatch(AddNodeButtonPressed())
         }
     }
-
-    @MainActor
-    var footerView: some View {
-        HStack {
-            #if STITCH_AI_REASONING
-            Text("Model: \(document.aiManager?.secrets.openAIModel ?? "None")")
-            #endif
-            Spacer()
-            StitchButton(action: {
-                if isAIMode {
-                    if let query = document.insertNodeMenuState.searchQuery {
-                        dispatch(SubmitUserPromptToOpenAI(prompt: query))
-                    }
-                } else {
-                    dispatch(AddNodeButtonPressed())
-                }
-            }, label: {
-                let isLoading = document.isLoadingAI
-                
-                HStack(spacing: 8) {
-                    StitchTextView(string: isAIMode ? "Submit Prompt" : "Add Node",
-                                   fontColor: INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    
-                    if isLoading {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                            .tint(INSERT_NODE_MENU_ADD_NODE_BUTTON_COLOR)
-                    }
-                }
-                .padding(8)
-                .background(theme.themeData.edgeColor)
-                .cornerRadius(8)
-            })
-        }
-        .padding([.leading, .trailing], 12)
-        .padding([.top, .bottom], 8)
-        .frame(width: INSERT_NODE_MENU_FOOTER_WIDTH,
-               height: INSERT_NODE_MENU_FOOTER_HEIGHT)
-        .background(InsertNodeFooterSizeReader(footerRect: $footerRect))
-        .background(.ultraThinMaterial)
-    }
 }
 
 struct InsertNodeMenu_Previews: PreviewProvider {
