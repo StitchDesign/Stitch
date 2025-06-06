@@ -52,6 +52,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
         .union(.layerPaddingAndMargin)
         .union(.offsetInGroup)
         .union(.typographyWithoutText)
+        .union(.textFieldInputs)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
