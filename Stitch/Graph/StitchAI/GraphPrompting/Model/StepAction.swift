@@ -352,10 +352,11 @@ struct StepActionConnectionAdded: StepActionable {
         guard let originNode = originNode else {
             return .failure(.actionValidationError("ConnectNodes: Tried create a connection from node \(self.fromNodeId.debugFriendlyId) to \(self.toNodeId.debugFriendlyId), but the From Node does not yet exist"))
         }
-        
-        guard originNode.asNodeKind.isPatch else {
-            return .failure(.actionValidationError("ConnectNodes: Tried create a connection from node \(self.fromNodeId.debugFriendlyId) to \(self.toNodeId.debugFriendlyId), but the From Node was a layer or group"))
-        }
+                
+        // This is no longer a failure condition, since we support e.g. LayerGroup's scroll output
+        //        guard originNode.asNodeKind.isPatch else {
+        //            return .failure(.actionValidationError("ConnectNodes: Tried create a connection from node \(self.fromNodeId.debugFriendlyId) to \(self.toNodeId.debugFriendlyId), but the From Node was a layer or group"))
+        //        }
         
         return .success(createdNodes)
     }
