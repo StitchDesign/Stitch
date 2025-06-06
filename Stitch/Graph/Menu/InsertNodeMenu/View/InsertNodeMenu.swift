@@ -46,6 +46,7 @@ struct InsertNodeMenuView: View {
     
     @State private var showAILogsAlert = false
     @State private var showDataCollectionPopover = false
+    
     @State private var footerRect: CGRect = .zero
     @State private var isLoadingStitchAI = false
     @State private var queryString = ""
@@ -80,6 +81,7 @@ struct InsertNodeMenuView: View {
                     .offset(y: (menuHeight / 2) + 64)
             }
             .alert(isPresented: $showAILogsAlert) {
+//            .alert(isPresented: .constant(true)) {
                 Alert(
                     title: Text("Help Improve Stitch AI"),
                     message: Text("To keep Stitch AI faster and smarter for you, we’ll collect a tiny amount of anonymous usage data. You can switch this off anytime in App Settings."),
@@ -100,6 +102,10 @@ struct InsertNodeMenuView: View {
                     )
                 )
             }
+            .onChange(of: self.showAILogsAlert, { oldValue, newValue in
+                log("InsertNodeMenuView: onChange: self.showAILogsAlert: oldValue: \(oldValue)")
+                log("InsertNodeMenuView: onChange: self.showAILogsAlert: newValue: \(newValue)")
+            })
             .popover(isPresented: $showDataCollectionPopover) {
                 VStack(alignment: .leading) {
                     StitchDocsPopoverView(router: .overview(.dataCollection))
@@ -176,9 +182,15 @@ struct InsertNodeMenuView: View {
     
     func handleAIQuery() {
         // User hasn't opted in or out if logs setting is nil
-        let hasUserAcknolwedgedDataCollection = self.canShareAIData != nil
+        let hasUserAcknolwedgedDataCollection = self.canShareAIData.isDefined
         
-        guard hasUserAcknolwedgedDataCollection else {
+//        guard hasUserAcknolwedgedDataCollection else {
+//            self.showAILogsAlert = true
+//            return
+//        }
+        log("handleAIQuery: self.canShareAIData: \(self.canShareAIData)")
+        if !hasUserAcknolwedgedDataCollection {
+            log("handleAIQuery: will show logs alert")
             self.showAILogsAlert = true
             return
         }
