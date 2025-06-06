@@ -394,6 +394,7 @@
 		EC0F334A2BED93D9008093BC /* NodeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0F33492BED93D9008093BC /* NodeDelegate.swift */; };
 		EC0F334C2BED93EF008093BC /* GraphDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0F334B2BED93EF008093BC /* GraphDelegate.swift */; };
 		EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */; };
+		EC10A6362DF3A6E800C27F04 /* CatalystNavbarToolTipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC10A6352DF3A6E800C27F04 /* CatalystNavbarToolTipView.swift */; };
 		EC10BA522629FBF800A9BE89 /* evalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC10BA512629FBF800A9BE89 /* evalTests.swift */; };
 		EC11218D2942839700F0AE19 /* TrianglePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC11218C2942839700F0AE19 /* TrianglePatchNode.swift */; };
 		EC11218F2942846900F0AE19 /* ShapeLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC11218E2942846900F0AE19 /* ShapeLayerNode.swift */; };
@@ -1443,6 +1444,7 @@
 		EC0F33492BED93D9008093BC /* NodeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDelegate.swift; sourceTree = "<group>"; };
 		EC0F334B2BED93EF008093BC /* GraphDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphDelegate.swift; sourceTree = "<group>"; };
 		EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalystNavigationBarHelperViews.swift; sourceTree = "<group>"; };
+		EC10A6352DF3A6E800C27F04 /* CatalystNavbarToolTipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalystNavbarToolTipView.swift; sourceTree = "<group>"; };
 		EC10BA512629FBF800A9BE89 /* evalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = evalTests.swift; sourceTree = "<group>"; };
 		EC11218C2942839700F0AE19 /* TrianglePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrianglePatchNode.swift; sourceTree = "<group>"; };
 		EC11218E2942846900F0AE19 /* ShapeLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeLayerNode.swift; sourceTree = "<group>"; };
@@ -3052,6 +3054,7 @@
 				B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */,
 				EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */,
 				EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */,
+				EC10A6352DF3A6E800C27F04 /* CatalystNavbarToolTipView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5423,6 +5426,7 @@
 				ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */,
 				B5C603A5275D9BE200EA2999 /* CameraUtil.swift in Sources */,
 				ECDD303B27A882A200E91530 /* GlobalDispatch.swift in Sources */,
+				EC10A6362DF3A6E800C27F04 /* CatalystNavbarToolTipView.swift in Sources */,
 				EC1D03BF2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift in Sources */,
 				EC609DBC293530B700BF60A5 /* CollectionExtensionUtils.swift in Sources */,
 				ECC506E7267BB2CA00A2D015 /* VideoImportNode.swift in Sources */,
