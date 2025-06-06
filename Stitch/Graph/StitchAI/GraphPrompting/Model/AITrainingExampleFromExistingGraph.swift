@@ -141,7 +141,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
             }, label: {
                 Text("Submit")
             })
-            .disabled(prompt.isEmpty && !currentRating.isDefined)
+            .disabled(prompt.isEmpty || !currentRating.isDefined)
             .buttonStyle(.bordered)
             
             Spacer()
