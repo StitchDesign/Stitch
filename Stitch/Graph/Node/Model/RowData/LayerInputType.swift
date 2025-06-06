@@ -309,7 +309,7 @@ extension LayerInputPort {
         case .isSecureEntry:
             return boolDefaultFalse
         case .isSpellCheckEnabled:
-            return boolDefaultFalse
+            return boolDefaultTrue
         case .keyboardType:
             return KeyboardType.defaultKeyboardTypePortValue
         }
