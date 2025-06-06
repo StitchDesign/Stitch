@@ -206,21 +206,71 @@ extension StitchDocumentViewModel {
                 newConnectionSteps.append(connectionStep)
                 
             case .values(let newInputs):
-                if defaultInputs != newInputs {
-                    let value = newInputs.first!
+                
+//                if port.keyPath?.layerInput == .strokePosition {
+//                    log("STOP")
+//                }
+                
+                if port.keyPath?.layerInput == .pivot {
+                    log("STOP: pivot")
+                }
+                
+                if port.keyPath?.layerInput == .anchoring {
+                    log("STOP: anchoring")
+                }
+                
+               
+                
+                // `newInputs` comes from encoded data i.e. schema i.e. ~LayerNodeEntity
+                if let newInput: PortValue = newInputs.first,
+                    // runtime default
+                   let defaultInput: PortValue = defaultInputs.first {
+                 
                     
                     do {
-                        let migratedValue = try value.convert(to: CurrentStep.PortValue.self)
+                        let migratedNewInput: CurrentStep.PortValue = try newInput.convert(to: CurrentStep.PortValue.self)
+                        let migratedDefaultInput: CurrentStep.PortValue = try defaultInput.convert(to: CurrentStep.PortValue.self)
+                        let encodedX = try migratedNewInput.anyCodable.encodeToData()
+                        let encodedY = try migratedDefaultInput.anyCodable.encodeToData()
+//                        let encodedX = try migratedNewInput.anyCodable.encodeToPrintableString()
+//                        let encodedY = try migratedDefaultInput.anyCodable.encodeToPrintableString()
                         
-                        let setInputStep = StepActionSetInput(nodeId: port.nodeId,
-                                                              port: migratedPortType,
-                                                              value: migratedValue,
-                                                              valueType: migratedValue.nodeType)
-                        newSetInputSteps.append(setInputStep)
+                         // add a check on the migratedNewInput and migratedDefaultInput
+                                                 
+                        if encodedX != encodedY {
+                            let value = newInputs.first!
+                            let migratedValue = try value.convert(to: CurrentStep.PortValue.self)
+                            
+                            let setInputStep = StepActionSetInput(nodeId: port.nodeId,
+                                                                  port: migratedPortType,
+                                                                  value: migratedValue,
+                                                                  valueType: migratedValue.nodeType)
+                            newSetInputSteps.append(setInputStep)
+                        }
                         
                     } catch {
-                        fatalErrorIfDebug("deriveNewInputActions: unable to convert value: \(value)\nError: \(error)")
+                        fatalErrorIfDebug("deriveNewInputActions: unable to convert value... \nError: \(error)")
                     }
+                   
+                    
+        
+                    
+//                if defaultInputs != newInputs {
+//                    let value = newInputs.first!
+                    
+//                    
+//                    do {
+//                        let migratedValue = try value.convert(to: CurrentStep.PortValue.self)
+//                        
+//                        let setInputStep = StepActionSetInput(nodeId: port.nodeId,
+//                                                              port: migratedPortType,
+//                                                              value: migratedValue,
+//                                                              valueType: migratedValue.nodeType)
+//                        newSetInputSteps.append(setInputStep)
+//                        
+//                    } catch {
+//                        fatalErrorIfDebug("deriveNewInputActions: unable to convert value: \(value)\nError: \(error)")
+//                    }
                 }
             }
         } catch {

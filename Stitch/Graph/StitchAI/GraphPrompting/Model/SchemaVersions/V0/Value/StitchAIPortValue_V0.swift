@@ -78,8 +78,8 @@ extension StitchAIPortValue_V0.PortValue {
         let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
         self = value
     }
-    
-    var anyCodable: any Codable {
+        
+    var anyCodable: any Codable & Equatable {
         switch self {
         case .string(let x):
             return x.string

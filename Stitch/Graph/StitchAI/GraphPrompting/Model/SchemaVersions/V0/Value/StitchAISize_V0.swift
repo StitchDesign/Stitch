@@ -14,7 +14,7 @@ enum StitchAISize_V0: StitchSchemaVersionable {
     typealias PreviousInstance = Self.StitchAISize
     // MARK: - end
     
-    struct StitchAISize: Codable {
+    struct StitchAISize: Codable, Equatable {
         var width: StitchAISizeDimension
         var height: StitchAISizeDimension
     }

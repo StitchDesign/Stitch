@@ -15,7 +15,7 @@ enum StitchAISizeDimension_V0: StitchSchemaVersionable {
     typealias PreviousInstance = Self.StitchAISizeDimension
     // MARK: - end
     
-    struct StitchAISizeDimension: StitchAIStringConvertable {
+    struct StitchAISizeDimension: StitchAIStringConvertable, Equatable {
         var value: LayerDimension
     }
 }
