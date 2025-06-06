@@ -46,7 +46,9 @@ struct InsertNodeMenuSearchBar: View {
                                 .font(.headline)
                         }
                         .foregroundStyle(theme.themeData.edgeColor)
-                        .padding(.horizontal)
+                        .padding()
+                        .background(INSERT_NODE_SEARCH_BACKGROUND.opacity(0.8))
+                        .cornerRadius(12)
                         .buttonStyle(.borderless)
                         
                         ProgressView()
