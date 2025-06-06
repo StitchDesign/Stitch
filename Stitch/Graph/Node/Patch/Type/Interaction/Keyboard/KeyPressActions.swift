@@ -119,10 +119,6 @@ extension NodesViewModelDict {
 // (in which case we ignore key presses).
 // TODO: project-settings-modal info should be contained on ProjectState, not AppState.
 extension StitchStore {
-//    static var isOptionRequiredForShortcut: Bool {
-//        (UserDefaults.standard.value(forKey: StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) as Bool
-//    }
-    
     @MainActor
     func keyCharacterPressBegan(char: Character,
                                 isOptionRequired: Bool) {
