@@ -49,7 +49,7 @@ struct TopBarSharingButtonsView: View {
             
             CatalystToolbarButton(
                 systemImageName: .SHARE_ICON_SF_SYMBOL_NAME,
-                tooltipText: "Record Prototype"
+                tooltipText: "Share"
             ) {
                 // log("my action here")
             }
@@ -254,7 +254,7 @@ Platform: \(Self.platform)
         ZStack {
             CatalystToolbarButton(
                 systemImageName: Self.iconName,
-                tooltipText: "Share"
+                tooltipText: "Contact Us"
             ) {
                 // log("my action here")
             }
