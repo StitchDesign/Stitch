@@ -225,7 +225,7 @@ struct CatalystTopBarGraphButtons: View {
             }
             
             CatalystNavBarButton("sidebar.right",
-                                 toolTip: "Open Layer Inspector") {
+                                 toolTip: "Toggle Layer Inspector") {
                 dispatch(LayerInspectorToggled())
             }
         }
