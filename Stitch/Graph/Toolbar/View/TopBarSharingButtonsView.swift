@@ -60,7 +60,10 @@ struct TopBarSharingButtonsView: View {
                 
                 StitchButton {
                     document.isScreenRecording = true
+#if targetEnvironment(macCatalyst)
+                    // Not available on iPad; causes compiler error
                     openWindow(id: RecordingView.windowId)
+#endif
                 } label: {
                     buttonLabel
                 }
