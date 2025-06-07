@@ -14,33 +14,72 @@ struct TopBarSharingButtonsView: View {
     
     @Bindable var document: StitchDocumentViewModel
     
-    var body: some View {
+    var shareLinkView: some View {
+        ShareLink(item: document.lastEncodedDocument,
+                  preview: SharePreview(document.projectName)) {
+            Text("Share Document")
+            Image(systemName: "document.fill")
+        }
+    }
+    
+    @ViewBuilder
+    var buttonLabel: some View {
+        Text("Record Prototype")
+        Image(systemName: "inset.filled.rectangle.badge.record")
+    }
+    
+    var iPadView: some View {
         Menu {
-            ShareLink(item: document.lastEncodedDocument,
-                      preview: SharePreview(document.projectName)) {
-                Text("Share Document")
-                Image(systemName: "document.fill")
-            }
+            shareLinkView
             
             StitchButton {
                 document.isScreenRecording = true
-                
-#if targetEnvironment(macCatalyst)
-                openWindow(id: RecordingView.windowId)
-#else
                 document.isFullScreenMode = true
-#endif
             } label: {
-                Text("Record Prototype")
-                Image(systemName: "inset.filled.rectangle.badge.record")
+                buttonLabel
             }
         } label: {
-            #if !targetEnvironment(macCatalyst)
             Text("Share")
-            #endif
-            
             Image(systemName: .SHARE_ICON_SF_SYMBOL_NAME)
         }
+    }
+    
+    var macView: some View {
+        ZStack {
+            
+            CatalystToolbarButton(
+                systemImageName: .SHARE_ICON_SF_SYMBOL_NAME,
+                tooltipText: "Record Prototype"
+            ) {
+                // log("my action here")
+            }
+            .fixedSize()
+            
+            Menu {
+                shareLinkView
+                
+                StitchButton {
+                    document.isScreenRecording = true
+#if targetEnvironment(macCatalyst)
+                    // Not available on iPad; causes compiler error
+                    openWindow(id: RecordingView.windowId)
+#endif
+                } label: {
+                    buttonLabel
+                }
+            } label: {
+                EmptyView()
+            }
+        }
+    }
+    
+    var body: some View {
+        #if targetEnvironment(macCatalyst)
+        macView
+        #else
+        iPadView
+        #endif
+        
     }
 }
 
@@ -187,23 +226,56 @@ Platform: \(Self.platform)
         }
     }
     
-    var body: some View {
-        Menu {
-            if let document = self.document {
-                shareWithDocumentButton(document: document)
-            }
-            emailButton
-            gitHubButton
-            discordButton
-            docsButton
-        } label: {
-#if !targetEnvironment(macCatalyst)
-            if showLabel {
-                Text("Contact Stitch")                
-            }
-#endif
-            
-            Image(systemName: "bubble.left.and.text.bubble.right")
+    @ViewBuilder
+    var menuContent: some View {
+        if let document = self.document {
+            shareWithDocumentButton(document: document)
         }
+        emailButton
+        gitHubButton
+        discordButton
+        docsButton
+    }
+    
+    static let iconName: String = "bubble.left.and.text.bubble.right"
+    
+    var iPadView: some View {
+        Menu {
+            menuContent
+        } label: {
+            if showLabel {
+                Text("Contact Stitch")
+            }
+            Image(systemName: Self.iconName)
+        }
+    }
+    
+    var macView: some View {
+        ZStack {
+            CatalystToolbarButton(
+                systemImageName: Self.iconName,
+                tooltipText: "Share"
+            ) {
+                // log("my action here")
+            }
+            .fixedSize()
+            
+            Menu {
+                menuContent
+            } label: {
+                EmptyView()
+            }
+            // Note: *must* provide explicit frame
+            .frame(width: 30, height: 30)
+        }
+    }
+    
+    var body: some View {
+#if targetEnvironment(macCatalyst)
+        macView
+#else
+        iPadView
+#endif
+        
     }
 }
