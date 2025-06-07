@@ -83,7 +83,8 @@ extension StitchAIManager {
     
     func uploadUserPromptRequestToSupabase(prompt: String,
                                            requestId: UUID) async throws {
-                
+        // Only log to supabase from release branch!
+#if RELEASE
         guard let releaseVersion = await getReleaseVersion(),
               let userId = try? await getCloudKitUsername() else {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
@@ -104,12 +105,11 @@ extension StitchAIManager {
         
         try await self._uploadToSupabase(payload: payload,
                                          tableName: self.userPromptTableName)
+#endif
     }
     
     private func _uploadToSupabase(payload: some Encodable & Sendable,
                                    tableName: String) async throws {
-// Only log to supabase from release branch!
-#if RELEASE
         do {
             // Use the edited payload for insertion
             try await postgrest
@@ -151,6 +151,5 @@ extension StitchAIManager {
             fatalErrorIfDebug("SupabaseManager Unknown error: \(error)")
             throw error
         }
-#endif
     }
 }
