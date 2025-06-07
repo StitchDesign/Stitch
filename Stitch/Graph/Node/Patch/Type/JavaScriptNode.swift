@@ -114,6 +114,8 @@ extension PatchNodeViewModel {
     func processNewJavascript(response: JavaScriptNodeSettings) {
         let document = self.documentDelegate
         let graph = self.graphDelegate
+        
+        let oldJavaScriptSettings = self.javaScriptNodeSettings
         let newJavaScriptSettings = response
         self.javaScriptNodeSettings = response
         
@@ -132,6 +134,7 @@ extension PatchNodeViewModel {
         // Create new observers if necessary
         newJavaScriptSettings.inputDefinitions.enumerated().forEach { portIndex, inputDefinition in
             let defaultValue = inputDefinition.strictType.defaultPortValue
+            let didTypeChange = oldJavaScriptSettings?.inputDefinitions[safe: portIndex]?.strictType != inputDefinition.strictType
             
            let inputObserver = self.inputsObservers[safe: portIndex] ??
             InputNodeRowObserver(values: [defaultValue],
@@ -151,7 +154,10 @@ extension PatchNodeViewModel {
             if self.inputsObservers[safe: portIndex] == nil {
                 self.inputsObservers.append(inputObserver)
                 self.canvasObserver.inputViewModels.append(newRowViewModel)
-            } else {
+            }
+            
+            // logic needed to update values if type changed
+            else if didTypeChange {
                 assertInDebug(portIndex < self.canvasObserver.inputViewModels.count)
                 
                 // Keep existing connection
