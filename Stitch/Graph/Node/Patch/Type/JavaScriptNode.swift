@@ -34,10 +34,18 @@ struct JavaScriptNode: PatchNodeDefinition {
         }
 
         // Construct inputs into JSON
-        let inputValuesList = node.inputsValuesList
         let prevOutputsValuesList = node.outputs
-        let aiDataFromInputs = inputValuesList.map { inputValues in
-            inputValues.map(StitchAIPortValue.init)
+        
+        let inputValuesList: PortValuesList = node.inputsValuesList
+        let aiDataFromInputs: [[StitchAIPortValue]] = inputValuesList.map { (inputValues: PortValues) -> [StitchAIPortValue] in
+            // Down-version run-time PortValues to Stitch AI-supported types
+            do {
+                let convertedValues: [CurrentStep.PortValue] = try inputValues.convert(to: [CurrentStep.PortValue].self)
+                return convertedValues.map(StitchAIPortValue.init)
+            } catch {
+                fatalErrorIfDebug("JS Node error: port value type not support with error: \(error.localizedDescription)")
+                return [StitchAIPortValue(.number(.zero))]
+            }
         }
         
         // Encode ➜ JSON ➜ Foundation object ➜ JS
