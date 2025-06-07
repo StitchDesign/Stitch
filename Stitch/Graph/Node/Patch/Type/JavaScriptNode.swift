@@ -15,7 +15,9 @@ struct JavaScriptNode: PatchNodeDefinition {
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             // must contain one row to support add rows
-            inputs: [.init(label: "", staticType: .string)],
+            inputs: [.init(label: "",
+                           staticType: .string,
+                           canDirectlyCopyUpstreamValues: true)],
             outputs: []
         )
     }
@@ -110,6 +112,8 @@ extension PatchNodeViewModel {
     /// 3. Recalculates node
     @MainActor
     func processNewJavascript(response: JavaScriptNodeSettings) {
+        let document = self.documentDelegate
+        let graph = self.graphDelegate
         let newJavaScriptSettings = response
         self.javaScriptNodeSettings = response
         
@@ -127,29 +131,52 @@ extension PatchNodeViewModel {
         
         // Create new observers if necessary
         newJavaScriptSettings.inputDefinitions.enumerated().forEach { portIndex, inputDefinition in
-            guard let inputObserver = self.inputsObservers[safe: portIndex] else {
-                let defaultValue = inputDefinition.strictType.defaultPortValue
-                
-                let newObserver = InputNodeRowObserver(values: [defaultValue],
-                                                       id: .init(portId: portIndex,
-                                                                 nodeId: self.id),
-                                                       upstreamOutputCoordinate: nil)
-                let newRowViewModel = InputNodeRowViewModel(
-                    id: .init(graphItemType: .canvas(.node(self.id)),
-                              nodeId: self.id,
-                              portId: portIndex),
-                    initialValue: defaultValue,
-                    rowDelegate: newObserver,
-                    canvasItemDelegate: self.canvasObserver)
-                
-                self.inputsObservers.append(newObserver)
-                self.canvasObserver.inputViewModels.append(newRowViewModel)
-                return
-            }
+            let defaultValue = inputDefinition.strictType.defaultPortValue
             
-            // Update some new default value and remove connection for simplifying value coercion
-            inputObserver.upstreamOutputCoordinate = nil
-            inputObserver.updateValuesInInput([inputDefinition.strictType.defaultPortValue])
+           let inputObserver = self.inputsObservers[safe: portIndex] ??
+            InputNodeRowObserver(values: [defaultValue],
+                                 id: .init(portId: portIndex,
+                                           nodeId: self.id),
+                                 upstreamOutputCoordinate: nil)
+                
+            // Always create new row view model to assert new type parameters
+            let newRowViewModel = InputNodeRowViewModel(
+                id: .init(graphItemType: .canvas(.node(self.id)),
+                          nodeId: self.id,
+                          portId: portIndex),
+                initialValue: defaultValue,
+                rowDelegate: inputObserver,
+                canvasItemDelegate: self.canvasObserver)
+
+            if self.inputsObservers[safe: portIndex] == nil {
+                self.inputsObservers.append(inputObserver)
+                self.canvasObserver.inputViewModels.append(newRowViewModel)
+            } else {
+                assertInDebug(portIndex < self.canvasObserver.inputViewModels.count)
+                
+                // Keep existing connection
+                let upstreamConneciton = inputObserver.upstreamOutputCoordinate
+                
+                // Update some new default value and remove connection for simplifying value coercion
+                inputObserver.upstreamOutputCoordinate = nil
+                
+                // Specify new types for row view models
+                self.canvasObserver.inputViewModels[portIndex] = newRowViewModel
+                
+                inputObserver.changeInputType(to: inputDefinition.strictType,
+                                              nodeKind: .patch(self.patch),
+                                              currentGraphTime: graph?.graphStepState.graphTime ?? .zero,
+                                              
+                                              // TODO: update computed node state
+                                              computedState: nil,
+                                              activeIndex: document?.activeIndex ?? .init(.zero),
+                                              isVisible: true)
+                
+                // Update value after field group has changed
+                inputObserver.updateValuesInInput([inputDefinition.strictType.defaultPortValue])
+                
+                inputObserver.upstreamOutputCoordinate = upstreamConneciton
+            }
         }
         
         newJavaScriptSettings.outputDefinitions.enumerated().forEach { portIndex, outputDefinition in
