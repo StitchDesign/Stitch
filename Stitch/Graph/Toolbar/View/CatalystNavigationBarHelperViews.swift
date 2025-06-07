@@ -86,7 +86,7 @@ struct CatalystNavBarProjectTitleDisplayView: View {
             .onTapGesture {
                 dispatch(CatalystProjectTitleModalOpened())
             }
-    }    
+    }
 }
 
 struct NavigationTitleFontViewModifier: ViewModifier {
@@ -155,7 +155,6 @@ extension String {
     static let FOCUS_MODE_SF_SYMBOL_NAME = "circle"
 }
 
-// TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
     @Bindable var document: StitchDocumentViewModel
     let isDebugMode: Bool
@@ -167,41 +166,49 @@ struct CatalystTopBarGraphButtons: View {
     
     var body: some View {
         Group {
-            CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
+            CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
+                                 toolTip: "Go up one traversal level") {
                 dispatch(GoUpOneTraversalLevel())
             }
             .opacity(hasActiveGroupFocused ? 1 : 0)
             
             if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
-                CatalystNavBarButton("sparkles") {
+                CatalystNavBarButton("Sparkles",
+                                     toolTip: "Submit graph as AI training example") {
                     dispatch(ShowCreateTrainingDataFromExistingGraphModal())
                 }
             }
             
-            CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
+            CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL,
+            toolTip: "Toggle AI Recording Mode") {
                 dispatch(LLMRecordingToggled())
             }
             .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
-            CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME) {
+            CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
+                                 toolTip: "Add Node") {
                 dispatch(ToggleInsertNodeMenu())
             }
             
-            // TODO: should be a toast only shows up when no nodes are on-screen?
-            CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
+            // TODO: only show when no nodes are on-screen?
+            CatalystNavBarButton(.FIND_NODE_ON_GRAPH,
+                                 toolTip: "Find Node") {
                 dispatch(FindSomeCanvasItemOnGraph())
             }
             
             if !isDebugMode {
-                CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+                CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+                                     toolTip: "Toggle Prototype Window") {
                     dispatch(TogglePreviewWindow())
                 }
                 
-                CatalystNavBarButton(.RESTART_PROTOTYPE_SF_SYMBOL_NAME) {
+                CatalystNavBarButton(.RESTART_PROTOTYPE_SF_SYMBOL_NAME,
+                                     toolTip: "Restart Prototype") {
                     dispatch(PrototypeRestartedAction())
                 }
                 
-                CatalystNavBarButton(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
+                CatalystNavBarButton(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+                                     toolTip: "Toggle Fullscreen") {
                     dispatch(ToggleFullScreenEvent())
                 }
             }
@@ -212,13 +219,15 @@ struct CatalystTopBarGraphButtons: View {
             TopBarFeedbackButtonsView(document: self.document)
                 .modifier(CatalystTopBarButtonStyle())
             
-            CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME) {
+            CatalystNavBarButton(.SETTINGS_SF_SYMBOL_NAME,
+                                 toolTip: "Open Settings") {
                 PROJECT_SETTINGS_ACTION()
             }
             
-            CatalystNavBarButton(action: {
+            CatalystNavBarButton("sidebar.right",
+                                 toolTip: "Open Layer Inspector") {
                 dispatch(LayerInspectorToggled())
-            }, iconName: .sfSymbol("sidebar.right"))
+            }
         }
     }
 }
@@ -269,37 +278,77 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
     }
 }
 
-// TODO: 'toggle preview window' icon needs to change between hide vs show
 // Hacky view to get hover effect on Catalyst topbar buttons and to enforce gray tint
-struct CatalystNavBarButton: View, Identifiable {
+struct CatalystNavBarButton: View {
 
-    // let systemName: String  for `Image(systemName:)`
-    var image: Image
+    init(_ systemName: String,
+         toolTip: String,
+         rotationZ: CGFloat = 0,
+         _ action: @escaping () -> Void) {
+        self.systemName = systemName
+        self.toolTip = toolTip
+        self.action = action
+        self.rotationZ = rotationZ
+    }
+    
+    let systemName: String
+    let toolTip: String
+        
     let action: () -> Void
-    var rotationZ: CGFloat = 0 // some icons stay the same but just get rotated
-
-    var id: String
-
+    
+    // Only the graph-reset icon rotates?
+    var rotationZ: CGFloat = 0
+        
     var body: some View {
-        Menu {
-            // 'Empty menu' so that nothing happens when we tap the Menu's label
-            EmptyView()
-        } label: {
-            Button(action: {}) {
-                // TODO: any .resizable(), .fixedSize() etc. needed?
-                image
+        
+        // HACK to get tooltips working on Mac Catalyst; can't use SwiftUI `.help`
+        ZStack {
+            CatalystToolbarButton(
+                systemImageName: systemName, // "gearshape",
+                tooltipText: toolTip //"Open Settings"
+            ) {
+                // log("my action here")
             }
+            .fixedSize()
+            
+            Menu {
+                // 'Empty menu' so that nothing happens when we tap the Menu's label
+                EmptyView()
+            } label: {
+                Button(action: {}) {
+                    EmptyView()
+                }
+            }
+            // rotation3DEffect must be applied here
+            .rotation3DEffect(Angle(degrees: rotationZ),
+                              axis: (x: 0, y: 0, z: rotationZ))
+
+            .modifier(CatalystTopBarButtonStyle())
+            
+            .simultaneousGesture(TapGesture().onEnded({ _ in
+                action()
+            }))
         }
-        // rotation3DEffect must be applied here
-        .rotation3DEffect(Angle(degrees: rotationZ),
-                          axis: (x: 0, y: 0, z: rotationZ))
+        
+//        Menu {
+//            // 'Empty menu' so that nothing happens when we tap the Menu's label
+//            EmptyView()
+//        } label: {
+//            Button(action: {}) {
+//                // TODO: any .resizable(), .fixedSize() etc. needed?
+//                image
+//            }
+//        }
+//        // rotation3DEffect must be applied here
+//        .rotation3DEffect(Angle(degrees: rotationZ),
+//                          axis: (x: 0, y: 0, z: rotationZ))
+//
+//        .modifier(CatalystTopBarButtonStyle())
+//        .simultaneousGesture(TapGesture().onEnded({ _ in
+//            action()
+//        }))
 
-        .modifier(CatalystTopBarButtonStyle())
-        .simultaneousGesture(TapGesture().onEnded({ _ in
-            action()
-        }))
-
-        // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appearance, losing the hover-highlight effect etc.;
+        // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appaearance, losing the hover-highlight effect etc.;
         // so we use UIKitOnTapModifier for proper callback.
 //        .modifier(UIKitOnTapModifier(onTapCallback: action))
     }
@@ -314,26 +363,5 @@ struct CatalystTopBarButtonStyle: ViewModifier {
         // TODO: find ideal button size?
         // Note: *must* provide explicit frame
         .frame(width: 30, height: 30)
-    }
-}
-
-extension CatalystNavBarButton {
-
-    init(_ systemName: String,
-         rotationZ: CGFloat = 0,
-         _ action: @escaping () -> Void) {
-        self.image = Image(systemName: systemName)
-        self.action = action
-        self.id = systemName
-        self.rotationZ = rotationZ
-    }
-
-    init(action: @escaping () -> Void,
-         iconName: IconName,
-         rotationZ: CGFloat = 0) {
-        self.image = iconName.image
-        self.action = action
-        self.id = iconName.name
-        self.rotationZ = rotationZ
     }
 }
