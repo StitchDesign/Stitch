@@ -9,13 +9,15 @@ import Foundation
 import StitchSchemaKit
 
 struct Secrets: Equatable {
-    var supabaseURL: String
-    var supabaseAnonKey: String
-    var userPromptTableName: String
-    var inferenceCallResultTableName: String
-    var openAIAPIKey: String
-    var openAIModel: String
-    var sentryDSN: String
+    let supabaseURL: String
+    let supabaseAnonKey: String
+    let userPromptTableName: String
+    let inferenceCallResultTableName: String
+    let openAIAPIKey: String
+    let openAIModelGraphCreation: String
+    let openAIModelJsNode: String
+    let openAIModelGraphDescription: String
+    let sentryDSN: String
     
     init?() throws {
         guard let path = Self.getPath() else {
@@ -40,7 +42,9 @@ extension Secrets: Decodable {
         case userPromptTableName = "SUPABASE_USER_PROMPT_TABLE_NAME"
         case inferenceCallResultTableName = "SUPABASE_INFERENCE_CALL_RESULT_TABLE_NAME"
         case openAIAPIKey = "OPEN_AI_API_KEY"
-        case openAIModel = "OPEN_AI_MODEL"
+        case openAIModelGraphCreation = "OPEN_AI_MODEL_GRAPH_CREATION"
+        case openAIModelJsNode = "OPEN_AI_MODEL_JS_NODE"
+        case openAIModelGraphDescription = "OPEN_AI_MODEL_GRAPH_DESCRIPTION"
         case sentryDSN = "SENTRY_DSN"
     }
 }
