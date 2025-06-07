@@ -186,13 +186,13 @@ struct CatalystTopBarGraphButtons: View {
             .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
-                                 toolTip: "Add node") {
+                                 toolTip: "Add Node") {
                 dispatch(ToggleInsertNodeMenu())
             }
             
             // TODO: only show when no nodes are on-screen?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH,
-                                 toolTip: "Jump to western-most node on graph") {
+                                 toolTip: "Find Node") {
                 dispatch(FindSomeCanvasItemOnGraph())
             }
             

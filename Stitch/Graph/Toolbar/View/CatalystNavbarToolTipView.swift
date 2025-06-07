@@ -8,50 +8,6 @@
 import SwiftUI
 import UIKit
 
-struct CatalystNavbarToolTipView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
-
-struct CatalystToolTipDemoView: View {
-    var body: some View {
-        NavigationView {
-            Text("Hello, Mac-Catalyst!")
-                .navigationTitle("Demo")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        
-                        ZStack {
-                            
-                            CatalystToolbarButton(
-                                systemImageName: "gearshape",
-                                tooltipText: "Open Settings"
-                            ) {
-                                // log("my action here")
-                            }
-                            .fixedSize()
-                            
-                            Menu {
-                                // 'Empty menu' so that nothing happens when we tap the Menu's label
-                                EmptyView()
-                            } label: {
-                               EmptyView()
-                            }
-                            .menuIndicator(.hidden)
-                            .frame(width: 30, height: 30)
-                            .simultaneousGesture(TapGesture().onEnded({ _ in
-                                log("i was tapped...")
-                            }))
-                        }
-                    }
-                }
-        }
-    }
-}
-
-
-
 /// A UIViewRepresentable that wraps a UIButton and installs a macOS‐style tooltip.
 struct CatalystToolbarButton: UIViewRepresentable {
     /// The SF Symbol name (or custom image name) for the button’s icon
@@ -89,8 +45,16 @@ struct CatalystToolbarButton: UIViewRepresentable {
         }
 
         // Ensure minimum hit area for tooltip (30×30)
-        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 30).isActive = true
-        button.heightAnchor.constraint(greaterThanOrEqualToConstant: 30).isActive = true
+//        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 30).isActive = true
+//        button.heightAnchor.constraint(greaterThanOrEqualToConstant: 30).isActive = true
+        
+        // Increase tappable area around symbol
+        button.contentEdgeInsets = UIEdgeInsets(top: 7, left: 7, bottom: 7, right: 7)
+
+        // Ensure minimum hit area for tooltip (44×44)
+        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        button.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+
 
         return button
     }
