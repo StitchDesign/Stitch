@@ -156,7 +156,7 @@ extension StitchAIManagerError: CustomStringConvertible {
     var description: String {
         switch self {
         case .contentDataDecodingError(let contentData, let errorResponse):
-            return "Unable to parse step actions from: \(contentData) with error: \(errorResponse)"
+            return "Unable to parse OpenAI response data from: \(contentData) with error: \(errorResponse)"
         case .secretsNotFound:
             return "No secrets file found."
         case .nodeTypeNotSupported(let nodeType):
