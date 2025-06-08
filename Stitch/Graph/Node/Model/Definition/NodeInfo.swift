@@ -89,7 +89,8 @@ struct NodeInputDefinition: Encodable {
 extension NodeInputDefinition {
     // Infers default value if not specified
     init(label: String,
-         staticType: UserVisibleType) {
+         staticType: UserVisibleType,
+         canDirectlyCopyUpstreamValues: Bool = false) {
         self.defaultValues = [staticType.defaultPortValue]
         self.label = label
         self.isTypeStatic = true

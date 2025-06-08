@@ -35,7 +35,10 @@ extension InputNodeRowObserver {
                          isVisible: Bool) {
 
         if let portId = self.id.portId,
-           nodeKind.rowIsTypeStatic(nodeType: newType, portId: portId) {
+           nodeKind.rowIsTypeStatic(nodeType: newType, portId: portId) &&
+            
+            // We allow type coercion for JavaScript nodes so that fields can update to new type
+            nodeKind != .patch(.javascript) {
             // log("NodeRowObserver: coerceInput: had static node row, so nothing to do")
             return
         }

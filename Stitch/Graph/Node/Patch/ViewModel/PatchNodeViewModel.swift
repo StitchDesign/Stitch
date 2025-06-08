@@ -89,6 +89,16 @@ final class PatchNodeViewModel: Sendable {
 }
 
 extension PatchNodeViewModel: SchemaObserver {
+    @MainActor
+    var documentDelegate: StitchDocumentViewModel? {
+        self.graphDelegate?.documentDelegate
+    }
+    
+    @MainActor
+    var graphDelegate: GraphState? {
+        self.canvasObserver.nodeDelegate?.graphDelegate
+    }
+    
     @MainActor static func createObject(from entity: PatchNodeEntity) -> Self {
         self.init(from: entity)
     }

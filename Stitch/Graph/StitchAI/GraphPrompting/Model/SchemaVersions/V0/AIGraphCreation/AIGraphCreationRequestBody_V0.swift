@@ -21,7 +21,7 @@ enum AIGraphCreationRequestBody_V0 {
             let structuredOutputs = CurrentAIGraphCreationResponseFormat.AIGraphCreationResponseFormat().json_schema.schema
             let structuredOutputsString = try! structuredOutputs.encodeToPrintableString()
             
-            self.model = secrets.openAIModel
+            self.model = secrets.openAIModelGraphCreation
             self.messages = [
                 .init(role: .system,
                       content: systemPrompt + "Make sure your response follows this schema: \(structuredOutputsString)"),
