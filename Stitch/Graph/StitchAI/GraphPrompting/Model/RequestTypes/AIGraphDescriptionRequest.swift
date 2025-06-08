@@ -17,8 +17,7 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
     @MainActor
     init(prompt: String,
          config: OpenAIRequestConfig = .default,
-         document: StitchDocumentViewModel,
-         nodeId: NodeId) throws {
+         document: StitchDocumentViewModel) throws {
         guard let secrets = document.aiManager?.secrets else {
             throw StitchAIManagerError.secretsNotFound
         }
@@ -26,16 +25,14 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
         self.init(prompt: prompt,
                   secrets: secrets,
                   config: config,
-                  graph: document.visibleGraph,
-                  nodeId: nodeId)
+                  graph: document.visibleGraph)
     }
     
     @MainActor
     init(prompt: String,
          secrets: Secrets,
          config: OpenAIRequestConfig = .default,
-         graph: GraphState,
-         nodeId: NodeId) {
+         graph: GraphState) {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()

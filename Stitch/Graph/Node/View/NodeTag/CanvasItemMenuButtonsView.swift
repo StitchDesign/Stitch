@@ -185,9 +185,12 @@ struct CanvasItemMenuButtonsView: View {
                     if FeatureFlags.USE_COMPONENTS {
                         createComponentButton
                     }
+                    
                     //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
                     //                    createCommentBoxButton
                     //                }
+                    
+                    aiSummarizeButton
                 }
             }
             
@@ -233,7 +236,6 @@ struct CanvasItemMenuButtonsView: View {
             }
             
             hideLayerButton
-            
         }
     }
     
@@ -375,7 +377,19 @@ struct CanvasItemMenuButtonsView: View {
         } else {
             EmptyView()
         }
-        
+    }
+    
+    @ViewBuilder
+    var aiSummarizeButton: some View {
+        TagMenuButtonView(label: "Summarize...") {
+            do {
+                let request = try AIGraphDescriptionRequest(prompt: "addNode: splitter",
+                                                            document: document)
+                request.handleRequest(document: document)
+            } catch {
+                fatalErrorIfDebug("AI summarizer error: \(error.localizedDescription)")
+            }
+        }
     }
     
     // If both nodes AND comments are selected,
