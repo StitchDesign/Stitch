@@ -20,7 +20,7 @@ enum AIEditJsNodeRequestBody_V0 {
             let structuredOutputs = responseFormat.json_schema.schema
             let systemPrompt = CurrentAIEditJsSystemPrompt.systemPrompt
             
-            self.model = secrets.openAIModel
+            self.model = secrets.openAIModelJsNode
             self.messages = [
                 .init(role: .system,
                       content: systemPrompt + "Make sure your response follows this schema: \(try! structuredOutputs.encodeToPrintableString())"),
