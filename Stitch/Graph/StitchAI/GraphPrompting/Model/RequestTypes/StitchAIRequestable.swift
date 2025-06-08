@@ -19,11 +19,12 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     // Initial payload that's expected from OpenAI response
     associatedtype InitialDecodedResult
     // Final data type after all processing, may equal InitialDecodedResult
-    associatedtype FinalDecodedResult
+    associatedtype FinalDecodedResult: Sendable
     // Type that's processed from streaming
-    associatedtype TokenDecodedResult
+    associatedtype TokenDecodedResult: Sendable
+    typealias RequestResponsePayload = (FinalDecodedResult, URLResponse)
     // Task object for request
-    typealias RequestTask = Task<Void, Never>
+    typealias RequestTask = Task<FinalDecodedResult, any Error>
     
     var id: UUID { get }
     var userPrompt: String { get }             // User's input prompt
@@ -48,6 +49,9 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     @MainActor
     func onSuccessfulDecodingChunk(result: TokenDecodedResult,
                                    currentAttempt: Int)
+    
+    // Given a streaming "chunk" build the full response
+    static func buildResponse(from streamingChunks: [TokenDecodedResult]) throws -> InitialDecodedResult
 }
 
 extension StitchAIRequestable {

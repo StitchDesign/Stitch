@@ -142,4 +142,8 @@ struct AIGraphCreationRequest: StitchAIRequestable {
             currentAttempt: currentAttempt
         ))
     }
+    
+    static func buildResponse(from streamingChunks: [Step]) throws -> AIGraphCreationContentJSON {
+        .init(steps: streamingChunks)
+    }
 }

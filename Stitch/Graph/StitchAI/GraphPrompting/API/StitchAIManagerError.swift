@@ -62,6 +62,7 @@ enum StitchAIStreamingError: Error {
     case invalidURL
     case requestCancelled // e.g. by user, or because stream naturally completed
     case internetConnectionFailed
+    case urlRequestCreationFailure
     case other(Error)
 }
 
@@ -70,7 +71,7 @@ extension StitchAIStreamingError {
         switch self {
         case .timeout, .rateLimit:
             return true
-        case .maxTimeouts, .maxRetriesError, .currentlyInARetryDelay, .invalidURL, .requestCancelled, .internetConnectionFailed, .other:
+        case .maxTimeouts, .maxRetriesError, .currentlyInARetryDelay, .invalidURL, .requestCancelled, .internetConnectionFailed, .urlRequestCreationFailure, .other:
             return false // under these scenarios, we do not re-attempt the request
         }
     }
@@ -95,6 +96,8 @@ extension StitchAIStreamingError: CustomStringConvertible {
             return "Request either canceled by user or stream successfully completed."
         case .internetConnectionFailed:
             return "No internet connection. Please try again when your connection is restored."
+        case .urlRequestCreationFailure:
+            return "Unable to create URL request."
         case .other(let error):
             return "OpenAI Request error: \(error.localizedDescription)"
             

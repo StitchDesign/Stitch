@@ -86,4 +86,9 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
                                    currentAttempt: Int) {
         fatalErrorIfDebug("No JavaScript node support for streaming.")
     }
+    
+    static func buildResponse(from streamingChunks: [JavaScriptNodeSettings]) throws -> CurrentJavaScriptNodeSettingsAI.JavaScriptNodeSettingsAI {
+        // Unsupported
+        fatalError()
+    }
 }
