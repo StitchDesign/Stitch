@@ -10,15 +10,15 @@ enum AIEditJsNodeRequestBody_V0 {
         let model: String
         let n: Int = 1
         let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
-        let response_format = CurrentAIEditJsNodeResponseFormat.AIEditJsNodeResponseFormat()
+        let response_format = AIEditJsNodeResponseFormat_V0.AIEditJsNodeResponseFormat()
         let messages: [OpenAIMessage]
-        let stream = AIEditJSNodeRequest.willStream
+        let stream = false
         
         init(secrets: Secrets,
              userPrompt: String) {
-            let responseFormat = CurrentAIEditJsNodeResponseFormat.AIEditJsNodeResponseFormat()
+            let responseFormat = AIEditJsNodeResponseFormat_V0.AIEditJsNodeResponseFormat()
             let structuredOutputs = responseFormat.json_schema.schema
-            let systemPrompt = CurrentAIEditJsSystemPrompt.systemPrompt
+            let systemPrompt = AIEditJsNodeSystemPrompt_V0.systemPrompt
             
             self.model = secrets.openAIModelJsNode
             self.messages = [

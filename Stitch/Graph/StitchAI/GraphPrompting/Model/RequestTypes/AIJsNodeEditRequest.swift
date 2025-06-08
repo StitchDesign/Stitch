@@ -1,0 +1,89 @@
+//
+//  AIJsNodeEditRequest.swift
+//  Stitch
+//
+//  Created by Elliot Boschwitz on 6/7/25.
+//
+
+import SwiftUI
+
+struct AIEditJSNodeRequest: StitchAIRequestable {
+    let id: UUID
+    let userPrompt: String             // User's input prompt
+    let config: OpenAIRequestConfig // Request configuration settings
+    let body: AIEditJsNodeRequestBody
+    static let willStream: Bool = false
+    
+    // Tracks origin node of request
+    let nodeId: NodeId
+    
+    enum EditJSNodeRequestError: Error {
+        case noNodeFound
+    }
+    
+    @MainActor
+    init(prompt: String,
+         config: OpenAIRequestConfig = .default,
+         document: StitchDocumentViewModel,
+         nodeId: NodeId) throws {
+        guard let secrets = document.aiManager?.secrets else {
+            throw StitchAIManagerError.secretsNotFound
+        }
+        
+        self.init(prompt: prompt,
+                  secrets: secrets,
+                  config: config,
+                  graph: document.visibleGraph,
+                  nodeId: nodeId)
+    }
+    
+    @MainActor
+    init(prompt: String,
+         secrets: Secrets,
+         config: OpenAIRequestConfig = .default,
+         graph: GraphState,
+         nodeId: NodeId) {
+        
+        // The id of the user's inference call; does not change across retries etc.
+        self.id = .init()
+        
+        self.userPrompt = prompt
+        self.config = config
+        self.nodeId = nodeId
+        
+        // Construct http payload
+        self.body = AIEditJsNodeRequestBody(secrets: secrets,
+                                            userPrompt: prompt)
+    }
+    
+    @MainActor
+    func willRequest(document: StitchDocumentViewModel,
+                     canShareData: Bool,
+                     requestTask: Self.RequestTask) {
+        // Nothing to do
+    }
+    
+    static func validateRepopnse(decodedResult: JavaScriptNodeSettingsAI) throws -> JavaScriptNodeSettings {
+        .init(script: decodedResult.script,
+              inputDefinitions: try decodedResult.input_definitions.map(JavaScriptPortDefinition.init),
+              outputDefinitions: try decodedResult.output_definitions.map(JavaScriptPortDefinition.init))
+    }
+    
+    @MainActor
+    func onSuccessfulRequest(result: JavaScriptNodeSettings,
+                             aiManager: StitchAIManager,
+                             document: StitchDocumentViewModel) throws {
+        guard let patchNode = document.visibleGraph.getNode(self.nodeId)?.patchNode else {
+            log("EditJSNodeRequest error: no node found.")
+            throw EditJSNodeRequestError.noNodeFound
+        }
+        
+        return patchNode.processNewJavascript(response: result)
+    }
+    
+    @MainActor
+    func onSuccessfulDecodingChunk(result: JavaScriptNodeSettings,
+                                   currentAttempt: Int) {
+        fatalErrorIfDebug("No JavaScript node support for streaming.")
+    }
+}
