@@ -18,7 +18,7 @@ struct CanvasItemMenuButtonsView: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     @Binding var showNodesSummaryPopover: Bool
-    @Binding var nodeSummariesText: String
+    @Binding var nodeSummariesText: AttributedString?
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
@@ -389,7 +389,7 @@ struct CanvasItemMenuButtonsView: View {
             do {
                 let request = try AIGraphDescriptionRequest(document: document)
                 self.showNodesSummaryPopover = true
-                self.nodeSummariesText = ""
+                self.nodeSummariesText = nil
                 
                 Task(priority: .high) { [weak aiManager, weak document] in
                     guard let aiManager = aiManager,
@@ -404,7 +404,11 @@ struct CanvasItemMenuButtonsView: View {
                     await MainActor.run {
                         switch result {
                         case .success(let summaryResponse):
-                            self.nodeSummariesText = summaryResponse
+                            do {
+                                self.nodeSummariesText = try AttributedString(styledMarkdown: summaryResponse, isTitle: false)
+                            } catch {
+                                fatalErrorIfDebug(error.localizedDescription)
+                            }
                         case .failure(let failure):
                             self.showNodesSummaryPopover = false
                             fatalErrorIfDebug(failure.description)

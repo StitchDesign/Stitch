@@ -15,7 +15,7 @@ struct NodeView: View {
     @State private var showAboutPopover = false
     @State private var aiJsNodePrompt: String = ""
     @State private var showNodesSummaryPopover: Bool = false
-    @State private var nodeSummariesText: String = ""
+    @State private var nodeSummariesText: AttributedString?
     
     @FocusedValue(\.focusedField) private var focusedField
     @FocusState var isFocused: Bool
@@ -65,16 +65,15 @@ struct NodeView: View {
                 .opacity(node.viewCache.isDefined ? 1 : 0)
                 .popover(isPresented: self.$showNodesSummaryPopover) {
                     Group {
-                        let isLoading = self.nodeSummariesText == ""
-                        
-                        if isLoading {
-                            ProgressView()
-                        } else {
-                            Text(self.nodeSummariesText)
+                        if let text = self.nodeSummariesText {
+                            Text(text)
+                                .width(500)
                                 .padding()
+                        } else {
+                            // If still nil, loading
+                            ProgressView()
                         }
                     }
-                    .width(600)
                 }
                 .onAppear {
                     self.node.updateVisibilityStatus(with: true, graph: graph)
@@ -373,7 +372,7 @@ struct CanvasItemTag: View {
     @Bindable var document: StitchDocumentViewModel
     @Bindable var stitch: NodeViewModel
     @Binding var showNodesSummaryPopover: Bool
-    @Binding var nodeSummariesText: String
+    @Binding var nodeSummariesText: AttributedString?
     let activeGroupId: GroupNodeType?
     let canAddInput: Bool
     let canRemoveInput: Bool
