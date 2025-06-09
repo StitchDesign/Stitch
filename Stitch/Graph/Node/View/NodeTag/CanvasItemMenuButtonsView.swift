@@ -13,12 +13,12 @@ import StitchSchemaKit
 
 struct CanvasItemMenuButtonsView: View {
     @Environment(StitchStore.self) private var store
-    @State private var showNodesSummaryPopover: Bool = false
-    @State private var nodeSummariesText: String = ""
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
+    @Binding var showNodesSummaryPopover: Bool
+    @Binding var nodeSummariesText: String
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
@@ -389,6 +389,8 @@ struct CanvasItemMenuButtonsView: View {
             do {
                 let request = try AIGraphDescriptionRequest(prompt: "addNode: splitter",
                                                             document: document)
+                self.showNodesSummaryPopover = true
+                self.nodeSummariesText = ""
                 
                 Task(priority: .high) { [weak aiManager, weak document] in
                     guard let aiManager = aiManager,
@@ -403,9 +405,9 @@ struct CanvasItemMenuButtonsView: View {
                     await MainActor.run {
                         switch result {
                         case .success(let summaryResponse):
-                            self.showNodesSummaryPopover = true
                             self.nodeSummariesText = summaryResponse
                         case .failure(let failure):
+                            self.showNodesSummaryPopover = false
                             fatalErrorIfDebug(failure.description)
                         }
                     }
