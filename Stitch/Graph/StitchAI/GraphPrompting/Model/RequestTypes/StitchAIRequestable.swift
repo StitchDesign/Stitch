@@ -32,19 +32,8 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     var body: Body { get }
     static var willStream: Bool { get }
     
-    /// Reports when a request is about to happen. Can be used to prepare the UI.
-    @MainActor
-    func willRequest(document: StitchDocumentViewModel,
-                     canShareData: Bool,
-                     requestTask: Self.RequestTask)
-    
     /// Validates a successfully decoded response and outputs a possibly different data structure.
     static func validateRepopnse(decodedResult: InitialDecodedResult) throws -> FinalDecodedResult
-    
-    @MainActor
-    func onSuccessfulRequest(result: FinalDecodedResult,
-                             aiManager: StitchAIManager,
-                             document: StitchDocumentViewModel) throws
     
     @MainActor
     func onSuccessfulDecodingChunk(result: TokenDecodedResult,
@@ -55,25 +44,6 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
 }
 
 extension StitchAIRequestable {
-    @MainActor
-    /// Main request handler for AI requests.
-    func handleRequest(document: StitchDocumentViewModel) {
-        guard let aiManager = document.aiManager else {
-            return
-        }
-        
-        let taskObject = aiManager.getOpenAITask(
-            request: self,
-            attempt: 1,
-            document: document,
-            canShareAIRetries: StitchStore.canShareAIData)
-        
-        // Prepare the UI, if necessary
-        self.willRequest(document: document,
-                         canShareData: StitchStore.canShareAIData,
-                         requestTask: taskObject)
-    }
-    
     func getPayloadData() throws -> Data {
         let encoder = JSONEncoder()
         return try encoder.encode(self.body)

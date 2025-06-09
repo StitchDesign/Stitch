@@ -125,7 +125,8 @@ struct NodeView: View {
     @State private var nodeBodyHovered: Bool = false
     
     @ViewBuilder
-    func javascriptNodeField(patchNode: PatchNodeViewModel) -> some View {
+    func javascriptNodeField(patchNode: PatchNodeViewModel,
+                             aiManager: StitchAIManager) -> some View {
         @Bindable var patchNode = patchNode
         TextField("Javascript here...",
                   text: $aiJsNodePrompt)
@@ -134,7 +135,23 @@ struct NodeView: View {
                 let jsAIRequest = try AIEditJSNodeRequest(prompt: aiJsNodePrompt,
                                                           document: document,
                                                           nodeId: stitch.id)
-                jsAIRequest.handleRequest(document: document)
+                
+                Task { [weak patchNode] in
+                    guard let patchNode = patchNode else {
+                        return
+                    }
+                    
+                    let result = await jsAIRequest.request(document: document,
+                                                           aiManager: aiManager)
+                    
+                    switch result {
+                    case .success(let jsSettings):
+                        patchNode.processNewJavascript(response: jsSettings)
+                        
+                    case .failure(let error):
+                        fatalErrorIfDebug(error.description)
+                    }
+                }
             } catch {
                 log("javascriptNodeField error: \(error.localizedDescription)")
             }
@@ -168,8 +185,10 @@ struct NodeView: View {
             
             // TODO: remove this logic, there won't be a custom view like this for JS node
             if stitch.kind == .patch(.javascript),
+               let aiManager = document.aiManager,
                 let patchNode = stitch.patchNode {
-                javascriptNodeField(patchNode: patchNode)
+                javascriptNodeField(patchNode: patchNode,
+                                    aiManager: aiManager)
             }
         }
         .onChange(of: self.node.sizeByLocalBounds) {

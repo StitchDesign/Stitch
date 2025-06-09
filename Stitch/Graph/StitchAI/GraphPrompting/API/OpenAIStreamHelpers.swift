@@ -163,16 +163,6 @@ extension StitchAIManager {
                 let initialDecodedResult = try AIRequest.parseOpanAIResponse(content: firstChoice.message.content)
                 let result = try AIRequest.validateRepopnse(decodedResult: initialDecodedResult)
                 
-                try await MainActor.run { [weak self, weak document] in
-                    guard let aiManager = self,
-                          let document = document else {
-                        return
-                    }
-                    
-                    try request.onSuccessfulRequest(result: result,
-                                                    aiManager: aiManager,
-                                                    document: document)
-                }
                 
                 return .success((result, success.1))
             } catch {

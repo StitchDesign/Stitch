@@ -45,7 +45,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
     static func createAndMakeRequest(prompt: String,
                                      aiManager: StitchAIManager,
                                      document: StitchDocumentViewModel) throws {
-        guard let secrets = document.aiManager?.secrets else {
+        guard let aiManager = document.aiManager else {
             fatalErrorIfDebug("GenerateAINode: no aiManager")
             return
         }
@@ -54,11 +54,16 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         
         do {
             let request = try AIGraphCreationRequest(prompt: prompt,
-                                                     secrets: secrets,
+                                                     secrets: aiManager.secrets,
                                                      graph: graph)
             
             // Main request logic
-            request.handleRequest(document: document)
+            aiManager.currentTask = .init(task: aiManager
+                .getOpenAITask(request: request,
+                               attempt: 0,
+                               document: document,
+                               canShareAIRetries: StitchStore.canShareAIData)
+                                                )
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
         }
@@ -119,19 +124,6 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         return convertedSteps.compactMap(\.value)
     }
     
-    @MainActor
-    func onSuccessfulRequest(result: [any StepActionable],
-                             aiManager: StitchAIManager,
-                             document: StitchDocumentViewModel) throws {
-        if let error = document.validateAndApplyActions(result) {
-            fatalErrorIfDebug(error.description)
-            throw AIGraphCreationRequestError.validationFailed(error)
-        }
-        
-        aiManager.openAIStreamingCompleted(originalPrompt: self.userPrompt,
-                                           request: self,
-                                           document: document)
-    }
     
     @MainActor
     func onSuccessfulDecodingChunk(result: Step,

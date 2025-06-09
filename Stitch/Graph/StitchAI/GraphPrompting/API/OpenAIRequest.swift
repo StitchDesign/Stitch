@@ -17,15 +17,14 @@ extension StitchAIManager {
     
     // Used when we need to kick off a request, either initially or as a retry
     @MainActor
-    func getOpenAITask<AIRequest>(request: AIRequest,
-                                  attempt: Int,
-                                  document: StitchDocumentViewModel,
-                                  canShareAIRetries: Bool) -> Task<AIRequest.FinalDecodedResult, any Error> where AIRequest: StitchAIRequestable {
+    func getOpenAITask(request: AIGraphCreationRequest,
+                       attempt: Int,
+                       document: StitchDocumentViewModel,
+                       canShareAIRetries: Bool) -> Task<AIGraphCreationRequest.FinalDecodedResult, any Error> {
         Task(priority: .high) { [weak self] in
-            
             guard let aiManager = self else {
-                log("getOpenAIStreamingTask: no aiManager")
-                throw StitchAIStreamingError.invalidURL
+                fatalErrorIfDebug()
+                throw NSError()
             }
             
             switch await aiManager.startOpenAIRequest(
@@ -33,7 +32,7 @@ extension StitchAIManager {
                 attempt: attempt,
                 lastCapturedError: document.llmRecording.actionsError ?? "",
                 document: document) {
-            
+                
             case .success(let result):
                 log("getOpenAIStreamingTask: succeeded")
                 
@@ -44,9 +43,8 @@ extension StitchAIManager {
                         fatalErrorIfDebug("getOpenAIStreamingTask: no document")
                         return
                     }
-                    aiManager.openAIStreamingCompleted(originalPrompt: request.userPrompt,
-                                                       request: request,
-                                                       document: document)
+                    aiManager.aiGraphRequestCompleted(request: request,
+                                                      document: document)
                 }
                 
                 return result
@@ -227,9 +225,8 @@ extension StitchAIManager {
     // We successfully opened the stream and received bits until the stream was closed (without an error?).
     // fka `openAIRequestCompleted`
     @MainActor
-    func openAIStreamingCompleted<AIRequest>(originalPrompt: String,
-                                             request: AIRequest,
-                                             document: StitchDocumentViewModel) where AIRequest: StitchAIRequestable {
+    func aiGraphRequestCompleted(request: AIGraphCreationRequest,
+                                 document: StitchDocumentViewModel) {
         log("openAIStreamingCompleted called")
         
         document.reduxFocusedField = nil
@@ -241,7 +238,7 @@ extension StitchAIManager {
         document.aiManager?.cancelCurrentRequest()
         
         log("Storing user prompt and request id")
-        document.llmRecording.promptForTrainingDataOrCompletedRequest = originalPrompt
+        document.llmRecording.promptForTrainingDataOrCompletedRequest = request.userPrompt
         document.llmRecording.requestIdFromCompletedRequest = request.id
         
         document.llmRecording.mode = .normal
@@ -252,5 +249,15 @@ extension StitchAIManager {
         }
                 
         document.encodeProjectInBackground()
+    }
+}
+
+extension StitchAIRequestable {    
+    func request(document: StitchDocumentViewModel,
+                 aiManager: StitchAIManager) async -> Result<Self.FinalDecodedResult, StitchAIStreamingError> {
+        await aiManager.startOpenAIRequest(self,
+                                           attempt: 0,
+                                           lastCapturedError: "",
+                                           document: document)
     }
 }

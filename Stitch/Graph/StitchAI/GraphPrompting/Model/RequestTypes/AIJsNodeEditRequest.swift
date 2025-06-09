@@ -70,18 +70,6 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
     }
     
     @MainActor
-    func onSuccessfulRequest(result: JavaScriptNodeSettings,
-                             aiManager: StitchAIManager,
-                             document: StitchDocumentViewModel) throws {
-        guard let patchNode = document.visibleGraph.getNode(self.nodeId)?.patchNode else {
-            log("EditJSNodeRequest error: no node found.")
-            throw EditJSNodeRequestError.noNodeFound
-        }
-        
-        return patchNode.processNewJavascript(response: result)
-    }
-    
-    @MainActor
     func onSuccessfulDecodingChunk(result: JavaScriptNodeSettings,
                                    currentAttempt: Int) {
         fatalErrorIfDebug("No JavaScript node support for streaming.")

@@ -13,6 +13,8 @@ import StitchSchemaKit
 
 struct CanvasItemMenuButtonsView: View {
     @Environment(StitchStore.self) private var store
+    @State private var showNodesSummaryPopover: Bool = false
+    @State private var nodeSummariesText: String = ""
     
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
@@ -190,7 +192,9 @@ struct CanvasItemMenuButtonsView: View {
                     //                    createCommentBoxButton
                     //                }
                     
-                    aiSummarizeButton
+                    if let aiManager = document.aiManager {
+                        aiSummarizeButton(aiManager: aiManager)
+                    }
                 }
             }
             
@@ -380,12 +384,32 @@ struct CanvasItemMenuButtonsView: View {
     }
     
     @ViewBuilder
-    var aiSummarizeButton: some View {
+    func aiSummarizeButton(aiManager: StitchAIManager) -> some View {
         TagMenuButtonView(label: "Summarize...") {
             do {
                 let request = try AIGraphDescriptionRequest(prompt: "addNode: splitter",
                                                             document: document)
-                request.handleRequest(document: document)
+                
+                Task(priority: .high) { [weak aiManager, weak document] in
+                    guard let aiManager = aiManager,
+                          let document = document else {
+                        return
+                    }
+                    
+                    // something something request.handle
+                    let result = await request.request(document: document,
+                                                       aiManager: aiManager)
+                    
+                    await MainActor.run {
+                        switch result {
+                        case .success(let summaryResponse):
+                            self.showNodesSummaryPopover = true
+                            self.nodeSummariesText = summaryResponse
+                        case .failure(let failure):
+                            fatalErrorIfDebug(failure.description)
+                        }
+                    }
+                }
             } catch {
                 fatalErrorIfDebug("AI summarizer error: \(error.localizedDescription)")
             }
