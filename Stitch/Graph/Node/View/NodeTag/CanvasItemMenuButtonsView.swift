@@ -387,8 +387,7 @@ struct CanvasItemMenuButtonsView: View {
     func aiSummarizeButton(aiManager: StitchAIManager) -> some View {
         TagMenuButtonView(label: "Summarize...") {
             do {
-                let request = try AIGraphDescriptionRequest(prompt: "addNode: splitter",
-                                                            document: document)
+                let request = try AIGraphDescriptionRequest(document: document)
                 self.showNodesSummaryPopover = true
                 self.nodeSummariesText = ""
                 

@@ -15,17 +15,39 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
     static let willStream: Bool = false
     
     @MainActor
-    init(prompt: String,
-         config: OpenAIRequestConfig = .default,
+    init(config: OpenAIRequestConfig = .default,
          document: StitchDocumentViewModel) throws {
         guard let secrets = document.aiManager?.secrets else {
             throw StitchAIManagerError.secretsNotFound
         }
         
-        self.init(prompt: prompt,
-                  secrets: secrets,
-                  config: config,
-                  graph: document.visibleGraph)
+        let graph = document.visibleGraph
+        let copiedComponent = graph
+            .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
+                                   selectedNodeIds: graph.selectedPatchAndLayerNodes)
+        let steps = StitchDocumentViewModel
+            .deriveNewAIActions(newGraphEntity: copiedComponent.component.graphEntity,
+                                visibleGraph: graph)
+        
+        // TODO: remove this step when schema improves
+        let reducedSteps = steps.map(\.toStep)
+        
+        do {
+            // Create user prompt using schema of actions composing of selected nodes
+            let userPrompt = try reducedSteps.encodeToPrintableString()
+            
+            self.init(prompt: userPrompt,
+                      secrets: secrets,
+                      config: config,
+                      graph: document.visibleGraph)
+        } catch {
+            fatalErrorIfDebug(error.localizedDescription)
+            
+            self.init(prompt: "",
+                      secrets: secrets,
+                      config: config,
+                      graph: document.visibleGraph)
+        }
     }
     
     @MainActor
