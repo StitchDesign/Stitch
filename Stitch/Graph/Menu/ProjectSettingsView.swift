@@ -34,7 +34,7 @@ struct ProjectSettingsView: View {
                 .offset(y: 12)
                 #endif
             }
-            StitchCaptionView("Set the size of the prototype's Canvas")
+            StitchCaptionView("Set the size of the prototype's Canvas.")
             HStack(alignment: .center) {
                 Text("Preview Window Color")
                     .fontWeight(.bold)
