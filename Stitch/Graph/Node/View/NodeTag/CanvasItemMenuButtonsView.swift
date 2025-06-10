@@ -192,7 +192,8 @@ struct CanvasItemMenuButtonsView: View {
                     //                    createCommentBoxButton
                     //                }
                     
-                    if let aiManager = document.aiManager {
+                    if StitchStore.enabledNodeSummaries,
+                       let aiManager = document.aiManager {
                         aiSummarizeButton(aiManager: aiManager)
                     }
                 }
