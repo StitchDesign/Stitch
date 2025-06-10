@@ -25,9 +25,14 @@ struct GeneratePreview: View {
         logInView("sortedLayerDataList.count: \(sortedLayerDataList.count)")
     
         // proof of concept here
-        Rectangle().fill(.blue.opacity(0.5)).frame(width: 260, height: 120)
-        Rectangle().fill(.green.opacity(0.5)).frame(width: 120, height: 260)
-        Rectangle().fill(.yellow.opacity(0.5)).frame(width: 100, height: 100)
+        Rectangle().fill(.blue.opacity(0.25)).frame(width: 260, height: 120)
+        Rectangle().fill(.green.opacity(0.25)).frame(width: 120, height: 260)
+//        Rectangle().fill(.yellow.opacity(0.5)).frame(width: 100, height: 100)
+        Text("Received Invocation URL with id = 2")
+            .font(.caption)
+        Text("Next step: retrieve a project from Supabase.")
+            .font(.caption)
+            .offset(y: 60)
         
         // Regular rendering of views in their proper place in the hierarchy
         PreviewLayersView(document: document,

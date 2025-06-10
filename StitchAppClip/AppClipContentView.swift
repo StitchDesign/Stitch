@@ -65,7 +65,7 @@ struct AppClipContentView: View {
         }
         .task {
 //            let doc = StitchDocumentViewModel.createTestFriendlyDocument(store)
-            let (projectLoader, documentViewModel) = try! createNewEmptyProject(store: self.store)
+            let (_, documentViewModel) = try! createNewEmptyProject(store: self.store)
             
             let _ = documentViewModel.nodeInserted(choice: .layer(.text))
             let _ = documentViewModel.nodeInserted(choice: .layer(.switchLayer))
