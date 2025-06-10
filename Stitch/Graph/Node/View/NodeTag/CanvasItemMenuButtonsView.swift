@@ -212,23 +212,6 @@ struct CanvasItemMenuButtonsView: View {
                 }
             }
         }
-//        .sheet(isPresented: self.$willDisplayTrainingPrompt) {
-//            VStack(alignment: .leading) {
-//                Text("yo")
-//            }
-//            .padding()
-////            .background(
-////                Color(uiColor: .systemGray5)
-////                // NOTE: strangely we need `[.all, .keyboard]` on BOTH the background color AND the StitchHostingControllerView
-////                    .ignoresSafeArea([.all, .keyboard])
-////            )
-//        }
-//        .stitchSheet(isPresented: self.willDisplayTrainingPrompt,
-//                     titleLabel: "Provide a prompt for the just-recorded graph",
-//                     hideAction: document.closedLLMRecordingPrompt,
-//                     sheetBody: {
-//            LLMAssignPromptToScratchLLMExampleModalView()
-//        })
     }
 
     @MainActor @ViewBuilder
