@@ -29,6 +29,4 @@ struct FeatureFlags {
 #else
     static let STITCH_AI_REASONING = false
     #endif
-    
-    static let ENABLE_JS_NODE = true
 }

@@ -13,12 +13,12 @@ enum AIGraphCreationRequestBody_V0 {
         let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
         let response_format = CurrentAIGraphCreationResponseFormat.AIGraphCreationResponseFormat()
         let messages: [OpenAIMessage]
-        let stream: Bool = AIGraphCreationRequest.willStream
+        let stream: Bool = true
         
         init(secrets: Secrets,
              userPrompt: String) {
-            let systemPrompt = CurrentAIGraphCreationSystemPrompt.systemPrompt
-            let structuredOutputs = CurrentAIGraphCreationResponseFormat.AIGraphCreationResponseFormat().json_schema.schema
+            let systemPrompt = AIGraphCreationSystemPrompt_V0.systemPrompt
+            let structuredOutputs = AIGraphCreationResponseFormat_V0.AIGraphCreationResponseFormat().json_schema.schema
             let structuredOutputsString = try! structuredOutputs.encodeToPrintableString()
             
             self.model = secrets.openAIModelGraphCreation

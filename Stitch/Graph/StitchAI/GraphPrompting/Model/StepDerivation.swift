@@ -12,15 +12,18 @@ extension StitchDocumentViewModel {
 
     // TODO: should this be based on `StitchDocument`, so that we can support components with actions etc. ? ... have to update the LLM-actions to include graphId ?
     @MainActor
-    static func deriveNewAIActions(oldGraphEntity: GraphEntity?,
+    static func deriveNewAIActions(oldGraphEntity: GraphEntity,
                                    visibleGraph: GraphReader) -> [any StepActionable] {
-        // Can this truly be optional ?
-        guard let oldGraphEntity = oldGraphEntity else {
-            log("deriveNewAIActions: No graph state found") // should be fatal error ?
-            return []
-        }
-        
         let newGraphEntity = visibleGraph.createSchema()
+        return Self.deriveNewAIActions(oldGraphEntity: oldGraphEntity,
+                                       newGraphEntity: newGraphEntity,
+                                       visibleGraph: visibleGraph)
+    }
+    
+    @MainActor
+    static func deriveNewAIActions(oldGraphEntity: GraphEntity = .createEmpty(),
+                                   newGraphEntity: GraphEntity,
+                                   visibleGraph: GraphReader) -> [any StepActionable] {
         let oldNodeIds = oldGraphEntity.nodes.map(\.id).toSet
         let newNodeIds = newGraphEntity.nodes.map(\.id).toSet
         

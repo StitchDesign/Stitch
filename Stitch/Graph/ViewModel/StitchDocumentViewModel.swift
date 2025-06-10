@@ -345,7 +345,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         if recordingOrCorrecting && !self.llmRecording.isApplyingActions {
             let oldActions = self.llmRecording.actions
             let newActions = Self.deriveNewAIActions(
-                oldGraphEntity: self.llmRecording.initialGraphState,
+                oldGraphEntity: self.llmRecording.initialGraphState ?? .createEmpty(),
                 visibleGraph: self.visibleGraph)
             
             if oldActions.map(\.toStep) != newActions.map(\.toStep) {

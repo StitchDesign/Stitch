@@ -190,7 +190,7 @@ extension StitchDocumentViewModel {
         
         // Validates that action data didn't change after derived actions is computed
         let newActions = Self.deriveNewAIActions(
-            oldGraphEntity: self.llmRecording.initialGraphState,
+            oldGraphEntity: self.llmRecording.initialGraphState ?? .createEmpty(),
             visibleGraph: self.visibleGraph)
         
         return Self.validateActionsDidNotChangeDuringReapply(

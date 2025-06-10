@@ -109,6 +109,11 @@ extension StitchAIRequestable {
         
         let decoder = getStitchDecoder()
         
+        if Self.InitialDecodedResult.self == String.self,
+           let contentString = content as? Self.InitialDecodedResult {
+            return contentString
+        }
+        
         do {
             let result = try decoder.decode(Self.InitialDecodedResult.self, from: contentData)
             print("MessageStruct: successfully decoded with \(result)")

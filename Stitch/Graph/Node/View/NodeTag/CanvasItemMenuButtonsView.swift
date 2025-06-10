@@ -17,6 +17,8 @@ struct CanvasItemMenuButtonsView: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
+    @Binding var showNodesSummaryPopover: Bool
+    @Binding var nodeSummariesText: AttributedString?
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
@@ -185,9 +187,15 @@ struct CanvasItemMenuButtonsView: View {
                     if FeatureFlags.USE_COMPONENTS {
                         createComponentButton
                     }
+                    
                     //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
                     //                    createCommentBoxButton
                     //                }
+                    
+                    if StitchStore.enabledNodeSummaries,
+                       let aiManager = document.aiManager {
+                        aiSummarizeButton(aiManager: aiManager)
+                    }
                 }
             }
             
@@ -233,7 +241,6 @@ struct CanvasItemMenuButtonsView: View {
             }
             
             hideLayerButton
-            
         }
     }
     
@@ -375,7 +382,44 @@ struct CanvasItemMenuButtonsView: View {
         } else {
             EmptyView()
         }
-        
+    }
+    
+    @ViewBuilder
+    func aiSummarizeButton(aiManager: StitchAIManager) -> some View {
+        TagMenuButtonView(label: "Summarize...") {
+            do {
+                let request = try AIGraphDescriptionRequest(document: document)
+                self.showNodesSummaryPopover = true
+                self.nodeSummariesText = nil
+                
+                Task(priority: .high) { [weak aiManager, weak document] in
+                    guard let aiManager = aiManager,
+                          let document = document else {
+                        return
+                    }
+                    
+                    // something something request.handle
+                    let result = await request.request(document: document,
+                                                       aiManager: aiManager)
+                    
+                    await MainActor.run {
+                        switch result {
+                        case .success(let summaryResponse):
+                            do {
+                                self.nodeSummariesText = try AttributedString(styledMarkdown: summaryResponse, isTitle: false)
+                            } catch {
+                                fatalErrorIfDebug(error.localizedDescription)
+                            }
+                        case .failure(let failure):
+                            self.showNodesSummaryPopover = false
+                            fatalErrorIfDebug(failure.description)
+                        }
+                    }
+                }
+            } catch {
+                fatalErrorIfDebug("AI summarizer error: \(error.localizedDescription)")
+            }
+        }
     }
     
     // If both nodes AND comments are selected,

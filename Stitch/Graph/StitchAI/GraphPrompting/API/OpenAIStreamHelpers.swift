@@ -127,7 +127,7 @@ extension StitchAIManager {
     func makeRequest<AIRequest>(for urlRequest: URLRequest,
                                 with request: AIRequest,
                                 attempt: Int,
-                                document: StitchDocumentViewModel) async -> Result<URLResponse, Error> where AIRequest: StitchAIRequestable {
+                                document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
         if AIRequest.willStream {
             return await self.openStream(for: urlRequest,
                                    with: request,
@@ -143,7 +143,7 @@ extension StitchAIManager {
     private func makeNonStreamedRequest<AIRequest>(for urlRequest: URLRequest,
                                                    with request: AIRequest,
                                                    attempt: Int,
-                                                   document: StitchDocumentViewModel) async -> Result<URLResponse, Error> where AIRequest: StitchAIRequestable {
+                                                   document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
         let result = await Result {
             try await URLSession.shared.data(for: urlRequest)
         }
@@ -163,18 +163,8 @@ extension StitchAIManager {
                 let initialDecodedResult = try AIRequest.parseOpanAIResponse(content: firstChoice.message.content)
                 let result = try AIRequest.validateRepopnse(decodedResult: initialDecodedResult)
                 
-                try await MainActor.run { [weak self, weak document] in
-                    guard let aiManager = self,
-                          let document = document else {
-                        return
-                    }
-                    
-                    try request.onSuccessfulRequest(result: result,
-                                                    aiManager: aiManager,
-                                                    document: document)
-                }
                 
-                return .success(success.1)
+                return .success((result, success.1))
             } catch {
                 print(error)
                 return .failure(StitchAIManagerError.responseDecodingFailure(error.localizedDescription))
@@ -191,7 +181,9 @@ extension StitchAIManager {
     /// Perform an HTTP request and stream back the response, printing each chunk as it arrives.
     private func openStream<AIRequest>(for urlRequest: URLRequest,
                                        with request: AIRequest,
-                                       attempt: Int) async -> Result<URLResponse, Error> where AIRequest: StitchAIRequestable {
+                                       attempt: Int) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
+        
+        var decodedChunks: [AIRequest.TokenDecodedResult] = []
         
         var currentChunk: [UInt8] = []
         
@@ -231,6 +223,7 @@ extension StitchAIManager {
                         contentTokensSinceLastResponse.append(contentToken)
                         
                         if let (newStep, newTokens) = AIRequest.decodeFromTokenStream(tokens: contentTokensSinceLastResponse) {
+                            decodedChunks.append(newStep)
                             contentTokensSinceLastResponse = newTokens
                             
                             DispatchQueue.main.async {
@@ -248,8 +241,12 @@ extension StitchAIManager {
                 // log("allContentTokens: \(allContentTokens)")
                 let finalMessage = String(allContentTokens.joined())
                 log("finalMessage: \(finalMessage)")
+                
+                // Compose full decoded response
+                let decodedResponse = try AIRequest.buildResponse(from: decodedChunks)
+                let validatedDecodedResponse = try AIRequest.validateRepopnse(decodedResult: decodedResponse)
 
-                return .success(response)
+                return .success((validatedDecodedResponse, response))
             } catch {
                 log("Could not get byte from bytes: \(error.localizedDescription)")
                 return .failure(error)

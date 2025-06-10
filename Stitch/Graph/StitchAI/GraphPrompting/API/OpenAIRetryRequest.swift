@@ -12,11 +12,11 @@ extension StitchAIManager {
     
     // Either successfully retries -- or shows error modal for a non-retryable error
     @MainActor
-    func retryOrShowErrorModal<AIRequest>(request: AIRequest,
-                                          steps: Steps,
-                                          attempt: Int,
-                                          document: StitchDocumentViewModel,
-                                          canShareAIRetries: Bool) async where AIRequest: StitchAIRequestable {
+    func retryOrShowErrorModal(request: AIGraphCreationRequest,
+                               steps: Steps,
+                               attempt: Int,
+                               document: StitchDocumentViewModel,
+                               canShareAIRetries: Bool) async {
         
         log("StitchAIManager: retryOrShowErrorModal called: attempt: \(attempt), request.prompt: \(request.userPrompt)")
         
@@ -43,11 +43,11 @@ extension StitchAIManager {
     
     // TODO: we attempt the request again when OpenAI has sent us data that either could not be parsed or could not be validated; should we also re-attempt when OpenAI gives us a timeout error?
     @MainActor
-    private func _retryRequest<AIRequest>(request: AIRequest,
+    private func _retryRequest(request: AIGraphCreationRequest,
                                           steps: Steps,
                                           attempt: Int,
                                           document: StitchDocumentViewModel,
-                                          canShareAIRetries: Bool) async -> StitchAIStreamingError? where AIRequest: StitchAIRequestable {
+                                          canShareAIRetries: Bool) async -> StitchAIStreamingError? {
         
         log("StitchAIManager: _retryRequest called: attempt: \(attempt)")
         
