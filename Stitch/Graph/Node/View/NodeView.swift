@@ -11,8 +11,12 @@ import StitchSchemaKit
 
 struct NodeView: View {
     @Environment(StitchStore.self) private var store
+    
     @State private var showAboutPopover = false
     @State private var aiJsNodePrompt: String = ""
+    @State private var showNodesSummaryPopover: Bool = false
+    @State private var nodeSummariesText: AttributedString?
+    
     @FocusedValue(\.focusedField) private var focusedField
     @FocusState var isFocused: Bool
     
@@ -59,31 +63,45 @@ struct NodeView: View {
                     StitchDocsPopoverView(router: .init(from: self.stitch.kind))
                 }
                 .opacity(node.viewCache.isDefined ? 1 : 0)
-            .onAppear {
-                self.node.updateVisibilityStatus(with: true, graph: graph)
-            }
-            .onDisappear {
-                self.node.updateVisibilityStatus(with: false, graph: graph)
-            }
-            .onChange(of: self.isSelected) {
-            // // TODO: if I rely on e.g. graph.selectedEdges in this closure, would that force a render-cycle vs dispatching the action?
-            // node.updateObserversPortColorsAndConnectedCanvasItemsCache(selectedEdges: graph.selectedEdges, drawingObserver: graph.edgeDrawingObserver)
-                
-                dispatch(UpdatePortColorUponNodeSelected(nodeId: nodeId))
-            }
+                .popover(isPresented: self.$showNodesSummaryPopover) {
+                    Group {
+                        if let text = self.nodeSummariesText {
+                            Text(text)
+                                .width(500)
+                                .padding()
+                        } else {
+                            // If still nil, loading
+                            ProgressView()
+                        }
+                    }
+                }
+                .onAppear {
+                    self.node.updateVisibilityStatus(with: true, graph: graph)
+                }
+                .onDisappear {
+                    self.node.updateVisibilityStatus(with: false, graph: graph)
+                }
+                .onChange(of: self.isSelected) {
+                    // // TODO: if I rely on e.g. graph.selectedEdges in this closure, would that force a render-cycle vs dispatching the action?
+                    // node.updateObserversPortColorsAndConnectedCanvasItemsCache(selectedEdges: graph.selectedEdges, drawingObserver: graph.edgeDrawingObserver)
+                    
+                    dispatch(UpdatePortColorUponNodeSelected(nodeId: nodeId))
+                }
 #if targetEnvironment(macCatalyst)
             // Catalyst right-click to open canvas item menu
-            .contextMenu {
-                CanvasItemMenuButtonsView(graph: graph,
-                                          document: document,
-                                          node: stitch,
-                                          canvasItemId: node.id,
-                                          activeGroupId: activeGroupId,
-                                          canAddInput: canAddInput,
-                                          canRemoveInput: canRemoveInput,
-                                          atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                                          showAboutPopover: self.$showAboutPopover)
-            }
+                .contextMenu {
+                    CanvasItemMenuButtonsView(graph: graph,
+                                              document: document,
+                                              node: stitch,
+                                              showNodesSummaryPopover: self.$showNodesSummaryPopover,
+                                              nodeSummariesText: self.$nodeSummariesText,
+                                              canvasItemId: node.id,
+                                              activeGroupId: activeGroupId,
+                                              canAddInput: canAddInput,
+                                              canRemoveInput: canRemoveInput,
+                                              atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                                              showAboutPopover: self.$showAboutPopover)
+                }
 #endif
                 .modifier(NodeViewTapGestureModifier(graph: graph,
                                                      document: document,
@@ -103,6 +121,8 @@ struct NodeView: View {
                                       graph: graph,
                                       document: document,
                                       stitch: stitch,
+                                      showNodesSummaryPopover: $showNodesSummaryPopover,
+                                      nodeSummariesText: $nodeSummariesText,
                                       activeGroupId: activeGroupId,
                                       canAddInput: canAddInput,
                                       canRemoveInput: canRemoveInput,
@@ -125,7 +145,8 @@ struct NodeView: View {
     @State private var nodeBodyHovered: Bool = false
     
     @ViewBuilder
-    func javascriptNodeField(patchNode: PatchNodeViewModel) -> some View {
+    func javascriptNodeField(patchNode: PatchNodeViewModel,
+                             aiManager: StitchAIManager) -> some View {
         @Bindable var patchNode = patchNode
         TextField("Javascript here...",
                   text: $aiJsNodePrompt)
@@ -134,8 +155,23 @@ struct NodeView: View {
                 let jsAIRequest = try AIEditJSNodeRequest(prompt: aiJsNodePrompt,
                                                           document: document,
                                                           nodeId: stitch.id)
-                jsAIRequest.makeRequest(canShareAIRetries: StitchStore.canShareAIData,
-                                        document: document)
+                
+                Task { [weak patchNode] in
+                    guard let patchNode = patchNode else {
+                        return
+                    }
+                    
+                    let result = await jsAIRequest.request(document: document,
+                                                           aiManager: aiManager)
+                    
+                    switch result {
+                    case .success(let jsSettings):
+                        patchNode.processNewJavascript(response: jsSettings)
+                        
+                    case .failure(let error):
+                        fatalErrorIfDebug(error.description)
+                    }
+                }
             } catch {
                 log("javascriptNodeField error: \(error.localizedDescription)")
             }
@@ -169,8 +205,10 @@ struct NodeView: View {
             
             // TODO: remove this logic, there won't be a custom view like this for JS node
             if stitch.kind == .patch(.javascript),
+               let aiManager = document.aiManager,
                 let patchNode = stitch.patchNode {
-                javascriptNodeField(patchNode: patchNode)
+                javascriptNodeField(patchNode: patchNode,
+                                    aiManager: aiManager)
             }
         }
         .onChange(of: self.node.sizeByLocalBounds) {
@@ -333,6 +371,8 @@ struct CanvasItemTag: View {
     @Bindable var graph: GraphState
     @Bindable var document: StitchDocumentViewModel
     @Bindable var stitch: NodeViewModel
+    @Binding var showNodesSummaryPopover: Bool
+    @Binding var nodeSummariesText: AttributedString?
     let activeGroupId: GroupNodeType?
     let canAddInput: Bool
     let canRemoveInput: Bool
@@ -344,6 +384,8 @@ struct CanvasItemTag: View {
         CanvasItemMenuButtonsView(graph: graph,
                                   document: document,
                                   node: stitch,
+                                  showNodesSummaryPopover: $showNodesSummaryPopover,
+                                  nodeSummariesText: $nodeSummariesText,
                                   canvasItemId: node.id,
                                   activeGroupId: activeGroupId,
                                   canAddInput: canAddInput,

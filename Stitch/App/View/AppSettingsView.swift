@@ -141,6 +141,8 @@ enum StitchAppSettings: String {
     case EDGE_STYLE = "SavedEdgeStyle"
     case IS_OPTION_REQUIRED_FOR_SHORTCUTS = "SavedIsOptionRequiredForShortcuts"
     case CAN_SHARE_AI_DATA = "CanShareAIData"
+    case EXPERIMENTAL_JS_NODE = "ExperimentalJsNode"
+    case EXPERIMENTAL_NODE_SUMMARIES = "ExperimentalNodeSummaries"
 }
 
 struct AppSettingsView: View {
@@ -159,6 +161,10 @@ struct AppSettingsView: View {
     @AppStorage(StitchAppSettings.IS_OPTION_REQUIRED_FOR_SHORTCUTS.rawValue) private var isOptionRequiredForShortcuts: Bool = Bool.defaultIsOptionRequiredForShortcuts
     
     @AppStorage(StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) private var canShareAIData: Bool?
+    
+    @AppStorage(StitchAppSettings.EXPERIMENTAL_JS_NODE.rawValue) private var enabledJsNode: Bool = false
+    
+    @AppStorage(StitchAppSettings.EXPERIMENTAL_NODE_SUMMARIES.rawValue) private var enabledNodeSummaries: Bool = false
         
     let allCameraChoices = getCameraPickerOptions()
 
@@ -170,6 +176,13 @@ struct AppSettingsView: View {
             defaultPreviewWindowDevicePicker
             isOptionRequiredForShortcutsPicker
             canShareAIRetriesPicker
+            
+            Divider()
+            Text("Experimental Features")
+                .font(.subheadline)
+            
+            experimentalJsNodeCheckbox
+            experimentalNodeSummariesCheckbox
         }
     }
 
@@ -272,22 +285,13 @@ struct AppSettingsView: View {
 
     @ViewBuilder
     var isOptionRequiredForShortcutsPicker: some View {
-        logInView("AppSettingsView: isOptionRequiredForShortcutsPicker: self.isOptionRequiredForShortcut: \(self.isOptionRequiredForShortcuts)")
-        
         let isRequired = self.isOptionRequiredForShortcuts
         let icon: String = isRequired ? "checkmark.square" : "square"
         
-        VStack(alignment: .leading) {
-            HStack(alignment: .center) {
-                Text("Require Option Key for Shortcuts").fontWeight(.bold)
-                Image(systemName: icon)
-                    .onTapGesture {
-                        dispatch(OptionRequiredForShortcutsChanged(newValue: !isRequired))
-                    }
-            }
-            .padding(.bottom, 2)
-            
-            StitchCaptionView("If true, `Option + O`, rather than just `O`, adds an Option Picker to the canvas.")
+        self.checkboxView(title: "Require Option Key for Shortcuts",
+                          caption: "If true, `Option + O`, rather than just `O`, adds an Option Picker to the canvas.",
+                          wasChecked: isRequired) { isChecked in
+            dispatch(CanShareAIData(newValue: isChecked))
         }
     }
     
@@ -296,19 +300,11 @@ struct AppSettingsView: View {
         logInView("AppSettingsView: canShareAIRetriesPicker: self.canShareAIRetries: \(self.canShareAIData)")
                 
         VStack(alignment: .leading) {
-            HStack(alignment: .center) {
-                Text("Share AI Usage Data").fontWeight(.bold)
-    
-                let canShareAIData = self.canShareAIData ?? true
-                let icon: String = canShareAIData ? "checkmark.square" : "square"
-                Image(systemName: icon)
-                    .onTapGesture {
-                        dispatch(CanShareAIData(newValue: !canShareAIData))
-                    }
+            self.checkboxView(title: "Share AI Usage Data",
+                              caption: "Sharing your AI requests to Stitch helps improve our AI.",
+                              wasChecked: self.canShareAIData ?? true) { isChecked in
+                dispatch(CanShareAIData(newValue: isChecked))
             }
-            .padding(.bottom, 2)
-            
-            StitchCaptionView("Sharing your AI requests to Stitch helps improve our AI.")
             
             Text("Data we collect.")
                 .foregroundColor(theme.themeData.edgeColor)
@@ -321,6 +317,42 @@ struct AppSettingsView: View {
         }
     }
     
+    var experimentalJsNodeCheckbox: some View {
+        self.checkboxView(title: "AI Node",
+                          caption: "A node that's created using natural language and runs JavaScript code underneath the hood.",
+                          wasChecked: self.enabledJsNode) { isChecked in
+            self.enabledJsNode = isChecked
+        }
+    }
+    
+    var experimentalNodeSummariesCheckbox: some View {
+        self.checkboxView(title: "Node Summaries",
+                          caption: "Displays a summary of a selection of nodes. Accessed by right-clicking a multi-selection of nodes.",
+                          wasChecked: self.enabledNodeSummaries) { isChecked in
+            self.enabledNodeSummaries = isChecked
+        }
+    }
+    
+    func checkboxView(title: String,
+                      caption: String,
+                      wasChecked: Bool,
+                      isTappedCallback: @escaping (Bool) -> ()) -> some View {
+        VStack(alignment: .leading) {
+            HStack(alignment: .center) {
+                Text(title).fontWeight(.bold)
+    
+                let icon: String = wasChecked ? "checkmark.square" : "square"
+                Image(systemName: icon)
+                    .onTapGesture {
+                        let isNowChecked = !wasChecked
+                        isTappedCallback(isNowChecked)
+                    }
+            }
+            .padding(.bottom, 2)
+            
+            StitchCaptionView(caption)
+        }
+    }
             
     func getCameraSelection(cameraID: String?) -> AVCaptureDevicePickerOption? {
         guard let cameraID = cameraID,
@@ -343,5 +375,13 @@ struct AppSettingsView_Previews: PreviewProvider {
 extension StitchStore {
     static var canShareAIData: Bool {
         (UserDefaults.standard.value(forKey: StitchAppSettings.CAN_SHARE_AI_DATA.rawValue) as? Bool) ?? false
+    }
+    
+    static var enabledJsNode: Bool {
+        UserDefaults.standard.value(forKey: StitchAppSettings.EXPERIMENTAL_JS_NODE.rawValue) as? Bool ?? false
+    }
+    
+    static var enabledNodeSummaries: Bool {
+        UserDefaults.standard.value(forKey: StitchAppSettings.EXPERIMENTAL_NODE_SUMMARIES.rawValue) as? Bool ?? false
     }
 }
