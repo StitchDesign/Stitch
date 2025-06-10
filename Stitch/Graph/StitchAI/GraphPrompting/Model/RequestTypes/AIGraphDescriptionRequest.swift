@@ -21,7 +21,6 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
             throw StitchAIManagerError.secretsNotFound
         }
         
-        let graph = document.visibleGraph
         let steps = Self.deriveStepActionsFromSelectedState(document: document)
         
         // TODO: remove this step when schema improves

@@ -143,11 +143,24 @@ struct NodeView: View {
                                                        graph: graph,
                                                        node: node,
                                                        zIndex: zIndex))
-                   .stitchSheet(isPresented: self.willDisplayTrainingPrompt,
-                                titleLabel: "Provide a prompt for the just-recorded graph",
-                                hideAction: document.closedLLMRecordingPrompt,
-                                sheetBody: {                       
-                       LLMAssignPromptToScratchLLMExampleModalView()
+                   .alert("Stitch AI Training Upload",
+                          isPresented: $willDisplayTrainingPrompt,
+                          actions: {
+                       TextField("Prompt", text: $document.llmRecording.promptForTrainingDataOrCompletedRequest)
+                       
+                       StitchButton("Confirm Before Uploading") {
+                           // Populate actions data for providing sidebar UX--to be removed
+                           document.llmRecording.actions = AIGraphDescriptionRequest
+                               .deriveStepActionsFromSelectedState(document: document)
+                           
+                           // Open the Edit-before-submit modal
+                           document.showEditBeforeSubmitModal()
+                       }
+                       StitchButton("Cancel", role: .cancel) {
+                           document.llmRecording.promptForTrainingDataOrCompletedRequest = ""
+                       }
+                   }, message: {
+                       Text("Describe your selected subgraph.")
                    })
     }
     

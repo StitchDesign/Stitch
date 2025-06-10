@@ -94,7 +94,7 @@ struct LLMRecordingState {
     
     // The prompt we've manually provided for our training example;
     // OR the saved prompt from a streaming request that has been completed
-    var promptForTrainingDataOrCompletedRequest: String?
+    var promptForTrainingDataOrCompletedRequest: String = ""
     var promptFromPreviousExistingGraphSubmittedAsTrainingData: String?
     
     // id from a user inference call; used

@@ -409,11 +409,7 @@ struct CanvasItemMenuButtonsView: View {
     
     @ViewBuilder
     func aiTrainButton(aiManager: StitchAIManager) -> some View {
-        TagMenuButtonView(label: "Improve AI...") {
-            // Populate actions data for providing sidebar UX--to be removed
-            document.llmRecording.actions = AIGraphDescriptionRequest
-                .deriveStepActionsFromSelectedState(document: document)
-            
+        TagMenuButtonView(label: "Improve AI...") {            
             self.willDisplayTrainingPrompt = true
         }
     }
