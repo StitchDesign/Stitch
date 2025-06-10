@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>appclips:https://stitchdesign.github.io/StitchAppClipPage</string>
+		<string>appclips:links.stitchdesign.app</string>
 	</array>
 	<key>com.apple.developer.parent-application-identifiers</key>
 	<array>
