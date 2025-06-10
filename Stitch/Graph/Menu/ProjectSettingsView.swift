@@ -246,7 +246,7 @@ struct ProjectSettingsView: View {
             isFieldInsideLayerInspector: false,
             isForFlyout: false,
             isForPreviewWindowBackgroundPicker: true,
-            isForIPhone: Stitch.isPhoneDevice,
+            isForIPhone: isPhoneDevice,
             isMultiselectInspectorInputWithHeterogenousValues: false,
             activeIndex: .init(.zero),
             chosenColor: binding,

@@ -113,12 +113,12 @@ struct DrawnEdge: View {
     // FORWARD EDGE
 
     var forwardHalfwayPoint: CGFloat {
-        Stitch.halfXPoint(from,
-                          to,
-                          fromIndex: fromIndex,
-                          totalOutputs: totalOutputs,
-                          useLegacy: useLegacy,
-                          isActivelyDragged: isActivelyDragged)
+        halfXPoint(from,
+                   to,
+                   fromIndex: fromIndex,
+                   totalOutputs: totalOutputs,
+                   useLegacy: useLegacy,
+                   isActivelyDragged: isActivelyDragged)
     }
 
     // varies by backward vs forward

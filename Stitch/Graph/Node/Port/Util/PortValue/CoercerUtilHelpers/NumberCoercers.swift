@@ -238,7 +238,7 @@ extension PortValue {
         case .padding(let x):
             return .init(x: x.top, y: x.bottom)
         case .string(let x):
-            if let dimension = Stitch.toNumber(x.string) {
+            if let dimension = StitchAppClip.toNumber(x.string) {
                 return .init(x: dimension, y: dimension)
             }
             return .defaultTrue
@@ -250,7 +250,7 @@ extension PortValue {
                 case .number(let k):
                     return .init(x: k, y: k)
                 case .string:
-                    if let dimension = Stitch.toNumber(x.string) {
+                    if let dimension = StitchAppClip.toNumber(x.string) {
                         return .init(x: dimension, y: dimension)
                     }
                     return .defaultTrue
@@ -300,7 +300,7 @@ extension PortValue {
         case .padding(let x):
             return .fromSingleNumber(x.asNumber)
         case .string(let x):
-            if let dimension = Stitch.toNumber(x.string) {
+            if let dimension = StitchAppClip.toNumber(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultTrue
@@ -312,7 +312,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = Stitch.toNumber(x.string) {
+                    if let dimension = StitchAppClip.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue
@@ -357,7 +357,7 @@ extension PortValue {
         case .padding(let x):
             return .fromSingleNumber(x.asNumber)
         case .string(let x):
-            if let dimension = Stitch.toNumber(x.string) {
+            if let dimension = StitchAppClip.toNumber(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultTrue
@@ -369,7 +369,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = Stitch.toNumber(x.string) {
+                    if let dimension = StitchAppClip.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue
@@ -424,7 +424,7 @@ extension PortValue {
             return .fromSingleNumber(x.asNumber)
         
         case .string(let x):
-            if let dimension = Stitch.toNumber(x.string) {
+            if let dimension = StitchAppClip.toNumber(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultFalse
@@ -436,7 +436,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = Stitch.toNumber(x.string) {
+                    if let dimension = StitchAppClip.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue
@@ -512,7 +512,7 @@ extension PortValue {
             return x
         
         case .string(let x):
-            if let dimension = Stitch.toNumber(x.string) {
+            if let dimension = StitchAppClip.toNumber(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultFalse
@@ -524,7 +524,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = Stitch.toNumber(x.string) {
+                    if let dimension = StitchAppClip.toNumber(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue

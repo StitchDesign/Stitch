@@ -12,7 +12,7 @@ import CoreML
 
 extension PortValue {
     func coerceToTruthyOrFalsey(_ graphTime: TimeInterval) -> Bool {
-        Stitch.coerceToTruthyOrFalsey(self, graphTime: graphTime)
+        StitchAppClip.coerceToTruthyOrFalsey(self, graphTime: graphTime)
     }
 }
 

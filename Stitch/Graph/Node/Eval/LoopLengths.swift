@@ -68,7 +68,7 @@ func getLongestLoopLength<T>(_ inputs: [[T]]) -> Int {
 
 extension Array {
     func lengthenArray(_ length: Int) -> Self {
-        Stitch.lengthenArray(loop: self, length: length)
+        StitchAppClip.lengthenArray(loop: self, length: length)
     }
     
     mutating func adjustArrayLength(to count: Int, creationCallback: @escaping () -> Element?) {

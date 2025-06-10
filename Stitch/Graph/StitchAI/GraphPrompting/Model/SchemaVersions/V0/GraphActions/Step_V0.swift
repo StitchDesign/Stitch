@@ -196,7 +196,7 @@ extension Step {
     }
 }
 
-extension Stitch.Step: CustomStringConvertible {
+extension Step: CustomStringConvertible {
     /// Provides detailed string representation of a Step
     public var description: String {
         return """

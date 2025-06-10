@@ -150,9 +150,9 @@ extension DocumentEncodable {
                                                                                 includingPropertiesForKeys: nil)
                 .map { $0.filename }
             
-            return Stitch.createUniqueFilename(filename: filename,
-                                               existingFilenames: existingFileNames,
-                                               mediaType: mediaType)
+            return StitchAppClip.createUniqueFilename(filename: filename,
+                                                      existingFilenames: existingFileNames,
+                                                      mediaType: mediaType)
         } catch {
             fatalErrorIfDebug(error.localizedDescription)
             return filename

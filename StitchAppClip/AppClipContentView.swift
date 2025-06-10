@@ -17,6 +17,8 @@ struct AppClipContentView: View {
             
             MySharedView()
             
+            Text("Example PortValue \(PortValue.number(99))")
+            
 //            StitchProjectView(routerNamespace: .init(),
 //                              store: StitchStore,
 //                              document: <#T##StitchDocumentViewModel#>, alertState: <#T##ProjectAlertState#>, isFullScreen: <#T##arg#>)

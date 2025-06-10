@@ -102,9 +102,10 @@ let networkRequestTypeDefault: PortValue = .networkRequestType(.get)
 
 let cameraDirectionDefault: PortValue = .cameraDirection(.front)
 
-func defaultToyRobot3DModel(nodeId: NodeId, loopIndex: Int) -> AsyncMediaValue {
-    AsyncMediaValue(mediaKey: default3DModelToyRobotAsset.mediaKey)
-}
+// TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+//func defaultToyRobot3DModel(nodeId: NodeId, loopIndex: Int) -> AsyncMediaValue {
+//    AsyncMediaValue(mediaKey: default3DModelToyRobotAsset.mediaKey)
+//}
 
 let default3DModelLayerSize = CGSize(width: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE.width, height: 200).toLayerSize
 

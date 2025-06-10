@@ -26,7 +26,7 @@ struct AlphaSliderView: View {
                      alpha: progress)
                 .toColor
         } bubbleUpdate: { color in
-            let newPosition = Stitch.transition(
+            let newPosition = StitchAppClip.transition(
                 color.alpha,
                 start: 0,
                 end: HSLSliderView.sliderGradientHeight - HSLSliderView.circleWidth)

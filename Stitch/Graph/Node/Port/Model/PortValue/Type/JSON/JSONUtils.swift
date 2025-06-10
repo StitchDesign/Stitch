@@ -15,8 +15,8 @@ extension JSON {
         areEqualJsons(self, other)
     }
     
-    static let emptyJSONArray: Self = Stitch.emptyJSONArray
-    static let emptyJSONObject: Self = Stitch.emptyJSONObject
+    static let emptyJSONArray: Self = emptyJSONArray
+    static let emptyJSONObject: Self = emptyJSONObject
 }
 
 extension PortValue {
@@ -26,8 +26,8 @@ extension PortValue {
 }
 
 extension StitchJSON {
-    static let emptyJSONArray: Self = Stitch.emptyStitchJSONArray
-    static let emptyJSONObject: Self = Stitch.emptyStitchJSONObject
+    static let emptyJSONArray: Self = emptyStitchJSONArray
+    static let emptyJSONObject: Self = emptyStitchJSONObject
 }
 
 // We need special logic for handling empty JSONs new-line characters which appear to be inserted by SwiftyJSONs pretty-printing etc.

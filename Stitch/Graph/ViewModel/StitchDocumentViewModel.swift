@@ -79,7 +79,7 @@ final class StitchDocumentViewModel: Sendable {
     @MainActor var adjustmentBarSessionId: UUID = .init()
     
     @MainActor
-    static let isPhoneDevice = Stitch.isPhoneDevice
+    static let isPhoneDevice = StitchAppClip.isPhoneDevice
     
     @MainActor var activeSpacebarClickDrag = false
 

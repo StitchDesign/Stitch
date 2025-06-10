@@ -96,16 +96,20 @@ extension FieldValueMedia {
                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             
         case .defaultMedia(let defaultMedia):
-            let mediaValue = AsyncMediaValue(id: .init(),
-                                             dataType: .source(defaultMedia.mediaKey),
-                                             label: defaultMedia.mediaKey.filename)
-            let portValue = PortValue.asyncMedia(mediaValue)
+            // TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+            log("FIX DEFAULT MEDIA WITH STITCHAPPCLIP")
+            break
             
-            graph.mediaPickerChanged(selectedValue: portValue,
-                                     mediaType: mediaType,
-                                     rowObserver: rowObserver,
-                                     activeIndex: activeIndex,
-                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+//            let mediaValue = AsyncMediaValue(id: .init(),
+//                                             dataType: .source(defaultMedia.mediaKey),
+//                                             label: defaultMedia.mediaKey.filename)
+//            let portValue = PortValue.asyncMedia(mediaValue)
+//            
+//            graph.mediaPickerChanged(selectedValue: portValue,
+//                                     mediaType: mediaType,
+//                                     rowObserver: rowObserver,
+//                                     activeIndex: activeIndex,
+//                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
     }
 }

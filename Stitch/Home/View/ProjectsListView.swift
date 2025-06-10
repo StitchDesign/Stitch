@@ -34,7 +34,7 @@ struct ProjectsListView: View {
 
     var body: some View {
         ZStack {
-            Stitch.APP_BACKGROUND_COLOR.zIndex(-1).edgesIgnoringSafeArea(.all)
+            APP_BACKGROUND_COLOR.zIndex(-1).edgesIgnoringSafeArea(.all)
 
             ProjectsScrollView {
                 ForEach(projects) { projectLoader in

@@ -1,0 +1,8 @@
+{
+  "applinks": { "apps": [], "details": [
+    { "appID":"NZ8X6FS3PU.app.stitchdesign.stitch", "paths":["/clip/*"] }
+  ]},
+  "appclips": { "apps": [
+    { "appID":"NZ8X6FS3PU.app.stitchdesign.stitch.Clip", "paths":["/clip/*"] }
+  ]}
+}

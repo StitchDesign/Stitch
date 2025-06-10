@@ -143,7 +143,7 @@ extension [Int] {
      */
 
     func asLoopInsertFriendlyIndices(_ originalLoopLength: Int) -> [Int] {
-        Stitch.getLoopInsertFriendlyIndices(self, originalLoopLength)
+        StitchAppClip.getLoopInsertFriendlyIndices(self, originalLoopLength)
     }
 }
 

@@ -40,7 +40,7 @@ struct LightnessSliderView: View {
                 .toColor
 
         }  bubbleUpdate: { color in
-            var newPosition = Stitch.transition(
+            var newPosition = StitchAppClip.transition(
                 color.lightness,
                 start: 0,
                 end: HSLSliderView.sliderGradientHeight - HSLSliderView.circleWidth)

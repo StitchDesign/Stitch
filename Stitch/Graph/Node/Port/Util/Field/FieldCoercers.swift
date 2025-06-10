@@ -132,7 +132,7 @@ extension PortValue {
             }
             
         case .transform(var transform):
-            let num = Stitch.toNumber(fieldValue.stringValue) ?? .zero
+            let num = StitchAppClip.toNumber(fieldValue.stringValue) ?? .zero
             
             switch fieldIndex {
             case 0:

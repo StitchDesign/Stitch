@@ -205,7 +205,7 @@ final actor VisionOpActor {
 
 extension [VNClassificationObservation] {
     func mostConfidentLabel() -> VNClassificationObservation? {
-        Stitch.mostConfidentLabel(labels: self)
+        StitchAppClip.mostConfidentLabel(labels: self)
     }
 }
 

@@ -16,7 +16,8 @@ func retrieveBundleResource(forResource: String, withExtension: String = "usdz")
     return urlPath!
 }
 
-let default3DModelToyRobotAsset = retrieveBundleResource(forResource: "Vintage Toy Robot")
+// TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+// let default3DModelToyRobotAsset = retrieveBundleResource(forResource: "Vintage Toy Robot")
 
 struct Model3DLayerNode: LayerNodeDefinition {
     

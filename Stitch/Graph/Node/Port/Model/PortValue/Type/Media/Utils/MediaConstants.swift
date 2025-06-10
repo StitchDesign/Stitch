@@ -39,17 +39,18 @@ enum DefaultMediaOption: CaseIterable {
     case objectDetectionYolo
 }
 
-extension DefaultMediaOption {    
-    var url: URL {
-        switch self {
-        case .model3dToyRobot:
-            return default3DModelToyRobotAsset
-        case .imageClassifierResnet:
-            return CORE_ML_CLASSIFICATION_RESNET50_URL
-        case .objectDetectionYolo:
-            return CORE_ML_DETECTION_DEFAULT_URL
-        }
-    }
+extension DefaultMediaOption {
+    // TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+//    var url: URL {
+//        switch self {
+//        case .model3dToyRobot:
+//            return default3DModelToyRobotAsset
+//        case .imageClassifierResnet:
+//            return CORE_ML_CLASSIFICATION_RESNET50_URL
+//        case .objectDetectionYolo:
+//            return CORE_ML_DETECTION_DEFAULT_URL
+//        }
+//    }
     
     var name: String {
         switch self {
@@ -62,9 +63,10 @@ extension DefaultMediaOption {
         }
     }
     
-    var mediaKey: MediaKey {
-        self.url.mediaKey
-    }
+    // TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+//    var mediaKey: MediaKey {
+//        self.url.mediaKey
+//    }
     
     static func getDefaultOptions(for nodeKind: NodeKind,
                                   coordinate: InputCoordinate,
@@ -104,17 +106,21 @@ extension DefaultMediaOption {
     
     /// Determines if some media is one of the provided default options given some `PortValue` media payload.
     static func findDefaultOption(from media: AsyncMediaValue) -> DefaultMediaOption? {
-        DefaultMediaOption.allCases.first(where: { $0.mediaKey == media.mediaKey })
+        // TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+        // DefaultMediaOption.allCases.first(where: { $0.mediaKey == media.mediaKey })
+        nil
     }
 }
 
-let CORE_ML_CLASSIFICATION_RESNET50_URL: URL = Resnet50.urlOfModelInThisBundle
+// TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+// let CORE_ML_CLASSIFICATION_RESNET50_URL: URL = Resnet50.urlOfModelInThisBundle
 
 // MARK: - CORE ML DETECTION
 
 let YOLOv3TINY_STRING = "YOLOv3Tiny"
 
-let CORE_ML_DETECTION_DEFAULT_URL: URL = YOLOv3Tiny.urlOfModelInThisBundle
+// TODO: JUNE 9: how to handle media defaults in StitchAppClip ?
+// let CORE_ML_DETECTION_DEFAULT_URL: URL = YOLOv3Tiny.urlOfModelInThisBundle
 
 // MARK: - 3D MODEL
 

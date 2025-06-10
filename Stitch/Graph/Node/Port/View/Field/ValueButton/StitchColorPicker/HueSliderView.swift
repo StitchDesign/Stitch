@@ -15,7 +15,7 @@ struct HueSliderView: View {
                 .toColor
         } bubbleUpdate: { color in
             log("HuePickerView: bubbleUpdate: color.hue: \(color.hue)")
-            let newPosition = Stitch.transition(
+            let newPosition = StitchAppClip.transition(
                 color.hue,
                 start: 0,
                 end: HSLSliderView.sliderGradientHeight - HSLSliderView.circleWidth)

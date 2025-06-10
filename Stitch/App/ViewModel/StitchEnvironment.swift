@@ -18,7 +18,7 @@ final class StitchEnvironment: Sendable {
     @MainActor weak var store: StitchStore?
 
     @MainActor
-    init(fileManager: StitchFileManager = StitchFileManager()) {
+    init(fileManager: StitchFileManager? = nil) {
 
         self.undoManager = StitchUndoManager()
 
@@ -28,7 +28,7 @@ final class StitchEnvironment: Sendable {
         // while visible.
         let docsUrl = StitchFileManager.documentsURL
         self.dirObserver = DirectoryObserver(url: docsUrl)
-        self.fileManager = fileManager
+        self.fileManager = fileManager ?? .init()
 
         self.store = store
     }

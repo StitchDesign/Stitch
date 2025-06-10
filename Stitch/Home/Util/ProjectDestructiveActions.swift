@@ -44,7 +44,7 @@ extension StitchStore {
             // Displays toast UI on projects screen
             
             // TODO: fix 'Undo Delete' on iPhone
-            if !Stitch.isPhoneDevice {
+            if !StitchAppClip.isPhoneDevice {
                 self.alertState.deletedGraphId = .init(projectId)
             }
             // self.alertState.deletedGraphId = projectId
