@@ -218,7 +218,7 @@ extension UserVisibleType {
         case .fitStyle:
             return .fitStyle(.defaultMediaFitStyle)
         case .animationCurve:
-            return .animationCurve(defaultAnimationCurve)
+            return .animationCurve(.defaultAnimationCurve)
         case .lightType:
             return .lightType(defaultLightType)
         case .layerStroke:

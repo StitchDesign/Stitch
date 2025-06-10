@@ -13,7 +13,7 @@ let STITCH_MAX_GRAPH_FPS: CGFloat = 120
 
 /// Convert a current, actual FPS (e.g. 88 FPS) to a progress along our min 0, max 120 graph FPS spectrum
 func fpsAlongSpectrum(_ n: StitchFPS) -> Double {
-    let x = progress(n.value,
+    let x = progressByStep(n.value,
                      start: STITCH_MIN_GRAPH_FPS,
                      end: STITCH_MAX_GRAPH_FPS)
 

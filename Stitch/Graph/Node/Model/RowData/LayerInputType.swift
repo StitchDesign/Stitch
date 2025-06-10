@@ -134,7 +134,7 @@ extension LayerInputPort {
         case .strokeWidth:
             return .number(4)
         case .strokeColor:
-            return .color(falseColor)
+            return .color(falseColorStitch)
         case .strokeStart:
             return .number(.zero)
         case .strokeEnd:

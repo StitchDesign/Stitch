@@ -63,7 +63,7 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             sfSymbol: viewModel.sfSymbol.getString?.string ?? "",
-            color: viewModel.color.getColor ?? falseColor,
+            color: viewModel.color.getColor ?? falseColorStitch,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.getNumber ?? .zero,
             rotationY: viewModel.rotationY.getNumber ?? .zero,

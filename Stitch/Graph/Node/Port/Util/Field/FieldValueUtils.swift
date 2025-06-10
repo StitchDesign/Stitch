@@ -276,7 +276,7 @@ extension PortValue {
             return [[.pulse(pulseTime)]]
 
         case .color:
-            let color = self.getColor ?? falseColor
+            let color = self.getColor ?? falseColorStitch
             return [[.color(color)]]
 
         case .json:

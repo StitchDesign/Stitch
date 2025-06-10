@@ -132,7 +132,7 @@ extension PortValue {
             }
             
         case .transform(var transform):
-            let num = StitchAppClip.toNumber(fieldValue.stringValue) ?? .zero
+            let num = toNumberViaSoulver(fieldValue.stringValue) ?? .zero
             
             switch fieldIndex {
             case 0:
@@ -169,7 +169,7 @@ func positionParent(_ position: StitchPosition,
                     _ fieldIndex: Int,
                     _ edit: String) -> StitchPosition? {
 
-    let number = toNumber(edit)
+    let number = toNumberViaSoulver(edit)
 
     if let number = number {
         if fieldIndex == 0 {
@@ -189,7 +189,7 @@ func point3DParent(_ point3D: Point3D,
                    _ fieldIndex: Int,
                    _ edit: String) -> Point3D? {
 
-    let number = toNumber(edit)
+    let number = toNumberViaSoulver(edit)
 
     if let number = number {
         if fieldIndex == 0 {
@@ -216,7 +216,7 @@ func point4DParent(_ point4D: Point4D,
                    _ fieldIndex: Int,
                    _ edit: String) -> Point4D? {
 
-    let number = toNumber(edit)
+    let number = toNumberViaSoulver(edit)
 
     if let number = number {
         if fieldIndex == 0 {
@@ -269,7 +269,7 @@ func paddingParent(_ padding: StitchPadding,
                    _ fieldIndex: Int,
                    _ edit: String) -> StitchPadding? {
 
-    let number = toNumber(edit)
+    let number = toNumberViaSoulver(edit)
 
     if let number = number {
         if fieldIndex == PADDING_TOP_FIELD_INDEX {

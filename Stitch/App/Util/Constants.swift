@@ -29,8 +29,8 @@ extension Color {
     static let THEMED_TITLE_FONT_COLOR: Color = Color(.titleFont)
 }
 
-let trueColor = Color.white
-let falseColor = Color.black
+let trueColorStitch = Color.white
+let falseColorStitch = Color.black
 
 /* ----------------------------------------------------------------
  -- MARK: MEASUREMENTS

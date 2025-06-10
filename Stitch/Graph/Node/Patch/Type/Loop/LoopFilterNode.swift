@@ -53,9 +53,9 @@ func loopFilterEval(inputs: PortValuesList,
     let includeLoop: [Int] = inputs[1].map { Int($0.getNumber ?? 0.0) }
 
     let longestLoopLength: Int = getLongestLoopLength(inputs)
-    let extendedInputLoop = lengthenArray(loop: inputLoop,
+    let extendedInputLoop = lengthenArrayT(loop: inputLoop,
                                           length: longestLoopLength)
-    let extendedIncludeLoop = lengthenArray(loop: includeLoop,
+    let extendedIncludeLoop = lengthenArrayT(loop: includeLoop,
                                             length: longestLoopLength)
 
     //    log("loopFilterEval: inputLoop: \(inputLoop)")

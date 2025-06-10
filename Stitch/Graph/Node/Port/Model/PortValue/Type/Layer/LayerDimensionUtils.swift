@@ -30,7 +30,7 @@ import StitchSchemaKit
 // only do the
 func parsePercentage(_ edit: String) -> Double? {
     if let last = edit.last, last == "%" {
-        return toNumber(String(edit.dropLast()))
+        return toNumberViaSoulver(String(edit.dropLast()))
     }
     return nil
 }
@@ -113,7 +113,7 @@ extension LayerDimension {
             return .hug
         } else if let n = parsePercentage(edit) {
             return .parentPercent(n)
-        } else if let n = toNumber(edit) {
+        } else if let n = toNumberViaSoulver(edit) {
             return .number(CGFloat(n))
         } else {
             return nil

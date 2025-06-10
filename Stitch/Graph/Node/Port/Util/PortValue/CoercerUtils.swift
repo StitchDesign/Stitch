@@ -11,8 +11,8 @@ import SwiftUI
 import CoreML
 
 extension PortValue {
-    func coerceToTruthyOrFalsey(_ graphTime: TimeInterval) -> Bool {
-        StitchAppClip.coerceToTruthyOrFalsey(self, graphTime: graphTime)
+    func coerceToTruthOrFalse(_ graphTime: TimeInterval) -> Bool {
+        coerceToTruthyOrFalsey(self, graphTime: graphTime)
     }
 }
 
@@ -38,7 +38,7 @@ func coerceToTruthyOrFalsey(_ value: PortValue,
     case .string(let x):
         return x.string != ""
     case .color(let x):
-        return x != falseColor
+        return x != falseColorStitch
     case .pulse(let x):
         // A pulse is true if we're 
         return x == graphTime && graphTime != .zero

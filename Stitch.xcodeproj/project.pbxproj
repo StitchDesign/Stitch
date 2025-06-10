@@ -1594,8 +1594,6 @@
 		EC9486A22AE1ACED00B51AB1 /* LayerHoveredActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9486A12AE1ACEC00B51AB1 /* LayerHoveredActions.swift */; };
 		EC9486A42AE2007800B51AB1 /* HoverGestureModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */; };
 		EC95748729B0231200048382 /* ProjectsHomeCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC95748629B0231200048382 /* ProjectsHomeCommands.swift */; };
-		EC96ABB22DF7CA590034C2CE /* MySharedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC96ABB12DF7CA590034C2CE /* MySharedView.swift */; };
-		EC96ABB32DF7CA7F0034C2CE /* MySharedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC96ABB12DF7CA590034C2CE /* MySharedView.swift */; };
 		EC96ABB72DF7CDAB0034C2CE /* NonEmpty in Frameworks */ = {isa = PBXBuildFile; productRef = EC96ABB62DF7CDAB0034C2CE /* NonEmpty */; };
 		EC96ABB92DF7CDAB0034C2CE /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = EC96ABB82DF7CDAB0034C2CE /* Tagged */; };
 		EC96ABBB2DF7CDAB0034C2CE /* TaggedMoney in Frameworks */ = {isa = PBXBuildFile; productRef = EC96ABBA2DF7CDAB0034C2CE /* TaggedMoney */; };
@@ -2782,7 +2780,6 @@
 		EC9486A12AE1ACEC00B51AB1 /* LayerHoveredActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerHoveredActions.swift; sourceTree = "<group>"; };
 		EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverGestureModifier.swift; sourceTree = "<group>"; };
 		EC95748629B0231200048382 /* ProjectsHomeCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsHomeCommands.swift; sourceTree = "<group>"; };
-		EC96ABB12DF7CA590034C2CE /* MySharedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MySharedView.swift; sourceTree = "<group>"; };
 		EC96B0452B8D097D00B58227 /* MoveToPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveToPackNode.swift; sourceTree = "<group>"; };
 		EC98130E2AB247C600828A20 /* DrawnEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawnEdge.swift; sourceTree = "<group>"; };
 		EC981F73273049F800B25F14 /* sidebarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sidebarTests.swift; sourceTree = "<group>"; };
@@ -4364,7 +4361,6 @@
 			isa = PBXGroup;
 			children = (
 				200BD85A254F66EB00692903 /* StitchApp.swift */,
-				EC96ABB12DF7CA590034C2CE /* MySharedView.swift */,
 				8B2A221826A3B5BE002D08BA /* FeatureFlags.swift */,
 				B5EE9A972DE68FB000DB85C3 /* Documentation */,
 				B5617A7C2C175C5500B53DAF /* Resources */,
@@ -6909,7 +6905,6 @@
 				ECC2BCE52B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift in Sources */,
 				EC17549328B9753800968D65 /* UIDeviceUtils.swift in Sources */,
 				EC49149C2935965000D74344 /* TextLengthNode.swift in Sources */,
-				EC96ABB22DF7CA590034C2CE /* MySharedView.swift in Sources */,
 				EC211E222DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift in Sources */,
 				ECE708682B8D4ADA009F4525 /* LineToPackNode.swift in Sources */,
 				B541060028694AD7000688CA /* MediaUtil.swift in Sources */,
@@ -7385,7 +7380,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EC96ABB32DF7CA7F0034C2CE /* MySharedView.swift in Sources */,
 				43D902930466520A86B3A596 /* ProjectDestructiveActions.swift in Sources */,
 				7D0712065EC055EAFE5D48F6 /* ComponentActions.swift in Sources */,
 				2EBFE872B150E2AC72A2799F /* ProjectCreatedActions.swift in Sources */,

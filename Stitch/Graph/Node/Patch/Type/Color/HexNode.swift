@@ -14,7 +14,7 @@ func hexNode(id: NodeId,
              position: CGPoint = .zero,
              zIndex: Double = 0) -> PatchNode {
 
-    let defaultColor = falseColor
+    let defaultColor = falseColorStitch
     let hexStringForDefaultColor = defaultColor.asHexDisplay
     
     let inputs = toInputs(
@@ -40,7 +40,7 @@ func hexEval(inputs: PortValuesList,
     let op: Operation = { (values: PortValues) -> PortValue in
 
         if let hex = values[0].getString?.string {
-            let color = UIColor(hex: hex)?.toColor ?? falseColor
+            let color = UIColor(hex: hex)?.toColor ?? falseColorStitch
             return .color(color)
         } else {
             log("HexEval: could not convert hex to color...")

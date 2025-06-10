@@ -66,11 +66,11 @@ extension PortValue {
                 // log("toNumber: n \(n)")
                 return n
             } else {
-                return self.coerceToTruthyOrFalsey(graphTime) ? .numberDefaultTrue : .numberDefaultFalse
+                return self.coerceToTruthOrFalse(graphTime) ? .numberDefaultTrue : .numberDefaultFalse
             }
             
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none, .keyboardType:
-            return self.coerceToTruthyOrFalsey(graphTime) ? .numberDefaultTrue : .numberDefaultFalse
+            return self.coerceToTruthOrFalse(graphTime) ? .numberDefaultTrue : .numberDefaultFalse
         }
     }
 }
@@ -89,7 +89,7 @@ extension PortValue {
         
         // port-value to use if we cannot coerce the value
         // to a meaningful LayerDimension
-        let defaultValue: LayerDimension = .number(value.coerceToTruthyOrFalsey(graphTime) ? 1.0 : .zero)
+        let defaultValue: LayerDimension = .number(value.coerceToTruthOrFalse(graphTime) ? 1.0 : .zero)
 
         switch value {
 
@@ -150,7 +150,7 @@ func sizeCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
 
 extension PortValue {
     func coerceToSize(_ graphTime: TimeInterval) -> LayerSize {
-        let defaultValue: LayerSize = self.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
+        let defaultValue: LayerSize = self.coerceToTruthOrFalse(graphTime) ? .defaultTrue : .defaultFalse
         
         switch self {
         case .size(let x):
@@ -238,7 +238,7 @@ extension PortValue {
         case .padding(let x):
             return .init(x: x.top, y: x.bottom)
         case .string(let x):
-            if let dimension = StitchAppClip.toNumber(x.string) {
+            if let dimension = toNumberViaSoulver(x.string) {
                 return .init(x: dimension, y: dimension)
             }
             return .defaultTrue
@@ -250,7 +250,7 @@ extension PortValue {
                 case .number(let k):
                     return .init(x: k, y: k)
                 case .string:
-                    if let dimension = StitchAppClip.toNumber(x.string) {
+                    if let dimension = toNumberViaSoulver(x.string) {
                         return .init(x: dimension, y: dimension)
                     }
                     return .defaultTrue
@@ -261,7 +261,7 @@ extension PortValue {
             return .defaultFalse
             
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none, .keyboardType:
-            return value.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
+            return value.coerceToTruthOrFalse(graphTime) ? .defaultTrue : .defaultFalse
         }
     }
 }
@@ -300,7 +300,7 @@ extension PortValue {
         case .padding(let x):
             return .fromSingleNumber(x.asNumber)
         case .string(let x):
-            if let dimension = StitchAppClip.toNumber(x.string) {
+            if let dimension = toNumberViaSoulver(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultTrue
@@ -312,7 +312,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = StitchAppClip.toNumber(x.string) {
+                    if let dimension = toNumberViaSoulver(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue
@@ -322,7 +322,7 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none, .keyboardType:
-            return self.coerceToTruthyOrFalsey(graphTime) ? Point3D.multiplicationIdentity : .zero
+            return self.coerceToTruthOrFalse(graphTime) ? Point3D.multiplicationIdentity : .zero
         }
     }
 }
@@ -357,7 +357,7 @@ extension PortValue {
         case .padding(let x):
             return .fromSingleNumber(x.asNumber)
         case .string(let x):
-            if let dimension = StitchAppClip.toNumber(x.string) {
+            if let dimension = toNumberViaSoulver(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultTrue
@@ -369,7 +369,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = StitchAppClip.toNumber(x.string) {
+                    if let dimension = toNumberViaSoulver(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue
@@ -379,7 +379,7 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .none, .keyboardType:
-            return self.coerceToTruthyOrFalsey(graphTime) ? .multiplicationIdentity : .empty
+            return self.coerceToTruthOrFalse(graphTime) ? .multiplicationIdentity : .empty
         }
     }
 }
@@ -424,7 +424,7 @@ extension PortValue {
             return .fromSingleNumber(x.asNumber)
         
         case .string(let x):
-            if let dimension = StitchAppClip.toNumber(x.string) {
+            if let dimension = toNumberViaSoulver(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultFalse
@@ -436,7 +436,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = StitchAppClip.toNumber(x.string) {
+                    if let dimension = toNumberViaSoulver(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue
@@ -446,7 +446,7 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .anchorEntity, .json, .none, .keyboardType:
-            return self.coerceToTruthyOrFalsey(graphTime) ? .defaultTrue : .defaultFalse
+            return self.coerceToTruthOrFalse(graphTime) ? .defaultTrue : .defaultFalse
         }
         
     }
@@ -512,7 +512,7 @@ extension PortValue {
             return x
         
         case .string(let x):
-            if let dimension = StitchAppClip.toNumber(x.string) {
+            if let dimension = toNumberViaSoulver(x.string) {
                 return .fromSingleNumber(dimension)
             }
             return .defaultFalse
@@ -524,7 +524,7 @@ extension PortValue {
                 case .number(let k):
                     return .fromSingleNumber(k)
                 case .string:
-                    if let dimension = StitchAppClip.toNumber(x.string) {
+                    if let dimension = toNumberViaSoulver(x.string) {
                         return .fromSingleNumber(dimension)
                     }
                     return .defaultTrue
@@ -534,7 +534,7 @@ extension PortValue {
             }
             return .defaultFalse
         case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .json, .anchorEntity, .none, .keyboardType:
-            return self.coerceToTruthyOrFalsey(graphTime) ? .multiplicationIdentity : .empty
+            return self.coerceToTruthOrFalse(graphTime) ? .multiplicationIdentity : .empty
         }
     }
 }

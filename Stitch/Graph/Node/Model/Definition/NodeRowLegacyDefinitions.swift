@@ -1292,7 +1292,7 @@ extension PatchOrLayer {
                 return .init(
                     inputs: [
                         .init(
-                            defaultValues: [.color(falseColor)],
+                            defaultValues: [.color(falseColorStitch)],
                             label: ""
                         )
                     ],
@@ -1320,7 +1320,7 @@ extension PatchOrLayer {
                 return .init(
                     inputs: [
                         .init(
-                            defaultValues: [.color(falseColor)],
+                            defaultValues: [.color(falseColorStitch)],
                             label: "Color"
                         )
                     ],
@@ -1336,7 +1336,7 @@ extension PatchOrLayer {
                 return .init(
                     inputs: [
                         .init(
-                            defaultValues: [.color(falseColor)],
+                            defaultValues: [.color(falseColorStitch)],
                             label: ""
                         )
                     ],
@@ -2172,7 +2172,7 @@ extension PatchOrLayer {
                 return .init(
                     inputs: [
                         .init(
-                            defaultValues: [.color(falseColor)],
+                            defaultValues: [.color(falseColorStitch)],
                             label: "Color"
                         ),
                         .init(
@@ -2220,7 +2220,7 @@ extension PatchOrLayer {
                             label: "Stroke Width"
                         ),
                         .init(
-                            defaultValues: [.color(falseColor)],
+                            defaultValues: [.color(falseColorStitch)],
                             label: "Stroke Color"
                         ),
                         .init(

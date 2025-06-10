@@ -212,7 +212,7 @@ func exponentialInOutAnimation(t: Double, // currentTime
 
 extension ClassicAnimationCurve {
 
-    static let defaultAnimationCurve = StitchAppClip.defaultAnimationCurve
+    static let defaultAnimationCurve: Self = .linear
 
     // We re-use our `t, b, c, d` formula from animation,
     // but supply defaults for every value except `t`.

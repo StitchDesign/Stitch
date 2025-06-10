@@ -29,7 +29,7 @@ func transitionNode(id: NodeId,
         ("End", n3Loop ?? [.number(end)])
     )
 
-    let prelimResult: Double = transition(
+    let prelimResult: Double = slopeTransition(
         progress,
         start: start,
         end: end)
@@ -90,7 +90,7 @@ func transitionEval(inputs: PortValuesList,
 // how many times we've run, how far we are into the duration,
 // then we interpolate into the two numbers
 
-func transition(_ n: Double,
+func slopeTransition(_ n: Double,
                 start: Double = 50,
                 end: Double = 100) -> Double {
     let slope = (start - end) / (0 - 1)
@@ -105,7 +105,7 @@ func transition(_ n: Double,
         return n < 0.5 ? start : end
     }
     
-    let result = transition(n,
+    let result = slopeTransition(n,
                             start: startNumber,
                             end: endNumber)
     return .number(result)
@@ -129,7 +129,7 @@ struct TransitionEvalOps {
             return .number(.zero)
             }
         
-        return .number(transition(progress,
+        return .number(slopeTransition(progress,
                                   start: start,
                                   end: end))
     }
@@ -143,11 +143,11 @@ struct TransitionEvalOps {
             return .anchoring(.topLeft)
         }
 
-        let x = transition(progress,
+        let x = slopeTransition(progress,
                                start: start.x,
                                end: end.x)
 
-        let y = transition(progress,
+        let y = slopeTransition(progress,
                                 start: start.y,
                                 end: end.y)
 
@@ -163,11 +163,11 @@ struct TransitionEvalOps {
             return .position(.zero)
         }
 
-        let width = transition(progress,
+        let width = slopeTransition(progress,
                                start: start.x,
                                end: end.x)
 
-        let height = transition(progress,
+        let height = slopeTransition(progress,
                                 start: start.y,
                                 end: end.y)
 
@@ -205,15 +205,15 @@ struct TransitionEvalOps {
             return .point3D(.zero)
         }
         
-        let x = transition(progress,
+        let x = slopeTransition(progress,
                            start: start.x,
                            end: end.x)
 
-        let y = transition(progress,
+        let y = slopeTransition(progress,
                            start: start.y,
                            end: end.y)
 
-        let z = transition(progress,
+        let z = slopeTransition(progress,
                            start: start.z,
                            end: end.z)
 
@@ -229,19 +229,19 @@ struct TransitionEvalOps {
             return colorDefaultFalse
         }
 
-        let red = transition(progress,
+        let red = slopeTransition(progress,
                              start: start.red,
                              end: end.red)
 
-        let green = transition(progress,
+        let green = slopeTransition(progress,
                                start: start.green,
                                end: end.green)
 
-        let blue = transition(progress,
+        let blue = slopeTransition(progress,
                               start: start.blue,
                               end: end.blue)
 
-        let alpha = transition(progress,
+        let alpha = slopeTransition(progress,
                                start: start.alpha,
                                end: end.alpha)
 
@@ -260,19 +260,19 @@ struct TransitionEvalOps {
             return .point4D(.zero)
         }
 
-        let x = transition(progress,
+        let x = slopeTransition(progress,
                            start: start.x,
                            end: end.x)
 
-        let y = transition(progress,
+        let y = slopeTransition(progress,
                            start: start.y,
                            end: end.y)
 
-        let z = transition(progress,
+        let z = slopeTransition(progress,
                            start: start.z,
                            end: end.z)
         
-        let w = transition(progress,
+        let w = slopeTransition(progress,
                            start: start.w,
                            end: end.w)
 

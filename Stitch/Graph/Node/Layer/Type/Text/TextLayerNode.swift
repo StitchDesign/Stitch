@@ -86,7 +86,7 @@ struct TextLayerNode: LayerNodeDefinition {
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             text: viewModel.text.display,
-            color: viewModel.color.getColor ?? falseColor,
+            color: viewModel.color.getColor ?? falseColorStitch,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.asCGFloat,
             rotationY: viewModel.rotationY.asCGFloat,

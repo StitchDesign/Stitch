@@ -229,12 +229,12 @@ func cubicBezierProgress(start: CGFloat,
     let p1: CGPoint = firstControlPoint
     let p2: CGPoint = secondControlPoint
 
-    let xResult = StitchAppClip.transition(
+    let xResult = slopeTransition(
         cubicBezierN(t: thisStep, n0: p0.x, n1: p1.x, n2: p2.x, n3: p3.x),
         start: start,
         end: end)
 
-    let yResult = StitchAppClip.transition(
+    let yResult = slopeTransition(
         cubicBezierN(t: thisStep, n0: p0.y, n1: p1.y, n2: p2.y, n3: p3.y),
         start: start,
         end: end)
@@ -243,7 +243,7 @@ func cubicBezierProgress(start: CGFloat,
 
     // the current step as a matter of progress
     // a number within interveral [0, 1]
-    let progress = StitchAppClip.progress(thisStep, start: 0, end: 1)
+    let progress = progressByStep(thisStep, start: 0, end: 1)
 
     let progressAlongCurve = cubicBezierJS(
         p1x: p1.x,
@@ -254,7 +254,7 @@ func cubicBezierProgress(start: CGFloat,
         // cubicBezier progress-along-curve formula expects time in milliseconds
         duration: duration * 1000)
 
-    let resultNumber = StitchAppClip.transition(progressAlongCurve,
+    let resultNumber = slopeTransition(progressAlongCurve,
                                          start: start,
                                          end: end)
 

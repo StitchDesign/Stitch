@@ -200,7 +200,7 @@ extension StitchDocumentViewModel {
         self.reduxFocusedFieldChangedByArrowKey = nil
                 
         // If we had a regular, non-percentage number:
-        if let n: Double = toNumber(currentEdit) {
+        if let n: Double = toNumberViaSoulver(currentEdit) {
             switch arrowKey {
             case .upArrow:
                 return (n + 1).formattedForFieldDisplay()

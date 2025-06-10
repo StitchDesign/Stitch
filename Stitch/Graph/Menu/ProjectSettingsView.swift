@@ -246,7 +246,7 @@ struct ProjectSettingsView: View {
             isFieldInsideLayerInspector: false,
             isForFlyout: false,
             isForPreviewWindowBackgroundPicker: true,
-            isForIPhone: isPhoneDevice,
+            isForIPhone: isPhoneDevice_GLOBAL,
             isMultiselectInspectorInputWithHeterogenousValues: false,
             activeIndex: .init(.zero),
             chosenColor: binding,

@@ -91,7 +91,7 @@ final class FullScreenGestureCoordinator: NSObject, UIGestureRecognizerDelegate 
         // guarantees tip won't show again (iphone only)
         exitTip.invalidate(reason: .actionPerformed)
         
-        if isPhoneDevice {
+        if isPhoneDevice_GLOBAL {
             // iPhone never persists a project
             dispatch(CloseGraph())
         } else {

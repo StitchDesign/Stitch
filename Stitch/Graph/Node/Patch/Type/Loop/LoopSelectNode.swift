@@ -50,8 +50,8 @@ struct LoopSelectNode: PatchNodeDefinition {
         // and so we can't use op, etc.
         
         let longestLoopLength: Int = getLongestLoopLength(inputs)
-        let adjustedValueLoop = lengthenArray(loop: valueLoop, length: longestLoopLength)
-        let adjustedIndexLoop = lengthenArray(loop: indexLoop, length: longestLoopLength)
+        let adjustedValueLoop = lengthenArrayT(loop: valueLoop, length: longestLoopLength)
+        let adjustedIndexLoop = lengthenArrayT(loop: indexLoop, length: longestLoopLength)
         
         // The Index Loop input's values could be [7, 8, 9],
         // i.e. indices we don't have;
@@ -143,7 +143,7 @@ extension [Int] {
      */
 
     func asLoopInsertFriendlyIndices(_ originalLoopLength: Int) -> [Int] {
-        StitchAppClip.getLoopInsertFriendlyIndices(self, originalLoopLength)
+        getLoopInsertFriendlyIndices(self, originalLoopLength)
     }
 }
 

@@ -37,7 +37,7 @@ struct ProjectsHomeViewWrapper: View {
                 #endif
 
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    if isPhoneDevice {
+                    if isPhoneDevice_GLOBAL {
                         iPadTopBarButton(
                             action: SHOW_APP_SETTINGS_ACTION,
                             iconName: APP_SETTINGS_ICON_NAME)

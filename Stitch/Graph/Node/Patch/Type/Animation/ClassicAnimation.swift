@@ -44,7 +44,7 @@ func asClassicAnimationFrameRate(_ n: Double) -> Double {
     //                          start: STITCH_MIN_CLASSIC_ANIMATION_FRAME_RATE, // 0 FPS
     //                          end: STITCH_MAX_CLASSIC_ANIMATION_FRAME_RATE) // 120 FPS
 
-    let rate = transition(n,
+    let rate = slopeTransition(n,
                           start: 0, // 0 FPS
                           end: 60) // 120 FPS
 

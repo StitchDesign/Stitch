@@ -50,7 +50,7 @@ struct ProjectsHomeView: View {
             return false
         }
         
-        return !isPhoneDevice && allProjectUrls.isEmpty
+        return !isPhoneDevice_GLOBAL && allProjectUrls.isEmpty
     }
 
     var body: some View {

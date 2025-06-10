@@ -30,7 +30,7 @@ struct SaturationSliderView: View {
                 .toColor
 
         } bubbleUpdate: { color in
-            let newPosition = StitchAppClip.transition(
+            let newPosition = slopeTransition(
                 color.saturation,
                 start: 0,
                 end: HSLSliderView.sliderGradientHeight - HSLSliderView.circleWidth)

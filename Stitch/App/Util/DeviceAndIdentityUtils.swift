@@ -13,7 +13,7 @@ import CloudKit
 
 
 @MainActor
-let isPhoneDevice = UIDevice.current.userInterfaceIdiom == .phone
+let isPhoneDevice_GLOBAL = UIDevice.current.userInterfaceIdiom == .phone
 
 
 @MainActor

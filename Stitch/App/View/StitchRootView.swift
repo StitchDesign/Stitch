@@ -46,7 +46,7 @@ struct StitchRootView: View {
     
     var body: some View {
         ZStack {
-            if StitchAppClip.isPhoneDevice {
+            if isPhoneDevice_GLOBAL {
                 iPhoneBody
             } else {
                 splitView

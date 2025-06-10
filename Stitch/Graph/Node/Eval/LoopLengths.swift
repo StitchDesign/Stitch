@@ -68,7 +68,7 @@ func getLongestLoopLength<T>(_ inputs: [[T]]) -> Int {
 
 extension Array {
     func lengthenArray(_ length: Int) -> Self {
-        StitchAppClip.lengthenArray(loop: self, length: length)
+        lengthenArrayT(loop: self, length: length)
     }
     
     mutating func adjustArrayLength(to count: Int, creationCallback: @escaping () -> Element?) {
@@ -110,7 +110,7 @@ func adjustArrayLength<T>(loop: [T], length: Int) -> [T] {
     if currentLength == length {
         return loop
     } else if currentLength < length {
-        return lengthenArray(loop: loop, length: length)
+        return lengthenArrayT(loop: loop, length: length)
     }
     // currentLength > length; i.e. shortening the loop
     else {
@@ -118,7 +118,7 @@ func adjustArrayLength<T>(loop: [T], length: Int) -> [T] {
     }
 }
 
-func lengthenArray<T>(loop: [T], length: Int) -> [T] {
+func lengthenArrayT<T>(loop: [T], length: Int) -> [T] {
 
     // if the loop is empty, then just return immediately;
     // because otherwise you'll never break out of the `while` condition.
@@ -165,7 +165,7 @@ func getMaxCountAndLengthenedArrays<T>(_ inputs: [[T]],
     // But combine and extend the inputs and outputs TOGETHER,
     // since passed in previous-outputs become inputs to a node eval.
     let adjustedInputs: [[T]] = (allValues).map {
-        lengthenArray(loop: $0, length: longestLoopLength)
+        lengthenArrayT(loop: $0, length: longestLoopLength)
     }
 
     return (longestLoopLength, adjustedInputs)
@@ -175,7 +175,7 @@ func getLengthenedArrays<T>(_ loops: [[T]],
                             longestLoopLength: Int) -> [[T]] {
 
     let adjustedLoops: [[T]] = loops.map {
-        lengthenArray(loop: $0, length: longestLoopLength)
+        lengthenArrayT(loop: $0, length: longestLoopLength)
     }
 
     return adjustedLoops

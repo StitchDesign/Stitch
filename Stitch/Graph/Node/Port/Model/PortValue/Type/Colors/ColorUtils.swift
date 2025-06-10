@@ -13,8 +13,8 @@ func colorEqualityByHex(lhs: Color, rhs: Color) -> Bool {
 }
 
 extension Color {
-    static let trueColor = StitchAppClip.trueColor
-    static let falseColor = StitchAppClip.falseColor
+    static let trueColor = trueColorStitch
+    static let falseColor = falseColorStitch
 
     static let assortedColors: Set<Color> = Set([
         .blue,

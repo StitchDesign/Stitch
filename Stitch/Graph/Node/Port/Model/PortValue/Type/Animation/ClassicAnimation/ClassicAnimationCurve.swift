@@ -15,8 +15,6 @@ import StitchSchemaKit
  Good visualizations but irrelevant formulas?: https://easings.net/
  */
 
-let defaultAnimationCurve = ClassicAnimationCurve.linear
-
 // for `linear`:
 // previously: 0.0001
 let IS_SAME_DIFFERENCE_ALLOWANCE_LEGACY: CGFloat = 0.00001

@@ -35,7 +35,7 @@ struct TestIds: Equatable {
 
 extension UUID {
 
-    static let fakeNodeId: NodeId = StitchAppClip.fakeNodeId
+    static let fakeNodeId: NodeId = .randomNodeId
 
     static var randomNodeId: NodeId {
         UUID()

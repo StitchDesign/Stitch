@@ -89,7 +89,7 @@ struct FullScreenPreviewViewWrapper: View {
                 }
                 #endif
                 
-                if isPhoneDevice {
+                if isPhoneDevice_GLOBAL {
                     VStack {
                         TipView(self.exitTip)
                             .padding()
@@ -114,7 +114,7 @@ struct FullScreenPreviewViewWrapper: View {
                                       document: document.lastEncodedDocument)
             StitchButton(changeScaleString, action: showProjectSettingsAction)
             StitchButton(appResetString, action: appResetAction)
-            StitchButton(isPhoneDevice ? iPhoneExitString : exitString, action: closeGraphBtnAction)
+            StitchButton(isPhoneDevice_GLOBAL ? iPhoneExitString : exitString, action: closeGraphBtnAction)
             StitchButton(cancelString, role: .cancel) { }
                 .keyboardShortcut(.cancelAction)
         }

@@ -94,7 +94,7 @@ extension URL {
 
 
 /// Helper which determines unique file name out of an already-parsed list.
-func createUniqueFilename(filename: String,
+func createUniqueFilenameForMediaType(filename: String,
                           existingFilenames: [String],
                           mediaType: SupportedMediaFormat) -> String {
     var existingFilenames = existingFilenames

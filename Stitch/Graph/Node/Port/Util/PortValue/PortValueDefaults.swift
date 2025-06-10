@@ -33,8 +33,8 @@ extension Double {
 let layerDimensionDefaultTrue: PortValue = .layerDimension(LayerDimension.number(1))
 let layerDimensionDefaultFalse: PortValue = .layerDimension(LayerDimension.number(.zero))
 
-let colorDefaultTrue = PortValue.color(trueColor)
-let colorDefaultFalse = PortValue.color(falseColor)
+let colorDefaultTrue = PortValue.color(trueColorStitch)
+let colorDefaultFalse = PortValue.color(falseColorStitch)
 
 let defaultOpacityValue: PortValue = .number(1)
 let defaultLightPositionValue: PortValue = .position(CGPoint(x: 0, y: 10))
@@ -169,7 +169,7 @@ extension PortValue {
         case .fitStyle:
             return .fitStyle(.defaultMediaFitStyle)
         case .animationCurve:
-            return .animationCurve(defaultAnimationCurve)
+            return .animationCurve(.defaultAnimationCurve)
         case .lightType:
             return .lightType(defaultLightType)
         case .layerStroke:

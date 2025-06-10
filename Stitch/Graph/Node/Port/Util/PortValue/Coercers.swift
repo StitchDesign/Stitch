@@ -41,7 +41,7 @@ import SwiftyJSON
 // ... since boolParser just says "true" if the display string is non-empty,
 // whereas really, "0" is non-empty but falsey
 func boolCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
-    values.map { .bool($0.coerceToTruthyOrFalsey(graphTime)) }
+    values.map { .bool($0.coerceToTruthOrFalse(graphTime)) }
 }
 
 // ie port is expected to be of type String;
@@ -119,7 +119,7 @@ extension PortValue {
         case .string(let n):
             return .fromGrayscaleNumber(Double(n.string.count))
         default:
-            return self.coerceToTruthyOrFalsey(graphTime) ? Color.trueColor : Color.falseColor
+            return self.coerceToTruthOrFalse(graphTime) ? Color.trueColor : Color.falseColor
         }
     }
 }
@@ -437,7 +437,7 @@ func animationCurveCoercer(_ values: PortValues) -> PortValues {
         case .json(let x):
             return x.value.coerceJSONToPortValue(.animationCurve)
         default:
-            return .animationCurve(defaultAnimationCurve)
+            return .animationCurve(.defaultAnimationCurve)
         }
     }
 }

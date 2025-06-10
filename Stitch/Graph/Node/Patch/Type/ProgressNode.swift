@@ -54,7 +54,7 @@ func progressEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValues
         let end = values[2].getNumber ?? .zero
 
         // ie if n == n2, then just use n
-        var progress: Double = progress(n, start: start, end: end)
+        var progress: Double = progressByStep(n, start: start, end: end)
 
         // TODO: can we find a more principled way of handling this?
         // https://stackoverflow.com/questions/52983262/how-do-i-seperate-negative-zero-from-positive-zero
@@ -73,9 +73,9 @@ func progressEval(inputs: PortValuesList, outputs: PortValuesList) -> PortValues
     return resultsMaker(inputs)(op)
 }
 
-func progress(_ n: Double,
-              start: Double = 50,
-              end: Double = 100) -> Double {
+func progressByStep(_ n: Double,
+                    start: Double = 50,
+                    end: Double = 100) -> Double {
 
     (start - n) / ( start - end)
 }

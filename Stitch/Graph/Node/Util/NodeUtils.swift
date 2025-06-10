@@ -37,5 +37,3 @@ extension NodeKind {
         self == .layer(.image) || self == .layer(.video)
     }
 }
-
-let fakeNodeId: UUID = .randomNodeId

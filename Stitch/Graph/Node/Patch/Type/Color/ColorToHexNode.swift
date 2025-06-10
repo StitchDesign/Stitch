@@ -13,7 +13,7 @@ func colorToHexNode(id: NodeId,
                     position: CGPoint = .zero,
                     zIndex: Double = 0) -> PatchNode {
 
-    let color = falseColor
+    let color = falseColorStitch
 
     let inputs = toInputs(
         id: id,
@@ -36,7 +36,7 @@ func colorToHexEval(inputs: PortValuesList,
                     outputs: PortValuesList) -> PortValuesList {
 
     let op: Operation = { (values: PortValues) -> PortValue in
-        let color = values[0].getColor ?? falseColor
+        let color = values[0].getColor ?? falseColorStitch
         return .string(.init(color.asHexDisplay))
     }
 

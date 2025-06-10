@@ -113,7 +113,7 @@ func outputEvalHelper(input: PortValues,
 
     // we extend only the extensible inputs
     let adjustedInputs: PortValuesList = extensibleInputs.map { (values: [PortValue]) -> PortValues in
-        lengthenArray(loop: values, length: longestLoopLength)
+        lengthenArrayT(loop: values, length: longestLoopLength)
     }
 
     (0..<longestLoopLength).forEach { (index: Int) in

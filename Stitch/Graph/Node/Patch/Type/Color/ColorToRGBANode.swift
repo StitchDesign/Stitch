@@ -17,7 +17,7 @@ func colorToRGBANode(id: NodeId,
                      position: CGPoint = .zero,
                      zIndex: Double = 0) -> PatchNode {
 
-    let initialColor: Color = falseColor
+    let initialColor: Color = falseColorStitch
 
     let inputs = toInputs(
         id: id,

@@ -21,7 +21,7 @@ extension StitchAIPortValue_V0.NodeType {
         case .bool:
             return .bool(false)
         case .color:
-            return .color(falseColor)
+            return .color(falseColorStitch)
         // NOT CORRECT FOR size, position, point3D etc.
         // because eg position becomes
         case .size:

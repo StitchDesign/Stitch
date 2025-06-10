@@ -55,7 +55,7 @@ func comparableParser(_ userEdit: String) -> PortValue {
 // but maybe here is not the place to do so?
 // ... the problem is eg entering "9" and having it jump immediately to "9.0" with the cursor at the very end
 func numberParser(_ userEdit: String) -> PortValue {
-    .number(toNumber(userEdit) ?? (userEdit.isEmpty ? 0 : 1))
+    .number(toNumberViaSoulver(userEdit) ?? (userEdit.isEmpty ? 0 : 1))
 }
 
 // What happens if you can't parse a string-edit to a LayerDimension?
@@ -71,7 +71,7 @@ func spacingParser(_ userEdit: String) -> PortValue {
     }
     
     return .spacing(
-        toNumber(userEdit).map(StitchSpacing.number) ?? StitchSpacing.defaultStitchSpacing
+        toNumberViaSoulver(userEdit).map(StitchSpacing.number) ?? StitchSpacing.defaultStitchSpacing
     )
 }
 
@@ -89,7 +89,7 @@ func toNumberBasic(_ userEdit: String) -> Double? {
 }
 
 // Allows mathematical expressions.
-func toNumber(_ userEdit: String) -> Double? {
+func toNumberViaSoulver(_ userEdit: String) -> Double? {
     let result = Double(userEdit)
     if !result.isDefined {
         // https://github.com/davedelong/DDMathParser/wiki/Usage
@@ -105,7 +105,7 @@ func toNumber(_ userEdit: String) -> Double? {
 }
 
 func toNumberFromPercentage(_ userEdit: String) -> Double? {
-    toNumber(userEdit.replacing("%", with: ""))
+    toNumberViaSoulver(userEdit.replacing("%", with: ""))
 }
 
 extension Double {
@@ -170,7 +170,7 @@ func isValidEdit(_ oldValue: PortValue,
     case .string, .comparable:
         return true // string edits are always valid
     case .number:
-        return toNumber(userEdit).isDefined
+        return toNumberViaSoulver(userEdit).isDefined
     case .layerDimension:
         return LayerDimension.fromUserEdit(
             edit: userEdit).isDefined

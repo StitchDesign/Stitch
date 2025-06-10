@@ -205,11 +205,11 @@ final actor VisionOpActor {
 
 extension [VNClassificationObservation] {
     func mostConfidentLabel() -> VNClassificationObservation? {
-        StitchAppClip.mostConfidentLabel(labels: self)
+        mostConfidentLabelFromClassificationObservation(labels: self)
     }
 }
 
-func mostConfidentLabel(labels: [VNClassificationObservation]) -> VNClassificationObservation? {
+func mostConfidentLabelFromClassificationObservation(labels: [VNClassificationObservation]) -> VNClassificationObservation? {
     labels.max(by: {$0.confidence < $1.confidence }) ?? labels.first
 }
 
