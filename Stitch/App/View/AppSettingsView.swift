@@ -217,7 +217,7 @@ struct AppSettingsView: View {
                 .padding(.leading, 10)
             }
             
-            StitchCaptionView("Set the main camera used throughout your projects")
+            StitchCaptionView("Set the main camera used throughout your projects.")
         }
     }
 
@@ -242,7 +242,7 @@ struct AppSettingsView: View {
                 }
                 .padding(.leading, 10)
             } // HStack
-            StitchCaptionView("Set the theme used throughout the app")
+            StitchCaptionView("Set the theme used throughout the app.")
         } // VStack
     }
 
@@ -267,7 +267,7 @@ struct AppSettingsView: View {
                 }
                 .padding(.leading, 10)
             } // HStack
-            StitchCaptionView("Set the edge style used throughout the app")
+            StitchCaptionView("Set the edge style used throughout the app.")
         } // VStack
     }
 
@@ -279,14 +279,13 @@ struct AppSettingsView: View {
                     previewSizeDevice: .init(rawValue: defaultPreviewWindowDevice)!,
                     isForProject: false)
             }
-            StitchCaptionView("Set the default preview window device for new projects")
+            StitchCaptionView("Set the default preview window device for new projects.")
         }
     }
 
     @ViewBuilder
     var isOptionRequiredForShortcutsPicker: some View {
         let isRequired = self.isOptionRequiredForShortcuts
-        let icon: String = isRequired ? "checkmark.square" : "square"
         
         self.checkboxView(title: "Require Option Key for Shortcuts",
                           caption: "If true, `Option + O`, rather than just `O`, adds an Option Picker to the canvas.",

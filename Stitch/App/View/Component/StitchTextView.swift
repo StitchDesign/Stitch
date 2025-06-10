@@ -66,5 +66,6 @@ struct StitchCaptionView: View {
         Text(label)
             .font(.custom("SFProText-Regular", size: 13))
             .foregroundColor(CAPTION_VIEW_COLOR)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
