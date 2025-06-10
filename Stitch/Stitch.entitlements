@@ -4,6 +4,10 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:https://stitchdesign.github.io/StitchAppClipPage</string>
+	</array>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
 		<string>iCloud.app.stitchdesign.stitch</string>

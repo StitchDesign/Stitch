@@ -11,7 +11,7 @@ import SwiftUI
 struct StitchAppClipApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppClipContentView()
         }
     }
 }
