@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+//typealias StitchAppClipApp = StitchApp
+
 @main
 struct StitchAppClipApp: App {
     var body: some Scene {

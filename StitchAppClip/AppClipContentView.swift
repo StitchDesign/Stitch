@@ -14,6 +14,13 @@ struct AppClipContentView: View {
     
     var body: some View {
         VStack(spacing: 12) {
+            
+            MySharedView()
+            
+//            StitchProjectView(routerNamespace: .init(),
+//                              store: StitchStore,
+//                              document: <#T##StitchDocumentViewModel#>, alertState: <#T##ProjectAlertState#>, isFullScreen: <#T##arg#>)
+            
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
