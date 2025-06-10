@@ -21,8 +21,6 @@ struct AppClipContentView: View {
     var body: some View {
         VStack(spacing: 12) {
             
-            MySharedView()
-            
             Text("Example PortValue \(PortValue.number(99))")
             
             Text("Had document ? ... \(document.isDefined)")
