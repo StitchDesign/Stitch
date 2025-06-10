@@ -20,6 +20,15 @@ struct GeneratePreview: View {
     }
     
     var body: some View {
+        
+        // TODO: we had sorted data layers, so why aren't they showing up?
+        logInView("sortedLayerDataList.count: \(sortedLayerDataList.count)")
+    
+        // proof of concept here
+        Rectangle().fill(.blue.opacity(0.5)).frame(width: 260, height: 120)
+        Rectangle().fill(.green.opacity(0.5)).frame(width: 120, height: 260)
+        Rectangle().fill(.yellow.opacity(0.5)).frame(width: 100, height: 100)
+        
         // Regular rendering of views in their proper place in the hierarchy
         PreviewLayersView(document: document,
                           graph: document.graph,
