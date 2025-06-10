@@ -69,10 +69,7 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let promptForTrainingDataOrCompletedRequest = state.llmRecording.promptForTrainingDataOrCompletedRequest else {
-            fatalErrorIfDebug("SubmitLLMActionsToSupabase error: did not have prompt saved")
-            return
-        }
+        let promptForTrainingDataOrCompletedRequest = state.llmRecording.promptForTrainingDataOrCompletedRequest
         
         // When submitting actions to Supabase, we *must* have a rating.
         // Submitting a correction = 5 star rating

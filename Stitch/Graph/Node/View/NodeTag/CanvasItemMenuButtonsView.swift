@@ -19,6 +19,7 @@ struct CanvasItemMenuButtonsView: View {
     @Bindable var node: NodeViewModel
     @Binding var showNodesSummaryPopover: Bool
     @Binding var nodeSummariesText: AttributedString?
+    @Binding var willDisplayTrainingPrompt: Bool
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
@@ -197,6 +198,11 @@ struct CanvasItemMenuButtonsView: View {
                         aiSummarizeButton(aiManager: aiManager)
                     }
                 }
+            }
+            
+            // Always display training option
+            if let aiManager = document.aiManager {
+                aiTrainButton(aiManager: aiManager)
             }
             
             // About link to documentation for this node--only if its one of the core nodes
@@ -381,6 +387,13 @@ struct CanvasItemMenuButtonsView: View {
             }
         } else {
             EmptyView()
+        }
+    }
+    
+    @ViewBuilder
+    func aiTrainButton(aiManager: StitchAIManager) -> some View {
+        TagMenuButtonView(label: "Improve AI...") {            
+            self.willDisplayTrainingPrompt = true
         }
     }
     
