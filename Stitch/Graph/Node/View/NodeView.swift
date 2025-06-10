@@ -146,7 +146,7 @@ struct NodeView: View {
                    .stitchSheet(isPresented: self.willDisplayTrainingPrompt,
                                 titleLabel: "Provide a prompt for the just-recorded graph",
                                 hideAction: document.closedLLMRecordingPrompt,
-                                sheetBody: {
+                                sheetBody: {                       
                        LLMAssignPromptToScratchLLMExampleModalView()
                    })
     }

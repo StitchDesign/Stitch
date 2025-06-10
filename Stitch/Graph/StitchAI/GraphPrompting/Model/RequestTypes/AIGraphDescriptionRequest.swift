@@ -22,12 +22,7 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
         }
         
         let graph = document.visibleGraph
-        let copiedComponent = graph
-            .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
-                                   selectedNodeIds: graph.selectedPatchAndLayerNodes)
-        let steps = StitchDocumentViewModel
-            .deriveNewAIActions(newGraphEntity: copiedComponent.component.graphEntity,
-                                visibleGraph: graph)
+        let steps = Self.deriveStepActionsFromSelectedState(document: document)
         
         // TODO: remove this step when schema improves
         let reducedSteps = steps.map(\.toStep)
@@ -94,5 +89,17 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
     
     static func buildResponse(from streamingChunks: [String]) throws -> String {
         streamingChunks.joined()
+    }
+    
+    @MainActor
+    /// Determines step actions needed to replicated selected state.
+    static func deriveStepActionsFromSelectedState(document: StitchDocumentViewModel) -> [any StepActionable] {
+        let graph = document.visibleGraph
+        let copiedComponent = graph
+            .createCopiedComponent(groupNodeFocused: document.groupNodeFocused,
+                                   selectedNodeIds: graph.selectedPatchAndLayerNodes)
+        return StitchDocumentViewModel
+            .deriveNewAIActions(newGraphEntity: copiedComponent.component.graphEntity,
+                                visibleGraph: graph)
     }
 }
