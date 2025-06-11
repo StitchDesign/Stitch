@@ -47,7 +47,7 @@ struct ProjectsHomeViewWrapper: View {
                         
                         CatalystNavBarButton("document.viewfinder.fill",
                                              toolTip: "Open AI Preview") {
-                            { [weak store] in
+                             [weak store] in
                                 guard let store = store else {
                                     return
                                 }
@@ -61,7 +61,7 @@ struct ProjectsHomeViewWrapper: View {
                                 }
                                 
     //                            store.showAIResponseViewer.toggle()
-                            }
+                            
                         }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
