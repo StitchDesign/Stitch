@@ -94,8 +94,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
                         isPreviewWindowShown: document.showPreviewWindow,
-                        restartPrototypeWindowIconRotationZ: document.restartPrototypeWindowIconRotationZ,
-                        llmRecordingModeActive: document.llmRecording.isRecording)
+                        restartPrototypeWindowIconRotationZ: document.restartPrototypeWindowIconRotationZ)
                 }
 
                 #else
