@@ -15,28 +15,6 @@ struct StitchAIActionReviewCancelled: StitchDocumentEvent {
     }
 }
 
-//struct ShowApproveAndSubmitModal: StitchDocumentEvent {
-//    
-//    func handle(state: StitchDocumentViewModel) {
-//        log("ShowApproveAndSubmitModal called")
-//        
-////        switch state.llmRecording.mode {
-////        
-////        case .normal:
-//            // Directly submit to Supabase
-//            state.submitApprovedActionsToSupabase()
-////            return
-//        
-////        case .augmentation:
-////            // End recording when we open the final submit
-////            state.llmRecordingEnded()
-////            
-////            // Show modal
-////            state.llmRecording.modal = .approveAndSubmit
-////        }
-//    }
-//}
-
 struct ShowEditBeforeSubmitModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ShowEditBeforeSubmitModal called")

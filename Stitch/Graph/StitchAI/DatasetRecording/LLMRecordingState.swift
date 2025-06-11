@@ -14,11 +14,6 @@ import OrderedCollections
 
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
-//enum LLMRecordingMode: Equatable {
-//    case normal // What does 'normal' really mean?
-//    case augmentation
-//}
-
 enum LLMRecordingModal: Equatable, Hashable {
     // No active modal
     case none
