@@ -168,10 +168,10 @@ extension StitchDocumentViewModel {
     // TODO: can we separate `creating a group node` vs `creating a component`? Group node is 'UI-only' so doesn't need to be async?
     @MainActor
     func createGroup(isComponent: Bool) async {
-        guard !self.llmRecording.isRecording else {
-            log("Do not create GroupNodes during LLM Recording")
-            return
-        }
+//        guard !self.llmRecording.isRecording else {
+//            log("Do not create GroupNodes during LLM Recording")
+//            return
+//        }
         
         let graph = self.visibleGraph
         let newGroupNodeId = UUID()

@@ -241,7 +241,7 @@ extension StitchAIManager {
         document.llmRecording.promptForTrainingDataOrCompletedRequest = request.userPrompt
         document.llmRecording.requestIdFromCompletedRequest = request.id
         
-        document.llmRecording.mode = .normal
+//        document.llmRecording.mode = .normal
         
         // Only ask for rating if we received some actions
         if !document.llmRecording.streamedSteps.isEmpty {

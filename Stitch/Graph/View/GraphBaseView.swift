@@ -95,7 +95,7 @@ struct GraphBaseView: View {
                     ApproveAndSubmitModalView(prompt: document.llmRecording.promptForTrainingDataOrCompletedRequest)
                 }
                                 
-            case .none, .enterPromptForTrainingData, .ratingToast, .submitExistingGraphAsTrainingExample:
+            case .none, .ratingToast, .submitExistingGraphAsTrainingExample:
                 // Either not applicable, or handled elsewhere
                 EmptyView()
             }

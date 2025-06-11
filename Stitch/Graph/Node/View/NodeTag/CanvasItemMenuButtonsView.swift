@@ -392,7 +392,7 @@ struct CanvasItemMenuButtonsView: View {
     
     @ViewBuilder
     func aiTrainButton(aiManager: StitchAIManager) -> some View {
-        TagMenuButtonView(label: "Improve AI...") {            
+        TagMenuButtonView(label: StitchAIManager.improveAIMenuButtonText) {
             self.willDisplayTrainingPrompt = true
         }
     }

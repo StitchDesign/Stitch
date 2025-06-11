@@ -22,10 +22,10 @@ struct SelectedGraphItemsCut: StitchDocumentEvent {
         
         let graph = state.visibleGraph
         
-        guard !state.llmRecording.isRecording else {
-            log("Cut disabled during LLM Recording")
-            return
-        }
+//        guard !state.llmRecording.isAugmentingAIActions else {
+//            log("Cut disabled during LLM Recording")
+//            return
+//        }
 
         // Copy selected graph data to clipboard
         graph.copyToClipboard(selectedNodeIds: graph.selectedPatchAndLayerNodes,
@@ -59,10 +59,10 @@ struct SelectedGraphItemsCopied: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("SelectedGraphNodesCopied called")
         
-        guard !state.llmRecording.isRecording else {
-            log("Copy disabled during LLM Recording")
-            return
-        }
+//        guard !state.llmRecording.isAugmentingAIActions else {
+//            log("Copy disabled during LLM Recording")
+//            return
+//        }
         
         let graph = state.visibleGraph
         
@@ -76,10 +76,10 @@ struct SelectedGraphItemsPasted: StitchDocumentEvent {
 
     func handle(state: StitchDocumentViewModel) {
         
-        guard !state.llmRecording.isRecording else {
-            log("Paste disabled during LLM Recording")
-            return
-        }
+//        guard !state.llmRecording.isRecording else {
+//            log("Paste disabled during LLM Recording")
+//            return
+//        }
         
         let pasteboardUrl = StitchClipboardContent.rootUrl
 

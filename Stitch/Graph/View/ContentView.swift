@@ -140,13 +140,6 @@ struct ContentView: View, KeyboardReadable {
                 self.showFullScreenAnimateCompleted = true
             }
         })
-        // TODO: new method for uploadining training, not requiring recording feature
-        .stitchSheet(isPresented: document.llmRecording.modal == .enterPromptForTrainingData,
-                     titleLabel: "Provide a prompt for the just-recorded graph",
-                     hideAction: document.closedLLMRecordingPrompt,
-                     sheetBody: {
-            LLMAssignPromptToScratchLLMExampleModalView()
-        })
     }
 
     private var fullScreenPreviewView: some View {

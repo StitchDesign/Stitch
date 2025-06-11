@@ -244,7 +244,7 @@ struct NodeView: View {
                 .allowsHitTesting(!isLayerInvisible)
         }
         .overlay {
-            if document.llmRecording.mode == .augmentation &&
+            if document.llmRecording.isAugmentingAIActions &&
                 document.llmRecording.modal == .editBeforeSubmit {
                 
                 // Note: previously we only checked AddNode actions, but we need to 'highlight in blue' not only patch nodes added to the canvas but also layer inputs/fields/outputs;

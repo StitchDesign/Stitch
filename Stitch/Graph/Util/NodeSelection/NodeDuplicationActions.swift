@@ -183,10 +183,10 @@ func attemptToInsertBeforeId(originalLayers: [SidebarLayerData],
 extension StitchDocumentViewModel {
     @MainActor
     func duplicateShortcutKeyPressed() {
-        guard !self.llmRecording.isRecording else {
-            log("Duplication disabled during LLM Recording")
-            return
-        }
+//        guard !self.llmRecording.isRecording else {
+//            log("Duplication disabled during LLM Recording")
+//            return
+//        }
         
         let activelySelectedLayers = self.isSidebarFocused
         
