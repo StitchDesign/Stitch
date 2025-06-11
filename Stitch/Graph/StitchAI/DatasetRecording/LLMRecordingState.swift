@@ -71,6 +71,7 @@ struct LLMRecordingState {
             
     // No modal vs Edit actions list vs Approve and submit vs Enter prompt for just-created training data
     var modal: LLMRecordingModal = .none
+    var willDisplayTrainingPrompt = false
     
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()

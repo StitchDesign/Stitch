@@ -384,7 +384,7 @@ extension SidebarItemGestureViewModel {
             
             // Uploads training data from node selection
             buttons.stitchAppend(title: StitchAIManager.improveAIMenuButtonText) {
-                
+                document.llmRecording.willDisplayTrainingPrompt = true
             }
             
             // About info

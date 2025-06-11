@@ -16,7 +16,6 @@ struct NodeView: View {
     @State private var aiJsNodePrompt: String = ""
     @State private var showNodesSummaryPopover: Bool = false
     @State private var nodeSummariesText: AttributedString?
-    @State private var willDisplayTrainingPrompt = false
     
     @FocusedValue(\.focusedField) private var focusedField
     @FocusState var isFocused: Bool
@@ -96,7 +95,7 @@ struct NodeView: View {
                                               node: stitch,
                                               showNodesSummaryPopover: self.$showNodesSummaryPopover,
                                               nodeSummariesText: self.$nodeSummariesText,
-                                              willDisplayTrainingPrompt: self.$willDisplayTrainingPrompt,
+                                              willDisplayTrainingPrompt: $document.llmRecording.willDisplayTrainingPrompt,
                                               canvasItemId: node.id,
                                               activeGroupId: activeGroupId,
                                               canAddInput: canAddInput,
@@ -125,7 +124,7 @@ struct NodeView: View {
                                       stitch: stitch,
                                       showNodesSummaryPopover: $showNodesSummaryPopover,
                                       nodeSummariesText: $nodeSummariesText,
-                                      willDisplayTrainingPrompt: self.$willDisplayTrainingPrompt,
+                                      willDisplayTrainingPrompt: $document.llmRecording.willDisplayTrainingPrompt,
                                       activeGroupId: activeGroupId,
                                       canAddInput: canAddInput,
                                       canRemoveInput: canRemoveInput,
@@ -143,25 +142,6 @@ struct NodeView: View {
                                                        graph: graph,
                                                        node: node,
                                                        zIndex: zIndex))
-                   .alert("Stitch AI Training Upload",
-                          isPresented: $willDisplayTrainingPrompt,
-                          actions: {
-                       TextField("Prompt", text: $document.llmRecording.promptForTrainingDataOrCompletedRequest)
-                       
-                       StitchButton("Confirm Before Uploading") {
-                           // Populate actions data for providing sidebar UX--to be removed
-                           document.llmRecording.actions = AIGraphDescriptionRequest
-                               .deriveStepActionsFromSelectedState(document: document)
-                           
-                           // Open the Edit-before-submit modal
-                           document.showEditBeforeSubmitModal()
-                       }
-                       StitchButton("Cancel", role: .cancel) {
-                           document.llmRecording.promptForTrainingDataOrCompletedRequest = ""
-                       }
-                   }, message: {
-                       Text("Describe your selected subgraph.")
-                   })
     }
     
     @State private var nodeBodyHovered: Bool = false
