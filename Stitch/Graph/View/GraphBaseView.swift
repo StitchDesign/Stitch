@@ -34,6 +34,9 @@ struct GraphBaseView: View {
         nodesAndCursor
             .onAppear {
                 
+                // Note: keep around for helpful printing of the structured outputs schema
+                // log("STRUCTURED OUTPUTS: \n \(structuredOutputsSchemaAsString())")
+                
                 //                // NOTE: better for this logic to live here than in the StitchApp onAppear; so that it can be triggered multiple times without having to restart the app
                 //                do {
                 ////                        // For 4o

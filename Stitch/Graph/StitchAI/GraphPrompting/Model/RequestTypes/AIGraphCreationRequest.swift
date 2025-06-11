@@ -62,13 +62,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
             let request = try AIGraphCreationRequest(prompt: prompt,
                                                      secrets: aiManager.secrets,
                                                      graph: graph)
-            
-            aiManager.currentTask = .init(task: aiManager.getOpenAITask(
-                request: request,
-                attempt: 0,
-                document: document,
-                canShareAIRetries: StitchStore.canShareAIData))
-            
+                        
             // Wipe current task; maybe share user-prompt
             willRequest_SideEffect(
                 userPrompt: prompt,
@@ -76,6 +70,12 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                 document: document,
                 canShareData: StitchStore.canShareAIData,
                 userPromptTableName: aiManager.graphGenerationUserPromptTableName)
+            
+            aiManager.currentTask = .init(task: aiManager.getOpenAITask(
+                request: request,
+                attempt: 0,
+                document: document,
+                canShareAIRetries: StitchStore.canShareAIData))
             
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
@@ -128,6 +128,8 @@ func willRequest_SideEffect(userPrompt: String,
         return
     }
     
+    // Only log pre-request user prompts if we're in a release build and user has granted permissions
+#if RELEASE
     if canShareData,
        let tableName = userPromptTableName {
         Task(priority: .background) { [weak aiManager] in
@@ -140,6 +142,7 @@ func willRequest_SideEffect(userPrompt: String,
                 tableName: tableName)
         }
     }
+#endif
     
     // Make sure current task is completely wiped
     aiManager.cancelCurrentRequest()
