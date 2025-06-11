@@ -857,6 +857,7 @@
 		ECB9A86F2AEB4950006E65EE /* AlphaSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9A86E2AEB4950006E65EE /* AlphaSliderView.swift */; };
 		ECBB853F25E9BA5500C1EE40 /* PreviewText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */; };
 		ECBB94732D60007A005311D5 /* HomescreenProjectSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB94722D60007A005311D5 /* HomescreenProjectSelectionState.swift */; };
+		ECBBE4892DF8EC4E0067374D /* AIAutocompleteSystemPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBBE4882DF8EC4E0067374D /* AIAutocompleteSystemPrompt.swift */; };
 		ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBC95FA27613D9200508966 /* evalTests+2.swift */; };
 		ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */; };
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
@@ -989,6 +990,7 @@
 		ECEA600E28E611AD002D7F4F /* NodeTypeChangedHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */; };
 		ECEACE8C2A8587C3007ACDE2 /* StitchFPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */; };
 		ECEAFE61270E1E0D007DF78D /* OperationEvaluationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */; };
+		ECEC279F2DF8C5320047E2AF /* AIAutocomplete.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC279E2DF8C5320047E2AF /* AIAutocomplete.swift */; };
 		ECEC4A442CE2FB900062ACAF /* StateChangeToStepAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */; };
 		ECEC4A462CE3BEAF0062ACAF /* StepActionToStateChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */; };
 		ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */; };
@@ -1901,6 +1903,7 @@
 		ECB9A86E2AEB4950006E65EE /* AlphaSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaSliderView.swift; sourceTree = "<group>"; };
 		ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewText.swift; sourceTree = "<group>"; };
 		ECBB94722D60007A005311D5 /* HomescreenProjectSelectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomescreenProjectSelectionState.swift; sourceTree = "<group>"; };
+		ECBBE4882DF8EC4E0067374D /* AIAutocompleteSystemPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAutocompleteSystemPrompt.swift; sourceTree = "<group>"; };
 		ECBC95FA27613D9200508966 /* evalTests+2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "evalTests+2.swift"; sourceTree = "<group>"; };
 		ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpureEvaluation.swift; sourceTree = "<group>"; };
 		ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PureEvaluation.swift; sourceTree = "<group>"; };
@@ -2029,6 +2032,7 @@
 		ECEA600D28E611AD002D7F4F /* NodeTypeChangedHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeChangedHelpers.swift; sourceTree = "<group>"; };
 		ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFPS.swift; sourceTree = "<group>"; };
 		ECEAFE60270E1E0D007DF78D /* OperationEvaluationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationEvaluationHelpers.swift; sourceTree = "<group>"; };
+		ECEC279E2DF8C5320047E2AF /* AIAutocomplete.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAutocomplete.swift; sourceTree = "<group>"; };
 		ECEC4A432CE2FB900062ACAF /* StateChangeToStepAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateChangeToStepAction.swift; sourceTree = "<group>"; };
 		ECEC4A452CE3BEAF0062ACAF /* StepActionToStateChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepActionToStateChange.swift; sourceTree = "<group>"; };
 		ECEC7E0726CCBEAC008A39C1 /* ClassicAnimationCurve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationCurve.swift; sourceTree = "<group>"; };
@@ -4217,6 +4221,7 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
+				ECBBE4872DF8EBC20067374D /* AIAutocomplete */,
 				B5F3D0B02DE3CBBA00103676 /* PromptGenerator */,
 				B521A1002DE19D5400662B13 /* View */,
 				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
@@ -4957,6 +4962,15 @@
 				ECB7C72128A56C4B00252DE7 /* ClassicAnimationNumber.swift */,
 			);
 			path = Eval;
+			sourceTree = "<group>";
+		};
+		ECBBE4872DF8EBC20067374D /* AIAutocomplete */ = {
+			isa = PBXGroup;
+			children = (
+				ECEC279E2DF8C5320047E2AF /* AIAutocomplete.swift */,
+				ECBBE4882DF8EC4E0067374D /* AIAutocompleteSystemPrompt.swift */,
+			);
+			path = AIAutocomplete;
 			sourceTree = "<group>";
 		};
 		ECD8871D2941416E00003B47 /* Shape */ = {
@@ -5889,6 +5903,7 @@
 				EC2614532B897C3200BEB066 /* Point4DUnpackNode.swift in Sources */,
 				B5A2D11D286F7A5A002BFB97 /* VisualMedia.swift in Sources */,
 				EC41218F2BAD53E200B24000 /* LayerNodeDefinitionKinds.swift in Sources */,
+				ECBBE4892DF8EC4E0067374D /* AIAutocompleteSystemPrompt.swift in Sources */,
 				EC27A0D22AF47DE700FFD018 /* HexColors.swift in Sources */,
 				EC1B41B426BCB0910016C2C2 /* NodeCreatedAction.swift in Sources */,
 				ECC2BCDD2B9B74D200D5F942 /* SidebarListItemChevronView.swift in Sources */,
@@ -6115,6 +6130,7 @@
 				B5368D112A886ADA00FE3489 /* LayerActions.swift in Sources */,
 				ECEA600E28E611AD002D7F4F /* NodeTypeChangedHelpers.swift in Sources */,
 				EC004DD92B46438900C5DB33 /* TextFieldLayerNode.swift in Sources */,
+				ECEC279F2DF8C5320047E2AF /* AIAutocomplete.swift in Sources */,
 				E4100F9E29B83E0C00656871 /* Resnet50.mlmodel in Sources */,
 				EC89F7DF27602BE700C4447A /* SelectionHelpers.swift in Sources */,
 				ECE5857E2DB6EB5700749ED3 /* InputPortUIViewModel.swift in Sources */,
