@@ -124,7 +124,7 @@ extension StitchAIManager {
                                            tableName: String) async throws {
         
         // Only log to supabase from release branch!
-//#if RELEASE
+#if RELEASE
         guard let releaseVersion = await getReleaseVersion(),
               let userId = try? await getCloudKitUsername() else {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
@@ -145,7 +145,7 @@ extension StitchAIManager {
         
         try await self._uploadToSupabase(payload: payload,
                                          tableName: tableName)
-//#endif
+#endif
     }
     
     private func _uploadToSupabase(payload: some Encodable & Sendable,
