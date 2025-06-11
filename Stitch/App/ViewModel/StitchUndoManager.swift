@@ -18,6 +18,7 @@ struct UndoFileEffects {
 
 /// The class used for managing undo operations.
 /// Note that `registerUndo` requires the parent object to be a class here.
+@MainActor
 final class StitchUndoManager: MiddlewareService, Sendable {
     let undoManager = UndoManager()
 }
@@ -61,6 +62,7 @@ extension StitchStore {
                                                            redoCallback: redoCallback))
     }
     
+    @MainActor
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
                                           oldSchema: EncoderDelegate.CodableDocument,
                                           newSchema: EncoderDelegate.CodableDocument,
@@ -112,6 +114,7 @@ extension StitchStore {
     }
     
     /// Saves undo history using actions. Used for project deletion.
+    @MainActor
     func saveProjectDeletionUndoHistory(undoEvents: [@Sendable @MainActor () -> ()],
                                         redoEvents: [@Sendable @MainActor () -> ()]) {
         let undoManager = self.environment.undoManager.undoManager
@@ -147,10 +150,12 @@ extension UndoEffectsData {
 }
 
 extension StitchStore {
+    @MainActor
     func undo() {
         self.environment.undoManager.undoManager.undo()
     }
 
+    @MainActor
     func redo() {
         self.environment.undoManager.undoManager.redo()
     }

@@ -92,12 +92,11 @@ func arRayCastingEval(node: PatchNode) -> EvalResult {
         let prevValue = values[safe: 5] ?? defaultTransformAnchor
         let didPulse = requestPulse.shouldPulse(graphTime)
 
-        return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
-                                              values: values,
-                                              node: node) { [weak arView] in
-            guard let arView = arView,
-                  didPulse,
-                  let raycastResult = await arView.makeRaycast(alignmentType: alignmentType.targetAlignment,
+//        return mediaObserver.asyncMediaEvalOp(loopIndex: loopIndex,
+//                                              values: values,
+//                                              node: node) { [weak arView] in
+            guard didPulse,
+                  let raycastResult = arView.makeRaycast(alignmentType: alignmentType.targetAlignment,
                                                                center: centerPoint,
                                                                x: Float(xOffset),
                                                                y: Float(yOffset)) else {
@@ -116,7 +115,7 @@ func arRayCastingEval(node: PatchNode) -> EvalResult {
                                                                   rotationZ: Double(raycastResult.worldTransform.rotationInRadians.z))
             
             return [.transform(transform)]
-        }
+//        }
     }
 }
 

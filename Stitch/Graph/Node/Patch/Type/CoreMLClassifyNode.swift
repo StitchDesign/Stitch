@@ -121,7 +121,7 @@ final actor ImageClassifierActor {
     }
     
     func visionClassificationRequest(for model: VNCoreMLModel,
-                                     with uiImage: UIImage) -> VNClassificationObservation? {
+                                     with uiImage: UIImage) -> VisionClassificationResult? {
         // Request handler object for image classification tasks
         let request = VNCoreMLRequest(model: model,
                                       completionHandler: imageClassification)
@@ -140,7 +140,18 @@ final actor ImageClassifierActor {
             fatalErrorIfDebug()
         }
         
-        return self.result
+        guard let result = self.result else { return nil }
+        return .init(result)
     }
 }
 
+/// Created because `VisionClassificationResult` isn't Sendable.
+struct VisionClassificationResult: Sendable {
+    let identifier: String
+    let confidence: Float
+    
+    init(_ result: VNClassificationObservation) {
+        self.identifier = result.identifier
+        self.confidence = result.confidence
+    }
+}

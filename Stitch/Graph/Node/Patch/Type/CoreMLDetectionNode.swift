@@ -96,7 +96,7 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                     return defaultOutputs
                 }
                 
-                let results: [VNRecognizedObjectObservation] = await mediaObserver.coreMlActor
+                let results: [VisionObjectResult] = await mediaObserver.coreMlActor
                     .visionDetectionRequest(for: model,
                                             with: image,
                                             vnImageCropOption: cropAndScaleOption)
@@ -112,8 +112,8 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                 
                 let imageSize = image.size
                 
-                results.forEach { (result: VNRecognizedObjectObservation) in
-                    if let mostConfidentLabel = result.labels.mostConfidentLabel() {
+                results.forEach { (result: VisionObjectResult) in
+                    if let mostConfidentLabel = result.mostConfidentLabel() {
                         
                         labelsOutputLoop.append(mostConfidentLabel.identifier)
                         confidenceOutputLoop.append(Double(mostConfidentLabel.confidence))
@@ -172,7 +172,7 @@ final actor VisionOpActor {
     
     func visionDetectionRequest(for model: VNCoreMLModel,
                                 with uiImage: UIImage,
-                                vnImageCropOption: VNImageCropAndScaleOption) -> [VNRecognizedObjectObservation] {
+                                vnImageCropOption: VNImageCropAndScaleOption) -> [VisionObjectResult] {
         // Request handler object for object detection tasks
         let request = VNCoreMLRequest(model: model,
                                       completionHandler: self.visionRequestHandler)
@@ -200,16 +200,17 @@ final actor VisionOpActor {
         }
 
         return self.results
+            .map(VisionObjectResult.init)
     }
 }
 
-extension [VNClassificationObservation] {
-    func mostConfidentLabel() -> VNClassificationObservation? {
-        Stitch.mostConfidentLabel(labels: self)
+extension VisionObjectResult {
+    func mostConfidentLabel() -> VisionClassificationResult? {
+        Stitch.mostConfidentLabel(labels: self.labels)
     }
 }
 
-func mostConfidentLabel(labels: [VNClassificationObservation]) -> VNClassificationObservation? {
+func mostConfidentLabel(labels: [VisionClassificationResult]) -> VisionClassificationResult? {
     labels.max(by: {$0.confidence < $1.confidence }) ?? labels.first
 }
 
@@ -249,5 +250,16 @@ extension VNImageCropAndScaleOption: PortValueEnum {
             fatalErrorIfDebug()
             return Self.centerCrop.label
         }
+    }
+}
+
+/// Created because `VNRecognizedObjectObservation` isn't Sendable.
+struct VisionObjectResult: Sendable {
+    let labels: [VisionClassificationResult]
+    let boundingBox: CGRect
+    
+    init(_ result: VNRecognizedObjectObservation) {
+        self.labels = result.labels.map(VisionClassificationResult.init)
+        self.boundingBox = result.boundingBox
     }
 }
