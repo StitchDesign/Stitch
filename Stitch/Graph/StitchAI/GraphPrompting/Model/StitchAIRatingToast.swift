@@ -71,10 +71,11 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             }
             
             do {
-                try await aiManager.uploadInferenceCallResultToSupabase(
+                try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
                     prompt: userPrompt,
                     finalActions: state.llmRecording.actions.map(\.toStep),
                     deviceUUID: deviceUUID,
+                    tableName: aiManager.graphGenerationInferenceCallResultTableName,
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: false,
                     rating: rating,

@@ -11,8 +11,17 @@ import StitchSchemaKit
 struct Secrets: Equatable {
     let supabaseURL: String
     let supabaseAnonKey: String
-    let userPromptTableName: String
-    let inferenceCallResultTableName: String
+    
+    // graph-generation requests, whether they succeeded or failed
+    let graphGenerationUserPromptTableName: String
+    
+    // Successful graph-generation requests
+    let graphGenerationInferenceCallResultTableName: String
+    
+    // Note: currently we assume javascript-ai-node requests "can't fail"
+    // let jsNodeUserPromptTableName: String
+    let jsNodeInferenceCallResultTableName: String
+    
     let openAIAPIKey: String
     let openAIModelGraphCreation: String
     let openAIModelJsNode: String
@@ -39,8 +48,13 @@ extension Secrets: Decodable {
     enum CodingKeys: String, CodingKey {
         case supabaseURL = "SUPABASE_URL"
         case supabaseAnonKey = "SUPABASE_ANON_KEY"
-        case userPromptTableName = "SUPABASE_USER_PROMPT_TABLE_NAME"
-        case inferenceCallResultTableName = "SUPABASE_INFERENCE_CALL_RESULT_TABLE_NAME"
+        
+        case graphGenerationUserPromptTableName = "SUPABASE_USER_PROMPT_TABLE_NAME"
+        case graphGenerationInferenceCallResultTableName = "SUPABASE_INFERENCE_CALL_RESULT_TABLE_NAME"
+        
+        // case jsNodeUserPromptTableName = "SUPABASE_JAVASCRIPT_USER_PROMPT_TABLE_NAME"
+        case jsNodeInferenceCallResultTableName = "SUPABASE_JAVASCRIPT_INFERENCE_CALL_RESULT_TABLE_NAME"
+        
         case openAIAPIKey = "OPEN_AI_API_KEY"
         case openAIModelGraphCreation = "OPEN_AI_MODEL_GRAPH_CREATION"
         case openAIModelJsNode = "OPEN_AI_MODEL_JS_NODE"

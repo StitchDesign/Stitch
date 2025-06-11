@@ -252,7 +252,7 @@ extension StitchAIManager {
     }
 }
 
-extension StitchAIRequestable {    
+extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async -> Result<Self.FinalDecodedResult, StitchAIStreamingError> {
         await aiManager.startOpenAIRequest(self,

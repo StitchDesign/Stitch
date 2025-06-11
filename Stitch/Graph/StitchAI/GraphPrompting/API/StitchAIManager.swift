@@ -26,9 +26,7 @@ final actor StitchAIManager {
     let secrets: Secrets
 
     var postgrest: PostgrestClient
-  
-//    var tableName: String
-    
+      
     @MainActor var currentTask: CurrentAITask?
 
     init?() throws {
@@ -42,12 +40,10 @@ final actor StitchAIManager {
         self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""),
                                          schema: "",
                                          headers: [:])
-//        self.tableName = ""
         
         // Extract required environment variables
         let supabaseURL = secrets.supabaseURL
         let supabaseAnonKey = secrets.supabaseAnonKey
-//        let tableName = secrets.tableName
         
         // Initialize the PostgREST client
         guard let baseURL = URL(string: supabaseURL),
@@ -57,7 +53,6 @@ final actor StitchAIManager {
         }
         
         // Assign the actual values only if everything succeeds
-//        self.tableName = tableName
         self.postgrest = PostgrestClient(
             url: apiURL,
             schema: "public",
@@ -70,12 +65,12 @@ final actor StitchAIManager {
 }
 
 extension StitchAIManager {
-    var inferenceCallResultTableName: String {
-        self.secrets.inferenceCallResultTableName
+    nonisolated var graphGenerationInferenceCallResultTableName: String {
+        self.secrets.graphGenerationInferenceCallResultTableName
     }
     
-    var userPromptTableName: String {
-        self.secrets.userPromptTableName
+    nonisolated var graphGenerationUserPromptTableName: String {
+        self.secrets.graphGenerationUserPromptTableName
     }
     
     @MainActor

@@ -178,16 +178,33 @@ struct NodeView: View {
                                                           document: document,
                                                           nodeId: stitch.id)
                 
-                Task { [weak patchNode] in
-                    guard let patchNode = patchNode else {
+                Task { [weak patchNode, weak document] in
+                    guard let patchNode = patchNode,
+                          let document = document,
+                          let aiManager = document.aiManager else {
                         return
                     }
                     
+                    // TODO: move to a `willRequest` for the Javascript Request ?
+                    willRequest_SideEffect(
+                        userPrompt: jsAIRequest.userPrompt,
+                        requestId: jsAIRequest.id,
+                        document: document,
+                        canShareData: StitchStore.canShareAIData,
+                        userPromptTableName: nil)
+                                        
                     let result = await jsAIRequest.request(document: document,
                                                            aiManager: aiManager)
                     
                     switch result {
                     case .success(let jsSettings):
+                        
+                        try await aiManager.uploadJavascriptCallResultToSupabase(
+                            userPrompt: jsAIRequest.userPrompt,
+                            requestId: jsAIRequest.id,
+                            javascriptSettings: jsSettings)
+                        
+                        // Process the new Javascript settings
                         patchNode.processNewJavascript(response: jsSettings)
                         
                     case .failure(let error):

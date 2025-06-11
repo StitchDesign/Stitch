@@ -33,7 +33,7 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, To
     static var willStream: Bool { get }
     
     /// Validates a successfully decoded response and outputs a possibly different data structure.
-    static func validateRepopnse(decodedResult: InitialDecodedResult) throws -> FinalDecodedResult
+    static func validateResponse(decodedResult: InitialDecodedResult) throws -> FinalDecodedResult
     
     @MainActor
     func onSuccessfulDecodingChunk(result: TokenDecodedResult,
