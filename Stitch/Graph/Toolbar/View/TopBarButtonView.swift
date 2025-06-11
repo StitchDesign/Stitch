@@ -97,12 +97,10 @@ struct iPadGraphTopBarButtons: View {
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
     let restartPrototypeWindowIconRotationZ: CGFloat
-    var llmRecordingModeActive: Bool
     
     @ViewBuilder
     var miscButton: some View {
-        iPadGraphTopBarMiscMenu(document: document,
-                                llmRecordingModeActive: llmRecordingModeActive)
+        iPadGraphTopBarMiscMenu(document: document)
     }
     
     var body: some View {
@@ -161,15 +159,9 @@ struct iPadGraphTopBarButtons: View {
 
 struct iPadGraphTopBarMiscMenu: View {
     @Bindable var document: StitchDocumentViewModel
-    let llmRecordingModeActive: Bool
     
     var body: some View {
         Menu {
-            
-            iPadTopBarButton(action: { dispatch(LLMRecordingToggled()) },
-                             iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL),
-                             label: "AI Generation/Correction")
-            
             iPadTopBarButton(action: { dispatch(FindSomeCanvasItemOnGraph())},
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH),
                              label: "Find Node")

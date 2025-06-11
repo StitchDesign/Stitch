@@ -232,10 +232,10 @@ extension GraphState {
         
         // TODO: this is not *just* ui-cache; what should we call `NodesPagingDict` etc. ?
         self.refreshUICaches(activeIndex: activeIndex,
-                            focusedGroupNode: document.groupNodeFocused?.groupNodeId,
-                            documentZoom: document.graphMovement.zoomData,
-                            documentFrame: document.frame,
-                            llmRecordingMode: document.llmRecording.mode)
+                             focusedGroupNode: document.groupNodeFocused?.groupNodeId,
+                             documentZoom: document.graphMovement.zoomData,
+                             documentFrame: document.frame,
+                             isLLMAugmentationMode: document.llmRecording.isAugmentingAIActions)
         
         
         // MARK: evaluate the graph
@@ -280,7 +280,7 @@ extension GraphState {
                          focusedGroupNode: NodeId?,
                          documentZoom: CGFloat,
                          documentFrame: CGRect,
-                         llmRecordingMode: LLMRecordingMode) {
+                         isLLMAugmentationMode: Bool) {
         
         self.updateVisibleSplitterNodesCache()
         
@@ -308,7 +308,7 @@ extension GraphState {
         
         // Update edges after everything else
         self.updateConnectedEdgesCache(focusedGroupNode: focusedGroupNode,
-                                       llmRecordingMode: llmRecordingMode)
+                                       isLLMAugmentationMode: isLLMAugmentationMode)
 
         // Update labels for group nodes
         self.updateGroupPortLabelsCache()
@@ -338,7 +338,7 @@ extension GraphState {
     
     @MainActor
     func updateConnectedEdgesCache(focusedGroupNode: NodeId?,
-                                   llmRecordingMode: LLMRecordingMode) {
+                                   isLLMAugmentationMode: Bool) {
         
         
         let newEdges = self.getVisualEdgeData(groupNodeFocused: focusedGroupNode)
@@ -346,7 +346,7 @@ extension GraphState {
         // HOT FIX: when we reapply llm-actions, the old and new connected edges are equal per ConnectedEdge's == implementation,
         // so we don't re-render GraphConnectedEdgesView even though the input row view model's port color changed.
         // TODO: why is non-AI-augmentation mode okay here? This is the only place we change graph.connectedEdges, so `getVisualEdgeData` must be producing something different?
-        if llmRecordingMode == .augmentation {
+        if isLLMAugmentationMode {
             self.cachedConnectedEdges = newEdges
         } else {
             if self.cachedConnectedEdges != newEdges {

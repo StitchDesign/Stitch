@@ -140,12 +140,24 @@ struct ContentView: View, KeyboardReadable {
                 self.showFullScreenAnimateCompleted = true
             }
         })
-        // TODO: new method for uploadining training, not requiring recording feature
-        .stitchSheet(isPresented: document.llmRecording.modal == .enterPromptForTrainingData,
-                     titleLabel: "Provide a prompt for the just-recorded graph",
-                     hideAction: document.closedLLMRecordingPrompt,
-                     sheetBody: {
-            LLMAssignPromptToScratchLLMExampleModalView()
+        .alert("Stitch AI Training Upload",
+               isPresented: $document.llmRecording.willDisplayTrainingPrompt,
+               actions: {
+            TextField("Prompt", text: $document.llmRecording.promptForTrainingDataOrCompletedRequest)
+            
+            StitchButton("Confirm Before Uploading") {
+                // Populate actions data for providing sidebar UX--to be removed
+                document.llmRecording.actions = AIGraphDescriptionRequest
+                    .deriveStepActionsFromSelectedState(document: document)
+                
+                // Open the Edit-before-submit modal
+                document.showEditBeforeSubmitModal()
+            }
+            StitchButton("Cancel", role: .cancel) {
+                document.llmRecording.promptForTrainingDataOrCompletedRequest = ""
+            }
+        }, message: {
+            Text("Describe your selected subgraph.")
         })
     }
 

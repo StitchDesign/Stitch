@@ -65,6 +65,8 @@ final actor StitchAIManager {
 }
 
 extension StitchAIManager {
+    static let improveAIMenuButtonText = "Improve AI..."
+    
     nonisolated var graphGenerationInferenceCallResultTableName: String {
         self.secrets.graphGenerationInferenceCallResultTableName
     }

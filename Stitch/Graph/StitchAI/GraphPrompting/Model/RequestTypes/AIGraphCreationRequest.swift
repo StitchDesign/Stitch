@@ -12,6 +12,12 @@ enum AIGraphCreationRequestError: Error {
     case validationFailed(StitchAIStepHandlingError)
 }
 
+// Helpful util
+func structuredOutputsSchemaAsString() -> String  {
+    let structuredOutputs = CurrentAIGraphCreationResponseFormat.AIGraphCreationResponseFormat().json_schema.schema
+    return try! structuredOutputs.encodeToPrintableString()
+}
+
 struct AIGraphCreationRequest: StitchAIRequestable {
     typealias InitialDecodedResult = AIGraphCreationContentJSON
     
@@ -53,24 +59,24 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         let graph = document.visibleGraph
         
         do {
-            let request = try AIGraphCreationRequest(
-                prompt: prompt,
-                secrets: aiManager.secrets,
-                graph: graph)
+            let request = try AIGraphCreationRequest(prompt: prompt,
+                                                     secrets: aiManager.secrets,
+                                                     graph: graph)
+            
+            aiManager.currentTask = .init(task: aiManager.getOpenAITask(
+                request: request,
+                attempt: 0,
+                document: document,
+                canShareAIRetries: StitchStore.canShareAIData))
             
             // Wipe current task; maybe share user-prompt
-            willRequest_SideEffect(userPrompt: prompt,
-                        requestId: request.id,
-                        document: document,
-                        canShareData: StitchStore.canShareAIData,
-                        userPromptTableName: aiManager.graphGenerationUserPromptTableName)
+            willRequest_SideEffect(
+                userPrompt: prompt,
+                requestId: request.id,
+                document: document,
+                canShareData: StitchStore.canShareAIData,
+                userPromptTableName: aiManager.graphGenerationUserPromptTableName)
             
-            // Main request logic
-            aiManager.currentTask = .init(task: aiManager
-                .getOpenAITask(request: request,
-                               attempt: 0,
-                               document: document,
-                               canShareAIRetries: StitchStore.canShareAIData))
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
         }
