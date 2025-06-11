@@ -89,12 +89,7 @@ struct GraphBaseView: View {
                 TopLeftCornerView {
                     EditBeforeSubmitModalView(document: document, graph: graph)
                 }
-                
-            case .approveAndSubmit:
-                TopLeftCornerView {
-                    ApproveAndSubmitModalView(prompt: document.llmRecording.promptForTrainingDataOrCompletedRequest)
-                }
-                                
+           
             case .none, .ratingToast, .submitExistingGraphAsTrainingExample:
                 // Either not applicable, or handled elsewhere
                 EmptyView()

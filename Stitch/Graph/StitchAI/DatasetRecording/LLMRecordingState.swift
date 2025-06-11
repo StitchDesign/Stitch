@@ -26,9 +26,6 @@ enum LLMRecordingModal: Equatable, Hashable {
     // Modal from which user can edit LLM Actions (remove those created by model or user; add new ones by interacting with the graph)
     case editBeforeSubmit
     
-    // Modal from which user either (1) re-enters LLM edit mode or (2) finally approves the LLM action list and send to Supabase
-    case approveAndSubmit
-    
     // Modal (toast) from which user can rate the just-completed streaming request
     case ratingToast(userInputPrompt: String) // OpenAIRequest.prompt i.e. user's natural language input
     

@@ -818,7 +818,6 @@
 		ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */; };
 		ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */; };
 		ECAFD08E2D4878CC00101226 /* LLMActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */; };
-		ECAFD0902D48792600101226 /* LLMModalViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAFD08F2D48792600101226 /* LLMModalViews.swift */; };
 		ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA42695F8D100A1E1DA /* gracie_short.mov */; };
 		ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA62695FCC700A1E1DA /* pj_eating.mov */; };
 		ECB18FCA2681469B00D439BE /* VideoHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB18FC92681469B00D439BE /* VideoHelpers.swift */; };
@@ -1862,7 +1861,6 @@
 		ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionEqualsNode.swift; sourceTree = "<group>"; };
 		ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensionUtils.swift; sourceTree = "<group>"; };
 		ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionHelpers.swift; sourceTree = "<group>"; };
-		ECAFD08F2D48792600101226 /* LLMModalViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMModalViews.swift; sourceTree = "<group>"; };
 		ECB15BA42695F8D100A1E1DA /* gracie_short.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = gracie_short.mov; sourceTree = "<group>"; };
 		ECB15BA62695FCC700A1E1DA /* pj_eating.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = pj_eating.mov; sourceTree = "<group>"; };
 		ECB18FC92681469B00D439BE /* VideoHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoHelpers.swift; sourceTree = "<group>"; };
@@ -4325,7 +4323,6 @@
 				ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */,
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */,
-				ECAFD08F2D48792600101226 /* LLMModalViews.swift */,
 			);
 			path = DatasetRecording;
 			sourceTree = "<group>";
@@ -5435,7 +5432,6 @@
 				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
 				EC913A722DE54A0E0056CEE1 /* StitchAIRatingToast.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
-				ECAFD0902D48792600101226 /* LLMModalViews.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,
