@@ -47,9 +47,6 @@ struct LLMRecordingState {
     // TODO: should this live on StitchAIManager's `currentTask` ?
     // Tracks steps as they stream in
     var streamedSteps: OrderedSet<Step> = .init()
-    
-    // Are we actively turning graph changes into AI-actions?
-//    var isRecording: Bool = false
 
     // Do not create LLMActions while we are applying LLMActions
     var isApplyingActions: Bool = false
@@ -57,9 +54,6 @@ struct LLMRecordingState {
     // Error from validating or applying the LLM actions;
     // Note: we can actually have several, but only display one at a time
     var actionsError: String?
-        
-    // Normal vs. Augmentation ('correction')
-//    var mode: LLMRecordingMode = .normal
     
     // TODO: rename to `steps`, to distinguish between `Step` vs `StepActionable` ?
     var actions: [any StepActionable] = .init()
