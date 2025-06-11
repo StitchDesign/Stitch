@@ -70,6 +70,8 @@ final actor StitchAIManager {
 }
 
 extension StitchAIManager {
+    static let improveAIMenuButtonText = "Improve AI..."
+    
     var inferenceCallResultTableName: String {
         self.secrets.inferenceCallResultTableName
     }

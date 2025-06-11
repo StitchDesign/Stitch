@@ -56,14 +56,15 @@ struct AIGraphCreationRequest: StitchAIRequestable {
             let request = try AIGraphCreationRequest(prompt: prompt,
                                                      secrets: aiManager.secrets,
                                                      graph: graph)
-            
-            // Main request logic
-            aiManager.currentTask = .init(task: aiManager
+            let task = aiManager
                 .getOpenAITask(request: request,
                                attempt: 0,
                                document: document,
                                canShareAIRetries: StitchStore.canShareAIData)
-                                                )
+            
+            request.willRequest(document: document,
+                                canShareData: StitchStore.canShareAIData,
+                                requestTask: task)
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
         }

@@ -818,7 +818,6 @@
 		ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */; };
 		ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */; };
 		ECAFD08E2D4878CC00101226 /* LLMActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */; };
-		ECAFD0902D48792600101226 /* LLMModalViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAFD08F2D48792600101226 /* LLMModalViews.swift */; };
 		ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA42695F8D100A1E1DA /* gracie_short.mov */; };
 		ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA62695FCC700A1E1DA /* pj_eating.mov */; };
 		ECB18FCA2681469B00D439BE /* VideoHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB18FC92681469B00D439BE /* VideoHelpers.swift */; };
@@ -930,7 +929,6 @@
 		ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */; };
 		ECD83E9E2D4D87AD002B7A3E /* LLMActionPositionNodeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */; };
 		ECD83F0E2C19ED0800722AD7 /* LLMRecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */; };
-		ECD83F1B2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1A2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift */; };
 		ECD8871C29410BF500003B47 /* LoopFilterNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD8871B29410BF500003B47 /* LoopFilterNode.swift */; };
 		ECD8871F2941417900003B47 /* LayerInfoNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD8871E2941417900003B47 /* LayerInfoNode.swift */; };
 		ECD887232941494800003B47 /* LayerNodeId.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD887222941494800003B47 /* LayerNodeId.swift */; };
@@ -1863,7 +1861,6 @@
 		ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionEqualsNode.swift; sourceTree = "<group>"; };
 		ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensionUtils.swift; sourceTree = "<group>"; };
 		ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionHelpers.swift; sourceTree = "<group>"; };
-		ECAFD08F2D48792600101226 /* LLMModalViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMModalViews.swift; sourceTree = "<group>"; };
 		ECB15BA42695F8D100A1E1DA /* gracie_short.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = gracie_short.mov; sourceTree = "<group>"; };
 		ECB15BA62695FCC700A1E1DA /* pj_eating.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = pj_eating.mov; sourceTree = "<group>"; };
 		ECB18FC92681469B00D439BE /* VideoHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoHelpers.swift; sourceTree = "<group>"; };
@@ -1973,7 +1970,6 @@
 		ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentActions.swift; sourceTree = "<group>"; };
 		ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionPositionNodeUtil.swift; sourceTree = "<group>"; };
 		ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMRecordingState.swift; sourceTree = "<group>"; };
-		ECD83F1A2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAssignPromptToScratchLLMExampleModalView.swift; sourceTree = "<group>"; };
 		ECD8871B29410BF500003B47 /* LoopFilterNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopFilterNode.swift; sourceTree = "<group>"; };
 		ECD8871E2941417900003B47 /* LayerInfoNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInfoNode.swift; sourceTree = "<group>"; };
 		ECD887222941494800003B47 /* LayerNodeId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeId.swift; sourceTree = "<group>"; };
@@ -4323,12 +4319,10 @@
 		E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */ = {
 			isa = PBXGroup;
 			children = (
-				ECD83F1A2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift */,
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
 				ECD83E9D2D4D87AC002B7A3E /* LLMActionPositionNodeUtil.swift */,
 				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
 				ECAFD08D2D4878CC00101226 /* LLMActionHelpers.swift */,
-				ECAFD08F2D48792600101226 /* LLMModalViews.swift */,
 			);
 			path = DatasetRecording;
 			sourceTree = "<group>";
@@ -5306,7 +5300,6 @@
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
 				EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */,
 				B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */,
-				ECD83F1B2C1A0C5F00722AD7 /* LLMAssignPromptToScratchLLMExampleModalView.swift in Sources */,
 				ECA92A54260A6BB700281B52 /* Output.swift in Sources */,
 				ECCE40E327E29B5D0068484B /* ICloudSyncStatus.swift in Sources */,
 				EC08D55B28988C4D00FEE846 /* AdjustmentBarPopoverView.swift in Sources */,
@@ -5439,7 +5432,6 @@
 				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
 				EC913A722DE54A0E0056CEE1 /* StitchAIRatingToast.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
-				ECAFD0902D48792600101226 /* LLMModalViews.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,

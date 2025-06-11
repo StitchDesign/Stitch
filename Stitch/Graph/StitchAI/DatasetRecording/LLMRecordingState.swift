@@ -14,24 +14,12 @@ import OrderedCollections
 
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
-enum LLMRecordingMode: Equatable {
-    case normal // What does 'normal' really mean?
-    case augmentation
-}
-
 enum LLMRecordingModal: Equatable, Hashable {
     // No active modal
     case none
     
     // Modal from which user can edit LLM Actions (remove those created by model or user; add new ones by interacting with the graph)
     case editBeforeSubmit
-    
-    // Modal from which user either (1) re-enters LLM edit mode or (2) finally approves the LLM action list and send to Supabase
-    case approveAndSubmit
-    
-    // Modal from which user can enter a natural language prompt for the fresh training example they have *just finished creating*
-    // TODO: phase this out? Just submit whole graph / selected patches and layers as a training example
-    case enterPromptForTrainingData
     
     // Modal (toast) from which user can rate the just-completed streaming request
     case ratingToast(userInputPrompt: String) // OpenAIRequest.prompt i.e. user's natural language input
@@ -59,29 +47,20 @@ struct LLMRecordingState {
     // TODO: should this live on StitchAIManager's `currentTask` ?
     // Tracks steps as they stream in
     var streamedSteps: OrderedSet<Step> = .init()
-    
-    // Are we actively turning graph changes into AI-actions?
-    var isRecording: Bool = false
-    
-    // TODO: what does
-    // Track whether we've shown the modal in normal mode
-    var hasShownModalInNormalMode: Bool = false
-    
+
     // Do not create LLMActions while we are applying LLMActions
     var isApplyingActions: Bool = false
     
     // Error from validating or applying the LLM actions;
     // Note: we can actually have several, but only display one at a time
     var actionsError: String?
-        
-    // Normal vs. Augmentation ('correction')
-    var mode: LLMRecordingMode = .normal
     
     // TODO: rename to `steps`, to distinguish between `Step` vs `StepActionable` ?
     var actions: [any StepActionable] = .init()
             
     // No modal vs Edit actions list vs Approve and submit vs Enter prompt for just-created training data
     var modal: LLMRecordingModal = .none
+    var willDisplayTrainingPrompt = false
     
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
@@ -102,6 +81,12 @@ struct LLMRecordingState {
     
     var rating: StitchAIRating?
     var ratingFromPreviousExistingGraphSubmittedAsTrainingData: StitchAIRating?
+}
+
+extension LLMRecordingState {
+    var isAugmentingAIActions: Bool {
+        self.modal == .editBeforeSubmit
+    }
 }
 
 

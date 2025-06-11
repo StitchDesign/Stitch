@@ -307,7 +307,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         let groupNodeIdFocused = self.groupNodeFocused
         
         // Stitch AI changes in case order changes
-        let aiActions = self.llmRecording.actions
+//        let aiActions = self.llmRecording.actions
         
         // Labels for splitter nodes
         let splitterLabels = GraphState.getGroupPortLabels(graph: graph)
@@ -320,7 +320,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         hasher.combine(upstreamConnections)
         hasher.combine(manualEdits)
         hasher.combine(groupNodeIdFocused)
-        hasher.combine(aiActions.map(\.toStep)) // downcast to Step
+//        hasher.combine(aiActions.map(\.toStep)) // downcast to Step
         hasher.combine(splitterLabels)
         hasher.combine(javaScriptSettings)
         
@@ -337,12 +337,12 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         self.projectLoader?.loadingDocument = .loading
         
         // Checks if AI edit mode is enabled and if actions should be updated
-        let recordingOrCorrecting = self.llmRecording.isRecording || self.llmRecording.mode == .augmentation
+        let isCorrecting = self.llmRecording.isAugmentingAIActions
 
         // If we are recording graph changes as LLM-actions,
         // and we're not currently 'applying an existing LLM-action',
         // then we should generate new steps
-        if recordingOrCorrecting && !self.llmRecording.isApplyingActions {
+        if isCorrecting && !self.llmRecording.isApplyingActions {
             let oldActions = self.llmRecording.actions
             let newActions = Self.deriveNewAIActions(
                 oldGraphEntity: self.llmRecording.initialGraphState ?? .createEmpty(),

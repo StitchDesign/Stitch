@@ -162,8 +162,6 @@ struct CatalystTopBarGraphButtons: View {
     let isFullscreen: Bool
     let isPreviewWindowShown: Bool
     
-    let llmRecordingModeActive: Bool
-    
     var body: some View {
         Group {
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
@@ -178,12 +176,6 @@ struct CatalystTopBarGraphButtons: View {
                     dispatch(ShowCreateTrainingDataFromExistingGraphModal())
                 }
             }
-            
-            CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL,
-            toolTip: "Toggle AI Recording Mode") {
-                dispatch(LLMRecordingToggled())
-            }
-            .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
                                  toolTip: "Add Node") {

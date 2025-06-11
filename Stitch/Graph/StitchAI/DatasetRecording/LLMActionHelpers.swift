@@ -15,28 +15,6 @@ struct StitchAIActionReviewCancelled: StitchDocumentEvent {
     }
 }
 
-struct ShowApproveAndSubmitModal: StitchDocumentEvent {
-    
-    func handle(state: StitchDocumentViewModel) {
-        log("ShowApproveAndSubmitModal called")
-        
-        switch state.llmRecording.mode {
-        
-        case .normal:
-            // Directly submit to Supabase
-            state.submitApprovedActionsToSupabase()
-            return
-        
-        case .augmentation:
-            // End recording when we open the final submit
-            state.llmRecordingEnded()
-            
-            // Show modal
-            state.llmRecording.modal = .approveAndSubmit
-        }
-    }
-}
-
 struct ShowEditBeforeSubmitModal: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         log("ShowEditBeforeSubmitModal called")
@@ -74,7 +52,7 @@ extension StitchDocumentViewModel {
         // When submitting actions to Supabase, we *must* have a rating.
         // Submitting a correction = 5 star rating
         // Submitting a training example = whatever rating we gave in the earlier modal
-        let isCorrection = state.llmRecording.mode == .augmentation
+        let isCorrection = state.llmRecording.isAugmentingAIActions
         let rating: StitchAIRating = isCorrection ? .fiveStars : (state.llmRecording.rating ?? .fiveStars)
         #if DEV_DEBUG
         if state.llmRecording.rating.isNotDefined && !isCorrection { fatalErrorIfDebug() }

@@ -86,7 +86,7 @@ struct EditBeforeSubmitModalView: View {
             
             Button(action: {
                 log("Stitch AI edit modal: will complete and dismiss")
-                dispatch(ShowApproveAndSubmitModal())
+                document.submitApprovedActionsToSupabase()
             }) {
                 Text("Submit")
                     .padding()

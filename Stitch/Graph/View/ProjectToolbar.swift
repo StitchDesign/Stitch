@@ -129,8 +129,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                         isDebugMode: document.isDebugMode,
                         hasActiveGroupFocused: document.groupNodeFocused.isDefined,
                         isFullscreen: document.isFullScreenMode,
-                        isPreviewWindowShown: document.showPreviewWindow,
-                        llmRecordingModeActive: document.llmRecording.isRecording
+                        isPreviewWindowShown: document.showPreviewWindow
                     )
                 }
                 #endif
