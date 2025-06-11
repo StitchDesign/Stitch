@@ -68,7 +68,7 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateRepopnse(decodedResult: String) throws -> String {
+    static func validateResponse(decodedResult: String) throws -> String {
         // Nothing to do here
         decodedResult
     }

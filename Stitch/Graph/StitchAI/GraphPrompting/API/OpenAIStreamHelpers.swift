@@ -161,7 +161,7 @@ extension StitchAIManager {
                 }
                 
                 let initialDecodedResult = try AIRequest.parseOpanAIResponse(content: firstChoice.message.content)
-                let result = try AIRequest.validateRepopnse(decodedResult: initialDecodedResult)
+                let result = try AIRequest.validateResponse(decodedResult: initialDecodedResult)
                 
                 
                 return .success((result, success.1))
@@ -244,7 +244,7 @@ extension StitchAIManager {
                 
                 // Compose full decoded response
                 let decodedResponse = try AIRequest.buildResponse(from: decodedChunks)
-                let validatedDecodedResponse = try AIRequest.validateRepopnse(decodedResult: decodedResponse)
+                let validatedDecodedResponse = try AIRequest.validateResponse(decodedResult: decodedResponse)
 
                 return .success((validatedDecodedResponse, response))
             } catch {

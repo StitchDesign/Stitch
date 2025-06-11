@@ -66,10 +66,11 @@ extension StitchDocumentViewModel {
             }
             
             do {
-                try await supabaseManager.uploadInferenceCallResultToSupabase(
+                try await supabaseManager.uploadGraphGenerationInferenceCallResultToSupabase(
                     prompt: promptForTrainingDataOrCompletedRequest,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
+                    tableName: supabaseManager.graphGenerationInferenceCallResultTableName,
                     // For fresh training example, we won't have this
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: isCorrection,

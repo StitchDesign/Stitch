@@ -12,6 +12,12 @@ enum AIGraphCreationRequestError: Error {
     case validationFailed(StitchAIStepHandlingError)
 }
 
+// Helpful util
+func structuredOutputsSchemaAsString() -> String  {
+    let structuredOutputs = CurrentAIGraphCreationResponseFormat.AIGraphCreationResponseFormat().json_schema.schema
+    return try! structuredOutputs.encodeToPrintableString()
+}
+
 struct AIGraphCreationRequest: StitchAIRequestable {
     typealias InitialDecodedResult = AIGraphCreationContentJSON
     
@@ -56,63 +62,27 @@ struct AIGraphCreationRequest: StitchAIRequestable {
             let request = try AIGraphCreationRequest(prompt: prompt,
                                                      secrets: aiManager.secrets,
                                                      graph: graph)
-            let task = aiManager
-                .getOpenAITask(request: request,
-                               attempt: 0,
-                               document: document,
-                               canShareAIRetries: StitchStore.canShareAIData)
+                        
+            // Wipe current task; maybe share user-prompt
+            willRequest_SideEffect(
+                userPrompt: prompt,
+                requestId: request.id,
+                document: document,
+                canShareData: StitchStore.canShareAIData,
+                userPromptTableName: aiManager.graphGenerationUserPromptTableName)
             
-            request.willRequest(document: document,
-                                canShareData: StitchStore.canShareAIData,
-                                requestTask: task)
+            aiManager.currentTask = .init(task: aiManager.getOpenAITask(
+                request: request,
+                attempt: 0,
+                document: document,
+                canShareAIRetries: StitchStore.canShareAIData))
+            
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")
         }
     }
-    
-    @MainActor
-    func willRequest(document: StitchDocumentViewModel,
-                     canShareData: Bool,
-                     requestTask: Self.RequestTask) {
-        print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
-        print("🤖 Prompt: \(self.userPrompt)")
         
-        guard let aiManager = document.aiManager else {
-            fatalErrorIfDebug("GenerateAINode: no aiManager")
-            return
-        }
-        
-        if canShareData {
-            Task(priority: .background) { [weak aiManager] in
-                try? await aiManager?.uploadUserPromptRequestToSupabase(
-                    prompt: self.userPrompt,
-                    requestId: self.id)
-            }
-        }
-        
-        // Make sure current task is completely wiped
-        aiManager.cancelCurrentRequest()
-        aiManager.currentTask = nil
-        
-        // Clear previous streamed steps
-        document.llmRecording.streamedSteps = .init()
-        
-        // Clear the previous actions
-        document.llmRecording.actions = .init()
-
-        // Set flag to indicate this is from AI generation
-        document.insertNodeMenuState.isFromAIGeneration = true
-        
-        print("🤖 isFromAIGeneration set to: \(document.insertNodeMenuState.isFromAIGeneration)")
-        
-        // Track initial graph state
-        document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
-        
-        // Track task object
-        aiManager.currentTask = CurrentAITask(task: requestTask)
-    }
-    
-    static func validateRepopnse(decodedResult: AIGraphCreationContentJSON) throws -> [any StepActionable] {
+    static func validateResponse(decodedResult: AIGraphCreationContentJSON) throws -> [any StepActionable] {
         let convertedSteps = decodedResult.steps.map { $0.parseAsStepAction() }
         
         // Catch steps that didn't convert
@@ -139,4 +109,56 @@ struct AIGraphCreationRequest: StitchAIRequestable {
     static func buildResponse(from streamingChunks: [Step]) throws -> AIGraphCreationContentJSON {
         .init(steps: streamingChunks)
     }
+}
+
+// NOTE: used by graph-generation, ai-javascript-node, etc.
+// TODO: find a better way to indicate that we're doing async logic here; maybe we return, rather than execute, the side-effect
+@MainActor
+func willRequest_SideEffect(userPrompt: String,
+                            requestId: UUID,
+                            document: StitchDocumentViewModel,
+                            canShareData: Bool,
+                            userPromptTableName: String?) {
+    
+    print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
+    print("🤖 Prompt: \(userPrompt)")
+    
+    guard let aiManager = document.aiManager else {
+        fatalErrorIfDebug("GenerateAINode: no aiManager")
+        return
+    }
+    
+    // Only log pre-request user prompts if we're in a release build and user has granted permissions
+#if RELEASE
+    if canShareData,
+       let tableName = userPromptTableName {
+        Task(priority: .background) { [weak aiManager] in
+            guard let aiManager = aiManager else {
+                return
+            }
+            try? await aiManager.uploadUserPromptRequestToSupabase(
+                prompt: userPrompt,
+                requestId: requestId,
+                tableName: tableName)
+        }
+    }
+#endif
+    
+    // Make sure current task is completely wiped
+    aiManager.cancelCurrentRequest()
+    aiManager.currentTask = nil
+    
+    // Clear previous streamed steps
+    document.llmRecording.streamedSteps = .init()
+    
+    // Clear the previous actions
+    document.llmRecording.actions = .init()
+
+    // Set flag to indicate this is from AI generation
+    document.insertNodeMenuState.isFromAIGeneration = true
+    
+    print("🤖 isFromAIGeneration set to: \(document.insertNodeMenuState.isFromAIGeneration)")
+    
+    // Track initial graph state
+    document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
 }

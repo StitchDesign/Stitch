@@ -11,57 +11,94 @@ import UIKit
 import SwiftUI
 
 
-struct SupabaseInferenceCallResultPayload: Codable {
+struct GraphGenerationSupabaseInferenceCallResultPayload: Codable {
     let user_id: String
-    var actions: SupabaseInferenceCallResultRecordingWrapper
+    var actions: GraphGenerationSupabaseInferenceCallResultRecordingWrapper
     let correction: Bool
     let score: CGFloat
     let required_retry: Bool
     let request_id: UUID? // nil for freshly-created training data
 }
 
-struct SupabaseInferenceCallResultRecordingWrapper: Codable {
+struct GraphGenerationSupabaseInferenceCallResultRecordingWrapper: Codable {
     let prompt: String
     var actions: [LLMStepAction]
 }
 
-struct SupabaseUserPromptRequestRow: Codable {
+struct GraphGenerationSupabaseUserPromptRequestRow: Codable {
     let request_id: UUID // required
     let user_prompt: String // e.g. "
     let version_number: String // e.g. "1.7.3"
     let user_id: String
 }
 
+struct AIJavascriptSupabaseInferenceCallResultPayload: Codable {
+    let user_id: String
+    let request_id: UUID
+    let user_prompt: String
+    let javascript_settings: JavaScriptNodeSettings
+}
+
 
 extension StitchAIManager {
-    // fka `uploadActionsToSupabase`
-    func uploadInferenceCallResultToSupabase(prompt: String,
-                                             finalActions: [Step],
-                                             deviceUUID: String,
-                                             
-                                             // Non-nil when uploading data for a request a user has made
-                                             // Nil when uploading freshly-created training example
-                                             requestId: UUID?,
-                                             
-                                             isCorrection: Bool,
-                                             
-                                             // How did the user rate the result? Always lowest-rating for retries; always highest-rating for manually created training data
-                                             rating: StitchAIRating,
-                                             
-                                             // Did the actions sent to us by OpenAI for this prompt require a retry?
-                                             requiredRetry: Bool) async throws {
+    
+    func uploadJavascriptCallResultToSupabase(userPrompt: String,
+                                              requestId: UUID,
+                                              javascriptSettings: JavaScriptNodeSettings) async throws {
         
         guard let userId = try? await getCloudKitUsername() else {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
             return
         }
         
-        let wrapper = SupabaseInferenceCallResultRecordingWrapper(
+        let payload = AIJavascriptSupabaseInferenceCallResultPayload(
+            user_id: userId,
+            request_id: requestId,
+            user_prompt: userPrompt,
+            javascript_settings: javascriptSettings)
+            
+        log(" Uploading inference-call-result payload, for JS AI Node:")
+        log("  - userPrompt: \(userPrompt)")
+        log("  - javascriptSettings: \(javascriptSettings)")
+        log("  - userId: \(userId)")
+        
+        try await self._uploadToSupabase(
+            payload: payload,
+            tableName: self.secrets.jsNodeInferenceCallResultTableName)
+    }
+    
+    // NOTE: only graph-generation
+    // fka `uploadActionsToSupabase`
+    func uploadGraphGenerationInferenceCallResultToSupabase(
+        prompt: String,
+        finalActions: [Step],
+        deviceUUID: String,
+        tableName: String,
+        
+        // Non-nil when uploading data for a request a user has made
+        // Nil when uploading freshly-created training example
+        requestId: UUID?,
+        
+        isCorrection: Bool,
+        
+        // How did the user rate the result? Always lowest-rating for retries; always highest-rating for manually created training data
+        rating: StitchAIRating,
+        
+        // Did the actions sent to us by OpenAI for this prompt require a retry?
+        requiredRetry: Bool
+    ) async throws {
+        
+        guard let userId = try? await getCloudKitUsername() else {
+            fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
+            return
+        }
+        
+        let wrapper = GraphGenerationSupabaseInferenceCallResultRecordingWrapper(
             prompt: prompt,
             actions: finalActions)
         
         // Not good to have as a var in an async context?
-        let payload = SupabaseInferenceCallResultPayload(
+        let payload = GraphGenerationSupabaseInferenceCallResultPayload(
             user_id: userId,
             actions: wrapper,
             correction: isCorrection,
@@ -78,11 +115,14 @@ extension StitchAIManager {
         log("  - userId: \(userId)")
         
         try await self._uploadToSupabase(payload: payload,
-                                         tableName: self.inferenceCallResultTableName)
+                                         tableName: tableName)
     }
     
+    // For GraphGeneration or JavascriptNode
     func uploadUserPromptRequestToSupabase(prompt: String,
-                                           requestId: UUID) async throws {
+                                           requestId: UUID,
+                                           tableName: String) async throws {
+        
         // Only log to supabase from release branch!
 #if RELEASE
         guard let releaseVersion = await getReleaseVersion(),
@@ -97,14 +137,14 @@ extension StitchAIManager {
         log("  - releaseVersion: \(releaseVersion)")
         log("  - userId: \(userId)")
         
-        let payload = SupabaseUserPromptRequestRow(
+        let payload = GraphGenerationSupabaseUserPromptRequestRow(
             request_id: requestId,
             user_prompt: prompt,
             version_number: releaseVersion,
             user_id: userId)
         
         try await self._uploadToSupabase(payload: payload,
-                                         tableName: self.userPromptTableName)
+                                         tableName: tableName)
 #endif
     }
     

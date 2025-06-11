@@ -63,18 +63,20 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateRepopnse(decodedResult: JavaScriptNodeSettingsAI) throws -> JavaScriptNodeSettings {
+    static func validateResponse(decodedResult: JavaScriptNodeSettingsAI) throws -> JavaScriptNodeSettings {
         .init(script: decodedResult.script,
               inputDefinitions: try decodedResult.input_definitions.map(JavaScriptPortDefinition.init),
               outputDefinitions: try decodedResult.output_definitions.map(JavaScriptPortDefinition.init))
     }
     
+    // TODO: support streaming
     @MainActor
     func onSuccessfulDecodingChunk(result: JavaScriptNodeSettings,
                                    currentAttempt: Int) {
         fatalErrorIfDebug("No JavaScript node support for streaming.")
     }
     
+    // TODO: support streaming
     static func buildResponse(from streamingChunks: [JavaScriptNodeSettings]) throws -> CurrentJavaScriptNodeSettingsAI.JavaScriptNodeSettingsAI {
         // Unsupported
         fatalError()

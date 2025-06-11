@@ -74,11 +74,12 @@ extension StitchAIManager {
                 }
                 
                 do {
-                    try await aiManager.uploadInferenceCallResultToSupabase(
+                    try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
                         prompt: request.userPrompt,
                         // Send the raw-streamed steps
                         finalActions: Array(document.llmRecording.streamedSteps),
                         deviceUUID: deviceUUID,
+                        tableName: aiManager.graphGenerationInferenceCallResultTableName,
                         requestId: request.id,
                         isCorrection: false,
                         rating: .oneStar,
