@@ -104,7 +104,7 @@ extension Patch_V31.Patch: NodeKindDescribable {
         // Downgrade back
         let downgradedTypes: [UserVisibleType_V31.UserVisibleType] = types.compactMap {
             guard let convertedType = try? $0.convert(to: UserVisibleType_V31.UserVisibleType.self) else {
-                fatalErrorIfDebug("No type for: \(self)")
+                log("No support at this version for type for: \(self)")
                 return nil
             }
             
