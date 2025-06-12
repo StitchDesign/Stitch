@@ -252,9 +252,7 @@ struct NodeView: View {
 //                }
 //            }
 //        }
-        
-        .modifier(NodeLoadingBlurEffect(isLoading: node.isLoading))
-        
+                
         .overlay {
             if document.llmRecording.isAugmentingAIActions &&
                 document.llmRecording.modal == .editBeforeSubmit {
@@ -275,6 +273,8 @@ struct NodeView: View {
         .onHover { isHovering in
             self.nodeBodyHovered = isHovering
         }
+        
+        .modifier(NodeLoadingBlurEffect(isLoading: node.isLoading))
     }
 
     var nodeTitle: some View {
@@ -531,12 +531,13 @@ struct NodeLoadingBlurEffect: ViewModifier {
     var isLoading: Bool
     
     func body(content: Content) -> some View {
-        content.overlay {
-            if isLoading {
-                ProgressView()
-                    .progressViewStyle(.circular)
+        content
+            .blur(radius: isLoading ? 3 : 0)
+            .overlay {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                }
             }
-        }
-        .blur(radius: isLoading ? 3 : 0)
     }
 }

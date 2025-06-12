@@ -18,6 +18,77 @@ struct ShowAINodePromptEntryModal: StitchDocumentEvent {
     }
 }
 
+extension StitchDocumentViewModel {
+    
+    @MainActor
+    func aiNodePromptSubmitted() {
+        
+        let document = self
+        
+        // On submit, create a javascript node
+        let aiNode = document.nodeInserted(choice: .patch(.javascript))
+        guard let aiPatchNode = aiNode.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        aiPatchNode.canvasObserver.isLoading = true
+        
+        document.graph.updateGraphData(document)
+        
+        
+        do {
+            let jsAIRequest = try AIEditJSNodeRequest(
+                prompt: document.llmRecording.aiNodePrompt,
+                document: document,
+                nodeId: aiNode.id)
+            
+            Task { [weak aiPatchNode, weak document] in
+                guard let aiPatchNode = aiPatchNode,
+                      let document = document,
+                      let aiManager = document.aiManager else {
+                    return
+                }
+                
+                // TODO: move to a `willRequest` for the Javascript Request ?
+                willRequest_SideEffect(
+                    userPrompt: jsAIRequest.userPrompt,
+                    requestId: jsAIRequest.id,
+                    document: document,
+                    canShareData: StitchStore.canShareAIData,
+                    userPromptTableName: nil)
+                                    
+                let result = await jsAIRequest.request(document: document,
+                                                       aiManager: aiManager)
+                
+                switch result {
+                
+                case .success(let jsSettings):
+                    log("success: jsSettings: \(jsSettings)")
+                    
+                    try await aiManager.uploadJavascriptCallResultToSupabase(
+                        userPrompt: jsAIRequest.userPrompt,
+                        requestId: jsAIRequest.id,
+                        javascriptSettings: jsSettings)
+                    
+                    aiPatchNode.canvasObserver.isLoading = false
+                    
+                    // Process the new Javascript settings
+                    aiPatchNode.processNewJavascript(response: jsSettings)
+                    
+                    document.graph.updateGraphData(document)
+                    
+                case .failure(let error):
+                    log("failure: error: \(error)")
+                    fatalErrorIfDebug(error.description)
+                }
+            }
+        } catch {
+            log("javascriptNodeField error: \(error.localizedDescription)")
+        }
+    }
+}
+
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
 enum LLMRecordingModal: Equatable, Hashable {
