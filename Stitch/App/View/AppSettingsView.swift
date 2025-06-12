@@ -290,7 +290,7 @@ struct AppSettingsView: View {
         self.checkboxView(title: "Require Option Key for Shortcuts",
                           caption: "If true, `Option + O`, rather than just `O`, adds an Option Picker to the canvas.",
                           wasChecked: isRequired) { isChecked in
-            dispatch(CanShareAIData(newValue: isChecked))
+            dispatch(OptionRequiredForShortcutsChanged(newValue: isChecked))
         }
     }
     
