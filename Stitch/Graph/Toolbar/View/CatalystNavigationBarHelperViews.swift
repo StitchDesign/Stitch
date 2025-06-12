@@ -285,12 +285,12 @@ struct CatalystNavBarButton: View {
     
     let systemName: String
     let toolTip: String
-        
-    let action: () -> Void
-    
+
     // Only the graph-reset icon rotates?
     var rotationZ: CGFloat = 0
-        
+    
+    let action: () -> Void
+    
     var body: some View {
         
         // HACK to get tooltips working on Mac Catalyst; can't use SwiftUI `.help`
@@ -305,11 +305,31 @@ struct CatalystNavBarButton: View {
             
             Menu {
                 // 'Empty menu' so that nothing happens when we tap the Menu's label
-                EmptyView()
-            } label: {
-                Button(action: {}) {
-                    EmptyView()
+//                EmptyView()
+//                Button("Create AI Node")
+                
+                StitchButton {
+                    log("open modal")
+                } label: {
+                    Text("Create AI Node")
                 }
+//                .simultaneousGesture(TapGesture().onEnded({ _ in
+//                    log("open modal XXX")
+//                }))
+                
+                StitchButton {
+                    log("open node menu")
+                } label: {
+                    Text("Add Nodes")
+                }
+//                .simultaneousGesture(TapGesture().onEnded({ _ in
+//                    log("open node menu XXX")
+//                }))
+                
+            } label: {
+//                Button(action: {}) {
+                    EmptyView()
+//                }
             }
             // rotation3DEffect must be applied here
             .rotation3DEffect(Angle(degrees: rotationZ),
@@ -317,32 +337,10 @@ struct CatalystNavBarButton: View {
 
             .modifier(CatalystTopBarButtonStyle())
             
-            .simultaneousGesture(TapGesture().onEnded({ _ in
-                action()
-            }))
+//            .simultaneousGesture(TapGesture().onEnded({ _ in
+//                action()
+//            }))
         }
-        
-//        Menu {
-//            // 'Empty menu' so that nothing happens when we tap the Menu's label
-//            EmptyView()
-//        } label: {
-//            Button(action: {}) {
-//                // TODO: any .resizable(), .fixedSize() etc. needed?
-//                image
-//            }
-//        }
-//        // rotation3DEffect must be applied here
-//        .rotation3DEffect(Angle(degrees: rotationZ),
-//                          axis: (x: 0, y: 0, z: rotationZ))
-//
-//        .modifier(CatalystTopBarButtonStyle())
-//        .simultaneousGesture(TapGesture().onEnded({ _ in
-//            action()
-//        }))
-
-        // SwiftUI Menu's `primaryAction` enables label taps but also changes the button's appaearance, losing the hover-highlight effect etc.;
-        // so we use UIKitOnTapModifier for proper callback.
-//        .modifier(UIKitOnTapModifier(onTapCallback: action))
     }
 }
 
