@@ -156,7 +156,7 @@ extension String {
 }
 
 struct CatalystTopBarGraphButtons: View {
-    @Bindable var document: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel // Not needed?
     let isDebugMode: Bool
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool
@@ -177,10 +177,27 @@ struct CatalystTopBarGraphButtons: View {
                 }
             }
             
-            CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
-                                 toolTip: "Add Node") {
-                dispatch(ToggleInsertNodeMenu())
-            }
+            CatalystNavBarButtonWithMenu(
+                systemName: .ADD_NODE_SF_SYMBOL_NAME,
+                toolTip: "Add Nodes") {
+                    StitchButton {
+                        log("open ai node modal")
+                        dispatch(ShowAINodePromptEntryModal())
+                    } label: {
+                        Text("Create AI Node")
+                    }
+                    StitchButton {
+                        log("open regualr node menu")
+                        dispatch(ToggleInsertNodeMenu())
+                    } label: {
+                        Text("Add Nodes")
+                    }
+                }
+            
+//            CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
+//                                 toolTip: "Add Node") {
+//                dispatch(ToggleInsertNodeMenu())
+//            }
             
             // TODO: only show when no nodes are on-screen?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH,
@@ -270,88 +287,3 @@ struct GoUpOneTraversalLevel: StitchDocumentEvent {
     }
 }
 
-// Hacky view to get hover effect on Catalyst topbar buttons and to enforce gray tint
-struct CatalystNavBarButton: View {
-
-    init(_ systemName: String,
-         toolTip: String,
-         rotationZ: CGFloat = 0,
-         _ action: @escaping () -> Void) {
-        self.systemName = systemName
-        self.toolTip = toolTip
-        self.action = action
-        self.rotationZ = rotationZ
-    }
-    
-    let systemName: String
-    let toolTip: String
-
-    // Only the graph-reset icon rotates?
-    var rotationZ: CGFloat = 0
-    
-    let action: () -> Void
-    
-    var body: some View {
-        
-        // HACK to get tooltips working on Mac Catalyst; can't use SwiftUI `.help`
-        ZStack {
-            CatalystToolbarButton(
-                systemImageName: systemName, // "gearshape",
-                tooltipText: toolTip //"Open Settings"
-            ) {
-                // log("my action here")
-            }
-            .fixedSize()
-            
-            Menu {
-                // 'Empty menu' so that nothing happens when we tap the Menu's label
-//                EmptyView()
-//                Button("Create AI Node")
-                
-                StitchButton {
-                    log("open modal")
-                } label: {
-                    Text("Create AI Node")
-                }
-//                .simultaneousGesture(TapGesture().onEnded({ _ in
-//                    log("open modal XXX")
-//                }))
-                
-                StitchButton {
-                    log("open node menu")
-                } label: {
-                    Text("Add Nodes")
-                }
-//                .simultaneousGesture(TapGesture().onEnded({ _ in
-//                    log("open node menu XXX")
-//                }))
-                
-            } label: {
-//                Button(action: {}) {
-                    EmptyView()
-//                }
-            }
-            // rotation3DEffect must be applied here
-            .rotation3DEffect(Angle(degrees: rotationZ),
-                              axis: (x: 0, y: 0, z: rotationZ))
-
-            .modifier(CatalystTopBarButtonStyle())
-            
-//            .simultaneousGesture(TapGesture().onEnded({ _ in
-//                action()
-//            }))
-        }
-    }
-}
-
-struct CatalystTopBarButtonStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-        // Hides the little arrow on Catalyst
-        .menuIndicator(.hidden)
-        
-        // TODO: find ideal button size?
-        // Note: *must* provide explicit frame
-        .frame(width: 30, height: 30)
-    }
-}

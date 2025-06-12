@@ -73,6 +73,10 @@ final class CanvasItemViewModel: Identifiable, StitchLayoutCachable, Sendable {
     @MainActor var zIndex: Double = .zero
     @MainActor var parentGroupNodeId: NodeId?
     
+    // Is this canvas item "loading"?
+    // Can have multiple meanings
+    @MainActor var isLoading: Bool = false
+    
     @MainActor
     func isVisibleInFrame(_ visibleCanvasIds: CanvasItemIdSet) -> Bool {
         return visibleCanvasIds.contains(self.id)

@@ -628,6 +628,7 @@
 		EC609DCE29354C6E00BF60A5 /* LengthNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DCD29354C6E00BF60A5 /* LengthNode.swift */; };
 		EC609DD229357B8B00BF60A5 /* LessThanNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DD129357B8B00BF60A5 /* LessThanNode.swift */; };
 		EC609DD429357C0A00BF60A5 /* EqualsExactly.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DD329357C0A00BF60A5 /* EqualsExactly.swift */; };
+		EC60AE772DFB3BF5001F5119 /* CatalystNavBarButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60AE762DFB3BF5001F5119 /* CatalystNavBarButtonView.swift */; };
 		EC60B8652C18044D00984FC8 /* ProjectThumbnailActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60B8642C18044D00984FC8 /* ProjectThumbnailActions.swift */; };
 		EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60E57B27178DDD00AABE71 /* LayerUtils.swift */; };
 		EC631402265C418D00BD45B2 /* LoopSelectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC631401265C418D00BD45B2 /* LoopSelectNode.swift */; };
@@ -1675,6 +1676,7 @@
 		EC609DCD29354C6E00BF60A5 /* LengthNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LengthNode.swift; sourceTree = "<group>"; };
 		EC609DD129357B8B00BF60A5 /* LessThanNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessThanNode.swift; sourceTree = "<group>"; };
 		EC609DD329357C0A00BF60A5 /* EqualsExactly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualsExactly.swift; sourceTree = "<group>"; };
+		EC60AE762DFB3BF5001F5119 /* CatalystNavBarButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalystNavBarButtonView.swift; sourceTree = "<group>"; };
 		EC60B8642C18044D00984FC8 /* ProjectThumbnailActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectThumbnailActions.swift; sourceTree = "<group>"; };
 		EC60E57B27178DDD00AABE71 /* LayerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerUtils.swift; sourceTree = "<group>"; };
 		EC631401265C418D00BD45B2 /* LoopSelectNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSelectNode.swift; sourceTree = "<group>"; };
@@ -3070,6 +3072,7 @@
 				B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */,
 				EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */,
 				EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */,
+				EC60AE762DFB3BF5001F5119 /* CatalystNavBarButtonView.swift */,
 				EC10A6352DF3A6E800C27F04 /* CatalystNavbarToolTipView.swift */,
 			);
 			path = View;
@@ -5788,6 +5791,7 @@
 				20747C5325CB09BB00570787 /* PatchUtils.swift in Sources */,
 				ECD936562B714E9E008969E3 /* AnimatableCurveLine.swift in Sources */,
 				ECE35EE827CEE83C00CB8F5C /* FieldCoordinate.swift in Sources */,
+				EC60AE772DFB3BF5001F5119 /* CatalystNavBarButtonView.swift in Sources */,
 				B59C01342B4552F6001CDF87 /* NodeRowDefinitions.swift in Sources */,
 				EC5043A52874CDDB00590D07 /* RGBA.swift in Sources */,
 				B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */,

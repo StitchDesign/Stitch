@@ -12,6 +12,12 @@ import StitchEngine
 import OrderedCollections
 
 
+struct ShowAINodePromptEntryModal: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
+        state.llmRecording.modal = .aiNodePromptEntry
+    }
+}
+
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
 enum LLMRecordingModal: Equatable, Hashable {
@@ -26,6 +32,9 @@ enum LLMRecordingModal: Equatable, Hashable {
     
     // Modal from which user provides prompt and rating for an existing graph, which is then uploaded to Supabase as an example
     case submitExistingGraphAsTrainingExample
+    
+    // Modal from which user provides prompt for an AI Node
+    case aiNodePromptEntry
 }
 
 extension LLMRecordingModal {
@@ -60,7 +69,25 @@ struct LLMRecordingState {
             
     // No modal vs Edit actions list vs Approve and submit vs Enter prompt for just-created training data
     var modal: LLMRecordingModal = .none
+    
+    // TODO: probably better to make an enum case in the `modal`
     var willDisplayTrainingPrompt = false
+    
+    var aiNodePrompt: String = ""
+    
+    var showAINodePromptEntry: Bool {
+        get {
+            self.modal == .aiNodePromptEntry
+        } set {
+            if newValue {
+                self.modal == .aiNodePromptEntry
+            } else {
+                if self.modal == .aiNodePromptEntry {
+                    self.modal = .none
+                }
+            }
+        }
+    }
     
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
@@ -75,6 +102,8 @@ struct LLMRecordingState {
     // OR the saved prompt from a streaming request that has been completed
     var promptForTrainingDataOrCompletedRequest: String = ""
     var promptFromPreviousExistingGraphSubmittedAsTrainingData: String?
+    
+    
     
     // id from a user inference call; used
     var requestIdFromCompletedRequest: UUID?

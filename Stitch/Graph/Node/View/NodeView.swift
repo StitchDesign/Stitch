@@ -223,12 +223,12 @@ struct NodeView: View {
                 .modifier(CanvasItemBodyPadding())
             
             // TODO: remove this logic, there won't be a custom view like this for JS node
-            if stitch.kind == .patch(.javascript),
-               let aiManager = document.aiManager,
-                let patchNode = stitch.patchNode {
-                javascriptNodeField(patchNode: patchNode,
-                                    aiManager: aiManager)
-            }
+//            if stitch.kind == .patch(.javascript),
+//               let aiManager = document.aiManager,
+//                let patchNode = stitch.patchNode {
+//                javascriptNodeField(patchNode: patchNode,
+//                                    aiManager: aiManager)
+//            }
         }
         .onChange(of: self.node.sizeByLocalBounds) {
             // also a useful hack for updating node layout after type changes
@@ -240,6 +240,21 @@ struct NodeView: View {
                 .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                 .allowsHitTesting(!isLayerInvisible)
         }
+        
+//        .overlay {
+//            if node.isLoading {
+//                ZStack {
+//                    ProgressView()
+//                        .progressViewStyle(.circular)
+//                    Color.red.opacity(0.3)
+//                        .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+//                        .allowsHitTesting(false)
+//                }
+//            }
+//        }
+        
+        .modifier(NodeLoadingBlurEffect(isLoading: node.isLoading))
+        
         .overlay {
             if document.llmRecording.isAugmentingAIActions &&
                 document.llmRecording.modal == .editBeforeSubmit {
@@ -508,5 +523,20 @@ struct NodeViewTapGestureModifier: ViewModifier {
                     onSingleTap()
                 }
         }
+    }
+}
+
+
+struct NodeLoadingBlurEffect: ViewModifier {
+    var isLoading: Bool
+    
+    func body(content: Content) -> some View {
+        content.overlay {
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(.circular)
+            }
+        }
+        .blur(radius: isLoading ? 3 : 0)
     }
 }

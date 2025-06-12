@@ -46,7 +46,7 @@ struct TopBarSharingButtonsView: View {
     
     var macView: some View {
         ZStack {
-            CatalystToolbarButton(
+            CatalystToolTipButton(
                 systemImageName: .SHARE_ICON_SF_SYMBOL_NAME,
                 tooltipText: "Share") {
                 // log("my action here")
@@ -250,7 +250,7 @@ Platform: \(Self.platform)
     
     var macView: some View {
         ZStack {
-            CatalystToolbarButton(
+            CatalystToolTipButton(
                 systemImageName: Self.iconName,
                 tooltipText: "Contact Us"
             ) {

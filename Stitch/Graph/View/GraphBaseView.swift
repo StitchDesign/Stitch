@@ -93,7 +93,7 @@ struct GraphBaseView: View {
                     EditBeforeSubmitModalView(document: document, graph: graph)
                 }
            
-            case .none, .ratingToast, .submitExistingGraphAsTrainingExample:
+            case .none, .ratingToast, .submitExistingGraphAsTrainingExample, .aiNodePromptEntry:
                 // Either not applicable, or handled elsewhere
                 EmptyView()
             }
