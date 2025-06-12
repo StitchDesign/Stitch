@@ -102,6 +102,31 @@ extension Layer: NodeKindDescribable {
     var types: Set<NodeType>? { nil }
 }
 
+public enum PatchOrLayer: Codable, Hashable, Sendable {
+    case patch(Patch), layer(Layer)
+}
+
+extension PatchOrLayer {
+    var description: String {
+        switch self {
+        case .patch(let patch):
+            return patch.defaultDisplayTitle()
+        case .layer(let layer):
+            return layer.defaultDisplayTitle()
+        }
+    }
+    
+    var asLLMStepNodeName: String {
+        switch self {
+        case .patch(let x):
+            // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot || Patch"
+            return x.aiDisplayTitle
+        case .layer(let x):
+            return x.aiDisplayTitle
+        }
+    }
+}
+
 //extension StitchAINodeKindDescription {
 //    init<T>(_ nodeKindType: T) where T: CurrentStep.NodeKindDescribable {
 //        self.nodeKind = nodeKindType.aiDisplayTitle
