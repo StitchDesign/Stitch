@@ -8,15 +8,15 @@
 import SwiftUI
 import StitchSchemaKit
 
-extension CurrentStep.NodeKind {
-    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription_V31.StitchAINodeKindDescription] {
-        // Filter out the scroll interaction node
-        let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
-        return allDescriptions.filter { description in
-            !description.nodeKind.contains("scrollInteraction")
-        }
-    }
-}
+//extension CurrentStep.NodeKind {
+//    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription_V31.StitchAINodeKindDescription] {
+//        // Filter out the scroll interaction node
+//        let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
+//        return allDescriptions.filter { description in
+//            !description.nodeKind.contains("scrollInteraction")
+//        }
+//    }
+//}
 
 /// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
 extension NodeKind {
@@ -27,6 +27,79 @@ extension NodeKind {
             !description.nodeKind.contains("scrollInteraction")
         }
     }
+}
+
+struct StitchAINodeKindDescription {
+    let nodeKind: String
+    let description: String
+    let types: Set<NodeType>?
+}
+
+extension StitchAINodeKindDescription: Encodable {
+    enum CodingKeys: String, CodingKey {
+        case nodeKind = "node_kind"
+        case description
+        case types
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(nodeKind, forKey: .nodeKind)
+        try container.encode(description, forKey: .description)
+        
+        if let types = self.types {
+            let typeStrings = types.map(\.asLLMStepNodeType)
+            try container.encode(Array(typeStrings).sorted(), forKey: .types)
+        }
+    }
+}
+
+protocol NodeKindDescribable: CaseIterable {
+    func defaultDisplayTitle() -> String
+    
+    var aiNodeDescription: String { get }
+    
+    var types: Set<NodeType>? { get }
+    
+    static var titleDisplay: String { get }
+}
+
+extension NodeKindDescribable {
+    var aiDisplayTitle: String {
+        Self.toCamelCase(self.defaultDisplayTitle()) + " || \(Self.titleDisplay)"
+    }
+
+    static var allAiDescriptions: [StitchAINodeKindDescription] {
+        Self.allCases.map {
+            .init(nodeKind: $0.aiDisplayTitle,
+                  description: $0.aiNodeDescription,
+                  types: $0.types
+            )
+        }
+    }
+    
+    private static func toCamelCase(_ sentence: String) -> String {
+        let words = sentence.components(separatedBy: " ")
+        let camelCaseString = words.enumerated().map { index, word in
+            index == 0 ? word.lowercased() : word.capitalized
+        }.joined()
+        return camelCaseString
+    }
+}
+
+extension Patch: NodeKindDescribable {
+    var types: Set<NodeType>? {
+        let types = self.availableNodeTypes
+        guard !types.isEmpty else {
+            return nil
+        }
+        
+        return types
+    }
+}
+extension Layer: NodeKindDescribable {
+    // layers don't do node types
+    var types: Set<NodeType>? { nil }
 }
 
 //extension StitchAINodeKindDescription {

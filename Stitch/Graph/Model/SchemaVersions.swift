@@ -114,8 +114,8 @@ public typealias JavaScriptNodeSettings = CurrentJavaScriptNodeSettings.JavaScri
 public typealias JavaScriptPortDefinition = CurrentJavaScriptPortDefinition.JavaScriptPortDefinition
 public typealias KeyboardType = CurrentKeyboardType.KeyboardType
 public typealias PatchOrLayer = CurrentPatchOrLayer.PatchOrLayer
-public typealias NodeKindDescribable = CurrentNodeKindDescribable.NodeKindDescribable
-public typealias StitchAINodeKindDescription = CurrentStitchAINodeKindDescription.StitchAINodeKindDescription
+//public typealias NodeKindDescribable = CurrentNodeKindDescribable.NodeKindDescribable
+//public typealias StitchAINodeKindDescription = CurrentStitchAINodeKindDescription.StitchAINodeKindDescription
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument
