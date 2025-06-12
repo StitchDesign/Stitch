@@ -16,6 +16,7 @@ struct ExistingGraphAsTrainingExample: Equatable, Hashable {
 struct ExistingGraphSubmittedAsTrainingExample: StitchDocumentEvent {
     
     let prompt: String
+    let ratingExplanation: String
     let rating: StitchAIRating
     
     func handle(state: StitchDocumentViewModel) {
@@ -45,9 +46,10 @@ struct ExistingGraphSubmittedAsTrainingExample: StitchDocumentEvent {
         
         state.llmRecording.rating = rating
         
-        // Shows the edit modal, BUT DOES NOT put us into "correction mode" (i.e. we're not correcting a response from OpenAI).
-        // User will then review the actions via the 'edit before submit' and 'approve and submit' modals before final submission to Supabase.
-        state.showEditBeforeSubmitModal()
+        // Just submit to Supabase right away
+        state.submitApprovedActionsToSupabase(
+            ratingForExistingGraph: rating,
+            explanationForRatingForExistingGraph: ratingExplanation)
     }
 }
 
@@ -63,6 +65,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
     let ratingFromPreviousExistingGraphSubmittedAsTrainingData: StitchAIRating?
     
     @State var prompt: String = ""
+    @State var ratingExplanation: String = ""
     @State var currentRating: StitchAIRating? = nil
   
     var body: some View {
@@ -70,6 +73,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
         VStack(alignment: .leading, spacing: 12) {
             enterPrompt
             enterRating
+            enterRatingExplanation
             cancelOrSubmit
         }
         .frame(width: 340)
@@ -96,7 +100,6 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
         }
     }
     
-    
     var enterPrompt: some View {
         HStack {
             StitchTextView(string: "Prompt: ")
@@ -120,6 +123,19 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
         }
     }
     
+    var enterRatingExplanation: some View {
+        HStack {
+            StitchTextView(string: "Explanation: ")
+            TextField("", text: self.$ratingExplanation)
+                .frame(width: 260)
+                .padding(6)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray)
+                }
+        }
+    }
+    
     var cancelOrSubmit: some View {
         HStack {
 
@@ -136,12 +152,13 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
                 if let rating = currentRating {
                     dispatch(ExistingGraphSubmittedAsTrainingExample(
                         prompt: .init(self.prompt),
+                        ratingExplanation: self.ratingExplanation,
                         rating: rating))
                 }
             }, label: {
                 Text("Submit")
             })
-            .disabled(prompt.isEmpty || !currentRating.isDefined)
+            .disabled(prompt.isEmpty || !currentRating.isDefined || ratingExplanation.isEmpty)
             .buttonStyle(.bordered)
             
             Spacer()
