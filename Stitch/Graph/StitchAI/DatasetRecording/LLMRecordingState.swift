@@ -74,7 +74,8 @@ extension StitchDocumentViewModel {
                     aiPatchNode.canvasObserver.isLoading = false
                     
                     // Process the new Javascript settings
-                    aiPatchNode.processNewJavascript(response: jsSettings)
+                    aiPatchNode.processNewJavascript(response: jsSettings,
+                                                     document: document)
                     
                     document.graph.updateGraphData(document)
                     
