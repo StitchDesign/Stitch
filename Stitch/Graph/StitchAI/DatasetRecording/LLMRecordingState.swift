@@ -31,7 +31,7 @@ extension StitchDocumentViewModel {
             fatalErrorIfDebug()
             return
         }
-        
+                
         aiPatchNode.canvasObserver.isLoading = true
         
         document.graph.updateGraphData(document)
@@ -43,7 +43,7 @@ extension StitchDocumentViewModel {
                 document: document,
                 nodeId: aiNode.id)
             
-            Task { [weak aiNode, weak aiPatchNode, weak document] in
+            Task { [weak aiPatchNode, weak document] in
                 guard let aiPatchNode = aiPatchNode,
                       let document = document,
                       let aiManager = document.aiManager else {
@@ -74,9 +74,8 @@ extension StitchDocumentViewModel {
                     aiPatchNode.canvasObserver.isLoading = false
                     
                     // Process the new Javascript settings
-//                    aiPatchNode.processNewJavascript(response: jsSettings,
-//                                                     document: document)
-                    aiPatchNode.processNewJavascript(response: jsSettings)
+                    aiPatchNode.processNewJavascript(response: jsSettings,
+                                                     document: document)
                     
                     document.graph.updateGraphData(document)
                     

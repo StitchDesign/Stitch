@@ -106,43 +106,13 @@ extension PortValuesList {
 }
 
 extension PatchNodeViewModel {
-    /// Upon new JavaScript code:
-    /// 1. Sets script to node
-    /// 2. Processes changes to inputs and outputs
-    /// 3. Recalculates node
+    
     @MainActor
-//    func processNewJavascript(response: JavaScriptNodeSettings,
-//                              document: StitchDocumentViewModel) {
-    func processNewJavascript(response: JavaScriptNodeSettings) {
-        
-        let document = documentDelegate
-        let graph = graphDelegate //document.visibleGraph
-        
-//        guard let node = graph.getNode(id: self.id) else {
-//            fatalErrorIfDebug()
-//            return
-//        }
-                
-        // Update the node title
-        
-        if let graph = graph {
-            self.canvasObserver
-                .nodeDelegate?
-                .nodeTitleEdited(titleEditType: .canvas(self.canvasObserver.id),
-                                 edit: response.suggestedTitle,
-                                 isCommitting: true,
-                                 graph: graph)
-        }
-        
-//        node.nodeTitleEdited(
-//            titleEditType: .canvas(self.canvasObserver.id),
-//            edit: response.suggestedTitle,
-//            isCommitting: true,
-//            graph: graph)
-        
+    func applyJavascriptToInputsAndOutputs(response: JavaScriptNodeSettings,
+                                           currentGraphTime: TimeInterval,
+                                           activeIndex: ActiveIndex) {
         
         // Update the ports etc.
-        
         let oldJavaScriptSettings = self.javaScriptNodeSettings
         let newJavaScriptSettings = response
         self.javaScriptNodeSettings = response
@@ -164,12 +134,12 @@ extension PatchNodeViewModel {
             let defaultValue = inputDefinition.strictType.defaultPortValue
             let didTypeChange = oldJavaScriptSettings?.inputDefinitions[safe: portIndex]?.strictType != inputDefinition.strictType
             
-           let inputObserver = self.inputsObservers[safe: portIndex] ??
+            let inputObserver = self.inputsObservers[safe: portIndex] ??
             InputNodeRowObserver(values: [defaultValue],
                                  id: .init(portId: portIndex,
                                            nodeId: self.id),
                                  upstreamOutputCoordinate: nil)
-                
+            
             // Always create new row view model to assert new type parameters
             let newRowViewModel = InputNodeRowViewModel(
                 id: .init(graphItemType: .canvas(.node(self.id)),
@@ -178,7 +148,7 @@ extension PatchNodeViewModel {
                 initialValue: defaultValue,
                 rowDelegate: inputObserver,
                 canvasItemDelegate: self.canvasObserver)
-
+            
             if self.inputsObservers[safe: portIndex] == nil {
                 self.inputsObservers.append(inputObserver)
                 self.canvasObserver.inputViewModels.append(newRowViewModel)
@@ -199,13 +169,10 @@ extension PatchNodeViewModel {
                 
                 inputObserver.changeInputType(to: inputDefinition.strictType,
                                               nodeKind: .patch(self.patch),
-//                                              currentGraphTime: graph.graphStepState.graphTime,
-                                              currentGraphTime: graph?.graphStepState.graphTime ?? .zero,
-                                              
+                                              currentGraphTime: currentGraphTime,
                                               // TODO: update computed node state
                                               computedState: nil,
-//                                              activeIndex: document.activeIndex,
-                                              activeIndex: document?.activeIndex ?? .defaultActiveIndex,
+                                              activeIndex: activeIndex,
                                               isVisible: true)
                 
                 // Update value after field group has changed
@@ -234,6 +201,30 @@ extension PatchNodeViewModel {
                 self.canvasObserver.outputViewModels.append(newRowViewModel)
             }
         }
+    }
+    
+    /// Upon new JavaScript code:
+    /// 1. Sets script to node
+    /// 2. Processes changes to inputs and outputs
+    /// 3. Recalculates node
+    @MainActor
+    func processNewJavascript(response: JavaScriptNodeSettings,
+                              document: StitchDocumentViewModel) {
+        
+        // Update the node title
+        guard let node = document.visibleGraph.getNode(self.id) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        node.nodeTitleEdited(titleEditType: .canvas(self.canvasObserver.id),
+                             edit: response.suggestedTitle,
+                             isCommitting: true,
+                             graph: document.visibleGraph)
+        
+        self.applyJavascriptToInputsAndOutputs(response: response,
+                                               currentGraphTime: document.graphStepManager.graphTime,
+                                               activeIndex: document.activeIndex)
     }
 }
 
