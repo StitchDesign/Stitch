@@ -18,6 +18,7 @@ struct GraphGenerationSupabaseInferenceCallResultPayload: Codable {
     let score: CGFloat
     let required_retry: Bool
     let request_id: UUID? // nil for freshly-created training data
+    let score_explanation: String?
 }
 
 struct GraphGenerationSupabaseInferenceCallResultRecordingWrapper: Codable {
@@ -84,6 +85,10 @@ extension StitchAIManager {
         // How did the user rate the result? Always lowest-rating for retries; always highest-rating for manually created training data
         rating: StitchAIRating,
         
+        // Why the rating was given
+        // TODO: expose to user
+        ratingExplanation: String?,
+        
         // Did the actions sent to us by OpenAI for this prompt require a retry?
         requiredRetry: Bool
     ) async throws {
@@ -104,7 +109,8 @@ extension StitchAIManager {
             correction: isCorrection,
             score: rating.rawValue,
             required_retry: requiredRetry,
-            request_id: requestId)
+            request_id: requestId,
+            score_explanation: ratingExplanation)
         
         log(" Uploading inference-call-result payload:")
         log("  - User ID: \(deviceUUID)")
@@ -112,6 +118,7 @@ extension StitchAIManager {
         log("  - Total actions: \(wrapper.actions.count)")
         log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
         log("  - Rating: \(rating.rawValue)")
+        log("  - ratingExplanation: \(ratingExplanation)")
         log("  - userId: \(userId)")
         
         try await self._uploadToSupabase(payload: payload,

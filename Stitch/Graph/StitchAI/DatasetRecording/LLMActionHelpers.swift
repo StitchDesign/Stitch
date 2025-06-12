@@ -32,7 +32,8 @@ extension StitchDocumentViewModel {
     
     // User has reviewed actions via the 'Edit Before Submit' modal and now has reviewed the graph via 'Approve And Submit' modal
     @MainActor
-    func submitApprovedActionsToSupabase() {
+    func submitApprovedActionsToSupabase(ratingForExistingGraph: StitchAIRating? = nil,
+                                         explanationForRatingForExistingGraph: String? = nil) {
         
         let state = self
         
@@ -53,7 +54,9 @@ extension StitchDocumentViewModel {
         // Submitting a correction = 5 star rating
         // Submitting a training example = whatever rating we gave in the earlier modal
         let isCorrection = state.llmRecording.isAugmentingAIActions
-        let rating: StitchAIRating = isCorrection ? .fiveStars : (state.llmRecording.rating ?? .fiveStars)
+        
+        let rating = isCorrection ? .fiveStars : (ratingForExistingGraph ?? state.llmRecording.rating ?? .fiveStars)
+        
         #if DEV_DEBUG
         if state.llmRecording.rating.isNotDefined && !isCorrection { fatalErrorIfDebug() }
         #endif
@@ -75,6 +78,7 @@ extension StitchDocumentViewModel {
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: isCorrection,
                     rating: rating,
+                    ratingExplanation: nil, // TODO: expose to user
                     // these actions + prompt did not require a retry
                     requiredRetry: false)
                 
