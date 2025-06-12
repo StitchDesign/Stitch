@@ -79,6 +79,8 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: false,
                     rating: rating,
+                    // TODO: allow user to provide explanation for score
+                    ratingExplanation: nil,
                     requiredRetry: false)
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)

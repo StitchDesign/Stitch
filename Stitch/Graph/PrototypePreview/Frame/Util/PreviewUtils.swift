@@ -8,11 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
-#if DEV_DEBUG
-let defaultOpacityNumber = 0.9
-#else
 let defaultOpacityNumber = 1.0
-#endif
 
 let defaultOpacity: PortValue = .number(defaultOpacityNumber)
 

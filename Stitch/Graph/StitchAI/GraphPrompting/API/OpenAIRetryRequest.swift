@@ -83,6 +83,7 @@ extension StitchAIManager {
                         requestId: request.id,
                         isCorrection: false,
                         rating: .oneStar,
+                        ratingExplanation: nil,
                         // These actions could not be parsed and/or validated, so
                         requiredRetry: true)
                 } catch  {

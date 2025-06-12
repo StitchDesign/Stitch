@@ -21,7 +21,7 @@ struct EditBeforeSubmitModalView: View {
     
     // TODO: Shouldn't we *always* have a prompt at this point ?
     var prompt: String {
-        recordingState.promptForTrainingDataOrCompletedRequest ?? ""
+        recordingState.promptForTrainingDataOrCompletedRequest
     }
 
     var body: some View {
