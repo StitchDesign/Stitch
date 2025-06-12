@@ -164,30 +164,23 @@ struct ContentView: View, KeyboardReadable {
                actions: {
                         
             TextField("Prompt", text: $document.llmRecording.aiNodePrompt)
+                .onAppear(perform: {
+                    // So that `CMD+A: select all` works in this text field
+                    dispatch(ReduxFieldFocused(focusedField: .aiNodePrompt))
+                })
                 .onSubmit {
                     log("text field submit called")
                     document.aiNodePromptSubmitted()
                 }
             
-            // HStack is ignored ?
-            HStack {
-                
-                // WTF?: Submitting the TextField ALSO fires this button?
-                // Or pressing this button ALSO submits the TextField ?
-                
-//                StitchButton("Create") {
-//                    log("create button called")
-//                    document.aiNodePromptSubmitted()
-//                }
-                
-                StitchButton("Cancel", role: .cancel) {
-                    document.llmRecording.aiNodePrompt = ""
-                }
+            Button {
+                document.llmRecording.aiNodePrompt = ""
+            } label: {
+                Text("Cancel")
             }
             
-            
         }, message: {
-            Text("Generate a custom node")
+            Text("What should your node do?")
         })
     }
     
