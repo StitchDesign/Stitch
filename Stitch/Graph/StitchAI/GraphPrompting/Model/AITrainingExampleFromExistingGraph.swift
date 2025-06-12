@@ -125,7 +125,7 @@ struct SubmitExistingGraphAsTrainingExampleModalView: View {
     
     var enterRatingExplanation: some View {
         HStack {
-            StitchTextView(string: "Explanation: ")
+            StitchTextView(string: "Why?: ")
             TextField("", text: self.$ratingExplanation)
                 .frame(width: 260)
                 .padding(6)
