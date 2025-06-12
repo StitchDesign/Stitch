@@ -29,7 +29,7 @@ enum Step_V0: StitchSchemaVersionable {
     typealias StitchAIUUid = StitchAIUUID_V0.StitchAIUUID
     typealias PatchOrLayer = PatchOrLayer_V31.PatchOrLayer
     typealias LayerNodeId = LayerNodeId_V31.LayerNodeId
-    typealias NodeKindDescribable = NodeKindDescribable_V31.NodeKindDescribable
+//    typealias NodeKindDescribable = NodeKindDescribable_V31.NodeKindDescribable
     typealias NodeIOCoordinate = NodeIOCoordinate_V31.NodeIOCoordinate
     
     typealias PreviousInstance = Self.Step

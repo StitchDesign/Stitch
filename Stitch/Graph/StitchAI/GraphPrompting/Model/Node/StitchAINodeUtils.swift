@@ -18,11 +18,15 @@ import StitchSchemaKit
 //    }
 //}
 
+
+
+// TODO: move to schema versioning
+
 /// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
-extension NodeKind {
+extension NodeKind_V31.NodeKind {
     static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
         // Filter out the scroll interaction node
-        let allDescriptions = Patch.allAiDescriptions + Layer.allAiDescriptions
+        let allDescriptions = Patch_V31.Patch.allAiDescriptions + Layer_V31.Layer.allAiDescriptions
         return allDescriptions.filter { description in
             !description.nodeKind.contains("scrollInteraction")
         }
@@ -32,7 +36,7 @@ extension NodeKind {
 struct StitchAINodeKindDescription {
     let nodeKind: String
     let description: String
-    let types: Set<NodeType>?
+    let types: Set<UserVisibleType_V31.UserVisibleType>?
 }
 
 extension StitchAINodeKindDescription: Encodable {
@@ -59,7 +63,7 @@ protocol NodeKindDescribable: CaseIterable {
     
     var aiNodeDescription: String { get }
     
-    var types: Set<NodeType>? { get }
+    var types: Set<UserVisibleType_V31.UserVisibleType>? { get }
     
     static var titleDisplay: String { get }
 }
@@ -87,34 +91,51 @@ extension NodeKindDescribable {
     }
 }
 
-extension Patch: NodeKindDescribable {
-    var types: Set<NodeType>? {
-        let types = self.availableNodeTypes
-        guard !types.isEmpty else {
+extension Patch_V31.Patch: NodeKindDescribable {
+    var types: Set<UserVisibleType_V31.UserVisibleType>? {
+        guard let migratedPatch = try? self.convert(to: Patch.self) else {
+            fatalErrorIfDebug("No patch for this type: \(self)")
             return nil
         }
         
-        return types
-    }
-}
-extension Layer: NodeKindDescribable {
-    // layers don't do node types
-    var types: Set<NodeType>? { nil }
-}
-
-public enum PatchOrLayer: Codable, Hashable, Sendable {
-    case patch(Patch), layer(Layer)
-}
-
-extension PatchOrLayer {
-    var description: String {
-        switch self {
-        case .patch(let patch):
-            return patch.defaultDisplayTitle()
-        case .layer(let layer):
-            return layer.defaultDisplayTitle()
+        // Check runtime support
+        let types = migratedPatch.availableNodeTypes
+        
+        // Downgrade back
+        let downgradedTypes: [UserVisibleType_V31.UserVisibleType] = types.compactMap {
+            guard let convertedType = try? $0.convert(to: UserVisibleType_V31.UserVisibleType.self) else {
+                fatalErrorIfDebug("No type for: \(self)")
+                return nil
+            }
+            
+            return convertedType
         }
+        
+        guard !downgradedTypes.isEmpty else {
+            return nil
+        }
+        
+        return Set(downgradedTypes)
     }
+}
+extension Layer_V31.Layer: NodeKindDescribable {
+    // layers don't do node types
+    var types: Set<UserVisibleType_V31.UserVisibleType>? { nil }
+}
+
+//public enum PatchOrLayer: Codable, Hashable, Sendable {
+//    case patch(Patch_V31.Patch), layer(Layer_V31.Layer)
+//}
+
+extension PatchOrLayer_V31.PatchOrLayer {
+//    var description: String {
+//        switch self {
+//        case .patch(let patch):
+//            return patch.defaultDisplayTitle()
+//        case .layer(let layer):
+//            return layer.defaultDisplayTitle()
+//        }
+//    }
     
     var asLLMStepNodeName: String {
         switch self {
@@ -154,24 +175,41 @@ extension StitchAINodeSectionDescription {
         let nodesInSection: [StitchAINodeIODescription] = try section
             .getNodesForSection()
             .compactMap { patchOrLayer -> StitchAINodeIODescription? in
+                guard let migratedPatchOrLayer = try? patchOrLayer.convert(to: PatchOrLayer.self) else {
+                    fatalErrorIfDebug("StitchAINodeSectionDescription: unable to convert patchOrLayer for: \(patchOrLayer)")
+                    return nil
+                }
+                
                 // Use node definitions, if available
-                if let graphNode = patchOrLayer.graphNode {
+                if let graphNode = migratedPatchOrLayer.graphNode {
                     return try .init(graphNode)
                 }
                 
                 // Backup plan: create default node, extract data from there
-                guard let defaultNode = patchOrLayer.createDefaultNode(id: .init(),
-                                                                       activeIndex: .init(.zero),
-                                                                       graphDelegate: graph) else {
+                guard let defaultNode = migratedPatchOrLayer
+                    .createDefaultNode(id: .init(),
+                                       activeIndex: .init(.zero),
+                                       graphDelegate: graph) else {
                     fatalErrorIfDebug()
                     return nil
                 }
                 
-                let inputs: [StitchAIPortValueDescription] = try defaultNode.inputsObservers.map { inputObserver in
+                let inputs: [StitchAIPortValueDescription] = try defaultNode.inputsObservers.compactMap { inputObserver in
                     let runtimeValue = inputObserver.getActiveValue(activeIndex: .init(.zero))
                     
                     // Backwards compat check for runtime's PortValue
-                    let migratedValue = try runtimeValue.convert(to: CurrentStep.PortValue.self)
+                    // Silent failures allow for new port value types to get ignored, which should be ok for layers
+                    guard let migratedValue = try? runtimeValue.convert(to: CurrentStep.PortValue.self) else {
+                        switch patchOrLayer {
+                        case .patch(let patch):
+                            fatalErrorIfDebug("Issues reading values for patch \(patch) on value \(runtimeValue)")
+                            throw StitchAIManagerError.portValueDescriptionNotSupported(patchOrLayer.asLLMStepNodeName)
+                        
+                        case .layer:
+                            // Less of a big deal for layers to not support inputs since ordering isn't important
+                            return nil
+                        }
+                    }
                     
                     return StitchAIPortValueDescription(
                         label: inputObserver.label(node: defaultNode,
@@ -220,13 +258,22 @@ struct StitchAINodeIODescription: Encodable {
 extension StitchAINodeIODescription {
     @MainActor
     init(_ NodeInfo: any NodeDefinition.Type) throws {
-        self.nodeKind = NodeInfo.graphKind.kind.asLLMStepNodeName
+        let migratedNodeKind = try NodeInfo.graphKind.kind.convert(to: PatchOrLayer_V31.PatchOrLayer.self)
+        self.nodeKind = migratedNodeKind.asLLMStepNodeName
         let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
         
         do {
-            self.inputs = try rowDefinitions.inputs.map {
+            self.inputs = try rowDefinitions.inputs.compactMap {
                 // Migrates PortValue data to supported AI version
-                let migratedInput = try $0.defaultValues.first!.convert(to: CurrentStep.PortValue.self)
+                guard let migratedInput = try? $0.defaultValues.first!.convert(to: CurrentStep.PortValue.self) else {
+                    // Silent failure for layer inputs which don't have ordering constraints of patches
+                    switch migratedNodeKind {
+                    case .layer:
+                        return nil
+                    case .patch:
+                        throw StitchAIManagerError.portValueDescriptionNotSupported(migratedNodeKind.asLLMStepNodeName)
+                    }
+                }
                 
                 return .init(label: $0.label,
                              value: migratedInput)
@@ -239,8 +286,8 @@ extension StitchAINodeIODescription {
                              value: migratedOutput)
             }
         } catch {
-            log("Error converting node types at StitchAINodeIODescription: \(error.localizedDescription)")
-            throw StitchAIManagerError.portValueDescriptionNotSupported
+            log("Error converting node types at StitchAINodeIODescription for \(self.nodeKind): \(error.localizedDescription)")
+            throw StitchAIManagerError.portValueDescriptionNotSupported(migratedNodeKind.asLLMStepNodeName)
         }
     }
 }

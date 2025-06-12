@@ -90,16 +90,22 @@ Explicit Sizing: Only update the size of a layer if the user explicitly provides
 
 The following is a description of each node. Patches may support "value" types, referring to the patches' ability to specify the value-type solved with its logic. For example, an "add" patch node may sum numbers, positions, strings, or others.
 
-\(try NodeKind.getAiNodeDescriptions().encodeToPrintableString())
+```
+\(try CurrentStep.NodeKind.getAiNodeDescriptions().encodeToPrintableString())
+```
 
 These are the nodes in our application; and the input and output ports they have:
 
+```
 \(try NodeSection.getAllAIDescriptions(graph: graph).encodeToPrintableString())
+```
 
 # Value Examples
 Below is a schema illustrating various value types and the types of values they take. Adhere to the exact schema of provided examples for values:
 
+```
 \(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
+```
 
 # Example Responses
 
