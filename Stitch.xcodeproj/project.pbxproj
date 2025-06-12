@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -474,7 +474,6 @@
 		EC2614552B897C4200BEB066 /* MatrixUnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614542B897C4200BEB066 /* MatrixUnpackNode.swift */; };
 		EC264AF72924709000025C15 /* LayerStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC264AF62924709000025C15 /* LayerStroke.swift */; };
 		EC26C8F82DEF9ECB00949FE6 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = EC26C8F72DEF9ECB00949FE6 /* StitchSchemaKit */; };
-		EC26C8FB2DEFE28B00949FE6 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = EC26C8FA2DEFE28B00949FE6 /* StitchSchemaKit */; };
 		EC27A0CC2AF47CCD00FFD018 /* FromColorToHSL.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC27A0CB2AF47CCD00FFD018 /* FromColorToHSL.swift */; };
 		EC27A0CE2AF47CDF00FFD018 /* FromHSLToColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC27A0CD2AF47CDF00FFD018 /* FromHSLToColor.swift */; };
 		EC27A0D22AF47DE700FFD018 /* HexColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC27A0D12AF47DE700FFD018 /* HexColors.swift */; };
@@ -924,6 +923,7 @@
 		ECD50AC6285D34790009B564 /* ShortcutViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD50AC5285D34790009B564 /* ShortcutViewUtils.swift */; };
 		ECD50AC8285D34930009B564 /* ShortcutsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD50AC7285D34930009B564 /* ShortcutsUtils.swift */; };
 		ECD50ACA285D34B80009B564 /* StitchCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD50AC9285D34B80009B564 /* StitchCommands.swift */; };
+		ECD518002DFB702A008BBB37 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = ECD517FF2DFB702A008BBB37 /* StitchSchemaKit */; };
 		ECD5438E29A003F8009D0A30 /* DisplayLink in Frameworks */ = {isa = PBXBuildFile; productRef = ECD5438D29A003F8009D0A30 /* DisplayLink */; };
 		ECD60DAC2627805800D534DF /* LoopInsert.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD60DAB2627805800D534DF /* LoopInsert.swift */; };
 		ECD7FA8B29D73C010073ACAC /* InsertNodeMenuOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8A29D73C010073ACAC /* InsertNodeMenuOption.swift */; };
@@ -2105,7 +2105,7 @@
 				E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */,
 				EC8826CD2DCD04AD003529BA /* JsonStream in Frameworks */,
 				B50BC9E42D77881900311551 /* StitchEngine in Frameworks */,
-				EC26C8FB2DEFE28B00949FE6 /* StitchSchemaKit in Frameworks */,
+				ECD518002DFB702A008BBB37 /* StitchSchemaKit in Frameworks */,
 				EC26C8F82DEF9ECB00949FE6 /* StitchSchemaKit in Frameworks */,
 				E42B46DC2DC55B4F009C6890 /* FirebaseAnalytics in Frameworks */,
 				EC91034A29109DF3007C548E /* SoulverCore in Frameworks */,
@@ -5088,7 +5088,7 @@
 				B5A99E392DD5645500D3246A /* StitchSchemaKit */,
 				EC843BFF2DEF66D200A38BB9 /* StitchSchemaKit */,
 				EC26C8F72DEF9ECB00949FE6 /* StitchSchemaKit */,
-				EC26C8FA2DEFE28B00949FE6 /* StitchSchemaKit */,
+				ECD517FF2DFB702A008BBB37 /* StitchSchemaKit */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -5177,7 +5177,7 @@
 				ECE5857A2DB6D39C00749ED3 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 				E42B46DA2DC55B4F009C6890 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */,
-				EC26C8F92DEFE28B00949FE6 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
+				ECD517FE2DFB702A008BBB37 /* XCLocalSwiftPackageReference "../../StitchSchemaKit" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -7073,6 +7073,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		ECD517FE2DFB702A008BBB37 /* XCLocalSwiftPackageReference "../../StitchSchemaKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../StitchSchemaKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -7144,14 +7151,6 @@
 			requirement = {
 				kind = exactVersion;
 				version = 5.0.1;
-			};
-		};
-		EC26C8F92DEFE28B00949FE6 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
-			requirement = {
-				kind = revision;
-				revision = 62f594e89da765c8f010baa98d03f4a7a09c741f;
 			};
 		};
 		EC39E75A26822ACA00674841 /* XCRemoteSwiftPackageReference "AudioKit" */ = {
@@ -7331,11 +7330,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchSchemaKit;
 		};
-		EC26C8FA2DEFE28B00949FE6 /* StitchSchemaKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EC26C8F92DEFE28B00949FE6 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
-			productName = StitchSchemaKit;
-		};
 		EC39E75B26822ACA00674841 /* AudioKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = EC39E75A26822ACA00674841 /* XCRemoteSwiftPackageReference "AudioKit" */;
@@ -7368,6 +7362,10 @@
 		ECB46CD52DB14D80006EFB93 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
+		};
+		ECD517FF2DFB702A008BBB37 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchSchemaKit;
 		};
 		ECD5438D29A003F8009D0A30 /* DisplayLink */ = {
 			isa = XCSwiftPackageProductDependency;

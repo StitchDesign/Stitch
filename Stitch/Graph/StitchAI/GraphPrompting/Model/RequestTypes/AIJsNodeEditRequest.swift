@@ -64,7 +64,8 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
     }
     
     static func validateResponse(decodedResult: JavaScriptNodeSettingsAI) throws -> JavaScriptNodeSettings {
-        .init(script: decodedResult.script,
+        .init(suggestedTitle: decodedResult.suggested_title,
+              script: decodedResult.script,
               inputDefinitions: try decodedResult.input_definitions.map(JavaScriptPortDefinition.init),
               outputDefinitions: try decodedResult.output_definitions.map(JavaScriptPortDefinition.init))
     }

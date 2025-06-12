@@ -43,7 +43,7 @@ extension StitchDocumentViewModel {
                 document: document,
                 nodeId: aiNode.id)
             
-            Task { [weak aiPatchNode, weak document] in
+            Task { [weak aiNode, weak aiPatchNode, weak document] in
                 guard let aiPatchNode = aiPatchNode,
                       let document = document,
                       let aiManager = document.aiManager else {
@@ -74,8 +74,9 @@ extension StitchDocumentViewModel {
                     aiPatchNode.canvasObserver.isLoading = false
                     
                     // Process the new Javascript settings
-                    aiPatchNode.processNewJavascript(response: jsSettings,
-                                                     document: document)
+//                    aiPatchNode.processNewJavascript(response: jsSettings,
+//                                                     document: document)
+                    aiPatchNode.processNewJavascript(response: jsSettings)
                     
                     document.graph.updateGraphData(document)
                     
@@ -152,7 +153,7 @@ struct LLMRecordingState {
             self.modal == .aiNodePromptEntry
         } set {
             if newValue {
-                self.modal == .aiNodePromptEntry
+                self.modal = .aiNodePromptEntry
             } else {
                 if self.modal == .aiNodePromptEntry {
                     self.modal = .none

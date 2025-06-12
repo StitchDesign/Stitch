@@ -20,7 +20,7 @@ enum AIEditJsNodeResponseFormat_V0 {
         let defs = EditJsNodeStructuredOutputsDefinitions()
         let schema = OpenAISchema(type: .object,
                                   properties: JsNodeSettingsSchema(),
-                                  required: ["script", "input_definitions", "output_definitions"])
+                                  required: ["suggested_title", "script", "input_definitions", "output_definitions"])
         let strict = true
     }
 
@@ -37,6 +37,7 @@ enum AIEditJsNodeResponseFormat_V0 {
                                                   required: ["label", "strict_type"],
                                                   items: OpenAIGeneric(types: [PortDefinitionSchema()]))
         
+        let suggested_title = OpenAISchema(type: .string)
         let script = OpenAISchema(type: .string)
         let input_definitions = Self.portDefinitions
         let output_definitions = Self.portDefinitions

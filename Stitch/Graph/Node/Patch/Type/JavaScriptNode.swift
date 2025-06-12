@@ -111,10 +111,37 @@ extension PatchNodeViewModel {
     /// 2. Processes changes to inputs and outputs
     /// 3. Recalculates node
     @MainActor
-    func processNewJavascript(response: JavaScriptNodeSettings,
-                              document: StitchDocumentViewModel) {
+//    func processNewJavascript(response: JavaScriptNodeSettings,
+//                              document: StitchDocumentViewModel) {
+    func processNewJavascript(response: JavaScriptNodeSettings) {
         
-        let graph = document.visibleGraph
+        let document = documentDelegate
+        let graph = graphDelegate //document.visibleGraph
+        
+//        guard let node = graph.getNode(id: self.id) else {
+//            fatalErrorIfDebug()
+//            return
+//        }
+                
+        // Update the node title
+        
+        if let graph = graph {
+            self.canvasObserver
+                .nodeDelegate?
+                .nodeTitleEdited(titleEditType: .canvas(self.canvasObserver.id),
+                                 edit: response.suggestedTitle,
+                                 isCommitting: true,
+                                 graph: graph)
+        }
+        
+//        node.nodeTitleEdited(
+//            titleEditType: .canvas(self.canvasObserver.id),
+//            edit: response.suggestedTitle,
+//            isCommitting: true,
+//            graph: graph)
+        
+        
+        // Update the ports etc.
         
         let oldJavaScriptSettings = self.javaScriptNodeSettings
         let newJavaScriptSettings = response
@@ -172,11 +199,13 @@ extension PatchNodeViewModel {
                 
                 inputObserver.changeInputType(to: inputDefinition.strictType,
                                               nodeKind: .patch(self.patch),
-                                              currentGraphTime: graph.graphStepState.graphTime,
+//                                              currentGraphTime: graph.graphStepState.graphTime,
+                                              currentGraphTime: graph?.graphStepState.graphTime ?? .zero,
                                               
                                               // TODO: update computed node state
                                               computedState: nil,
-                                              activeIndex: document.activeIndex,
+//                                              activeIndex: document.activeIndex,
+                                              activeIndex: document?.activeIndex ?? .defaultActiveIndex,
                                               isVisible: true)
                 
                 // Update value after field group has changed

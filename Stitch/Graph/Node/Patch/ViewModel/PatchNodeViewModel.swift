@@ -83,12 +83,13 @@ final class PatchNodeViewModel: Sendable {
         
         // Setup JavaScript settings
         if let jsSettings = schema.javaScriptNodeSettings {
-            guard let document = self.documentDelegate else {
-                fatalErrorIfDebug()
-                return
-            }
-            self.processNewJavascript(response: jsSettings,
-                                      document: document)
+//            guard let document = self.documentDelegate else {
+//                // fatalErrorIfDebug() //
+//                return
+//            }
+//            self.processNewJavascript(response: jsSettings,
+//                                      document: document)
+            self.processNewJavascript(response: jsSettings)
         }
     }
 }
@@ -148,12 +149,14 @@ extension PatchNodeViewModel: SchemaObserver {
                 
         if let newJsSettings = schema.javaScriptNodeSettings,
            self.javaScriptNodeSettings != newJsSettings {
-            guard let document = self.documentDelegate else {
-                fatalErrorIfDebug()
-                return
-            }
-            self.processNewJavascript(response: newJsSettings,
-                                      document: document)
+            
+//            guard let document = self.documentDelegate else {
+//                fatalErrorIfDebug()
+//                return
+//            }
+//            self.processNewJavascript(response: newJsSettings,
+//                                      document: document)
+            self.processNewJavascript(response: newJsSettings)
         }
     }
 

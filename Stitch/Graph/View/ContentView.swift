@@ -162,25 +162,35 @@ struct ContentView: View, KeyboardReadable {
         .alert("Create an AI Node",
                isPresented: $document.llmRecording.showAINodePromptEntry,
                actions: {
-            
+                        
             TextField("Prompt", text: $document.llmRecording.aiNodePrompt)
                 .onSubmit {
+                    log("text field submit called")
                     document.aiNodePromptSubmitted()
                 }
             
-            StitchButton("Create") {
-                document.aiNodePromptSubmitted()
+            // HStack is ignored ?
+            HStack {
+                
+                // WTF?: Submitting the TextField ALSO fires this button?
+                // Or pressing this button ALSO submits the TextField ?
+                
+//                StitchButton("Create") {
+//                    log("create button called")
+//                    document.aiNodePromptSubmitted()
+//                }
+                
+                StitchButton("Cancel", role: .cancel) {
+                    document.llmRecording.aiNodePrompt = ""
+                }
             }
             
-            StitchButton("Cancel", role: .cancel) {
-                document.llmRecording.aiNodePrompt = ""
-            }
+            
         }, message: {
-            Text("Describe your selected subgraph.")
+            Text("Generate a custom node")
         })
-        
     }
-
+    
     private var fullScreenPreviewView: some View {
         FullScreenPreviewViewWrapper(
             document: document,
