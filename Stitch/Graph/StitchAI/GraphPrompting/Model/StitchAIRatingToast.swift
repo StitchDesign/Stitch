@@ -63,6 +63,11 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             return
         }
         
+        guard StitchStore.canShareAIData else {
+            log("AIRatingSubmitted error: did not have user permission to share AI data")
+            return
+        }
+        
         Task(priority: .high) { [weak state] in
             guard let state = state,
                   let aiManager = state.aiManager else {
@@ -109,6 +114,43 @@ struct AIRatingSubmitted: StitchDocumentEvent {
 struct AIRatingToastExpiredWithoutRating: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         // log("AIRatingToastExpiredWithoutRating: state.llmRecording.modal is currently: \(state.llmRecording.modal)")
+        
+        guard let deviceUUID = getDeviceUUID() else {
+            log("AIRatingSubmitted error: no device ID found.")
+            return
+        }
+        
+        // If we expired without rating, still upload the inference call to Supabase *so long as user has given permssion*
+        if StitchStore.canShareAIData {
+            Task(priority: .high) { [weak state] in
+                guard let state = state,
+                      let aiManager = state.aiManager else {
+                    fatalErrorIfDebug("AIRatingToastExpiredWithoutRating: Did not have AI Manager")
+                    return
+                }
+                
+                do {
+                    // Write a row with the original rating and actions etc.
+                    // (Edit modal will later write a second row with a 5-star rating and different actions if the user chooses to submit a request)
+                    try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
+                        prompt: state.llmRecording.promptForTrainingDataOrCompletedRequest,
+                        finalActions: state.llmRecording.actions.map(\.toStep),
+                        deviceUUID: deviceUUID,
+                        tableName: aiManager.graphGenerationInferenceCallResultTableName,
+                        requestId: state.llmRecording.requestIdFromCompletedRequest,
+                        isCorrection: false,
+//                        rating: nil,
+                        rating: .fiveStars, // TODO: is it really okay to assume a five-star rating here?
+                        ratingExplanation: nil, // not provided yet
+                        requiredRetry: false // not applicable
+                    )
+                } catch {
+                    log("AIRatingToastExpiredWithoutRating: Could not upload non-rated graph-gen inference call to Supabase: \(error.localizedDescription)", .logToServer)
+                }
+            }
+        }
+        
+        
         withAnimation {
             if state.llmRecording.modal.isRatingToast {
                 log("AIRatingToastExpiredWithoutRating: will hide modal")
