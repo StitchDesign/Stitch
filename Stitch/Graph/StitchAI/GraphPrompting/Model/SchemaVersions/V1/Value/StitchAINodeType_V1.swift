@@ -14,7 +14,7 @@ extension StitchAIPortValue_V1.NodeType {
         switch self {
         case .string:
             return .string(.init(""))
-        case .number, .int:
+        case .number:
             return .number(.zero)
         case .layerDimension:
             return .number(.zero)
@@ -135,6 +135,8 @@ extension StitchAIPortValue_V1.NodeType {
             return .materialThickness(.regular)
         case .anchorEntity:
             return .anchorEntity(nil)
+        case .keyboardType:
+            return .keyboardType(.defaultKeyboard)
         }
     }
 }

@@ -177,6 +177,29 @@ extension Step_V1.Step: StitchVersionedCodable {
     }
 }
 
+extension Step_V1.NodeIOPortType {
+    // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
+    // Note: the older LLMAction port-string-parsing logic was more complicated?
+    init(stringValue: String) throws {
+        let port = stringValue
+  
+        if let portId = Int(port) {
+            // could be patch input/output OR layer output
+            self = .portIndex(portId)
+        } else if let portId = Double(port) {
+            // could be patch input/output OR layer output
+            self = .portIndex(Int(portId))
+        } else if let layerInputPort: Step_V1.LayerInputPort = Step_V1.LayerInputPort.allCases.first(where: { $0.asLLMStepPort == port }) {
+            let layerInputType = Step_V1.NodeIOPortTypeVersion
+                .LayerInputType(layerInput: layerInputPort,
+                                // TODO: support unpacked with StitchAI
+                                portType: .packed)
+            self = .keyPath(layerInputType)
+        } else {
+            throw StitchAIParsingError.portTypeDecodingError(port)
+        }
+    }
+}
 
 extension Step {
     // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
