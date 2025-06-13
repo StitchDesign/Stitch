@@ -27,12 +27,15 @@ enum Step_V0: StitchSchemaVersionable {
     typealias NodeIOPortType = NodeIOPortTypeVersion.NodeIOPortType
     typealias LayerInputPort = LayerInputPort_V31.LayerInputPort
     typealias StitchAIUUid = StitchAIUUID_V0.StitchAIUUID
-    typealias PatchOrLayer = PatchOrLayer_V31.PatchOrLayer
     typealias LayerNodeId = LayerNodeId_V31.LayerNodeId
     typealias NodeIOCoordinate = NodeIOCoordinate_V31.NodeIOCoordinate
     
     typealias PreviousInstance = Self.Step
     // MARK: - end
+    
+    public enum PatchOrLayer: Hashable, Codable {
+        case patch(Step_V0.Patch), layer(Step_V0.Layer)
+    }
     
     /// Represents a single step/action in the visual programming sequence
     struct Step: Hashable {
