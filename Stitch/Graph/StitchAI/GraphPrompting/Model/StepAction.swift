@@ -16,11 +16,6 @@ protocol StepActionable: Hashable, Codable, Sendable, Identifiable {
         
     static func fromStep(_ action: Step) -> Result<Self, StitchAIStepHandlingError>
     
-    static func createStructuredOutputs() -> AIGraphCreationStepSchema
-    
-    /// Lists each property tracked in OpenAI's structured outputs.
-    static var structuredOutputsCodingKeys: Set<Step.CodingKeys> { get }
-    
     var toStep: Step { get }
     
     @MainActor
@@ -41,12 +36,7 @@ extension StepActionable {
     var id: Int { self.hashValue }
 }
 
-struct StepActionLayerGroupCreated: StepActionable {
-    static let stepType: StepType = .sidebarGroupCreated
-    
-    var nodeId: NodeId
-    var children: NodeIdSet
-    
+extension StepActionLayerGroupCreated: StepActionable {
     var toStep: Step {
         Step(stepType: Self.stepType,
              nodeId: nodeId,
@@ -80,14 +70,6 @@ struct StepActionLayerGroupCreated: StepActionable {
         return .failure(.stepDecoding(Self.stepType, action))
     }
     
-    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
-        .init(stepType: .sidebarGroupCreated,
-              nodeId: OpenAISchema(type: .string),
-              children: OpenAISchemaRef(ref: "NodeIdSet"))
-    }
-    
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .children]
-    
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
         let layersSidebar = document.visibleGraph.layersSidebarViewModel
@@ -111,12 +93,7 @@ struct StepActionLayerGroupCreated: StepActionable {
 // "Which properties from `Step` are actually needed by StepType = .addNode ?"
 
 
-struct StepActionAddNode: StepActionable {
-    static let stepType: StepType = .addNode
-    
-    var nodeId: NodeId
-    var nodeName: PatchOrLayerAI
-
+extension StepActionAddNode: StepActionable {
     var toStep: Step {
         Step(stepType: Self.stepType,
              nodeId: nodeId,
@@ -137,15 +114,6 @@ struct StepActionAddNode: StepActionable {
         }
         return .failure(.stepDecoding(Self.stepType, action))
     }
-    
-    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
-        .init(stepType: .addNode,
-              nodeId: OpenAISchema(type: .string),
-              nodeName: OpenAISchemaRef(ref: "NodeName")
-        )
-    }
-    
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .nodeName]
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
@@ -181,9 +149,7 @@ struct StepActionAddNode: StepActionable {
 }
 
 // See `createLLMStepConnectionAdded`
-struct StepActionConnectionAdded: StepActionable {
-    static let stepType = StepType.connectNodes
-    
+extension StepActionConnectionAdded: StepActionable {
     // effectively the 'to port'
     let port: CurrentStep.NodeIOPortType // integer or key path
     var toNodeId: NodeId
@@ -225,18 +191,6 @@ struct StepActionConnectionAdded: StepActionable {
                               fromPort: fromPort,
                               fromNodeId: fromNodeId))
     }
-    
-    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
-        .init(stepType: .connectNodes,
-              port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
-                                  refs: [OpenAISchemaRef(ref: "LayerPorts")]),
-              fromPort: OpenAISchema(type: .integer),
-              fromNodeId: OpenAISchema(type: .string),
-              toNodeId: OpenAISchema(type: .string)
-        )
-    }
-    
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .port, .fromPort, .fromNodeId, .toNodeId]
     
     func createInputPort() throws -> NodeIOCoordinate {
         let migratedPort = try self.port.convert(to: NodeIOPortType.self)
@@ -310,12 +264,7 @@ struct StepActionConnectionAdded: StepActionable {
 }
 
 // See: `createLLMStepChangeValueType`
-struct StepActionChangeValueType: StepActionable {
-    static let stepType = StepType.changeValueType
-    
-    var nodeId: NodeId
-    var valueType: StitchAINodeType
-    
+extension StepActionChangeValueType: StepActionable {
     var toStep: Step {
         Step(stepType: Self.stepType,
              nodeId: nodeId,
@@ -339,15 +288,6 @@ struct StepActionChangeValueType: StepActionable {
         
         return .failure(.stepDecoding(Self.stepType, action))
     }
-    
-    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
-        .init(stepType: .changeValueType,
-              nodeId: OpenAISchema(type: .string),
-              valueType: OpenAISchemaRef(ref: "ValueType")
-        )
-    }
-    
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .valueType]
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {
@@ -389,14 +329,7 @@ struct StepActionChangeValueType: StepActionable {
 }
 
 // See: `createLLMStepSetInput`
-struct StepActionSetInput: StepActionable {
-    static let stepType = StepType.setInput
-    
-    var nodeId: NodeId
-    let port: CurrentStep.NodeIOPortType // integer or key path
-    var value: CurrentStep.PortValue
-    let valueType: StitchAINodeType
-    
+extension StepActionSetInput: StepActionable {
     // encoding
     var toStep: Step {
         Step(stepType: Self.stepType,
@@ -409,7 +342,7 @@ struct StepActionSetInput: StepActionable {
     func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
         copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
-        if let interactionId = copy.value.getInteractionId {
+        if let interactionId = copy.value.getInteractionId?.asNodeId {
             let newId = nodeIdMap.get(.init(value: interactionId)) ?? interactionId
             copy.value = .assignedLayer(CurrentStep.LayerNodeId(newId))
         }
@@ -429,23 +362,6 @@ struct StepActionSetInput: StepActionable {
         
         return .failure(.stepDecoding(Self.stepType, action))
     }
-    
-    static func createStructuredOutputs() -> AIGraphCreationStepSchema {
-        .init(stepType: .setInput,
-              nodeId: OpenAISchema(type: .string),
-              port: OpenAIGeneric(types: [OpenAISchema(type: .integer)],
-                                  refs: [OpenAISchemaRef(ref: "LayerPorts")]),
-              value: OpenAIGeneric(types: [
-                OpenAISchema(type: .number),
-                OpenAISchema(type: .string),
-                OpenAISchema(type: .boolean),
-                OpenAISchema(type: .object, additionalProperties: false)
-              ]),
-              valueType: OpenAISchemaRef(ref: "ValueType")
-        )
-    }
-    
-    static let structuredOutputsCodingKeys: Set<Step.CodingKeys> = [.stepType, .nodeId, .port, .value, .valueType]
     
     @MainActor
     func applyAction(document: StitchDocumentViewModel) -> StitchAIStepHandlingError? {

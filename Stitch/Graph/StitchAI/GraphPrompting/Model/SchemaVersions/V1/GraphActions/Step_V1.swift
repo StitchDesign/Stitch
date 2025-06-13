@@ -201,26 +201,6 @@ extension Step_V1.NodeIOPortType {
     }
 }
 
-extension Step {
-    // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
-    func parseAsStepAction() -> Result<any StepActionable, StitchAIStepHandlingError> {
-        switch self.stepType {
-        case .addNode:
-            return StepActionAddNode.fromStep(self).map { $0 as any StepActionable}
-        case .connectNodes:
-            return StepActionConnectionAdded.fromStep(self).map { $0 as any StepActionable}
-        case .changeValueType:
-            return StepActionChangeValueType.fromStep(self).map { $0 as any StepActionable}
-        case .setInput:
-            return StepActionSetInput.fromStep(self).map { $0 as any StepActionable}
-        case .sidebarGroupCreated:
-            return StepActionLayerGroupCreated.fromStep(self).map { $0 as any StepActionable}
-//        case .editJSNode:
-//            return StepActionEditJSNode.fromStep(self).map { $0 as any StepActionable}
-        }
-    }
-}
-
 extension Stitch.Step: CustomStringConvertible {
     /// Provides detailed string representation of a Step
     public var description: String {

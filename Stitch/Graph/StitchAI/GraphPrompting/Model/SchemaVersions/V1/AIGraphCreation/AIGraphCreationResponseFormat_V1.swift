@@ -8,6 +8,13 @@
 import StitchSchemaKit
 
 enum AIGraphCreationResponseFormat_V1 {
+    protocol StructredOutputsGenerable: Sendable {
+        static func createStructuredOutputs() -> AIGraphCreationStepSchema
+        
+        /// Lists each property tracked in OpenAI's structured outputs.
+        static var structuredOutputsCodingKeys: Set<Step_V1.Step.CodingKeys> { get }
+    }
+    
     struct AIGraphCreationResponseFormat: OpenAIResponseFormatable {
         let type = "json_schema"
         let json_schema = AIGraphCreationJsonSchema()
@@ -37,11 +44,11 @@ enum AIGraphCreationResponseFormat_V1 {
     
     struct AIGraphCreationStructuredOutputsDefinitions: Encodable {
         // Step actions
-        let AddNodeAction = StepStructuredOutputs(StepActionAddNode.self)
-        let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded.self)
-        let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType.self)
-        let SetInputAction = StepStructuredOutputs(StepActionSetInput.self)
-        let SidebarGroupCreatedAction = StepStructuredOutputs(StepActionLayerGroupCreated.self)
+        let AddNodeAction = StepStructuredOutputs(StepActionAddNode_V1.StepActionAddNode.self)
+        let ConnectNodesAction = StepStructuredOutputs(StepActionConnectionAdded_V1.StepActionConnectionAdded.self)
+        let ChangeValueTypeAction = StepStructuredOutputs(StepActionChangeValueType_V1.StepActionChangeValueType.self)
+        let SetInputAction = StepStructuredOutputs(StepActionSetInput_V1.StepActionSetInput.self)
+        let SidebarGroupCreatedAction = StepStructuredOutputs(StepActionLayerGroupCreated_V1.StepActionLayerGroupCreated.self)
         
         // Types
         let NodeID = OpenAISchema(type: .string,
@@ -81,7 +88,7 @@ enum AIGraphCreationResponseFormat_V1 {
         var properties: AIGraphCreationStepSchema
         var schema: OpenAISchema
         
-        init<T>(_ stepActionType: T.Type) where T: StepActionable {
+        init<T>(_ stepActionType: T.Type) where T: StructredOutputsGenerable {
             let requiredProps = T.structuredOutputsCodingKeys.map { $0.rawValue }
             
             self.properties = T.createStructuredOutputs()
@@ -98,7 +105,7 @@ enum AIGraphCreationResponseFormat_V1 {
     }
 
     struct AIGraphCreationStepSchema: Encodable {
-        var stepType: StepType
+        var stepType: StepType_V1.StepType
         var nodeId: OpenAISchema? = nil
         var nodeName: OpenAISchemaRef? = nil
         var port: OpenAIGeneric? = nil
