@@ -1,4 +1,5 @@
 {
+  "originHash" : "6999771ca65061747f8aa548cdd1d7d486b6988e82695c79696e1002a95d20be",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -179,6 +180,14 @@
       }
     },
     {
+      "identity" : "stitchschemakit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
+      "state" : {
+        "revision" : "29495093117372f50ce4f2721b6ca4ba81271ebb"
+      }
+    },
+    {
       "identity" : "supabase-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/supabase/supabase-swift.git",
@@ -296,5 +305,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
