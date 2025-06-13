@@ -1,5 +1,6 @@
 # First argument is our new version NumberFormatter
-root_dir="$(dirname $0)/Stitch/Graph/StitchAI/GraphPrompting/Model/SchemaVersions"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root_dir="${SCRIPT_DIR}"
 
 new_version=$1
 new_version_path="$root_dir/V$new_version"
@@ -36,6 +37,7 @@ create_new_version() {
     done
 }
 
+echo "Root dir: $root_dir"
 echo "Creating v$new_version"
 echo "$new_version_path"
 echo "Copies from $old_version_path"
