@@ -12,7 +12,6 @@ import Combine
 /// Shows a temporary toast notification on the bottom of the view.
 /// Source: https://swiftuirecipes.com/blog/swiftui-toast
 struct BottomCenterToast<ToastContent>: ViewModifier where ToastContent: View {
-    private let timer: Publishers.Autoconnect<Timer.TimerPublisher>
     @State private var isShowing: Bool = false
     
     let willShow: Bool
@@ -29,10 +28,6 @@ struct BottomCenterToast<ToastContent>: ViewModifier where ToastContent: View {
         self.config = config
         self.onExpireAction = onExpireAction
         self.toastContent = toastContent
-        
-        // Displays toast for specified seconds
-        self.timer = Timer
-            .publish(every: config.duration, on: .main, in: .common).autoconnect()
     }
 
     func body(content: Content) -> some View {
@@ -52,14 +47,16 @@ struct BottomCenterToast<ToastContent>: ViewModifier where ToastContent: View {
                 .padding(.bottom, 22)
             }
         }
-        .onChange(of: self.willShow, initial: true) {
+        .onChange(of: self.willShow, initial: true) { oldValue, newValue in
             withAnimation {
-                self.isShowing = self.willShow
+                self.isShowing = newValue
             }
-        }
-        .onReceive(self.timer) { _ in
-            if let onExpireAction = onExpireAction {
-                onExpireAction()
+            if newValue {
+                DispatchQueue.main.asyncAfter(deadline: .now() + config.duration) {
+                    if let onExpireAction = onExpireAction {
+                        onExpireAction()
+                    }
+                }
             }
         }
 

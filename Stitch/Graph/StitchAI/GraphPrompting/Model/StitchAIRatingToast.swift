@@ -111,21 +111,32 @@ struct AIRatingSubmitted: StitchDocumentEvent {
     }
 }
 
-struct AIRatingToastExpiredWithoutRating: StitchDocumentEvent {
+struct AIRatingToastExpired: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
-        // log("AIRatingToastExpiredWithoutRating: state.llmRecording.modal is currently: \(state.llmRecording.modal)")
+        // log("AIRatingToastExpired: state.llmRecording.modal is currently: \(state.llmRecording.modal)")
+        
+        if state.llmRecording.rating.isDefined || state.llmRecording.ratingFromPreviousExistingGraphSubmittedAsTrainingData.isDefined {
+            log("AIRatingSubmitted error: we already rated this graph.")
+            withAnimation {
+                if state.llmRecording.modal.isRatingToast {
+                    log("AIRatingToastExpired: will hide modal")
+                    state.llmRecording.modal = .none
+                }
+            }
+            return
+        }
         
         guard let deviceUUID = getDeviceUUID() else {
             log("AIRatingSubmitted error: no device ID found.")
             return
         }
-        
+                
         // If we expired without rating, still upload the inference call to Supabase *so long as user has given permssion*
         if StitchStore.canShareAIData {
             Task(priority: .high) { [weak state] in
                 guard let state = state,
                       let aiManager = state.aiManager else {
-                    fatalErrorIfDebug("AIRatingToastExpiredWithoutRating: Did not have AI Manager")
+                    fatalErrorIfDebug("AIRatingToastExpired: Did not have AI Manager")
                     return
                 }
                 
@@ -145,7 +156,7 @@ struct AIRatingToastExpiredWithoutRating: StitchDocumentEvent {
                         requiredRetry: false // not applicable
                     )
                 } catch {
-                    log("AIRatingToastExpiredWithoutRating: Could not upload non-rated graph-gen inference call to Supabase: \(error.localizedDescription)", .logToServer)
+                    log("AIRatingToastExpired: Could not upload non-rated graph-gen inference call to Supabase: \(error.localizedDescription)", .logToServer)
                 }
             }
         }
@@ -153,7 +164,7 @@ struct AIRatingToastExpiredWithoutRating: StitchDocumentEvent {
         
         withAnimation {
             if state.llmRecording.modal.isRatingToast {
-                log("AIRatingToastExpiredWithoutRating: will hide modal")
+                log("AIRatingToastExpired: will hide modal")
                 state.llmRecording.modal = .none
             }
         }
