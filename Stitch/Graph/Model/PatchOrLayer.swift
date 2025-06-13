@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum PatchOrLayer: Equatable, Codable {
+    case patch(Patch), layer(Layer)
+}
+
 // Patch and Layer nodes are very different from Groups and Components; in some contexts it is impossible
 enum PatchOrLayerNode {
     case patch(node: NodeViewModel, patch: PatchNodeViewModel)

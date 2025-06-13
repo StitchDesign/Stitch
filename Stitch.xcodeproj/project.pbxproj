@@ -103,7 +103,6 @@
 		B53AA6402D9B1683008D5C23 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B53AA63F2D9B1683008D5C23 /* StitchEngine */; };
 		B53B1D96289E265900489652 /* StitchVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53B1D95289E265900489652 /* StitchVideoPlayer.swift */; };
 		B53BF63E2DF0A744004EA770 /* AIGraphCreationResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */; };
-		B53BF6402DF0A860004EA770 /* AIGraphCreationSystemPrompt_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.swift */; };
 		B53BF6432DF0AC28004EA770 /* AIEditJsNodeSystemPrompt_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53BF6422DF0AC22004EA770 /* AIEditJsNodeSystemPrompt_V0.swift */; };
 		B53E0BEC2D35B5E00072FD43 /* BoxLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */; };
 		B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */; };
@@ -235,6 +234,7 @@
 		B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */; };
 		B5A2D11D286F7A5A002BFB97 /* VisualMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */; };
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
+		B5A8899A2DFBD2F6000A8148 /* AIGraphCreationSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5A889992DFBD2E5000A8148 /* AIGraphCreationSystemPrompt_V0.md */; };
 		B5A99E3A2DD5645500D3246A /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = B5A99E392DD5645500D3246A /* StitchSchemaKit */; };
 		B5AC74F9283701E5002A5D01 /* ProjectsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */; };
 		B5AED9152DE2BAFB00C514F2 /* Layer.md in Resources */ = {isa = PBXBuildFile; fileRef = B5AED9132DE2BAFB00C514F2 /* Layer.md */; };
@@ -1174,7 +1174,6 @@
 		B53B1D95289E265900489652 /* StitchVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchVideoPlayer.swift; sourceTree = "<group>"; };
 		B53B54F62D507A60007A52AF /* Stitch.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Stitch.xctestplan; sourceTree = "<group>"; };
 		B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationResponseFormat_V0.swift; sourceTree = "<group>"; };
-		B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationSystemPrompt_V0.swift; sourceTree = "<group>"; };
 		B53BF6422DF0AC22004EA770 /* AIEditJsNodeSystemPrompt_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeSystemPrompt_V0.swift; sourceTree = "<group>"; };
 		B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxLayerNode.swift; sourceTree = "<group>"; };
 		B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorSection.swift; sourceTree = "<group>"; };
@@ -1301,6 +1300,7 @@
 		B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerView.swift; sourceTree = "<group>"; };
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
+		B5A889992DFBD2E5000A8148 /* AIGraphCreationSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIGraphCreationSystemPrompt_V0.md; sourceTree = "<group>"; };
 		B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListView.swift; sourceTree = "<group>"; };
 		B5AED9132DE2BAFB00C514F2 /* Layer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Layer.md; sourceTree = "<group>"; };
 		B5AED9142DE2BAFB00C514F2 /* Patch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Patch.md; sourceTree = "<group>"; };
@@ -2401,9 +2401,9 @@
 		B53BF63A2DF0A05E004EA770 /* AIGraphCreation */ = {
 			isa = PBXGroup;
 			children = (
+				B5A889992DFBD2E5000A8148 /* AIGraphCreationSystemPrompt_V0.md */,
 				B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */,
 				B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */,
-				B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.swift */,
 				B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */,
 			);
 			path = AIGraphCreation;
@@ -5215,6 +5215,7 @@
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
 				B5AED9152DE2BAFB00C514F2 /* Layer.md in Resources */,
 				B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */,
+				B5A8899A2DFBD2F6000A8148 /* AIGraphCreationSystemPrompt_V0.md in Resources */,
 				B5EE9A962DE66D0A00DB85C3 /* README.md in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
@@ -5387,7 +5388,6 @@
 				ECA3915F29A6C410005C10A8 /* StitchNavStack.swift in Sources */,
 				ECEEA4F92AFC39E000C7CE86 /* CommentBoxActions.swift in Sources */,
 				EC9DB348280F239C0061EC3C /* PortDragActions.swift in Sources */,
-				B53BF6402DF0A860004EA770 /* AIGraphCreationSystemPrompt_V0.swift in Sources */,
 				EC4914A82935A50300D74344 /* TextTransformNode.swift in Sources */,
 				B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */,
 				B55500D92C1BA9470081C3F1 /* PreviewShapeLayerKind.swift in Sources */,

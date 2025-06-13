@@ -43,8 +43,8 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         self.config = config
 
         // Construct http payload
-        self.body = AIGraphCreationRequestBody(secrets: secrets,
-                                               userPrompt: prompt)
+        self.body = try AIGraphCreationRequestBody(secrets: secrets,
+                                                   userPrompt: prompt)
     }
     
     @MainActor

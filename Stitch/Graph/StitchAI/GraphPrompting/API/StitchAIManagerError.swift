@@ -63,6 +63,7 @@ enum StitchAIStreamingError: Error {
     case requestCancelled // e.g. by user, or because stream naturally completed
     case internetConnectionFailed
     case urlRequestCreationFailure
+    case markdownNotFound
     case other(Error)
 }
 
@@ -71,7 +72,7 @@ extension StitchAIStreamingError {
         switch self {
         case .timeout, .rateLimit:
             return true
-        case .maxTimeouts, .maxRetriesError, .currentlyInARetryDelay, .invalidURL, .requestCancelled, .internetConnectionFailed, .urlRequestCreationFailure, .other:
+        case .maxTimeouts, .maxRetriesError, .currentlyInARetryDelay, .invalidURL, .requestCancelled, .internetConnectionFailed, .urlRequestCreationFailure, .markdownNotFound, .other:
             return false // under these scenarios, we do not re-attempt the request
         }
     }
@@ -98,6 +99,9 @@ extension StitchAIStreamingError: CustomStringConvertible {
             return "No internet connection. Please try again when your connection is restored."
         case .urlRequestCreationFailure:
             return "Unable to create URL request."
+        case .markdownNotFound:
+            fatalErrorIfDebug()
+            return "Markdown file not found"
         case .other(let error):
             return "OpenAI Request error: \(error.localizedDescription)"
             
@@ -152,7 +156,7 @@ enum StitchAIManagerError: Error {
     case secretsNotFound
     case nodeTypeNotSupported(String)
     case responseDecodingFailure(String)
-    case portValueDescriptionNotSupported
+    case portValueDescriptionNotSupported(String)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -166,8 +170,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "No node type found for: \(nodeType)"
         case .responseDecodingFailure(let errorMessage):
             return "OpenAI respopnse decoding failed with the following error: \(errorMessage)"
-        case .portValueDescriptionNotSupported:
-            return "PortValue descriptions aren't supported due to PorValue version mismatch between the AI schema and SSK."
+        case .portValueDescriptionNotSupported(let nodeKindString):
+            return "PortValue descriptions aren't supported for node kind: \(nodeKindString) due to PorValue version mismatch between the AI schema and SSK."
         }
     }
 }

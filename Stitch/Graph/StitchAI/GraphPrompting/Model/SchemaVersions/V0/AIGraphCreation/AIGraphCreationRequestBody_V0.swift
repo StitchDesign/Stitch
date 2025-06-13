@@ -5,9 +5,13 @@
 //  Created by Elliot Boschwitz on 6/4/25.
 //
 
-enum AIGraphCreationRequestBody_V0 {    
+import Foundation
+
+enum AIGraphCreationRequestBody_V0 {
     // https://platform.openai.com/docs/api-reference/making-requests
     struct AIGraphCreationRequestBody : StitchAIRequestBodyFormattable {
+        static let markdownLocation = "AIGraphCreationSystemPrompt_V0"
+        
         let model: String
         let n: Int = 1
         let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
@@ -16,15 +20,19 @@ enum AIGraphCreationRequestBody_V0 {
         let stream: Bool = true
         
         init(secrets: Secrets,
-             userPrompt: String) {
-            let systemPrompt = AIGraphCreationSystemPrompt_V0.systemPrompt
-            let structuredOutputs = AIGraphCreationResponseFormat_V0.AIGraphCreationResponseFormat().json_schema.schema
-            let structuredOutputsString = try! structuredOutputs.encodeToPrintableString()
+             userPrompt: String) throws {
+            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
+                                                    withExtension: "md") else {
+                throw StitchAIStreamingError.markdownNotFound
+            }
+            
+            let systemPrompt = try String(contentsOf: markdownUrl,
+                                          encoding: .utf8)
             
             self.model = secrets.openAIModelGraphCreation
             self.messages = [
                 .init(role: .system,
-                      content: systemPrompt + "Make sure your response follows this schema: \(structuredOutputsString)"),
+                      content: systemPrompt),
                 .init(role: .user,
                       content: userPrompt)
             ]

@@ -49,24 +49,24 @@ extension NodeSection {
         return self.rawValue
     }
     
-    func getNodesForSection() -> Set<PatchOrLayer> {
-        let matchingPatches: [PatchOrLayer] = Patch.allCases
+    func getNodesForSection() -> Set<CurrentStep.PatchOrLayer> {
+        let matchingPatches = Patch_V31.Patch.allCases
             .filter {
                 $0.section == self
             }
-            .map(PatchOrLayer.patch)
+            .map(CurrentStep.PatchOrLayer.patch)
         
-        let matchingLayers = Layer.allCases
+        let matchingLayers = Layer_V31.Layer.allCases
             .filter {
                 $0.section == self
             }
-            .map(PatchOrLayer.layer)
+            .map(CurrentStep.PatchOrLayer.layer)
         
         return Set(matchingPatches + matchingLayers)
     }
 }
 
-extension NodeKind {
+extension CurrentStep.NodeKind {
     var section: NodeSection {
         switch self {
         case .patch(let patch):
@@ -79,11 +79,11 @@ extension NodeKind {
     }
 }
 
-extension Patch {
+extension CurrentStep.Patch {
     var section: NodeSection {
         switch self {
             // MARK: General Nodes
-        case .splitter, .random, .counter, .flipSwitch, .javascript:
+        case .splitter, .random, .counter, .flipSwitch:
             return .general
             
             // MARK: Math Operation Nodes
@@ -197,7 +197,7 @@ extension Patch {
     }
 }
 
-extension Layer {
+extension CurrentStep.Layer {
     /// Returns the section header that this Layer case belongs to.
     var section: NodeSection {
         switch self {
