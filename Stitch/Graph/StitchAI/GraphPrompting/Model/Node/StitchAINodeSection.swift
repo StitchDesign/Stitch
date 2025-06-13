@@ -50,13 +50,13 @@ extension NodeSection {
     }
     
     func getNodesForSection() -> Set<CurrentStep.PatchOrLayer> {
-        let matchingPatches = Patch_V31.Patch.allCases
+        let matchingPatches = CurrentStep.Patch.allCases
             .filter {
                 $0.section == self
             }
             .map(CurrentStep.PatchOrLayer.patch)
         
-        let matchingLayers = Layer_V31.Layer.allCases
+        let matchingLayers = CurrentStep.Layer.allCases
             .filter {
                 $0.section == self
             }
@@ -83,7 +83,7 @@ extension CurrentStep.Patch {
     var section: NodeSection {
         switch self {
             // MARK: General Nodes
-        case .splitter, .random, .counter, .flipSwitch:
+        case .splitter, .random, .counter, .flipSwitch, .javascript:
             return .general
             
             // MARK: Math Operation Nodes

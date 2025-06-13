@@ -8,7 +8,7 @@
 import StitchSchemaKit
 
 enum AIGraphCreationResponseFormat_V0 {
-    protocol StructredOutputsGenerable: Sendable {
+    protocol StructredOutputsGenerable: Sendable, Equatable, Hashable, Codable {
         static func createStructuredOutputs() -> AIGraphCreationStepSchema
         
         /// Lists each property tracked in OpenAI's structured outputs.

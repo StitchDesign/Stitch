@@ -149,14 +149,7 @@ extension StepActionAddNode: StepActionable {
 }
 
 // See `createLLMStepConnectionAdded`
-extension StepActionConnectionAdded: StepActionable {
-    // effectively the 'to port'
-    let port: CurrentStep.NodeIOPortType // integer or key path
-    var toNodeId: NodeId
-    
-    let fromPort: Int //NodeIOPortType // integer or key path
-    var fromNodeId: NodeId
-    
+extension StepActionConnectionAdded: StepActionable {    
     var toStep: Step {
         Step(
             stepType: Self.stepType,

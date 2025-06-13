@@ -57,7 +57,6 @@ extension Step_V0.PatchOrLayer {
         throw StitchAIParsingError.nodeNameParsing(nodeName)
     }
     
-    // TODO: check if this is used
     var description: String {
         switch self {
         case .patch(let patch):

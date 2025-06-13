@@ -55,6 +55,15 @@ extension Step_V1.PatchOrLayer {
         
         throw StitchAIParsingError.nodeNameParsing(nodeName)
     }
+    
+    var description: String {
+        switch self {
+        case .patch(let patch):
+            return patch.defaultDisplayTitle()
+        case .layer(let layer):
+            return layer.defaultDisplayTitle()
+        }
+    }
 }
 
 extension NodeKindDescribable_V1.NodeKindDescribable {
