@@ -7337,14 +7337,6 @@
 				version = 5.0.1;
 			};
 		};
-		EC26C8F92DEFE28B00949FE6 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
-			requirement = {
-				kind = revision;
-				revision = 1a9e40a3964252e5ce49b8f32547e7d7f742e34a;
-			};
-		};
 		EC39E75A26822ACA00674841 /* XCRemoteSwiftPackageReference "AudioKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AudioKit/AudioKit.git";
@@ -7398,7 +7390,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
 			requirement = {
 				kind = revision;
-				revision = 0b2f3fa036921ca2040d37466bcaf9e92c714b00;
+				revision = 1a9e40a3964252e5ce49b8f32547e7d7f742e34a;
 			};
 		};
 		ECE5857A2DB6D39C00749ED3 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
