@@ -103,23 +103,6 @@ extension LayerDimension {
         self = .number(num)
     }
 
-    // TODO: restrict edits to the logic described in `getFilteredChoices` in `InputValueView`
-    static func fromUserEdit(edit: String) -> LayerDimension? {
-        if edit == LayerDimension.AUTO_SIZE_STRING {
-            return .auto
-        } else if edit == LayerDimension.FILL_SIZE_STRING {
-            return .fill
-        } else if edit == LayerDimension.HUG_SIZE_STRING {
-            return .hug
-        } else if let n = parsePercentage(edit) {
-            return .parentPercent(n)
-        } else if let n = toNumber(edit) {
-            return .number(CGFloat(n))
-        } else {
-            return nil
-        }
-    }
-
     func asCGFloat(_ parentLength: CGFloat) -> CGFloat {
         switch self {
         case .number(let cGFloat):

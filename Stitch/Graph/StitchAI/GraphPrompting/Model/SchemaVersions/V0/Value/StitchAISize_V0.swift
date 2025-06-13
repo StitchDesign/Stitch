@@ -15,8 +15,8 @@ enum StitchAISize_V0: StitchSchemaVersionable {
     // MARK: - end
     
     struct StitchAISize: Codable {
-        var width: StitchAISizeDimension
-        var height: StitchAISizeDimension
+        var width: StitchAISizeDimension_V0.StitchAISizeDimension
+        var height: StitchAISizeDimension_V0.StitchAISizeDimension
     }
 }
 

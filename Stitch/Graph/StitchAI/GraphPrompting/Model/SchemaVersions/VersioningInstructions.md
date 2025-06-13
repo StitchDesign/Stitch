@@ -12,10 +12,18 @@ chmod +x versioning.sh
 # i.e. if the next version is 3: "./versioning.sh 3"
 ./versioning.sh <new-version-number>
 ```
-3. From Xcode, do a find + replace command to replace references of the old with new version (i.e.`_V2` -> `_V3`). **Make sure to restrict search to the folder location of the new version folder group.**
-    * Also do a find + replace on the old previous version. If V3 is the new version, replace `_V1` with `_V2`.
-4. Add new `StitchSchemaVersion`, incrementing the number. Fix compiler warners for missing case in switch statements.
-5. Update the type aliases at the top of the SchemaVersions.swift file.
+3. Add new files as target to Xcode project.
+
+## Rename References
+### Find + Replace
+1. From Xcode, do a find + replace command to replace references of the old with new version (i.e.`_V2` -> `_V3`). **Make sure to restrict search to the folder location of the new version folder group.**
+2. Find + replace on the old previous version. If V3 is the new version, replace `_V1` with `_V2`.
+3. Lastly, find + replace any pointers to SSK types that were used.
+
+### Last Steps
+1. Add new `StitchSchemaVersion`, incrementing the number. Fix compiler warners for missing case in switch statements.
+2. Update the type aliases at the top of the SchemaVersions.swift file.
+3. If necessary, update commented code in `StitchAIRuntimeHelpers.swift`.
 
 ## Tips
 * **Please mark custom migration code with `// TODO: ...` comment code.** It makes identifying custom migration code easier for subsequent versions.

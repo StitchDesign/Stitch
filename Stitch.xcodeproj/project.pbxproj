@@ -195,7 +195,31 @@
 		B57F3A822947B4BC00DFC0AE /* SideEffectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A812947B4BC00DFC0AE /* SideEffectCoordinator.swift */; };
 		B57F3A84294A85EC00DFC0AE /* GraphBackgroundGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A83294A85EC00DFC0AE /* GraphBackgroundGestureView.swift */; };
 		B5849FB62DFBDA7100D668ED /* versioning.sh in Resources */ = {isa = PBXBuildFile; fileRef = B5849FB52DFBDA6C00D668ED /* versioning.sh */; };
-		B5849FB82DFBDB5E00D668ED /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B5849FB72DFBDB5B00D668ED /* README.md */; };
+		B5849FB82DFBDB5E00D668ED /* VersioningInstructions.md in Resources */ = {isa = PBXBuildFile; fileRef = B5849FB72DFBDB5B00D668ED /* VersioningInstructions.md */; };
+		B5849FD82DFBDF3600D668ED /* AIGraphCreationSystemPrompt_V1.md in Resources */ = {isa = PBXBuildFile; fileRef = B5849FC02DFBDF3600D668ED /* AIGraphCreationSystemPrompt_V1.md */; };
+		B5849FD92DFBDF3600D668ED /* AIGraphCreationResponseFormat_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FBF2DFBDF3600D668ED /* AIGraphCreationResponseFormat_V1.swift */; };
+		B5849FDA2DFBDF3600D668ED /* StitchAISize_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FD22DFBDF3600D668ED /* StitchAISize_V1.swift */; };
+		B5849FDB2DFBDF3600D668ED /* AIGraphCreationContentJSON_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FBD2DFBDF3600D668ED /* AIGraphCreationContentJSON_V1.swift */; };
+		B5849FDC2DFBDF3600D668ED /* StitchAIColor_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FCE2DFBDF3600D668ED /* StitchAIColor_V1.swift */; };
+		B5849FDD2DFBDF3600D668ED /* AIEditJsNodeResponseFormat_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FBA2DFBDF3600D668ED /* AIEditJsNodeResponseFormat_V1.swift */; };
+		B5849FDE2DFBDF3600D668ED /* NodeType_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FCC2DFBDF3600D668ED /* NodeType_V1.swift */; };
+		B5849FDF2DFBDF3600D668ED /* StitchAIPortValue_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FD02DFBDF3600D668ED /* StitchAIPortValue_V1.swift */; };
+		B5849FE02DFBDF3600D668ED /* StitchAISizeDimension_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FD32DFBDF3600D668ED /* StitchAISizeDimension_V1.swift */; };
+		B5849FE12DFBDF3600D668ED /* StitchAIPosition_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FD12DFBDF3600D668ED /* StitchAIPosition_V1.swift */; };
+		B5849FE22DFBDF3600D668ED /* AIEditJsNodeRequestBody_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FB92DFBDF3600D668ED /* AIEditJsNodeRequestBody_V1.swift */; };
+		B5849FE32DFBDF3600D668ED /* NodeIOPortTypeAI_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FCB2DFBDF3600D668ED /* NodeIOPortTypeAI_V1.swift */; };
+		B5849FE42DFBDF3600D668ED /* StitchAIUUID_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FD42DFBDF3600D668ED /* StitchAIUUID_V1.swift */; };
+		B5849FE52DFBDF3600D668ED /* AIEditJsNodeSystemPrompt_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FBB2DFBDF3600D668ED /* AIEditJsNodeSystemPrompt_V1.swift */; };
+		B5849FE62DFBDF3600D668ED /* JavaScriptPortDefinitionAI_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC92DFBDF3600D668ED /* JavaScriptPortDefinitionAI_V1.swift */; };
+		B5849FE72DFBDF3600D668ED /* StepType_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC62DFBDF3600D668ED /* StepType_V1.swift */; };
+		B5849FE82DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FBE2DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift */; };
+		B5849FE92DFBDF3600D668ED /* StitchAINodeType_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FCF2DFBDF3600D668ED /* StitchAINodeType_V1.swift */; };
+		B5849FEA2DFBDF3600D668ED /* Step_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC52DFBDF3600D668ED /* Step_V1.swift */; };
+		B5849FEB2DFBDF3600D668ED /* AIGraphDescriptionRequestBody_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC22DFBDF3600D668ED /* AIGraphDescriptionRequestBody_V1.swift */; };
+		B5849FEC2DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC32DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift */; };
+		B5849FED2DFBDF3600D668ED /* JavaScriptNodeSettingsAI_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC82DFBDF3600D668ED /* JavaScriptNodeSettingsAI_V1.swift */; };
+		B5849FEE2DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FD62DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift */; };
+		B5849FF02DFBE12E00D668ED /* StitchAIRuntimeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FEF2DFBE12A00D668ED /* StitchAIRuntimeHelpers.swift */; };
 		B58612AF2C68681600C64313 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B58612AE2C68681600C64313 /* StitchEngine */; };
 		B586D16527FE7FD500E56106 /* PreviewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B586D16427FE7FD500E56106 /* PreviewUtils.swift */; };
 		B586D16727FE80B300E56106 /* PreviewContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B586D16627FE80B300E56106 /* PreviewContent.swift */; };
@@ -389,7 +413,7 @@
 		EC0A5ECD28E22A9900B00A9F /* WhenPrototypeStartsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */; };
 		EC0A7A452DDA8EC8004C1698 /* ActivelyDrawnEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */; };
 		EC0B03502DF200E40045E894 /* StitchAIRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */; };
-		EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable.swift */; };
+		EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable_V0.swift */; };
 		EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */; };
 		EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */; };
 		EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */; };
@@ -1265,7 +1289,31 @@
 		B57F3A812947B4BC00DFC0AE /* SideEffectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideEffectCoordinator.swift; sourceTree = "<group>"; };
 		B57F3A83294A85EC00DFC0AE /* GraphBackgroundGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBackgroundGestureView.swift; sourceTree = "<group>"; };
 		B5849FB52DFBDA6C00D668ED /* versioning.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = versioning.sh; sourceTree = "<group>"; };
-		B5849FB72DFBDB5B00D668ED /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		B5849FB72DFBDB5B00D668ED /* VersioningInstructions.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = VersioningInstructions.md; sourceTree = "<group>"; };
+		B5849FB92DFBDF3600D668ED /* AIEditJsNodeRequestBody_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeRequestBody_V1.swift; sourceTree = "<group>"; };
+		B5849FBA2DFBDF3600D668ED /* AIEditJsNodeResponseFormat_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeResponseFormat_V1.swift; sourceTree = "<group>"; };
+		B5849FBB2DFBDF3600D668ED /* AIEditJsNodeSystemPrompt_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeSystemPrompt_V1.swift; sourceTree = "<group>"; };
+		B5849FBD2DFBDF3600D668ED /* AIGraphCreationContentJSON_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationContentJSON_V1.swift; sourceTree = "<group>"; };
+		B5849FBE2DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationRequestBody_V1.swift; sourceTree = "<group>"; };
+		B5849FBF2DFBDF3600D668ED /* AIGraphCreationResponseFormat_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationResponseFormat_V1.swift; sourceTree = "<group>"; };
+		B5849FC02DFBDF3600D668ED /* AIGraphCreationSystemPrompt_V1.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIGraphCreationSystemPrompt_V1.md; sourceTree = "<group>"; };
+		B5849FC22DFBDF3600D668ED /* AIGraphDescriptionRequestBody_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDescriptionRequestBody_V1.swift; sourceTree = "<group>"; };
+		B5849FC32DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDescriptionSystemPrompt_V1.swift; sourceTree = "<group>"; };
+		B5849FC52DFBDF3600D668ED /* Step_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step_V1.swift; sourceTree = "<group>"; };
+		B5849FC62DFBDF3600D668ED /* StepType_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepType_V1.swift; sourceTree = "<group>"; };
+		B5849FC82DFBDF3600D668ED /* JavaScriptNodeSettingsAI_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JavaScriptNodeSettingsAI_V1.swift; sourceTree = "<group>"; };
+		B5849FC92DFBDF3600D668ED /* JavaScriptPortDefinitionAI_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JavaScriptPortDefinitionAI_V1.swift; sourceTree = "<group>"; };
+		B5849FCB2DFBDF3600D668ED /* NodeIOPortTypeAI_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOPortTypeAI_V1.swift; sourceTree = "<group>"; };
+		B5849FCC2DFBDF3600D668ED /* NodeType_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeType_V1.swift; sourceTree = "<group>"; };
+		B5849FCE2DFBDF3600D668ED /* StitchAIColor_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIColor_V1.swift; sourceTree = "<group>"; };
+		B5849FCF2DFBDF3600D668ED /* StitchAINodeType_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAINodeType_V1.swift; sourceTree = "<group>"; };
+		B5849FD02DFBDF3600D668ED /* StitchAIPortValue_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPortValue_V1.swift; sourceTree = "<group>"; };
+		B5849FD12DFBDF3600D668ED /* StitchAIPosition_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPosition_V1.swift; sourceTree = "<group>"; };
+		B5849FD22DFBDF3600D668ED /* StitchAISize_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISize_V1.swift; sourceTree = "<group>"; };
+		B5849FD32DFBDF3600D668ED /* StitchAISizeDimension_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISizeDimension_V1.swift; sourceTree = "<group>"; };
+		B5849FD42DFBDF3600D668ED /* StitchAIUUID_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIUUID_V1.swift; sourceTree = "<group>"; };
+		B5849FD62DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBodyFormattable_V1.swift; sourceTree = "<group>"; };
+		B5849FEF2DFBE12A00D668ED /* StitchAIRuntimeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRuntimeHelpers.swift; sourceTree = "<group>"; };
 		B586D16427FE7FD500E56106 /* PreviewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewUtils.swift; sourceTree = "<group>"; };
 		B586D16627FE80B300E56106 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentUtil.swift; sourceTree = "<group>"; };
@@ -1448,7 +1496,7 @@
 		EC0A5ECC28E22A9900B00A9F /* WhenPrototypeStartsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhenPrototypeStartsNode.swift; sourceTree = "<group>"; };
 		EC0A7A442DDA8EC8004C1698 /* ActivelyDrawnEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivelyDrawnEdge.swift; sourceTree = "<group>"; };
 		EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestable.swift; sourceTree = "<group>"; };
-		EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBodyFormattable.swift; sourceTree = "<group>"; };
+		EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBodyFormattable_V0.swift; sourceTree = "<group>"; };
 		EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectanglePatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvalPatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePatchNode.swift; sourceTree = "<group>"; };
@@ -2295,11 +2343,13 @@
 		B5136F422DED0A84007F12D0 /* SchemaVersions */ = {
 			isa = PBXGroup;
 			children = (
-				B5849FB72DFBDB5B00D668ED /* README.md */,
+				B5849FB72DFBDB5B00D668ED /* VersioningInstructions.md */,
 				B5849FB52DFBDA6C00D668ED /* versioning.sh */,
 				B58E97D82DF0BAD1007913E3 /* StitchAISchemaVersion.swift */,
 				B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */,
+				B5849FEF2DFBE12A00D668ED /* StitchAIRuntimeHelpers.swift */,
 				B5136F432DED0AAF007F12D0 /* V0 */,
+				B5849FD72DFBDF3600D668ED /* V1 */,
 			);
 			path = SchemaVersions;
 			sourceTree = "<group>";
@@ -2313,7 +2363,7 @@
 				B5136F4C2DED2BE2007F12D0 /* Node */,
 				B5136F472DED26D4007F12D0 /* GraphActions */,
 				B5136F462DED26CB007F12D0 /* Value */,
-				EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable.swift */,
+				EC0B03512DF202070045E894 /* StitchAIRequestBodyFormattable_V0.swift */,
 			);
 			path = V0;
 			sourceTree = "<group>";
@@ -3776,6 +3826,92 @@
 			path = Nodes;
 			sourceTree = "<group>";
 		};
+		B5849FBC2DFBDF3600D668ED /* AIEditJsNode */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FB92DFBDF3600D668ED /* AIEditJsNodeRequestBody_V1.swift */,
+				B5849FBA2DFBDF3600D668ED /* AIEditJsNodeResponseFormat_V1.swift */,
+				B5849FBB2DFBDF3600D668ED /* AIEditJsNodeSystemPrompt_V1.swift */,
+			);
+			path = AIEditJsNode;
+			sourceTree = "<group>";
+		};
+		B5849FC12DFBDF3600D668ED /* AIGraphCreation */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FBD2DFBDF3600D668ED /* AIGraphCreationContentJSON_V1.swift */,
+				B5849FBE2DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift */,
+				B5849FBF2DFBDF3600D668ED /* AIGraphCreationResponseFormat_V1.swift */,
+				B5849FC02DFBDF3600D668ED /* AIGraphCreationSystemPrompt_V1.md */,
+			);
+			path = AIGraphCreation;
+			sourceTree = "<group>";
+		};
+		B5849FC42DFBDF3600D668ED /* AIGraphDescription */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FC22DFBDF3600D668ED /* AIGraphDescriptionRequestBody_V1.swift */,
+				B5849FC32DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift */,
+			);
+			path = AIGraphDescription;
+			sourceTree = "<group>";
+		};
+		B5849FC72DFBDF3600D668ED /* GraphActions */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FC52DFBDF3600D668ED /* Step_V1.swift */,
+				B5849FC62DFBDF3600D668ED /* StepType_V1.swift */,
+			);
+			path = GraphActions;
+			sourceTree = "<group>";
+		};
+		B5849FCA2DFBDF3600D668ED /* JavaScript */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FC82DFBDF3600D668ED /* JavaScriptNodeSettingsAI_V1.swift */,
+				B5849FC92DFBDF3600D668ED /* JavaScriptPortDefinitionAI_V1.swift */,
+			);
+			path = JavaScript;
+			sourceTree = "<group>";
+		};
+		B5849FCD2DFBDF3600D668ED /* Node */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FCA2DFBDF3600D668ED /* JavaScript */,
+				B5849FCB2DFBDF3600D668ED /* NodeIOPortTypeAI_V1.swift */,
+				B5849FCC2DFBDF3600D668ED /* NodeType_V1.swift */,
+			);
+			path = Node;
+			sourceTree = "<group>";
+		};
+		B5849FD52DFBDF3600D668ED /* Value */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FCE2DFBDF3600D668ED /* StitchAIColor_V1.swift */,
+				B5849FCF2DFBDF3600D668ED /* StitchAINodeType_V1.swift */,
+				B5849FD02DFBDF3600D668ED /* StitchAIPortValue_V1.swift */,
+				B5849FD12DFBDF3600D668ED /* StitchAIPosition_V1.swift */,
+				B5849FD22DFBDF3600D668ED /* StitchAISize_V1.swift */,
+				B5849FD32DFBDF3600D668ED /* StitchAISizeDimension_V1.swift */,
+				B5849FD42DFBDF3600D668ED /* StitchAIUUID_V1.swift */,
+			);
+			path = Value;
+			sourceTree = "<group>";
+		};
+		B5849FD72DFBDF3600D668ED /* V1 */ = {
+			isa = PBXGroup;
+			children = (
+				B5849FBC2DFBDF3600D668ED /* AIEditJsNode */,
+				B5849FC12DFBDF3600D668ED /* AIGraphCreation */,
+				B5849FC42DFBDF3600D668ED /* AIGraphDescription */,
+				B5849FC72DFBDF3600D668ED /* GraphActions */,
+				B5849FCD2DFBDF3600D668ED /* Node */,
+				B5849FD52DFBDF3600D668ED /* Value */,
+				B5849FD62DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift */,
+			);
+			path = V1;
+			sourceTree = "<group>";
+		};
 		B59660812C1A19E600BE75D7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -5212,12 +5348,13 @@
 			files = (
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
-				B5849FB82DFBDB5E00D668ED /* README.md in Resources */,
+				B5849FB82DFBDB5E00D668ED /* VersioningInstructions.md in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
 				E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				B5849FB62DFBDA7100D668ED /* versioning.sh in Resources */,
+				B5849FD82DFBDF3600D668ED /* AIGraphCreationSystemPrompt_V1.md in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
@@ -5347,6 +5484,28 @@
 				EC4914A02935979800D74344 /* TextReplaceNode.swift in Sources */,
 				B5B95B9C2CB6D6D200DA64B3 /* StitchSystemUtil.swift in Sources */,
 				ECE639202C489C4F00FB8D5F /* ShadowFlyoutView.swift in Sources */,
+				B5849FD92DFBDF3600D668ED /* AIGraphCreationResponseFormat_V1.swift in Sources */,
+				B5849FDA2DFBDF3600D668ED /* StitchAISize_V1.swift in Sources */,
+				B5849FDB2DFBDF3600D668ED /* AIGraphCreationContentJSON_V1.swift in Sources */,
+				B5849FDC2DFBDF3600D668ED /* StitchAIColor_V1.swift in Sources */,
+				B5849FDD2DFBDF3600D668ED /* AIEditJsNodeResponseFormat_V1.swift in Sources */,
+				B5849FDE2DFBDF3600D668ED /* NodeType_V1.swift in Sources */,
+				B5849FDF2DFBDF3600D668ED /* StitchAIPortValue_V1.swift in Sources */,
+				B5849FE02DFBDF3600D668ED /* StitchAISizeDimension_V1.swift in Sources */,
+				B5849FE12DFBDF3600D668ED /* StitchAIPosition_V1.swift in Sources */,
+				B5849FE22DFBDF3600D668ED /* AIEditJsNodeRequestBody_V1.swift in Sources */,
+				B5849FE32DFBDF3600D668ED /* NodeIOPortTypeAI_V1.swift in Sources */,
+				B5849FE42DFBDF3600D668ED /* StitchAIUUID_V1.swift in Sources */,
+				B5849FE52DFBDF3600D668ED /* AIEditJsNodeSystemPrompt_V1.swift in Sources */,
+				B5849FE62DFBDF3600D668ED /* JavaScriptPortDefinitionAI_V1.swift in Sources */,
+				B5849FE72DFBDF3600D668ED /* StepType_V1.swift in Sources */,
+				B5849FE82DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift in Sources */,
+				B5849FE92DFBDF3600D668ED /* StitchAINodeType_V1.swift in Sources */,
+				B5849FEA2DFBDF3600D668ED /* Step_V1.swift in Sources */,
+				B5849FEB2DFBDF3600D668ED /* AIGraphDescriptionRequestBody_V1.swift in Sources */,
+				B5849FEC2DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift in Sources */,
+				B5849FED2DFBDF3600D668ED /* JavaScriptNodeSettingsAI_V1.swift in Sources */,
+				B5849FEE2DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift in Sources */,
 				EC572B3B26337C5F00C8E49A /* NodeTypeUtils.swift in Sources */,
 				B56FFB482C18FF9700623CC7 /* LoopedEval.swift in Sources */,
 				B55501342C1C00EB0081C3F1 /* GraphStepIncrementer.swift in Sources */,
@@ -5843,6 +6002,7 @@
 				B53B1D96289E265900489652 /* StitchVideoPlayer.swift in Sources */,
 				B5976C1D2980CBC00082BF14 /* StitchEntity.swift in Sources */,
 				ECB7C71E28A56C2200252DE7 /* ClassicAnimationPosition.swift in Sources */,
+				B5849FF02DFBE12E00D668ED /* StitchAIRuntimeHelpers.swift in Sources */,
 				B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */,
 				ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */,
 				ECB1B7B426FB9DFF006D9C95 /* MediaLibrary.swift in Sources */,
@@ -5943,7 +6103,7 @@
 				B5D689BB2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift in Sources */,
 				B55500D32C1BA6810081C3F1 /* PreviewWindowSizing.swift in Sources */,
 				8B2A221926A3B5BE002D08BA /* FeatureFlags.swift in Sources */,
-				EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable.swift in Sources */,
+				EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable_V0.swift in Sources */,
 				EC53F3BC287E25EE0021095B /* ArcTan2Node.swift in Sources */,
 				ECEF8D0F2BFE9BE5004FABCD /* LayerGroupInteractableViewModifier.swift in Sources */,
 				B5136F5D2DED6330007F12D0 /* StitchAINodeType_V0.swift in Sources */,

@@ -8,15 +8,16 @@
 import SwiftUI
 import StitchSchemaKit
 
-enum StitchAIPortValue_V0: StitchSchemaVersionable {
+enum StitchAIPortValue_V1: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
-    static let version = StitchAISchemaVersion._V0
-    typealias PortValueVersion = PortValue_V31
+    static let version = StitchAISchemaVersion._V1
+    typealias PortValueVersion = PortValue_V32
     typealias PortValue = PortValueVersion.PortValue
-    typealias NodeType = UserVisibleType_V31.UserVisibleType
-    typealias LayerSize = LayerSize_V31.LayerSize
-    typealias TextDecoration = LayerTextDecoration_V31.LayerTextDecoration
-    typealias CustomShape = CustomShape_V31.CustomShape
+    typealias NodeType = UserVisibleType_V32.UserVisibleType
+    typealias LayerSize = LayerSize_V32.LayerSize
+    typealias TextDecoration = LayerTextDecoration_V32.LayerTextDecoration
+    typealias CustomShape = CustomShape_V32.CustomShape
+    typealias SizeDimension = StitchAISizeDimension_V1.StitchAISizeDimension
     typealias PreviousInstance = Self.StitchAIPortValue
     // MARK: - end
     
@@ -57,16 +58,16 @@ enum StitchAIPortValue_V0: StitchSchemaVersionable {
     }
 }
 
-extension StitchAIPortValue_V0.StitchAIPortValue: StitchVersionedCodable {
+extension StitchAIPortValue_V1.StitchAIPortValue: StitchVersionedCodable {
     // TODO: create migration for v1
-    public init(previousInstance: StitchAIPortValue_V0.StitchAIPortValue) {
+    public init(previousInstance: StitchAIPortValue_V1.StitchAIPortValue) {
         fatalError()
     }
 }
 
-extension StitchAIPortValue_V0.PortValue {
-    init?(decoderContainer: KeyedDecodingContainer<Step_V0.Step.CodingKeys>,
-          type: StitchAIPortValue_V0.NodeType) throws {
+extension StitchAIPortValue_V1.PortValue {
+    init?(decoderContainer: KeyedDecodingContainer<Step_V1.Step.CodingKeys>,
+          type: StitchAIPortValue_V1.NodeType) throws {
         let portValueType = type.portValueTypeForStitchAI
         
         guard let decodedValue = try decoderContainer
@@ -88,7 +89,7 @@ extension StitchAIPortValue_V0.PortValue {
         case .number(let x):
             return x
         case .layerDimension(let x):
-            return StitchAISizeDimension_V0.StitchAISizeDimension(value: x)
+            return StitchAIPortValue_V1.SizeDimension(value: x)
         case .transform(let x):
             return x
         case .plane(let x):
@@ -96,12 +97,13 @@ extension StitchAIPortValue_V0.PortValue {
         case .networkRequestType(let x):
             return x
         case .color(let x):
-            return StitchAIColor_V0.StitchAIColor(value: x)
+            return StitchAIColor_V1.StitchAIColor(value: x)
         case .size(let size):
-            return StitchAISize_V0.StitchAISize(width: .init(value: size.width),
-                                                height: .init(value: size.height))
+            return StitchAISize_V1
+                .StitchAISize(width: .init(value: size.width),
+                              height: .init(value: size.height))
         case .position(let x):
-            return StitchAIPosition_V0.StitchAIPosition(x: x.x, y: x.y)
+            return StitchAIPosition_V1.StitchAIPosition(x: x.x, y: x.y)
         case .point3D(let x):
             return x
         case .point4D(let x):
@@ -118,9 +120,9 @@ extension StitchAIPortValue_V0.PortValue {
             return x
         case .assignedLayer(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V0.StitchAIUUID?
+                return nil as StitchAIUUID_V1.StitchAIUUID?
             }
-            return StitchAIUUID_V0.StitchAIUUID(value: x.id)
+            return StitchAIUUID_V1.StitchAIUUID(value: x.id)
         case .scrollMode(let x):
             return x
         case .textAlignment(let x):
@@ -195,19 +197,18 @@ extension StitchAIPortValue_V0.PortValue {
             return x
         case .anchorEntity(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V0.StitchAIUUID?
+                return nil as StitchAIUUID_V1.StitchAIUUID?
             }
-            return StitchAIUUID_V0.StitchAIUUID(value: x)
-        case .none, .int:
+            return StitchAIUUID_V1.StitchAIUUID(value: x)
+        case .keyboardType(let x):
+            return x
+        case .none:
             fatalError()
         }
     }
     
-    var nodeType: StitchAIPortValue_V0.NodeType {
+    var nodeType: StitchAIPortValue_V1.NodeType {
         switch self {
-        case .int:
-            fatalErrorIfDebug()
-            return .int
         case .string:
             return .string
         case .bool:
@@ -329,6 +330,8 @@ extension StitchAIPortValue_V0.PortValue {
             return .deviceAppearance
         case .anchorEntity:
             return .anchorEntity
+        case .keyboardType:
+            return .keyboardType
         }
     }
 }

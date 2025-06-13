@@ -5,23 +5,24 @@
 //  Created by Elliot Boschwitz on 6/1/25.
 //
 
-typealias CurrentStep = Step_V0
-typealias CurrentStepType = StepType_V0
-typealias CurrentStitchAIPortValue = StitchAIPortValue_V0
-typealias CurrentStitchAIPosition = StitchAIPosition_V0
-typealias CurrentStitchAIUUID = StitchAIUUID_V0
-typealias CurrentStitchAIColor = StitchAIColor_V0
-typealias CurrentStitchAISize = StitchAISize_V0
-typealias CurrentStitchAISizeDimension = StitchAISizeDimension_V0
-typealias CurrentJavaScriptNodeSettingsAI = JavaScriptNodeSettingsAI_V0
-typealias CurrentJavaScriptPortDefinitionAI = JavaScriptPortDefinitionAI_V0
-typealias CurrentAIGraphCreationRequestBody = AIGraphCreationRequestBody_V0
-typealias CurrentAIGraphDescriptionRequestBody = AIGraphDescriptionRequestBody_V0
-typealias CurrentAIEditJsSystemPrompt = AIEditJsNodeSystemPrompt_V0
-typealias CurrentAIGraphCreationResponseFormat = AIGraphCreationResponseFormat_V0
-typealias CurrentAIEditJsNodeResponseFormat = AIEditJsNodeResponseFormat_V0
-typealias CurrentAIEditJsNodeRequestBody = AIEditJsNodeRequestBody_V0
-typealias CurrentStitchAIRequestBodyFormattable = StitchAIRequestBodyFormattable_V0
+typealias CurrentStep = Step_V1
+typealias CurrentStepType = StepType_V1
+typealias CurrentStitchAIPortValue = StitchAIPortValue_V1
+typealias CurrentStitchAIPosition = StitchAIPosition_V1
+typealias CurrentStitchAIUUID = StitchAIUUID_V1
+typealias CurrentStitchAIColor = StitchAIColor_V1
+typealias CurrentStitchAISize = StitchAISize_V1
+typealias CurrentStitchAISizeDimension = StitchAISizeDimension_V1
+typealias CurrentJavaScriptNodeSettingsAI = JavaScriptNodeSettingsAI_V1
+typealias CurrentJavaScriptPortDefinitionAI = JavaScriptPortDefinitionAI_V1
+typealias CurrentAIGraphCreationRequestBody = AIGraphCreationRequestBody_V1
+typealias CurrentAIGraphDescriptionRequestBody = AIGraphDescriptionRequestBody_V1
+typealias CurrentAIEditJsSystemPrompt = AIEditJsNodeSystemPrompt_V1
+typealias CurrentAIGraphCreationResponseFormat = AIGraphCreationResponseFormat_V1
+typealias CurrentAIEditJsNodeResponseFormat = AIEditJsNodeResponseFormat_V1
+typealias CurrentAIEditJsNodeRequestBody = AIEditJsNodeRequestBody_V1
+typealias CurrentStitchAIRequestBodyFormattable = StitchAIRequestBodyFormattable_V1
+typealias CurrentAIGraphCreationContentJSON = AIGraphCreationContentJSON_V1
 
 typealias Step = CurrentStep.Step
 typealias Steps = [Step]
@@ -43,6 +44,6 @@ typealias PatchOrLayerAI = CurrentStep.PatchOrLayer
 typealias AIGraphCreationRequestBody = CurrentAIGraphCreationRequestBody.AIGraphCreationRequestBody
 typealias AIGraphDescriptionRequestBody = CurrentAIGraphDescriptionRequestBody.AIGraphDescriptionRequestBody
 typealias AIGraphCreationStepSchema = CurrentAIGraphCreationResponseFormat.AIGraphCreationStepSchema
-typealias AIGraphCreationContentJSON = AIGraphCreationContentJSON_V0.AIGraphCreationContentJSON
+typealias AIGraphCreationContentJSON = CurrentAIGraphCreationContentJSON.AIGraphCreationContentJSON
 typealias AIEditJsNodeRequestBody = CurrentAIEditJsNodeRequestBody.AIEditJsNodeRequestBody
 typealias StitchAIRequestBodyFormattable = CurrentStitchAIRequestBodyFormattable.StitchAIRequestBodyFormattable

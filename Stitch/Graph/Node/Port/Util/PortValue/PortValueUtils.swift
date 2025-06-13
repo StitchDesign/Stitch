@@ -511,16 +511,6 @@ extension PortValue {
             return nil
         }
     }
-    
-    var anyCodable: (any Codable)? {
-        do {
-            let migratedPortValue = try self.convert(to: CurrentStep.PortValue.self)
-            return migratedPortValue.anyCodable
-        } catch {
-            fatalErrorIfDebug("PortValue.anyCodable error: \(error)")
-            return nil
-        }
-    }
 }
 
 extension SizingScenario {
@@ -532,13 +522,6 @@ extension SizingScenario {
 }
 
 extension CurrentStep.PortValue {
-    var getInteractionId: NodeId? {
-        switch self {
-        case .assignedLayer(let x): return x?.id
-        default: return nil
-        }
-    }
-    
     /// Migrates Stitch AI's PortValue to runtime.
     func migrate() throws -> PortValue {
         try PortValueVersion.migrate(entity: self,
