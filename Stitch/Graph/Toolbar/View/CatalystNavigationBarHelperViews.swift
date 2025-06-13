@@ -65,7 +65,7 @@ struct CatalystTopBarGraphButtons: View {
             .opacity(hasActiveGroupFocused ? 1 : 0)
             
             if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
-                CatalystNavBarButton("Sparkles",
+                CatalystNavBarButton("sparkles",
                                      toolTip: "Submit graph as AI training example") {
                     dispatch(ShowCreateTrainingDataFromExistingGraphModal())
                 }
