@@ -129,13 +129,3 @@ enum AIGraphCreationResponseFormat_V0 {
         }
     }
 }
-
-//extension NodeKind_V31.NodeKind {
-//    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
-//        // Filter out the scroll interaction node
-//        let allDescriptions = Patch.allAiDescriptions + Layer.allAiDescriptions
-//        return allDescriptions.filter { description in
-//            !description.nodeKind.contains("scrollInteraction")
-//        }
-//    }
-//}

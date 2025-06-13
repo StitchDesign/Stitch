@@ -8,25 +8,11 @@
 import SwiftUI
 import StitchSchemaKit
 
-//extension CurrentStep.NodeKind {
-//    static func getAiNodeDescriptions() -> [StitchAINodeKindDescription_V31.StitchAINodeKindDescription] {
-//        // Filter out the scroll interaction node
-//        let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
-//        return allDescriptions.filter { description in
-//            !description.nodeKind.contains("scrollInteraction")
-//        }
-//    }
-//}
-
-
-
-// TODO: move to schema versioning
-
 /// Redundant copy for newest version, should Stitch AI and SSK versions diverge.
-extension NodeKind_V31.NodeKind {
+extension CurrentStep.NodeKind {
     static func getAiNodeDescriptions() -> [StitchAINodeKindDescription] {
         // Filter out the scroll interaction node
-        let allDescriptions = Patch_V31.Patch.allAiDescriptions + Layer_V31.Layer.allAiDescriptions
+        let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
         return allDescriptions.filter { description in
             !description.nodeKind.contains("scrollInteraction")
         }
@@ -36,7 +22,7 @@ extension NodeKind_V31.NodeKind {
 struct StitchAINodeKindDescription {
     let nodeKind: String
     let description: String
-    let types: Set<UserVisibleType_V31.UserVisibleType>?
+    let types: Set<CurrentStep.NodeType>?
 }
 
 extension StitchAINodeKindDescription: Encodable {
@@ -63,7 +49,7 @@ protocol NodeKindDescribable: CaseIterable {
     
     var aiNodeDescription: String { get }
     
-    var types: Set<UserVisibleType_V31.UserVisibleType>? { get }
+    var types: Set<CurrentStep.NodeType>? { get }
     
     static var titleDisplay: String { get }
 }
@@ -91,8 +77,8 @@ extension NodeKindDescribable {
     }
 }
 
-extension Patch_V31.Patch: NodeKindDescribable {
-    var types: Set<UserVisibleType_V31.UserVisibleType>? {
+extension CurrentStep.Patch: NodeKindDescribable {
+    var types: Set<CurrentStep.NodeType>? {
         guard let migratedPatch = try? self.convert(to: Patch.self) else {
             fatalErrorIfDebug("No patch for this type: \(self)")
             return nil
@@ -102,8 +88,8 @@ extension Patch_V31.Patch: NodeKindDescribable {
         let types = migratedPatch.availableNodeTypes
         
         // Downgrade back
-        let downgradedTypes: [UserVisibleType_V31.UserVisibleType] = types.compactMap {
-            guard let convertedType = try? $0.convert(to: UserVisibleType_V31.UserVisibleType.self) else {
+        let downgradedTypes: [CurrentStep.NodeType] = types.compactMap {
+            guard let convertedType = try? $0.convert(to: CurrentStep.NodeType.self) else {
                 log("No support at this version for type for: \(self)")
                 return nil
             }
@@ -118,25 +104,12 @@ extension Patch_V31.Patch: NodeKindDescribable {
         return Set(downgradedTypes)
     }
 }
-extension Layer_V31.Layer: NodeKindDescribable {
+extension CurrentStep.Layer: NodeKindDescribable {
     // layers don't do node types
-    var types: Set<UserVisibleType_V31.UserVisibleType>? { nil }
+    var types: Set<CurrentStep.NodeType>? { nil }
 }
 
-//public enum PatchOrLayer: Codable, Hashable, Sendable {
-//    case patch(Patch_V31.Patch), layer(Layer_V31.Layer)
-//}
-
-extension PatchOrLayer_V31.PatchOrLayer {
-//    var description: String {
-//        switch self {
-//        case .patch(let patch):
-//            return patch.defaultDisplayTitle()
-//        case .layer(let layer):
-//            return layer.defaultDisplayTitle()
-//        }
-//    }
-    
+extension CurrentStep.PatchOrLayer {    
     var asLLMStepNodeName: String {
         switch self {
         case .patch(let x):
@@ -258,7 +231,7 @@ struct StitchAINodeIODescription: Encodable {
 extension StitchAINodeIODescription {
     @MainActor
     init(_ NodeInfo: any NodeDefinition.Type) throws {
-        let migratedNodeKind = try NodeInfo.graphKind.kind.convert(to: PatchOrLayer_V31.PatchOrLayer.self)
+        let migratedNodeKind = try NodeInfo.graphKind.kind.convert(to: CurrentStep.PatchOrLayer.self)
         self.nodeKind = migratedNodeKind.asLLMStepNodeName
         let rowDefinitions = NodeInfo.rowDefinitions(for: NodeInfo.defaultUserVisibleType)
         
