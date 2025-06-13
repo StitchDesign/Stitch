@@ -162,3 +162,23 @@ func willRequest_SideEffect(userPrompt: String,
     // Track initial graph state
     document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
 }
+
+extension CurrentStep.Step {
+    // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
+    func parseAsStepAction() -> Result<any StepActionable, StitchAIStepHandlingError> {
+        switch self.stepType {
+        case .addNode:
+            return StepActionAddNode.fromStep(self).map { $0 as any StepActionable}
+        case .connectNodes:
+            return StepActionConnectionAdded.fromStep(self).map { $0 as any StepActionable}
+        case .changeValueType:
+            return StepActionChangeValueType.fromStep(self).map { $0 as any StepActionable}
+        case .setInput:
+            return StepActionSetInput.fromStep(self).map { $0 as any StepActionable}
+        case .sidebarGroupCreated:
+            return StepActionLayerGroupCreated.fromStep(self).map { $0 as any StepActionable}
+//        case .editJSNode:
+//            return StepActionEditJSNode.fromStep(self).map { $0 as any StepActionable}
+        }
+    }
+}

@@ -37,12 +37,12 @@ Always use the fewest possible nodes. If the user’s request can be fulfilled b
 - Use string port identifiers for layer nodes. Limit options to those listed in `LayerPorts` in structured outputs.
 - Do not connect a node to a port that already has a SET_INPUT.
 
-
 # Action Sequence
 1. ADD_NODE: Create the node(s) needed.
 2. CHANGE_VALUE_TYPE: Only if a non-numeric type is required.
 3. SET_INPUT: Set constants or known inputs directly on the node’s ports.
 4. CONNECT_NODES: Only if multiple nodes are needed.
+5. SIDEBAR_GROUP_CREATED: Creates a group layer node to control multiple layers under a single container.
 
 When generating steps for graph creation:
 

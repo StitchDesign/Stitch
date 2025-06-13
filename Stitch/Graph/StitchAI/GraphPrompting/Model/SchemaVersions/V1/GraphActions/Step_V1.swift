@@ -13,28 +13,28 @@ import StitchSchemaKit
 // Note: `Step` as a type is basically one 'step' away from JSON,
 // i.e. it's very generic and in majority of (or in all?) cases
 // we actually want the more specific `StepActionable` type.
-enum Step_V0: StitchSchemaVersionable {
+enum Step_V1: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
-    static let version = StitchAISchemaVersion._V0
-    static let documentVersion = StitchSchemaVersion._V31
-    typealias StepType = StepType_V0.StepType
-    typealias NodeType = StitchAIPortValue_V0.NodeType
-    typealias PortValue = StitchAIPortValue_V0.PortValue
-    typealias NodeKind = NodeKind_V31.NodeKind
-    typealias Patch = Patch_V31.Patch
-    typealias Layer = Layer_V31.Layer
-    typealias NodeIOPortTypeVersion = NodeIOPortType_V31
+    static let version = StitchAISchemaVersion._V1
+    static let documentVersion = StitchSchemaVersion._V32
+    typealias StepType = StepType_V1.StepType
+    typealias NodeType = StitchAIPortValue_V1.NodeType
+    typealias PortValue = StitchAIPortValue_V1.PortValue
+    typealias NodeKind = NodeKind_V32.NodeKind
+    typealias Patch = Patch_V32.Patch
+    typealias Layer = Layer_V32.Layer
+    typealias NodeIOPortTypeVersion = NodeIOPortType_V32
     typealias NodeIOPortType = NodeIOPortTypeVersion.NodeIOPortType
-    typealias LayerInputPort = LayerInputPort_V31.LayerInputPort
-    typealias StitchAIUUid = StitchAIUUID_V0.StitchAIUUID
-    typealias LayerNodeId = LayerNodeId_V31.LayerNodeId
-    typealias NodeIOCoordinate = NodeIOCoordinate_V31.NodeIOCoordinate
+    typealias LayerInputPort = LayerInputPort_V32.LayerInputPort
+    typealias StitchAIUUid = StitchAIUUID_V1.StitchAIUUID
+    typealias LayerNodeId = LayerNodeId_V32.LayerNodeId
+    typealias NodeIOCoordinate = NodeIOCoordinate_V32.NodeIOCoordinate
     
     typealias PreviousInstance = Self.Step
     // MARK: - end
     
     public enum PatchOrLayer: Hashable, Codable {
-        case patch(Step_V0.Patch), layer(Step_V0.Layer)
+        case patch(Step_V1.Patch), layer(Step_V1.Layer)
     }
     
     /// Represents a single step/action in the visual programming sequence
@@ -134,9 +134,9 @@ enum Step_V0: StitchSchemaVersionable {
             }
             
             if let portString = try? container.decodeIfPresent(String.self, forKey: .port) {
-                self.port = try Step_V0.NodeIOPortType(stringValue: portString)
+                self.port = try Step_V1.NodeIOPortType(stringValue: portString)
             } else if let portInt = try? container.decodeIfPresent(Int.self, forKey: .port) {
-                self.port = NodeIOPortType.portIndex(portInt)
+                self.port = Step_V1.NodeIOPortType.portIndex(portInt)
             }
 
             // Important: Layer Groups do not have node type, so we must decode children
@@ -155,7 +155,7 @@ enum Step_V0: StitchSchemaVersionable {
             
             // Parse value given node type
             do {
-                self.value = try StitchAIPortValue_V0
+                self.value = try StitchAIPortValue_V1
                     .PortValue(decoderContainer: container,
                                type: nodeType)
             } catch {
@@ -171,13 +171,13 @@ enum Step_V0: StitchSchemaVersionable {
     }
 }
 
-extension Step_V0.Step: StitchVersionedCodable {
-    public init(previousInstance: Step_V0.PreviousInstance) {
+extension Step_V1.Step: StitchVersionedCodable {
+    public init(previousInstance: Step_V1.PreviousInstance) {
         fatalError()
     }
 }
 
-extension Step_V0.NodeIOPortType {
+extension Step_V1.NodeIOPortType {
     // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
     // Note: the older LLMAction port-string-parsing logic was more complicated?
     init(stringValue: String) throws {
@@ -189,8 +189,8 @@ extension Step_V0.NodeIOPortType {
         } else if let portId = Double(port) {
             // could be patch input/output OR layer output
             self = .portIndex(Int(portId))
-        } else if let layerInputPort: Step_V0.LayerInputPort = Step_V0.LayerInputPort.allCases.first(where: { $0.asLLMStepPort == port }) {
-            let layerInputType = Step_V0.NodeIOPortTypeVersion
+        } else if let layerInputPort: Step_V1.LayerInputPort = Step_V1.LayerInputPort.allCases.first(where: { $0.asLLMStepPort == port }) {
+            let layerInputType = Step_V1.NodeIOPortTypeVersion
                 .LayerInputType(layerInput: layerInputPort,
                                 // TODO: support unpacked with StitchAI
                                 portType: .packed)
@@ -201,7 +201,7 @@ extension Step_V0.NodeIOPortType {
     }
 }
 
-extension Step_V0.Step: CustomStringConvertible {
+extension Step_V1.Step: CustomStringConvertible {
     /// Provides detailed string representation of a Step
     public var description: String {
         return """

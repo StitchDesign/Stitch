@@ -276,27 +276,3 @@ extension KeyedDecodingContainerProtocol {
         }
     }
 }
-
-extension CurrentStep.NodeIOPortType {
-    // TODO: `LLMStepAction`'s `port` parameter does not yet properly distinguish between input vs output?
-    // Note: the older LLMAction port-string-parsing logic was more complicated?
-    init(stringValue: String) throws {
-        let port = stringValue
-  
-        if let portId = Int(port) {
-            // could be patch input/output OR layer output
-            self = .portIndex(portId)
-        } else if let portId = Double(port) {
-            // could be patch input/output OR layer output
-            self = .portIndex(Int(portId))
-        } else if let layerInputPort: CurrentStep.LayerInputPort = CurrentStep.LayerInputPort.allCases.first(where: { $0.asLLMStepPort == port }) {
-            let layerInputType = CurrentStep.NodeIOPortTypeVersion
-                .LayerInputType(layerInput: layerInputPort,
-                                // TODO: support unpacked with StitchAI
-                                portType: .packed)
-            self = .keyPath(layerInputType)
-        } else {
-            throw StitchAIParsingError.portTypeDecodingError(port)
-        }
-    }
-}

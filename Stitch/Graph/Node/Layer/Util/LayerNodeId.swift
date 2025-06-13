@@ -17,11 +17,6 @@ extension LayerNodeId {
     var asItemId: SidebarListItemId {
         self.asNodeId
     }
-
-    var asNodeId: NodeId {
-        self.id
-    }
-
 }
 
 typealias LayerIdList = [LayerNodeId]

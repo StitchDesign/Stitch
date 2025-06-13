@@ -38,8 +38,8 @@ extension PortValue {
         default:
                         
             // Encode the PortValue as a human-readable/friendly JSON (e.g. StitchAIColor instead of SwiftUI.Color)
-            if let anyCodable = self.anyCodable,
-               let encoding: Data = try? getStitchEncoder().encode(anyCodable),
+            let anyCodable = self.anyCodable
+            if let encoding: Data = try? getStitchEncoder().encode(anyCodable),
                let json = try? JSON.init(data: encoding) {
                 // log("jsonCoercer: coerced \(self) to a json \(json) via encoding")
                 return .init(json)
@@ -157,8 +157,8 @@ extension JSON {
             return PortValue.assignedLayer(nil)
         }
         
-        guard let portValueType = nodeType.portValueTypeForStitchAI,
-              let decodedAnyValue = try? decoder.decode(portValueType,
+        let portValueType = nodeType.portValueTypeForStitchAI
+        guard let decodedAnyValue = try? decoder.decode(portValueType,
                                                         from: encoded) else {
             // log("coerceToPortValue: could not decode json \(self) as \(nodeType)")
             return nil
