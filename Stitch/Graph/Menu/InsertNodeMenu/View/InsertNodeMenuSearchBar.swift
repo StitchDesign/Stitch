@@ -67,7 +67,7 @@ struct InsertNodeMenuSearchBar: View {
                     .frame(width: 36, height: 36)
                     .buttonStyle(.borderless)
                 }
-            }
+            } // Group
             .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
             .padding(.trailing, 20)
             .animation(.linear(duration: 0.2), value: isLoadingAIResult)

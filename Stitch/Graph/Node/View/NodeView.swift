@@ -439,7 +439,6 @@ struct NodeViewTapGestureModifier: ViewModifier {
     }
 }
 
-
 struct NodeLoadingBlurEffect: ViewModifier {
     var isLoading: Bool
     
@@ -450,7 +449,6 @@ struct NodeLoadingBlurEffect: ViewModifier {
                 if isLoading {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .offset(x: -12, y: 6)
                 }
             }
     }

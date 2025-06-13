@@ -26,19 +26,47 @@ struct AINodePromptEntryModalView: View {
         document.aiNodePromptSubmitted(userPrompt: self.userPrompt)
         document.llmRecording.modal = .none
     }
-    
-    var body: some View {
         
-        VStack(spacing: 16) {
-            StitchTextView(string: "Create a Custom Node with AI",
-                           font: .title3.weight(.semibold))
+    var body: some View {
+        ZStack(alignment: .top) {
             
-            TextField("What should your node do?",
-                      text: self.$userPrompt)
-            .padding(4)
-            .background {
-                Color.EXTENDED_FIELD_BACKGROUND_COLOR.cornerRadius(8)
+            ModalBackgroundGestureRecognizer(dismissalCallback: { self.entryCancelled() }) {
+                Color.clear
             }
+            
+            // Insert Node Menu view
+            aiPromptyEntryView
+                .frame(width: InsertNodeMenuWithModalBackground.menuWidth)
+                    .shadow(radius: 4)
+                    .shadow(radius: 8, x: 4, y: 2)
+                    
+                #if targetEnvironment(macCatalyst)
+                // Padding from top, per Figma
+                    .offset(y: 24)
+                #else
+                // TODO: why does this differ for Catalyst vs iPad ?
+//                    .offset(y: 48)
+//                    .offset(y: 12)
+                    .offset(y: 8)
+                    .offset(y: document.visibleGraph.graphYPosition)
+                #endif
+                
+                // Preserve position when we've collapsed the node menu body because of an active AI request
+                // Alternatively?: use VStack { menu, Spacer }
+                    .offset(y: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT/2)
+        }
+    }
+    
+    var aiPromptyEntryView: some View {
+        
+        TextField("What should your node do?", text: self.$userPrompt)
+            .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
+            .padding(.leading, 16)
+            .padding(.trailing, 60)
+            .overlay(alignment: .center) {
+                rightSideButton
+            }
+            .font(.system(size: 24))
             .onAppear(perform: {
                 // So that `CMD+A: select all` works in this text field
                 dispatch(ReduxFieldFocused(focusedField: .aiNodePrompt))
@@ -51,32 +79,24 @@ struct AINodePromptEntryModalView: View {
                     self.submitted()
                 }
             }
-            
-            HStack(spacing: 18) {
-                Button("Cancel", role: .cancel) {
-                    self.entryCancelled()
-                }
-                
-                Button("Submit") {
-                    self.submitted()
-                }
-                .disabled(self.userPrompt.isEmpty)
-            }
-           
-        } // VStack
-        .frame(maxWidth: 400)
-        .padding(16)
-        
-#if targetEnvironment(macCatalyst)
-        .background(.regularMaterial)
-#else
-        .background(.thinMaterial)
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.gray)
+            .background(INSERT_NODE_SEARCH_BACKGROUND)
+            .foregroundColor(INSERT_NODE_MENU_SEARCH_TEXT)
+            .cornerRadius(InsertNodeMenuWithModalBackground.shownMenuCornerRadius)
+    }
+    
+    var rightSideButton: some View {
+        HStack {
+            Button(action: {
+                // Helps to defocus the .focusedValue, ensuring our shortcuts like "CMD+A Select All" is enabled again.
+                self.submitted()
+            }, label: {
+                Image(systemName: "plus.app")
+            })
+            .frame(width: 36, height: 36)
+            .buttonStyle(.borderless)
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
+            .padding(.trailing, 20)
         }
-#endif
-        .cornerRadius(8)
     }
 }
 
