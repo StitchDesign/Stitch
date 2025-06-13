@@ -213,6 +213,9 @@ extension GraphState {
         if document.llmRecording.modal == .submitExistingGraphAsTrainingExample {
             document.llmRecording.modal = .none
         }
+        if document.llmRecording.modal == .aiNodePromptEntry {
+            document.llmRecording.modal = .none
+        }
         
         if document.openPortPreview != nil {
             document.openPortPreview = nil

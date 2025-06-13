@@ -7,11 +7,6 @@
 
 import SwiftUI
 
-struct ExistingGraphAsTrainingExample: Equatable, Hashable {
-    var graph: GraphEntity
-    var prompt: String
-    var rating: StitchAIRating
-}
 
 struct ExistingGraphSubmittedAsTrainingExample: StitchDocumentEvent {
     

@@ -12,83 +12,6 @@ import StitchEngine
 import OrderedCollections
 
 
-struct ShowAINodePromptEntryModal: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
-        state.llmRecording.modal = .aiNodePromptEntry
-    }
-}
-
-extension StitchDocumentViewModel {
-    
-    @MainActor
-    func aiNodePromptSubmitted() {
-        
-        let document = self
-        
-        // On submit, create a javascript node
-        let aiNode = document.nodeInserted(choice: .patch(.javascript))
-        guard let aiPatchNode = aiNode.patchNode else {
-            fatalErrorIfDebug()
-            return
-        }
-                
-        aiPatchNode.canvasObserver.isLoading = true
-        
-        document.graph.updateGraphData(document)
-        
-        
-        do {
-            let jsAIRequest = try AIEditJSNodeRequest(
-                prompt: document.llmRecording.aiNodePrompt,
-                document: document,
-                nodeId: aiNode.id)
-            
-            Task { [weak aiPatchNode, weak document] in
-                guard let aiPatchNode = aiPatchNode,
-                      let document = document,
-                      let aiManager = document.aiManager else {
-                    return
-                }
-                
-                // TODO: move to a `willRequest` for the Javascript Request ?
-                willRequest_SideEffect(
-                    userPrompt: jsAIRequest.userPrompt,
-                    requestId: jsAIRequest.id,
-                    document: document,
-                    canShareData: StitchStore.canShareAIData,
-                    userPromptTableName: nil)
-                                    
-                let result = await jsAIRequest.request(document: document,
-                                                       aiManager: aiManager)
-                
-                switch result {
-                
-                case .success(let jsSettings):
-                    log("success: jsSettings: \(jsSettings)")
-                    
-                    try await aiManager.uploadJavascriptCallResultToSupabase(
-                        userPrompt: jsAIRequest.userPrompt,
-                        requestId: jsAIRequest.id,
-                        javascriptSettings: jsSettings)
-                    
-                    aiPatchNode.canvasObserver.isLoading = false
-                    
-                    // Process the new Javascript settings
-                    aiPatchNode.processNewJavascript(response: jsSettings,
-                                                     document: document)
-                    
-                    document.graph.updateGraphData(document)
-                    
-                case .failure(let error):
-                    log("failure: error: \(error)")
-                    fatalErrorIfDebug(error.description)
-                }
-            }
-        } catch {
-            log("javascriptNodeField error: \(error.localizedDescription)")
-        }
-    }
-}
 
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
@@ -144,23 +67,7 @@ struct LLMRecordingState {
     
     // TODO: probably better to make an enum case in the `modal`
     var willDisplayTrainingPrompt = false
-    
-    var aiNodePrompt: String = ""
-    
-    var showAINodePromptEntry: Bool {
-        get {
-            self.modal == .aiNodePromptEntry
-        } set {
-            if newValue {
-                self.modal = .aiNodePromptEntry
-            } else {
-                if self.modal == .aiNodePromptEntry {
-                    self.modal = .none
-                }
-            }
-        }
-    }
-    
+            
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
     
@@ -195,14 +102,14 @@ extension LLMRecordingState {
 // "correcting actions" would fall under "generating graph"
 // There's a lot of state and views that overlap across use-cases...
 
-enum StitchAIMode: Equatable, Hashable {
-    
-    // Our classic use case: user submits prompt via node menu, which adds layers and patches to the current document
-    case generatingGraph
-    
-    // Our new use case: user submits prompt for a Javascript node, which adds a single JS node to the canvas
-    case generatingJavascriptNode
-    
-    // e.g. turning an existing graph into
-    case creatingTrainingData
-}
+//enum StitchAIMode: Equatable, Hashable {
+//    
+//    // Our classic use case: user submits prompt via node menu, which adds layers and patches to the current document
+//    case generatingGraph
+//    
+//    // Our new use case: user submits prompt for a Javascript node, which adds a single JS node to the canvas
+//    case generatingJavascriptNode
+//    
+//    // e.g. turning an existing graph into
+//    case creatingTrainingData
+//}

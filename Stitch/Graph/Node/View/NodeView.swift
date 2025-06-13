@@ -450,6 +450,7 @@ struct NodeLoadingBlurEffect: ViewModifier {
                 if isLoading {
                     ProgressView()
                         .progressViewStyle(.circular)
+                        .offset(x: -12, y: 6)
                 }
             }
     }

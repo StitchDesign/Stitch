@@ -861,6 +861,8 @@
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
 		ECBFDB0B2DB98B4500C1D6D5 /* GraphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBFDB0A2DB98B4500C1D6D5 /* GraphTests.swift */; };
 		ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC175892A43D9440017815D /* LayerDescription.swift */; };
+		ECC27E0A2DFBF94E00C2C6AF /* AINodeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC27E092DFBF94E00C2C6AF /* AINodeHelpers.swift */; };
+		ECC27E0C2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC27E0B2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift */; };
 		ECC2BCCB2B9B72A700D5F942 /* SidebarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCA2B9B72A700D5F942 /* SidebarListView.swift */; };
 		ECC2BCCD2B9B72B700D5F942 /* SidebarFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCC2B9B72B700D5F942 /* SidebarFooterView.swift */; };
 		ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCE2B9B72E900D5F942 /* SidebarListItemSwipeView.swift */; };
@@ -1905,6 +1907,8 @@
 		ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PureEvaluation.swift; sourceTree = "<group>"; };
 		ECBFDB0A2DB98B4500C1D6D5 /* GraphTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphTests.swift; sourceTree = "<group>"; };
 		ECC175892A43D9440017815D /* LayerDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDescription.swift; sourceTree = "<group>"; };
+		ECC27E092DFBF94E00C2C6AF /* AINodeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AINodeHelpers.swift; sourceTree = "<group>"; };
+		ECC27E0B2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalystProjectTitleEdit.swift; sourceTree = "<group>"; };
 		ECC2BCCA2B9B72A700D5F942 /* SidebarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListView.swift; sourceTree = "<group>"; };
 		ECC2BCCC2B9B72B700D5F942 /* SidebarFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarFooterView.swift; sourceTree = "<group>"; };
 		ECC2BCCE2B9B72E900D5F942 /* SidebarListItemSwipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSwipeView.swift; sourceTree = "<group>"; };
@@ -3072,6 +3076,7 @@
 				B55FB4472DC2D4700003E390 /* TopBarSharingButtonsView.swift */,
 				EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */,
 				EC0FD2DD2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift */,
+				ECC27E0B2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift */,
 				EC60AE762DFB3BF5001F5119 /* CatalystNavBarButtonView.swift */,
 				EC10A6352DF3A6E800C27F04 /* CatalystNavbarToolTipView.swift */,
 			);
@@ -4291,6 +4296,7 @@
 				B5EFD5C22D64EC85006A68FB /* OpenAIRequestable.swift */,
 				EC913A712DE54A0E0056CEE1 /* StitchAIRatingToast.swift */,
 				EC6914DF2DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift */,
+				ECC27E092DFBF94E00C2C6AF /* AINodeHelpers.swift */,
 				B5EFD5C62D650D47006A68FB /* StitchAITrainingData.swift */,
 				B5EFD5BF2D64EC23006A68FB /* OpenAISchema */,
 				B555FB402D59CD3A00E1D349 /* StitchAISchema.swift */,
@@ -5801,6 +5807,7 @@
 				EC17ACC226B4BC5900137EA5 /* StitchAudio.swift in Sources */,
 				ECFA5D4A287DEE580037CD59 /* PulseColor.swift in Sources */,
 				B548533B293721A700C43828 /* StitchARView.swift in Sources */,
+				ECC27E0A2DFBF94E00C2C6AF /* AINodeHelpers.swift in Sources */,
 				B58F9C26294AE0E800FFBF2C /* KeyPressActions.swift in Sources */,
 				ECC506E9267BB7C700A2D015 /* PreviewVideo.swift in Sources */,
 				ECA92A34260A6A5200281B52 /* GreaterOrEqualNode.swift in Sources */,
@@ -5921,6 +5928,7 @@
 				EC519E372BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift in Sources */,
 				B5EC48BC2A0ECC0000C6AE72 /* LayerNodesSorting.swift in Sources */,
 				B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */,
+				ECC27E0C2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift in Sources */,
 				B5D689BB2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift in Sources */,
 				B55500D32C1BA6810081C3F1 /* PreviewWindowSizing.swift in Sources */,
 				8B2A221926A3B5BE002D08BA /* FeatureFlags.swift in Sources */,

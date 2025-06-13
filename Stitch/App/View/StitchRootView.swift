@@ -58,13 +58,23 @@ struct StitchRootView: View {
                                 InsertNodeMenuWithModalBackground(document: document)
                             }
                             
-                            if document.llmRecording.modal == .submitExistingGraphAsTrainingExample {
+                            switch document.llmRecording.modal {
+                                
+                            case .submitExistingGraphAsTrainingExample:
                                 SubmitExistingGraphAsTrainingExampleModalView(
                                     promptFromPreviousExistingGraphSubmittedAsTrainingData: document.llmRecording.promptFromPreviousExistingGraphSubmittedAsTrainingData,
                                     ratingFromPreviousExistingGraphSubmittedAsTrainingData: document.llmRecording.ratingFromPreviousExistingGraphSubmittedAsTrainingData
                                 )
+                                
+                            case .aiNodePromptEntry:
+                                AINodePromptEntryModalView(document: document)
+             
+//                                EmptyView()
+                                
+                                
+                            case .editBeforeSubmit, .none, .ratingToast:
+                                EmptyView()  // handled elsewhere
                             }
-                            
                         } // if let document
                     } // .overlay
             }

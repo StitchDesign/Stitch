@@ -10,6 +10,27 @@ import StitchSchemaKit
 
 // legacy; used for potentially-labeled buttons,
 // including those that appear in the top bar's dropdown menu
+struct iPadTopBarButtonWithMenu<MenuContent: View>: View {
+//    let action: @MainActor () -> Void
+    let iconName: IconName
+    // var label: String? // non-nil show label
+    @ViewBuilder var menuContent: () -> MenuContent
+
+    var body: some View {
+        Menu {
+            // 'Empty menu' so that nothing happens when we tap the Menu's label
+            menuContent()
+        } label: {
+            Button(action: { }) {
+                iconName.image
+            }
+        }
+    }
+}
+
+
+// legacy; used for potentially-labeled buttons,
+// including those that appear in the top bar's dropdown menu
 struct iPadTopBarButton: View {
     let action: @MainActor () -> Void
     let iconName: IconName
@@ -120,9 +141,21 @@ struct iPadGraphTopBarButtons: View {
             }
             
             if !isDebugMode {
-                iPadNavBarButton(action: {
-                    dispatch(ToggleInsertNodeMenu())
-                }, iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
+                
+                iPadTopBarButtonWithMenu(iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME)) {
+                    StitchButton {
+                        dispatch(ShowAINodePromptEntryModal())
+                    } label: {
+                        Label(String.CREATE_CUSTOM_NODE_WITH_AI,
+                              systemImage: "rectangle")
+                    }
+                    StitchButton {
+                        dispatch(ToggleInsertNodeMenu())
+                    } label: {
+                        Label("Add Nodes",
+                              systemImage: "rectangle.on.rectangle")
+                    }
+                }
                 
                 // toggle preview window
                 iPadNavBarButton(
@@ -137,14 +170,8 @@ struct iPadGraphTopBarButtons: View {
                 // full screen
                 iPadNavBarButton(
                     action: PREVIEW_FULL_SCREEN_ACTION,
-                    //                iconName: .sfSymbol(.EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
                     iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
             }
-
-            // TODO: implement
-            //            // share project
-            //            iPadNavBarButton(action: { log("ProjectToolbarViewModifier: to be implemented") },
-            //                             iconName: .sfSymbol(.SHARE_ICON_SF_SYMBOL_NAME))
 
             // the misc (...) button
             miscButton

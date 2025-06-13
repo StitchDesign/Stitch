@@ -20,17 +20,6 @@ struct CatalystNavBarButtonWithMenu<MenuContentView: View>: View {
             .fixedSize()
             
             Menu {
-//                StitchButton {
-//                    log("open modal")
-//                } label: {
-//                    Text("Create AI Node")
-//                }
-//                StitchButton {
-//                    log("open node menu")
-//                } label: {
-//                    Text("Add Nodes")
-//                }
-                
                 menuContentViews()
             } label: {
                 EmptyView()

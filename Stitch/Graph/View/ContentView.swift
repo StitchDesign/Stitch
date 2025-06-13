@@ -158,30 +158,7 @@ struct ContentView: View, KeyboardReadable {
             }
         }, message: {
             Text("Describe your selected subgraph.")
-        })
-        .alert("Create an AI Node",
-               isPresented: $document.llmRecording.showAINodePromptEntry,
-               actions: {
-                        
-            TextField("Prompt", text: $document.llmRecording.aiNodePrompt)
-                .onAppear(perform: {
-                    // So that `CMD+A: select all` works in this text field
-                    dispatch(ReduxFieldFocused(focusedField: .aiNodePrompt))
-                })
-                .onSubmit {
-                    log("text field submit called")
-                    document.aiNodePromptSubmitted()
-                }
-            
-            Button {
-                document.llmRecording.aiNodePrompt = ""
-            } label: {
-                Text("Cancel")
-            }
-            
-        }, message: {
-            Text("What should your node do?")
-        })
+        })        
     }
     
     private var fullScreenPreviewView: some View {
