@@ -8,7 +8,10 @@
 extension StitchAIManager {
     @MainActor
     static func stitchAISystemPrompt(graph: GraphState) throws -> String {
-"""
+        let structuredOutputs = AIGraphCreationResponseFormat_V0.AIGraphCreationResponseFormat().json_schema.schema
+        let structuredOutputsString = try structuredOutputs.encodeToPrintableString()
+        
+        return """
 # Strict Adherence to Schema and Node Lists
 - Your output must strictly follow the given JSON schema.
 - You may only use node names from the provided NodeName enum.
@@ -246,6 +249,12 @@ Below is an example of a response payload Stitch AI should return for the prompt
 ]
 ```
 
+# Structured Outputs Schema
+
+Make sure your response follows this schema:
+```
+\(structuredOutputsString)
+```
 """
     }
 }

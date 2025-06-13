@@ -103,7 +103,7 @@
 		B53AA6402D9B1683008D5C23 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B53AA63F2D9B1683008D5C23 /* StitchEngine */; };
 		B53B1D96289E265900489652 /* StitchVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53B1D95289E265900489652 /* StitchVideoPlayer.swift */; };
 		B53BF63E2DF0A744004EA770 /* AIGraphCreationResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */; };
-		B53BF6402DF0A860004EA770 /* AIGraphCreationSystemPrompt_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.swift */; };
+		B53BF6402DF0A860004EA770 /* AIGraphCreationSystemPrompt_V0.md in Sources */ = {isa = PBXBuildFile; fileRef = B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.md */; };
 		B53BF6432DF0AC28004EA770 /* AIEditJsNodeSystemPrompt_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53BF6422DF0AC22004EA770 /* AIEditJsNodeSystemPrompt_V0.swift */; };
 		B53E0BEC2D35B5E00072FD43 /* BoxLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */; };
 		B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */; };
@@ -1170,7 +1170,7 @@
 		B53B1D95289E265900489652 /* StitchVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchVideoPlayer.swift; sourceTree = "<group>"; };
 		B53B54F62D507A60007A52AF /* Stitch.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Stitch.xctestplan; sourceTree = "<group>"; };
 		B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationResponseFormat_V0.swift; sourceTree = "<group>"; };
-		B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationSystemPrompt_V0.swift; sourceTree = "<group>"; };
+		B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIGraphCreationSystemPrompt_V0.md; sourceTree = "<group>"; };
 		B53BF6422DF0AC22004EA770 /* AIEditJsNodeSystemPrompt_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEditJsNodeSystemPrompt_V0.swift; sourceTree = "<group>"; };
 		B53E0BEB2D35B5DD0072FD43 /* BoxLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxLayerNode.swift; sourceTree = "<group>"; };
 		B53E0BEE2D36E1120072FD43 /* LayerInspectorSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorSection.swift; sourceTree = "<group>"; };
@@ -2397,7 +2397,7 @@
 			children = (
 				B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */,
 				B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */,
-				B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.swift */,
+				B53BF63F2DF0A857004EA770 /* AIGraphCreationSystemPrompt_V0.md */,
 				B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */,
 			);
 			path = AIGraphCreation;
@@ -5377,7 +5377,7 @@
 				ECA3915F29A6C410005C10A8 /* StitchNavStack.swift in Sources */,
 				ECEEA4F92AFC39E000C7CE86 /* CommentBoxActions.swift in Sources */,
 				EC9DB348280F239C0061EC3C /* PortDragActions.swift in Sources */,
-				B53BF6402DF0A860004EA770 /* AIGraphCreationSystemPrompt_V0.swift in Sources */,
+				B53BF6402DF0A860004EA770 /* AIGraphCreationSystemPrompt_V0.md in Sources */,
 				EC4914A82935A50300D74344 /* TextTransformNode.swift in Sources */,
 				B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */,
 				B55500D92C1BA9470081C3F1 /* PreviewShapeLayerKind.swift in Sources */,
