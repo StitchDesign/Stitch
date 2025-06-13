@@ -219,7 +219,6 @@
 		B5849FEC2DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC32DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift */; };
 		B5849FED2DFBDF3600D668ED /* JavaScriptNodeSettingsAI_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FC82DFBDF3600D668ED /* JavaScriptNodeSettingsAI_V1.swift */; };
 		B5849FEE2DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FD62DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift */; };
-		B5849FF02DFBE12E00D668ED /* StitchAIRuntimeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FEF2DFBE12A00D668ED /* StitchAIRuntimeHelpers.swift */; };
 		B5849FF42DFC853000D668ED /* NodeKindDescribable_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FF32DFC84F300D668ED /* NodeKindDescribable_V0.swift */; };
 		B5849FF62DFC859900D668ED /* NodeKindDescribable_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FF52DFC859400D668ED /* NodeKindDescribable_V1.swift */; };
 		B5849FF92DFC8BCE00D668ED /* StepTypeDefinitions_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5849FF82DFC8BC100D668ED /* StepTypeDefinitions_V0.swift */; };
@@ -1317,7 +1316,6 @@
 		B5849FD32DFBDF3600D668ED /* StitchAISizeDimension_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISizeDimension_V1.swift; sourceTree = "<group>"; };
 		B5849FD42DFBDF3600D668ED /* StitchAIUUID_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIUUID_V1.swift; sourceTree = "<group>"; };
 		B5849FD62DFBDF3600D668ED /* StitchAIRequestBodyFormattable_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBodyFormattable_V1.swift; sourceTree = "<group>"; };
-		B5849FEF2DFBE12A00D668ED /* StitchAIRuntimeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRuntimeHelpers.swift; sourceTree = "<group>"; };
 		B5849FF32DFC84F300D668ED /* NodeKindDescribable_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeKindDescribable_V0.swift; sourceTree = "<group>"; };
 		B5849FF52DFC859400D668ED /* NodeKindDescribable_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeKindDescribable_V1.swift; sourceTree = "<group>"; };
 		B5849FF82DFC8BC100D668ED /* StepTypeDefinitions_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepTypeDefinitions_V0.swift; sourceTree = "<group>"; };
@@ -2355,7 +2353,6 @@
 				B5849FB52DFBDA6C00D668ED /* versioning.sh */,
 				B58E97D82DF0BAD1007913E3 /* StitchAISchemaVersion.swift */,
 				B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */,
-				B5849FEF2DFBE12A00D668ED /* StitchAIRuntimeHelpers.swift */,
 				B5136F432DED0AAF007F12D0 /* V0 */,
 				B5849FD72DFBDF3600D668ED /* V1 */,
 			);
@@ -6015,7 +6012,6 @@
 				B53B1D96289E265900489652 /* StitchVideoPlayer.swift in Sources */,
 				B5976C1D2980CBC00082BF14 /* StitchEntity.swift in Sources */,
 				ECB7C71E28A56C2200252DE7 /* ClassicAnimationPosition.swift in Sources */,
-				B5849FF02DFBE12E00D668ED /* StitchAIRuntimeHelpers.swift in Sources */,
 				B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */,
 				ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */,
 				ECB1B7B426FB9DFF006D9C95 /* MediaLibrary.swift in Sources */,
@@ -7339,6 +7335,14 @@
 			requirement = {
 				kind = exactVersion;
 				version = 5.0.1;
+			};
+		};
+		EC26C8F92DEFE28B00949FE6 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
+			requirement = {
+				kind = revision;
+				revision = b58fdc0dc88d4b0807422f731cb5a5a496d75a74;
 			};
 		};
 		EC39E75A26822ACA00674841 /* XCRemoteSwiftPackageReference "AudioKit" */ = {

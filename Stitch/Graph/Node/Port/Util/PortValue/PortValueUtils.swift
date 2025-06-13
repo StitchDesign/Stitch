@@ -179,13 +179,6 @@ extension PortValue {
         }
     }
 
-    var getInteractionId: LayerNodeId? {
-        switch self {
-        case .assignedLayer(let x): return x
-        default: return nil
-        }
-    }
-
     var getScrollMode: ScrollMode? {
         switch self {
         case .scrollMode(let x): return x

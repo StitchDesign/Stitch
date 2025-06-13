@@ -335,7 +335,7 @@ extension StepActionSetInput: StepActionable {
     func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
         copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
-        if let interactionId = copy.value.getInteractionId {
+        if let interactionId = copy.value.getInteractionId?.asNodeId {
             let newId = nodeIdMap.get(.init(value: interactionId)) ?? interactionId
             copy.value = .assignedLayer(CurrentStep.LayerNodeId(newId))
         }
