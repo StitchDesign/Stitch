@@ -134,7 +134,7 @@ enum Step_V0: StitchSchemaVersionable {
             }
             
             if let portString = try? container.decodeIfPresent(String.self, forKey: .port) {
-                self.port = try NodeIOPortType(stringValue: portString)
+                self.port = try Step_V0.NodeIOPortType(stringValue: portString)
             } else if let portInt = try? container.decodeIfPresent(Int.self, forKey: .port) {
                 self.port = NodeIOPortType.portIndex(portInt)
             }
@@ -155,7 +155,7 @@ enum Step_V0: StitchSchemaVersionable {
             
             // Parse value given node type
             do {
-                self.value = try CurrentStitchAIPortValue
+                self.value = try StitchAIPortValue_V0
                     .PortValue(decoderContainer: container,
                                type: nodeType)
             } catch {
@@ -178,7 +178,7 @@ extension Step_V0.Step: StitchVersionedCodable {
 }
 
 
-extension Step {
+extension Step_V0.Step {
     // Note: it's slightly awkward in Swift to handle protocol-implementing concrete types
     func parseAsStepAction() -> Result<any StepActionable, StitchAIStepHandlingError> {
         switch self.stepType {
@@ -198,7 +198,7 @@ extension Step {
     }
 }
 
-extension Stitch.Step: CustomStringConvertible {
+extension Step_V0.Step: CustomStringConvertible {
     /// Provides detailed string representation of a Step
     public var description: String {
         return """

@@ -134,9 +134,9 @@ enum Step_V1: StitchSchemaVersionable {
             }
             
             if let portString = try? container.decodeIfPresent(String.self, forKey: .port) {
-                self.port = try NodeIOPortType(stringValue: portString)
+                self.port = try Step_V1.NodeIOPortType(stringValue: portString)
             } else if let portInt = try? container.decodeIfPresent(Int.self, forKey: .port) {
-                self.port = NodeIOPortType.portIndex(portInt)
+                self.port = Step_V1.NodeIOPortType.portIndex(portInt)
             }
 
             // Important: Layer Groups do not have node type, so we must decode children
@@ -155,7 +155,7 @@ enum Step_V1: StitchSchemaVersionable {
             
             // Parse value given node type
             do {
-                self.value = try CurrentStitchAIPortValue
+                self.value = try StitchAIPortValue_V1
                     .PortValue(decoderContainer: container,
                                type: nodeType)
             } catch {
