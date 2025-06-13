@@ -86,7 +86,6 @@ extension StitchAIManager {
         rating: StitchAIRating,
         
         // Why the rating was given
-        // TODO: expose to user
         ratingExplanation: String?,
         
         // Did the actions sent to us by OpenAI for this prompt require a retry?
@@ -131,7 +130,7 @@ extension StitchAIManager {
                                            tableName: String) async throws {
         
         // Only log to supabase from release branch!
-#if RELEASE
+#if RELEASE || DEV_DEBUG
         guard let releaseVersion = await getReleaseVersion(),
               let userId = try? await getCloudKitUsername() else {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")

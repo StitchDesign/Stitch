@@ -71,6 +71,8 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             }
             
             do {
+                // Write a row with the original rating and actions etc.
+                // (Edit modal will later write a second row with a 5-star rating and different actions if the user chooses to submit a request)
                 try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
                     prompt: userPrompt,
                     finalActions: state.llmRecording.actions.map(\.toStep),
@@ -79,9 +81,9 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: false,
                     rating: rating,
-                    // TODO: allow user to provide explanation for score
-                    ratingExplanation: nil,
-                    requiredRetry: false)
+                    ratingExplanation: nil, // not provided yet
+                    requiredRetry: false // not applicable
+                )
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
             }

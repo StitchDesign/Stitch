@@ -129,7 +129,7 @@ func willRequest_SideEffect(userPrompt: String,
     }
     
     // Only log pre-request user prompts if we're in a release build and user has granted permissions
-#if RELEASE
+#if RELEASE || DEV_DEBUG
     if canShareData,
        let tableName = userPromptTableName {
         Task(priority: .background) { [weak aiManager] in

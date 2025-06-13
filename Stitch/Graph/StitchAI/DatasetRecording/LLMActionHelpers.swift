@@ -22,18 +22,13 @@ struct ShowEditBeforeSubmitModal: StitchDocumentEvent {
     }
 }
 
-struct ActionsApprovedAndSubmittedToSupabase: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
-        state.submitApprovedActionsToSupabase()
-    }
-}
 
 extension StitchDocumentViewModel {
     
     // User has reviewed actions via the 'Edit Before Submit' modal and now has reviewed the graph via 'Approve And Submit' modal
     @MainActor
     func submitApprovedActionsToSupabase(ratingForExistingGraph: StitchAIRating? = nil,
-                                         explanationForRatingForExistingGraph: String? = nil) {
+                                         explanationForRatingForExistingGraph: String) {
         
         let state = self
         
@@ -78,7 +73,7 @@ extension StitchDocumentViewModel {
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: isCorrection,
                     rating: rating,
-                    ratingExplanation: nil, // TODO: expose to user
+                    ratingExplanation: explanationForRatingForExistingGraph,
                     // these actions + prompt did not require a retry
                     requiredRetry: false)
                 

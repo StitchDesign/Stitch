@@ -24,6 +24,8 @@ struct EditBeforeSubmitModalView: View {
         recordingState.promptForTrainingDataOrCompletedRequest
     }
 
+    @State var ratingExplanation: String = ""
+    
     var body: some View {
         VStack {
             StitchTextView(string: "Help us improve Stitch AI by showing how us the graph should be.")
@@ -33,6 +35,22 @@ struct EditBeforeSubmitModalView: View {
             StitchTextView(string: "Prompt: \(prompt)")
                 .font(.headline)
                 .padding([.top])
+            
+            // Explanation
+            StitchTextView(string: "Why is this graph better than lower-rated one? ",
+                           font: .caption)
+            
+            TextField("", text: self.$ratingExplanation)
+                .frame(width: 260)
+                .padding(6)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray)
+                }
+                .onAppear {
+                    self.ratingExplanation = ""
+                }
+            
             
             // TODO: shouldn't we *always* have a rating at this point ?
             if let rating = recordingState.rating {
@@ -86,7 +104,7 @@ struct EditBeforeSubmitModalView: View {
             
             Button(action: {
                 log("Stitch AI edit modal: will complete and dismiss")
-                document.submitApprovedActionsToSupabase()
+                document.submitApprovedActionsToSupabase( explanationForRatingForExistingGraph: self.ratingExplanation)
             }) {
                 Text("Submit")
                     .padding()
