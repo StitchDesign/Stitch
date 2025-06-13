@@ -83,7 +83,7 @@ extension CurrentStep.Patch {
     var section: NodeSection {
         switch self {
             // MARK: General Nodes
-        case .splitter, .random, .counter, .flipSwitch, .javascript:
+        case .splitter, .random, .counter, .flipSwitch:
             return .general
             
             // MARK: Math Operation Nodes

@@ -201,7 +201,7 @@ extension Step_V1.NodeIOPortType {
     }
 }
 
-extension Stitch.Step: CustomStringConvertible {
+extension Step_V1.Step: CustomStringConvertible {
     /// Provides detailed string representation of a Step
     public var description: String {
         return """

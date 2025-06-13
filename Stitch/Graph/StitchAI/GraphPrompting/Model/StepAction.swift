@@ -149,7 +149,7 @@ extension StepActionAddNode: StepActionable {
 }
 
 // See `createLLMStepConnectionAdded`
-extension StepActionConnectionAdded: StepActionable {    
+extension StepActionConnectionAdded: StepActionable {
     var toStep: Step {
         Step(
             stepType: Self.stepType,
@@ -335,7 +335,7 @@ extension StepActionSetInput: StepActionable {
     func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> Self {
         var copy = self
         copy.nodeId = nodeIdMap.get(.init(value: self.nodeId)) ?? self.nodeId
-        if let interactionId = copy.value.getInteractionId?.asNodeId {
+        if let interactionId = copy.value.getInteractionId {
             let newId = nodeIdMap.get(.init(value: interactionId)) ?? interactionId
             copy.value = .assignedLayer(CurrentStep.LayerNodeId(newId))
         }
