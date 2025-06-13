@@ -23,7 +23,7 @@ enum AIGraphCreationRequestBody_V0 {
              userPrompt: String) throws {
             guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
                                                     withExtension: "md") else {
-                throw StitchAIStreamingError.currentlyInARetryDelay
+                throw StitchAIStreamingError.markdownNotFound
             }
             
             let systemPrompt = try String(contentsOf: markdownUrl,
