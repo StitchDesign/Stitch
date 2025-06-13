@@ -194,6 +194,8 @@
 		B57F3A802946CE4700DFC0AE /* VisibleNodesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */; };
 		B57F3A822947B4BC00DFC0AE /* SideEffectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A812947B4BC00DFC0AE /* SideEffectCoordinator.swift */; };
 		B57F3A84294A85EC00DFC0AE /* GraphBackgroundGestureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57F3A83294A85EC00DFC0AE /* GraphBackgroundGestureView.swift */; };
+		B5849FB62DFBDA7100D668ED /* versioning.sh in Resources */ = {isa = PBXBuildFile; fileRef = B5849FB52DFBDA6C00D668ED /* versioning.sh */; };
+		B5849FB82DFBDB5E00D668ED /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = B5849FB72DFBDB5B00D668ED /* README.md */; };
 		B58612AF2C68681600C64313 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B58612AE2C68681600C64313 /* StitchEngine */; };
 		B586D16527FE7FD500E56106 /* PreviewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B586D16427FE7FD500E56106 /* PreviewUtils.swift */; };
 		B586D16727FE80B300E56106 /* PreviewContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B586D16627FE80B300E56106 /* PreviewContent.swift */; };
@@ -1262,6 +1264,8 @@
 		B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisibleNodesViewModel.swift; sourceTree = "<group>"; };
 		B57F3A812947B4BC00DFC0AE /* SideEffectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideEffectCoordinator.swift; sourceTree = "<group>"; };
 		B57F3A83294A85EC00DFC0AE /* GraphBackgroundGestureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBackgroundGestureView.swift; sourceTree = "<group>"; };
+		B5849FB52DFBDA6C00D668ED /* versioning.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = versioning.sh; sourceTree = "<group>"; };
+		B5849FB72DFBDB5B00D668ED /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B586D16427FE7FD500E56106 /* PreviewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewUtils.swift; sourceTree = "<group>"; };
 		B586D16627FE80B300E56106 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentUtil.swift; sourceTree = "<group>"; };
@@ -2291,6 +2295,8 @@
 		B5136F422DED0A84007F12D0 /* SchemaVersions */ = {
 			isa = PBXGroup;
 			children = (
+				B5849FB72DFBDB5B00D668ED /* README.md */,
+				B5849FB52DFBDA6C00D668ED /* versioning.sh */,
 				B58E97D82DF0BAD1007913E3 /* StitchAISchemaVersion.swift */,
 				B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */,
 				B5136F432DED0AAF007F12D0 /* V0 */,
@@ -5206,10 +5212,12 @@
 			files = (
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
+				B5849FB82DFBDB5E00D668ED /* README.md in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
 				E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
+				B5849FB62DFBDA7100D668ED /* versioning.sh in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
 				20A71F8F2552434000553F7E /* positive_ping.mp3 in Resources */,
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
