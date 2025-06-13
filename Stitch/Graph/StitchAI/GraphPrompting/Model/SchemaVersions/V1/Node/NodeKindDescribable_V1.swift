@@ -1,11 +1,11 @@
 //
-//  NodeKindDescribable_V0.swift
+//  NodeKindDescribable_V1.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 6/13/25.
 //
 
-enum NodeKindDescribable_V0 {
+enum NodeKindDescribable_V1 {
     protocol NodeKindDescribable: CaseIterable {
         func defaultDisplayTitle() -> String
         
@@ -17,8 +17,7 @@ enum NodeKindDescribable_V0 {
     }
 }
 
-
-extension Step_V0.PatchOrLayer {
+extension Step_V1.PatchOrLayer {
     // Note: Swift `init?` is tricky for returning nil vs initializing self; we have to both initialize self *and* return, else we continue past if/else branches etc.;
     // let's prefer functions with clearer return values
     static func fromLLMNodeName(_ nodeName: String) throws -> Self {
@@ -26,7 +25,7 @@ extension Step_V0.PatchOrLayer {
         if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
             
             // Tricky: can't use `Patch(rawValue:)` constructor since newer patches use a non-camelCase rawValue
-            if let patch = Step_V0.Patch.allCases.first(where: {
+            if let patch = Step_V1.Patch.allCases.first(where: {
                 // e.g. Patch.squareRoot 1-> "Square Root" -> "squareRoot"
                 let patchDisplay = $0.defaultDisplayTitle().toCamelCase()
                 return patchDisplay == nodeKindName
@@ -47,7 +46,7 @@ extension Step_V0.PatchOrLayer {
                 return .patch(.arcTan2)
             }
             
-            else if let layer = Step_V0.Layer.allCases.first(where: {
+            else if let layer = Step_V1.Layer.allCases.first(where: {
                 $0.defaultDisplayTitle().toCamelCase() == nodeKindName
             }) {
                 return .layer(layer)
@@ -56,19 +55,9 @@ extension Step_V0.PatchOrLayer {
         
         throw StitchAIParsingError.nodeNameParsing(nodeName)
     }
-    
-    // TODO: check if this is used
-    var description: String {
-        switch self {
-        case .patch(let patch):
-            return patch.defaultDisplayTitle()
-        case .layer(let layer):
-            return layer.defaultDisplayTitle()
-        }
-    }
 }
 
-extension NodeKindDescribable_V0.NodeKindDescribable {
+extension NodeKindDescribable_V1.NodeKindDescribable {
     var aiDisplayTitle: String {
         Self.toCamelCase(self.defaultDisplayTitle()) + " || \(Self.titleDisplay)"
     }
@@ -91,7 +80,7 @@ extension NodeKindDescribable_V0.NodeKindDescribable {
     }
 }
 
-extension Step_V0.Patch: NodeKindDescribable_V0.NodeKindDescribable {
+extension Step_V1.Patch: NodeKindDescribable_V1.NodeKindDescribable {
     var types: Set<CurrentStep.NodeType>? {
         guard let migratedPatch = try? self.convert(to: Patch.self) else {
             fatalErrorIfDebug("No patch for this type: \(self)")
@@ -118,12 +107,12 @@ extension Step_V0.Patch: NodeKindDescribable_V0.NodeKindDescribable {
         return Set(downgradedTypes)
     }
 }
-extension Step_V0.Layer: NodeKindDescribable_V0.NodeKindDescribable {
+extension Step_V1.Layer: NodeKindDescribable_V1.NodeKindDescribable {
     // layers don't do node types
     var types: Set<CurrentStep.NodeType>? { nil }
 }
 
-extension Step_V0.PatchOrLayer {
+extension Step_V1.PatchOrLayer {
     var asLLMStepNodeName: String {
         switch self {
         case .patch(let x):
