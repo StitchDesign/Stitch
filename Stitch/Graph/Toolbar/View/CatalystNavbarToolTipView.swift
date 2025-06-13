@@ -9,11 +9,13 @@ import SwiftUI
 import UIKit
 
 /// A UIViewRepresentable that wraps a UIButton and installs a macOS‐style tooltip.
-struct CatalystToolbarButton: UIViewRepresentable {
+struct CatalystToolTipButton: UIViewRepresentable {
     /// The SF Symbol name (or custom image name) for the button’s icon
     let systemImageName: String
+    
     /// The text you want to appear as the tooltip when hovering
     let tooltipText: String
+    
     /// The closure to invoke when the user taps/activates the button
     let action: () -> Void
 

@@ -12,6 +12,7 @@ import StitchEngine
 import OrderedCollections
 
 
+
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
 enum LLMRecordingModal: Equatable, Hashable {
@@ -26,6 +27,9 @@ enum LLMRecordingModal: Equatable, Hashable {
     
     // Modal from which user provides prompt and rating for an existing graph, which is then uploaded to Supabase as an example
     case submitExistingGraphAsTrainingExample
+    
+    // Modal from which user provides prompt for an AI Node
+    case aiNodePromptEntry
 }
 
 extension LLMRecordingModal {
@@ -60,8 +64,10 @@ struct LLMRecordingState {
             
     // No modal vs Edit actions list vs Approve and submit vs Enter prompt for just-created training data
     var modal: LLMRecordingModal = .none
-    var willDisplayTrainingPrompt = false
     
+    // TODO: probably better to make an enum case in the `modal`
+    var willDisplayTrainingPrompt = false
+            
     // Tracks node positions, persisting across edits in case node is removed from validation failure
     var canvasItemPositions: [CanvasItemId : CGPoint] = .init()
     
@@ -75,6 +81,8 @@ struct LLMRecordingState {
     // OR the saved prompt from a streaming request that has been completed
     var promptForTrainingDataOrCompletedRequest: String = ""
     var promptFromPreviousExistingGraphSubmittedAsTrainingData: String?
+    
+    
     
     // id from a user inference call; used
     var requestIdFromCompletedRequest: UUID?
@@ -94,14 +102,14 @@ extension LLMRecordingState {
 // "correcting actions" would fall under "generating graph"
 // There's a lot of state and views that overlap across use-cases...
 
-enum StitchAIMode: Equatable, Hashable {
-    
-    // Our classic use case: user submits prompt via node menu, which adds layers and patches to the current document
-    case generatingGraph
-    
-    // Our new use case: user submits prompt for a Javascript node, which adds a single JS node to the canvas
-    case generatingJavascriptNode
-    
-    // e.g. turning an existing graph into
-    case creatingTrainingData
-}
+//enum StitchAIMode: Equatable, Hashable {
+//    
+//    // Our classic use case: user submits prompt via node menu, which adds layers and patches to the current document
+//    case generatingGraph
+//    
+//    // Our new use case: user submits prompt for a Javascript node, which adds a single JS node to the canvas
+//    case generatingJavascriptNode
+//    
+//    // e.g. turning an existing graph into
+//    case creatingTrainingData
+//}

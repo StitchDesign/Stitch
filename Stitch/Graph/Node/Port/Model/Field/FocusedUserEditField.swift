@@ -40,7 +40,7 @@ enum FocusedUserEditField: Equatable, Hashable {
          prototypeWindow,
          prototypeTextField(PreviewCoordinate),
          aiPreviewerTextField,
-         javascriptNodePrompt(NodeId)
+         aiNodePrompt
 
     var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {

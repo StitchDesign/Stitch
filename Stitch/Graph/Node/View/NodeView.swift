@@ -145,73 +145,7 @@ struct NodeView: View {
     }
     
     @State private var nodeBodyHovered: Bool = false
-    
-    @ViewBuilder
-    func javascriptNodeField(patchNode: PatchNodeViewModel,
-                             aiManager: StitchAIManager) -> some View {
-        @Bindable var patchNode = patchNode
-        TextField("Javascript here...",
-                  text: $aiJsNodePrompt)
-        .onSubmit {
-            do {
-                let jsAIRequest = try AIEditJSNodeRequest(prompt: aiJsNodePrompt,
-                                                          document: document,
-                                                          nodeId: stitch.id)
-                
-                Task { [weak patchNode, weak document] in
-                    guard let patchNode = patchNode,
-                          let document = document,
-                          let aiManager = document.aiManager else {
-                        return
-                    }
-                    
-                    // TODO: move to a `willRequest` for the Javascript Request ?
-                    willRequest_SideEffect(
-                        userPrompt: jsAIRequest.userPrompt,
-                        requestId: jsAIRequest.id,
-                        document: document,
-                        canShareData: StitchStore.canShareAIData,
-                        userPromptTableName: nil)
-                                        
-                    let result = await jsAIRequest.request(document: document,
-                                                           aiManager: aiManager)
-                    
-                    switch result {
-                    case .success(let jsSettings):
-                        
-                        try await aiManager.uploadJavascriptCallResultToSupabase(
-                            userPrompt: jsAIRequest.userPrompt,
-                            requestId: jsAIRequest.id,
-                            javascriptSettings: jsSettings)
-                        
-                        // Process the new Javascript settings
-                        patchNode.processNewJavascript(response: jsSettings)
-                        
-                    case .failure(let error):
-                        fatalErrorIfDebug(error.description)
-                    }
-                }
-            } catch {
-                log("javascriptNodeField error: \(error.localizedDescription)")
-            }
-        }
-        .focusedValue(\.focusedField, .javascriptNodePrompt(stitch.id))
-        .focused(self.$isFocused)
-        .onChange(of: isFocused) {
-            if isFocused {
-                document.reduxFocusedField = .javascriptNodePrompt(stitch.id)
-            }
-        }
-        .onChange(of: document.reduxFocusedField) {
-            if document.reduxFocusedField != .javascriptNodePrompt(stitch.id) {
-                self.isFocused = false
-            }
-        }
-        .frame(width: 200, height: 15)
-        .padding()
-        .background(.ultraThickMaterial)
-    }
-    
+
     @MainActor
     var nodeBody: some View {
         VStack(alignment: .leading, spacing: .zero) {
@@ -221,14 +155,6 @@ struct NodeView: View {
                         
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
-            
-            // TODO: remove this logic, there won't be a custom view like this for JS node
-            if stitch.kind == .patch(.javascript),
-               let aiManager = document.aiManager,
-                let patchNode = stitch.patchNode {
-                javascriptNodeField(patchNode: patchNode,
-                                    aiManager: aiManager)
-            }
         }
         .onChange(of: self.node.sizeByLocalBounds) {
             // also a useful hack for updating node layout after type changes
@@ -260,6 +186,8 @@ struct NodeView: View {
         .onHover { isHovering in
             self.nodeBodyHovered = isHovering
         }
+        
+        .modifier(NodeLoadingBlurEffect(isLoading: node.isLoading))
     }
 
     var nodeTitle: some View {
@@ -508,5 +436,22 @@ struct NodeViewTapGestureModifier: ViewModifier {
                     onSingleTap()
                 }
         }
+    }
+}
+
+
+struct NodeLoadingBlurEffect: ViewModifier {
+    var isLoading: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .blur(radius: isLoading ? 3 : 0)
+            .overlay {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .offset(x: -12, y: 6)
+                }
+            }
     }
 }

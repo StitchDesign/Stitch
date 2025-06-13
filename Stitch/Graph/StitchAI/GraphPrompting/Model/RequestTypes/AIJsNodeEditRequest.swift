@@ -20,28 +20,11 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
     enum EditJSNodeRequestError: Error {
         case noNodeFound
     }
-    
-    @MainActor
-    init(prompt: String,
-         config: OpenAIRequestConfig = .default,
-         document: StitchDocumentViewModel,
-         nodeId: NodeId) throws {
-        guard let secrets = document.aiManager?.secrets else {
-            throw StitchAIManagerError.secretsNotFound
-        }
         
-        self.init(prompt: prompt,
-                  secrets: secrets,
-                  config: config,
-                  graph: document.visibleGraph,
-                  nodeId: nodeId)
-    }
-    
     @MainActor
     init(prompt: String,
          secrets: Secrets,
          config: OpenAIRequestConfig = .default,
-         graph: GraphState,
          nodeId: NodeId) {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -64,7 +47,8 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
     }
     
     static func validateResponse(decodedResult: JavaScriptNodeSettingsAI) throws -> JavaScriptNodeSettings {
-        .init(script: decodedResult.script,
+        .init(suggestedTitle: decodedResult.suggested_title,
+              script: decodedResult.script,
               inputDefinitions: try decodedResult.input_definitions.map(JavaScriptPortDefinition.init),
               outputDefinitions: try decodedResult.output_definitions.map(JavaScriptPortDefinition.init))
     }

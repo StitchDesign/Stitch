@@ -21,7 +21,7 @@ struct FatalErrorIfDebugView: View {
 }
 
 func fatalErrorIfDebug(_ message: String = "") {
-#if DEBUG || DEV_DEBUG
+#if DEBUG || DEV_DEBUG || STITCH_AI_REASONING
     fatalError(message)
 #else
     // When we encounter a "crash if developing locally" while we're running on production,
@@ -31,7 +31,7 @@ func fatalErrorIfDebug(_ message: String = "") {
 }
 
 func assertInDebug(_ conditional: Bool) {
-#if DEBUG || DEV_DEBUG
+#if DEBUG || DEV_DEBUG || STITCH_AI_REASONING
     assert(conditional)
 #endif
 }
@@ -45,17 +45,18 @@ enum LoggingAction: Equatable {
 }
 
 // For debug printing from within SwiftUI views
-func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
-    #if DEBUG || DEV_DEBUG
+func log(_ message: Any,
+         _ loggingAction: LoggingAction = .none) {
+#if DEBUG || DEV_DEBUG || STITCH_AI_REASONING
     print("** \(message)")
 
     switch loggingAction {
     case .none:
         return
     case .fatal:
-        #if DEV_DEBUG
+#if DEV_DEBUG
         fatalError("FATAL: \(message)")
-        #endif
+#endif
     case .logToServer:
         print("HAD MAJOR ERROR: \(message)")
         // Always send AI-related logs to Sentry regardless of build configuration
@@ -64,17 +65,17 @@ func log(_ message: Any, _ loggingAction: LoggingAction = .none) {
             SentrySDK.capture(message: messageString)
         }
     }
-    #else
+#else
     // In production, send ALL logs to Sentry
     if case .logToServer = loggingAction {
         SentrySDK.capture(message: "\(message)")
     }
-    #endif
+#endif
 }
 
 func logInView(_ message: String) -> EmptyView {
-    #if DEBUG || DEV_DEBUG
+#if DEBUG || DEV_DEBUG || STITCH_AI_REASONING
     print("** \(message)")
-    #endif
+#endif
     return EmptyView()
 }

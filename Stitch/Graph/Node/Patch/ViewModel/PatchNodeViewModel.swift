@@ -83,7 +83,12 @@ final class PatchNodeViewModel: Sendable {
         
         // Setup JavaScript settings
         if let jsSettings = schema.javaScriptNodeSettings {
-            self.processNewJavascript(response: jsSettings)
+            log("PatchNodeViewModel: schema.javaScriptNodeSettings: \(jsSettings)")
+            self.applyJavascriptToInputsAndOutputs(response: jsSettings,
+                                                   currentGraphTime: self.documentDelegate?.graphStepState.graphTime ?? .zero,
+                                                   activeIndex: self.documentDelegate?.activeIndex ?? .defaultActiveIndex)
+        } else {
+            log("PatchNodeViewModel: no schema.javaScriptNodeSettings:")
         }
     }
 }
@@ -140,10 +145,14 @@ extension PatchNodeViewModel: SchemaObserver {
            oldSplitterNodeEntity != newSplitterNodeEntity {
             self.splitterNode = newSplitterNodeEntity
         }
-        
-        if let newJsSettings = schema.javaScriptNodeSettings,
-           self.javaScriptNodeSettings != newJsSettings {
-            self.processNewJavascript(response: newJsSettings)
+                
+        if let newJsSettings = schema.javaScriptNodeSettings {
+            log("PatchNodeViewModel: update: newJsSettings: \(newJsSettings)")
+            self.applyJavascriptToInputsAndOutputs(response: newJsSettings,
+                                                   currentGraphTime: self.documentDelegate?.graphStepState.graphTime ?? .zero,
+                                                   activeIndex: self.documentDelegate?.activeIndex ?? .defaultActiveIndex)
+        } else {
+            log("PatchNodeViewModel: update: no js settings")
         }
     }
 

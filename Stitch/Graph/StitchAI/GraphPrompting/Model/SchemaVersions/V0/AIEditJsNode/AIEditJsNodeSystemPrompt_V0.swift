@@ -24,6 +24,7 @@ enum AIEditJsNodeSystemPrompt_V0 {
 8. An output port cannot have empty values. There should be a minimum of one value at each output port.
 9. An output port cannot have its strict type change. For example, if an output port in a successful eval has a number type, all scenarios of that output must result in that same number type. For failure conditions, use a default value of the same type.
 10. The logic for decoding inputs needs fallback logic if properties don't exist or the types were unexpected. This frequently happens in visual programming languages. It's important in these scenarios that inputs which could not be decoded revert to some default value for its expected type. For example, string type inputs may use an empty string, number-types use 0, etc.
+11. Think about the logic you have been asked to create JavaScript code for, and suggest a title for the overall node. Return that as the suggested_title property.  
     
 Each input and output port is a list of JSONs with a value and its corresponding type:
 ```
