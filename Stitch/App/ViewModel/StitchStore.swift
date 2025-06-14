@@ -13,6 +13,8 @@ import StitchSchemaKit
 @Observable
 final class StitchStore: Sendable {
     
+    @MainActor var graphTableLoadedRow: StitchDocumentViewModel? 
+    
     // For now, just for debug purposes
     @MainActor var homescreenProjectSelectionState = HomescreenProjectSelectionState()
         
@@ -116,7 +118,10 @@ extension StitchStore {
 
     @MainActor
     var currentDocument: StitchDocumentViewModel? {
-        self.navPath.first?.document
+        if self.navPath.first == .graphGenerationTableView {
+            return self.graphTableLoadedRow
+        }
+        return self.navPath.first?.document
     }
     
     var undoManager: StitchUndoManager {

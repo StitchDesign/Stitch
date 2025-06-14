@@ -17,8 +17,7 @@ struct GraphGenerationTableView: View {
     @State private var filterUserID: String = ""
     @State private var filterPrompt: String = ""
     @State private var selectedIndex: Int?
-    @State private var previewDocumentVM: StitchDocumentViewModel?
-    
+
     // Contains Secrets and Postgres client
     // If we can't have secrets, then we should not be in this view
     @State var aiManager: StitchAIManager = try! StitchAIManager()!
@@ -42,12 +41,12 @@ struct GraphGenerationTableView: View {
                 TextField("Filter by user ID", text: $filterUserID)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding([.horizontal, .top])
-                    .onChange(of: filterUserID) { _ in fetchRows() }
+                    .onChange(of: filterUserID) { _, _ in fetchRows() }
 
                 TextField("Filter by prompt", text: $filterPrompt)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
-                    .onChange(of: filterPrompt) { _ in fetchRows() }
+                    .onChange(of: filterPrompt) { _, _ in fetchRows() }
 
                 Text("\(rows.count) row\(rows.count == 1 ? "" : "s") found")
                     .font(.subheadline)
@@ -76,7 +75,7 @@ struct GraphGenerationTableView: View {
 
             // Detail pane
             Group {
-                if let documentVM = previewDocumentVM {
+                if let documentVM = self.store.graphTableLoadedRow {
                     StitchProjectView(store: store,
                                       document: documentVM,
                                       alertState: store.alertState)
@@ -90,19 +89,31 @@ struct GraphGenerationTableView: View {
             }
             .onAppear { fetchRows() }
             .onChange(of: selectedIndex) { _, newIndex in
-                if let idx = newIndex, rows.indices.contains(idx) {
-                    let row = rows[idx]
+                if let idx = newIndex, rows.indices.contains(idx),
+                   let row = rows[safe: idx] {
+                    
                     let (documentVM, _) = store.createAIDocumentPreviewer()
-                    let stepActions = row.actions.actions.map { $0.parseAsStepAction().value! }
+                    
+                    // Force-unwrap okay here, since we'll want to crash if we can't parse the project
+                    let stepActions = row.actions.actions.compactMap { $0.parseAsStepAction().value }
+                    
                     if let validationError = documentVM.validateAndApplyActions(stepActions) {
                         fatalErrorIfDebug("StitchAIProjectViewer: validateJSON: validationError: \(validationError.description)")
                     }
                     documentVM.visibleGraph.updateGraphData(documentVM)
-                    previewDocumentVM = documentVM
+                    self.store.graphTableLoadedRow = documentVM
+                    
+                    if row.actions.actions.count != stepActions.count {
+                        fatalErrorIfDebug("Could not parse some table-row actions as more specific actions")
+                    }
+                    
                 } else {
-                    previewDocumentVM = nil
+                    self.store.graphTableLoadedRow = nil
                 }
             }
+        }
+        .onDisappear {
+            self.store.graphTableLoadedRow = nil
         }
     }
 
