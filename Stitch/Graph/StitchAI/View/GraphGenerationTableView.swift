@@ -13,6 +13,7 @@ struct GraphGenerationTableView: View {
     @Bindable var store: StitchStore
     
     @State private var rows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
+    @State private var filterUserID: String = ""
     
     // Contains Secrets and Postgres client
     // If we can't have secrets, then we should not be in this view
@@ -31,26 +32,37 @@ struct GraphGenerationTableView: View {
 
     var body: some View {
         NavigationView {
-            List(rows.indices, id: \.self) { idx in
-                let row = rows[idx]
-                NavigationLink(destination:
-                    ScrollView {
-                        // Display the raw actions wrapper as text
-                        Text(String(describing: row.actions))
-                            .padding()
+            VStack {
+                TextField("Filter by user ID", text: $filterUserID)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding([.horizontal, .top])
+                    .onChange(of: filterUserID) { _ in
+                        fetchRows()
                     }
-                ) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Prompt: \(row.actions.prompt)")
-                        Text("Steps: \(row.actions.actions.count)")
-                        Text("Score: \(row.score, specifier: "%.2f")")
-                        if row.correction {
-                            Text("✓")
-                                .foregroundColor(.green)
+                
+                List(rows.indices, id: \.self) { idx in
+                    let row = rows[idx]
+                    NavigationLink(destination:
+                        ScrollView {
+                            // Display the raw actions wrapper as text
+                            Text(String(describing: row.actions))
+                                .padding()
                         }
+                    ) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Prompt: \(row.actions.prompt)")
+                            Text("User ID: \(row.user_id)")
+                            Text("Steps: \(row.actions.actions.count)")
+                            Text("Score: \(row.score, specifier: "%.2f")")
+                            if row.correction {
+                                Text("✓")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .padding(.vertical, 8)
                     }
-                    .padding(.vertical, 8)
                 }
+                .listStyle(PlainListStyle())
             }
             .navigationTitle("Graph Rows")
             .onAppear {
@@ -62,9 +74,15 @@ struct GraphGenerationTableView: View {
     private func fetchRows() {
         Task {
             do {
-                let response = try await postgrestClient
+                var query = await postgrestClient
                     .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
                     .select()
+
+                if !filterUserID.isEmpty {
+                    query = query.ilike("user_id", value: "%\(filterUserID)%")
+                }
+
+                let response = try await query
                     .order("created_at", ascending: false)
                     .limit(5)
                     .execute()
