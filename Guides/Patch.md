@@ -1364,17 +1364,6 @@ A node that will trigger a haptic pulse.
 *Inputs*
 A pulse will trigger the haptic event when triggered.
 
-### Location
-The Location node returns the currently detected location value of the node.
-
-*Inputs*
-* An override of the detected location
-
-*Outputs*
-* The Latitude of the location as a string
-* The Longitude of the location as a string
-* The city name as a string
-
 
 ## Networking & External
 
@@ -1675,6 +1664,17 @@ Detects keyboard events and outputs a Bool when a specified event occurs
 
 *Outputs*
 * A Bool that's set when the event occurs
+
+### Location
+The Location node returns the currently detected location value of the node.
+
+*Inputs*
+* An override of the detected location
+
+*Outputs*
+* The Latitude of the location as a string
+* The Longitude of the location as a string
+* The city name as a string
 
 ### Layer Info
 Returns information about a specified layer.
