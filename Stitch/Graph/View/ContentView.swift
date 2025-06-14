@@ -99,18 +99,10 @@ struct ContentView: View, KeyboardReadable {
                 // phone before showFullScreen is set
                 ProjectNavigationView(store: store,
                                       document: document,
-                                      routerNamespace: routerNamespace)
+                                      isFullScreen: showFullScreen.isTrue,
+                                      routerNamespace: routerNamespace,
+                                      graphNamespace: graphNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
-                .overlay {
-                    StitchProjectOverlayView(document: document,
-                                             store: store,
-                                             showFullScreen: showFullScreen.isTrue,
-                                             graphNamespace: graphNamespace)
-                }
-//                // Layer Inspector Flyout must sit above preview window
-                .overlay {
-                    flyout
-                }
                 .overlay {
                     catalystProjectTitleEditView
                 }
@@ -169,12 +161,6 @@ struct ContentView: View, KeyboardReadable {
             graphNamespace: graphNamespace,
             routerNamespace: routerNamespace,
             animationCompleted: showFullScreenAnimateCompleted)
-    }
-        
-    @ViewBuilder
-    var flyout: some View {
-        OpenFlyoutView(document: document,
-                       graph: document.visibleGraph)
     }
     
     @ViewBuilder
