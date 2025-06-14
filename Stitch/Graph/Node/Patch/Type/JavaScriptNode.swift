@@ -133,13 +133,15 @@ extension PatchNodeViewModel {
         // Create new observers if necessary
         newJavaScriptSettings.inputDefinitions.enumerated().forEach { portIndex, inputDefinition in
             let defaultValue = inputDefinition.strictType.defaultPortValue
-            let didTypeChange = oldJavaScriptSettings?.inputDefinitions[safe: portIndex]?.strictType != inputDefinition.strictType
             
             let inputObserver = self.inputsObservers[safe: portIndex] ??
             InputNodeRowObserver(values: [defaultValue],
                                  id: .init(portId: portIndex,
                                            nodeId: self.id),
                                  upstreamOutputCoordinate: nil)
+            
+            // Rely on input observer for determing old type, rather than js settings, which won't matter upon instantiation
+            let didTypeChange = inputObserver.values.first?.nodeType != inputDefinition.strictType
             
             // Always create new row view model to assert new type parameters
             let newRowViewModel = InputNodeRowViewModel(
