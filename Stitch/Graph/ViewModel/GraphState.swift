@@ -211,7 +211,7 @@ extension GraphState {
     // fka `initializeDelegate`
     @MainActor
     func assignReferencesAndUpdateUICaches(document: StitchDocumentViewModel,
-                                           documentEncoderDelegate: any DocumentEncodable) {
+                                           documentEncoderDelegate: (any DocumentEncodable)?) {
         
         
         // MARK: Assign references to self and children
@@ -259,7 +259,7 @@ extension GraphState {
     
     @MainActor
     func assignReferences(document: StitchDocumentViewModel,
-                          documentEncoderDelegate: any DocumentEncodable) {
+                          documentEncoderDelegate: (any DocumentEncodable)?) {
         // Graph's references to document
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
@@ -435,20 +435,24 @@ extension GraphState {
     @MainActor
     func updateGraphData(_ document: StitchDocumentViewModel) {
         // TODO: What's the difference between a document's documentEncoder and a graph's documentEncoderDelegate?
-        guard let documentEncoder = self.documentEncoderDelegate else {
-            // TODO: `createTestFriendlyDocument` sets an encoder on both document and graph, but by the time the test runs it gets wiped some how? For now we use
-            fatalErrorIfDebug()
-            return
-        }
+//        guard let documentEncoder = self.documentEncoderDelegate else {
+//            // TODO: `createTestFriendlyDocument` sets an encoder on both document and graph, but by the time the test runs it gets wiped some how? For now we use
+//            // fatalErrorIfDebug()
+//            return
+//        }
         
-        self._updateGraphData(document, documentEncoder: documentEncoder)
+//        self._updateGraphData(document, documentEncoder: documentEncoder)
+        self._updateGraphData(
+            document,
+            documentEncoder: self.documentEncoderDelegate)
+        
     }
     
     // TODO: separate out the "update cached UI data" part and compose these together
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
     private func _updateGraphData(_ document: StitchDocumentViewModel,
-                                  documentEncoder: any DocumentEncodable) {
+                                  documentEncoder: (any DocumentEncodable)?) {
         // Update parent graphs first if this graph is a component
         // Order here needed so parent components know if there are input/output changes
         if let parentGraph = self.parentGraph {
