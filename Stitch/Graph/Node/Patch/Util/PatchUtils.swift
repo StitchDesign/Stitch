@@ -111,10 +111,9 @@ extension Patch {
     static var searchablePatches: [Patch] {
         let enabledJsNode = StitchStore.enabledJsNode
         var excludedPatches = Self.excludedPatches
-        
-        if !enabledJsNode {
-            excludedPatches.insert(.javascript)
-        }
+
+        // Always exclude JS
+        excludedPatches.insert(.javascript)
         
         return Patch.allCases.filter { patch in
             !excludedPatches.contains(patch)
