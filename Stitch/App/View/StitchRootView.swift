@@ -42,15 +42,23 @@ struct StitchRootView: View {
          }
 
          return document.insertNodeMenuState.show || document.isLoadingAI
-     }
+    }
+    
+    @ViewBuilder
+    var viewByPlatform: some View {
+#if targetEnvironment(macCatalyst)
+                splitView
+#else
+                StitchNavStack(store: store)
+#endif
+    }
     
     var body: some View {
         ZStack {
             if Stitch.isPhoneDevice {
                 iPhoneBody
             } else {
-                splitView
-//#if targetEnvironment(macCatalyst)
+                viewByPlatform
                     .overlay(alignment: .center) {
                         if let document = store.currentDocument {
                             
