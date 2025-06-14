@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PostgREST
+import Foundation
 
 struct GraphGenerationTableView: View {
     @Bindable var store: StitchStore
@@ -32,16 +33,24 @@ struct GraphGenerationTableView: View {
         NavigationView {
             List(rows.indices, id: \.self) { idx in
                 let row = rows[idx]
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Prompt: \(row.actions.prompt)")
-                    Text("Steps: \(row.actions.actions.count)")
-                    Text("Score: \(row.score, specifier: "%.2f")")
-                    if row.correction {
-                        Text("✓")
-                            .foregroundColor(.green)
+                NavigationLink(destination:
+                    ScrollView {
+                        // Display the raw actions wrapper as text
+                        Text(String(describing: row.actions))
+                            .padding()
                     }
+                ) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Prompt: \(row.actions.prompt)")
+                        Text("Steps: \(row.actions.actions.count)")
+                        Text("Score: \(row.score, specifier: "%.2f")")
+                        if row.correction {
+                            Text("✓")
+                                .foregroundColor(.green)
+                        }
+                    }
+                    .padding(.vertical, 8)
                 }
-                .padding(.vertical, 8)
             }
             .navigationTitle("Graph Rows")
             .onAppear {
@@ -57,6 +66,7 @@ struct GraphGenerationTableView: View {
                     .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
                     .select()
                     .order("created_at", ascending: false)
+                    .limit(5)
                     .execute()
 
                 let decoder = JSONDecoder()
