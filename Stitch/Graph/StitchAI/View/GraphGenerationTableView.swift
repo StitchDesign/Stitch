@@ -99,7 +99,9 @@ struct GraphGenerationTableView: View {
                                 .buttonStyle(.bordered)
                             }
                             
-                            Text("Request ID: \(row.request_id)")
+                            if let requestId = row.request_id {
+                                Text("Request ID: \(requestId.suffix(7))")
+                            }
                             
                             Text("\"\(row.actions.prompt)\"")
                             
