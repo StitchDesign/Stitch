@@ -260,7 +260,7 @@ struct GraphGenerationTableView: View {
                     .delete()
                     .match(queryCriteria)
                     .execute()
-                                
+                
                 // If no rows were deleted, Supabase still returns 200 OK with empty data.
                 // You can inspect result.count or result.data here if you need to alert the user.
                 
