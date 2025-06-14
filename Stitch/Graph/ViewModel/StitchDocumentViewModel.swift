@@ -251,7 +251,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         }
         set(newValue) {
             guard let projectLoader = self.projectLoader else {
-                fatalErrorIfDebug()
+                // fatalErrorIfDebug()
                 return
             }
             

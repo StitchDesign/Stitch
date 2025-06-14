@@ -92,7 +92,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         let allFlattenedItems = self.sidebarViewModel.getVisualFlattenedList()
         
         // Empty state
-        if allFlattenedItems.isEmpty {
+        if allFlattenedItems.isEmpty,
+           !(document.storeDelegate?.navPath.first == .graphGenerationTableView) {
             ProjectSidebarEmptyView(document: document)
                 .frame(width: NodeEmptyStateAboutButtonsView.defaultWidth)
         }

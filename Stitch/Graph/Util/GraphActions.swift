@@ -32,7 +32,10 @@ struct CloseGraph: StitchStoreEvent {
 
         // Note: on iPad or Catalyst, `closeGraph` is usually dispatched when the project view disappears; but on iPhone we use a button to close the project.
         // It should be safe for us to redundantly set the navPath to empty (i.e. exit any project).
-        store.navPath = []
+        
+        if !(store.navPath.first == .graphGenerationTableView) {
+            store.navPath = []
+        }
         
         return .noChange
     }
