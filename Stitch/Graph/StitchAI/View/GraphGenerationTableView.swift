@@ -14,6 +14,7 @@ struct GraphGenerationTableView: View {
     
     @State private var rows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
     @State private var filterUserID: String = ""
+    @State private var filterPrompt: String = ""
     @State private var selectedIndex: Int?
     
     // Contains Secrets and Postgres client
@@ -39,12 +40,17 @@ struct GraphGenerationTableView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding([.horizontal, .top])
                     .onChange(of: filterUserID) { _ in fetchRows() }
-                
+
+                TextField("Filter by prompt", text: $filterPrompt)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.horizontal)
+                    .onChange(of: filterPrompt) { _ in fetchRows() }
+
                 Text("\(rows.count) row\(rows.count == 1 ? "" : "s") found")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .padding(.horizontal)
-                
+
                 List(rows.indices, id: \.self, selection: $selectedIndex) { idx in
                     let row = rows[idx]
                     VStack(alignment: .leading, spacing: 6) {
@@ -85,6 +91,10 @@ struct GraphGenerationTableView: View {
 
                 if !filterUserID.isEmpty {
                     query = query.ilike("user_id", value: "%\(filterUserID)%")
+                }
+                if !filterPrompt.isEmpty {
+                    // Filter JSON column's prompt field using ilike
+                    query = query.ilike("actions->>prompt", value: "%\(filterPrompt)%")
                 }
 
                 let response = try await query
