@@ -14,6 +14,7 @@ struct GraphGenerationTableView: View {
     
     @State private var rows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
     @State private var filterUserID: String = ""
+    @State private var selectedIndex: Int?
     
     // Contains Secrets and Postgres client
     // If we can't have secrets, then we should not be in this view
@@ -31,44 +32,48 @@ struct GraphGenerationTableView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationSplitView {
+            // Sidebar: filter and list
             VStack {
                 TextField("Filter by user ID", text: $filterUserID)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding([.horizontal, .top])
-                    .onChange(of: filterUserID) { _ in
-                        fetchRows()
-                    }
+                    .onChange(of: filterUserID) { _ in fetchRows() }
                 
-                List(rows.indices, id: \.self) { idx in
+                Text("\(rows.count) row\(rows.count == 1 ? "" : "s") found")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
+                
+                List(rows.indices, id: \.self, selection: $selectedIndex) { idx in
                     let row = rows[idx]
-                    NavigationLink(destination:
-                        ScrollView {
-                            // Display the raw actions wrapper as text
-                            Text(String(describing: row.actions))
-                                .padding()
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Prompt: \(row.actions.prompt)")
+                        Text("User ID: \(row.user_id)")
+                        Text("Steps: \(row.actions.actions.count)")
+                        Text("Score: \(row.score, specifier: "%.2f")")
+                        if row.correction {
+                            Text("✓").foregroundColor(.green)
                         }
-                    ) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Prompt: \(row.actions.prompt)")
-                            Text("User ID: \(row.user_id)")
-                            Text("Steps: \(row.actions.actions.count)")
-                            Text("Score: \(row.score, specifier: "%.2f")")
-                            if row.correction {
-                                Text("✓")
-                                    .foregroundColor(.green)
-                            }
-                        }
-                        .padding(.vertical, 8)
                     }
+                    .padding(.vertical, 8)
                 }
                 .listStyle(PlainListStyle())
             }
             .navigationTitle("Graph Rows")
-            .onAppear {
-                fetchRows()
+        } detail: {
+            // Detail: show actions of selected row
+            if let idx = selectedIndex, rows.indices.contains(idx) {
+                ScrollView {
+                    Text(String(describing: rows[idx].actions))
+                        .padding()
+                }
+            } else {
+                Text("Select a row")
+                    .foregroundColor(.secondary)
             }
         }
+        .onAppear { fetchRows() }
     }
 
     private func fetchRows() {
