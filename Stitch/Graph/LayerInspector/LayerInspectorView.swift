@@ -67,6 +67,7 @@ struct LayerInspectorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .scrollContentBackground(.hidden)
         .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.ignoresSafeArea())
+        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
     }
     
     var description: String {
