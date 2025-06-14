@@ -99,6 +99,7 @@ struct ContentView: View, KeyboardReadable {
                 // phone before showFullScreen is set
                 ProjectNavigationView(store: store,
                                       document: document,
+                                      graph: document.visibleGraph,
                                       isFullScreen: showFullScreen.isTrue,
                                       routerNamespace: routerNamespace,
                                       graphNamespace: graphNamespace)

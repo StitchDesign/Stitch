@@ -34,6 +34,7 @@ struct ProjectNavigationView: View {
 
     @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let isFullScreen: Bool
     let routerNamespace: Namespace.ID
     let graphNamespace: Namespace.ID
@@ -64,6 +65,10 @@ struct ProjectNavigationView: View {
                                        deviceScreenSize: document.frame.size,
                                        showPreviewWindow: document.showPreviewWindow && !document.isScreenRecording,
                                        namespace: graphNamespace)
+                    .inspector(isPresented: $store.showsLayerInspector) {
+                        LayerInspectorView(graph: graph,
+                                           document: document)
+                    }
                 }
             }
         } else {
@@ -85,11 +90,6 @@ struct ProjectNavigationView: View {
             }
     }
     
-//    @ViewBuilder
-//    var iPadTabView: some View {
-//        
-//    }
-    
     @ViewBuilder
     var flyout: some View {
         OpenFlyoutView(document: document,
@@ -97,10 +97,8 @@ struct ProjectNavigationView: View {
     }
 
     var body: some View {
-        @Bindable var visibleGraph = document.visibleGraph
-        
         mainProjectView
-        .alert(item: $visibleGraph.migrationWarning) { warningMessage in
+            .alert(item: $graph.migrationWarning) { warningMessage in
             Alert(title: Text("Document Migration Warning"),
                   message: Text(warningMessage.rawValue),
                   dismissButton: .default(.init("OK")) {
