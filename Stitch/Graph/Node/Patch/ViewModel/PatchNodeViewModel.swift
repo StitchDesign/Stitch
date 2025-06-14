@@ -111,6 +111,14 @@ extension PatchNodeViewModel: SchemaObserver {
 
     @MainActor
     func update(from schema: PatchNodeEntity) {
+        // Process JS settings before providing inputs
+        if let newJsSettings = schema.javaScriptNodeSettings {
+            log("PatchNodeViewModel: update: newJsSettings: \(newJsSettings)")
+            self.applyJavascriptToInputsAndOutputs(response: newJsSettings,
+                                                   currentGraphTime: self.documentDelegate?.graphStepState.graphTime ?? .zero,
+                                                   activeIndex: self.documentDelegate?.activeIndex ?? .defaultActiveIndex)
+        }
+        
         self.inputsObservers.sync(with: schema.inputs)
         
         self.canvasObserver.update(from: schema.canvasEntity)
@@ -145,15 +153,6 @@ extension PatchNodeViewModel: SchemaObserver {
            let newSplitterNodeEntity = schema.splitterNode,
            oldSplitterNodeEntity != newSplitterNodeEntity {
             self.splitterNode = newSplitterNodeEntity
-        }
-                
-        if let newJsSettings = schema.javaScriptNodeSettings {
-            log("PatchNodeViewModel: update: newJsSettings: \(newJsSettings)")
-            self.applyJavascriptToInputsAndOutputs(response: newJsSettings,
-                                                   currentGraphTime: self.documentDelegate?.graphStepState.graphTime ?? .zero,
-                                                   activeIndex: self.documentDelegate?.activeIndex ?? .defaultActiveIndex)
-        } else {
-            log("PatchNodeViewModel: update: no js settings")
         }
     }
 
