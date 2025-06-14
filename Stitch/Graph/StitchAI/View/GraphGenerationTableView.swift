@@ -8,6 +8,7 @@
 import SwiftUI
 import PostgREST
 import Foundation
+import StitchSchemaKit
 
 struct GraphGenerationTableView: View {
     @Bindable var store: StitchStore
@@ -16,6 +17,7 @@ struct GraphGenerationTableView: View {
     @State private var filterUserID: String = ""
     @State private var filterPrompt: String = ""
     @State private var selectedIndex: Int?
+    @State private var previewDocumentVM: StitchDocumentViewModel?
     
     // Contains Secrets and Postgres client
     // If we can't have secrets, then we should not be in this view
@@ -68,18 +70,28 @@ struct GraphGenerationTableView: View {
             }
             .navigationTitle("Graph Rows")
         } detail: {
-            // Detail: show actions of selected row
-            if let idx = selectedIndex, rows.indices.contains(idx) {
-                ScrollView {
-                    Text(String(describing: rows[idx].actions))
-                        .padding()
-                }
+            // Detail: show project preview for selected row
+            if let documentVM = previewDocumentVM {
+                StitchProjectView(store: store,
+                                  document: documentVM,
+                                  alertState: store.alertState)
             } else {
                 Text("Select a row")
                     .foregroundColor(.secondary)
             }
         }
         .onAppear { fetchRows() }
+        .onChange(of: selectedIndex) { newIndex in
+            if let idx = newIndex, rows.indices.contains(idx) {
+                let row = rows[idx]
+                let (documentVM, _) = store.createAIDocumentPreviewer()
+                let stepActions = row.actions.actions.map { $0.parseAsStepAction().value! }
+                _ = documentVM.validateAndApplyActions(stepActions)
+                previewDocumentVM = documentVM
+            } else {
+                previewDocumentVM = nil
+            }
+        }
     }
 
     private func fetchRows() {
