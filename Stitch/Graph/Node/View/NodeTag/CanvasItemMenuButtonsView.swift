@@ -33,6 +33,7 @@ struct CanvasItemMenuButtonsView: View {
     let atleastOneCommentBoxSelected: Bool
     var loopIndices: [Int]?
     @Binding var showAboutPopover: Bool
+    @Binding var showAIScriptDebug: Bool
 
     // MARK: very important to process this outside of NodeTagMenuButtonsView: doing so fixes a bug where the node type menu becomes unresponsive if values are constantly changing on iPad.
     @MainActor
@@ -211,6 +212,14 @@ struct CanvasItemMenuButtonsView: View {
                     self.showAboutPopover = true
                 }
             }
+            
+#if !RELEASE
+            if let jsSettings = self.node.patchNode?.javaScriptNodeSettings {
+                nodeTagMenuButton(label: "AI Script Debug") {
+                    self.showAIScriptDebug = true
+                }
+            }
+#endif
         }
     }
 

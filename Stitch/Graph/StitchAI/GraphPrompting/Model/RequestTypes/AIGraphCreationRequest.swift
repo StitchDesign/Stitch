@@ -64,7 +64,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                                                      graph: graph)
                         
             // Wipe current task; maybe share user-prompt
-            willRequest_SideEffect(
+            aiManager.prepareRequest(
                 userPrompt: prompt,
                 requestId: request.id,
                 document: document,
@@ -112,55 +112,52 @@ struct AIGraphCreationRequest: StitchAIRequestable {
 }
 
 // NOTE: used by graph-generation, ai-javascript-node, etc.
-// TODO: find a better way to indicate that we're doing async logic here; maybe we return, rather than execute, the side-effect
-@MainActor
-func willRequest_SideEffect(userPrompt: String,
-                            requestId: UUID,
-                            document: StitchDocumentViewModel,
-                            canShareData: Bool,
-                            userPromptTableName: String?) {
-    
-    print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
-    print("🤖 Prompt: \(userPrompt)")
-    
-    guard let aiManager = document.aiManager else {
-        fatalErrorIfDebug("GenerateAINode: no aiManager")
-        return
-    }
-    
-    // Only log pre-request user prompts if we're in a release build and user has granted permissions
+extension StitchAIManager {
+    /// Clears state and may log to Supabase.
+    @MainActor
+    func prepareRequest(userPrompt: String,
+                        requestId: UUID,
+                        document: StitchDocumentViewModel,
+                        canShareData: Bool,
+                        userPromptTableName: String?) {
+        
+        print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
+        print("🤖 Prompt: \(userPrompt)")
+        
+        // Only log pre-request user prompts if we're in a release build and user has granted permissions
 #if RELEASE || DEV_DEBUG
-    if canShareData,
-       let tableName = userPromptTableName {
-        Task(priority: .background) { [weak aiManager] in
-            guard let aiManager = aiManager else {
-                return
+        if canShareData,
+           let tableName = userPromptTableName {
+            Task(priority: .background) { [weak aiManager] in
+                guard let aiManager = aiManager else {
+                    return
+                }
+                try? await aiManager.uploadUserPromptRequestToSupabase(
+                    prompt: userPrompt,
+                    requestId: requestId,
+                    tableName: tableName)
             }
-            try? await aiManager.uploadUserPromptRequestToSupabase(
-                prompt: userPrompt,
-                requestId: requestId,
-                tableName: tableName)
         }
-    }
 #endif
-    
-    // Make sure current task is completely wiped
-    aiManager.cancelCurrentRequest()
-    aiManager.currentTask = nil
-    
-    // Clear previous streamed steps
-    document.llmRecording.streamedSteps = .init()
-    
-    // Clear the previous actions
-    document.llmRecording.actions = .init()
-
-    // Set flag to indicate this is from AI generation
-    document.insertNodeMenuState.isFromAIGeneration = true
-    
-    print("🤖 isFromAIGeneration set to: \(document.insertNodeMenuState.isFromAIGeneration)")
-    
-    // Track initial graph state
-    document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
+        
+        // Make sure current task is completely wiped
+        self.cancelCurrentRequest()
+        self.currentTask = nil
+        
+        // Clear previous streamed steps
+        document.llmRecording.streamedSteps = .init()
+        
+        // Clear the previous actions
+        document.llmRecording.actions = .init()
+        
+        // Set flag to indicate this is from AI generation
+        document.insertNodeMenuState.isFromAIGeneration = true
+        
+        print("🤖 isFromAIGeneration set to: \(document.insertNodeMenuState.isFromAIGeneration)")
+        
+        // Track initial graph state
+        document.llmRecording.initialGraphState = document.visibleGraph.createSchema()
+    }
 }
 
 extension CurrentStep.Step {

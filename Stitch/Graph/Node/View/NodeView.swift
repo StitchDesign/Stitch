@@ -14,6 +14,7 @@ struct NodeView: View {
     
     @State private var showAboutPopover = false
     @State private var aiJsNodePrompt: String = ""
+    @State private var showAIScriptDebug = false
     @State private var showNodesSummaryPopover: Bool = false
     @State private var nodeSummariesText: AttributedString?
     
@@ -62,6 +63,15 @@ struct NodeView: View {
                 .popover(isPresented: $showAboutPopover) {
                     StitchDocsPopoverView(router: .init(from: self.stitch.kind))
                 }
+                .popover(isPresented: $showAIScriptDebug) {
+                    if let jsSettings = self.stitch.patchNode?.javaScriptNodeSettings {
+                        VStack(alignment: .leading) {
+                            Text(jsSettings.script)
+                                .monospaced()
+                        }
+                        .padding()
+                    }
+                }
                 .opacity(node.viewCache.isDefined ? 1 : 0)
                 .popover(isPresented: self.$showNodesSummaryPopover) {
                     Group {
@@ -101,7 +111,8 @@ struct NodeView: View {
                                               canAddInput: canAddInput,
                                               canRemoveInput: canRemoveInput,
                                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                                              showAboutPopover: self.$showAboutPopover)
+                                              showAboutPopover: self.$showAboutPopover,
+                                              showAIScriptDebug: self.$showAIScriptDebug)
                 }
 #endif
                 .modifier(NodeViewTapGestureModifier(graph: graph,
@@ -129,7 +140,8 @@ struct NodeView: View {
                                       canAddInput: canAddInput,
                                       canRemoveInput: canRemoveInput,
                                       atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                                      showAboutPopover: self.$showAboutPopover)
+                                      showAboutPopover: self.$showAboutPopover,
+                                      showAIScriptDebug: self.$showAIScriptDebug)
                     }
                 }
                 .modifier(CanvasItemInputChangeHandleViewModier(
@@ -326,6 +338,7 @@ struct CanvasItemTag: View {
     let canRemoveInput: Bool
     let atleastOneCommentBoxSelected: Bool
     @Binding var showAboutPopover: Bool
+    @Binding var showAIScriptDebug: Bool
     
     // fka `nodeTagMenu`
     @ViewBuilder var canvasItemMenu: CanvasItemMenuButtonsView {
@@ -341,7 +354,8 @@ struct CanvasItemTag: View {
                                   canRemoveInput: canRemoveInput,
                                   atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                                   loopIndices: self.loopIndices,
-                                  showAboutPopover: self.$showAboutPopover)
+                                  showAboutPopover: self.$showAboutPopover,
+                                  showAIScriptDebug: self.$showAIScriptDebug)
     }
     
     @MainActor

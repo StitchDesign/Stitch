@@ -87,8 +87,9 @@ final class PatchNodeViewModel: Sendable {
             self.applyJavascriptToInputsAndOutputs(response: jsSettings,
                                                    currentGraphTime: self.documentDelegate?.graphStepState.graphTime ?? .zero,
                                                    activeIndex: self.documentDelegate?.activeIndex ?? .defaultActiveIndex)
-        } else {
-            log("PatchNodeViewModel: no schema.javaScriptNodeSettings:")
+        } else if !self.canvasObserver.isLoading {
+            // Catches if JavaScript patch doesn't have settings and not loading
+//            assertInDebug(self.patch != .javascript)
         }
     }
 }
