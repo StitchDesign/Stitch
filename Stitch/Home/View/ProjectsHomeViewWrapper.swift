@@ -43,16 +43,17 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
+
+                        if FeatureFlags.SHOW_AI_TABLE_ROWS_VIEWER {
+                            CatalystNavBarButton("tablecells",
+                                                 toolTip: "Open AI Table Viewer") { [weak store] in
+                                store?.navPath = [.graphGenerationTableView]
+                            }
+                            // Resolves issue where hover was still active after entering newly created project and then exiting
+                            .id(UUID())
+                        }
                         
 #if STITCH_AI_REASONING || DEV_DEBUG
-                        CatalystNavBarButton("tablecells",
-                                             toolTip: "Open AI Table Viewer") { [weak store] in
-                            store?.navPath = [.graphGenerationTableView]
-                        }
-                        // Resolves issue where hover was still active after entering newly created project and then exiting
-                        .id(UUID())
-                        
-                        
                         CatalystNavBarButton("document.viewfinder.fill",
                                              toolTip: "Open AI Preview") { [weak store] in
                             guard let store = store else {
