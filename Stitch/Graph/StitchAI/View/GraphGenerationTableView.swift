@@ -35,9 +35,10 @@ struct GraphGenerationTableView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
-            // Sidebar: filter and list
-            VStack {
+        GeometryReader { geometry in
+            HStack(spacing: 0) {
+                // Sidebar
+                VStack(alignment: .leading, spacing: 0) {
                 TextField("Filter by user ID", text: $filterUserID)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding([.horizontal, .top])
@@ -67,29 +68,40 @@ struct GraphGenerationTableView: View {
                     .padding(.vertical, 8)
                 }
                 .listStyle(PlainListStyle())
+                }
+                .frame(width: geometry.size.width * 0.25)
+                .background(Color(UIColor.systemGroupedBackground))
+
+            Divider()
+
+            // Detail pane
+            Group {
+                if let documentVM = previewDocumentVM {
+                    StitchProjectView(store: store,
+                                      document: documentVM,
+                                      alertState: store.alertState)
+                } else {
+                    Text("Select a row")
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
-            .navigationTitle("Graph Rows")
-        } detail: {
-            // Detail: show project preview for selected row
-            if let documentVM = previewDocumentVM {
-                StitchProjectView(store: store,
-                                  document: documentVM,
-                                  alertState: store.alertState)
-            } else {
-                Text("Select a row")
-                    .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-        }
-        .onAppear { fetchRows() }
-        .onChange(of: selectedIndex) { newIndex in
-            if let idx = newIndex, rows.indices.contains(idx) {
-                let row = rows[idx]
-                let (documentVM, _) = store.createAIDocumentPreviewer()
-                let stepActions = row.actions.actions.map { $0.parseAsStepAction().value! }
-                _ = documentVM.validateAndApplyActions(stepActions)
-                previewDocumentVM = documentVM
-            } else {
-                previewDocumentVM = nil
+            .onAppear { fetchRows() }
+            .onChange(of: selectedIndex) { _, newIndex in
+                if let idx = newIndex, rows.indices.contains(idx) {
+                    let row = rows[idx]
+                    let (documentVM, _) = store.createAIDocumentPreviewer()
+                    let stepActions = row.actions.actions.map { $0.parseAsStepAction().value! }
+                    if let validationError = documentVM.validateAndApplyActions(stepActions) {
+                        fatalErrorIfDebug("StitchAIProjectViewer: validateJSON: validationError: \(validationError.description)")
+                    }
+                    documentVM.visibleGraph.updateGraphData(documentVM)
+                    previewDocumentVM = documentVM
+                } else {
+                    previewDocumentVM = nil
+                }
             }
         }
     }
