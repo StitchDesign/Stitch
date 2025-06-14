@@ -30,6 +30,7 @@ extension ProjectTab {
 
 /// UI for interacting with a single project; iPad-only.
 struct ProjectNavigationView: View {
+    @Environment(StitchFileManager.self) var fileManager
     @State private var selectedTab: ProjectTab = .patch
 
     @Bindable var store: StitchStore
@@ -60,15 +61,21 @@ struct ProjectNavigationView: View {
                 Tab(ProjectTab.layer.rawValue,
                     systemImage: ProjectTab.layer.systemIcon,
                     value: ProjectTab.layer) {
-                    FloatingWindowView(store: store,
-                                       document: document,
-                                       deviceScreenSize: document.frame.size,
-                                       showPreviewWindow: document.showPreviewWindow && !document.isScreenRecording,
-                                       namespace: graphNamespace)
-                    .inspector(isPresented: $store.showsLayerInspector) {
-                        LayerInspectorView(graph: graph,
-                                           document: document)
-                    }
+                    NavigationSplitView(
+                        columnVisibility: .constant(.all),
+                        sidebar: {
+                            StitchSidebarView(syncStatus: fileManager.syncStatus)
+                        }) {
+                            FloatingWindowView(store: store,
+                                               document: document,
+                                               deviceScreenSize: document.frame.size,
+                                               showPreviewWindow: document.showPreviewWindow && !document.isScreenRecording,
+                                               namespace: graphNamespace)
+                            .inspector(isPresented: $store.showsLayerInspector) {
+                                LayerInspectorView(graph: graph,
+                                                   document: document)
+                            }
+                        }
                 }
             }
         } else {
