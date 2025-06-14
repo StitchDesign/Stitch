@@ -551,19 +551,19 @@ Given an array, this returns the value at a specific index in the array.
 ### Value at Path
 Provides ways to access specific elements within a JSON object:
 
-# Numbers for Array Indices
+#### Numbers for Array Indices
 Use a number to specify an array index.
 Example: songs.0 will select the first song in an array of songs.
 
-# Text Strings for Keys
+#### Text Strings for Keys
 Use a text string to pick a value by its key.
 Example: songs.0.artist will select the artist of the first song in an array of songs.
 
-# Asterisks for Child Arrays
+#### Asterisks for Child Arrays
 An asterisk (•) targets all items within an array.
 Example: songs.•.artist will select an array of artists for all songs.
 
-# Double Dots for Recursive Search
+#### Double Dots for Recursive Search
 Start with two dots (..) to perform a recursive search through the JSON object.
 Example: ..artist will find all instances of the key 'artist', regardless of nesting level.
 
@@ -1334,37 +1334,7 @@ Used with the Wireless Broadcaster node to route values across the graph. Useful
 *Outputs*
 * The value received from the corresponding broadcast node.
 
-
-## Miscellaneous
-
-### Clip
-Clips a number to be within a specified set of bounds.
-
-For example, if the input value is 10, the min is -5, and the max is 5, the output value will be 5.
-
-*Inputs*
-* Number to clip
-* Lowest number to allow
-* Highest number to allow
-
-*Outputs*
-* The clipped value
-
-### Close Path
-A ClosePath ShapeCommand.
-
-### Convert Position
-Converts position values between different parent layers.
-
-*Inputs*
-* From Parent (the Layer to get position of)
-* From Anchor
-* Point X/Y
-* To Parent (the Layer to the converted position in)
-* To Anchor
-
-*Outputs*
-* The converted X/Y position
+## Machine Learning
 
 ### Image Classification
 A node for classifying an image via a CoreML Classification model.
@@ -1397,77 +1367,7 @@ A node for detecting the objects in an image via a CoreML Object Detection model
 * Locations of the detected objects
 * Bounding Box of the detected objects
 
-### Date And Time Formatter
-Creates human readable date and time values from an input of time in seconds
-
-*Inputs*
-* The date or time represented in seconds
-* Format
-    • None (1970-01-01 00:00:00 +0000)
-    • Short (12/31/69, 4:00 PM)
-    • Medium (Dec 31, 1969 at 4:00:00 PM)
-    • Long (December 31, 1969 at 4:00:00 PM PST)
-    • Full (Wednesday, December 31, 1969 at 4:00:00 PM Pacific Standard Time)
-* Custom format (a text string, for example: %H:%M:%S, %m/%d/%y)
-
-*Outputs*
-* Text string representing the formatted date and time value
-
-### Grayscale
-Applies a grayscale filter to a provided visual media asset.
-
-*Inputs*
-* A media object; either an image or a video
-
-*Outputs*
-* The media object with a grayscale filter applied to it
-
-### Index Of
-Returns the index of a given item in an array if the item is present.
-
-*Inputs*
-* An array
-* The item that you want to retrieve the index value of
-
-
-*Outputs*
-* The index at which the item occurs
-* A Boolean indicating whether the array contains the given item.
-
-### JSON to Shape
-Generates a Shape from a given JSON object.
-
-*Inputs*
-* A JSON object
-* The X and Y coordinate space values to place the shape in
-
-*Outputs*
-* The generated Shape
-* An error, if one occurred when trying to generate the shape
-* The Width and Height of the shape
-
-### Keyboard
-Detects keyboard events and outputs a Bool when a specified event occurs
-
-*Inputs*
-* The keyboard event to listen for
-
-*Outputs*
-* A Bool that's set when the event occurs
-
-### Layer Info
-Returns information about a specified layer.
-
-*Inputs*
-* The layer to get info about.
-
-*Outputs*
-* A Boolean indicating if the layer is enabled
-* Position
-* Size
-* Scale
-* Anchor
-* The layer's parent, if any
+## Pack and Unpack
 
 ### Pack
 Creates a value based on constituent inputs. For example, if you want to create a Size value, you would input two values corresponding to Width and Height.
@@ -1485,6 +1385,23 @@ Works with:
 
 *Outputs*
 * The constructed value based on the individual inputs
+
+### Unpack
+Splits a value into constituent components. For example, an input value of type Size with a width of 20 and height of 40 would be split into individual values of 20 and 40.
+
+Works with:
+* Matrix Transform
+* 3D Point
+* 4D Point
+* Position
+* Shape Command
+* Size
+
+*Inputs*
+* The value to unpack
+
+*Outputs*
+* The constituent values that make up the input
 
 ### Point 3D Pack
 Packs three Number inputs to a single Point3D output.
@@ -1504,57 +1421,39 @@ Packs two Number inputs to a single Position output.
 ### Position Unpack
 Unpacks a single Position input to two Number outputs.
 
-### QR Code Detection
-Detects a QR code in a video or image..
-
-*Inputs*
-* A media object; either an image or a video
-
-*Outputs*
-* A boolean indiciating if a QR code was detected
-* Detected message in the QR code
-
-### Running Total
-Calculates the sum of a loop of numbers - the sum at each index is the sum of the numbers preceding the current number.
-
-*Inputs*
-* An input loop
-
-*Outputs*
-* A loop of sums
-
-### Value for Key
-Allows you to set a value at a specified key in the JSON object.
-
-*Inputs*
-* A JSON object
-* The key in the JSON object that you would like to set a new value to
-* The new value
-
-*Outputs*
-* The JSON object with the new value.
-
 ### Size Pack
 Packs two Layer Dimension inputs to a single Layer Size output.
 
 ### Size Unpack
 Unpacks a single Layer Size input to two Layer Size outputs.
 
-### Soulver
-The Soulver node enables evaluation of mathematical expressions. These can be done in plain English. For example, if you input a string of "10 percent of 100", your output will be 10.
+### Transform Pack
+Packs a Transform output out of the following Number values:
 
-*Inputs*
-* An input query
+* Position X
+* Position Y
+* Position Z
+* Scale X
+* Scale Y
+* Scale Z
+* Rotation X
+* Rotation Y
+* Rotation Z
 
-*Outputs*
-* The result of the Soulver operation
+### Transform Unpack
+Unpacks a Transform into the following constituent Number values:
 
-### Speaker
-A node for playing audio through the device speaker
+* Position X
+* Position Y
+* Position Z
+* Scale X
+* Scale Y
+* Scale Z
+* Rotation X
+* Rotation Y
+* Rotation Z
 
-*Inputs*
-* An audio file
-* The volume of the playing audio
+## String Manipulation
 
 ### Split Text
 Splits an input text string at a given token. For example, if the text value is "Stitch", and the token is "it", the output string will be "St"
@@ -1565,15 +1464,6 @@ Splits an input text string at a given token. For example, if the text value is 
 
 *Outputs*
 * The split text
-
-### Value
-The value node is helpful for storing a value and sending that value to other nodes. You can also use these nodes in Groups to create an input port or an output port on the parent group. If you need to set a value and send that value to several other nodes, while having a single place to change that value, then this node is for you.
-
-*Inputs*
-* One port, that value you'd like to send to other nodes.
-
-*Outputs*
-* Again just a single port, that value you'd like to send to other nodes.
 
 ### Text Ends With
 Checks whether a provided text string contains a given suffix
@@ -1626,32 +1516,6 @@ Transforms input text with different modifiers (Uppercase and Lowercase)
 *Outputs*
 * The transformed text
 
-### Transform Pack
-Packs a Transform output out of the following Number values:
-
-* Position X
-* Position Y
-* Position Z
-* Scale X
-* Scale Y
-* Scale Z
-* Rotation X
-* Rotation Y
-* Rotation Z
-
-### Transform Unpack
-Unpacks a Transform into the following constituent Number values:
-
-* Position X
-* Position Y
-* Position Z
-* Scale X
-* Scale Y
-* Scale Z
-* Rotation X
-* Rotation Y
-* Rotation Z
-
 ### Trim Text
 Trims provided text at specified start and end index points.
 
@@ -1663,6 +1527,163 @@ Trims provided text at specified start and end index points.
 *Outputs*
 * The trimmed text string
 
+## Miscellaneous
+
+### Value
+The value node is helpful for storing a value and sending that value to other nodes. You can also use these nodes in Groups to create an input port or an output port on the parent group. If you need to set a value and send that value to several other nodes, while having a single place to change that value, then this node is for you.
+
+*Inputs*
+* One port, that value you'd like to send to other nodes.
+
+*Outputs*
+* Again just a single port, that value you'd like to send to other nodes.
+
+### Clip
+Clips a number to be within a specified set of bounds.
+
+For example, if the input value is 10, the min is -5, and the max is 5, the output value will be 5.
+
+*Inputs*
+* Number to clip
+* Lowest number to allow
+* Highest number to allow
+
+*Outputs*
+* The clipped value
+
+### Close Path
+A ClosePath ShapeCommand.
+
+### Convert Position
+Converts position values between different parent layers.
+
+*Inputs*
+* From Parent (the Layer to get position of)
+* From Anchor
+* Point X/Y
+* To Parent (the Layer to the converted position in)
+* To Anchor
+
+*Outputs*
+* The converted X/Y position
+
+### Date And Time Formatter
+Creates human readable date and time values from an input of time in seconds
+
+*Inputs*
+* The date or time represented in seconds
+* Format
+    • None (1970-01-01 00:00:00 +0000)
+    • Short (12/31/69, 4:00 PM)
+    • Medium (Dec 31, 1969 at 4:00:00 PM)
+    • Long (December 31, 1969 at 4:00:00 PM PST)
+    • Full (Wednesday, December 31, 1969 at 4:00:00 PM Pacific Standard Time)
+* Custom format (a text string, for example: %H:%M:%S, %m/%d/%y)
+
+*Outputs*
+* Text string representing the formatted date and time value
+
+### Grayscale
+Applies a grayscale filter to a provided visual media asset.
+
+*Inputs*
+* A media object; either an image or a video
+
+*Outputs*
+* The media object with a grayscale filter applied to it
+
+### Index Of
+Returns the index of a given item in an array if the item is present.
+
+*Inputs*
+* An array
+* The item that you want to retrieve the index value of
+
+*Outputs*
+* The index at which the item occurs
+* A Boolean indicating whether the array contains the given item.
+
+### JSON to Shape
+Generates a Shape from a given JSON object.
+
+*Inputs*
+* A JSON object
+* The X and Y coordinate space values to place the shape in
+
+*Outputs*
+* The generated Shape
+* An error, if one occurred when trying to generate the shape
+* The Width and Height of the shape
+
+### Keyboard
+Detects keyboard events and outputs a Bool when a specified event occurs
+
+*Inputs*
+* The keyboard event to listen for
+
+*Outputs*
+* A Bool that's set when the event occurs
+
+### Layer Info
+Returns information about a specified layer.
+
+*Inputs*
+* The layer to get info about.
+
+*Outputs*
+* A Boolean indicating if the layer is enabled
+* Position
+* Size
+* Scale
+* Anchor
+* The layer's parent, if any
+
+### QR Code Detection
+Detects a QR code in a video or image..
+
+*Inputs*
+* A media object; either an image or a video
+
+*Outputs*
+* A boolean indiciating if a QR code was detected
+* Detected message in the QR code
+
+### Running Total
+Calculates the sum of a loop of numbers - the sum at each index is the sum of the numbers preceding the current number.
+
+*Inputs*
+* An input loop
+
+*Outputs*
+* A loop of sums
+
+### Value for Key
+Allows you to set a value at a specified key in the JSON object.
+
+*Inputs*
+* A JSON object
+* The key in the JSON object that you would like to set a new value to
+* The new value
+
+*Outputs*
+* The JSON object with the new value.
+
+### Soulver
+The Soulver node enables evaluation of mathematical expressions. These can be done in plain English. For example, if you input a string of "10 percent of 100", your output will be 10.
+
+*Inputs*
+* An input query
+
+*Outputs*
+* The result of the Soulver operation
+
+### Speaker
+A node for playing audio through the device speaker
+
+*Inputs*
+* An audio file
+* The volume of the playing audio
+
 ### Union
 Combines two or more shapes to generate a new shape.
 
@@ -1672,23 +1693,6 @@ Combines two or more shapes to generate a new shape.
 *Outputs*
 * The generated shape
 
-### Unpack
-Splits a value into constituent components. For example, an input value of type Size with a width of 20 and height of 40 would be split into individual values of 20 and 40.
+### AI Node
 
-Works with:
-* Matrix Transform
-* 3D Point
-* 4D Point
-* Position
-* Shape Command
-* Size
-
-*Inputs*
-* The value to unpack
-
-*Outputs*
-* The constituent values that make up the input
-
-### JavaScript
-
-A node that uses JavaScript code underneath the hood. Can be created using Stitch AI.
+An custom patch node created with AI. Uses JavaScript under the hood.
