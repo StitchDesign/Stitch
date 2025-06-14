@@ -150,6 +150,15 @@ Returns the result of the subtraction between two numbers.
 *Outputs*
 * The result of the subtraction
 
+### Soulver
+The Soulver node enables evaluation of mathematical expressions. These can be done in plain English. For example, if you input a string of "10 percent of 100", your output will be 10.
+
+*Inputs*
+* An input query
+
+*Outputs*
+* The result of the Soulver operation
+
 
 ## Logic & Boolean
 
@@ -190,17 +199,6 @@ Returns whether two input values are exactly equal to each other. It's the same 
 
 *Outputs*
 * A Boolean indicating whether the input items are exactly equal.
-
-### Switch
-A node that will flip between an On and Off state whenever a pulse is received.
-
-*Inputs*
-* A pulse that will flip the switch whenever a pulse is received
-* A pulse to turn on the switch
-* A pulse to turn off the switch
-
-*Outputs*
-* A Boolean On/Off Value
 
 ### Greater or Equal
 Checks if two input numbers are greater than or equal to one another
@@ -249,6 +247,27 @@ Performs a NOT Boolean operation where the input is inverted. For example, if th
 *Outputs*
 * A Boolean output that returns the opposite of whatever the input is
 
+### Or
+Calculates an OR Boolean operation. If at least one input is true, the output will be true. For example, if both inputs are 0, the output will be false. If one input is 0 and another is 1, the output will be true.
+
+*Inputs*
+* At least two inputs. N number of inputs can be added to the node.
+
+*Outputs*
+* A Boolean that returns true if at least one of the inputs are true
+
+### Union
+Combines two or more shapes to generate a new shape.
+
+*Inputs*
+* Two shapes to generate the union with
+
+*Outputs*
+* The generated shape
+
+
+## Option Pickers
+
 ### Option Equals
 Checks if an input value (the "Option") is equal to any given inputs. The node can be configured to check a variety of input types. N number of inputs can be added.
 
@@ -278,7 +297,6 @@ Used to pick an output to send a value to. Multiple value types can be used with
 * Value to pass to selected outputs
 * Default value to pass to unselected outputs
 
-
 *Outputs*
 * Option 0 - if selected, the value. Otherwise, the default.
 * Option 1 - if selected, the value. Otherwise, the default.
@@ -294,17 +312,8 @@ Used to control two or more states with an index value. N number of inputs can b
 *Outputs*
 * The index of the current state of the option switch
 
-### Or
-Calculates an OR Boolean operation. If at least one input is true, the output will be true. For example, if both inputs are 0, the output will be false. If one input is 0 and another is 1, the output will be true.
 
-*Inputs*
-* At least two inputs. N number of inputs can be added to the node.
-
-*Outputs*
-* A Boolean that returns true if at least one of the inputs are true
-
-
-## Arrays & Loops
+## Arrays Helpers
 
 ### Array Append
 This node appends to the end of the provided array.
@@ -351,6 +360,31 @@ This node sorts the array in ascending order.
 
 *Outputs*
 * The sorted array
+
+### Sub Array
+Returns a subarray from a given array.
+
+*Inputs*
+* An array
+* The location to begin the subarray at
+* The length of the subarray
+
+*Outputs*
+* The subarray
+
+### Index Of
+Returns the index of a given item in an array if the item is present.
+
+*Inputs*
+* An array
+* The item that you want to retrieve the index value of
+
+*Outputs*
+* The index at which the item occurs
+* A Boolean indicating whether the array contains the given item.
+
+
+## Loops
 
 ### Loop
 Generate a loop of indices. For example, an input of 3 outputs a loop of [0, 1, 2].
@@ -411,7 +445,6 @@ Insert a new value at a particular index in a loop.
 * The value to insert into the loop
 * The index at which the value should be inserted
 * A pulse that will insert the value when triggered
-
 
 *Outputs*
 * The loop with the inserted value
@@ -496,16 +529,14 @@ Converts a loop to an array.
 *Outputs*
 * A JSON array
 
-### Sub Array
-Returns a subarray from a given array.
+### Running Total
+Calculates the sum of a loop of numbers - the sum at each index is the sum of the numbers preceding the current number.
 
 *Inputs*
-* An array
-* The location to begin the subarray at
-* The length of the subarray
+* An input loop
 
 *Outputs*
-* The subarray
+* A loop of sums
 
 
 ## JSON & Data
@@ -538,6 +569,18 @@ Creates a JSON object out of an input key and value. The node can be configured 
 *Outputs*
 * The created JSON object
 
+### JSON to Shape
+Generates a Shape from a given JSON object.
+
+*Inputs*
+* A JSON object
+* The X and Y coordinate space values to place the shape in
+
+*Outputs*
+* The generated Shape
+* An error, if one occurred when trying to generate the shape
+* The Width and Height of the shape
+
 ### Value at Index
 Given an array, this returns the value at a specific index in the array.
 
@@ -551,19 +594,19 @@ Given an array, this returns the value at a specific index in the array.
 ### Value at Path
 Provides ways to access specific elements within a JSON object:
 
-# Numbers for Array Indices
+#### Numbers for Array Indices
 Use a number to specify an array index.
 Example: songs.0 will select the first song in an array of songs.
 
-# Text Strings for Keys
+#### Text Strings for Keys
 Use a text string to pick a value by its key.
 Example: songs.0.artist will select the artist of the first song in an array of songs.
 
-# Asterisks for Child Arrays
+#### Asterisks for Child Arrays
 An asterisk (•) targets all items within an array.
 Example: songs.•.artist will select an array of artists for all songs.
 
-# Double Dots for Recursive Search
+#### Double Dots for Recursive Search
 Start with two dots (..) to perform a recursive search through the JSON object.
 Example: ..artist will find all instances of the key 'artist', regardless of nesting level.
 
@@ -573,6 +616,17 @@ Example: ..artist will find all instances of the key 'artist', regardless of nes
 
 *Outputs*
 * The value that exists at the given path
+
+### Value for Key
+Allows you to set a value at a specified key in the JSON object.
+
+*Inputs*
+* A JSON object
+* The key in the JSON object that you would like to set a new value to
+* The new value
+
+*Outputs*
+* The JSON object with the new value.
 
 ### Set Value for Key
 Given a JSON object and a key, extract the value from the JSON object
@@ -655,7 +709,7 @@ Creates a color out of specified RGBA (Red/Green/Blue/Alpha) values (from 0 -1).
 * A color value
 
 
-## Media & Assets
+## Media Handling
 
 ### Base64 to Image
 A node that converts a Base64 string to an image asset.
@@ -750,6 +804,40 @@ Allows for importing video file assets. The video can be displayed in the Previe
 * Average volume of the video
 * Current playback position
 * Duration of the video
+
+### Speaker
+A node for playing audio through the device speaker
+
+*Inputs*
+* An audio file
+* The volume of the playing audio
+
+
+## AR & 3D
+
+### AR Anchor
+Creates an AR anchor from a 3D model and an ARTransform. Represents the position and orientation of a 3D item in the physical environment.
+
+*Inputs*
+* A 3D model that will be displayed in the AR scene
+* The ARTransform that's received from a Raycasting node.
+
+*Outputs*
+* The AR anchor value; which is used as an input for the RealityView node.
+
+### Raycasting
+Returns a 3D location in physical space that corresponds to a given 2D location on the screen.
+
+*Inputs*
+* A pulse the triggers a raycast query when fired
+* A Boolean to toggle raycasting On and Off
+* Origin (specifies what type of plane detection to use in the raycasting operation)
+    • Any
+    • Horizontal
+    • Vertical
+
+*Outputs*
+* ARTransform, which is used as an input for the AR Anchor node
 
 
 ## Animation
@@ -889,6 +977,9 @@ Generates a shape from a loop of given shape commands
 *Outputs*
 * A generated shape
 
+### Close Path
+A ClosePath ShapeCommand.
+
 ### Curve
 Changes the rate of a linear animation to follow a new animation curve.
 
@@ -1008,40 +1099,6 @@ Makes a given layer responsive to press interactions
 * Velocity (Width / Height)
 * Translation (Width / Height)
 
-### Pulse
-Outputs a pulse event when it's toggled on or off.
-
-*Inputs*
-* A Boolean On/Off
-
-*Outputs*
-* A pulse if an "On" input event occurs
-* A pulse if an "Off" output event occurs
-
-### Pulse on Change
-The Pulse On Change node outputs a pulse if an input value comes in that is different from the specified value.
-
-*Inputs*
-* A numerical value.
-
-*Outputs*
-* A pulse event that occurs if the value has changed
-
-### Repeating Pulse
-A node that will fire a pulse at a defined interval.
-
-*Inputs*
-* The frequency at which the pulse occrs
-
-*Outputs*
-* A pulse value
-
-### Restart Prototype
-A node that will restart the state of your prototype. All inputs and outputs of the nodes on your graph will be reset.
-
-*Inputs*
-* A pulse input serves as the single input for this node. When a pulse is received, the prototype will restart.
-
 ### Legacy Scroll Interaction
 NOTE: Scroll Interactions are better supported through scroll inputs and outputs on a layer group. This is a legacy patch node.
 
@@ -1070,11 +1127,59 @@ Adds scroll interaction to a specified layer. Scrolling can be either free or pa
 *Outputs*
 * The scroll X/Y position
 
+
+## Pulses
+
+### Pulse
+Outputs a pulse event when it's toggled on or off.
+
+*Inputs*
+* A Boolean On/Off
+
+*Outputs*
+* A pulse if an "On" input event occurs
+* A pulse if an "Off" output event occurs
+
+### Pulse on Change
+The Pulse On Change node outputs a pulse if an input value comes in that is different from the specified value.
+
+*Inputs*
+* A numerical value.
+
+*Outputs*
+* A pulse event that occurs if the value has changed
+
+### Repeating Pulse
+A node that will fire a pulse at a defined interval.
+
+*Inputs*
+* The frequency at which the pulse occrs
+
+*Outputs*
+* A pulse value
+
+### Switch
+A node that will flip between an On and Off state whenever a pulse is received.
+
+*Inputs*
+* A pulse that will flip the switch whenever a pulse is received
+* A pulse to turn on the switch
+* A pulse to turn off the switch
+
+*Outputs*
+* A Boolean On/Off Value
+
 ### On Prototype Start
 A node that gets triggered whenever the prototype has started or restarted. Can be used to trigger any action you want to occur on the start.
 
 *Outputs*
 * A pulse that will be fired when the prototype start event occurs.
+
+### Restart Prototype
+A node that will restart the state of your prototype. All inputs and outputs of the nodes on your graph will be reset.
+
+*Inputs*
+* A pulse input serves as the single input for this node. When a pulse is received, the prototype will restart.
 
 
 ## Time & Utilities
@@ -1259,44 +1364,6 @@ A node that will trigger a haptic pulse.
 *Inputs*
 A pulse will trigger the haptic event when triggered.
 
-### Location
-The Location node returns the currently detected location value of the node.
-
-*Inputs*
-* An override of the detected location
-
-*Outputs*
-* The Latitude of the location as a string
-* The Longitude of the location as a string
-* The city name as a string
-
-
-## AR & 3D
-
-### AR Anchor
-Creates an AR anchor from a 3D model and an ARTransform. Represents the position and orientation of a 3D item in the physical environment.
-
-*Inputs*
-* A 3D model that will be displayed in the AR scene
-* The ARTransform that's received from a Raycasting node.
-
-*Outputs*
-* The AR anchor value; which is used as an input for the RealityView node.
-
-### Raycasting
-Returns a 3D location in physical space that corresponds to a given 2D location on the screen.
-
-*Inputs*
-* A pulse the triggers a raycast query when fired
-* A Boolean to toggle raycasting On and Off
-* Origin (specifies what type of plane detection to use in the raycasting operation)
-    • Any
-    • Horizontal
-    • Vertical
-
-*Outputs*
-* ARTransform, which is used as an input for the AR Anchor node
-
 
 ## Networking & External
 
@@ -1334,37 +1401,7 @@ Used with the Wireless Broadcaster node to route values across the graph. Useful
 *Outputs*
 * The value received from the corresponding broadcast node.
 
-
-## Miscellaneous
-
-### Clip
-Clips a number to be within a specified set of bounds.
-
-For example, if the input value is 10, the min is -5, and the max is 5, the output value will be 5.
-
-*Inputs*
-* Number to clip
-* Lowest number to allow
-* Highest number to allow
-
-*Outputs*
-* The clipped value
-
-### Close Path
-A ClosePath ShapeCommand.
-
-### Convert Position
-Converts position values between different parent layers.
-
-*Inputs*
-* From Parent (the Layer to get position of)
-* From Anchor
-* Point X/Y
-* To Parent (the Layer to the converted position in)
-* To Anchor
-
-*Outputs*
-* The converted X/Y position
+## Machine Learning
 
 ### Image Classification
 A node for classifying an image via a CoreML Classification model.
@@ -1397,77 +1434,7 @@ A node for detecting the objects in an image via a CoreML Object Detection model
 * Locations of the detected objects
 * Bounding Box of the detected objects
 
-### Date And Time Formatter
-Creates human readable date and time values from an input of time in seconds
-
-*Inputs*
-* The date or time represented in seconds
-* Format
-    • None (1970-01-01 00:00:00 +0000)
-    • Short (12/31/69, 4:00 PM)
-    • Medium (Dec 31, 1969 at 4:00:00 PM)
-    • Long (December 31, 1969 at 4:00:00 PM PST)
-    • Full (Wednesday, December 31, 1969 at 4:00:00 PM Pacific Standard Time)
-* Custom format (a text string, for example: %H:%M:%S, %m/%d/%y)
-
-*Outputs*
-* Text string representing the formatted date and time value
-
-### Grayscale
-Applies a grayscale filter to a provided visual media asset.
-
-*Inputs*
-* A media object; either an image or a video
-
-*Outputs*
-* The media object with a grayscale filter applied to it
-
-### Index Of
-Returns the index of a given item in an array if the item is present.
-
-*Inputs*
-* An array
-* The item that you want to retrieve the index value of
-
-
-*Outputs*
-* The index at which the item occurs
-* A Boolean indicating whether the array contains the given item.
-
-### JSON to Shape
-Generates a Shape from a given JSON object.
-
-*Inputs*
-* A JSON object
-* The X and Y coordinate space values to place the shape in
-
-*Outputs*
-* The generated Shape
-* An error, if one occurred when trying to generate the shape
-* The Width and Height of the shape
-
-### Keyboard
-Detects keyboard events and outputs a Bool when a specified event occurs
-
-*Inputs*
-* The keyboard event to listen for
-
-*Outputs*
-* A Bool that's set when the event occurs
-
-### Layer Info
-Returns information about a specified layer.
-
-*Inputs*
-* The layer to get info about.
-
-*Outputs*
-* A Boolean indicating if the layer is enabled
-* Position
-* Size
-* Scale
-* Anchor
-* The layer's parent, if any
+## Pack and Unpack
 
 ### Pack
 Creates a value based on constituent inputs. For example, if you want to create a Size value, you would input two values corresponding to Width and Height.
@@ -1485,6 +1452,23 @@ Works with:
 
 *Outputs*
 * The constructed value based on the individual inputs
+
+### Unpack
+Splits a value into constituent components. For example, an input value of type Size with a width of 20 and height of 40 would be split into individual values of 20 and 40.
+
+Works with:
+* Matrix Transform
+* 3D Point
+* 4D Point
+* Position
+* Shape Command
+* Size
+
+*Inputs*
+* The value to unpack
+
+*Outputs*
+* The constituent values that make up the input
 
 ### Point 3D Pack
 Packs three Number inputs to a single Point3D output.
@@ -1504,57 +1488,39 @@ Packs two Number inputs to a single Position output.
 ### Position Unpack
 Unpacks a single Position input to two Number outputs.
 
-### QR Code Detection
-Detects a QR code in a video or image..
-
-*Inputs*
-* A media object; either an image or a video
-
-*Outputs*
-* A boolean indiciating if a QR code was detected
-* Detected message in the QR code
-
-### Running Total
-Calculates the sum of a loop of numbers - the sum at each index is the sum of the numbers preceding the current number.
-
-*Inputs*
-* An input loop
-
-*Outputs*
-* A loop of sums
-
-### Value for Key
-Allows you to set a value at a specified key in the JSON object.
-
-*Inputs*
-* A JSON object
-* The key in the JSON object that you would like to set a new value to
-* The new value
-
-*Outputs*
-* The JSON object with the new value.
-
 ### Size Pack
 Packs two Layer Dimension inputs to a single Layer Size output.
 
 ### Size Unpack
 Unpacks a single Layer Size input to two Layer Size outputs.
 
-### Soulver
-The Soulver node enables evaluation of mathematical expressions. These can be done in plain English. For example, if you input a string of "10 percent of 100", your output will be 10.
+### Transform Pack
+Packs a Transform output out of the following Number values:
 
-*Inputs*
-* An input query
+* Position X
+* Position Y
+* Position Z
+* Scale X
+* Scale Y
+* Scale Z
+* Rotation X
+* Rotation Y
+* Rotation Z
 
-*Outputs*
-* The result of the Soulver operation
+### Transform Unpack
+Unpacks a Transform into the following constituent Number values:
 
-### Speaker
-A node for playing audio through the device speaker
+* Position X
+* Position Y
+* Position Z
+* Scale X
+* Scale Y
+* Scale Z
+* Rotation X
+* Rotation Y
+* Rotation Z
 
-*Inputs*
-* An audio file
-* The volume of the playing audio
+## String Manipulation
 
 ### Split Text
 Splits an input text string at a given token. For example, if the text value is "Stitch", and the token is "it", the output string will be "St"
@@ -1565,15 +1531,6 @@ Splits an input text string at a given token. For example, if the text value is 
 
 *Outputs*
 * The split text
-
-### Value
-The value node is helpful for storing a value and sending that value to other nodes. You can also use these nodes in Groups to create an input port or an output port on the parent group. If you need to set a value and send that value to several other nodes, while having a single place to change that value, then this node is for you.
-
-*Inputs*
-* One port, that value you'd like to send to other nodes.
-
-*Outputs*
-* Again just a single port, that value you'd like to send to other nodes.
 
 ### Text Ends With
 Checks whether a provided text string contains a given suffix
@@ -1626,32 +1583,6 @@ Transforms input text with different modifiers (Uppercase and Lowercase)
 *Outputs*
 * The transformed text
 
-### Transform Pack
-Packs a Transform output out of the following Number values:
-
-* Position X
-* Position Y
-* Position Z
-* Scale X
-* Scale Y
-* Scale Z
-* Rotation X
-* Rotation Y
-* Rotation Z
-
-### Transform Unpack
-Unpacks a Transform into the following constituent Number values:
-
-* Position X
-* Position Y
-* Position Z
-* Scale X
-* Scale Y
-* Scale Z
-* Rotation X
-* Rotation Y
-* Rotation Z
-
 ### Trim Text
 Trims provided text at specified start and end index points.
 
@@ -1663,32 +1594,112 @@ Trims provided text at specified start and end index points.
 *Outputs*
 * The trimmed text string
 
-### Union
-Combines two or more shapes to generate a new shape.
+## Miscellaneous
+
+### Value
+The value node is helpful for storing a value and sending that value to other nodes. You can also use these nodes in Groups to create an input port or an output port on the parent group. If you need to set a value and send that value to several other nodes, while having a single place to change that value, then this node is for you.
 
 *Inputs*
-* Two shapes to generate the union with
+* One port, that value you'd like to send to other nodes.
 
 *Outputs*
-* The generated shape
+* Again just a single port, that value you'd like to send to other nodes.
 
-### Unpack
-Splits a value into constituent components. For example, an input value of type Size with a width of 20 and height of 40 would be split into individual values of 20 and 40.
+### Clip
+Clips a number to be within a specified set of bounds.
 
-Works with:
-* Matrix Transform
-* 3D Point
-* 4D Point
+For example, if the input value is 10, the min is -5, and the max is 5, the output value will be 5.
+
+*Inputs*
+* Number to clip
+* Lowest number to allow
+* Highest number to allow
+
+*Outputs*
+* The clipped value
+
+### Convert Position
+Converts position values between different parent layers.
+
+*Inputs*
+* From Parent (the Layer to get position of)
+* From Anchor
+* Point X/Y
+* To Parent (the Layer to the converted position in)
+* To Anchor
+
+*Outputs*
+* The converted X/Y position
+
+### Date And Time Formatter
+Creates human readable date and time values from an input of time in seconds
+
+*Inputs*
+* The date or time represented in seconds
+* Format
+    • None (1970-01-01 00:00:00 +0000)
+    • Short (12/31/69, 4:00 PM)
+    • Medium (Dec 31, 1969 at 4:00:00 PM)
+    • Long (December 31, 1969 at 4:00:00 PM PST)
+    • Full (Wednesday, December 31, 1969 at 4:00:00 PM Pacific Standard Time)
+* Custom format (a text string, for example: %H:%M:%S, %m/%d/%y)
+
+*Outputs*
+* Text string representing the formatted date and time value
+
+### Grayscale
+Applies a grayscale filter to a provided visual media asset.
+
+*Inputs*
+* A media object; either an image or a video
+
+*Outputs*
+* The media object with a grayscale filter applied to it
+
+### Keyboard
+Detects keyboard events and outputs a Bool when a specified event occurs
+
+*Inputs*
+* The keyboard event to listen for
+
+*Outputs*
+* A Bool that's set when the event occurs
+
+### Location
+The Location node returns the currently detected location value of the node.
+
+*Inputs*
+* An override of the detected location
+
+*Outputs*
+* The Latitude of the location as a string
+* The Longitude of the location as a string
+* The city name as a string
+
+### Layer Info
+Returns information about a specified layer.
+
+*Inputs*
+* The layer to get info about.
+
+*Outputs*
+* A Boolean indicating if the layer is enabled
 * Position
-* Shape Command
 * Size
+* Scale
+* Anchor
+* The layer's parent, if any
+
+### QR Code Detection
+Detects a QR code in a video or image..
 
 *Inputs*
-* The value to unpack
+* A media object; either an image or a video
 
 *Outputs*
-* The constituent values that make up the input
+* A boolean indiciating if a QR code was detected
+* Detected message in the QR code
 
-### JavaScript
+### AI Node
 
-A node that uses JavaScript code underneath the hood. Can be created using Stitch AI.
+An custom patch node created with AI. Uses JavaScript under the hood.

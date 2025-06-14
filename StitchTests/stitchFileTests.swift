@@ -27,7 +27,10 @@ final class StitchFileTests: XCTestCase {
     /// Ensures markdown descriptions encapsulate all information and don't contain extra definitions.
     func testDocDescriptions() {
         let docsNotDefined = StitchDocsRouter.allCases.filter { $0.description == nil }
-        XCTAssertTrue(docsNotDefined.isEmpty)
+        
+        if !docsNotDefined.isEmpty {
+            XCTFail("Docs not found for: \(docsNotDefined)")
+        }
         
         guard let docsForPatches = StitchDocsRouter.map.get(.patch)?.keys,
               let docsForLayers = StitchDocsRouter.map.get(.layer)?.keys else {
