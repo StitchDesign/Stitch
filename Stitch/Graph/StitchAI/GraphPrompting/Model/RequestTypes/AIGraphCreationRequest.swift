@@ -128,8 +128,9 @@ extension StitchAIManager {
 #if RELEASE || DEV_DEBUG
         if canShareData,
            let tableName = userPromptTableName {
-            Task(priority: .background) { [weak aiManager] in
-                guard let aiManager = aiManager else {
+            Task(priority: .background) { [weak document] in
+                guard let document = document,
+                      let aiManager = document.aiManager else {
                     return
                 }
                 try? await aiManager.uploadUserPromptRequestToSupabase(
