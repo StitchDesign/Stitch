@@ -88,7 +88,6 @@ struct GraphGenerationTableView: View {
                             
                             HStack {
                                 Text("User: \(row.user_id.description.suffix(7))")
-                                
                                 Spacer()
                                 Button {
                                     self.deletingIndex = idx
@@ -99,6 +98,8 @@ struct GraphGenerationTableView: View {
                                 .frame(width: 40, height: 20)
                                 .buttonStyle(.bordered)
                             }
+                            
+                            Text("Request ID: \(row.request_id)")
                             
                             Text("\"\(row.actions.prompt)\"")
                             
