@@ -68,6 +68,8 @@ struct NodeView: View {
                         VStack(alignment: .leading) {
                             Text(jsSettings.script)
                                 .monospaced()
+                            Text("\noutputs = \(self.stitch.patchNode?.javaScriptDebugResult ?? "none")")
+                                .monospaced()
                         }
                         .padding()
                     }

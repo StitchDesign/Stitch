@@ -49,6 +49,9 @@ final class PatchNodeViewModel: Sendable {
     @MainActor var splitterNode: SplitterNodeEntity?
     
     @MainActor var javaScriptNodeSettings: JavaScriptNodeSettings? = nil
+    
+    // Saves non-decoded result
+    @MainActor var javaScriptDebugResult: String = ""
         
     @MainActor
     init(from schema: PatchNodeEntity) {
