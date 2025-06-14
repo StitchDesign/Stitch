@@ -13,10 +13,10 @@ extension String {
 }
 
 struct AINodePromptEntryModalView: View {
+    @FocusState private var isFocused: Bool
+    @State private var userPrompt: String = ""
     
     @Bindable var document: StitchDocumentViewModel
-    
-    @State var userPrompt: String = ""
     
     func entryCancelled() {
         self.document.llmRecording.modal = .none
@@ -60,6 +60,7 @@ struct AINodePromptEntryModalView: View {
     var aiPromptyEntryView: some View {
         
         TextField("What should your node do?", text: self.$userPrompt)
+            .focused($isFocused)
             .frame(height: INSERT_NODE_MENU_SEARCH_BAR_HEIGHT)
             .padding(.leading, 16)
             .padding(.trailing, 60)
@@ -68,6 +69,8 @@ struct AINodePromptEntryModalView: View {
             }
             .font(.system(size: 24))
             .onAppear(perform: {
+                self.isFocused = true
+                
                 // So that `CMD+A: select all` works in this text field
                 dispatch(ReduxFieldFocused(focusedField: .aiNodePrompt))
             })

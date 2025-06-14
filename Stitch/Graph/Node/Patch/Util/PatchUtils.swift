@@ -109,7 +109,6 @@ extension Patch {
     
     // Previously used to filter some incomplete patches but currently we show all
     static var searchablePatches: [Patch] {
-        let enabledJsNode = StitchStore.enabledJsNode
         var excludedPatches = Self.excludedPatches
 
         // Always exclude JS
