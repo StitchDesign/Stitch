@@ -100,7 +100,7 @@ struct GraphGenerationTableView: View {
                             }
                             
                             if let requestId = row.request_id {
-                                Text("Request ID: \(requestId.suffix(7))")
+                                Text("Request ID: \(requestId.description.suffix(7))")
                             }
                             
                             Text("\"\(row.actions.prompt)\"")
