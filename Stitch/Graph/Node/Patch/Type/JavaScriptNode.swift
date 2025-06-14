@@ -75,6 +75,7 @@ JSON.stringify(result)
             return .init(outputsValues: [])
         }
         print("javascript result: \(stringResult)")
+        node.patchNodeViewModel?.javaScriptDebugResult = stringResult
         
         do {
             let aiDecodedResults = try getStitchDecoder().decode([[StitchAIPortValue]].self,

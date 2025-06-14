@@ -52,7 +52,6 @@ struct StitchDocsTextView: View {
         }
     }
     
-    
     /// Builds an AttributedString that reads “View in documentation.”
     /// and links to the given page (and anchor) under your Guides folder.
     var documentationLink: URL? {

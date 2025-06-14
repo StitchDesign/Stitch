@@ -49,6 +49,9 @@ final class PatchNodeViewModel: Sendable {
     @MainActor var splitterNode: SplitterNodeEntity?
     
     @MainActor var javaScriptNodeSettings: JavaScriptNodeSettings? = nil
+    
+    // Saves non-decoded result
+    @MainActor var javaScriptDebugResult: String = ""
         
     @MainActor
     init(from schema: PatchNodeEntity) {
@@ -87,8 +90,6 @@ final class PatchNodeViewModel: Sendable {
             self.applyJavascriptToInputsAndOutputs(response: jsSettings,
                                                    currentGraphTime: self.documentDelegate?.graphStepState.graphTime ?? .zero,
                                                    activeIndex: self.documentDelegate?.activeIndex ?? .defaultActiveIndex)
-        } else {
-            log("PatchNodeViewModel: no schema.javaScriptNodeSettings:")
         }
     }
 }
