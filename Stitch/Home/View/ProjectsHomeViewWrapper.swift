@@ -43,29 +43,33 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: APP_SETTINGS_ICON_NAME)
                     } else {
 #if targetEnvironment(macCatalyst)
-#if STITCH_AI_REASONING
+                        
+#if STITCH_AI_REASONING || DEV_DEBUG
+                        CatalystNavBarButton("tablecells",
+                                             toolTip: "Open AI Table Viewer") { [weak store] in
+                            store?.navPath = [.graphGenerationTableView]
+                        }
+                        // Resolves issue where hover was still active after entering newly created project and then exiting
+                        .id(UUID())
+                        
                         
                         CatalystNavBarButton("document.viewfinder.fill",
-                                             toolTip: "Open AI Preview") {
-                             [weak store] in
-                                guard let store = store else {
-                                    return
-                                }
-                                
-                                let (document, encoder) = store.createAIDocumentPreviewer()
-                                
-                                if store.navPath.isEmpty {
-                                    store.navPath = [.aiPreviewer(document, encoder)]
-                                } else {
-                                    store.navPath = []
-                                }
-                                
-    //                            store.showAIResponseViewer.toggle()
+                                             toolTip: "Open AI Preview") { [weak store] in
+                            guard let store = store else {
+                                return
+                            }
+                            let (document, encoder) = store.createAIDocumentPreviewer()
+                            if store.navPath.isEmpty {
+                                store.navPath = [.aiPreviewer(document, encoder)]
+                            } else {
+                                store.navPath = []
+                            }
+                            //                            store.showAIResponseViewer.toggle()
                             
                         }
                         // Resolves issue where hover was still active after entering newly created project and then exiting
                         .id(UUID())
-#endif
+ #endif
                         
                         CatalystNavBarButton(.NEW_PROJECT_SF_SYMBOL_NAME,
                                              toolTip: "New Project") { [weak store] in
@@ -94,6 +98,15 @@ struct ProjectsHomeViewWrapper: View {
                                              .id(UUID())
                                                 
 #else
+                        
+                        
+#if STITCH_AI_REASONING || DEV_DEBUG
+                        iPadNavBarButton(action: { [weak store] in
+                            store?.navPath = [.graphGenerationTableView]
+                        },
+                                         iconName: .sfSymbol("tablecells"))
+#endif
+                        
                         iPadNavBarButton(action: { [weak store] in
                             store?.createNewProjectSideEffect(isProjectImport: false)
                         },

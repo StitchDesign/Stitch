@@ -188,11 +188,6 @@ extension StitchAIManager {
                 .insert(payload, returning: .minimal)
                 .execute()
             log("Data uploaded successfully to Supabase!")
-        } catch let error as HTTPError {
-            if let errorMessage = String(data: error.data, encoding: .utf8) {
-                fatalErrorIfDebug("HTTPError uploading to Supabase Error details: \(errorMessage)")
-            }
-            throw error
         } catch {
             fatalErrorIfDebug("SupabaseManager Unknown error: \(error)")
             throw error
