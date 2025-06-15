@@ -32,6 +32,7 @@ extension ProjectTab {
 struct ProjectNavigationView: View {
     @Environment(StitchFileManager.self) var fileManager
     @State private var selectedTab: ProjectTab = .patch
+    static private let iPadSidebarWidth: CGFloat = 300
 
     @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
@@ -61,21 +62,24 @@ struct ProjectNavigationView: View {
                 Tab(ProjectTab.layer.rawValue,
                     systemImage: ProjectTab.layer.systemIcon,
                     value: ProjectTab.layer) {
-                    NavigationSplitView(
-                        columnVisibility: .constant(.all),
-                        sidebar: {
-                            StitchSidebarView(syncStatus: fileManager.syncStatus)
-                        }) {
-                            FloatingWindowView(store: store,
-                                               document: document,
-                                               deviceScreenSize: document.frame.size,
-                                               showPreviewWindow: document.showPreviewWindow && !document.isScreenRecording,
-                                               namespace: graphNamespace)
-                            .inspector(isPresented: .constant(true)) {
-                                LayerInspectorView(graph: graph,
-                                                   document: document)
-                            }
-                        }
+                    HStack {
+                        StitchSidebarView(syncStatus: fileManager.syncStatus)
+                            .width(Self.iPadSidebarWidth)
+                        
+                        Spacer()
+                        
+                        FloatingWindowView(store: store,
+                                           document: document,
+                                           deviceScreenSize: document.frame.size,
+                                           showPreviewWindow: document.showPreviewWindow && !document.isScreenRecording,
+                                           namespace: graphNamespace)
+                        
+                        Spacer()
+                        
+                        LayerInspectorView(graph: graph,
+                                           document: document)
+                        .width(Self.iPadSidebarWidth)
+                    }
                 }
             }
         } else {
