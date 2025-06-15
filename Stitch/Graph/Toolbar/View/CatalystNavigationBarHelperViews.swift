@@ -121,12 +121,10 @@ struct CatalystTopBarGraphButtons: View {
                 PROJECT_SETTINGS_ACTION()
             }
             
-#if targetEnvironment(macCatalyst)
             CatalystNavBarButton("sidebar.right",
                                  toolTip: "Toggle Layer Inspector") {
                 dispatch(LayerInspectorToggled())
             }
-#endif
         }
     }
 }

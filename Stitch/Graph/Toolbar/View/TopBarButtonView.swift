@@ -177,9 +177,9 @@ struct iPadGraphTopBarButtons: View {
             miscButton
                 .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
             
-            iPadNavBarButton(action: {
-                dispatch(LayerInspectorToggled())
-            }, iconName: .sfSymbol("sidebar.right"))
+//            iPadNavBarButton(action: {
+//                dispatch(LayerInspectorToggled())
+//            }, iconName: .sfSymbol("sidebar.right"))
         }
     }
 }

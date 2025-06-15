@@ -71,7 +71,7 @@ struct ProjectNavigationView: View {
                                                deviceScreenSize: document.frame.size,
                                                showPreviewWindow: document.showPreviewWindow && !document.isScreenRecording,
                                                namespace: graphNamespace)
-                            .inspector(isPresented: $store.showsLayerInspector) {
+                            .inspector(isPresented: .constant(true)) {
                                 LayerInspectorView(graph: graph,
                                                    document: document)
                             }
