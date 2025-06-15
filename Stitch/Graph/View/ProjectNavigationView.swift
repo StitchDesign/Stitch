@@ -66,6 +66,7 @@ struct ProjectNavigationView: View {
                     systemImage: ProjectTab.patch.systemIcon,
                     value: ProjectTab.patch) {
                     graphView
+                        .ignoresSafeArea()
                 }
                 Tab(ProjectTab.layer.rawValue,
                     systemImage: ProjectTab.layer.systemIcon,
@@ -82,6 +83,7 @@ struct ProjectNavigationView: View {
                         
                         LayerInspectorView(graph: graph,
                                            document: document)
+                        .ignoresSafeArea()
                         .width(Self.iPadSidebarWidth)
                     }
                 }

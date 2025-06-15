@@ -153,19 +153,19 @@ struct ProjectsHomeCommands: Commands {
             
             if activeProject {
 #if !targetEnvironment(macCatalyst)
-                SwiftUIShortcutView(title: "Show Patches",
-                                    key: "1",
-                                    eventModifiers: .command,
-                                    disabled: !activeProject) {
-                    self.store.currentDocument?.selectedTab = .patch
-                }
-                
                 SwiftUIShortcutView(title: "Show Layers",
                                     key: "2",
                                     eventModifiers: .command,
                                     disabled: !activeProject) {
                     self.store.currentDocument?.selectedTab = .layer
                 }
+
+                SwiftUIShortcutView(title: "Show Patches",
+                                    key: "1",
+                                    eventModifiers: .command,
+                                    disabled: !activeProject) {
+                    self.store.currentDocument?.selectedTab = .patch
+                }                
 #endif
                 
 #if targetEnvironment(macCatalyst)
