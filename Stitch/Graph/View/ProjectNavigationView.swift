@@ -68,11 +68,7 @@ struct ProjectNavigationView: View {
                         
                         Spacer()
                         
-                        FloatingWindowView(store: store,
-                                           document: document,
-                                           deviceScreenSize: document.frame.size,
-                                           showPreviewWindow: document.showPreviewWindow && !document.isScreenRecording,
-                                           namespace: graphNamespace)
+                        IPadPrototypePreview(store: store)
                         
                         Spacer()
                         
