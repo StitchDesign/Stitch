@@ -26,12 +26,20 @@ extension ProjectTab {
             return "square.3.layers.3d.down.right"
         }
     }
+    
+    mutating func toggle() {
+        switch self {
+        case .patch:
+            self = .layer
+        case .layer:
+            self = .patch
+        }
+    }
 }
 
 /// UI for interacting with a single project; iPad-only.
 struct ProjectNavigationView: View {
     @Environment(StitchFileManager.self) var fileManager
-    @State private var selectedTab: ProjectTab = .patch
     static private let iPadSidebarWidth: CGFloat = 300
 
     @Bindable var store: StitchStore
@@ -53,7 +61,7 @@ struct ProjectNavigationView: View {
     @ViewBuilder
     var mainProjectView: some View {
         if Self.isIPad {
-            TabView(selection: self.$selectedTab) {
+            TabView(selection: self.$document.selectedTab) {
                 Tab(ProjectTab.patch.rawValue,
                     systemImage: ProjectTab.patch.systemIcon,
                     value: ProjectTab.patch) {

@@ -152,13 +152,38 @@ struct ProjectsHomeCommands: Commands {
             }
             
             if activeProject {
-                SwiftUIShortcutView(title: "Toggle Sidebars",
+#if !targetEnvironment(macCatalyst)
+                SwiftUIShortcutView(title: "Show Patches",
+                                    key: "1",
+                                    eventModifiers: .command,
+                                    disabled: !activeProject) {
+                    self.store.currentDocument?.selectedTab = .patch
+                }
+                
+                SwiftUIShortcutView(title: "Show Layers",
+                                    key: "2",
+                                    eventModifiers: .command,
+                                    disabled: !activeProject) {
+                    self.store.currentDocument?.selectedTab = .layer
+                }
+#endif
+                
+#if targetEnvironment(macCatalyst)
+                let cmdDotLabel = "Toggle Sidebars"
+#else
+                let cmdDotLabel = "Toggle Tab"
+#endif
+                
+                SwiftUIShortcutView(title: cmdDotLabel,
                                     key: ".",
                                     eventModifiers: .command,
                                     disabled: !activeProject) {
+#if targetEnvironment(macCatalyst)
                     dispatch(ToggleSidebars())
+#else
+                    self.store.currentDocument?.selectedTab.toggle()
+#endif
                 }
-                
             }
             
             if activeProject {
