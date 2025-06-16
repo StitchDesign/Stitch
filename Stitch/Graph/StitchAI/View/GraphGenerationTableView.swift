@@ -92,43 +92,10 @@ struct GraphGenerationTableView: View {
                     List(rows.indices, id: \.self, selection: $selectedIndex) { idx in
                         let row = rows[idx]
                         
-                        VStack(alignment: .leading, spacing: 6) {
-                            
-                            HStack {
-                                Text("User: \(row.user_id.description.suffix(7))")
-                                Spacer()
-                                Button {
-                                    self.deletingIndex = idx
-                                    self.showDeleteAlert = true
-                                } label: {
-                                    Image(systemName: "trash.fill")
-                                }
-                                .frame(width: 40, height: 20)
-                                .buttonStyle(.bordered)
-                            }
-                            
-                            if let requestId = row.request_id {
-                                Text("Request ID: \(requestId.description.suffix(7))")
-                            }
-                            
-                            Text("\"\(row.actions.prompt)\"")
-                            
-                            HStack {
-                                Text("Score: \(row.score, specifier: "%.2f")")
-                                if row.correction {
-                                    Text("(CORRECTION)")
-                                }
-                            }
-                            
-                            if let explanation = row.score_explanation {
-                                Text("Explanation: \(explanation)")
-                            }
-                            
-                        }
-                        .padding(.vertical, 8)
-                        .overlay(alignment: .topTrailing) {
-                            
-                        }
+                        GraphInferenceTableRow(row: row,
+                                               idx: idx,
+                                               deletingIndex: $deletingIndex,
+                                               showDeleteAlert: $showDeleteAlert)
                     }
                     .listStyle(PlainListStyle())
                 }
@@ -293,5 +260,62 @@ struct GraphGenerationTableView: View {
             }
         }
     }
+}
+
+struct GraphInferenceTableRow: View {
+    @State private var showActionsJSONPopover = false
     
+    let row: GraphGenerationSupabaseInferenceCallResultPayload
+    let idx: Int
+    @Binding var deletingIndex: Int?
+    @Binding var showDeleteAlert: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            
+            HStack {
+                Text("User: \(row.user_id.description.suffix(7))")
+                Spacer()
+                Button {
+                    self.deletingIndex = idx
+                    self.showDeleteAlert = true
+                } label: {
+                    Image(systemName: "trash.fill")
+                }
+                .frame(width: 40, height: 20)
+                .buttonStyle(.bordered)
+            }
+            
+            if let requestId = row.request_id {
+                Text("Request ID: \(requestId.description.suffix(7))")
+            }
+            
+            Text("\"\(row.actions.prompt)\"")
+            
+            HStack {
+                Text("Score: \(row.score, specifier: "%.2f")")
+                if row.correction {
+                    Text("(CORRECTION)")
+                }
+            }
+            
+            if let explanation = row.score_explanation {
+                Text("Explanation: \(explanation)")
+            }
+            
+        }
+        .contextMenu {
+            Button("Display Actions JSON") {
+                showActionsJSONPopover = true
+            }
+        }
+        .popover(isPresented: $showActionsJSONPopover) {
+            let jsonString = (try? row.actions.actions.encodeToPrintableString()) ?? "Failed to encode actions"
+            
+            Text(jsonString)
+                .monospaced()
+                .padding()
+        }
+        .padding(.vertical, 8)
+    }
 }
