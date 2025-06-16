@@ -79,7 +79,7 @@ extension StitchAIManager {
                         // Send the raw-streamed steps
                         finalActions: Array(document.llmRecording.streamedSteps),
                         deviceUUID: deviceUUID,
-                        tableName: aiManager.graphGenerationInferenceCallResultTableName,
+                        tableName: AIGraphCreationRequestBody.supabaseTableNameInference,
                         requestId: request.id,
                         isCorrection: false,
                         rating: .oneStar,

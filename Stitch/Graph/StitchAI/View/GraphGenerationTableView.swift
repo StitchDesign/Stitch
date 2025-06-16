@@ -151,7 +151,7 @@ struct GraphGenerationTableView: View {
         Task {
             do {
                 var query = await postgrestClient
-                    .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
+                    .from(AIGraphCreationRequestBody.supabaseTableNameInference)
                     .select()
                 
                 if !filterUserID.isEmpty {
@@ -263,7 +263,7 @@ struct GraphGenerationTableView: View {
             do {
                 // Delete *only* rows where EVERY column in `matchCriteria` is equal
                 let result = try await postgrestClient
-                    .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
+                    .from(AIGraphCreationRequestBody.supabaseTableNameInference)
                     .delete()
                     .match(queryCriteria)
                     .execute()

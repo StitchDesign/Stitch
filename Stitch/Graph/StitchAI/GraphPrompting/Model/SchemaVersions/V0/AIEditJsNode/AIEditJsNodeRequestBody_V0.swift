@@ -7,6 +7,8 @@
 
 enum AIEditJsNodeRequestBody_V0 {
     struct AIEditJsNodeRequestBody: StitchAIRequestBodyFormattable {
+        static let supabaseTableName = "dataset_v0_javascript"
+        
         let model: String
         let n: Int = 1
         let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0

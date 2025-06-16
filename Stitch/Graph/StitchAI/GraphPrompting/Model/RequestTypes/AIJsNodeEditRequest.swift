@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct AIEditJSNodeRequest: StitchAIRequestable {
+    static let willStream: Bool = false
+
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AIEditJsNodeRequestBody
-    static let willStream: Bool = false
     
     // Tracks origin node of request
     let nodeId: NodeId

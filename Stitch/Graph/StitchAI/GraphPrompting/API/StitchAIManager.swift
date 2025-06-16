@@ -60,14 +60,6 @@ final actor StitchAIManager {
 extension StitchAIManager {
     static let improveAIMenuButtonText = "Improve AI..."
     
-    nonisolated var graphGenerationInferenceCallResultTableName: String {
-        self.secrets.graphGenerationInferenceCallResultTableName
-    }
-    
-    nonisolated var graphGenerationUserPromptTableName: String {
-        self.secrets.graphGenerationUserPromptTableName
-    }
-    
     @MainActor
     func cancelCurrentRequest() {
         guard let currentTask = self.currentTask else {
