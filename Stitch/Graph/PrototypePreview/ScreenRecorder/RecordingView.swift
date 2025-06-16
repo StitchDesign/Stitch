@@ -58,6 +58,7 @@ struct IPadPrototypePreview: View {
     @StateObject private var showFullScreen = AnimatableBool(true)
 
     let store: StitchStore
+    let namespace: Namespace.ID
     
     var body: some View {
         if let document = store.currentDocument {
@@ -73,6 +74,8 @@ struct IPadPrototypePreview: View {
                                isFullScreen: true,
                                showPreviewWindow: true,
                                previewWindowSizing: windowSizingObserver)
+                .matchedGeometryEffect(id: document.id, in: namespace)
+                .transition(.identity)
             }
         }
     }

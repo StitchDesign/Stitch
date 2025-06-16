@@ -61,34 +61,45 @@ struct ProjectNavigationView: View {
     @ViewBuilder
     var mainProjectView: some View {
         if Self.isIPad {
-            switch document.selectedTab {
-            case .patch:
-                graphView
-                    .ignoresSafeArea()
+            // Use a ZStack so SwiftUI can animate insertion/removal with `.transition`
+            ZStack {
+                if document.selectedTab == .patch {
+                    graphView
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                        .id(ProjectTab.patch)   // ← make the views distinct
+                } else { // .layer
+                    HStack {
+                        StitchSidebarView(syncStatus: fileManager.syncStatus)
+                            .width(Self.iPadSidebarWidth)
 
-            case .layer:
-                HStack {
-                    StitchSidebarView(syncStatus: fileManager.syncStatus)
-                        .width(Self.iPadSidebarWidth)
-                    
-                    Spacer()
-                    
-                    IPadPrototypePreview(store: store)
-                    
-                    Spacer()
-                    
-                    LayerInspectorView(graph: graph,
-                                       document: document)
-                    .ignoresSafeArea()
-                    .width(Self.iPadSidebarWidth)
+                        Spacer()
+
+                        IPadPrototypePreview(store: store,
+                                             namespace: graphNamespace)
+
+                        Spacer()
+
+                        LayerInspectorView(graph: graph,
+                                           document: document)
+                            .ignoresSafeArea()
+                            .width(Self.iPadSidebarWidth)
+                    }
+                    .transition(.opacity)
+                    .id(ProjectTab.layer)
                 }
             }
+            .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
         } else {
-            graphView
-            // Layer Inspector Flyout must sit above preview window
-                .overlay {
-                    flyout
-                }
+            // iPhone / compact width
+            ZStack {
+                graphView
+
+                // Layer Inspector Fly‑out must sit above preview window
+                flyout
+            }
+            .transition(.opacity)
+            .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
         }
     }
     
@@ -110,6 +121,9 @@ struct ProjectNavigationView: View {
 
     var body: some View {
         mainProjectView
+        #if !targetEnvironment(macCatalyst)
+            .animation(.stitchAnimation, value: document.selectedTab)
+        #endif
             .alert(item: $graph.migrationWarning) { warningMessage in
             Alert(title: Text("Document Migration Warning"),
                   message: Text(warningMessage.rawValue),

@@ -80,6 +80,8 @@ struct FloatingWindowView: View {
                        showPreviewWindow: showPreviewWindow,
                        previewWindowSizing: document.previewWindowSizingObserver)
         .frame(self.previewWindowSizing.dimensions)
+        .animation(.spring(response: 0.35, dampingFraction: 0.85),
+                   value: previewWindowSizing.dimensions)
         .padding(.top, PREVIEW_WINDOW_Y_PADDING)
     }
     
