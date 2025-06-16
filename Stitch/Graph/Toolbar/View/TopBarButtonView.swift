@@ -110,6 +110,7 @@ struct TopBarImageButton: View {
     }
 }
 
+#if !targetEnvironment(macCatalyst)
 struct iPadGraphTopBarButtons: View {
 
     @Bindable var document: StitchDocumentViewModel
@@ -188,6 +189,7 @@ struct iPadGraphTopBarButtons: View {
         }
     }
 }
+#endif
 
 struct iPadGraphTopBarMiscMenu: View {
     @Bindable var document: StitchDocumentViewModel

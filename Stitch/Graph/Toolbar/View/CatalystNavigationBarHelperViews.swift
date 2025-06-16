@@ -62,7 +62,7 @@ struct CatalystTopBarGraphButtons: View {
                                  toolTip: "Go up one traversal level") {
                 dispatch(GoUpOneTraversalLevel())
             }
-            .opacity(hasActiveGroupFocused ? 1 : 0)
+            .disabled(hasActiveGroupFocused ? false : true)
             
             if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
                 CatalystNavBarButton("sparkles",

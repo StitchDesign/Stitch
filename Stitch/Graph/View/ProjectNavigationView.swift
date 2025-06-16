@@ -54,53 +54,49 @@ struct ProjectNavigationView: View {
         self.document.previewWindowSizingObserver
     }
     
-    static var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
-    
     @ViewBuilder
     var mainProjectView: some View {
-        if Self.isIPad {
-            // Use a ZStack so SwiftUI can animate insertion/removal with `.transition`
-            ZStack {
-                if document.selectedTab == .patch {
-                    graphView
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-                        .id(ProjectTab.patch)   // ← make the views distinct
-                } else { // .layer
-                    HStack {
-                        StitchSidebarView(syncStatus: fileManager.syncStatus)
-                            .width(Self.iPadSidebarWidth)
-
-                        Spacer()
-
-                        IPadPrototypePreview(store: store,
-                                             namespace: graphNamespace)
-
-                        Spacer()
-
-                        LayerInspectorView(graph: graph,
-                                           document: document)
-                            .ignoresSafeArea()
-                            .width(Self.iPadSidebarWidth)
-                    }
-                    .transition(.opacity)
-                    .id(ProjectTab.layer)
-                }
-            }
-            .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
-        } else {
-            // iPhone / compact width
-            ZStack {
+#if !targetEnvironment(macCatalyst)
+        // Use a ZStack so SwiftUI can animate insertion/removal with `.transition`
+        ZStack {
+            if document.selectedTab == .patch {
                 graphView
-
-                // Layer Inspector Fly‑out must sit above preview window
-                flyout
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .id(ProjectTab.patch)   // ← make the views distinct
+            } else { // .layer
+                HStack {
+                    StitchSidebarView(syncStatus: fileManager.syncStatus)
+                        .width(Self.iPadSidebarWidth)
+                    
+                    Spacer()
+                    
+                    IPadPrototypePreview(store: store,
+                                         namespace: graphNamespace)
+                    
+                    Spacer()
+                    
+                    LayerInspectorView(graph: graph,
+                                       document: document)
+                    .ignoresSafeArea()
+                    .width(Self.iPadSidebarWidth)
+                }
+                .transition(.opacity)
+                .id(ProjectTab.layer)
             }
-            .transition(.opacity)
-            .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
         }
+        .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
+        .animation(.easeInOut(duration: 0.25), value: document.selectedTab)
+#else
+        // iPhone / compact width
+        ZStack {
+            graphView
+            
+            // Layer Inspector Fly‑out must sit above preview window
+            flyout
+        }
+        .transition(.opacity)
+#endif
     }
     
     var graphView: some View {
