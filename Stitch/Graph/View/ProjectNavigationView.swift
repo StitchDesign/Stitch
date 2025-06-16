@@ -61,31 +61,26 @@ struct ProjectNavigationView: View {
     @ViewBuilder
     var mainProjectView: some View {
         if Self.isIPad {
-            TabView(selection: self.$document.selectedTab) {
-                Tab(ProjectTab.patch.rawValue,
-                    systemImage: ProjectTab.patch.systemIcon,
-                    value: ProjectTab.patch) {
-                    graphView
-                        .ignoresSafeArea()
-                }
-                Tab(ProjectTab.layer.rawValue,
-                    systemImage: ProjectTab.layer.systemIcon,
-                    value: ProjectTab.layer) {
-                    HStack {
-                        StitchSidebarView(syncStatus: fileManager.syncStatus)
-                            .width(Self.iPadSidebarWidth)
-                        
-                        Spacer()
-                        
-                        IPadPrototypePreview(store: store)
-                        
-                        Spacer()
-                        
-                        LayerInspectorView(graph: graph,
-                                           document: document)
-                        .ignoresSafeArea()
+            switch document.selectedTab {
+            case .patch:
+                graphView
+                    .ignoresSafeArea()
+
+            case .layer:
+                HStack {
+                    StitchSidebarView(syncStatus: fileManager.syncStatus)
                         .width(Self.iPadSidebarWidth)
-                    }
+                    
+                    Spacer()
+                    
+                    IPadPrototypePreview(store: store)
+                    
+                    Spacer()
+                    
+                    LayerInspectorView(graph: graph,
+                                       document: document)
+                    .ignoresSafeArea()
+                    .width(Self.iPadSidebarWidth)
                 }
             }
         } else {

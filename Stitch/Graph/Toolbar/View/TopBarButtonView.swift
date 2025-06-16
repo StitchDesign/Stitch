@@ -125,14 +125,19 @@ struct iPadGraphTopBarButtons: View {
     }
     
     var body: some View {
-
-        // TODO: why does `Group` but not `HStack` work here? Something to do with `Menu`?
         Group {
+            Picker("", selection: $document.selectedTab) {
+                ForEach(ProjectTab.allCases) { projectTab in
+                    Image(systemName: projectTab.systemIcon)
+                        .tag(projectTab)
+                }
+            }
+            .pickerStyle(.segmented)
             
             // go up a traversal level
             iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
                              iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
-            .opacity(hasActiveGroupFocused ? 1 : 0)
+            .disabled(hasActiveGroupFocused ? false : true)
             
             if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
                 iPadNavBarButton(action: {
