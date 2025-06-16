@@ -77,6 +77,7 @@ struct IPadPrototypePreview: View {
                 .matchedGeometryEffect(id: document.id, in: namespace)
                 .transition(.identity)
             }
+            .background(.ultraThinMaterial)
         }
     }
 }

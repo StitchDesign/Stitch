@@ -65,16 +65,16 @@ struct ProjectNavigationView: View {
                     .transition(.opacity)
                     .id(ProjectTab.patch)   // ← make the views distinct
             } else { // .layer
-                HStack {
+                HStack(spacing: .zero) {
                     StitchSidebarView(syncStatus: fileManager.syncStatus)
                         .width(Self.iPadSidebarWidth)
                     
-                    Spacer()
+                    Spacer(minLength: 0)
                     
                     IPadPrototypePreview(store: store,
                                          namespace: graphNamespace)
                     
-                    Spacer()
+                    Spacer(minLength: 0)
                     
                     LayerInspectorView(graph: graph,
                                        document: document)
