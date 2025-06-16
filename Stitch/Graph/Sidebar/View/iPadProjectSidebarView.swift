@@ -56,18 +56,6 @@ struct ProjectSidebarView: View {
         
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
         .edgesIgnoringSafeArea(.bottom)
-        
-        // iPad only
-#if !targetEnvironment(macCatalyst)
-        .navigationTitle("Stitch")
-
-        // Allows scrolled up content to be visible underneath other nav-stack icons; not ideal.
-//        .toolbarBackground(.hidden, for: .automatic)
-        
-        // We can change the color of the sidebar's top-most section
-        .toolbarBackground(.visible, for: .automatic)
-        .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
-#endif
     }
 }
 

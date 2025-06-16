@@ -110,6 +110,7 @@ struct TopBarImageButton: View {
     }
 }
 
+#if !targetEnvironment(macCatalyst)
 struct iPadGraphTopBarButtons: View {
 
     @Bindable var document: StitchDocumentViewModel
@@ -125,64 +126,64 @@ struct iPadGraphTopBarButtons: View {
     }
     
     var body: some View {
-
-        // TODO: why does `Group` but not `HStack` work here? Something to do with `Menu`?
         Group {
+            Picker("", selection: $document.selectedTab) {
+                ForEach(ProjectTab.allCases) { projectTab in
+                    Image(systemName: projectTab.systemIcon)
+                        .tag(projectTab)
+                }
+            }
+            .pickerStyle(.segmented)
+            
+            iPadTopBarButtonWithMenu(iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME)) {
+                StitchButton {
+                    dispatch(ShowAINodePromptEntryModal())
+                } label: {
+                    Label(String.CREATE_CUSTOM_NODE_WITH_AI,
+                          systemImage: "rectangle")
+                }
+                StitchButton {
+                    dispatch(ToggleInsertNodeMenu())
+                } label: {
+                    Label("Add Nodes",
+                          systemImage: "rectangle.on.rectangle")
+                }
+            }
             
             // go up a traversal level
             iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
                              iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
-            .opacity(hasActiveGroupFocused ? 1 : 0)
+            .disabled(hasActiveGroupFocused ? false : true)
             
-            if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
+            if isDebugMode,
+               FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
                 iPadNavBarButton(action: {
                     dispatch(ShowCreateTrainingDataFromExistingGraphModal())
                 }, iconName: .sfSymbol("sparkles"))
             }
             
-            if !isDebugMode {
-                
-                iPadTopBarButtonWithMenu(iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME)) {
-                    StitchButton {
-                        dispatch(ShowAINodePromptEntryModal())
-                    } label: {
-                        Label(String.CREATE_CUSTOM_NODE_WITH_AI,
-                              systemImage: "rectangle")
-                    }
-                    StitchButton {
-                        dispatch(ToggleInsertNodeMenu())
-                    } label: {
-                        Label("Add Nodes",
-                              systemImage: "rectangle.on.rectangle")
-                    }
-                }
-                
-                // toggle preview window
-                iPadNavBarButton(
-                    action: PREVIEW_SHOW_TOGGLE_ACTION,
-                    iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME))
-                
-                // refresh prototype
-                iPadNavBarButton(action: RESTART_PROTOTYPE_ACTION,
-                                 iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
-                                 rotationZ: restartPrototypeWindowIconRotationZ)
-                
-                // full screen
-                iPadNavBarButton(
-                    action: PREVIEW_FULL_SCREEN_ACTION,
-                    iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
-            }
+            // toggle preview window
+            iPadNavBarButton(
+                action: PREVIEW_SHOW_TOGGLE_ACTION,
+                iconName: .sfSymbol(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME))
+            
+            // refresh prototype
+            iPadNavBarButton(action: RESTART_PROTOTYPE_ACTION,
+                             iconName: .sfSymbol(.RESTART_PROTOTYPE_SF_SYMBOL_NAME),
+                             rotationZ: restartPrototypeWindowIconRotationZ)
+            
+            // full screen
+            iPadNavBarButton(
+                action: PREVIEW_FULL_SCREEN_ACTION,
+                iconName: .sfSymbol(isFullscreen ? .SHRINK_FROM_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME : .EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME))
 
             // the misc (...) button
             miscButton
                 .popoverTip(document.stitchAITrainingTip, arrowEdge: .top)
-            
-            iPadNavBarButton(action: {
-                dispatch(LayerInspectorToggled())
-            }, iconName: .sfSymbol("sidebar.right"))
         }
     }
 }
+#endif
 
 struct iPadGraphTopBarMiscMenu: View {
     @Bindable var document: StitchDocumentViewModel

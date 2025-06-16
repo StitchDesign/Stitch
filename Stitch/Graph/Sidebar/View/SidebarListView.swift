@@ -76,12 +76,31 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         self.sidebarViewModel.isEditing
     }
     
-    var body: some View {
-        VStack(spacing: 0) {
-            listView
+    var sectionHeader: some View {
+        HStack {
+            Text("Layer List")
             Spacer()
-            SidebarFooterView(sidebarViewModel: sidebarViewModel,
-                              syncStatus: syncStatus)
+            SidebarEditButtonView(sidebarViewModel: self.sidebarViewModel)
+        }
+        .font(.headline)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE.opacity(0.85))
+    }
+    
+    var body: some View {
+        ZStack(alignment: .top) {
+            VStack(spacing: 0) {
+                listView
+                Spacer()
+                SidebarFooterView(sidebarViewModel: sidebarViewModel,
+                                  syncStatus: syncStatus)
+            }
+            
+#if !targetEnvironment(macCatalyst)
+            sectionHeader
+#endif
         }
     }
     
@@ -101,6 +120,12 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         // Normal layers sidebar view
         else {
             ScrollView(.vertical) {
+#if !targetEnvironment(macCatalyst)
+                // Empty view for sticky header space
+                HStack { }
+                    .height(30)
+#endif
+                
                 ZStack(alignment: .topLeading) {
                     ForEach(allFlattenedItems) { item in
                         SidebarListItemSwipeView(
@@ -114,11 +139,6 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                        alignment: .top)
             } // ScrollView // added
             .scrollContentBackground(.hidden)
-#if !targetEnvironment(macCatalyst)
-            .toolbar {
-                SidebarEditButtonView(sidebarViewModel: self.sidebarViewModel)
-            }
-#endif
             // TODO: remove some of these animations ?
             .animation(.spring(), value: isBeingEdited)
             .onChange(of: isBeingEdited) { _, newValue in

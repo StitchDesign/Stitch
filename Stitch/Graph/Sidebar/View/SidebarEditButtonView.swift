@@ -27,7 +27,6 @@ struct SidebarEditButtonView<SidebarViewModel>: View where SidebarViewModel: Pro
         } label: {
             Text(sidebarViewModel.isEditing ? "Done" : "Edit")
         }
-        .font(SwiftUI.Font.system(size: 18))
         .foregroundColor(Color(.editButton))
     }
 }

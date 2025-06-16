@@ -51,6 +51,36 @@ struct MacScreenSharingView: View {
         store.currentDocument?.isScreenRecording = false
     }
 }
+#else
+struct IPadPrototypePreview: View {
+    @State private var windowSizingObserver = PreviewWindowSizing()
+    @State private var showFullScreenAnimateCompleted = true
+    @StateObject private var showFullScreen = AnimatableBool(true)
+
+    let store: StitchStore
+    let namespace: Namespace.ID
+    
+    var body: some View {
+        if let document = store.currentDocument {
+            ZStack {
+                ProjectWindowSizeReader(previewWindowSizing: self.windowSizingObserver,
+                                        previewWindowSize: document.previewWindowSize,
+                                        isFullScreen: true,
+                                        showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
+                                        showFullScreenObserver: showFullScreen,
+                                        menuHeight: 0)
+                
+                PreviewContent(document: document,
+                               isFullScreen: true,
+                               showPreviewWindow: true,
+                               previewWindowSizing: windowSizingObserver)
+                .matchedGeometryEffect(id: document.id, in: namespace)
+                .transition(.identity)
+            }
+            .background(.ultraThinMaterial)
+        }
+    }
+}
 #endif
 
 struct RecordingView: View {

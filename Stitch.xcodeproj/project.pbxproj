@@ -185,6 +185,7 @@
 		B56FFB3E2C18F52600623CC7 /* StitchFileResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB3D2C18F52600623CC7 /* StitchFileResult.swift */; };
 		B56FFB422C18F7AB00623CC7 /* SafeAreaInsets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB412C18F7AB00623CC7 /* SafeAreaInsets.swift */; };
 		B56FFB482C18FF9700623CC7 /* LoopedEval.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB472C18FF9700623CC7 /* LoopedEval.swift */; };
+		B57127172DFFD87D00C5C4C7 /* ProjectTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57127162DFFD87A00C5C4C7 /* ProjectTab.swift */; };
 		B5743AED29CC128100B3230D /* PortValueComparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5743AEC29CC128100B3230D /* PortValueComparable.swift */; };
 		B57575F92A187E0600CDB0BA /* previewLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57575F82A187E0600CDB0BA /* previewLayerTests.swift */; };
 		B5770BA32D3ACF1D0013AD09 /* Model3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5770BA22D3ACF1C0013AD09 /* Model3DView.swift */; };
@@ -1287,6 +1288,7 @@
 		B56FFB3D2C18F52600623CC7 /* StitchFileResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileResult.swift; sourceTree = "<group>"; };
 		B56FFB412C18F7AB00623CC7 /* SafeAreaInsets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeAreaInsets.swift; sourceTree = "<group>"; };
 		B56FFB472C18FF9700623CC7 /* LoopedEval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopedEval.swift; sourceTree = "<group>"; };
+		B57127162DFFD87A00C5C4C7 /* ProjectTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTab.swift; sourceTree = "<group>"; };
 		B5743AEC29CC128100B3230D /* PortValueComparable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueComparable.swift; sourceTree = "<group>"; };
 		B57575F82A187E0600CDB0BA /* previewLayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = previewLayerTests.swift; sourceTree = "<group>"; };
 		B5770BA22D3ACF1C0013AD09 /* Model3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DView.swift; sourceTree = "<group>"; };
@@ -3720,6 +3722,7 @@
 		B56FFB5E2C19664C00623CC7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B57127162DFFD87A00C5C4C7 /* ProjectTab.swift */,
 				ECA347D22DE2955200B6A8B8 /* PatchOrLayer.swift */,
 				B557806E2CB04CC800907BA8 /* GroupNodeType.swift */,
 				B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */,
@@ -6128,6 +6131,7 @@
 				B55500D32C1BA6810081C3F1 /* PreviewWindowSizing.swift in Sources */,
 				8B2A221926A3B5BE002D08BA /* FeatureFlags.swift in Sources */,
 				EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable_V0.swift in Sources */,
+				B57127172DFFD87D00C5C4C7 /* ProjectTab.swift in Sources */,
 				EC53F3BC287E25EE0021095B /* ArcTan2Node.swift in Sources */,
 				ECEF8D0F2BFE9BE5004FABCD /* LayerGroupInteractableViewModifier.swift in Sources */,
 				B5136F5D2DED6330007F12D0 /* StitchAINodeType_V0.swift in Sources */,

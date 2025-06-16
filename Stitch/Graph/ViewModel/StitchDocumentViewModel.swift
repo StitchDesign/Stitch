@@ -129,6 +129,10 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var stitchAITrainingTip = StitchAITrainingTip()
     
+#if !targetEnvironment(macCatalyst)
+    @MainActor var selectedTab = ProjectTab.patch
+#endif
+    
     @MainActor weak var storeDelegate: StitchStore?
     @MainActor weak var projectLoader: ProjectLoader?
     @MainActor weak var documentEncoder: DocumentEncoder?
