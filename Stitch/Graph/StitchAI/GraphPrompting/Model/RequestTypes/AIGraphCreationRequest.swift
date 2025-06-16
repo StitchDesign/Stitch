@@ -69,7 +69,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
                 requestId: request.id,
                 document: document,
                 canShareData: StitchStore.canShareAIData,
-                userPromptTableName: aiManager.graphGenerationUserPromptTableName)
+                userPromptTableName: AIGraphCreationRequestBody.supabaseTableNamePrompt)
             
             aiManager.currentTask = .init(task: aiManager.getOpenAITask(
                 request: request,

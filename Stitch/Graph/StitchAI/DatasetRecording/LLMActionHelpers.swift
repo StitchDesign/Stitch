@@ -68,7 +68,7 @@ extension StitchDocumentViewModel {
                     prompt: promptForTrainingDataOrCompletedRequest,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
-                    tableName: supabaseManager.graphGenerationInferenceCallResultTableName,
+                    tableName: AIGraphCreationRequestBody.supabaseTableNameInference,
                     // For fresh training example, we won't have this
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: isCorrection,

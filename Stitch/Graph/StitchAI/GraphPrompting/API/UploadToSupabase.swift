@@ -66,7 +66,7 @@ extension StitchAIManager {
         
         try await self._uploadToSupabase(
             payload: payload,
-            tableName: self.secrets.jsNodeInferenceCallResultTableName)
+            tableName: AIEditJsNodeRequestBody.supabaseTableName)
     }
     
     // NOTE: only graph-generation

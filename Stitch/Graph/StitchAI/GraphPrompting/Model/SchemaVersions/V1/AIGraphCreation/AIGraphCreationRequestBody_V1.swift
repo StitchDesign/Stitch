@@ -10,6 +10,8 @@ import Foundation
 enum AIGraphCreationRequestBody_V1 {
     // https://platform.openai.com/docs/api-reference/making-requests
     struct AIGraphCreationRequestBody : StitchAIRequestBodyFormattable {
+        static let supabaseTableNameInference = "V1_graph_generation_result"
+        static let supabaseTableNamePrompt = "V1_graph_generation_prompt"
         static let markdownLocation = "AIGraphCreationSystemPrompt_V1"
         
         let model: String
