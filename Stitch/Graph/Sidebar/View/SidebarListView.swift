@@ -98,7 +98,9 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                                   syncStatus: syncStatus)
             }
             
+#if !targetEnvironment(macCatalyst)
             sectionHeader
+#endif
         }
     }
     
@@ -118,9 +120,11 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         // Normal layers sidebar view
         else {
             ScrollView(.vertical) {
+#if !targetEnvironment(macCatalyst)
                 // Empty view for sticky header space
                 HStack { }
                     .height(30)
+#endif
                 
                 ZStack(alignment: .topLeading) {
                     ForEach(allFlattenedItems) { item in
