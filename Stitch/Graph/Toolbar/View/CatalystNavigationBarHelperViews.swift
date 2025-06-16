@@ -58,19 +58,6 @@ struct CatalystTopBarGraphButtons: View {
     
     var body: some View {
         Group {
-            CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
-                                 toolTip: "Go up one traversal level") {
-                dispatch(GoUpOneTraversalLevel())
-            }
-            .disabled(hasActiveGroupFocused ? false : true)
-            
-            if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
-                CatalystNavBarButton("sparkles",
-                                     toolTip: "Submit graph as AI training example") {
-                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
-                }
-            }
-            
             CatalystNavBarButtonWithMenu(
                 systemName: .ADD_NODE_SF_SYMBOL_NAME,
                 toolTip: "Add Nodes") {
@@ -85,6 +72,19 @@ struct CatalystTopBarGraphButtons: View {
                         Text("Add Nodes")
                     }
                 }
+            
+            CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
+                                 toolTip: "Go up one traversal level") {
+                dispatch(GoUpOneTraversalLevel())
+            }
+            .disabled(hasActiveGroupFocused ? false : true)
+            
+            if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
+                CatalystNavBarButton("sparkles",
+                                     toolTip: "Submit graph as AI training example") {
+                    dispatch(ShowCreateTrainingDataFromExistingGraphModal())
+                }
+            }
                         
             // TODO: only show when no nodes are on-screen?
             // and so should be placed on the far left?
