@@ -18,7 +18,8 @@ struct GraphGenerationTableView: View {
     @State private var filterPrompt: String = ""
     @State private var selectedIndex: Int?
     
-    @State private var resultLimit: Int = 100
+    @State private var currentPage: Int = 0
+    private let pageSize: Int = 100
     
     // Track which row we want to delete, and whether the alert is showing
     @State private var deletingIndex: Int?
@@ -59,68 +60,42 @@ struct GraphGenerationTableView: View {
                         .autocorrectionDisabled()
                         .autocapitalization(.none)
                     
-                    HStack {
-                        Text("Limit: \(resultLimit)")
-                            .font(.caption)
-                            .padding(.horizontal)
-                        
-                        Slider(
-                            value: Binding<Double>(
-                                get: { Double(resultLimit) },
-                                set: { newValue in resultLimit = Int(newValue) }
-                            ),
-                            in: 1...100,
-                            step: 1
-                        )
-                        .padding(.horizontal)
-                    }
-                    .onChange(of: resultLimit) { _, _ in fetchRows() }
+                    
                     
                     Text("\(rows.count) row\(rows.count == 1 ? "" : "s") found")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .padding(.horizontal)
                     
+                    HStack {
+                        Button("Previous") {
+                            if currentPage > 0 {
+                                currentPage -= 1
+                                fetchRows()
+                            }
+                        }
+                        .disabled(currentPage == 0)
+                        
+                        Spacer()
+                        
+                        Text("Page \(currentPage + 1)")
+                        
+                        Spacer()
+                        
+                        Button("Next") {
+                            currentPage += 1
+                            fetchRows()
+                        }
+                    }
+                    .padding(.horizontal)
+                    
                     List(rows.indices, id: \.self, selection: $selectedIndex) { idx in
                         let row = rows[idx]
                         
-                        VStack(alignment: .leading, spacing: 6) {
-                            
-                            HStack {
-                                Text("User: \(row.user_id.description.suffix(7))")
-                                Spacer()
-                                Button {
-                                    self.deletingIndex = idx
-                                    self.showDeleteAlert = true
-                                } label: {
-                                    Image(systemName: "trash.fill")
-                                }
-                                .frame(width: 40, height: 20)
-                                .buttonStyle(.bordered)
-                            }
-                            
-                            if let requestId = row.request_id {
-                                Text("Request ID: \(requestId.description.suffix(7))")
-                            }
-                            
-                            Text("\"\(row.actions.prompt)\"")
-                            
-                            HStack {
-                                Text("Score: \(row.score, specifier: "%.2f")")
-                                if row.correction {
-                                    Text("(CORRECTION)")
-                                }
-                            }
-                            
-                            if let explanation = row.score_explanation {
-                                Text("Explanation: \(explanation)")
-                            }
-                            
-                        }
-                        .padding(.vertical, 8)
-                        .overlay(alignment: .topTrailing) {
-                            
-                        }
+                        GraphInferenceTableRow(row: row,
+                                               idx: idx,
+                                               deletingIndex: $deletingIndex,
+                                               showDeleteAlert: $showDeleteAlert)
                     }
                     .listStyle(PlainListStyle())
                 }
@@ -200,7 +175,10 @@ struct GraphGenerationTableView: View {
                 
                 let response = try await query
                     .order("created_at", ascending: false)
-                    .limit(resultLimit)
+                    .range(
+                        from: currentPage * pageSize,
+                        to: currentPage * pageSize + pageSize - 1
+                    )
                     .execute()
                 
                 let decoder = JSONDecoder()
@@ -282,5 +260,62 @@ struct GraphGenerationTableView: View {
             }
         }
     }
+}
+
+struct GraphInferenceTableRow: View {
+    @State private var showActionsJSONPopover = false
     
+    let row: GraphGenerationSupabaseInferenceCallResultPayload
+    let idx: Int
+    @Binding var deletingIndex: Int?
+    @Binding var showDeleteAlert: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            
+            HStack {
+                Text("User: \(row.user_id.description.suffix(7))")
+                Spacer()
+                Button {
+                    self.deletingIndex = idx
+                    self.showDeleteAlert = true
+                } label: {
+                    Image(systemName: "trash.fill")
+                }
+                .frame(width: 40, height: 20)
+                .buttonStyle(.bordered)
+            }
+            
+            if let requestId = row.request_id {
+                Text("Request ID: \(requestId.description.suffix(7))")
+            }
+            
+            Text("\"\(row.actions.prompt)\"")
+            
+            HStack {
+                Text("Score: \(row.score, specifier: "%.2f")")
+                if row.correction {
+                    Text("(CORRECTION)")
+                }
+            }
+            
+            if let explanation = row.score_explanation {
+                Text("Explanation: \(explanation)")
+            }
+            
+        }
+        .contextMenu {
+            Button("Display Actions JSON") {
+                showActionsJSONPopover = true
+            }
+        }
+        .popover(isPresented: $showActionsJSONPopover) {
+            let jsonString = (try? row.actions.actions.encodeToPrintableString()) ?? "Failed to encode actions"
+            
+            Text(jsonString)
+                .monospaced()
+                .padding()
+        }
+        .padding(.vertical, 8)
+    }
 }
