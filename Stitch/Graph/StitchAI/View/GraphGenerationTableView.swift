@@ -29,17 +29,10 @@ struct GraphGenerationTableView: View {
     // If we can't have secrets, then we should not be in this view
     @State var aiManager: StitchAIManager = try! StitchAIManager()!
     
-    private var postgrestClient: PostgrestClient {
-        PostgrestClient(
-            url: URL(string: "\(aiManager.secrets.supabaseURL)/rest/v1")!,
-            schema: "public",
-            headers: [
-                "apikey": aiManager.secrets.supabaseAnonKey,
-                "Authorization": "Bearer \(aiManager.secrets.supabaseAnonKey)"
-            ]
-        )
+    var postgrestClient: PostgrestClient {
+        aiManager.postgrest
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 0) {
@@ -59,13 +52,6 @@ struct GraphGenerationTableView: View {
                         .onChange(of: filterPrompt) { _, _ in fetchRows() }
                         .autocorrectionDisabled()
                         .autocapitalization(.none)
-                    
-                    
-                    
-                    Text("\(rows.count) row\(rows.count == 1 ? "" : "s") found")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
                     
                     HStack {
                         Button("Previous") {
@@ -91,11 +77,14 @@ struct GraphGenerationTableView: View {
                     
                     List(rows.indices, id: \.self, selection: $selectedIndex) { idx in
                         let row = rows[idx]
-                        
                         GraphInferenceTableRow(row: row,
                                                idx: idx,
                                                deletingIndex: $deletingIndex,
-                                               showDeleteAlert: $showDeleteAlert)
+                                               showDeleteAlert: $showDeleteAlert,
+                                               aiManager: self.aiManager)
+                            .listRowBackground(idx == selectedIndex
+                                               ? Color.accentColor.opacity(0.25)
+                                               : Color.clear)
                     }
                     .listStyle(PlainListStyle())
                 }
@@ -301,11 +290,26 @@ struct GraphGenerationTableView: View {
 
 struct GraphInferenceTableRow: View {
     @State private var showActionsJSONPopover = false
+    @State private var isApproved: Bool
     
     let row: GraphGenerationSupabaseInferenceCallResultPayload
     let idx: Int
     @Binding var deletingIndex: Int?
     @Binding var showDeleteAlert: Bool
+    let aiManager: StitchAIManager
+    
+    init(row: GraphGenerationSupabaseInferenceCallResultPayload,
+         idx: Int,
+         deletingIndex: Binding<Int?>,
+         showDeleteAlert: Binding<Bool>,
+         aiManager: StitchAIManager) {
+        self.isApproved = row.approver_user_id != nil
+        self.row = row
+        self.idx = idx
+        self._deletingIndex = deletingIndex
+        self._showDeleteAlert = showDeleteAlert
+        self.aiManager = aiManager
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -340,6 +344,19 @@ struct GraphInferenceTableRow: View {
                 Text("Explanation: \(explanation)")
             }
             
+            HStack {
+                Text("Approved: ")
+                    .bold()
+                Toggle("", isOn: $isApproved)
+                    .labelsHidden()
+                    .onChange(of: isApproved) { _, newValue in
+                        Task {
+                            let cloudkitUserName = try? await getCloudKitUsername()
+                            await updateApproval(newValue,
+                                                 cloudkitUserName: cloudkitUserName)
+                        }
+                    }
+            }
         }
         .contextMenu {
             Button("Display Actions JSON") {
@@ -354,5 +371,22 @@ struct GraphInferenceTableRow: View {
                 .padding()
         }
         .padding(.vertical, 8)
+    }
+    
+    private func updateApproval(_ approved: Bool,
+                                cloudkitUserName: String?) async {
+        guard let requestID = row.request_id else { return }
+        
+        let approver: String? = approved ? cloudkitUserName : nil
+        
+        do {
+            try await aiManager.postgrest
+                .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
+                .update(["approver_user_id": approver])
+                .eq("request_id", value: requestID)
+                .execute()
+        } catch {
+            print("Failed to update approver_user_id:", error)
+        }
     }
 }

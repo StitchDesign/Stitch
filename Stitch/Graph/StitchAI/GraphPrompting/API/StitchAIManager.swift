@@ -25,7 +25,7 @@ struct CurrentAITask {
 final actor StitchAIManager {
     let secrets: Secrets
 
-    var postgrest: PostgrestClient
+    let postgrest: PostgrestClient
       
     @MainActor var currentTask: CurrentAITask?
 
@@ -35,12 +35,7 @@ final actor StitchAIManager {
         }
         
         self.secrets = secrets
-        
-        // Initialize with empty values first
-        self.postgrest = PostgrestClient(url: URL(fileURLWithPath: ""),
-                                         schema: "",
-                                         headers: [:])
-        
+
         // Extract required environment variables
         let supabaseURL = secrets.supabaseURL
         let supabaseAnonKey = secrets.supabaseAnonKey
@@ -49,18 +44,16 @@ final actor StitchAIManager {
         guard let baseURL = URL(string: supabaseURL),
               let apiURL = URL(string: "/rest/v1", relativeTo: baseURL) else {
             fatalErrorIfDebug(" Invalid Supabase URL")
-            return
+            return nil
         }
         
         // Assign the actual values only if everything succeeds
-        self.postgrest = PostgrestClient(
-            url: apiURL,
-            schema: "public",
-            headers: [
-                "apikey": supabaseAnonKey,
-                "Authorization": "Bearer \(supabaseAnonKey)"
-            ]
-        )
+        self.postgrest = .init(url: URL(string: "\(secrets.supabaseURL)/rest/v1")!,
+                               schema: "public",
+                               headers: [
+                                "apikey": secrets.supabaseAnonKey,
+                                "Authorization": "Bearer \(secrets.supabaseAnonKey)"
+                               ])
     }
 }
 
