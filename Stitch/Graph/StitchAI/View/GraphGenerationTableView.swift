@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct GraphGenerationTableView: View {
     @Bindable var store: StitchStore
     
-    @State private var rows: [AIGraphCreationInferenceRequest.TableDataRow] = []
+    @State private var rows: [AIGraphCreationSupabase.InferenceResult] = []
     @State private var filterUserID: String = ""
     @State private var filterPrompt: String = ""
     @State private var selectedIndex: Int?
@@ -148,40 +148,40 @@ struct GraphGenerationTableView: View {
     }
     
     private func fetchRows() {
-        Task {
-            do {
-                var query = await postgrestClient
-                    .from(AIGraphCreationRequestBody.supabaseTableNameInference)
-                    .select()
-                
-                if !filterUserID.isEmpty {
-                    query = query.ilike("user_id", value: "%\(filterUserID)%")
-                }
-                if !filterPrompt.isEmpty {
-                    // Filter JSON column's prompt field using ilike
-                    query = query.ilike("actions->>prompt", value: "%\(filterPrompt)%")
-                }
-                
-                let response = try await query
-                    .eq("score", value: 1)
-                    .order("created_at", ascending: false)
-                    .range(
-                        from: currentPage * pageSize,
-                        to: currentPage * pageSize + pageSize - 1
-                    )
-                    .execute()
-                
-                let decoder = JSONDecoder()
-                let fetchedRows = try decoder.decode(
-                    [AIGraphCreationInferenceRequest.TableDataRow].self,
-                    from: response.data
-                )
-
-                rows = uniqueRows
-            } catch {
-                print("Error decoding payloads: \(error)")
-            }
-        }
+//        Task {
+//            do {
+//                var query = await postgrestClient
+//                    .from(AIGraphCreationRequestBody.supabaseTableNameInference)
+//                    .select()
+//                
+//                if !filterUserID.isEmpty {
+//                    query = query.ilike("user_id", value: "%\(filterUserID)%")
+//                }
+//                if !filterPrompt.isEmpty {
+//                    // Filter JSON column's prompt field using ilike
+//                    query = query.ilike("actions->>prompt", value: "%\(filterPrompt)%")
+//                }
+//                
+//                let response = try await query
+//                    .eq("score", value: 1)
+//                    .order("created_at", ascending: false)
+//                    .range(
+//                        from: currentPage * pageSize,
+//                        to: currentPage * pageSize + pageSize - 1
+//                    )
+//                    .execute()
+//                
+//                let decoder = JSONDecoder()
+//                let fetchedRows = try decoder.decode(
+//                    [AIGraphCreationInferenceRequest.TableDataRow].self,
+//                    from: response.data
+//                )
+//
+//                rows = uniqueRows
+//            } catch {
+//                print("Error decoding payloads: \(error)")
+//            }
+//        }
     }
     
     // MARK: – Supabase delete (match on every column)
@@ -190,7 +190,7 @@ struct GraphGenerationTableView: View {
         
         // 1) Convert your payload struct into a [String: Any] dictionary
         //    so we can feed it to .match(...)
-        func payloadDictionary(from payload: AIGraphCreationInferenceRequest.TableDataRow) -> [String: Any]? {
+        func payloadDictionary(from payload: AIGraphCreationSupabase.InferenceResult) -> [String: Any]? {
             // Turn it into JSON data...
             guard let data = try? JSONEncoder().encode(payload),
                   let jsonObj = try? JSONSerialization.jsonObject(with: data),
@@ -257,13 +257,13 @@ struct GraphInferenceTableRow: View {
     @State private var showActionsJSONPopover = false
     @State private var isApproved: Bool
     
-    let row: AIGraphCreationInferenceRequest.TableDataRow
+    let row: AIGraphCreationSupabase.InferenceResult
     let idx: Int
     @Binding var deletingIndex: Int?
     @Binding var showDeleteAlert: Bool
     let aiManager: StitchAIManager
     
-    init(row: AIGraphCreationInferenceRequest.TableDataRow,
+    init(row: AIGraphCreationSupabase.InferenceResult,
          idx: Int,
          deletingIndex: Binding<Int?>,
          showDeleteAlert: Binding<Bool>,

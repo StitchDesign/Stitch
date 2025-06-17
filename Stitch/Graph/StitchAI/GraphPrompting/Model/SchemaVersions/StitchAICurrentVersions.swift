@@ -30,6 +30,7 @@ typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V0
 typealias CurrentStepActionSetInput = StepActionSetInput_V0
 typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V0
 typealias CurrentAIGraphCreationInferenceRequest = AIGraphCreationInferenceRequest_V0
+typealias CurrentAIGraphCreationSupabase = AIGraphCreationSupabase_V0
 #else
 typealias CurrentStep = Step_V1
 typealias CurrentStepType = StepType_V1
@@ -55,6 +56,7 @@ typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V1
 typealias CurrentStepActionSetInput = StepActionSetInput_V1
 typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V1
 typealias CurrentAIGraphCreationInferenceRequest = AIGraphCreationInferenceRequest_V1
+typealias CurrentAIGraphCreationSupabase = AIGraphCreationSupabase_V1
 #endif
 
 typealias Step = CurrentStep.Step
@@ -86,3 +88,4 @@ typealias StepActionChangeValueType = CurrentStepActionChangeValueType.StepActio
 typealias StepActionSetInput = CurrentStepActionSetInput.StepActionSetInput
 typealias StepActionLayerGroupCreated = CurrentStepActionLayerGroupCreated.StepActionLayerGroupCreated
 typealias AIGraphCreationInferenceRequest = CurrentAIGraphCreationInferenceRequest
+typealias AIGraphCreationSupabase = CurrentAIGraphCreationSupabase

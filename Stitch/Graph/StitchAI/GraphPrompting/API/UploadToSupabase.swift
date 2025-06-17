@@ -11,20 +11,21 @@ import UIKit
 import SwiftUI
 
 // TODO: version this
-struct GraphGenerationSupabaseInferenceCallResultRecordingWrapper: Codable {
-    let prompt: String
-    var actions: [LLMStepAction]
-}
+//struct GraphGenerationSupabaseInferenceCallResultRecordingWrapper: Codable {
+//    let prompt: String
+//    var actions: [LLMStepAction]
+//}
+//
+//// TODO: move these types
+//
+//struct GraphGenerationSupabaseUserPromptRequestRow: Codable {
+//    let request_id: UUID // required
+//    let user_prompt: String // e.g. "
+//    let version_number: String // e.g. "1.7.3"
+//    let user_id: String
+//}
 
-// TODO: move these types
-
-struct GraphGenerationSupabaseUserPromptRequestRow: Codable {
-    let request_id: UUID // required
-    let user_prompt: String // e.g. "
-    let version_number: String // e.g. "1.7.3"
-    let user_id: String
-}
-
+// TODO: JS version
 struct AIJavascriptSupabaseInferenceCallResultPayload: Codable {
     let user_id: String
     let request_id: UUID
@@ -88,29 +89,25 @@ extension StitchAIManager {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
             return
         }
-        
-        let wrapper = GraphGenerationSupabaseInferenceCallResultRecordingWrapper(
+
+#if STITCH_AI_V1
+        let payload = AIGraphCreationSupabase.InferenceResult(
+            request_id: requestId,
+            actions: finalActions)
+#else
+        let promptResponse = AIGraphCreationSupabase.PromptResponse(
             prompt: prompt,
             actions: finalActions)
         
-        // Not good to have as a var in an async context?
-        let payload = GraphGenerationSupabaseInferenceCallResultPayload(
+        let payload = AIGraphCreationSupabase.InferenceResult(
             user_id: userId,
-            actions: wrapper,
+            actions: promptResponse,
             correction: isCorrection,
             score: rating.rawValue,
             required_retry: requiredRetry,
             request_id: requestId,
             score_explanation: ratingExplanation)
-        
-        log(" Uploading inference-call-result payload:")
-        log("  - User ID: \(deviceUUID)")
-        log("  - Prompt: \(wrapper.prompt)")
-        log("  - Total actions: \(wrapper.actions.count)")
-        log("  - Full actions sequence: \(wrapper.actions.asJSONDisplay())")
-        log("  - Rating: \(rating.rawValue)")
-        log("  - ratingExplanation: \(ratingExplanation)")
-        log("  - userId: \(userId)")
+#endif
         
         try await self._uploadToSupabase(payload: payload,
                                          tableName: tableName)
@@ -148,6 +145,8 @@ extension StitchAIManager {
     
     private func _uploadToSupabase(payload: some Encodable & Sendable,
                                    tableName: String) async throws {
+        log("Supabase upload: \((try? payload.encodeToPrintableString()) ?? "none")")
+        
         do {
             // Use the edited payload for insertion
             try await postgrest
