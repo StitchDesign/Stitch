@@ -88,12 +88,14 @@ struct GraphGenerationTableView: View {
                     
                     List(rows.indices, id: \.self, selection: $selectedIndex) { idx in
                         let row = rows[idx]
-                        
                         GraphInferenceTableRow(row: row,
                                                idx: idx,
                                                deletingIndex: $deletingIndex,
                                                showDeleteAlert: $showDeleteAlert,
                                                aiManager: self.aiManager)
+                            .listRowBackground(idx == selectedIndex
+                                               ? Color.accentColor.opacity(0.25)
+                                               : Color.clear)
                     }
                     .listStyle(PlainListStyle())
                 }
