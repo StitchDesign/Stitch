@@ -186,6 +186,13 @@ struct GraphGenerationTableView: View {
                     [GraphGenerationSupabaseInferenceCallResultPayload].self,
                     from: response.data
                 )
+                
+                // Checks if we are uploading redundant data
+                let ids = fetchedRows.compactMap(\.request_id)
+                let idsCount = ids.count
+                let idsSetCount = Set(ids).count
+                assertInDebug(idsSetCount == idsCount)
+                
                 rows = fetchedRows
             } catch {
                 print("Error decoding payloads: \(error)")
