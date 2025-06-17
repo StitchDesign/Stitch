@@ -60,13 +60,6 @@ struct GraphGenerationTableView: View {
                         .autocorrectionDisabled()
                         .autocapitalization(.none)
                     
-                    
-                    
-                    Text("\(rows.count) row\(rows.count == 1 ? "" : "s") found")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal)
-                    
                     HStack {
                         Button("Previous") {
                             if currentPage > 0 {
