@@ -15,9 +15,32 @@ enum AIGraphCreationInferenceRequest_V0: AIQueryable {
     
     static let tablename = Self.supabaseTableNameInference
     
-    struct TableDataRow: Codable {
+//    struct TableDataRow: Codable {
+//        let user_id: String
+//        var actions: GraphGenerationSupabaseInferenceCallResultRecordingWrapper
+//        let correction: Bool
+//        let score: CGFloat
+//        let required_retry: Bool
+//        let request_id: UUID? // nil for freshly-created training data
+//        let score_explanation: String?
+//        var approver_user_id: String?
+//    }
+    
+//    static func getFullHistory(client: PostgrestClient) async throws -> [Self.TableDataRow] {
+//        // No prev version, just return data here
+//        try await Self.fetchTableData(client: client)
+//    }
+}
+
+enum AIGraphCreationSupabase_V0 {
+    struct PromptResponse: Codable {
+        let prompt: String
+        var actions: [Step_V0.Step]
+    }
+    
+    struct InferenceResult: Codable {
         let user_id: String
-        var actions: GraphGenerationSupabaseInferenceCallResultRecordingWrapper
+        var actions: PromptResponse
         let correction: Bool
         let score: CGFloat
         let required_retry: Bool
@@ -26,17 +49,19 @@ enum AIGraphCreationInferenceRequest_V0: AIQueryable {
         var approver_user_id: String?
     }
     
-    static func getFullHistory(client: PostgrestClient) async throws -> [Self.TableDataRow] {
-        // No prev version, just return data here
-        try await Self.fetchTableData(client: client)
+    struct GraphGenerationSupabaseUserPromptRequestRow: Codable {
+        let request_id: UUID // required
+        let user_prompt: String // e.g. "
+        let version_number: String // e.g. "1.7.3"
+        let user_id: String
     }
 }
 
-extension Array where Element == AIGraphCreationInferenceRequest_V0.TableDataRow {
+extension Array where Element == AIGraphCreationSupabase_V0.InferenceResult {
     /// Unique helper for this version where we need to isolate results for a single request ID and prioritize corrections.
     func getResultsForValidationTableViewer() -> [Element] {
         // Deduplicate by request_id, preferring a row marked as `correction == true`
-        var chosenForRequestID: [UUID: AIGraphCreationInferenceRequest.TableDataRow] = [:]
+        var chosenForRequestID: [UUID: Element] = [:]
         
         for row in self {
             guard let reqId = row.request_id else {
@@ -56,7 +81,7 @@ extension Array where Element == AIGraphCreationInferenceRequest_V0.TableDataRow
         }
         
         // Preserve the original fetched order by walking fetchedRows again
-        var uniqueRows: [AIGraphCreationInferenceRequest.TableDataRow] = []
+        var uniqueRows: [Element] = []
         var addedRequestIDs = Set<UUID>()
         for row in self {
             if let reqId = row.request_id {
