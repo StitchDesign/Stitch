@@ -216,9 +216,12 @@ extension StitchDocumentViewModel {
         if let layerNode = node.layerNode,
            layerNode.layer != .group {
             let isFirstLayer = graph.layersSidebarViewModel.items.isEmpty
+            let isDisplayingAiPreviewer = self.storeDelegate?.isShowingAIPreviewer ?? false
             
-            // Open sidebars if first created layer and not an AI request
-            if isFirstLayer && !self.isLoadingAI {
+            // Open sidebars if first created layer
+            // and not an AI request
+            // and not in AI table reading mode
+            if isFirstLayer && !self.isLoadingAI && !isDisplayingAiPreviewer {
                 self.leftSidebarOpen = true
                 self.storeDelegate?.showsLayerInspector = true
             }
