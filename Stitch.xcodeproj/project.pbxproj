@@ -266,6 +266,9 @@
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
 		B5A8899A2DFBD2F6000A8148 /* AIGraphCreationSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5A889992DFBD2E5000A8148 /* AIGraphCreationSystemPrompt_V0.md */; };
 		B5A99E3A2DD5645500D3246A /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = B5A99E392DD5645500D3246A /* StitchSchemaKit */; };
+		B5AAA80F2E01CCC0007E809F /* AIGraphCreationInferenceRequest_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AAA80E2E01CCB9007E809F /* AIGraphCreationInferenceRequest_V0.swift */; };
+		B5AAA8112E01CCE0007E809F /* AIGraphCreationInferenceRequest_V1.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AAA8102E01CCD4007E809F /* AIGraphCreationInferenceRequest_V1.swift */; };
+		B5AAA8132E01DC2B007E809F /* StitchAISchemaUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AAA8122E01DC26007E809F /* StitchAISchemaUtils.swift */; };
 		B5AC74F9283701E5002A5D01 /* ProjectsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */; };
 		B5AED9152DE2BAFB00C514F2 /* Layer.md in Resources */ = {isa = PBXBuildFile; fileRef = B5AED9132DE2BAFB00C514F2 /* Layer.md */; };
 		B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */ = {isa = PBXBuildFile; fileRef = B5AED9142DE2BAFB00C514F2 /* Patch.md */; };
@@ -1366,6 +1369,9 @@
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
 		B5A889992DFBD2E5000A8148 /* AIGraphCreationSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIGraphCreationSystemPrompt_V0.md; sourceTree = "<group>"; };
+		B5AAA80E2E01CCB9007E809F /* AIGraphCreationInferenceRequest_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationInferenceRequest_V0.swift; sourceTree = "<group>"; };
+		B5AAA8102E01CCD4007E809F /* AIGraphCreationInferenceRequest_V1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphCreationInferenceRequest_V1.swift; sourceTree = "<group>"; };
+		B5AAA8122E01DC26007E809F /* StitchAISchemaUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAISchemaUtils.swift; sourceTree = "<group>"; };
 		B5AC74F8283701E5002A5D01 /* ProjectsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListView.swift; sourceTree = "<group>"; };
 		B5AED9132DE2BAFB00C514F2 /* Layer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Layer.md; sourceTree = "<group>"; };
 		B5AED9142DE2BAFB00C514F2 /* Patch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Patch.md; sourceTree = "<group>"; };
@@ -2365,6 +2371,7 @@
 				B5849FB52DFBDA6C00D668ED /* versioning.sh */,
 				B58E97D82DF0BAD1007913E3 /* StitchAISchemaVersion.swift */,
 				B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */,
+				B5AAA8122E01DC26007E809F /* StitchAISchemaUtils.swift */,
 				B5136F432DED0AAF007F12D0 /* V0 */,
 				B5849FD72DFBDF3600D668ED /* V1 */,
 			);
@@ -2481,6 +2488,7 @@
 				B58E97D42DF0B65C007913E3 /* AIGraphCreationRequestBody_V0.swift */,
 				B58E97D02DF0B06D007913E3 /* AIGraphCreationContentJSON_V0.swift */,
 				B53BF63D2DF0A739004EA770 /* AIGraphCreationResponseFormat_V0.swift */,
+				B5AAA80E2E01CCB9007E809F /* AIGraphCreationInferenceRequest_V0.swift */,
 			);
 			path = AIGraphCreation;
 			sourceTree = "<group>";
@@ -3860,6 +3868,7 @@
 		B5849FC12DFBDF3600D668ED /* AIGraphCreation */ = {
 			isa = PBXGroup;
 			children = (
+				B5AAA8102E01CCD4007E809F /* AIGraphCreationInferenceRequest_V1.swift */,
 				B5849FBD2DFBDF3600D668ED /* AIGraphCreationContentJSON_V1.swift */,
 				B5849FBE2DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift */,
 				B5849FBF2DFBDF3600D668ED /* AIGraphCreationResponseFormat_V1.swift */,
@@ -5451,6 +5460,7 @@
 				EC4914A429359B3F00D74344 /* TextStartsWithNode.swift in Sources */,
 				EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */,
 				EC211A482698A6F10068A0F0 /* JSONUtils.swift in Sources */,
+				B5AAA8132E01DC2B007E809F /* StitchAISchemaUtils.swift in Sources */,
 				B5EC874F28256DD0004C2AB3 /* AlertsViewModifier.swift in Sources */,
 				E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */,
 				EC2F62992A0DAB2600D86A50 /* PackNodeHelpers.swift in Sources */,
@@ -5710,6 +5720,7 @@
 				ECB88E202D0BAD7E0097CF4A /* StitchUIScrollView.swift in Sources */,
 				EC067CEA2BAB710E00F8EB82 /* ClassicAnimationOpSize.swift in Sources */,
 				B55780692CB043B600907BA8 /* StitchComponentViewModel.swift in Sources */,
+				B5AAA8112E01CCE0007E809F /* AIGraphCreationInferenceRequest_V1.swift in Sources */,
 				ECF903DF29D5FE6F00A5B01A /* Component.swift in Sources */,
 				ECEA600A28E610C7002D7F4F /* NodeEphemeralObservable.swift in Sources */,
 				EC560E17293A947D00350046 /* LoopShuffleNode.swift in Sources */,
@@ -5863,6 +5874,7 @@
 				EC067CEC2BAB7A9300F8EB82 /* MathExpressionNode.swift in Sources */,
 				ECA92A46260A6AD000281B52 /* RectangleLayerNode.swift in Sources */,
 				B5136F592DED5F37007F12D0 /* JavaScriptNodeSettingsAI_V0.swift in Sources */,
+				B5AAA80F2E01CCC0007E809F /* AIGraphCreationInferenceRequest_V0.swift in Sources */,
 				ECA92A2C260A6A3C00281B52 /* TimeNode.swift in Sources */,
 				EC8605BA269E1A2B007B8ED3 /* ArrayAppendNode.swift in Sources */,
 				EC40812D2C014EF70047989F /* StitchDocumentURLUtils.swift in Sources */,

@@ -10,22 +10,13 @@ import PostgREST
 import UIKit
 import SwiftUI
 
-
-struct GraphGenerationSupabaseInferenceCallResultPayload: Codable {
-    let user_id: String
-    var actions: GraphGenerationSupabaseInferenceCallResultRecordingWrapper
-    let correction: Bool
-    let score: CGFloat
-    let required_retry: Bool
-    let request_id: UUID? // nil for freshly-created training data
-    let score_explanation: String?
-    var approver_user_id: String?
-}
-
+// TODO: version this
 struct GraphGenerationSupabaseInferenceCallResultRecordingWrapper: Codable {
     let prompt: String
     var actions: [LLMStepAction]
 }
+
+// TODO: move these types
 
 struct GraphGenerationSupabaseUserPromptRequestRow: Codable {
     let request_id: UUID // required
