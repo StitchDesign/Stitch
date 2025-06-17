@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct GraphGenerationTableView: View {
     @Bindable var store: StitchStore
     
-    @State private var rows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
+    @State private var rows: [AIGraphCreationInferenceRequest.TableDataRow] = []
     @State private var filterUserID: String = ""
     @State private var filterPrompt: String = ""
     @State private var selectedIndex: Int?
@@ -173,45 +173,10 @@ struct GraphGenerationTableView: View {
                 
                 let decoder = JSONDecoder()
                 let fetchedRows = try decoder.decode(
-                    [GraphGenerationSupabaseInferenceCallResultPayload].self,
+                    [AIGraphCreationInferenceRequest.TableDataRow].self,
                     from: response.data
                 )
 
-                // Deduplicate by request_id, preferring a row marked as `correction == true`
-                var chosenForRequestID: [UUID: GraphGenerationSupabaseInferenceCallResultPayload] = [:]
-                
-                for row in fetchedRows {
-                    guard let reqId = row.request_id else {
-                        // Keep rows that do not have a request_id
-                        chosenForRequestID[UUID()] = row
-                        continue
-                    }
-                    
-                    if let existing = chosenForRequestID[reqId] {
-                        // If we already have one for this request, prefer the one with correction == true
-                        if !existing.correction && row.correction {
-                            chosenForRequestID[reqId] = row
-                        }
-                    } else {
-                        chosenForRequestID[reqId] = row
-                    }
-                }
-                
-                // Preserve the original fetched order by walking fetchedRows again
-                var uniqueRows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
-                var addedRequestIDs = Set<UUID>()
-                for row in fetchedRows {
-                    if let reqId = row.request_id {
-                        if !addedRequestIDs.contains(reqId), let chosen = chosenForRequestID[reqId] {
-                            uniqueRows.append(chosen)
-                            addedRequestIDs.insert(reqId)
-                        }
-                    } else if chosenForRequestID.values.contains(where: { $0.request_id == nil && $0.user_id == row.user_id }) {
-                        // Rows without request_id were stored with a random UUID key; just append them in order
-                        uniqueRows.append(row)
-                    }
-                }
-                
                 rows = uniqueRows
             } catch {
                 print("Error decoding payloads: \(error)")
@@ -225,7 +190,7 @@ struct GraphGenerationTableView: View {
         
         // 1) Convert your payload struct into a [String: Any] dictionary
         //    so we can feed it to .match(...)
-        func payloadDictionary(from payload: GraphGenerationSupabaseInferenceCallResultPayload) -> [String: Any]? {
+        func payloadDictionary(from payload: AIGraphCreationInferenceRequest.TableDataRow) -> [String: Any]? {
             // Turn it into JSON data...
             guard let data = try? JSONEncoder().encode(payload),
                   let jsonObj = try? JSONSerialization.jsonObject(with: data),
@@ -292,13 +257,13 @@ struct GraphInferenceTableRow: View {
     @State private var showActionsJSONPopover = false
     @State private var isApproved: Bool
     
-    let row: GraphGenerationSupabaseInferenceCallResultPayload
+    let row: AIGraphCreationInferenceRequest.TableDataRow
     let idx: Int
     @Binding var deletingIndex: Int?
     @Binding var showDeleteAlert: Bool
     let aiManager: StitchAIManager
     
-    init(row: GraphGenerationSupabaseInferenceCallResultPayload,
+    init(row: AIGraphCreationInferenceRequest.TableDataRow,
          idx: Int,
          deletingIndex: Binding<Int?>,
          showDeleteAlert: Binding<Bool>,
