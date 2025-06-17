@@ -381,7 +381,7 @@ struct GraphInferenceTableRow: View {
         
         do {
             try await aiManager.postgrest
-                .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
+                .from(AIGraphCreationRequestBody.supabaseTableNameInference)
                 .update(["approver_user_id": approver])
                 .eq("request_id", value: requestID)
                 .execute()
