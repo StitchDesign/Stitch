@@ -19,6 +19,7 @@ struct GraphGenerationSupabaseInferenceCallResultPayload: Codable {
     let required_retry: Bool
     let request_id: UUID? // nil for freshly-created training data
     let score_explanation: String?
+    var approver_user_id: String?
 }
 
 struct GraphGenerationSupabaseInferenceCallResultRecordingWrapper: Codable {
