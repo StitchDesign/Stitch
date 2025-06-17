@@ -71,6 +71,18 @@ extension StitchStore {
             projectIdForTitleEdit: self.projectIdForTitleEdit
         )
     }
+    
+    @MainActor
+    var isShowingAIPreviewer: Bool {
+        self.navPath.contains {
+            switch $0 {
+            case .graphGenerationTableView:
+                return true
+            default:
+                return false
+            }
+        }
+    }
 }
 
 final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
