@@ -48,14 +48,12 @@ final actor StitchAIManager {
         }
         
         // Assign the actual values only if everything succeeds
-        self.postgrest = PostgrestClient(
-            url: apiURL,
-            schema: "public",
-            headers: [
-                "apikey": supabaseAnonKey,
-                "Authorization": "Bearer \(supabaseAnonKey)"
-            ]
-        )
+        self.postgrest = .init(url: URL(string: "\(secrets.supabaseURL)/rest/v1")!,
+                               schema: "public",
+                               headers: [
+                                "apikey": secrets.supabaseAnonKey,
+                                "Authorization": "Bearer \(secrets.supabaseAnonKey)"
+                               ])
     }
 }
 

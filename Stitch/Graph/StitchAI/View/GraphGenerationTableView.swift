@@ -29,21 +29,10 @@ struct GraphGenerationTableView: View {
     // If we can't have secrets, then we should not be in this view
     @State var aiManager: StitchAIManager = try! StitchAIManager()!
     
-    // TODO: doesn't work, possibly race condition with view
-//    var postgrestClient: PostgrestClient {
-//        aiManager.postgrest
-//    }
-    
-    private var postgrestClient: PostgrestClient {
-        .init(url: URL(string: "\(aiManager.secrets.supabaseURL)/rest/v1")!,
-              schema: "public",
-              headers: [
-                "apikey": aiManager.secrets.supabaseAnonKey,
-                "Authorization": "Bearer \(aiManager.secrets.supabaseAnonKey)"
-              ]
-        )
+    var postgrestClient: PostgrestClient {
+        aiManager.postgrest
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             HStack(spacing: 0) {
@@ -392,8 +381,7 @@ struct GraphInferenceTableRow: View {
         
         do {
             try await aiManager.postgrest
-//                .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
-                .from("TEST_dataset_v0_graph_generation_duplicate")
+                .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
                 .update(["approver_user_id": approver])
                 .eq("request_id", value: requestID)
                 .execute()
