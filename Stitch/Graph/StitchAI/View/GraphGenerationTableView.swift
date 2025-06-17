@@ -188,24 +188,40 @@ struct GraphGenerationTableView: View {
                     from: response.data
                 )
 
-                var uniqueRows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
-                var seenRequestIDs = Set<UUID>()
+                // Deduplicate by request_id, preferring a row marked as `correction == true`
+                var chosenForRequestID: [UUID: GraphGenerationSupabaseInferenceCallResultPayload] = [:]
+                
                 for row in fetchedRows {
-                    if let reqId = row.request_id {
-                        if !seenRequestIDs.contains(reqId) {
-                            uniqueRows.append(row)
-                            seenRequestIDs.insert(reqId)
+                    guard let reqId = row.request_id else {
+                        // Keep rows that do not have a request_id
+                        chosenForRequestID[UUID()] = row
+                        continue
+                    }
+                    
+                    if let existing = chosenForRequestID[reqId] {
+                        // If we already have one for this request, prefer the one with correction == true
+                        if !existing.correction && row.correction {
+                            chosenForRequestID[reqId] = row
                         }
                     } else {
-                        uniqueRows.append(row)
+                        chosenForRequestID[reqId] = row
                     }
                 }
                 
-                // Checks if we are uploading redundant data
-                let ids = fetchedRows.compactMap(\.request_id)
-                let idsCount = ids.count
-                let idsSetCount = Set(ids).count
-                assertInDebug(idsSetCount == idsCount)
+                // Preserve the original fetched order by walking fetchedRows again
+                var uniqueRows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
+                var addedRequestIDs = Set<UUID>()
+                for row in fetchedRows {
+                    if let reqId = row.request_id {
+                        if !addedRequestIDs.contains(reqId), let chosen = chosenForRequestID[reqId] {
+                            uniqueRows.append(chosen)
+                            addedRequestIDs.insert(reqId)
+                        }
+                    } else if chosenForRequestID.values.contains(where: { $0.request_id == nil && $0.user_id == row.user_id }) {
+                        // Rows without request_id were stored with a random UUID key; just append them in order
+                        uniqueRows.append(row)
+                    }
+                }
                 
                 rows = uniqueRows
             } catch {
