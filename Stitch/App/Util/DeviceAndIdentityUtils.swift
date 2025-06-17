@@ -15,8 +15,6 @@ import CloudKit
 @MainActor
 let isPhoneDevice = UIDevice.current.userInterfaceIdiom == .phone
 
-
-@MainActor
 func getCloudKitUsername() async throws -> String? {
     do {
         let recordID = try await CKContainer.default().userRecordID()

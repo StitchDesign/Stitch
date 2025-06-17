@@ -29,14 +29,18 @@ struct GraphGenerationTableView: View {
     // If we can't have secrets, then we should not be in this view
     @State var aiManager: StitchAIManager = try! StitchAIManager()!
     
+    // TODO: doesn't work, possibly race condition with view
+//    var postgrestClient: PostgrestClient {
+//        aiManager.postgrest
+//    }
+    
     private var postgrestClient: PostgrestClient {
-        PostgrestClient(
-            url: URL(string: "\(aiManager.secrets.supabaseURL)/rest/v1")!,
-            schema: "public",
-            headers: [
+        .init(url: URL(string: "\(aiManager.secrets.supabaseURL)/rest/v1")!,
+              schema: "public",
+              headers: [
                 "apikey": aiManager.secrets.supabaseAnonKey,
                 "Authorization": "Bearer \(aiManager.secrets.supabaseAnonKey)"
-            ]
+              ]
         )
     }
     
@@ -88,7 +92,8 @@ struct GraphGenerationTableView: View {
                         GraphInferenceTableRow(row: row,
                                                idx: idx,
                                                deletingIndex: $deletingIndex,
-                                               showDeleteAlert: $showDeleteAlert)
+                                               showDeleteAlert: $showDeleteAlert,
+                                               aiManager: self.aiManager)
                     }
                     .listStyle(PlainListStyle())
                 }
@@ -294,11 +299,26 @@ struct GraphGenerationTableView: View {
 
 struct GraphInferenceTableRow: View {
     @State private var showActionsJSONPopover = false
+    @State private var isApproved: Bool
     
     let row: GraphGenerationSupabaseInferenceCallResultPayload
     let idx: Int
     @Binding var deletingIndex: Int?
     @Binding var showDeleteAlert: Bool
+    let aiManager: StitchAIManager
+    
+    init(row: GraphGenerationSupabaseInferenceCallResultPayload,
+         idx: Int,
+         deletingIndex: Binding<Int?>,
+         showDeleteAlert: Binding<Bool>,
+         aiManager: StitchAIManager) {
+        self.isApproved = row.approver_user_id != nil
+        self.row = row
+        self.idx = idx
+        self._deletingIndex = deletingIndex
+        self._showDeleteAlert = showDeleteAlert
+        self.aiManager = aiManager
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -333,6 +353,19 @@ struct GraphInferenceTableRow: View {
                 Text("Explanation: \(explanation)")
             }
             
+            HStack {
+                Text("Approved: ")
+                    .bold()
+                Toggle("", isOn: $isApproved)
+                    .labelsHidden()
+                    .onChange(of: isApproved) { _, newValue in
+                        Task {
+                            let cloudkitUserName = try? await getCloudKitUsername()
+                            await updateApproval(newValue,
+                                                 cloudkitUserName: cloudkitUserName)
+                        }
+                    }
+            }
         }
         .contextMenu {
             Button("Display Actions JSON") {
@@ -347,5 +380,23 @@ struct GraphInferenceTableRow: View {
                 .padding()
         }
         .padding(.vertical, 8)
+    }
+    
+    private func updateApproval(_ approved: Bool,
+                                cloudkitUserName: String?) async {
+        guard let requestID = row.request_id else { return }
+        
+        let approver: String? = approved ? cloudkitUserName : nil
+        
+        do {
+            try await aiManager.postgrest
+//                .from(aiManager.secrets.graphGenerationInferenceCallResultTableName)
+                .from("TEST_dataset_v0_graph_generation_duplicate")
+                .update(["approver_user_id": approver])
+                .eq("request_id", value: requestID)
+                .execute()
+        } catch {
+            print("Failed to update approver_user_id:", error)
+        }
     }
 }
