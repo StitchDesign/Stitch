@@ -174,6 +174,7 @@ struct GraphGenerationTableView: View {
                 }
                 
                 let response = try await query
+                    .eq("score", value: 1)
                     .order("created_at", ascending: false)
                     .range(
                         from: currentPage * pageSize,
@@ -186,6 +187,19 @@ struct GraphGenerationTableView: View {
                     [GraphGenerationSupabaseInferenceCallResultPayload].self,
                     from: response.data
                 )
+
+                var uniqueRows: [GraphGenerationSupabaseInferenceCallResultPayload] = []
+                var seenRequestIDs = Set<UUID>()
+                for row in fetchedRows {
+                    if let reqId = row.request_id {
+                        if !seenRequestIDs.contains(reqId) {
+                            uniqueRows.append(row)
+                            seenRequestIDs.insert(reqId)
+                        }
+                    } else {
+                        uniqueRows.append(row)
+                    }
+                }
                 
                 // Checks if we are uploading redundant data
                 let ids = fetchedRows.compactMap(\.request_id)
@@ -193,7 +207,7 @@ struct GraphGenerationTableView: View {
                 let idsSetCount = Set(ids).count
                 assertInDebug(idsSetCount == idsCount)
                 
-                rows = fetchedRows
+                rows = uniqueRows
             } catch {
                 print("Error decoding payloads: \(error)")
             }
