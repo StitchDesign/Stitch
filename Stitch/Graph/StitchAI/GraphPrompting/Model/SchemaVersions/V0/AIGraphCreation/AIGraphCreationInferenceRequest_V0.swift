@@ -39,6 +39,7 @@ enum AIGraphCreationSupabase_V0 {
     struct InferenceResult: SupabaseGenerable {
         static let tablename = "dataset_v0_graph_generation"
         
+        let id: UUID
         let user_id: String
         var actions: PromptResponse
         let correction: Bool
@@ -57,15 +58,29 @@ enum AIGraphCreationSupabase_V0 {
         let version_number: String // e.g. "1.7.3"
         let user_id: String
     }
-}
+    
+    typealias GraphGenerationTrainingTableData = InferenceResult
+    
+    static func getTrainingData(client: PostgrestClient) async throws -> [InferenceResult] {
+        let query = await client
+            .from(Self.InferenceResult.tablename)
+            .select()
 
-extension Array where Element == AIGraphCreationSupabase_V0.InferenceResult {
-    /// Unique helper for this version where we need to isolate results for a single request ID and prioritize corrections.
-    func getResultsForValidationTableViewer() -> [Element] {
-        // Deduplicate by request_id, preferring a row marked as `correction == true`
-        var chosenForRequestID: [UUID: Element] = [:]
+        let response = try await query
+            .eq("score", value: 1)
+            .order("created_at", ascending: false)
+//            .range(
+//                from: currentPage * pageSize,
+//                to: currentPage * pageSize + pageSize - 1
+//            )
+            .execute()
         
-        for row in self {
+        let fetchedRows = try InferenceResult.decode(from: response)
+        
+        // Deduplicate by request_id, preferring a row marked as `correction == true`
+        var chosenForRequestID: [UUID: InferenceResult] = [:]
+        
+        for row in fetchedRows {
             guard let reqId = row.request_id else {
                 // Keep rows that do not have a request_id
                 chosenForRequestID[UUID()] = row
@@ -83,9 +98,9 @@ extension Array where Element == AIGraphCreationSupabase_V0.InferenceResult {
         }
         
         // Preserve the original fetched order by walking fetchedRows again
-        var uniqueRows: [Element] = []
+        var uniqueRows: [InferenceResult] = []
         var addedRequestIDs = Set<UUID>()
-        for row in self {
+        for row in fetchedRows {
             if let reqId = row.request_id {
                 if !addedRequestIDs.contains(reqId), let chosen = chosenForRequestID[reqId] {
                     uniqueRows.append(chosen)
@@ -100,3 +115,45 @@ extension Array where Element == AIGraphCreationSupabase_V0.InferenceResult {
         return uniqueRows
     }
 }
+
+//extension Array where Element == AIGraphCreationSupabase_V0.InferenceResult {
+//    /// Unique helper for this version where we need to isolate results for a single request ID and prioritize corrections.
+//    func getResultsForValidationTableViewer() -> [Element] {
+//        // Deduplicate by request_id, preferring a row marked as `correction == true`
+//        var chosenForRequestID: [UUID: Element] = [:]
+//        
+//        for row in self {
+//            guard let reqId = row.request_id else {
+//                // Keep rows that do not have a request_id
+//                chosenForRequestID[UUID()] = row
+//                continue
+//            }
+//            
+//            if let existing = chosenForRequestID[reqId] {
+//                // If we already have one for this request, prefer the one with correction == true
+//                if !existing.correction && row.correction {
+//                    chosenForRequestID[reqId] = row
+//                }
+//            } else {
+//                chosenForRequestID[reqId] = row
+//            }
+//        }
+//        
+//        // Preserve the original fetched order by walking fetchedRows again
+//        var uniqueRows: [Element] = []
+//        var addedRequestIDs = Set<UUID>()
+//        for row in self {
+//            if let reqId = row.request_id {
+//                if !addedRequestIDs.contains(reqId), let chosen = chosenForRequestID[reqId] {
+//                    uniqueRows.append(chosen)
+//                    addedRequestIDs.insert(reqId)
+//                }
+//            } else if chosenForRequestID.values.contains(where: { $0.request_id == nil && $0.user_id == row.user_id }) {
+//                // Rows without request_id were stored with a random UUID key; just append them in order
+//                uniqueRows.append(row)
+//            }
+//        }
+//        
+//        return uniqueRows
+//    }
+//}
