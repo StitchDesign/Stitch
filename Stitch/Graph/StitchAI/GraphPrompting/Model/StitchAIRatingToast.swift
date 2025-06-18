@@ -88,7 +88,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                     prompt: userPrompt,
                     finalActions: state.llmRecording.actions.map(\.toStep),
                     deviceUUID: deviceUUID,
-                    tableName: AIGraphCreationRequestBody.supabaseTableNameInference,
+                    tableName: AIGraphCreationSupabase.InferenceResult.tablename,
                     requestId: requestId,
                     isCorrection: false,
                     rating: rating,
@@ -100,7 +100,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                     request_id: requestId,
                     score: rating.rawValue)
                 
-                try await ratingData.uploadToSupabase(client: aiManager)
+                try await ratingData.uploadToSupabase(client: aiManager.postgrest)
 #endif
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
@@ -139,40 +139,40 @@ struct AIRatingToastExpired: StitchDocumentEvent {
             return
         }
         
-        guard let deviceUUID = getDeviceUUID() else {
-            log("AIRatingSubmitted error: no device ID found.")
-            return
-        }
+//        guard let deviceUUID = getDeviceUUID() else {
+//            log("AIRatingSubmitted error: no device ID found.")
+//            return
+//        }
                 
         // If we expired without rating, still upload the inference call to Supabase *so long as user has given permssion*
-        if StitchStore.canShareAIData {
-            Task(priority: .high) { [weak state] in
-                guard let state = state,
-                      let aiManager = state.aiManager else {
-                    fatalErrorIfDebug("AIRatingToastExpired: Did not have AI Manager")
-                    return
-                }
-                
-                do {
-                    // Write a row with the original rating and actions etc.
-                    // (Edit modal will later write a second row with a 5-star rating and different actions if the user chooses to submit a request)
-                    try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
-                        prompt: state.llmRecording.promptForTrainingDataOrCompletedRequest,
-                        finalActions: state.llmRecording.actions.map(\.toStep),
-                        deviceUUID: deviceUUID,
-                        tableName: AIGraphCreationRequestBody.supabaseTableNameInference,
-                        requestId: state.llmRecording.requestIdFromCompletedRequest,
-                        isCorrection: false,
-//                        rating: nil,
-                        rating: .fiveStars, // TODO: is it really okay to assume a five-star rating here?
-                        ratingExplanation: nil, // not provided yet
-                        requiredRetry: false // not applicable
-                    )
-                } catch {
-                    log("AIRatingToastExpired: Could not upload non-rated graph-gen inference call to Supabase: \(error.localizedDescription)", .logToServer)
-                }
-            }
-        }
+//        if StitchStore.canShareAIData {
+//            Task(priority: .high) { [weak state] in
+//                guard let state = state,
+//                      let aiManager = state.aiManager else {
+//                    fatalErrorIfDebug("AIRatingToastExpired: Did not have AI Manager")
+//                    return
+//                }
+//                
+//                do {
+//                    // Write a row with the original rating and actions etc.
+//                    // (Edit modal will later write a second row with a 5-star rating and different actions if the user chooses to submit a request)
+//                    try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
+//                        prompt: state.llmRecording.promptForTrainingDataOrCompletedRequest,
+//                        finalActions: state.llmRecording.actions.map(\.toStep),
+//                        deviceUUID: deviceUUID,
+//                        tableName: AIGraphCreationSupabase.InferenceResult.tablename,
+//                        requestId: state.llmRecording.requestIdFromCompletedRequest,
+//                        isCorrection: false,
+////                        rating: nil,
+//                        rating: .fiveStars, // TODO: is it really okay to assume a five-star rating here?
+//                        ratingExplanation: nil, // not provided yet
+//                        requiredRetry: false // not applicable
+//                    )
+//                } catch {
+//                    log("AIRatingToastExpired: Could not upload non-rated graph-gen inference call to Supabase: \(error.localizedDescription)", .logToServer)
+//                }
+//            }
+//        }
         
         
         withAnimation {
