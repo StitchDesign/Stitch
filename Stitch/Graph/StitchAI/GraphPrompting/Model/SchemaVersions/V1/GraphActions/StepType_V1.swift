@@ -16,7 +16,7 @@ import StitchSchemaKit
 enum StepType_V1: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V1
-    typealias PreviousInstance = Self.StepType
+    typealias PreviousInstance = StepType_V0.StepType
     // MARK: - end
     
     /// Enumeration of possible step types in the visual programming system
@@ -58,6 +58,17 @@ enum StepType_V1: StitchSchemaVersionable {
 
 extension StepType_V1.StepType: StitchVersionedCodable {
     public init(previousInstance: StepType_V1.PreviousInstance) {
-        fatalError()
+        switch previousInstance {
+        case .addNode:
+            self = .addNode
+        case .connectNodes:
+            self = .connectNodes
+        case .changeValueType:
+            self = .changeValueType
+        case .setInput:
+            self = .setInput
+        case .sidebarGroupCreated:
+            self = .sidebarGroupCreated
+        }
     }
 }

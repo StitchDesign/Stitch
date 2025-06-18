@@ -30,7 +30,7 @@ enum Step_V1: StitchSchemaVersionable {
     typealias LayerNodeId = LayerNodeId_V32.LayerNodeId
     typealias NodeIOCoordinate = NodeIOCoordinate_V32.NodeIOCoordinate
     
-    typealias PreviousInstance = Self.Step
+    typealias PreviousInstance = Step_V0.Step
     // MARK: - end
     
     public enum PatchOrLayer: Hashable, Codable {
@@ -172,8 +172,41 @@ enum Step_V1: StitchSchemaVersionable {
 }
 
 extension Step_V1.Step: StitchVersionedCodable {
-    public init(previousInstance: Step_V1.PreviousInstance) {
-        fatalError()
+    init(previousInstance: Step_V1.PreviousInstance) {
+        var migratedNodeName: Step_V1.PatchOrLayer?
+        var migratedPort: Step_V1.NodeIOPortType?
+        var migratedPortValue: Step_V1.PortValue?
+        var migratedNodeType: Step_V1.NodeType?
+        
+        do {
+            migratedNodeName = try previousInstance.nodeName?.convert(to: Step_V1.PatchOrLayer?.self)
+            migratedPort = try previousInstance.port?.convert(to: Step_V1.NodeIOPortType?.self)
+            
+            if let oldValue = previousInstance.value {
+                migratedPortValue = try PortValueVersion
+                    .migrate(entity: oldValue,
+                             version: ._V32)
+            }
+
+            if let oldNodeType = previousInstance.valueType {
+                migratedNodeType = try NodeTypeVersion
+                    .migrate(entity: oldNodeType,
+                             version: ._V32)
+            }
+        } catch {
+            fatalErrorIfDebug("Step_V1 error: \(error)")
+        }
+
+        self = .init(stepType: StepType_V1.StepType(previousInstance: previousInstance.stepType),
+                     nodeId: previousInstance.nodeId?.value,
+                     nodeName: migratedNodeName,
+                     port: migratedPort,
+                     fromPort: previousInstance.fromPort,
+                     fromNodeId: previousInstance.fromNodeId?.value,
+                     toNodeId: previousInstance.toNodeId?.value,
+                     value: migratedPortValue,
+                     valueType: migratedNodeType,
+                     children: previousInstance.children)
     }
 }
 
