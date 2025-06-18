@@ -21,11 +21,6 @@ extension StitchAIManager {
                        attempt: Int,
                        document: StitchDocumentViewModel,
                        canShareAIRetries: Bool) -> Task<AIGraphCreationRequest.FinalDecodedResult, any Error> {
-        guard let requestId = document.llmRecording.requestIdFromCompletedRequest else {
-            // TODO: definitely get back here
-            fatalError()
-        }
-        
 #if !STITCH_AI_V1
         guard let deviceUUID = getDeviceUUID() else {
             fatalError("SubmitLLMActionsToSupabase error: no device ID found.")
@@ -54,14 +49,14 @@ extension StitchAIManager {
                     finalActions: result.map(\.toStep),
                     deviceUUID: deviceUUID,
                     tableName: AIGraphCreationSupabase.InferenceResult.tablename,
-                    requestId: requestId,
+                    requestId: request.id,
                     isCorrection: false,
                     rating: .fiveStars,
                     ratingExplanation: nil,
                     requiredRetry: false)
 #else
                 let supabaseResult = AIGraphCreationSupabase.InferenceResult(
-                    request_id: requestId,
+                    request_id: request.id,
                     actions: result.map(\.toStep)
                 )
                 
