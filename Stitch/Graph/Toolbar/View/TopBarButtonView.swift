@@ -134,8 +134,13 @@ struct iPadGraphTopBarButtons: View {
                 }
             }
             .pickerStyle(.segmented)
+                        
+            // go up a traversal level
+            iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
+                             iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
+            .disabled(hasActiveGroupFocused ? false : true)
             
-            iPadTopBarButtonWithMenu(iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME)) {
+            iPadTopBarButtonWithMenu(iconName: .sfSymbol(.AI_MAGIC_TEMP_MENU_SF_SYMBOL_NAME)) {
                 StitchButton {
                     dispatch(ShowAINodePromptEntryModal())
                 } label: {
@@ -150,16 +155,14 @@ struct iPadGraphTopBarButtons: View {
                 }
             }
             
-            // go up a traversal level
-            iPadNavBarButton(action: { dispatch(GoUpOneTraversalLevel()) },
-                             iconName: .sfSymbol(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME))
-            .disabled(hasActiveGroupFocused ? false : true)
+            iPadNavBarButton(action: { dispatch(ToggleInsertNodeMenu()) },
+                             iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
             
             if isDebugMode,
                FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
                 iPadNavBarButton(action: {
                     dispatch(ShowCreateTrainingDataFromExistingGraphModal())
-                }, iconName: .sfSymbol("sparkles"))
+                }, iconName: .sfSymbol(.DEBUG_SUBMIT_EXISTING_GRAPH_AS_TRAINING_DATA_SF_SYMBOL_NAME))
             }
             
             // toggle preview window
