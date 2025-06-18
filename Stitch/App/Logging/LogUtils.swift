@@ -21,7 +21,7 @@ struct FatalErrorIfDebugView: View {
 }
 
 func fatalErrorIfDebug(_ message: String = "") {
-#if DEBUG || DEV_DEBUG
+#if DEBUG || DEV_DEBUG || STITCH_AI_V1
     fatalError(message)
 #else
     // When we encounter a "crash if developing locally" while we're running on production,

@@ -110,36 +110,6 @@ extension StitchAIManager {
         try await payload.uploadToSupabase(client: self.postgrest)
     }
 #endif
-    
-    // For GraphGeneration or JavascriptNode
-    func uploadUserPromptRequestToSupabase(prompt: String,
-                                           requestId: UUID,
-                                           tableName: String) async throws {
-        
-        // Only log to supabase from release branch!
-#if RELEASE || DEV_DEBUG
-        guard let releaseVersion = await getReleaseVersion(),
-              let userId = try? await getCloudKitUsername() else {
-            fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
-            return
-        }
-        
-        log(" Uploading user-prompt-request payload:")
-        log("  - requestId: \(requestId)")
-        log("  - prompt: \(prompt)")
-        log("  - releaseVersion: \(releaseVersion)")
-        log("  - userId: \(userId)")
-        
-        let payload = GraphGenerationSupabaseUserPromptRequestRow(
-            request_id: requestId,
-            user_prompt: prompt,
-            version_number: releaseVersion,
-            user_id: userId)
-        
-        try await self._uploadToSupabase(payload: payload,
-                                         tableName: tableName)
-#endif
-    }
 }
 
 extension SupabaseGenerable {
