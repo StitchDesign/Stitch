@@ -42,9 +42,6 @@ struct GraphGenerationTableView: View {
                     TextField("Filter by user ID", text: $filterUserID)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding([.horizontal, .top])
-                        .task(id: filterUserID, priority: .high) {
-                            await fetchRows(client: self.postgrestClient)
-                        }
                         .autocorrectionDisabled()
                         .autocapitalization(.none)
                     
@@ -111,6 +108,9 @@ struct GraphGenerationTableView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 //            .onAppear { fetchRows() }
+            .task(id: filterUserID, priority: .high) {
+                await fetchRows(client: self.postgrestClient)
+            }
             .onChange(of: selectedIndex) { _, newIndex in
                 if let idx = newIndex, rows.indices.contains(idx),
                    let row = rows[safe: idx] {
