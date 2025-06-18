@@ -49,11 +49,11 @@ enum AIGraphCreationInferenceRequest_V1: AIQueryable {
 //    /// Unique helper for this version where we need to isolate results for a single request ID and prioritize corrections.
 //    func getResultsForValidationTableViewer() -> [Element] {
 ////        let queryBuilder = try await client.from(Self.tablename)
-//        
+//
 //        // Get all manual uploads
-//        
+//
 //        // Add results not already marked with same request ID
-//        
+//
 //        // Add approver column
 //    }
 //}
@@ -62,12 +62,27 @@ protocol SupabaseGenerable: Codable, Sendable {
     static var tablename: String { get }
 }
 
+extension SupabaseGenerable {
+    static func decode(from tableResponse: PostgrestResponse<Void>) throws -> [Self] {
+        let decoder = JSONDecoder()
+        let fetchedRows = try decoder.decode(
+            [Self].self,
+            from: tableResponse.data
+        )
+        
+        return fetchedRows
+    }
+}
+
 enum AIGraphCreationSupabase_V1 {
     // The original request.
     struct Request: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Request"
         
+        let id: UUID
         let user_id: String
+        
+        // TODO: remove request id?
         let request_id: UUID
         let version_number: String // e.g. "1.7.3"
     }
@@ -108,17 +123,69 @@ enum AIGraphCreationSupabase_V1 {
 //    // Manually-created training data, assumed to be correct. Determined a "correction" if request_id matches a request in `RequestTableData`.
 //    struct ManualUpload: SupabaseGenerable {
 //        static let tablename = "V1_Graph_Creation_ManualUpload"
-//        
+//
 //        let request_id: UUID
 //        let actions: [Step_V1.Step]
 //        let score_explanation: String?
 //    }
     
     // Tracks approvals from Stitch team validating a trained example.
-    struct ApprovedExample: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_ApprovedExample"
+//    struct ApprovedExample: SupabaseGenerable {
+//        static let tablename = "V1_Graph_Creation_ApprovedExample"
+//        
+//        let request_id: UUID
+//    }
+    
+    struct SupervisedData: SupabaseGenerable {
+        static let tablename = "V1_Graph_Creation_Supervised"
         
         let request_id: UUID
+        let is_approved: Bool
         let approver_user_id: String
+    }
+}
+
+extension AIGraphCreationSupabase_V1 {
+    struct GraphGenerationTrainingTableData {
+        let user_prompt: String
+        let actions: [Step_V1.Step]
+        let user_id: String
+        let request_id: UUID?
+        let is_approved: Bool?
+        let approver_user_id: UUID?
+    }
+    
+    static func getTrainingDataFullHistory(client: PostgrestClient) async throws -> [GraphGenerationTrainingTableData] {
+        let previousData = try await AIGraphCreationSupabase_V0.getTrainingData(client: client)
+        let migratedData = previousData.map(AIGraphCreationSupabase_V1.GraphGenerationTrainingTableData.migrate(from:))
+        
+        // Get data at this version
+        let resultsPlusScores = try await client
+            .from(AIGraphCreationSupabase_V1.InferenceResult.tablename)
+            .select("""
+                *,
+                rating:\(AIGraphCreationSupabase_V1.Rating.tablename)!left(
+                  score
+                )
+            """)
+            .execute()
+            
+        
+        // Get any manual submissions
+        let manualSubmissions = try await client
+            .from(ApprovedExample.tablename)
+            .select()
+            .execute()
+        
+        
+    }
+}
+
+extension AIGraphCreationSupabase_V1.GraphGenerationTrainingTableData {
+    static func migrate(from previousVersion: AIGraphCreationSupabase_V0.GraphGenerationTrainingTableData) -> Self {
+        .init(userPrompt: previousVersion.actions.prompt,
+              userId: previousVersion.user_id,
+              requestId: previousVersion.request_id,
+              approverUserId: previousVersion.approver_user_id)
     }
 }

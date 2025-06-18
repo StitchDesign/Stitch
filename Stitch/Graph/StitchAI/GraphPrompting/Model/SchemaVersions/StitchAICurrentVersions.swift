@@ -92,3 +92,4 @@ typealias StepActionLayerGroupCreated = CurrentStepActionLayerGroupCreated.StepA
 typealias AIGraphCreationInferenceRequest = CurrentAIGraphCreationInferenceRequest
 typealias AIGraphCreationSupabase = CurrentAIGraphCreationSupabase
 typealias AIJavaScriptSupabase = CurrentAIJavaScriptSupabase
+typealias GraphGenerationTrainingTableData = AIGraphCreationSupabase.GraphGenerationTrainingTableData
