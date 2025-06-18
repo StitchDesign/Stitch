@@ -5,10 +5,10 @@
 //  Created by Elliot Boschwitz on 6/4/25.
 //
 
+import SwiftUI
+
 enum AIEditJsNodeRequestBody_V0 {
-    struct AIEditJsNodeRequestBody: StitchAIRequestBodyFormattable {
-        static let supabaseTableName = "dataset_v0_javascript"
-        
+    struct AIEditJsNodeRequestBody: StitchAIRequestBodyFormattable {        
         let model: String
         let n: Int = 1
         let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
@@ -30,5 +30,16 @@ enum AIEditJsNodeRequestBody_V0 {
                       content: userPrompt)
             ]
         }
+    }
+}
+
+enum AIJavaScriptSupabase_V0 {
+    struct InferenceResult: SupabaseGenerable {
+        static let tablename = "dataset_v0_javascript"
+        
+        let user_id: String
+        let request_id: UUID
+        let user_prompt: String
+        let javascript_settings: JavaScriptNodeSettings
     }
 }

@@ -5,6 +5,8 @@
 //  Created by Elliot Boschwitz on 6/4/25.
 //
 
+import SwiftUI
+
 enum AIEditJsNodeRequestBody_V1 {
     struct AIEditJsNodeRequestBody: StitchAIRequestBodyFormattable {
         static let supabaseTableName = "V1_javascript"
@@ -30,5 +32,16 @@ enum AIEditJsNodeRequestBody_V1 {
                       content: userPrompt)
             ]
         }
+    }
+}
+
+enum AIJavaScriptSupabase_V1 {
+    struct InferenceResult: SupabaseGenerable {
+        static let tablename = "V1_javascript"
+        
+        let user_id: String
+        let request_id: UUID
+        let user_prompt: String
+        let javascript_settings: JavaScriptNodeSettings
     }
 }

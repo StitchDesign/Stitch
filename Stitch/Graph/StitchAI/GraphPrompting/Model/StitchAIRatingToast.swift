@@ -68,6 +68,11 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             return
         }
         
+        guard let requestId = state.llmRecording.requestIdFromCompletedRequest else {
+            log("AIRatingSubmitted error: no request ID found")
+            return
+        }
+        
         Task(priority: .high) { [weak state] in
             guard let state = state,
                   let aiManager = state.aiManager else {
@@ -78,17 +83,25 @@ struct AIRatingSubmitted: StitchDocumentEvent {
             do {
                 // Write a row with the original rating and actions etc.
                 // (Edit modal will later write a second row with a 5-star rating and different actions if the user chooses to submit a request)
+#if !STITCH_AI_V1
                 try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
                     prompt: userPrompt,
                     finalActions: state.llmRecording.actions.map(\.toStep),
                     deviceUUID: deviceUUID,
                     tableName: AIGraphCreationRequestBody.supabaseTableNameInference,
-                    requestId: state.llmRecording.requestIdFromCompletedRequest,
+                    requestId: requestId,
                     isCorrection: false,
                     rating: rating,
                     ratingExplanation: nil, // not provided yet
                     requiredRetry: false // not applicable
                 )
+#else
+                let ratingData = AIGraphCreationSupabase.Rating(
+                    request_id: requestId,
+                    score: rating.rawValue)
+                
+                try await ratingData.uploadToSupabase(client: aiManager)
+#endif
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
             }

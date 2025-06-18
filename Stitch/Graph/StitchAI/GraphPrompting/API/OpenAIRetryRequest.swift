@@ -74,6 +74,7 @@ extension StitchAIManager {
                 }
                 
                 do {
+#if !STITCH_AI_V1
                     try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
                         prompt: request.userPrompt,
                         // Send the raw-streamed steps
@@ -86,6 +87,9 @@ extension StitchAIManager {
                         ratingExplanation: nil,
                         // These actions could not be parsed and/or validated, so
                         requiredRetry: true)
+#else
+                    
+#endif
                 } catch  {
                     log("_retryRequest: had error when trying to share retry: \(error)", .logToServer)
                 }

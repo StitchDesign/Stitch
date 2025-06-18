@@ -24,14 +24,14 @@ import SwiftUI
 //    let version_number: String // e.g. "1.7.3"
 //    let user_id: String
 //}
-
-// TODO: JS version
-struct AIJavascriptSupabaseInferenceCallResultPayload: Codable {
-    let user_id: String
-    let request_id: UUID
-    let user_prompt: String
-    let javascript_settings: JavaScriptNodeSettings
-}
+//
+//// TODO: JS version
+//struct AIJavascriptSupabaseInferenceCallResultPayload: Codable {
+//    let user_id: String
+//    let request_id: UUID
+//    let user_prompt: String
+//    let javascript_settings: JavaScriptNodeSettings
+//}
 
 
 extension StitchAIManager {
@@ -45,22 +45,21 @@ extension StitchAIManager {
             return
         }
         
-        let payload = AIJavascriptSupabaseInferenceCallResultPayload(
+        let payload = AIJavaScriptSupabase.InferenceResult(
             user_id: userId,
             request_id: requestId,
             user_prompt: userPrompt,
             javascript_settings: javascriptSettings)
-            
+        
         log(" Uploading inference-call-result payload, for JS AI Node:")
         log("  - userPrompt: \(userPrompt)")
         log("  - javascriptSettings: \(javascriptSettings)")
         log("  - userId: \(userId)")
         
-        try await self._uploadToSupabase(
-            payload: payload,
-            tableName: AIEditJsNodeRequestBody.supabaseTableName)
+        try await payload.uploadToSupabase(client: self.postgrest)
     }
     
+#if !STITCH_AI_V1
     // NOTE: only graph-generation
     // fka `uploadActionsToSupabase`
     func uploadGraphGenerationInferenceCallResultToSupabase(
@@ -89,12 +88,12 @@ extension StitchAIManager {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
             return
         }
-
-#if STITCH_AI_V1
-        let payload = AIGraphCreationSupabase.InferenceResult(
-            request_id: requestId,
-            actions: finalActions)
-#else
+        
+//#if STITCH_AI_V1
+//        let payload = AIGraphCreationSupabase.InferenceResult(
+//            request_id: requestId,
+//            actions: finalActions)
+//#endif
         let promptResponse = AIGraphCreationSupabase.PromptResponse(
             prompt: prompt,
             actions: finalActions)
@@ -107,11 +106,10 @@ extension StitchAIManager {
             required_retry: requiredRetry,
             request_id: requestId,
             score_explanation: ratingExplanation)
-#endif
-        
-        try await self._uploadToSupabase(payload: payload,
-                                         tableName: tableName)
+
+        try await payload.uploadToSupabase(client: self.postgrest)
     }
+#endif
     
     // For GraphGeneration or JavascriptNode
     func uploadUserPromptRequestToSupabase(prompt: String,
@@ -125,7 +123,7 @@ extension StitchAIManager {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
             return
         }
-                
+        
         log(" Uploading user-prompt-request payload:")
         log("  - requestId: \(requestId)")
         log("  - prompt: \(prompt)")
@@ -142,16 +140,23 @@ extension StitchAIManager {
                                          tableName: tableName)
 #endif
     }
-    
-    private func _uploadToSupabase(payload: some Encodable & Sendable,
-                                   tableName: String) async throws {
-        log("Supabase upload: \((try? payload.encodeToPrintableString()) ?? "none")")
+}
+
+extension SupabaseGenerable {
+    func uploadToSupabase(client: PostgrestClient) async throws {
+        guard StitchStore.canShareAIData else {
+            log("uploadToSupabase: permission denied by user.")
+            return
+        }
+        
+        let tableName = Self.tablename
+        log("Supabase upload: \((try? self.encodeToPrintableString()) ?? "none")")
         
         do {
             // Use the edited payload for insertion
-            try await postgrest
+            try await client
                 .from(tableName)
-                .insert(payload, returning: .minimal)
+                .insert(self, returning: .minimal)
                 .execute()
             
             log(" Data uploaded successfully to Supabase!")
@@ -174,9 +179,9 @@ extension StitchAIManager {
         
         do {
             // Fallback to original payload if JSON editing/parsing fails
-            try await postgrest
+            try await client
                 .from(tableName)
-                .insert(payload, returning: .minimal)
+                .insert(self, returning: .minimal)
                 .execute()
             log("Data uploaded successfully to Supabase!")
         } catch {
