@@ -145,9 +145,7 @@ extension StitchDocumentViewModel {
             aiManager.prepareRequest(
                 userPrompt: jsAIRequest.userPrompt,
                 requestId: jsAIRequest.id,
-                document: document,
-                canShareData: StitchStore.canShareAIData,
-                userPromptTableName: nil)
+                document: document)
             
             let result = await jsAIRequest.request(document: document,
                                                    aiManager: aiManager)

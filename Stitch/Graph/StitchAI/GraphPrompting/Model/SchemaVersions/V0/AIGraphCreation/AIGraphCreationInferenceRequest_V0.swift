@@ -11,7 +11,7 @@ import PostgREST
 enum AIGraphCreationInferenceRequest_V0: AIQueryable {
     static let markdownLocation = "AIGraphCreationSystemPrompt_V0"
     
-    static let tablename = Self.supabaseTableNameInference
+//    static let tablename = Self.supabaseTableNameInference
     
 //    struct TableDataRow: Codable {
 //        let user_id: String

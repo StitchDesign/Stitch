@@ -86,7 +86,7 @@ enum AIGraphCreationSupabase_V1 {
         
         let request_id: UUID
         let actions: [Step_V1.Step]
-        let score_explanation: String?
+        var score_explanation: String?
     }
     
     // Error capturing of a request.

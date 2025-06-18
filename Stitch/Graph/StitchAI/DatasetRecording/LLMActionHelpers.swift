@@ -43,6 +43,11 @@ extension StitchDocumentViewModel {
             return
         }
         
+        guard let requestId = state.llmRecording.requestIdFromCompletedRequest else {
+            fatalErrorIfDebug("submitApprovedActionsToSupabase: expected request ID.")
+            return
+        }
+        
         let promptForTrainingDataOrCompletedRequest = state.llmRecording.promptForTrainingDataOrCompletedRequest
         
         // When submitting actions to Supabase, we *must* have a rating.
@@ -69,7 +74,7 @@ extension StitchDocumentViewModel {
                     prompt: promptForTrainingDataOrCompletedRequest,
                     finalActions: actionsAsSteps.map(\.toStep),
                     deviceUUID: deviceUUID,
-                    tableName: AIGraphCreationRequestBody.supabaseTableNameInference,
+                    tableName: AIGraphCreationSupabase.InferenceResult.tablename,
                     // For fresh training example, we won't have this
                     requestId: state.llmRecording.requestIdFromCompletedRequest,
                     isCorrection: isCorrection,
@@ -78,9 +83,10 @@ extension StitchDocumentViewModel {
                     // these actions + prompt did not require a retry
                     requiredRetry: false)
 #else
-                let submission = AIGraphCreationRequest.InferenceResult(
-                    request_id: state.llmRecording.requestIdFromCompletedRequest,
-                    actions: actionsAsSteps.map(\.toStep))
+                let submission = AIGraphCreationSupabase.InferenceResult(
+                    request_id: requestId,
+                    actions: actionsAsSteps.map(\.toStep),
+                    score_explanation: explanationForRatingForExistingGraph)
                 try await submission.uploadToSupabase(client: supabaseManager.postgrest)
 #endif
                 
