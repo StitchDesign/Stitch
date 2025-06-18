@@ -58,26 +58,32 @@ struct CatalystTopBarGraphButtons: View {
     
     var body: some View {
         Group {
-            CatalystNavBarButtonWithMenu(
-                systemName: .ADD_NODE_SF_SYMBOL_NAME,
-                toolTip: "Add Nodes") {
-                    StitchButton {
-                        dispatch(ShowAINodePromptEntryModal())
-                    } label: {
-                        Text(String.CREATE_CUSTOM_NODE_WITH_AI)
-                    }
-                    StitchButton {
-                        dispatch(ToggleInsertNodeMenu())
-                    } label: {
-                        Text("Add Nodes")
-                    }
-                }
+         
             
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
                                  toolTip: "Go up one traversal level") {
                 dispatch(GoUpOneTraversalLevel())
             }
             .disabled(hasActiveGroupFocused ? false : true)
+            
+            CatalystNavBarButtonWithMenu(systemName: "sparkles",
+                                         toolTip: "Create with AI") {
+                StitchButton {
+                    dispatch(ShowAINodePromptEntryModal())
+                } label: {
+                    Text(String.CREATE_CUSTOM_NODE_WITH_AI)
+                }
+                StitchButton {
+                    dispatch(ToggleInsertNodeMenu())
+                } label: {
+                    Text("Add Nodes")
+                }
+            }
+            
+            CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,
+                                 toolTip: "Add Node") {
+                dispatch(ToggleInsertNodeMenu())
+            }
             
             if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
                 CatalystNavBarButton("sparkles",
