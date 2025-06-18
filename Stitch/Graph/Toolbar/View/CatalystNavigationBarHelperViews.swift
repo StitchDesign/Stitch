@@ -15,6 +15,8 @@ extension String {
 
     // Right side graph buttons, in Figma design order, left to right:
     static let GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME = "arrow.turn.left.up"
+    static let AI_MAGIC_TEMP_MENU_SF_SYMBOL_NAME = "sparkles"
+    static let DEBUG_SUBMIT_EXISTING_GRAPH_AS_TRAINING_DATA_SF_SYMBOL_NAME = "document.badge.arrow.up"
     static let FIND_NODE_ON_GRAPH = "location.viewfinder"
     static let ADD_NODE_SF_SYMBOL_NAME = "plus.rectangle"
     static let NEW_PROJECT_SF_SYMBOL_NAME = "doc.badge.plus"
@@ -58,15 +60,13 @@ struct CatalystTopBarGraphButtons: View {
     
     var body: some View {
         Group {
-         
-            
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME,
                                  toolTip: "Go up one traversal level") {
                 dispatch(GoUpOneTraversalLevel())
             }
             .disabled(hasActiveGroupFocused ? false : true)
             
-            CatalystNavBarButtonWithMenu(systemName: "sparkles",
+            CatalystNavBarButtonWithMenu(systemName: .AI_MAGIC_TEMP_MENU_SF_SYMBOL_NAME,
                                          toolTip: "Create with AI") {
                 StitchButton {
                     dispatch(ShowAINodePromptEntryModal())
@@ -86,7 +86,7 @@ struct CatalystTopBarGraphButtons: View {
             }
             
             if FeatureFlags.SHOW_TRAINING_EXAMPLE_GENERATION_BUTTON {
-                CatalystNavBarButton("sparkles",
+                CatalystNavBarButton("document.badge.arrow.up",
                                      toolTip: "Submit graph as AI training example") {
                     dispatch(ShowCreateTrainingDataFromExistingGraphModal())
                 }
