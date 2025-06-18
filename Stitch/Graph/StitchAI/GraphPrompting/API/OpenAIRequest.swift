@@ -21,7 +21,18 @@ extension StitchAIManager {
                        attempt: Int,
                        document: StitchDocumentViewModel,
                        canShareAIRetries: Bool) -> Task<AIGraphCreationRequest.FinalDecodedResult, any Error> {
-        Task(priority: .high) { [weak self] in
+        guard let requestId = document.llmRecording.requestIdFromCompletedRequest else {
+            // TODO: definitely get back here
+            fatalError()
+        }
+        
+#if !STITCH_AI_V1
+        guard let deviceUUID = getDeviceUUID() else {
+            fatalError("SubmitLLMActionsToSupabase error: no device ID found.")
+        }
+#endif
+        
+        return Task(priority: .high) { [weak self] in
             guard let aiManager = self else {
                 fatalErrorIfDebug()
                 throw NSError()
@@ -35,6 +46,27 @@ extension StitchAIManager {
                 
             case .success(let result):
                 log("getOpenAIStreamingTask: succeeded")
+                
+                // Upload logs
+#if !STITCH_AI_V1
+                try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
+                    prompt: request.userPrompt,
+                    finalActions: result.map(\.toStep),
+                    deviceUUID: deviceUUID,
+                    tableName: AIGraphCreationSupabase.InferenceResult.tablename,
+                    requestId: requestId,
+                    isCorrection: false,
+                    rating: .fiveStars,
+                    ratingExplanation: nil,
+                    requiredRetry: false)
+#else
+                let supabaseResult = AIGraphCreationSupabase.InferenceResult(
+                    request_id: requestId,
+                    actions: result.map(\.toStep)
+                )
+                
+                try await supabaseResult.uploadToSupabase(client: aiManager.postgrest)
+#endif
                 
                 // Handle successful response
                 // Note: does not fire until we properly handle the whole request
