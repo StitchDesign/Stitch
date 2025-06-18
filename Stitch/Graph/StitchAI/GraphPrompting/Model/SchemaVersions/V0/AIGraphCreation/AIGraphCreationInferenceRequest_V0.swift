@@ -9,8 +9,6 @@ import SwiftUI
 import PostgREST
 
 enum AIGraphCreationInferenceRequest_V0: AIQueryable {
-    static let supabaseTableNameInference = "dataset_v0_graph_generation"
-    static let supabaseTableNamePrompt = "dataset_v0_user_prompt_for_graph_generation"
     static let markdownLocation = "AIGraphCreationSystemPrompt_V0"
     
     static let tablename = Self.supabaseTableNameInference
@@ -38,7 +36,9 @@ enum AIGraphCreationSupabase_V0 {
         var actions: [Step_V0.Step]
     }
     
-    struct InferenceResult: Codable {
+    struct InferenceResult: SupabaseGenerable {
+        static let tablename = "dataset_v0_graph_generation"
+        
         let user_id: String
         var actions: PromptResponse
         let correction: Bool
@@ -49,7 +49,9 @@ enum AIGraphCreationSupabase_V0 {
         var approver_user_id: String?
     }
     
-    struct GraphGenerationSupabaseUserPromptRequestRow: Codable {
+    struct GraphGenerationSupabaseUserPromptRequestRow: SupabaseGenerable {
+        static let tablename = "dataset_v0_user_prompt_for_graph_generation"
+    
         let request_id: UUID // required
         let user_prompt: String // e.g. "
         let version_number: String // e.g. "1.7.3"

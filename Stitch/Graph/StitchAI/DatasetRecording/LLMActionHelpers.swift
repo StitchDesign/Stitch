@@ -64,6 +64,7 @@ extension StitchDocumentViewModel {
             }
             
             do {
+#if !STITCH_AI_V1
                 try await supabaseManager.uploadGraphGenerationInferenceCallResultToSupabase(
                     prompt: promptForTrainingDataOrCompletedRequest,
                     finalActions: actionsAsSteps.map(\.toStep),
@@ -76,6 +77,12 @@ extension StitchDocumentViewModel {
                     ratingExplanation: explanationForRatingForExistingGraph,
                     // these actions + prompt did not require a retry
                     requiredRetry: false)
+#else
+                let submission = AIGraphCreationRequest.InferenceResult(
+                    request_id: state.llmRecording.requestIdFromCompletedRequest,
+                    actions: actionsAsSteps.map(\.toStep))
+                try await submission.uploadToSupabase(client: supabaseManager.postgrest)
+#endif
                 
                 log("📼 ✅ Data successfully saved locally and uploaded to Supabase ✅ 📼")
                 let existingPrompt = state.llmRecording.promptForTrainingDataOrCompletedRequest

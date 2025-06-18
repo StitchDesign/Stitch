@@ -58,37 +58,39 @@ enum AIGraphCreationInferenceRequest_V1: AIQueryable {
 //    }
 //}
 
-protocol SupabaseGeneratble {
+protocol SupabaseGenerable: Codable, Sendable {
     static var tablename: String { get }
 }
 
 enum AIGraphCreationSupabase_V1 {
     // The original request.
-    struct Request: SupabaseGeneratble {
+    struct Request: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Request"
         
         let user_id: String
         let request_id: UUID
+        let version_number: String // e.g. "1.7.3"
     }
     
     // Maps a prompt to a request_ID. Separated into separate table for manual upload support.
-    struct UserPrompt: SupabaseGeneratble {
-        static let tablename = "V1_Graph_Creation_Request"
+    struct UserPrompt: SupabaseGenerable {
+        static let tablename = "V1_Graph_Creation_Prompt"
         
         let request_id: UUID
         let user_prompt: String
     }
     
-    // The result of an inference request.
-    struct InferenceResult: SupabaseGeneratble {
+    // The result of an inference request, as returned either by AI or directly uploaded from the user.
+    struct InferenceResult: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Result"
         
         let request_id: UUID
         let actions: [Step_V1.Step]
+        let score_explanation: String?
     }
     
     // Error capturing of a request.
-    struct FailedQueries: SupabaseGeneratble {
+    struct FailedQueries: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Failures"
         
         let request_id: UUID
@@ -96,24 +98,24 @@ enum AIGraphCreationSupabase_V1 {
     }
     
     // Any ratings provided by the user for some request.
-    struct Rating: SupabaseGeneratble {
+    struct Rating: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Rating"
         
         let request_id: UUID
         let score: CGFloat
-        let score_explanation: String?
     }
     
-    // Manually-created training data, assumed to be correct. Determined a "correction" if request_id matches a request in `RequestTableData`.
-    struct ManualUpload: SupabaseGeneratble {
-        static let tablename = "V1_Graph_Creation_ManualUpload"
-        
-        let request_id: UUID
-        let actions: [Step_V1.Step]
-    }
+//    // Manually-created training data, assumed to be correct. Determined a "correction" if request_id matches a request in `RequestTableData`.
+//    struct ManualUpload: SupabaseGenerable {
+//        static let tablename = "V1_Graph_Creation_ManualUpload"
+//        
+//        let request_id: UUID
+//        let actions: [Step_V1.Step]
+//        let score_explanation: String?
+//    }
     
     // Tracks approvals from Stitch team validating a trained example.
-    struct ApprovedExample: SupabaseGeneratble {
+    struct ApprovedExample: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_ApprovedExample"
         
         let request_id: UUID

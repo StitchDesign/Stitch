@@ -67,9 +67,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
             aiManager.prepareRequest(
                 userPrompt: prompt,
                 requestId: request.id,
-                document: document,
-                canShareData: StitchStore.canShareAIData,
-                userPromptTableName: AIGraphCreationRequestBody.supabaseTableNamePrompt)
+                document: document)
             
             aiManager.currentTask = .init(task: aiManager.getOpenAITask(
                 request: request,
@@ -117,18 +115,17 @@ extension StitchAIManager {
     @MainActor
     func prepareRequest(userPrompt: String,
                         requestId: UUID,
-                        document: StitchDocumentViewModel,
-                        canShareData: Bool,
-                        userPromptTableName: String?) {
+                        document: StitchDocumentViewModel) {
         
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(userPrompt)")
         
         // Only log pre-request user prompts if we're in a release build and user has granted permissions
 #if RELEASE || DEV_DEBUG
-        if canShareData,
-           let tableName = userPromptTableName {
+        if StitchStore.canShareAIData {
             Task(priority: .background) { [weak document] in
+                
+#if !STITCH_AI_V1
                 guard let document = document,
                       let aiManager = document.aiManager else {
                     return
@@ -137,6 +134,13 @@ extension StitchAIManager {
                     prompt: userPrompt,
                     requestId: requestId,
                     tableName: tableName)
+#else
+                let userPromptData = AIGraphCreationSupabase.UserPrompt(
+                    request_id: requestId,
+                    user_prompt: userPrompt
+                )
+                try await userPromptData.uploadToSupabase(client: aiManager.postgrest)
+#endif
             }
         }
 #endif
