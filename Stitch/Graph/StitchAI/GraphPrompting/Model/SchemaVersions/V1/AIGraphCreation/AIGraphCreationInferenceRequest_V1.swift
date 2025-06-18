@@ -79,7 +79,7 @@ enum AIGraphCreationSupabase_V1 {
     struct Request: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Request"
         
-        let id: UUID
+//        let id: UUID
         let user_id: String
         
         // TODO: remove request id?
@@ -146,46 +146,46 @@ enum AIGraphCreationSupabase_V1 {
 }
 
 extension AIGraphCreationSupabase_V1 {
-    struct GraphGenerationTrainingTableData {
+    /// Only used by `GraphGenerationTableView`. Versioned so that previous schemas won't need to be altered to support the view.
+    struct GraphGenerationTrainingTableData: Decodable {
         let user_prompt: String
         let actions: [Step_V1.Step]
         let user_id: String
         let request_id: UUID?
         let is_approved: Bool?
-        let approver_user_id: UUID?
+        let approver_user_id: String?
     }
     
     static func getTrainingDataFullHistory(client: PostgrestClient) async throws -> [GraphGenerationTrainingTableData] {
         let previousData = try await AIGraphCreationSupabase_V0.getTrainingData(client: client)
         let migratedData = previousData.map(AIGraphCreationSupabase_V1.GraphGenerationTrainingTableData.migrate(from:))
         
-        // Get data at this version
-        let resultsPlusScores = try await client
-            .from(AIGraphCreationSupabase_V1.InferenceResult.tablename)
+        // Fetch V1 rows with joins to build flat GraphGenerationTrainingTableData
+        let response = try await client
+            .from(InferenceResult.tablename)
             .select("""
-                *,
-                rating:\(AIGraphCreationSupabase_V1.Rating.tablename)!left(
-                  score
-                )
+                request_id,
+                actions,
+                user_id:\(AIGraphCreationSupabase_V1.Request.tablename)!inner(user_id),
+                user_prompt:\(AIGraphCreationSupabase_V1.UserPrompt.tablename)!inner(user_prompt),
+                is_approved:\(AIGraphCreationSupabase_V1.SupervisedData.tablename)!left(is_approved),
+                approver_user_id:\(AIGraphCreationSupabase_V1.SupervisedData.tablename)!left(approver_user_id)
             """)
             .execute()
-            
         
-        // Get any manual submissions
-        let manualSubmissions = try await client
-            .from(ApprovedExample.tablename)
-            .select()
-            .execute()
-        
-        
+        let rows = try JSONDecoder()
+            .decode([GraphGenerationTrainingTableData].self, from: response.data)
+        return migratedData + rows
     }
 }
 
 extension AIGraphCreationSupabase_V1.GraphGenerationTrainingTableData {
     static func migrate(from previousVersion: AIGraphCreationSupabase_V0.GraphGenerationTrainingTableData) -> Self {
-        .init(userPrompt: previousVersion.actions.prompt,
-              userId: previousVersion.user_id,
-              requestId: previousVersion.request_id,
-              approverUserId: previousVersion.approver_user_id)
+        .init(user_prompt: previousVersion.actions.prompt,
+              actions: Step_V1.Step.upgradeEntities(previousVersion.actions.actions),
+              user_id: previousVersion.user_id,
+              request_id: previousVersion.request_id,
+              is_approved: previousVersion.approver_user_id.isDefined ? true : nil,
+              approver_user_id: previousVersion.approver_user_id)
     }
 }

@@ -162,7 +162,8 @@ struct GraphGenerationTableView: View {
 //                    query = query.ilike("actions->>prompt", value: "%\(filterPrompt)%")
 //                }
                 
-                reows = ???
+                self.rows = try await AIGraphCreationSupabase
+                    .getTrainingData(client: self.postgrestClient)
             } catch {
                 print("Error decoding payloads: \(error)")
             }
