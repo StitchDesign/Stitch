@@ -42,7 +42,9 @@ struct GraphGenerationTableView: View {
                     TextField("Filter by user ID", text: $filterUserID)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding([.horizontal, .top])
-                        .onChange(of: filterUserID) { _, _ in fetchRows() }
+                        .task(id: filterUserID, priority: .high) {
+                            await fetchRows(client: self.postgrestClient)
+                        }
                         .autocorrectionDisabled()
                         .autocapitalization(.none)
                     
@@ -108,7 +110,7 @@ struct GraphGenerationTableView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .onAppear { fetchRows() }
+//            .onAppear { fetchRows() }
             .onChange(of: selectedIndex) { _, newIndex in
                 if let idx = newIndex, rows.indices.contains(idx),
                    let row = rows[safe: idx] {
@@ -116,7 +118,7 @@ struct GraphGenerationTableView: View {
                     let (documentVM, _) = store.createAIDocumentPreviewer()
                     
                     // Force-unwrap okay here, since we'll want to crash if we can't parse the project
-                    let stepActions = row.actions.actions.compactMap { $0.parseAsStepAction().value }
+                    let stepActions = row.actions.compactMap { $0.parseAsStepAction().value }
                     
                     if let validationError = documentVM.validateAndApplyActions(stepActions) {
                         fatalErrorIfDebug("StitchAIProjectViewer: validateJSON: validationError: \(validationError.description)")
@@ -124,7 +126,7 @@ struct GraphGenerationTableView: View {
                     documentVM.visibleGraph.updateGraphData(documentVM)
                     self.store.graphTableLoadedRow = documentVM
                     
-                    if row.actions.actions.count != stepActions.count {
+                    if row.actions.count != stepActions.count {
                         fatalErrorIfDebug("Could not parse some table-row actions as more specific actions")
                     }
                     
@@ -137,9 +139,9 @@ struct GraphGenerationTableView: View {
             self.store.graphTableLoadedRow = nil
         }
         .alert("Delete this row?", isPresented: $showDeleteAlert, presenting: deletingIndex) { idx in
-            Button("Delete", role: .destructive) {
-                deleteRow(at: idx)
-            }
+//            Button("Delete", role: .destructive) {
+//                deleteRow(at: idx)
+//            }
             Button("Cancel", role: .cancel) {
                 self.showDeleteAlert = false
             }
@@ -148,108 +150,111 @@ struct GraphGenerationTableView: View {
         }
     }
     
-    private func fetchRows() {
-        Task {
-            do {
-//                // TODO: we need to get all data, migrate, then filter
-//                
-//                // TODO: get filters working
-//                if !filterUserID.isEmpty {
-//                    query = query.ilike("user_id", value: "%\(filterUserID)%")
-//                }
-//                if !filterPrompt.isEmpty {
-//                    // Filter JSON column's prompt field using ilike
-//                    query = query.ilike("actions->>prompt", value: "%\(filterPrompt)%")
-//                }
-                
-                self.rows = try await AIGraphCreationSupabase
-                    .getTrainingData(client: self.postgrestClient)
-            } catch {
-                print("Error decoding payloads: \(error)")
+    private func fetchRows(client: PostgrestClient) async {
+        do {
+            //                // TODO: we need to get all data, migrate, then filter
+            //
+            //                // TODO: get filters working
+            //                if !filterUserID.isEmpty {
+            //                    query = query.ilike("user_id", value: "%\(filterUserID)%")
+            //                }
+            //                if !filterPrompt.isEmpty {
+            //                    // Filter JSON column's prompt field using ilike
+            //                    query = query.ilike("actions->>prompt", value: "%\(filterPrompt)%")
+            //                }
+            
+            let rows = try await AIGraphCreationSupabase
+                .getTrainingDataFullHistory(client: client)
+            
+            await MainActor.run {
+                self.rows = rows
             }
+            
+        } catch {
+            print("Error decoding payloads: \(error)")
         }
     }
     
     // MARK: – Supabase delete (match on every column)
-    private func deleteRow(at index: Int) {
-        let row = rows[index]
-        
-        // 1) Convert your payload struct into a [String: Any] dictionary
-        //    so we can feed it to .match(...)
-        func payloadDictionary(from payload: AIGraphCreationSupabase.InferenceResult) -> [String: Any]? {
-            // Turn it into JSON data...
-            guard let data = try? JSONEncoder().encode(payload),
-                  let jsonObj = try? JSONSerialization.jsonObject(with: data),
-                  var dict = jsonObj as? [String: Any]
-            else {
-                return nil
-            }
-            // Supabase will reject nulls, so convert nil-able strings to empty string
-            if dict["score_explanation"] is NSNull {
-                dict["score_explanation"] = ""
-            }
-            return dict
-        }
-        
-        guard let matchCriteria = payloadDictionary(from: row) else {
-            print("⚠️ Could not serialize payload for delete-match.")
-            return
-        }
-        
-        let queryCriteria: [String: any URLQueryRepresentable] = matchCriteria.compactMapValues { anyValue in
-            // skip nulls
-            if anyValue is NSNull { return nil }
-            // only support string and number types to avoid JSON/dict mismatches
-            if let string = anyValue as? String {
-                return string as any URLQueryRepresentable
-            } else if let number = anyValue as? NSNumber {
-                return number.stringValue as any URLQueryRepresentable
-            } else {
-                // skip dictionaries, arrays, and other types
-                return nil
-            }
-        }
-        
-        Task(priority: .high) {
-            do {
-                // Delete *only* rows where EVERY column in `matchCriteria` is equal
-                let result = try await postgrestClient
-                    .from(AIGraphCreationSupabase.InferenceResult.tablename)
-                    .delete()
-                    .match(queryCriteria)
-                    .execute()
-                
-                // If no rows were deleted, Supabase still returns 200 OK with empty data.
-                // You can inspect result.count or result.data here if you need to alert the user.
-                
-                // 2) Update your local UI
-                DispatchQueue.main.async {
-                    rows.remove(at: index)
-                    if selectedIndex == index {
-                        selectedIndex = nil
-                    }
-                    
-                    self.fetchRows()
-                }
-            } catch {
-                print("Failed to delete (match all columns):", error)
-                // TODO: show user-facing error
-            }
-        }
-    }
+//    private func deleteRow(at index: Int) {
+//        let row = rows[index]
+//        
+//        // 1) Convert your payload struct into a [String: Any] dictionary
+//        //    so we can feed it to .match(...)
+//        func payloadDictionary(from payload: GraphGenerationTrainingTableData) -> [String: Any]? {
+//            // Turn it into JSON data...
+//            guard let data = try? JSONEncoder().encode(payload),
+//                  let jsonObj = try? JSONSerialization.jsonObject(with: data),
+//                  var dict = jsonObj as? [String: Any]
+//            else {
+//                return nil
+//            }
+//            // Supabase will reject nulls, so convert nil-able strings to empty string
+//            if dict["score_explanation"] is NSNull {
+//                dict["score_explanation"] = ""
+//            }
+//            return dict
+//        }
+//        
+//        guard let matchCriteria = payloadDictionary(from: row) else {
+//            print("⚠️ Could not serialize payload for delete-match.")
+//            return
+//        }
+//        
+//        let queryCriteria: [String: any URLQueryRepresentable] = matchCriteria.compactMapValues { anyValue in
+//            // skip nulls
+//            if anyValue is NSNull { return nil }
+//            // only support string and number types to avoid JSON/dict mismatches
+//            if let string = anyValue as? String {
+//                return string as any URLQueryRepresentable
+//            } else if let number = anyValue as? NSNumber {
+//                return number.stringValue as any URLQueryRepresentable
+//            } else {
+//                // skip dictionaries, arrays, and other types
+//                return nil
+//            }
+//        }
+//        
+//        Task(priority: .high) {
+//            do {
+//                // Delete *only* rows where EVERY column in `matchCriteria` is equal
+//                let result = try await postgrestClient
+//                    .from(AIGraphCreationSupabase.InferenceResult.tablename)
+//                    .delete()
+//                    .match(queryCriteria)
+//                    .execute()
+//                
+//                // If no rows were deleted, Supabase still returns 200 OK with empty data.
+//                // You can inspect result.count or result.data here if you need to alert the user.
+//                
+//                // 2) Update your local UI
+//                DispatchQueue.main.async {
+//                    rows.remove(at: index)
+//                    if selectedIndex == index {
+//                        selectedIndex = nil
+//                    }
+//                    
+//                    self.fetchRows()
+//                }
+//            } catch {
+//                print("Failed to delete (match all columns):", error)
+//                // TODO: show user-facing error
+//            }
+//        }
+//    }
 }
 
 struct GraphInferenceTableRow: View {
     @State private var showActionsJSONPopover = false
     @State private var isApproved: Bool
     
-    let row: AIGraphCreationSupabase.InferenceResult
+    let row: GraphGenerationTrainingTableData
     let idx: Int
     @Binding var deletingIndex: Int?
     @Binding var showDeleteAlert: Bool
     let aiManager: StitchAIManager
     
-    init(row: AIGraphCreationSupabase.InferenceResult,
+    init(row: GraphGenerationTrainingTableData,
          idx: Int,
          deletingIndex: Binding<Int?>,
          showDeleteAlert: Binding<Bool>,
@@ -282,18 +287,18 @@ struct GraphInferenceTableRow: View {
                 Text("Request ID: \(requestId.description.suffix(7))")
             }
             
-            Text("\"\(row.actions.prompt)\"")
+            Text("\"\(row.user_prompt)\"")
             
-            HStack {
-                Text("Score: \(row.score, specifier: "%.2f")")
-                if row.correction {
-                    Text("(CORRECTION)")
-                }
-            }
+//            HStack {
+//                Text("Score: \(row.score, specifier: "%.2f")")
+//                if row.correction {
+//                    Text("(CORRECTION)")
+//                }
+//            }
             
-            if let explanation = row.score_explanation {
-                Text("Explanation: \(explanation)")
-            }
+//            if let explanation = row.score_explanation {
+//                Text("Explanation: \(explanation)")
+//            }
             
             HStack {
                 Text("Approved: ")
@@ -315,7 +320,7 @@ struct GraphInferenceTableRow: View {
             }
         }
         .popover(isPresented: $showActionsJSONPopover) {
-            let jsonString = (try? row.actions.actions.encodeToPrintableString()) ?? "Failed to encode actions"
+            let jsonString = (try? row.actions.encodeToPrintableString()) ?? "Failed to encode actions"
             
             Text(jsonString)
                 .monospaced()
@@ -332,8 +337,16 @@ struct GraphInferenceTableRow: View {
         
         do {
             try await aiManager.postgrest
+            #if !STITCH_AI_V1
                 .from(AIGraphCreationSupabase.InferenceResult.tablename)
                 .update(["approver_user_id": approver])
+            #else
+                .from(AIGraphCreationSupabase.SupervisedData.tablename)
+                .update([
+                    "approver_user_id": approver,
+                    "is_approved": "true"
+                  ])
+            #endif
                 .eq("request_id", value: requestID)
                 .execute()
         } catch {
