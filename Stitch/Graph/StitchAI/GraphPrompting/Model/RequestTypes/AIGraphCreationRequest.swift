@@ -120,30 +120,47 @@ extension StitchAIManager {
         print("🤖 🔥 GENERATE AI NODE - STARTING AI GENERATION MODE 🔥 🤖")
         print("🤖 Prompt: \(userPrompt)")
         
-        // Only log pre-request user prompts if we're in a release build and user has granted permissions
-#if RELEASE || DEV_DEBUG
-        if StitchStore.canShareAIData {
-            Task(priority: .background) { [weak document] in
-                
-#if !STITCH_AI_V1
-                guard let document = document,
-                      let aiManager = document.aiManager else {
-                    return
-                }
-                try? await aiManager.uploadUserPromptRequestToSupabase(
-                    prompt: userPrompt,
-                    requestId: requestId,
-                    tableName: tableName)
-#else
-                let userPromptData = AIGraphCreationSupabase.UserPrompt(
-                    request_id: requestId,
-                    user_prompt: userPrompt
-                )
-                try await userPromptData.uploadToSupabase(client: aiManager.postgrest)
-#endif
-            }
+        guard let releaseVersion = getReleaseVersion() else {
+            fatalErrorIfDebug()
+            return
         }
+        
+        Task(priority: .background) { [weak self] in
+            guard let aiManager = self else {
+                return
+            }
+            
+            // Only log pre-request user prompts if we're in a release build and user has granted permissions
+            //#if RELEASE || DEV_DEBUG
+            guard let userId = try? await getCloudKitUsername() else {
+                fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
+                return
+            }
+            
+#if !STITCH_AI_V1
+            let payload = AIGraphCreationSupabase.GraphGenerationSupabaseUserPromptRequestRow(
+                request_id: requestId,
+                user_prompt: userPrompt,
+                version_number: releaseVersion,
+                user_id: userId)
+            try await payload.uploadToSupabase(client: aiManager.postgrest)
+#else
+            // First create root request object which tracks foreign key constraint for request_id
+            let requestData = AIGraphCreationSupabase.Request(
+                user_id: userId,
+                request_id: requestId,
+                version_number: releaseVersion
+            )
+            
+            // Subsequent data like user prompt can now be tracked
+            let promptData = AIGraphCreationSupabase.UserPrompt(
+                request_id: requestId,
+                user_prompt: userPrompt)
+            
+            try await requestData.uploadToSupabase(client: aiManager.postgrest)
+            try await promptData.uploadToSupabase(client: aiManager.postgrest)
 #endif
+        }
         
         // Make sure current task is completely wiped
         self.cancelCurrentRequest()
