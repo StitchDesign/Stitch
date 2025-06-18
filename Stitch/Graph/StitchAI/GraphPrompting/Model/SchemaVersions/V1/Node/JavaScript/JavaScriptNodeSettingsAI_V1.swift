@@ -16,6 +16,7 @@ enum JavaScriptNodeSettingsAI_V1: StitchSchemaVersionable {
     
     /// Redundant data structures needed for encoding node type for AI.
     struct JavaScriptNodeSettingsAI: Codable {
+        var suggested_title: String
         var script: String
         var input_definitions: [JavaScriptPortDefinitionAI]
         var output_definitions: [JavaScriptPortDefinitionAI]

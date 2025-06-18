@@ -5,6 +5,7 @@
 //  Created by Elliot Boschwitz on 6/1/25.
 //
 
+#if !STITCH_AI_V1
 typealias CurrentStep = Step_V0
 typealias CurrentStepType = StepType_V0
 typealias CurrentStitchAIPortValue = StitchAIPortValue_V0
@@ -28,6 +29,31 @@ typealias CurrentStepActionConnectionAdded = StepActionConnectionAdded_V0
 typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V0
 typealias CurrentStepActionSetInput = StepActionSetInput_V0
 typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V0
+#else
+typealias CurrentStep = Step_V1
+typealias CurrentStepType = StepType_V1
+typealias CurrentStitchAIPortValue = StitchAIPortValue_V1
+typealias CurrentStitchAIPosition = StitchAIPosition_V1
+typealias CurrentStitchAIUUID = StitchAIUUID_V1
+typealias CurrentStitchAIColor = StitchAIColor_V1
+typealias CurrentStitchAISize = StitchAISize_V1
+typealias CurrentStitchAISizeDimension = StitchAISizeDimension_V1
+typealias CurrentJavaScriptNodeSettingsAI = JavaScriptNodeSettingsAI_V1
+typealias CurrentJavaScriptPortDefinitionAI = JavaScriptPortDefinitionAI_V1
+typealias CurrentAIGraphCreationRequestBody = AIGraphCreationRequestBody_V1
+typealias CurrentAIGraphDescriptionRequestBody = AIGraphDescriptionRequestBody_V1
+typealias CurrentAIEditJsSystemPrompt = AIEditJsNodeSystemPrompt_V1
+typealias CurrentAIGraphCreationResponseFormat = AIGraphCreationResponseFormat_V1
+typealias CurrentAIEditJsNodeResponseFormat = AIEditJsNodeResponseFormat_V1
+typealias CurrentAIEditJsNodeRequestBody = AIEditJsNodeRequestBody_V1
+typealias CurrentStitchAIRequestBodyFormattable = StitchAIRequestBodyFormattable_V1
+typealias CurrentAIGraphCreationContentJSON = AIGraphCreationContentJSON_V1
+typealias CurrentStepActionAddNode = StepActionAddNode_V1
+typealias CurrentStepActionConnectionAdded = StepActionConnectionAdded_V1
+typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V1
+typealias CurrentStepActionSetInput = StepActionSetInput_V1
+typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V1
+#endif
 
 typealias Step = CurrentStep.Step
 typealias Steps = [Step]

@@ -86,6 +86,11 @@ extension CurrentStep.Patch {
         case .splitter, .random, .counter, .flipSwitch:
             return .general
             
+#if STITCH_AI_V1
+        case .javascript:
+            return .general
+#endif
+            
             // MARK: Math Operation Nodes
         case .add, .multiply, .divide, .absoluteValue, .round, .squareRoot,
                 .subtract, .max, .min, .mod, .power, .soulver, .length,
