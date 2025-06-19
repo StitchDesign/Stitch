@@ -10,53 +10,7 @@ import PostgREST
 
 enum AIGraphCreationInferenceRequest_V1: AIQueryable {
     typealias PreviousVersion = AIGraphCreationInferenceRequest_V0
-//    static let supabaseTableNameInference = "V1_graph_generation_result"
-//    static let supabaseTableNamePrompt = "V1_graph_generation_prompt"
-    
-//    static let tablename = Self.supabaseTableNameInference
-    
-//    struct TableDataRow: Codable {
-//        let user_id: String
-//        var actions: GraphGenerationSupabaseInferenceCallResultRecordingWrapper
-//        let correction: Bool
-//        let score: CGFloat
-//        let required_retry: Bool
-//        let request_id: UUID? // nil for freshly-created training data
-//        let score_explanation: String?
-//        var approver_user_id: String?
-//    }
-    
-//    static func getFullHistory(client: PostgrestClient) async throws -> [Self.TableDataRow] {
-//        // Get full history from previous version
-//        let prevData = try await PreviousVersion.getFullHistory(client: client)
-//        let migratedData = prevData.map(Self.migrate(from:))
-//        let dataHere = try await self.fetchTableData(client: client)
-//        return dataHere + migratedData
-//    }
-    
-//    static func migrate(from previousVersion: Self.PreviousVersion.TableDataRow) -> TableDataRow {
-//        .init(user_id: previousVersion.user_id,
-//              actions: previousVersion.actions,
-//              correction: previousVersion.correction,
-//              score: previousVersion.score,
-//              required_retry: previousVersion.required_retry,
-//              request_id: previousVersion.request_id,
-//              score_explanation: previousVersion.score_explanation)
-//    }
 }
-
-//extension Array where Element == AIGraphCreationInferenceRequest_V1.TableDataRow {
-//    /// Unique helper for this version where we need to isolate results for a single request ID and prioritize corrections.
-//    func getResultsForValidationTableViewer() -> [Element] {
-////        let queryBuilder = try await client.from(Self.tablename)
-//
-//        // Get all manual uploads
-//
-//        // Add results not already marked with same request ID
-//
-//        // Add approver column
-//    }
-//}
 
 protocol SupabaseGenerable: Codable, Sendable {
     static var tablename: String { get }
@@ -77,9 +31,8 @@ extension SupabaseGenerable {
 enum AIGraphCreationSupabase_V1 {
     // The original request.
     struct Request: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Request"
+        static let tablename = "v1_graph_creation_request"
         
-//        let id: UUID
         let id: UUID
         let user_id: String
         let version_number: String // e.g. "1.7.3"
@@ -87,17 +40,17 @@ enum AIGraphCreationSupabase_V1 {
     
     // Maps a prompt to a request_ID. Separated into separate table for manual upload support.
     struct UserPrompt: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Prompt"
+        static let tablename = "v1_graph_creation_prompt"
         
-        let id: UUID
+        let request_id: UUID     // foreign key to request table
         let user_prompt: String
     }
     
     // The result of an inference request, as returned either by AI or directly uploaded from the user.
     struct InferenceResult: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Result"
+        static let tablename = "v1_graph_creation_inference_result"
         
-        let id: UUID
+        let request_id: UUID     // foreign key to request table
         let actions: [Step_V1.Step]
         var score: CGFloat?
         var score_explanation: String?
@@ -105,36 +58,43 @@ enum AIGraphCreationSupabase_V1 {
     
     // The result of an inference request, as returned either by AI or directly uploaded from the user.
     struct ManualSubmission: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Result"
+        static let tablename = "v1_graph_creation_manual_submission"
         
-        let id: UUID
-        let inference_request_id: UUID?
+        let request_id: UUID    // foreign key to request table
         let actions: [Step_V1.Step]
-        
-        init(inference_request_id: UUID?,
-             actions: [Step_V1.Step]) {
-            self.id = .init()
-            self.inference_request_id = inference_request_id
-            self.actions = actions
-        }
     }
     
     // Error capturing of a request.
     struct FailedQueries: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Failure"
+        static let tablename = "v1_graph_creation_failure"
         
-        let id: UUID
+        let request_id: UUID     // foreign key to request table
         let error: String
     }
 
     struct SupervisedData: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Supervised"
+        static let tablename = "v1_graph_creation_supervised"
         
-        let id: UUID
+        let request_id: UUID    // foreign key to request table
         let is_approved: Bool
         let approver_user_id: String
     }
 }
+
+// TODO: move
+//protocol AIGraphDataSupervisable: Decodable {
+//    var id: UUID { get }
+//    var user_id: String { get }
+//    var is_approved: Bool? { get }
+//    var approver_user_id: String? { get }
+//    var user_prompt: String { get }
+//    var actions: [CurrentStep.Step] { get }
+//    
+//    func markAsSupervised(client: PostgrestClient,
+//                          isApproved: Bool,
+//                          approverId: String,
+//                          requestId: UUID) async throws
+//}
 
 extension AIGraphCreationSupabase_V1 {
     /// Only used by `GraphGenerationTableView`. Versioned so that previous schemas won't need to be altered to support the view.
@@ -147,7 +107,7 @@ extension AIGraphCreationSupabase_V1 {
         let approver_user_id: String?
     }
     
-    static func getTrainingDataFullHistory(client: PostgrestClient) async throws -> [GraphGenerationTrainingTableData] {
+    static func getTrainingDataFullHistory(client: PostgrestClient) async throws -> [StitchAISchemaVersion : [GraphGenerationTrainingTableData]] {
         let previousData = try await AIGraphCreationSupabase_V0.getTrainingData(client: client)
         let migratedData = previousData.map(AIGraphCreationSupabase_V1.GraphGenerationTrainingTableData.migrate(from:))
         
@@ -166,7 +126,10 @@ extension AIGraphCreationSupabase_V1 {
         
         let rows = try JSONDecoder()
             .decode([GraphGenerationTrainingTableData].self, from: response.data)
-        return migratedData + rows
+        return [
+            ._V0: migratedData,
+            ._V1: rows
+        ]
     }
 }
 

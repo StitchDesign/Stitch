@@ -10,10 +10,19 @@ import PostgREST
 import Foundation
 import StitchSchemaKit
 
+struct VersionedGraphGenerationTrainingTableData: Identifiable {
+    let data: GraphGenerationTrainingTableData
+    let version: StitchAISchemaVersion
+    
+    var id: UUID {
+        data.id
+    }
+}
+
 struct GraphGenerationTableView: View {
     @Bindable var store: StitchStore
     
-    @State private var rows: [GraphGenerationTrainingTableData] = []
+    @State private var rows: [VersionedGraphGenerationTrainingTableData] = []
     @State private var filterUserID: String = ""
 //    @State private var filterPrompt: String = ""
     @State private var selectedIndex: Int?
@@ -77,8 +86,9 @@ struct GraphGenerationTableView: View {
                     
                     List(rows.indices, id: \.self, selection: $selectedIndex) { idx in
                         let row = rows[idx]
-                        GraphInferenceTableRow(row: row,
+                        GraphInferenceTableRow(row: row.data,
                                                idx: idx,
+                                               schemaVersion: row.version,
                                                deletingIndex: $deletingIndex,
                                                showDeleteAlert: $showDeleteAlert,
                                                aiManager: self.aiManager)
@@ -113,7 +123,7 @@ struct GraphGenerationTableView: View {
             }
             .onChange(of: selectedIndex) { _, newIndex in
                 if let idx = newIndex, rows.indices.contains(idx),
-                   let row = rows[safe: idx] {
+                   let row = rows[safe: idx]?.data {
                     
                     let (documentVM, _) = store.createAIDocumentPreviewer()
                     
@@ -146,7 +156,7 @@ struct GraphGenerationTableView: View {
                 self.showDeleteAlert = false
             }
         } message: { idx in
-            Text("This will permanently remove the inference result for user \(rows[idx].user_id).")
+            Text("This will permanently remove the inference result for user \(rows[idx].data.user_id).")
         }
     }
     
@@ -163,13 +173,22 @@ struct GraphGenerationTableView: View {
             //                    query = query.ilike("actions->>prompt", value: "%\(filterPrompt)%")
             //                }
             
-            let rows = try await AIGraphCreationSupabase
+            let rowDict = try await AIGraphCreationSupabase
                 .getTrainingDataFullHistory(client: client)
+            
+            let rows = rowDict.reduce(into: [VersionedGraphGenerationTrainingTableData]()) { result, rowElement in
+                let versionedData = rowElement.value.map {
+                    VersionedGraphGenerationTrainingTableData(
+                        data: $0,
+                        version: rowElement.key)
+                }
+                
+                result += versionedData
+            }
             
             await MainActor.run {
                 self.rows = rows
             }
-            
         } catch {
             print("Error decoding payloads: \(error)")
         }
@@ -246,22 +265,25 @@ struct GraphGenerationTableView: View {
 
 struct GraphInferenceTableRow: View {
     @State private var showActionsJSONPopover = false
-    @State private var isApproved: Bool
+    @State private var isApproved: Bool?
     
     let row: GraphGenerationTrainingTableData
     let idx: Int
+    let schemaVersion: StitchAISchemaVersion
     @Binding var deletingIndex: Int?
     @Binding var showDeleteAlert: Bool
     let aiManager: StitchAIManager
     
     init(row: GraphGenerationTrainingTableData,
          idx: Int,
+         schemaVersion: StitchAISchemaVersion,
          deletingIndex: Binding<Int?>,
          showDeleteAlert: Binding<Bool>,
          aiManager: StitchAIManager) {
-        self.isApproved = row.approver_user_id != nil
+        self.isApproved = row.is_approved
         self.row = row
         self.idx = idx
+        self.schemaVersion = schemaVersion
         self._deletingIndex = deletingIndex
         self._showDeleteAlert = showDeleteAlert
         self.aiManager = aiManager
@@ -301,15 +323,15 @@ struct GraphInferenceTableRow: View {
             HStack {
                 Text("Approved: ")
                     .bold()
-                Toggle("", isOn: $isApproved)
-                    .labelsHidden()
-                    .onChange(of: isApproved) { _, newValue in
-                        Task {
-                            let cloudkitUserName = try? await getCloudKitUsername()
-                            await updateApproval(newValue,
-                                                 cloudkitUserName: cloudkitUserName)
-                        }
-                    }
+//                Toggle("", isOn: $isApproved)
+//                    .labelsHidden()
+//                    .onChange(of: isApproved) { _, newValue in
+//                        Task {
+//                            let cloudkitUserName = try? await getCloudKitUsername()
+//                            await updateApproval(newValue,
+//                                                 cloudkitUserName: cloudkitUserName)
+//                        }
+//                    }
             }
         }
         .contextMenu {
@@ -328,27 +350,30 @@ struct GraphInferenceTableRow: View {
     }
     
     // TODO: approve needs to update respective tables
-    private func updateApproval(_ approved: Bool,
-                                cloudkitUserName: String?) async {
-        let requestID = row.id
-        
-        let approver: String? = approved ? cloudkitUserName : nil
+    private func updateApproval(_ isApproved: Bool,
+                                cloudkitUserName: String) async {
+        let requestId = row.id
         
         do {
-            try await aiManager.postgrest
-            #if !STITCH_AI_V1
-                .from(AIGraphCreationSupabase.InferenceResult.tablename)
-                .update(["approver_user_id": approver])
-                .eq("request_id", value: requestID)
-            #else
-                .from(AIGraphCreationSupabase.SupervisedData.tablename)
-                .update([
-                    "approver_user_id": approver,
-                    "is_approved": "true"
-                  ])
-                .eq("id", value: requestID)
-            #endif
-                .execute()
+            switch schemaVersion {
+            case ._V0:
+                try await aiManager.postgrest
+                    .from(AIGraphCreationSupabase_V0.InferenceResult.tablename)
+                    .update(["approver_user_id": cloudkitUserName,
+                             "is_approved": isApproved.description])
+                    .eq("id", value: requestId)
+                    .execute()
+            
+            case ._V1:
+                try await aiManager.postgrest
+                    .from(AIGraphCreationSupabase_V1.SupervisedData.tablename)
+                    .update([
+                        "approver_user_id": cloudkitUserName,
+                        "is_approved": isApproved.description
+                      ])
+                    .eq("request_id", value: requestId)
+                    .execute()
+            }
         } catch {
             print("Failed to update approver_user_id:", error)
         }

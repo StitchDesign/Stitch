@@ -43,10 +43,8 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let requestId = state.llmRecording.requestIdFromCompletedRequest else {
-            fatalErrorIfDebug("submitApprovedActionsToSupabase: expected request ID.")
-            return
-        }
+        // Request ID can be optional here--if it exists it means this is an edit for an inference request
+        let requestId = state.llmRecording.requestIdFromCompletedRequest
         
         let promptForTrainingDataOrCompletedRequest = state.llmRecording.promptForTrainingDataOrCompletedRequest
         
@@ -83,17 +81,31 @@ extension StitchDocumentViewModel {
                     // these actions + prompt did not require a retry
                     requiredRetry: false)
 #else
+                let isManaulSubmission = requestId == nil
+                let requestId = requestId ?? .init()
+
+                // create new request object if this is a manual submission
+                if isManaulSubmission {
+                    let requestData = AIGraphCreationSupabase.Request(
+                        id: requestId,
+                        user_id: try await getCloudKitUsername() ?? "no-username",
+                        version_number: getReleaseVersion() ?? "no-version-number"
+                    )
+                    
+                    try await requestData.uploadToSupabase(client: supabaseManager.postgrest)
+                }
+                
                 // update score explanation
                 try await supabaseManager.postgrest
                     .from(AIGraphCreationSupabase.InferenceResult.tablename)
                     .update([
                         "score_explanation": explanationForRatingForExistingGraph
                     ])
-                    .eq("id", value: requestId)
+                    .eq("request_id", value: requestId)
                 
                 // create new manual submission
                 let submission = AIGraphCreationSupabase.ManualSubmission(
-                    inference_request_id: requestId,
+                    request_id: requestId,
                     actions: actionsAsSteps.map(\.toStep))
                 try await submission.uploadToSupabase(client: supabaseManager.postgrest)
 #endif

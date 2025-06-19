@@ -56,7 +56,7 @@ extension StitchAIManager {
                     requiredRetry: false)
 #else
                 let supabaseResult = AIGraphCreationSupabase.InferenceResult(
-                    id: request.id,
+                    request_id: request.id,
                     actions: result.map(\.toStep)
                 )
                 

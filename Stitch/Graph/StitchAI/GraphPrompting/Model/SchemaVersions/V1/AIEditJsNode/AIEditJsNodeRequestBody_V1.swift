@@ -35,7 +35,7 @@ enum AIEditJsNodeRequestBody_V1 {
 
 enum AIJavaScriptSupabase_V1 {
     struct InferenceResult: SupabaseGenerable {
-        static let tablename = "V1_JavaScript"
+        static let tablename = "v1_javascript"
         
         let id: UUID
         let user_id: String

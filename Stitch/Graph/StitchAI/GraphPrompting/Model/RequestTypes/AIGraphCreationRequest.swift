@@ -154,7 +154,7 @@ extension StitchAIManager {
             
             // Subsequent data like user prompt can now be tracked
             let promptData = AIGraphCreationSupabase.UserPrompt(
-                id: requestId,
+                request_id: requestId,
                 user_prompt: userPrompt)
             
             try await requestData.uploadToSupabase(client: aiManager.postgrest)
