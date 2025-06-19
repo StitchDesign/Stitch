@@ -171,6 +171,14 @@ extension PortValue {
             return .layerGroupOrientationDropdown
         case .anchorEntity:
             return .anchorEntity
+        case .buttonStyle:
+            return .singleDropdown(.buttonStyle)
+        case .buttonRole:
+            return .singleDropdown(.buttonRole)
+        case .buttonBorderShape:
+            return .singleDropdown(.buttonBorderShape)
+        case .buttonRepeatBehavior:
+            return .singleDropdown(.buttonRepeatBehavior)
         }
     }
 

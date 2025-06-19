@@ -129,6 +129,14 @@ extension StitchAIPortValue_V1.NodeType {
             return StitchAIPortValue_V1.PortValueVersion.KeyboardType.self
         case .none:
             fatalError()
+        case .buttonStyle:
+            return StitchAIPortValue_V1.PortValueVersion.StitchButtonRole.self
+        case .buttonRole:
+            return StitchAIPortValue_V1.PortValueVersion.StitchButtonRole.self
+        case .buttonBorderShape:
+            return StitchAIPortValue_V1.PortValueVersion.StitchButtonBorderShape.self
+        case .buttonRepeatBehavior:
+            return StitchAIPortValue_V1.PortValueVersion.StitchButtonRepeatBehavior.self
         }
     }
     
@@ -434,13 +442,28 @@ extension StitchAIPortValue_V1.NodeType {
         case .none:
             fatalError()
         case .buttonStyle:
-            <#code#>
+            guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchButtonStyle else {
+                throw StitchAIParsingError.typeCasting
+            }
+            return .buttonStyle(x)
+
         case .buttonRole:
-            <#code#>
+            guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchButtonRole else {
+                throw StitchAIParsingError.typeCasting
+            }
+            return .buttonRole(x)
+
         case .buttonBorderShape:
-            <#code#>
+            guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchButtonBorderShape else {
+                throw StitchAIParsingError.typeCasting
+            }
+            return .buttonBorderShape(x)
+
         case .buttonRepeatBehavior:
-            <#code#>
+            guard let x = anyValue as? StitchAIPortValue_V1.PortValueVersion.StitchButtonRepeatBehavior else {
+                throw StitchAIParsingError.typeCasting
+            }
+            return .buttonRepeatBehavior(x)
         }
     }
 }

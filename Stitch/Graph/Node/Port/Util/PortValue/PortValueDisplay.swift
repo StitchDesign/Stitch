@@ -252,6 +252,14 @@ extension PortValue {
             return x?.description ?? "None"
         case .keyboardType(let x):
             return x.rawValue
+        case .buttonStyle(let x):
+            return x.rawValue
+        case .buttonRole(let x):
+            return x?.rawValue ?? ""
+        case .buttonBorderShape(let x):
+            return x.rawValue
+        case .buttonRepeatBehavior(let x):
+            return x.rawValue
         }
         /*
          See https://github.com/vpl-codesign/stitch/issues/3022

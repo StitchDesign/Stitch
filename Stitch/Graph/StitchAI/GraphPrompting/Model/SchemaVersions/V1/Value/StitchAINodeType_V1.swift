@@ -145,6 +145,7 @@ extension StitchAIPortValue_V1.NodeType {
             return .buttonBorderShape(.roundedRectangle)
         case .buttonRepeatBehavior:
             return .buttonRepeatBehavior(.automatic)
+            
         }
     }
 }
