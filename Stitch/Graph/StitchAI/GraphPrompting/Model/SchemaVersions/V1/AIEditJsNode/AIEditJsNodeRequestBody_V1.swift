@@ -9,8 +9,6 @@ import SwiftUI
 
 enum AIEditJsNodeRequestBody_V1 {
     struct AIEditJsNodeRequestBody: StitchAIRequestBodyFormattable {
-        static let supabaseTableName = "V1_JavaScript"
-        
         let model: String
         let n: Int = 1
         let temperature: Double = FeatureFlags.STITCH_AI_REASONING ? 1.0 : 0.0
