@@ -9,7 +9,7 @@ import SwiftUI
 
 enum AIEditJsNodeRequestBody_V1 {
     struct AIEditJsNodeRequestBody: StitchAIRequestBodyFormattable {
-        static let supabaseTableName = "V1_javascript"
+        static let supabaseTableName = "V1_JavaScript"
         
         let model: String
         let n: Int = 1
@@ -37,10 +37,10 @@ enum AIEditJsNodeRequestBody_V1 {
 
 enum AIJavaScriptSupabase_V1 {
     struct InferenceResult: SupabaseGenerable {
-        static let tablename = "V1_javascript"
+        static let tablename = "V1_JavaScript"
         
+        let id: UUID
         let user_id: String
-        let request_id: UUID
         let user_prompt: String
         let javascript_settings: JavaScriptNodeSettings
     }

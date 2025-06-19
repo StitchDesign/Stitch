@@ -147,14 +147,14 @@ extension StitchAIManager {
 #else
             // First create root request object which tracks foreign key constraint for request_id
             let requestData = AIGraphCreationSupabase.Request(
+                id: requestId,
                 user_id: userId,
-                request_id: requestId,
                 version_number: releaseVersion
             )
             
             // Subsequent data like user prompt can now be tracked
             let promptData = AIGraphCreationSupabase.UserPrompt(
-                request_id: requestId,
+                id: requestId,
                 user_prompt: userPrompt)
             
             try await requestData.uploadToSupabase(client: aiManager.postgrest)

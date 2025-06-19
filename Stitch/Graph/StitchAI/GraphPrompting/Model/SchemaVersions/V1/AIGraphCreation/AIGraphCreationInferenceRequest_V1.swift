@@ -80,10 +80,8 @@ enum AIGraphCreationSupabase_V1 {
         static let tablename = "V1_Graph_Creation_Request"
         
 //        let id: UUID
+        let id: UUID
         let user_id: String
-        
-        // TODO: remove request id?
-        let request_id: UUID
         let version_number: String // e.g. "1.7.3"
     }
     
@@ -91,7 +89,7 @@ enum AIGraphCreationSupabase_V1 {
     struct UserPrompt: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Prompt"
         
-        let request_id: UUID
+        let id: UUID
         let user_prompt: String
     }
     
@@ -99,7 +97,7 @@ enum AIGraphCreationSupabase_V1 {
     struct InferenceResult: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Result"
         
-        let request_id: UUID
+        let id: UUID
         let actions: [Step_V1.Step]
         var score_explanation: String?
     }
@@ -108,7 +106,7 @@ enum AIGraphCreationSupabase_V1 {
     struct FailedQueries: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Failures"
         
-        let request_id: UUID
+        let id: UUID
         let error: String
     }
     
@@ -116,30 +114,14 @@ enum AIGraphCreationSupabase_V1 {
     struct Rating: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Rating"
         
-        let request_id: UUID
+        let id: UUID
         let score: CGFloat
     }
-    
-//    // Manually-created training data, assumed to be correct. Determined a "correction" if request_id matches a request in `RequestTableData`.
-//    struct ManualUpload: SupabaseGenerable {
-//        static let tablename = "V1_Graph_Creation_ManualUpload"
-//
-//        let request_id: UUID
-//        let actions: [Step_V1.Step]
-//        let score_explanation: String?
-//    }
-    
-    // Tracks approvals from Stitch team validating a trained example.
-//    struct ApprovedExample: SupabaseGenerable {
-//        static let tablename = "V1_Graph_Creation_ApprovedExample"
-//        
-//        let request_id: UUID
-//    }
-    
+
     struct SupervisedData: SupabaseGenerable {
         static let tablename = "V1_Graph_Creation_Supervised"
         
-        let request_id: UUID
+        let id: UUID
         let is_approved: Bool
         let approver_user_id: String
     }
@@ -151,7 +133,8 @@ extension AIGraphCreationSupabase_V1 {
         let user_prompt: String
         let actions: [Step_V1.Step]
         let user_id: String
-        let request_id: UUID?
+        // TODO: make this nonoptional
+        let id: UUID?
         let is_approved: Bool?
         let approver_user_id: String?
     }
@@ -164,7 +147,7 @@ extension AIGraphCreationSupabase_V1 {
         let response = try await client
             .from(Request.tablename)
             .select("""
-                request_id,
+                id,
                 user_id,
                 prompt:\(AIGraphCreationSupabase_V1.UserPrompt.tablename)!inner(user_prompt),
                 actions:\(AIGraphCreationSupabase_V1.InferenceResult.tablename)!inner(actions),
@@ -184,7 +167,7 @@ extension AIGraphCreationSupabase_V1.GraphGenerationTrainingTableData {
         .init(user_prompt: previousVersion.actions.prompt,
               actions: Step_V1.Step.upgradeEntities(previousVersion.actions.actions),
               user_id: previousVersion.user_id,
-              request_id: previousVersion.request_id,
+              id: previousVersion.request_id,
               is_approved: previousVersion.approver_user_id.isDefined ? true : nil,
               approver_user_id: previousVersion.approver_user_id)
     }

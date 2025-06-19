@@ -97,7 +97,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                 )
 #else
                 let ratingData = AIGraphCreationSupabase.Rating(
-                    request_id: requestId,
+                    id: requestId,
                     score: rating.rawValue)
                 
                 try await ratingData.uploadToSupabase(client: aiManager.postgrest)

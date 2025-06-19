@@ -46,8 +46,8 @@ extension StitchAIManager {
         }
         
         let payload = AIJavaScriptSupabase.InferenceResult(
+            id: requestId,
             user_id: userId,
-            request_id: requestId,
             user_prompt: userPrompt,
             javascript_settings: javascriptSettings)
         

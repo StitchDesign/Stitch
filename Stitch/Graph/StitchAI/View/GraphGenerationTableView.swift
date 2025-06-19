@@ -283,7 +283,7 @@ struct GraphInferenceTableRow: View {
                 .buttonStyle(.bordered)
             }
             
-            if let requestId = row.request_id {
+            if let requestId = row.id {
                 Text("Request ID: \(requestId.description.suffix(7))")
             }
             
@@ -331,7 +331,7 @@ struct GraphInferenceTableRow: View {
     
     private func updateApproval(_ approved: Bool,
                                 cloudkitUserName: String?) async {
-        guard let requestID = row.request_id else { return }
+        guard let requestID = row.id else { return }
         
         let approver: String? = approved ? cloudkitUserName : nil
         
@@ -340,14 +340,15 @@ struct GraphInferenceTableRow: View {
             #if !STITCH_AI_V1
                 .from(AIGraphCreationSupabase.InferenceResult.tablename)
                 .update(["approver_user_id": approver])
+                .eq("request_id", value: requestID)
             #else
                 .from(AIGraphCreationSupabase.SupervisedData.tablename)
                 .update([
                     "approver_user_id": approver,
                     "is_approved": "true"
                   ])
+                .eq("id", value: requestID)
             #endif
-                .eq("request_id", value: requestID)
                 .execute()
         } catch {
             print("Failed to update approver_user_id:", error)

@@ -84,7 +84,7 @@ extension StitchDocumentViewModel {
                     requiredRetry: false)
 #else
                 let submission = AIGraphCreationSupabase.InferenceResult(
-                    request_id: requestId,
+                    id: requestId,
                     actions: actionsAsSteps.map(\.toStep),
                     score_explanation: explanationForRatingForExistingGraph)
                 try await submission.uploadToSupabase(client: supabaseManager.postgrest)
