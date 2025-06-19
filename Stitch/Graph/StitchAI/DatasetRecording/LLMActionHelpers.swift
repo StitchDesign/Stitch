@@ -83,10 +83,18 @@ extension StitchDocumentViewModel {
                     // these actions + prompt did not require a retry
                     requiredRetry: false)
 #else
-                let submission = AIGraphCreationSupabase.InferenceResult(
-                    id: requestId,
-                    actions: actionsAsSteps.map(\.toStep),
-                    score_explanation: explanationForRatingForExistingGraph)
+                // update score explanation
+                try await supabaseManager.postgrest
+                    .from(AIGraphCreationSupabase.InferenceResult.tablename)
+                    .update([
+                        "score_explanation": explanationForRatingForExistingGraph
+                    ])
+                    .eq("id", value: requestId)
+                
+                // create new manual submission
+                let submission = AIGraphCreationSupabase.ManualSubmission(
+                    inference_request_id: requestId,
+                    actions: actionsAsSteps.map(\.toStep))
                 try await submission.uploadToSupabase(client: supabaseManager.postgrest)
 #endif
                 

@@ -99,23 +99,32 @@ enum AIGraphCreationSupabase_V1 {
         
         let id: UUID
         let actions: [Step_V1.Step]
+        var score: CGFloat?
         var score_explanation: String?
+    }
+    
+    // The result of an inference request, as returned either by AI or directly uploaded from the user.
+    struct ManualSubmission: SupabaseGenerable {
+        static let tablename = "V1_Graph_Creation_Result"
+        
+        let id: UUID
+        let inference_request_id: UUID?
+        let actions: [Step_V1.Step]
+        
+        init(inference_request_id: UUID?,
+             actions: [Step_V1.Step]) {
+            self.id = .init()
+            self.inference_request_id = inference_request_id
+            self.actions = actions
+        }
     }
     
     // Error capturing of a request.
     struct FailedQueries: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Failures"
+        static let tablename = "V1_Graph_Creation_Failure"
         
         let id: UUID
         let error: String
-    }
-    
-    // Any ratings provided by the user for some request.
-    struct Rating: SupabaseGenerable {
-        static let tablename = "V1_Graph_Creation_Rating"
-        
-        let id: UUID
-        let score: CGFloat
     }
 
     struct SupervisedData: SupabaseGenerable {

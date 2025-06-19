@@ -99,6 +99,7 @@ extension StitchAIManager {
             actions: finalActions)
         
         let payload = AIGraphCreationSupabase.InferenceResult(
+            id: requestId ?? .init(),
             user_id: userId,
             actions: promptResponse,
             correction: isCorrection,

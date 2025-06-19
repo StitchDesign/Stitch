@@ -327,6 +327,7 @@ struct GraphInferenceTableRow: View {
         .padding(.vertical, 8)
     }
     
+    // TODO: approve needs to update respective tables
     private func updateApproval(_ approved: Bool,
                                 cloudkitUserName: String?) async {
         let requestID = row.id

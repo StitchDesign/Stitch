@@ -96,11 +96,12 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                     requiredRetry: false // not applicable
                 )
 #else
-                let ratingData = AIGraphCreationSupabase.Rating(
-                    id: requestId,
-                    score: rating.rawValue)
-                
-                try await ratingData.uploadToSupabase(client: aiManager.postgrest)
+                try await aiManager.postgrest
+                    .from(AIGraphCreationSupabase.InferenceResult.tablename)
+                    .update([
+                        "score": rating.rawValue
+                    ])
+                    .eq("id", value: requestId)
 #endif
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)
