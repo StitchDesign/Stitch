@@ -137,6 +137,14 @@ extension StitchAIPortValue_V1.NodeType {
             return .anchorEntity(nil)
         case .keyboardType:
             return .keyboardType(.defaultKeyboard)
+        case .buttonStyle:
+            return .buttonStyle(.plain)
+        case .buttonRole:
+            return .buttonRole(nil)
+        case .buttonBorderShape:
+            return .buttonBorderShape(.roundedRectangle)
+        case .buttonRepeatBehavior:
+            return .buttonRepeatBehavior(.automatic)
         }
     }
 }

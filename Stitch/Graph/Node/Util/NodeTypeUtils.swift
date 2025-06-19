@@ -164,6 +164,14 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
         return .anchorEntity
     case .keyboardType:
         return .keyboardType
+    case .buttonStyle:
+        return .buttonStyle
+    case .buttonRole:
+        return .buttonRole
+    case .buttonBorderShape:
+        return .buttonBorderShape
+    case .buttonRepeatBehavior:
+        return .buttonRepeatBehavior
     }
 }
 

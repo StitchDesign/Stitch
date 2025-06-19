@@ -20,6 +20,8 @@ extension Layer {
             return .graphStep(switchLayerEval)
         case .group:
             return .graph(nativeScrollInteractionEval)
+        case .button:
+            return .graphStep(buttonLayerEval)
         default:
             return nil
         }

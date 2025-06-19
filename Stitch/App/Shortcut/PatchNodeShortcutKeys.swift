@@ -64,6 +64,7 @@ let RECTANGLE_LAYER_SHORTCUT: KeyEquivalent = "R"
 let TEXT_LAYER_SHORTCUT: KeyEquivalent = "T"
 //let GROUP_LAYER_SHORTCUT: KeyEquivalent = "G"
 let HIT_AREA_LAYER_SHORTCUT: KeyEquivalent = "H"
+let BUTTON_LAYER_SHORTCUT: KeyEquivalent = "B"
 
 
 // let SCROLL_NODE_SHORTCUT: KeyEquivalent = "Q"

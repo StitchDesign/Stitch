@@ -204,6 +204,14 @@ extension StitchAIPortValue_V1.PortValue {
             return x
         case .none:
             fatalError()
+        case .buttonStyle(let x):
+            return x
+        case .buttonRole(let x):
+            return x
+        case .buttonBorderShape(let x):
+            return x
+        case .buttonRepeatBehavior(let x):
+            return x
         }
     }
     
@@ -332,6 +340,14 @@ extension StitchAIPortValue_V1.PortValue {
             return .anchorEntity
         case .keyboardType:
             return .keyboardType
+        case .buttonStyle:
+            return .buttonStyle
+        case .buttonRole:
+            return .buttonRole
+        case .buttonBorderShape:
+            return .buttonBorderShape
+        case .buttonRepeatBehavior:
+            return .buttonRepeatBehavior
         }
     }
 }

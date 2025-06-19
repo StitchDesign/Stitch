@@ -235,6 +235,14 @@ extension PortValue {
             return .anchorEntity(nil)
         case .keyboardType(_):
             return KeyboardType.defaultKeyboardTypePortValue
+        case .buttonStyle:
+            return .buttonStyle(.plain)
+        case .buttonRole:
+            return .buttonRole(nil)
+        case .buttonBorderShape:
+            return .buttonBorderShape(.roundedRectangle)
+        case .buttonRepeatBehavior:
+            return .buttonRepeatBehavior(.automatic)
         }
     }
 }

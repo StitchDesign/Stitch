@@ -473,6 +473,12 @@ struct InsertNodeCommands: View {
             dispatch(NodeCreatedEvent(choice: .layer(.text)))
         }
         
+        SwiftUIShortcutView(title: "Button",
+                            key: BUTTON_LAYER_SHORTCUT,
+                            eventModifiers: modifiersAdjustedForOptionRequirement,
+                            disabled: self.shouldDisableLayer) {
+            dispatch(NodeCreatedEvent(choice: .layer(.button)))
+        }
         
         SwiftUIShortcutView(title: "Hit Area",
                             key: HIT_AREA_LAYER_SHORTCUT,

@@ -433,6 +433,14 @@ extension StitchAIPortValue_V1.NodeType {
             return .keyboardType(x)
         case .none:
             fatalError()
+        case .buttonStyle:
+            <#code#>
+        case .buttonRole:
+            <#code#>
+        case .buttonBorderShape:
+            <#code#>
+        case .buttonRepeatBehavior:
+            <#code#>
         }
     }
 }

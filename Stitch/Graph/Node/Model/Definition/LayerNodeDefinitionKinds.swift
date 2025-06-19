@@ -67,6 +67,8 @@ extension Layer {
             return CylinderLayerNode.self
         case .cone:
             return ConeLayerNode.self
+        case .button:
+            return ButtonLayerNode.self
         }
     }
 }
