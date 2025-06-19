@@ -46,6 +46,10 @@ struct StitchApp: App {
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
+                
+                    #if DEBUG || DEV_DEBUG
+                    printRestrictivelyScopedLayersAndLayerInputsJSON()
+                    #endif
                     
                     // Load and configure the state of all the tips of the app
                     try? Tips.configure()

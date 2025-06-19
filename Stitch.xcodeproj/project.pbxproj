@@ -895,6 +895,7 @@
 		ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */; };
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
 		ECBFDB0B2DB98B4500C1D6D5 /* GraphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBFDB0A2DB98B4500C1D6D5 /* GraphTests.swift */; };
+		ECC08E152E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */; };
 		ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC175892A43D9440017815D /* LayerDescription.swift */; };
 		ECC27E0A2DFBF94E00C2C6AF /* AINodeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC27E092DFBF94E00C2C6AF /* AINodeHelpers.swift */; };
 		ECC27E0C2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC27E0B2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift */; };
@@ -1973,6 +1974,7 @@
 		ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpureEvaluation.swift; sourceTree = "<group>"; };
 		ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PureEvaluation.swift; sourceTree = "<group>"; };
 		ECBFDB0A2DB98B4500C1D6D5 /* GraphTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphTests.swift; sourceTree = "<group>"; };
+		ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersMappedToSwiftUIViews.swift; sourceTree = "<group>"; };
 		ECC175892A43D9440017815D /* LayerDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDescription.swift; sourceTree = "<group>"; };
 		ECC27E092DFBF94E00C2C6AF /* AINodeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AINodeHelpers.swift; sourceTree = "<group>"; };
 		ECC27E0B2DFBFA3000C2C6AF /* CatalystProjectTitleEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalystProjectTitleEdit.swift; sourceTree = "<group>"; };
@@ -4388,6 +4390,7 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
+				ECC08E162E0489BF0058C2FE /* Mapping */,
 				B5F3D0B02DE3CBBA00103676 /* PromptGenerator */,
 				B521A1002DE19D5400662B13 /* View */,
 				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
@@ -5127,6 +5130,14 @@
 				ECB7C72128A56C4B00252DE7 /* ClassicAnimationNumber.swift */,
 			);
 			path = Eval;
+			sourceTree = "<group>";
+		};
+		ECC08E162E0489BF0058C2FE /* Mapping */ = {
+			isa = PBXGroup;
+			children = (
+				ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */,
+			);
+			path = Mapping;
 			sourceTree = "<group>";
 		};
 		ECD8871D2941416E00003B47 /* Shape */ = {
@@ -6220,6 +6231,7 @@
 				ECE35EE427CEE7E100CB8F5C /* FieldCoercers.swift in Sources */,
 				EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */,
 				ECE585802DB6EF2200749ED3 /* OutputPortUIViewModel.swift in Sources */,
+				ECC08E152E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift in Sources */,
 				B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */,
 				ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */,
 				205E6DDE25AFCB23001C5C27 /* GraphState.swift in Sources */,
