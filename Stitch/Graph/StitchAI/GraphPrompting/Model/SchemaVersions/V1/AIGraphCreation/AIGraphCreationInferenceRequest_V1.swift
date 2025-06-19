@@ -162,12 +162,12 @@ extension AIGraphCreationSupabase_V1 {
         
         // Fetch V1 rows with joins to build flat GraphGenerationTrainingTableData
         let response = try await client
-            .from(InferenceResult.tablename)
+            .from(Request.tablename)
             .select("""
                 request_id,
-                actions,
-                user_id:\(AIGraphCreationSupabase_V1.Request.tablename)!inner(user_id),
-                user_prompt:\(AIGraphCreationSupabase_V1.UserPrompt.tablename)!inner(user_prompt),
+                user_id,
+                prompt:\(AIGraphCreationSupabase_V1.UserPrompt.tablename)!inner(user_prompt),
+                actions:\(AIGraphCreationSupabase_V1.InferenceResult.tablename)!inner(actions),
                 is_approved:\(AIGraphCreationSupabase_V1.SupervisedData.tablename)!left(is_approved),
                 approver_user_id:\(AIGraphCreationSupabase_V1.SupervisedData.tablename)!left(approver_user_id)
             """)
