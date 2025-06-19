@@ -283,9 +283,7 @@ struct GraphInferenceTableRow: View {
                 .buttonStyle(.bordered)
             }
             
-            if let requestId = row.id {
-                Text("Request ID: \(requestId.description.suffix(7))")
-            }
+            Text("Request ID: \(row.id.description.suffix(7))")
             
             Text("\"\(row.user_prompt)\"")
             
@@ -331,7 +329,7 @@ struct GraphInferenceTableRow: View {
     
     private func updateApproval(_ approved: Bool,
                                 cloudkitUserName: String?) async {
-        guard let requestID = row.id else { return }
+        let requestID = row.id
         
         let approver: String? = approved ? cloudkitUserName : nil
         

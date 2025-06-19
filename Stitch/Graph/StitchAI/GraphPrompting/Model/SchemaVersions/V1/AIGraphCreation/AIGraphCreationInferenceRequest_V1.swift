@@ -130,11 +130,10 @@ enum AIGraphCreationSupabase_V1 {
 extension AIGraphCreationSupabase_V1 {
     /// Only used by `GraphGenerationTableView`. Versioned so that previous schemas won't need to be altered to support the view.
     struct GraphGenerationTrainingTableData: Decodable {
+        let id: UUID
         let user_prompt: String
         let actions: [Step_V1.Step]
         let user_id: String
-        // TODO: make this nonoptional
-        let id: UUID?
         let is_approved: Bool?
         let approver_user_id: String?
     }
@@ -164,10 +163,10 @@ extension AIGraphCreationSupabase_V1 {
 
 extension AIGraphCreationSupabase_V1.GraphGenerationTrainingTableData {
     static func migrate(from previousVersion: AIGraphCreationSupabase_V0.GraphGenerationTrainingTableData) -> Self {
-        .init(user_prompt: previousVersion.actions.prompt,
+        .init(id: previousVersion.request_id ?? previousVersion.id,
+              user_prompt: previousVersion.actions.prompt,
               actions: Step_V1.Step.upgradeEntities(previousVersion.actions.actions),
               user_id: previousVersion.user_id,
-              id: previousVersion.request_id,
               is_approved: previousVersion.approver_user_id.isDefined ? true : nil,
               approver_user_id: previousVersion.approver_user_id)
     }
