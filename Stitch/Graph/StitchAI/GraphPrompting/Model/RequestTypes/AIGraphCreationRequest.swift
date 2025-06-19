@@ -50,7 +50,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
     @MainActor
     static func createAndMakeRequest(prompt: String,
                                      aiManager: StitchAIManager,
-                                     document: StitchDocumentViewModel) throws {
+                                     document: StitchDocumentViewModel) async throws {
         guard let aiManager = document.aiManager else {
             fatalErrorIfDebug("GenerateAINode: no aiManager")
             return
@@ -59,23 +59,30 @@ struct AIGraphCreationRequest: StitchAIRequestable {
         let graph = document.visibleGraph
         
         do {
-            let request = try AIGraphCreationRequest(prompt: prompt,
-                                                     secrets: aiManager.secrets,
-                                                     graph: graph)
-                        
-            // Wipe current task; maybe share user-prompt
-            aiManager.prepareRequest(
-                userPrompt: prompt,
-                requestId: request.id,
-                document: document,
-                canShareData: StitchStore.canShareAIData,
-                userPromptTableName: aiManager.graphGenerationUserPromptTableName)
+            Task {
+                let plan = try await aiManager.makePlanningRequest(userPrompt: prompt)
+                let request = try AIGraphCreationRequest(prompt: plan,
+                                                         secrets: aiManager.secrets,
+                                                         graph: graph)
+                   
+                // Wipe current task; maybe share user-prompt
+                aiManager.prepareRequest(
+                    userPrompt: plan,
+                    requestId: request.id,
+                    document: document,
+                    canShareData: StitchStore.canShareAIData,
+                    userPromptTableName: aiManager.graphGenerationUserPromptTableName)
+                
+                aiManager.currentTask = .init(task: aiManager.getOpenAITask(
+                    request: request,
+                    attempt: 0,
+                    document: document,
+                    canShareAIRetries: StitchStore.canShareAIData))
+
+            }
             
-            aiManager.currentTask = .init(task: aiManager.getOpenAITask(
-                request: request,
-                attempt: 0,
-                document: document,
-                canShareAIRetries: StitchStore.canShareAIData))
+            
+            
             
         } catch {
             fatalErrorIfDebug("Unable to generate Stitch AI prompt with error: \(error.localizedDescription)")

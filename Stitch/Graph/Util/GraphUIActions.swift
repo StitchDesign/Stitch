@@ -175,10 +175,12 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
               let aiManager = document.aiManager else {
             return .noChange
         }
-        
-        try? AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
-                                                         aiManager: aiManager,
-                                                         document: document)
+        Task {  
+            try? await AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
+                                                             aiManager: aiManager,
+                                                             document: document)
+
+        }
         
         return .noChange
     }
