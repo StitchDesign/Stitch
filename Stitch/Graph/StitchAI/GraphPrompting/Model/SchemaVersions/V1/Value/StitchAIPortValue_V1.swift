@@ -142,6 +142,9 @@ extension StitchAIPortValue_V1.PortValue {
         case .dateAndTimeFormat(let x):
             return x
         case .shape(let x):
+            if let customShape = x {
+                return customShape.toHumanReadable()
+            }
             return x
         case .scrollJumpStyle(let x):
             return x
@@ -332,6 +335,140 @@ extension StitchAIPortValue_V1.PortValue {
             return .anchorEntity
         case .keyboardType:
             return .keyboardType
+        }
+    }
+}
+
+public struct HumanReadableCustomShape_V1: Codable {
+    public struct HumanReadableTriangle: Codable {
+        public let p1: [CGFloat]
+        public let p2: [CGFloat]
+        public let p3: [CGFloat]
+    }
+
+    public struct HumanReadableRectangle: Codable {
+        public let cornerRadius: CGFloat
+        public let rect: [[CGFloat]]
+    }
+
+    public struct HumanReadableCircle: Codable {
+        public let rect: [[CGFloat]]
+    }
+
+    public enum Shape: Codable {
+        case triangle(HumanReadableTriangle)
+        case rectangle(HumanReadableRectangle)
+        case circle(HumanReadableCircle)
+        case oval(HumanReadableCircle)
+        case custom([ShapeCommand_V32.ShapeCommand])
+
+        enum CodingKeys: String, CodingKey {
+            case type, data
+        }
+
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            case .triangle(let triangle):
+                try container.encode("triangle", forKey: .type)
+                try container.encode(triangle, forKey: .data)
+            case .rectangle(let rectangle):
+                try container.encode("rectangle", forKey: .type)
+                try container.encode(rectangle, forKey: .data)
+            case .circle(let circle):
+                try container.encode("circle", forKey: .type)
+                try container.encode(circle, forKey: .data)
+            case .oval(let oval):
+                try container.encode("oval", forKey: .type)
+                try container.encode(oval, forKey: .data)
+            case .custom(let commands):
+                try container.encode("custom", forKey: .type)
+                try container.encode(commands, forKey: .data)
+            }
+        }
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let type = try container.decode(String.self, forKey: .type)
+
+            switch type {
+            case "triangle":
+                let data = try container.decode(HumanReadableTriangle.self, forKey: .data)
+                self = .triangle(data)
+            case "rectangle":
+                let data = try container.decode(HumanReadableRectangle.self, forKey: .data)
+                self = .rectangle(data)
+            case "circle":
+                let data = try container.decode(HumanReadableCircle.self, forKey: .data)
+                self = .circle(data)
+            case "oval":
+                let data = try container.decode(HumanReadableCircle.self, forKey: .data)
+                self = .oval(data)
+            case "custom":
+                let data = try container.decode([ShapeCommand_V32.ShapeCommand].self, forKey: .data)
+                self = .custom(data)
+            default:
+                throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown shape type: \(type)")
+            }
+        }
+    }
+
+    public let shapes: [Shape]
+}
+
+public extension CustomShape_V32.CustomShape {
+    func toHumanReadable() -> HumanReadableCustomShape_V1 {
+        let readableShapes: [HumanReadableCustomShape_V1.Shape] = shapes.map { shape in
+            switch shape {
+            case .triangle(let t):
+                return .triangle(.init(
+                    p1: [t.p1.x, t.p1.y],
+                    p2: [t.p2.x, t.p2.y],
+                    p3: [t.p3.x, t.p3.y]
+                ))
+            case .rectangle(let r):
+                return .rectangle(.init(
+                    cornerRadius: r.cornerRadius,
+                    rect: [
+                        [r.rect.origin.x, r.rect.origin.y],
+                        [r.rect.maxX, r.rect.maxY]
+                    ]
+                ))
+            case .circle(let rect):
+                return .circle(.init(rect: [
+                    [rect.origin.x, rect.origin.y],
+                    [rect.maxX, rect.maxY]
+                ]))
+            case .oval(let rect):
+                return .oval(.init(rect: [
+                    [rect.origin.x, rect.origin.y],
+                    [rect.maxX, rect.maxY]
+                ]))
+            case .custom(let cmds):
+                let upgraded = cmds.map { ShapeCommand_V32.ShapeCommand(json: $0) }
+                return .custom(upgraded)
+            }
+        }
+
+        return HumanReadableCustomShape_V1(shapes: readableShapes)
+    }
+}
+
+extension ShapeCommand_V32.ShapeCommand {
+    init(json: JSONShapeCommand_V32.JSONShapeCommand) {
+        switch json {
+        case .closePath:
+            self = .closePath
+        case .moveTo(let pt):
+            self = .moveTo(point: PathPoint_V32.PathPoint(x: pt.x, y: pt.y))
+        case .lineTo(let pt):
+            self = .lineTo(point: PathPoint_V32.PathPoint(x: pt.x, y: pt.y))
+        case .curveTo(let c):
+            self = .curveTo(
+                curveFrom: PathPoint_V32.PathPoint(x: c.controlPoint1.x, y: c.controlPoint1.y),
+                point: PathPoint_V32.PathPoint(x: c.point.x, y: c.point.y),
+                curveTo: PathPoint_V32.PathPoint(x: c.controlPoint2.x, y: c.controlPoint2.y)
+            )
         }
     }
 }
