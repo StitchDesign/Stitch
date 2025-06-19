@@ -185,13 +185,13 @@ extension Step_V1.Step: StitchVersionedCodable {
             if let oldValue = previousInstance.value {
                 migratedPortValue = try PortValueVersion
                     .migrate(entity: oldValue,
-                             version: ._V32)
+                             version: Step_V0.documentVersion) // prev version
             }
 
             if let oldNodeType = previousInstance.valueType {
                 migratedNodeType = try NodeTypeVersion
                     .migrate(entity: oldNodeType,
-                             version: ._V32)
+                             version: Step_V0.documentVersion) // prev version
             }
         } catch {
             fatalErrorIfDebug("Step_V1 error: \(error)")
