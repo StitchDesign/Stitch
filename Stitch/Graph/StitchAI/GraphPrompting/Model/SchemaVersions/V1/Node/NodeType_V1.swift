@@ -32,11 +32,11 @@ extension StitchAIPortValue_V1.NodeType {
         case .networkRequestType:
             return StitchAIPortValue_V1.PortValueVersion.NetworkRequestType.self
         case .color:
-            return StitchAIColor.self
+            return StitchAIColor_V1.StitchAIColor.self
         case .size:
-            return StitchAISize.self
+            return StitchAISize_V1.StitchAISize.self
         case .position:
-            return StitchAIPosition.self
+            return StitchAIPosition_V1.StitchAIPosition.self
         case .point3D:
             return StitchAIPortValue_V1.PortValueVersion.Point3D.self
         case .point4D:
@@ -52,7 +52,7 @@ extension StitchAIPortValue_V1.NodeType {
         case .cameraDirection:
             return StitchAIPortValue_V1.PortValueVersion.CameraDirection.self
         case .interactionId:
-            return StitchAIUUID?.self
+            return StitchAIUUID_V1.StitchAIUUID?.self
         case .scrollMode:
             return StitchAIPortValue_V1.PortValueVersion.ScrollMode.self
         case .textAlignment:
@@ -185,7 +185,7 @@ extension StitchAIPortValue_V1.NodeType {
             
             return .size(size)
         case .position:
-            guard let x = anyValue as? StitchAIPosition else {
+            guard let x = anyValue as? StitchAIPosition_V1.StitchAIPosition else {
                 throw StitchAIParsingError.typeCasting
             }
             
