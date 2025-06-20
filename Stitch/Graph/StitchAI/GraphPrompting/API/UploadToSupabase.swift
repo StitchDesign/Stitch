@@ -44,12 +44,20 @@ extension StitchAIManager {
             fatalErrorIfDebug("Could not retrieve release version and/or CloudKit user id")
             return
         }
-        
+
+#if !STITCH_AI_V1
+        let payload = AIJavaScriptSupabase.InferenceResult(
+            user_id: userId,
+            request_id: requestId,
+            user_prompt: userPrompt,
+            javascript_settings: javascriptSettings)
+#else
         let payload = AIJavaScriptSupabase.InferenceResult(
             id: requestId,
             user_id: userId,
             user_prompt: userPrompt,
             javascript_settings: javascriptSettings)
+#endif
         
         log(" Uploading inference-call-result payload, for JS AI Node:")
         log("  - userPrompt: \(userPrompt)")
