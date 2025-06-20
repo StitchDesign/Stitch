@@ -44,10 +44,10 @@ extension StitchAIManager {
     // TODO: we attempt the request again when OpenAI has sent us data that either could not be parsed or could not be validated; should we also re-attempt when OpenAI gives us a timeout error?
     @MainActor
     private func _retryRequest(request: AIGraphCreationRequest,
-                                          steps: Steps,
-                                          attempt: Int,
-                                          document: StitchDocumentViewModel,
-                                          canShareAIRetries: Bool) async -> StitchAIStreamingError? {
+                               steps: Steps,
+                               attempt: Int,
+                               document: StitchDocumentViewModel,
+                               canShareAIRetries: Bool) async -> StitchAIStreamingError? {
         
         log("StitchAIManager: _retryRequest called: attempt: \(attempt)")
         
@@ -75,6 +75,8 @@ extension StitchAIManager {
                 
                 do {
 #if !STITCH_AI_V1
+                    // MARK: failure handling for V1 now handled at actual error
+                    
                     try await aiManager.uploadGraphGenerationInferenceCallResultToSupabase(
                         prompt: request.userPrompt,
                         // Send the raw-streamed steps
@@ -87,8 +89,6 @@ extension StitchAIManager {
                         ratingExplanation: nil,
                         // These actions could not be parsed and/or validated, so
                         requiredRetry: true)
-#else
-                    // TODO: FAILURE HANDLING
 #endif
                 } catch  {
                     log("_retryRequest: had error when trying to share retry: \(error)", .logToServer)

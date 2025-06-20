@@ -79,6 +79,21 @@ extension StitchAIManager {
             case .failure(let error):
                 log("getOpenAIStreamingTask: error: \(error.description)")
                 
+#if STITCH_AI_V1
+                let failureTableData = AIGraphCreationSupabase
+                    .FailedQueries(
+                        request_id: request.id,
+                        error: error.description
+                    )
+                
+                do {
+                    try await failureTableData
+                        .uploadToSupabase(client: aiManager.postgrest)
+                } catch {
+                    log("Error logging failure to Supabase: \(error.localizedDescription)")
+                }
+#endif
+                
                 // If the error was a timeout or rate limit, we'll want to try again:
                 if error.shouldRetryRequest {
                     await aiManager.retryOrShowErrorModal(
