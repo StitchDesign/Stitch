@@ -102,6 +102,7 @@ struct AIRatingSubmitted: StitchDocumentEvent {
                         "score": rating.rawValue
                     ])
                     .eq("request_id", value: requestId)
+                    .execute()
 #endif
             } catch {
                 log("Could not upload rating to Supabase: \(error.localizedDescription)", .logToServer)

@@ -102,6 +102,7 @@ extension StitchDocumentViewModel {
                         "score_explanation": explanationForRatingForExistingGraph
                     ])
                     .eq("request_id", value: requestId)
+                    .execute()
                 
                 // create new manual submission
                 let submission = AIGraphCreationSupabase.ManualSubmission(
