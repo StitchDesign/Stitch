@@ -524,6 +524,7 @@
 		EC2942452BA13E6100D14CD1 /* SidebarItemSelectionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942442BA13E6100D14CD1 /* SidebarItemSelectionActions.swift */; };
 		EC2942472BA13EAA00D14CD1 /* SidebarGroupCreated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942462BA13EAA00D14CD1 /* SidebarGroupCreated.swift */; };
 		EC295CC827B31AA900739F98 /* ProjectNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC295CC727B31AA900739F98 /* ProjectNavigationView.swift */; };
+		EC2A7DC32E0606080088F694 /* ParsingSwiftUICode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */; };
 		EC2BBF042947BBC2005BCCDB /* ColorFillLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2BBF032947BBC2005BCCDB /* ColorFillLayerNode.swift */; };
 		EC2BBF062947BCCD005BCCDB /* PreviewColorFillLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2BBF052947BCCD005BCCDB /* PreviewColorFillLayer.swift */; };
 		EC2BD63426CACD2E00D45154 /* MaxNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2BD63326CACD2E00D45154 /* MaxNode.swift */; };
@@ -891,6 +892,11 @@
 		ECB9A86F2AEB4950006E65EE /* AlphaSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9A86E2AEB4950006E65EE /* AlphaSliderView.swift */; };
 		ECBB853F25E9BA5500C1EE40 /* PreviewText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */; };
 		ECBB94732D60007A005311D5 /* HomescreenProjectSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB94722D60007A005311D5 /* HomescreenProjectSelectionState.swift */; };
+		ECBC56FB2E05FE1100BF5CA7 /* SwiftBasicFormat in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */; };
+		ECBC56FD2E05FE1100BF5CA7 /* SwiftCompilerPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FC2E05FE1100BF5CA7 /* SwiftCompilerPlugin */; };
+		ECBC56FF2E05FE1100BF5CA7 /* SwiftDiagnostics in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FE2E05FE1100BF5CA7 /* SwiftDiagnostics */; };
+		ECBC57012E05FE1100BF5CA7 /* SwiftIDEUtils in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC57002E05FE1100BF5CA7 /* SwiftIDEUtils */; };
+		ECBC57032E05FE1100BF5CA7 /* SwiftIfConfig in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC57022E05FE1100BF5CA7 /* SwiftIfConfig */; };
 		ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBC95FA27613D9200508966 /* evalTests+2.swift */; };
 		ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */; };
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
@@ -1616,6 +1622,7 @@
 		EC2942442BA13E6100D14CD1 /* SidebarItemSelectionActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItemSelectionActions.swift; sourceTree = "<group>"; };
 		EC2942462BA13EAA00D14CD1 /* SidebarGroupCreated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarGroupCreated.swift; sourceTree = "<group>"; };
 		EC295CC727B31AA900739F98 /* ProjectNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectNavigationView.swift; sourceTree = "<group>"; };
+		EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsingSwiftUICode.swift; sourceTree = "<group>"; };
 		EC2BBF032947BBC2005BCCDB /* ColorFillLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorFillLayerNode.swift; sourceTree = "<group>"; };
 		EC2BBF052947BCCD005BCCDB /* PreviewColorFillLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewColorFillLayer.swift; sourceTree = "<group>"; };
 		EC2BD63326CACD2E00D45154 /* MaxNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxNode.swift; sourceTree = "<group>"; };
@@ -2194,6 +2201,7 @@
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
 				ECA76BA42DFD13E90018D16C /* PostgREST in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
+				ECBC56FF2E05FE1100BF5CA7 /* SwiftDiagnostics in Frameworks */,
 				ECE5857C2DB6D39C00749ED3 /* StitchEngine in Frameworks */,
 				B5BAB04A2CD8019400693EC5 /* StitchEngine in Frameworks */,
 				B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */,
@@ -2201,11 +2209,15 @@
 				EC39E75C26822ACA00674841 /* AudioKit in Frameworks */,
 				B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */,
 				ECE585762DB6C84F00749ED3 /* StitchEngine in Frameworks */,
+				ECBC56FB2E05FE1100BF5CA7 /* SwiftBasicFormat in Frameworks */,
 				EC53F3C3287E27250021095B /* Numerics in Frameworks */,
+				ECBC57032E05FE1100BF5CA7 /* SwiftIfConfig in Frameworks */,
+				ECBC56FD2E05FE1100BF5CA7 /* SwiftCompilerPlugin in Frameworks */,
 				ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */,
 				EC15E42A2602A08B006F2E08 /* CloudKit.framework in Frameworks */,
 				ECA76BA02DFD13E90018D16C /* Auth in Frameworks */,
 				201953DA25B25D3300D5296C /* Tagged in Frameworks */,
+				ECBC57012E05FE1100BF5CA7 /* SwiftIDEUtils in Frameworks */,
 				EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */,
 				EC843C002DEF66D200A38BB9 /* StitchSchemaKit in Frameworks */,
 			);
@@ -5136,6 +5148,7 @@
 			isa = PBXGroup;
 			children = (
 				ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */,
+				EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */,
 			);
 			path = Mapping;
 			sourceTree = "<group>";
@@ -5278,6 +5291,11 @@
 				ECA76BA52DFD13E90018D16C /* Realtime */,
 				ECA76BA72DFD13E90018D16C /* Storage */,
 				ECA76BA92DFD13E90018D16C /* Supabase */,
+				ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */,
+				ECBC56FC2E05FE1100BF5CA7 /* SwiftCompilerPlugin */,
+				ECBC56FE2E05FE1100BF5CA7 /* SwiftDiagnostics */,
+				ECBC57002E05FE1100BF5CA7 /* SwiftIDEUtils */,
+				ECBC57022E05FE1100BF5CA7 /* SwiftIfConfig */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -5367,6 +5385,7 @@
 				EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */,
 				ECDAD6452DFBFCE700CE346F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				ECA76B9E2DFD13E90018D16C /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -6084,6 +6103,7 @@
 				EC1318C52B8801CF00F74E93 /* CoercerUtils.swift in Sources */,
 				EC560E1B293A9C8400350046 /* LoopToArrayNode.swift in Sources */,
 				B544D3A8283C3F90000A24E2 /* StitchSheet.swift in Sources */,
+				EC2A7DC32E0606080088F694 /* ParsingSwiftUICode.swift in Sources */,
 				B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */,
 				ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */,
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
@@ -7564,6 +7584,14 @@
 				version = 2.5.1;
 			};
 		};
+		ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swiftlang/swift-syntax.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 601.0.1;
+			};
+		};
 		ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/timdonnelly/DisplayLink.git";
@@ -7761,6 +7789,31 @@
 		ECB46CD52DB14D80006EFB93 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
+		};
+		ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftBasicFormat;
+		};
+		ECBC56FC2E05FE1100BF5CA7 /* SwiftCompilerPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftCompilerPlugin;
+		};
+		ECBC56FE2E05FE1100BF5CA7 /* SwiftDiagnostics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftDiagnostics;
+		};
+		ECBC57002E05FE1100BF5CA7 /* SwiftIDEUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftIDEUtils;
+		};
+		ECBC57022E05FE1100BF5CA7 /* SwiftIfConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftIfConfig;
 		};
 		ECD517FF2DFB702A008BBB37 /* StitchSchemaKit */ = {
 			isa = XCSwiftPackageProductDependency;

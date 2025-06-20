@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import StitchSchemaKit
 
 import Foundation
 
