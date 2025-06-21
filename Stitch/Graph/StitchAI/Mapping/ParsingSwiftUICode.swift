@@ -51,6 +51,14 @@ Rectangle.fill(Color.blue).opacity(0.5)
 // MARK: - SwiftUI to StitchAI Parser
 
 class SwiftUIToStitchAIVisitor: SyntaxVisitor {
+    // Helper to find the topmost FunctionCallExprSyntax ancestor (root of the call chain)
+    private func findRootCall(_ node: FunctionCallExprSyntax) -> FunctionCallExprSyntax {
+        var current: Syntax = Syntax(node)
+        while let parentCall = current.parent?.as(FunctionCallExprSyntax.self) {
+            current = Syntax(parentCall)
+        }
+        return FunctionCallExprSyntax(current)!
+    }
     var actions: [any StepActionable] = []
     private var currentNodeId: UUID = UUID()
     private var currentModifierChain: [FunctionCallExprSyntax] = []
@@ -59,15 +67,18 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
         print("\n=== Processing function call ===")
         print("Full node: \(node.description.trimmingCharacters(in: .whitespacesAndNewlines))")
         print("Called expression: \(node.calledExpression.trimmedDescription)")
-        
-        // If this is a view type (Rectangle, Text, etc.) at the start of a chain
+
+        // Detect a top‐level view constructor (e.g. Rectangle() or Text())
+        var viewType: String?
         if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
            memberAccess.base == nil {
-            
-            let viewType = memberAccess.name.text
+            viewType = memberAccess.name.text
+        } else if let identifier = node.calledExpression.as(IdentifierExprSyntax.self) {
+            viewType = identifier.identifier.text
+        }
+
+        if let viewType = viewType {
             print("Found view type: \(viewType)")
-            
-            // Create node for the view
             switch viewType {
             case "Rectangle":
                 let addRectangle = StepActionAddNode(
@@ -76,20 +87,41 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
                 )
                 actions.append(addRectangle)
                 print("Created StepActionAddNode for Rectangle")
-                
+            case "Text":
+                let addText = StepActionAddNode(
+                    nodeId: currentNodeId,
+                    nodeName: .layer(.text)
+                )
+                actions.append(addText)
+                print("Created StepActionAddNode for Text")
             default:
                 print("Unhandled view type: \(viewType)")
                 return .skipChildren
             }
-            
-            // Process any chained modifiers
-            processModifiers(node)
+            // Now process any chained modifiers on this view call
+            let rootCall = findRootCall(node)
+            processModifiers(rootCall)
             return .skipChildren
         }
-        
+
+        // Handle simple modifiers like fill and opacity on the root call
+        if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
+           memberAccess.base != nil {
+            let modifierName = memberAccess.name.text
+            switch modifierName {
+            case "fill":
+                processFillModifier(node)
+            case "opacity":
+                processOpacityModifier(node)
+            default:
+                break
+            }
+            return .skipChildren
+        }
+
         // If this is part of a modifier chain, collect it
         currentModifierChain.append(node)
-        
+
         // Continue visiting children to build the full chain
         return .visitChildren
     }
