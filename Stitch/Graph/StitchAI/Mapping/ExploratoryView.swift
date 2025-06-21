@@ -133,6 +133,9 @@ struct ExploratoryView: View {
     }
     
     private func parseCode() {
+        
+        
+        
         let code = testCases[selectedTestCase].code
         var result = "=== Parsing ===\n\(code)\n\n"
         
@@ -173,6 +176,8 @@ struct ExploratoryView: View {
         output = result
         
         print("\n=== Parser Finished ===")
+        
+//        myTest()
     }
 }
 

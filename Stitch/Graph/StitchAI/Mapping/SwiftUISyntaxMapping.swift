@@ -143,14 +143,15 @@ class SwiftUIParser: SyntaxVisitor {
     
     private func handleContainer(_ node: FunctionCallExprSyntax, type: String) {
         // Generate ID for container
-        currentNodeId = generateId(prefix: type.lowercased())
+        let containerId = generateId(prefix: type.lowercased())
+        currentNodeId = containerId
         
         // Create action
-        actions.append(.createContainer(id: currentNodeId, type: type))
-        log("Created container \(type) with id \(currentNodeId)")
+        actions.append(.createContainer(id: containerId, type: type))
+        log("Created container \(type) with id \(containerId)")
         
         // Push to stack
-        containerStack.append((id: currentNodeId, type: type))
+        containerStack.append((id: containerId, type: type))
         
         if let closure = node.trailingClosure {
             log("Entering container closure for \(type)")
@@ -194,10 +195,8 @@ class SwiftUIParser: SyntaxVisitor {
         // Pop from stack
         containerStack.removeLast()
         
-        // Restore parent ID if stack isn't empty
-        if let parent = containerStack.last {
-            currentNodeId = parent.id
-        }
+        // Ensure currentNodeId remains the container for modifier handling
+        currentNodeId = containerId
     }
     
     private func handleShape(_ node: FunctionCallExprSyntax, type: String) {
