@@ -98,6 +98,21 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
                     nodeName: .layer(.text)
                 )
                 actions.append(addText)
+                // Handle Text content argument
+                if let textExpr = node.argumentList.first?.expression.trimmedDescription {
+                    let textValue = textExpr.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    let setText = StepActionSetInput(
+                        nodeId: currentNodeId,
+                        port: .keyPath(.init(
+                            layerInput: .text,
+                            portType: .packed
+                        )),
+                        value: .string(.init(textValue)),
+                        valueType: .string
+                    )
+                    actions.append(setText)
+                    print("Created StepActionSetInput for Text content: \(textValue)")
+                }
                 print("Created StepActionAddNode for Text")
             default:
                 print("Unhandled view type: \(viewType)")
