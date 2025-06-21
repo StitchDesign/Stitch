@@ -672,6 +672,7 @@
 		EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC342DC1AB580046E59C /* OutputFieldView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
 		EC66D02C2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D02B2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift */; };
+		EC66D02F2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D02E2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -1769,6 +1770,7 @@
 		EC65AC342DC1AB580046E59C /* OutputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
 		EC66D02B2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsingSwiftUICodeExploratoryView.swift; sourceTree = "<group>"; };
+		EC66D02E2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsingSwiftUICodeTests.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -2298,6 +2300,7 @@
 		208AFA8D25D45B440035B250 /* StitchTests */ = {
 			isa = PBXGroup;
 			children = (
+				EC66D02D2E064E0800355ED8 /* SwiftUIParsingTests */,
 				B5305CE5285150D1008F11F4 /* SampleData */,
 				B54C37B9281BB8B400D81E43 /* SampleProjects */,
 				B54C37B62818FB4D00D81E43 /* Versioning */,
@@ -4884,6 +4887,14 @@
 			path = NodeTag;
 			sourceTree = "<group>";
 		};
+		EC66D02D2E064E0800355ED8 /* SwiftUIParsingTests */ = {
+			isa = PBXGroup;
+			children = (
+				EC66D02E2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift */,
+			);
+			path = SwiftUIParsingTests;
+			sourceTree = "<group>";
+		};
 		EC6B2E102D76272100804E38 /* PortValuesPreview */ = {
 			isa = PBXGroup;
 			children = (
@@ -6471,6 +6482,7 @@
 				B54C37BF281BB96C00D81E43 /* ProjectMigrationTests.swift in Sources */,
 				EC14B1D129F84CEA002FDA4F /* inputEditTests.swift in Sources */,
 				ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */,
+				EC66D02F2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift in Sources */,
 				E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */,
 				EC6DF0AB29FA050F0052545E /* jsonPerfTests.swift in Sources */,
 				ECBFDB0B2DB98B4500C1D6D5 /* GraphTests.swift in Sources */,

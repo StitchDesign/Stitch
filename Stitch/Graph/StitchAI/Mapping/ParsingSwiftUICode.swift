@@ -135,60 +135,65 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
     
     private func processModifiers(_ node: FunctionCallExprSyntax) {
         print("\n=== Processing modifiers ===")
-        
-        // Process the current node and any chained calls
-        var currentNode: ExprSyntax = ExprSyntax(node)
-        
-        while let functionCall = FunctionCallExprSyntax(currentNode) {
-            print("\nProcessing modifier: \(functionCall.calledExpression.trimmedDescription)")
-            
-            // Handle different types of modifiers
-            if let memberAccess = functionCall.calledExpression.as(MemberAccessExprSyntax.self) {
+
+        // Collect the full chain of calls from this node up to the base view constructor
+        var chain: [FunctionCallExprSyntax] = []
+        var currentCall: FunctionCallExprSyntax? = node
+        while let call = currentCall {
+            chain.append(call)
+            if let member = call.calledExpression.as(MemberAccessExprSyntax.self),
+               let parentCall = member.base?.as(FunctionCallExprSyntax.self) {
+                currentCall = parentCall
+            } else {
+                currentCall = nil
+            }
+        }
+
+        // Drop the last element (the base view constructor itself)
+        let modifierCalls = chain.dropLast()
+
+        // Process in code order: earliest modifier first
+        for call in modifierCalls.reversed() {
+            print("\nProcessing modifier: \(call.calledExpression.trimmedDescription)")
+
+            if let memberAccess = call.calledExpression.as(MemberAccessExprSyntax.self) {
                 let modifierName = memberAccess.name.text
                 print("Found modifier: \(modifierName)")
-                
+
                 switch modifierName {
                 case "fill", "foregroundColor":
-                    processFillModifier(functionCall)
+                    processFillModifier(call)
                 case "opacity":
-                    processOpacityModifier(functionCall)
+                    processOpacityModifier(call)
                 case "blendMode":
-                    processBlendModeModifier(functionCall)
+                    processBlendModeModifier(call)
                 case "blur":
-                    processBlurModifier(functionCall)
+                    processBlurModifier(call)
                 case "brightness":
-                    processBrightnessModifier(functionCall)
+                    processBrightnessModifier(call)
                 case "clipped":
-                    processClippedModifier(functionCall)
+                    processClippedModifier(call)
                 case "colorInvert":
-                    processColorInvertModifier(functionCall)
+                    processColorInvertModifier(call)
                 case "contrast":
-                    processContrastModifier(functionCall)
+                    processContrastModifier(call)
                 case "cornerRadius":
-                    processCornerRadiusModifier(functionCall)
+                    processCornerRadiusModifier(call)
                 case "hueRotation":
-                    processHueRotationModifier(functionCall)
+                    processHueRotationModifier(call)
                 case "padding":
-                    processPaddingModifier(functionCall)
+                    processPaddingModifier(call)
                 case "position":
-                    processPositionModifier(functionCall)
+                    processPositionModifier(call)
                 case "scaleEffect":
-                    processScaleEffectModifier(functionCall)
+                    processScaleEffectModifier(call)
                 case "frame":
-                    processFrameModifier(functionCall)
+                    processFrameModifier(call)
                 case "zIndex":
-                    processZIndexModifier(functionCall)
+                    processZIndexModifier(call)
                 default:
                     print("Unhandled modifier: \(modifierName)")
                 }
-            }
-            
-            // Move to the next chained call if it exists
-            if let memberAccess = functionCall.calledExpression.as(MemberAccessExprSyntax.self),
-               let base = memberAccess.base {
-                currentNode = base
-            } else {
-                break
             }
         }
     }
