@@ -10,6 +10,29 @@ struct ExploratoryView: View {
     @State private var output: String = "Tap 'Parse Code' to begin..."
     @State private var testCases: [(name: String, code: String)] = [
        
+
+      (name: "Nested 1",
+         code: """
+        ZStack {
+            Text("Title")
+            VStack {
+                Rectangle()
+                Rectangle()
+            }
+        }   
+        """),
+
+        (name: "Nested 2",
+         code: """
+        ZStack {
+            Text("Title")
+            VStack {
+                Rectangle().fill(.red)
+                Rectangle().fill(.green)
+            }
+        }   
+        """),
+
         (name: "ZStack with Views",
          code: """
         ZStack {
@@ -99,15 +122,25 @@ struct ExploratoryView: View {
             VStack(alignment: .leading) {
                 Text("SwiftUI Code:")
                     .font(.headline)
-                ScrollView {
-                    Text(testCases[selectedTestCase].code)
-                        .font(.system(.body, design: .monospaced))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(8)
-                }
-                .frame(height: 150)
+                
+                // Create a binding for the current test case code
+                let codeBinding = Binding<String>(
+                    get: { self.testCases[self.selectedTestCase].code },
+                    set: { self.testCases[self.selectedTestCase].code = $0 }
+                )
+                
+                // Editable code area
+                TextEditor(text: codeBinding)
+                    .font(.system(.body, design: .monospaced))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 300)
+                    .padding(8)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
             }
             .padding(.horizontal)
             
