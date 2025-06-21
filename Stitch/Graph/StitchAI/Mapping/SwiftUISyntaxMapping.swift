@@ -54,12 +54,15 @@ class SwiftUIParser: SyntaxVisitor {
     
     // Helper to find the root call in a modifier chain
     private func findRootCall(_ node: FunctionCallExprSyntax) -> FunctionCallExprSyntax {
-        var current: Syntax = Syntax(node)
-        while let member = current.parent?.as(MemberAccessExprSyntax.self),
-              let parentCall = member.parent?.as(FunctionCallExprSyntax.self) {
-            current = Syntax(parentCall)
+        // If this call is a modifier (base.member(args)), drill down into its base call
+        if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
+           let baseCall = memberAccess.base?.as(FunctionCallExprSyntax.self) {
+            log("findRootCall: will recur")
+            return findRootCall(baseCall)
         }
-        return current.as(FunctionCallExprSyntax.self)!
+        // Otherwise, this is the root view constructor
+        log("findRootCall: had node: \(node)")
+        return node
     }
     
     // MARK: - Public Interface
@@ -83,40 +86,43 @@ class SwiftUIParser: SyntaxVisitor {
     // MARK: - Syntax Visitor
     
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        log("Visiting FunctionCallExpr: \(node.calledExpression.description.trimmingCharacters(in: .whitespacesAndNewlines))")
+        log("visit: Visiting FunctionCallExpr: \(node.calledExpression.description.trimmingCharacters(in: .whitespacesAndNewlines))")
         // Extract view type from function call
         var viewType: String?
 
         // Direct identifier, e.g. Text(), ZStack(), Rectangle()
         if let ident = node.calledExpression.as(IdentifierExprSyntax.self) {
+            log("visit: IdentifierExprSyntax")
             viewType = ident.identifier.text
 
         // Qualified SwiftUI.<View>
         } else if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
                   memberAccess.base?.as(IdentifierExprSyntax.self)?.identifier.text == "SwiftUI" {
+            log("visit: IdentifierExprSyntax with identifier as SwiftUI")
             viewType = memberAccess.name.text
 
         // Member access without base, e.g. .padding (treat as view when base nil)
         } else if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
                   memberAccess.base == nil {
+            log("visit: MemberAccessExprSyntax")
             viewType = memberAccess.name.text
         }
         
-        log("Detected viewType: \(viewType ?? "nil")")
+        log("visit: Detected viewType: \(viewType ?? "nil")")
         // Process the view type
         if let viewType = viewType {
             // Determine if this is a container, shape, or regular view
             if isContainer(viewType) {
-                log("Handling container view: \(viewType)")
+                log("visit: Handling container view: \(viewType)")
                 handleContainer(node, type: viewType)
             } else if isShape(viewType) {
-                log("Handling shape view: \(viewType)")
+                log("visit: Handling shape view: \(viewType)")
                 handleShape(node, type: viewType)
             } else if viewType == "Text" {
-                log("Handling Text view")
+                log("visit: Handling Text view")
                 handleText(node)
             } else {
-                log("Handling generic view: \(viewType)")
+                log("visit: Handling generic view: \(viewType)")
                 // Generic view
                 currentNodeId = generateId(prefix: viewType.lowercased())
                 actions.append(.createView(id: currentNodeId, type: viewType))
@@ -158,7 +164,12 @@ class SwiftUIParser: SyntaxVisitor {
             let containerId = currentNodeId
             var addedChildren = Set<String>()
 
+            // For each statement, we ought to be able to handle it as a text or shape etc.
+            // i.e. same way we handle it earlier / above
+            // really --- we DO attempt that; we call `visit` again; but what happens is that we can't find a viewType for it
+            
             for item in closure.statements {
+                
                 let syntax = item.item
                 // Extract the initial FunctionCallExpr (e.g., Rectangle())
                 var initializer: FunctionCallExprSyntax?
@@ -168,13 +179,22 @@ class SwiftUIParser: SyntaxVisitor {
                           let fce = exprStmt.expression.as(FunctionCallExprSyntax.self) {
                     initializer = fce
                 }
+                else if let seq = syntax.as(SequenceExprSyntax.self),
+                        let fce = seq.elements.compactMap({ $0.as(FunctionCallExprSyntax.self) }).first {
+                    initializer = fce
+                }
 
                 if let initCall = initializer {
-                    log("Visiting initializer call: \(initCall.calledExpression.description.trimmingCharacters(in: .whitespacesAndNewlines))")
-                    // 1) Create the view node
-                    _ = visit(initCall)
-                    // 2) Apply its modifiers
-                    processModifiersFor(rootNode: initCall)
+                    // Find the unmodified root call (e.g. the raw Rectangle())
+                    log("Found initCall raw: \(initCall)")
+                    log("Found initCall: \(initCall.calledExpression.description.trimmingCharacters(in: .whitespacesAndNewlines))")
+                    let rootCall = findRootCall(initCall)
+                    log("Found rootCall raw: \(rootCall)")
+                    log("Found rootCall: \(rootCall.calledExpression.description.trimmingCharacters(in: .whitespacesAndNewlines))")
+                    // 1) Create the view node from the root
+                    _ = visit(rootCall)
+                    // 2) Apply any chained modifiers
+                    processModifiersFor(rootNode: rootCall)
 
                     let childId = currentNodeId
                     if !addedChildren.contains(childId) {

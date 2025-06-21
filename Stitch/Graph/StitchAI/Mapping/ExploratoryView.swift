@@ -10,6 +10,36 @@ struct ExploratoryView: View {
     @State private var output: String = "Tap 'Parse Code' to begin..."
     @State private var testCases: [(name: String, code: String)] = [
        
+        (name: "ZStack with Views",
+         code: """
+        ZStack {
+            Text("Title")
+            Rectangle()
+        }
+        .padding()
+        .frame(width: 200, height: 100)
+        """),
+        
+        (name: "ZStack with children with modifiers",
+         code: """
+        ZStack {
+            Text("Title")
+            Rectangle().fill(Color.green)
+        }
+        .padding()        
+        """),
+        
+        (name: "VStack with Views",
+         code: """
+        VStack {
+            Text("Title")
+            Rectangle()
+                .fill(Color.green)
+                .frame(width: 200, height: 100)
+        }
+        .padding()
+        """),
+        
         (name: "Rectangle with .frame",
          code: """
             Rectangle()
@@ -34,26 +64,6 @@ struct ExploratoryView: View {
             Oval()
             Oval()
         }
-        """),
-        
-        (name: "ZStack with Views",
-         code: """
-        ZStack {
-            Text("Title")
-            Rectangle()
-        }
-        .padding()
-        """),
-        
-        (name: "VStack with Views",
-         code: """
-        VStack {
-            Text("Title")
-            Rectangle()
-                .fill(Color.green)
-                .frame(width: 200, height: 100)
-        }
-        .padding()
         """),
         
         (name: "Simple Rectangle",
