@@ -54,7 +54,8 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
     // Helper to find the topmost FunctionCallExprSyntax ancestor (root of the call chain)
     private func findRootCall(_ node: FunctionCallExprSyntax) -> FunctionCallExprSyntax {
         var current: Syntax = Syntax(node)
-        while let parentCall = current.parent?.as(FunctionCallExprSyntax.self) {
+        while let member = current.parent?.as(MemberAccessExprSyntax.self),
+              let parentCall = member.parent?.as(FunctionCallExprSyntax.self) {
             current = Syntax(parentCall)
         }
         return FunctionCallExprSyntax(current)!
@@ -104,20 +105,7 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
             return .skipChildren
         }
 
-        // Handle simple modifiers like fill and opacity on the root call
-        if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
-           memberAccess.base != nil {
-            let modifierName = memberAccess.name.text
-            switch modifierName {
-            case "fill":
-                processFillModifier(node)
-            case "opacity":
-                processOpacityModifier(node)
-            default:
-                break
-            }
-            return .skipChildren
-        }
+        // (simple modifiers block removed)
 
         // If this is part of a modifier chain, collect it
         currentModifierChain.append(node)
