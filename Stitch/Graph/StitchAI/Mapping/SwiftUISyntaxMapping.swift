@@ -194,7 +194,7 @@ class SwiftUIParser: SyntaxVisitor {
                     // 1) Create the view node from the root
                     _ = visit(rootCall)
                     // 2) Apply any chained modifiers
-                    processModifiersFor(rootNode: rootCall)
+                    // processModifiersFor(rootNode: rootCall)  <-- REMOVED
 
                     let childId = currentNodeId
                     if !addedChildren.contains(childId) {
