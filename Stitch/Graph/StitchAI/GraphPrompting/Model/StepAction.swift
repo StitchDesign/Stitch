@@ -39,8 +39,8 @@ extension StepActionable {
 extension StepActionLayerGroupCreated: StepActionable {
     var toStep: Step {
         Step(stepType: Self.stepType,
-             nodeId: nodeId,
-             children: children)
+             nodeId: self.nodeId,
+             children: self.children.toOrderedSet)
     }
     
     func remapNodeIds(nodeIdMap: [StitchAIUUID: NodeId]) -> StepActionLayerGroupCreated {
@@ -58,7 +58,7 @@ extension StepActionLayerGroupCreated: StepActionable {
                 log("StepActionLayerGroupCreated: remapNodeIds: OLD childId: \(childId)")
                 return childId
             }
-        }).toSet
+        }).toOrderedSet
         
         return copy
     }
