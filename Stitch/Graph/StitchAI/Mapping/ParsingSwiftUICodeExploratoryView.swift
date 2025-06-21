@@ -5,19 +5,6 @@ struct ParsingSwiftUICodeExploratoryView: View {
     @State private var output: String = "Tap 'Parse Code' to begin..."
     @State private var testCases: [(name: String, code: String)] = [
         
-        (name: "Simple Rectangle",
-         code: """
-        Rectangle()
-            .fill(Color.blue)
-            .opacity(0.5)
-        """),
-        
-        (name: "Text View",
-         code: """
-        Text("Hello, World!")
-            .foregroundColor(.red)
-        """),
-        
         (name: "ZStack with Views",
          code: """
         ZStack {
@@ -38,7 +25,22 @@ struct ParsingSwiftUICodeExploratoryView: View {
                 .frame(width: 200, height: 100)
         }
         .padding()
-        """)
+        """),
+        
+        (name: "Simple Rectangle",
+         code: """
+        Rectangle()
+            .fill(Color.blue)
+            .opacity(0.5)
+        """),
+        
+        (name: "Text View",
+         code: """
+        Text("Hello, World!")
+            .foregroundColor(.red)
+        """),
+        
+      
     ]
     
     @State private var selectedTestCase = 0

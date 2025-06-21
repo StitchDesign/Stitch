@@ -114,6 +114,48 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
                     print("Created StepActionSetInput for Text content: \(textValue)")
                 }
                 print("Created StepActionAddNode for Text")
+            case "ZStack":
+                // Store the current node ID as the group ID
+                let groupId = currentNodeId
+                
+                // Collect child views inside the closure body
+                var childIds: [UUID] = []
+                if let closure = node.trailingClosure {
+                    for item in closure.statements {
+                        if let exprStmt = item.item.as(ExpressionStmtSyntax.self) {
+                            // Find function call expressions that represent view initializers
+                            // Try to directly cast the expression to a function call
+                            if let initializer = exprStmt.expression.as(FunctionCallExprSyntax.self) {
+                                // Save the current group ID
+                                let savedGroupId = currentNodeId
+                                
+                                // Allocate a new node ID for the child view
+                                currentNodeId = UUID()
+                                
+                                // Find the root call for this child view
+                                let rootCall = findRootCall(initializer)
+                                
+                                // Visit the child to generate its actions
+                                _ = visit(rootCall)
+                                
+                                // Add this child's ID to our collection
+                                childIds.append(currentNodeId)
+                                
+                                // Restore the group ID for the next iteration
+                                currentNodeId = savedGroupId
+                            }
+                        }
+                    }
+                }
+                
+                // Create the layer group with its children
+                // StepActionLayerGroupCreated creates the group and sets its children in one action
+                let groupStep = StepActionLayerGroupCreated(
+                    nodeId: groupId,
+                    children: NodeIdOrderedSet(childIds)
+                )
+                actions.append(groupStep)
+                return .skipChildren
             default:
                 print("Unhandled view type: \(viewType)")
                 return .skipChildren
