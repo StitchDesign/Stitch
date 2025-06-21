@@ -677,6 +677,7 @@
 		EC66D03B2E070C4100355ED8 /* StitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03A2E070C4100355ED8 /* StitchSyntax.swift */; };
 		EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */; };
 		EC66D03F2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */; };
+		EC66D0412E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -1779,6 +1780,7 @@
 		EC66D03A2E070C4100355ED8 /* StitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntax.swift; sourceTree = "<group>"; };
 		EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToStitchSyntax.swift; sourceTree = "<group>"; };
 		EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxToCodeExploratoryView.swift; sourceTree = "<group>"; };
+		EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewNodeToSwiftUICodeTests.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -4898,6 +4900,7 @@
 		EC66D02D2E064E0800355ED8 /* SwiftUIParsingTests */ = {
 			isa = PBXGroup;
 			children = (
+				EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */,
 			);
 			path = SwiftUIParsingTests;
 			sourceTree = "<group>";
@@ -6509,6 +6512,7 @@
 				ECCC04C02A3268A20099D021 /* nodeTypeTests.swift in Sources */,
 				EC28CCA6287E3DBA00987792 /* mathTests.swift in Sources */,
 				B5F9EB9B28D3848A00112799 /* FileManagerTests.swift in Sources */,
+				EC66D0412E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
