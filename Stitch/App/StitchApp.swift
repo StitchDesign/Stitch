@@ -43,7 +43,11 @@ struct StitchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            SyntaxToCodeExploratoryView()
+            
+            CodeToSyntaxExploratoryView()
+//            SyntaxToCodeExploratoryView()
+            
+            
             // ExploratoryView()
             
 //            // iPad uses StitchRouter to use the project zoom in/out animation

@@ -678,6 +678,8 @@
 		EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */; };
 		EC66D03F2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */; };
 		EC66D0412E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */; };
+		EC66D0432E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */; };
+		EC66D0452E0728FB00355ED8 /* StitchSyntaxHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0442E0728FB00355ED8 /* StitchSyntaxHelpers.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -1781,6 +1783,8 @@
 		EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToStitchSyntax.swift; sourceTree = "<group>"; };
 		EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxToCodeExploratoryView.swift; sourceTree = "<group>"; };
 		EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewNodeToSwiftUICodeTests.swift; sourceTree = "<group>"; };
+		EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToSyntaxExploratoryView.swift; sourceTree = "<group>"; };
+		EC66D0442E0728FB00355ED8 /* StitchSyntaxHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntaxHelpers.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -5173,7 +5177,9 @@
 				ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */,
 				EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */,
 				EC66D03A2E070C4100355ED8 /* StitchSyntax.swift */,
+				EC66D0442E0728FB00355ED8 /* StitchSyntaxHelpers.swift */,
 				EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */,
+				EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */,
 				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
 				EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */,
 				EC66D02B2E062D5C00355ED8 /* ExploratoryView.swift */,
@@ -5520,6 +5526,7 @@
 				B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */,
 				B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */,
 				EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */,
+				EC66D0432E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift in Sources */,
 				E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */,
 				ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */,
 				EC2BBF042947BBC2005BCCDB /* ColorFillLayerNode.swift in Sources */,
@@ -5915,6 +5922,7 @@
 				8B77BA7B2713D35C00255C40 /* GraphUIActions.swift in Sources */,
 				ECD1F6C32965FDCC00DBD9A8 /* CubicBezierCurveNode.swift in Sources */,
 				EC9AB64528DFE99B002810BC /* ScrollFreeInteractionHelpers.swift in Sources */,
+				EC66D0452E0728FB00355ED8 /* StitchSyntaxHelpers.swift in Sources */,
 				B5E28AEE2A7AB9180007C0CB /* ProjectToolbar.swift in Sources */,
 				EC9A48DC2D6FC2D2006A1FC9 /* LayerEphemeralState.swift in Sources */,
 				EC609DCE29354C6E00BF60A5 /* LengthNode.swift in Sources */,
