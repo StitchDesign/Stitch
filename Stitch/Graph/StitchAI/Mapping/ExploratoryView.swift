@@ -11,7 +11,7 @@ struct ExploratoryView: View {
     @State private var testCases: [(name: String, code: String)] = [
        
 
-      (name: "Nested 1",
+        (name: "Nested 1",
          code: """
         ZStack {
             Text("Title")

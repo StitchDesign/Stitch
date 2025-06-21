@@ -676,7 +676,8 @@
 		EC66D0312E06636E00355ED8 /* SwiftUISyntaxMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */; };
 		EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */; };
 		EC66D0352E06675200355ED8 /* ParsingSwiftUICodeTests2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0342E06675200355ED8 /* ParsingSwiftUICodeTests2.swift */; };
-		EC66D0392E0679A800355ED8 /* SimpleParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0382E0679A800355ED8 /* SimpleParsing.swift */; };
+		EC66D03B2E070C4100355ED8 /* StitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03A2E070C4100355ED8 /* StitchSyntax.swift */; };
+		EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -1778,7 +1779,8 @@
 		EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISyntaxMapping.swift; sourceTree = "<group>"; };
 		EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestrictedSwiftUIScopeJSON.swift; sourceTree = "<group>"; };
 		EC66D0342E06675200355ED8 /* ParsingSwiftUICodeTests2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsingSwiftUICodeTests2.swift; sourceTree = "<group>"; };
-		EC66D0382E0679A800355ED8 /* SimpleParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleParsing.swift; sourceTree = "<group>"; };
+		EC66D03A2E070C4100355ED8 /* StitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntax.swift; sourceTree = "<group>"; };
+		EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToStitchSyntax.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -5171,9 +5173,10 @@
 			children = (
 				ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */,
 				EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */,
+				EC66D03A2E070C4100355ED8 /* StitchSyntax.swift */,
+				EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */,
 				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
 				EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */,
-				EC66D0382E0679A800355ED8 /* SimpleParsing.swift */,
 				EC66D02B2E062D5C00355ED8 /* ExploratoryView.swift */,
 			);
 			path = Mapping;
@@ -5503,6 +5506,7 @@
 				ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */,
 				ECF387CB280B5C650075F0E5 /* PortValuesPreviewView.swift in Sources */,
 				ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */,
+				EC66D03B2E070C4100355ED8 /* StitchSyntax.swift in Sources */,
 				EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */,
 				EC4914A429359B3F00D74344 /* TextStartsWithNode.swift in Sources */,
 				EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */,
@@ -5515,6 +5519,7 @@
 				B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */,
 				B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */,
 				B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */,
+				EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */,
 				E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */,
 				ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */,
 				EC2BBF042947BBC2005BCCDB /* ColorFillLayerNode.swift in Sources */,
@@ -5688,7 +5693,6 @@
 				203D56BD25B0DAE000EF7AC2 /* LegacyNodeHelpers.swift in Sources */,
 				ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */,
 				EC57659D2DB7F64200D71CB2 /* PortUIViewModel.swift in Sources */,
-				EC66D0392E0679A800355ED8 /* SimpleParsing.swift in Sources */,
 				ECFC872F2936CE09004A065A /* StopwatchNode.swift in Sources */,
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
