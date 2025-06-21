@@ -1,9 +1,27 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct ParsingSwiftUICodeExploratoryView: View {
+// Import our custom SwiftUI syntax mapping
+import SwiftParser
+import SwiftSyntax
+
+
+struct ExploratoryView: View {
     @State private var output: String = "Tap 'Parse Code' to begin..."
     @State private var testCases: [(name: String, code: String)] = [
+        
+        (name: "Simple Rectangle",
+         code: """
+        Rectangle()
+            .fill(Color.blue)
+            .opacity(0.5)
+        """),
+        
+        (name: "Text View",
+         code: """
+        Text("Hello, World!")
+            .foregroundColor(.red)
+        """),
         
         (name: "ZStack with Views",
          code: """
@@ -26,21 +44,6 @@ struct ParsingSwiftUICodeExploratoryView: View {
         }
         .padding()
         """),
-        
-        (name: "Simple Rectangle",
-         code: """
-        Rectangle()
-            .fill(Color.blue)
-            .opacity(0.5)
-        """),
-        
-        (name: "Text View",
-         code: """
-        Text("Hello, World!")
-            .foregroundColor(.red)
-        """),
-        
-      
     ]
     
     @State private var selectedTestCase = 0
@@ -65,7 +68,7 @@ struct ParsingSwiftUICodeExploratoryView: View {
                         .font(.system(.body, design: .monospaced))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.gray.opacity(0.1))
                         .cornerRadius(8)
                 }
                 .frame(height: 150)
@@ -93,7 +96,7 @@ struct ParsingSwiftUICodeExploratoryView: View {
                         .font(.system(.body, design: .monospaced))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.gray.opacity(0.1))
                         .cornerRadius(8)
                 }
             }
@@ -110,19 +113,32 @@ struct ParsingSwiftUICodeExploratoryView: View {
         print("\n=== Starting Parser ===")
         print("Code to parse:", code)
         
-        let actions = parseSwiftUICodeToActions(code)
+        // Use the new SwiftUIParser from SwiftUISyntaxMapping.swift
+        let actions = parseSwiftUIToActions(code)
         result += "=== Found \(actions.count) actions ===\n\n"
         
         for (index, action) in actions.enumerated() {
-            result += "[Action \(index + 1)] \(String(describing: type(of: action)))\n"
-            let mirror = Mirror(reflecting: action)
-            for child in mirror.children {
-                if let label = child.label {
-                    result += "  - \(label): \(child.value)\n"
-                }
-            }
-            result += "\n"
+            result += "[Action \(index + 1)] \(action)\n"
             
+            // Add more details based on the action type
+            switch action {
+            case .createContainer(let id, let type):
+                result += "  Created container: \(type) with ID: \(id)\n"
+            case .createText(let id, let initialText):
+                result += "  Created text with ID: \(id)\(initialText.isEmpty ? "" : " and initial text: \(initialText)")\n"
+            case .setText(let id, let text):
+                result += "  Set text for ID: \(id) to: \(text)\n"
+            case .createShape(let id, let type):
+                result += "  Created shape: \(type) with ID: \(id)\n"
+            case .createView(let id, let type):
+                result += "  Created view: \(type) with ID: \(id)\n"
+            case .setInput(let id, let input, let value):
+                result += "  Set input: \(input) = \(value) for ID: \(id)\n"
+            case .addChild(let parentId, let childId):
+                result += "  Added child: \(childId) to parent: \(parentId)\n"
+            }
+            
+            result += "\n"
             print("Action \(index + 1):", action)
         }
         
@@ -134,5 +150,5 @@ struct ParsingSwiftUICodeExploratoryView: View {
 }
 
 #Preview {
-    ParsingSwiftUICodeExploratoryView()
+    ExploratoryView()
 }

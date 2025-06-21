@@ -671,8 +671,11 @@
 		EC65AC332DC1A3500046E59C /* InputFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */; };
 		EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC342DC1AB580046E59C /* OutputFieldView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
-		EC66D02C2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D02B2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift */; };
+		EC66D02C2E062D5C00355ED8 /* ExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D02B2E062D5C00355ED8 /* ExploratoryView.swift */; };
 		EC66D02F2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D02E2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift */; };
+		EC66D0312E06636E00355ED8 /* SwiftUISyntaxMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */; };
+		EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */; };
+		EC66D0352E06675200355ED8 /* ParsingSwiftUICodeTests2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0342E06675200355ED8 /* ParsingSwiftUICodeTests2.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -1769,8 +1772,11 @@
 		EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldValueView.swift; sourceTree = "<group>"; };
 		EC65AC342DC1AB580046E59C /* OutputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
-		EC66D02B2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsingSwiftUICodeExploratoryView.swift; sourceTree = "<group>"; };
+		EC66D02B2E062D5C00355ED8 /* ExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploratoryView.swift; sourceTree = "<group>"; };
 		EC66D02E2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsingSwiftUICodeTests.swift; sourceTree = "<group>"; };
+		EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISyntaxMapping.swift; sourceTree = "<group>"; };
+		EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestrictedSwiftUIScopeJSON.swift; sourceTree = "<group>"; };
+		EC66D0342E06675200355ED8 /* ParsingSwiftUICodeTests2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsingSwiftUICodeTests2.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -4891,6 +4897,7 @@
 			isa = PBXGroup;
 			children = (
 				EC66D02E2E064E2000355ED8 /* ParsingSwiftUICodeTests.swift */,
+				EC66D0342E06675200355ED8 /* ParsingSwiftUICodeTests2.swift */,
 			);
 			path = SwiftUIParsingTests;
 			sourceTree = "<group>";
@@ -5162,7 +5169,9 @@
 			children = (
 				ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */,
 				EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */,
-				EC66D02B2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift */,
+				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
+				EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */,
+				EC66D02B2E062D5C00355ED8 /* ExploratoryView.swift */,
 			);
 			path = Mapping;
 			sourceTree = "<group>";
@@ -5883,6 +5892,7 @@
 				B57C8EAF2DE5408300942EDF /* GroupCandidate.swift in Sources */,
 				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
+				EC66D0312E06636E00355ED8 /* SwiftUISyntaxMapping.swift in Sources */,
 				EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */,
 				EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
@@ -5901,7 +5911,7 @@
 				EC9A48DC2D6FC2D2006A1FC9 /* LayerEphemeralState.swift in Sources */,
 				EC609DCE29354C6E00BF60A5 /* LengthNode.swift in Sources */,
 				ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */,
-				EC66D02C2E062D5C00355ED8 /* ParsingSwiftUICodeExploratoryView.swift in Sources */,
+				EC66D02C2E062D5C00355ED8 /* ExploratoryView.swift in Sources */,
 				EC004DD12B449D0700C5DB33 /* PreviewCanvasSketchView.swift in Sources */,
 				ECA92A18260A69EB00281B52 /* OptionPickerNode.swift in Sources */,
 				B5221F662D397457009FF89A /* SphereLayerNode.swift in Sources */,
@@ -6266,6 +6276,7 @@
 				ECE35EE427CEE7E100CB8F5C /* FieldCoercers.swift in Sources */,
 				EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */,
 				ECE585802DB6EF2200749ED3 /* OutputPortUIViewModel.swift in Sources */,
+				EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */,
 				ECC08E152E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift in Sources */,
 				B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */,
 				ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */,
@@ -6492,6 +6503,7 @@
 				EC10BA522629FBF800A9BE89 /* evalTests.swift in Sources */,
 				ECCC04C02A3268A20099D021 /* nodeTypeTests.swift in Sources */,
 				EC28CCA6287E3DBA00987792 /* mathTests.swift in Sources */,
+				EC66D0352E06675200355ED8 /* ParsingSwiftUICodeTests2.swift in Sources */,
 				B5F9EB9B28D3848A00112799 /* FileManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
