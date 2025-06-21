@@ -13,7 +13,11 @@ let restrictedScopeSwiftUIJSON = """
     "Blur Radius" : ".blur",
     "Brightness" : ".brightness",
     "Clipped" : ".clipped",
-    "Color" : ".fill",
+    "Color" : {
+      "Rectangle" : ".fill",
+      "Oval"      : ".fill",
+      "Text"      : ".foregroundColor"
+    },
     "Color Invert" : ".colorInvert",
     "Contrast" : ".contrast",
     "Corner Radius" : ".cornerRadius",
@@ -129,7 +133,7 @@ class SwiftUIToStitchAIVisitor: SyntaxVisitor {
                 print("Found modifier: \(modifierName)")
                 
                 switch modifierName {
-                case "fill":
+                case "fill", "foregroundColor":
                     processFillModifier(functionCall)
                 case "opacity":
                     processOpacityModifier(functionCall)

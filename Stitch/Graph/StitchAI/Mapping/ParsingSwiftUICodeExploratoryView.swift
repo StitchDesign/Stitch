@@ -13,7 +13,6 @@ struct ParsingSwiftUICodeExploratoryView: View {
          (name: "Text View",
          code: """
         Text("Hello, World!")
-            .font(.title)
             .foregroundColor(.red)
         """),
         (name: "VStack with Views",
