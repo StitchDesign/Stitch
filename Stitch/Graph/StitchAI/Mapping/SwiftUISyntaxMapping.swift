@@ -4,6 +4,10 @@ import SwiftUI
 import SwiftSyntax
 import SwiftParser
 
+private func log(_ message: String) {
+    print("[SwiftUIParser] \(message)")
+}
+
 // MARK: - SwiftUI Action Model
 
 /// Direct representation of SwiftUI component operations
@@ -48,13 +52,22 @@ class SwiftUIParser: SyntaxVisitor {
     // Current node being processed
     private var currentNodeId: String = ""
     
+    // Helper to find the root call in a modifier chain
+    private func findRootCall(_ node: FunctionCallExprSyntax) -> FunctionCallExprSyntax {
+        var current: Syntax = Syntax(node)
+        while let member = current.parent?.as(MemberAccessExprSyntax.self),
+              let parentCall = member.parent?.as(FunctionCallExprSyntax.self) {
+            current = Syntax(parentCall)
+        }
+        return current.as(FunctionCallExprSyntax.self)!
+    }
     
     // MARK: - Public Interface
     
     /// Parse SwiftUI code and return structured representation
     static func parse(_ swiftUICode: String) -> [SwiftUIAction] {
         let sourceFile = Parser.parse(source: swiftUICode)
-        let visitor = SwiftUIParser.init(viewMode: .sourceAccurate)
+        let visitor = SwiftUIParser(viewMode: .sourceAccurate)
         visitor.walk(sourceFile)
         return visitor.actions
     }
@@ -67,45 +80,43 @@ class SwiftUIParser: SyntaxVisitor {
         return id
     }
     
-    // Helper to find the root call in a modifier chain
-    private func findRootCall(_ node: FunctionCallExprSyntax) -> FunctionCallExprSyntax {
-        var current: Syntax = Syntax(node)
-        while let member = current.parent?.as(MemberAccessExprSyntax.self),
-              let parentCall = member.parent?.as(FunctionCallExprSyntax.self) {
-            current = Syntax(parentCall)
-        }
-        return current.as(FunctionCallExprSyntax.self)!
-    }
-    
     // MARK: - Syntax Visitor
     
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
+        log("Visiting FunctionCallExpr: \(node.calledExpression.description.trimmingCharacters(in: .whitespacesAndNewlines))")
         // Extract view type from function call
         var viewType: String?
-        
-        if let calledExpression = node.calledExpression.as(DeclReferenceExprSyntax.self) {
-            viewType = calledExpression.baseName.text
+
+        // Direct identifier, e.g. Text(), ZStack(), Rectangle()
+        if let ident = node.calledExpression.as(IdentifierExprSyntax.self) {
+            viewType = ident.identifier.text
+
+        // Qualified SwiftUI.<View>
         } else if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
-                 let base = memberAccess.base?.as(DeclReferenceExprSyntax.self),
-                 base.baseName.text == "SwiftUI" {
-            // Handle qualified names like SwiftUI.Text
+                  memberAccess.base?.as(IdentifierExprSyntax.self)?.identifier.text == "SwiftUI" {
             viewType = memberAccess.name.text
+
+        // Member access without base, e.g. .padding (treat as view when base nil)
         } else if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
-                 memberAccess.base == nil {
-            // Handle member access without base (common in SwiftUI)
+                  memberAccess.base == nil {
             viewType = memberAccess.name.text
         }
         
+        log("Detected viewType: \(viewType ?? "nil")")
         // Process the view type
         if let viewType = viewType {
             // Determine if this is a container, shape, or regular view
             if isContainer(viewType) {
+                log("Handling container view: \(viewType)")
                 handleContainer(node, type: viewType)
             } else if isShape(viewType) {
+                log("Handling shape view: \(viewType)")
                 handleShape(node, type: viewType)
             } else if viewType == "Text" {
+                log("Handling Text view")
                 handleText(node)
             } else {
+                log("Handling generic view: \(viewType)")
                 // Generic view
                 currentNodeId = generateId(prefix: viewType.lowercased())
                 actions.append(.createView(id: currentNodeId, type: viewType))
@@ -136,29 +147,48 @@ class SwiftUIParser: SyntaxVisitor {
         
         // Create action
         actions.append(.createContainer(id: currentNodeId, type: type))
+        log("Created container \(type) with id \(currentNodeId)")
         
         // Push to stack
         containerStack.append((id: currentNodeId, type: type))
         
-        // Process children in closure
         if let closure = node.trailingClosure {
+            log("Entering container closure for \(type)")
+            let containerId = currentNodeId
+            var addedChildren = Set<String>()
+
             for item in closure.statements {
-                if let exprStmt = item.item.as(ExpressionStmtSyntax.self) {
-                    // Save current container ID
-                    let parentId = currentNodeId
-                    
-                    if let initializer = exprStmt.expression.as(FunctionCallExprSyntax.self) {
-                        // Find the root call
-                        let rootCall = findRootCall(initializer)
-                        
-                        // Process the child
-                        _ = visit(rootCall)
-                        
-                        // Add child relationship
-                        actions.append(.addChild(parentId: parentId, childId: currentNodeId))
+                let syntax = item.item
+                // Extract the initial FunctionCallExpr (e.g., Rectangle())
+                var initializer: FunctionCallExprSyntax?
+                if let fce = syntax.as(FunctionCallExprSyntax.self) {
+                    initializer = fce
+                } else if let exprStmt = syntax.as(ExpressionStmtSyntax.self),
+                          let fce = exprStmt.expression.as(FunctionCallExprSyntax.self) {
+                    initializer = fce
+                }
+
+                if let initCall = initializer {
+                    log("Visiting initializer call: \(initCall.calledExpression.description.trimmingCharacters(in: .whitespacesAndNewlines))")
+                    // 1) Create the view node
+                    _ = visit(initCall)
+                    // 2) Apply its modifiers
+                    processModifiersFor(rootNode: initCall)
+
+                    let childId = currentNodeId
+                    if !addedChildren.contains(childId) {
+                        actions.append(.addChild(parentId: containerId, childId: childId))
+                        addedChildren.insert(childId)
+                        log("Added child \(childId) to parent \(containerId)")
+                    } else {
+                        log("Skipping duplicate child \(childId) for parent \(containerId)")
                     }
+                } else {
+                    log("NO FUNCTION CALL in closure item: '\(syntax.description.trimmingCharacters(in: .whitespacesAndNewlines))'")
                 }
             }
+        } else {
+            log("NO node.trailingClosure for \(type)")
         }
         
         // Pop from stack
@@ -201,6 +231,8 @@ class SwiftUIParser: SyntaxVisitor {
             let value = argumentsToString(mod.args)
             actions.append(.setInput(id: currentNodeId, input: mod.name, value: value))
         }
+        let modifierNames = mods.map { $0.name }.joined(separator: ", ")
+        log("Modifiers for \(currentNodeId): [\(modifierNames)]")
     }
     
     private func argumentsToString(_ arguments: TupleExprElementListSyntax) -> String {

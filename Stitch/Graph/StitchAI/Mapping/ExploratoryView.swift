@@ -9,18 +9,31 @@ import SwiftSyntax
 struct ExploratoryView: View {
     @State private var output: String = "Tap 'Parse Code' to begin..."
     @State private var testCases: [(name: String, code: String)] = [
-        
-        (name: "Simple Rectangle",
+       
+        (name: "Rectangle with .frame",
          code: """
-        Rectangle()
-            .fill(Color.blue)
-            .opacity(0.5)
+            Rectangle()
+                .frame(width: 200, height: 100)
         """),
         
-        (name: "Text View",
+        (name: "Simple ZStack ",
          code: """
-        Text("Hello, World!")
-            .foregroundColor(.red)
+        ZStack {
+            Rectangle()
+        }
+        """),
+        
+        (name: "ZStack with Views 2",
+         code: """
+        ZStack {
+            Text("Title")
+            Rectangle()
+        }
+        
+        ZStack {
+            Oval()
+            Oval()
+        }
         """),
         
         (name: "ZStack with Views",
@@ -28,8 +41,6 @@ struct ExploratoryView: View {
         ZStack {
             Text("Title")
             Rectangle()
-                .fill(Color.green)
-                .frame(width: 200, height: 100)
         }
         .padding()
         """),
@@ -44,6 +55,21 @@ struct ExploratoryView: View {
         }
         .padding()
         """),
+        
+        (name: "Simple Rectangle",
+         code: """
+        Rectangle()
+            .fill(Color.blue)
+            .opacity(0.5)
+        """),
+        
+        (name: "Text View",
+         code: """
+        Text("Hello, World!")
+            .foregroundColor(.red)
+        """),
+        
+       
     ]
     
     @State private var selectedTestCase = 0
@@ -115,6 +141,7 @@ struct ExploratoryView: View {
         
         // Use the new SwiftUIParser from SwiftUISyntaxMapping.swift
         let actions = parseSwiftUIToActions(code)
+        
         result += "=== Found \(actions.count) actions ===\n\n"
         
         for (index, action) in actions.enumerated() {
