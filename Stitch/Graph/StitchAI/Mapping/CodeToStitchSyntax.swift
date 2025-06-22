@@ -198,6 +198,10 @@ class SwiftUIViewVisitor: SyntaxVisitor {
                     if child.id == node.id {
                         parent.children[childIndex] = node
                         viewStack[parentIndex] = parent
+                        // Keep rootViewNode in sync when we modify a direct child of the root
+                        if parentIndex == 0 {
+                            rootViewNode = parent
+                        }
                         break
                     }
                 }
