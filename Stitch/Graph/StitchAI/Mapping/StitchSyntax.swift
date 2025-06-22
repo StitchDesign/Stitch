@@ -26,13 +26,13 @@ struct Modifier {
 }
 
 
+
 // MARK: EXAMPLES
 
 // Example for complex modifiers with multiple parameters
 // SwiftUI code:
 // Rectangle()
 //     .frame(width: 200, height: 100, alignment: .center)
-
 let complexModifierExample = ViewNode(
     name: "Rectangle",
     arguments: [],
@@ -51,12 +51,12 @@ let complexModifierExample = ViewNode(
     id: "rectangle6"
 )
 
+
 // SwiftUI code:
 // ZStack {
 //     Rectangle().fill(Color.blue)
 //     Rectangle().fill(Color.green)
 // }
-
 let example1 = ViewNode(
     name: "ZStack",
     arguments: [],
@@ -92,9 +92,9 @@ let example1 = ViewNode(
     id: "zstack1"
 )
 
+
 // SwiftUI code:
 // Text("salut")
-
 let example2 = ViewNode(
     name: "Text",
     arguments: [(label: nil, value: "\"salut\"")],
@@ -105,7 +105,6 @@ let example2 = ViewNode(
 
 // SwiftUI code:
 // Text("salut").foregroundColor(Color.yellow).padding()
-
 let example3 = ViewNode(
     name: "Text",
     arguments: [(label: nil, value: "\"salut\"")],
@@ -125,6 +124,7 @@ let example3 = ViewNode(
     id: "text2"
 )
 
+
 // SwiftUI code:
 // ZStack {
 //     Rectangle().fill(Color.blue)
@@ -133,7 +133,6 @@ let example3 = ViewNode(
 //        Rectangle().fill(Color.red)
 //     }
 // }
-
 let example4 = ViewNode(
     name: "ZStack",
     arguments: [],

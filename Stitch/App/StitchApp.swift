@@ -44,6 +44,8 @@ struct StitchApp: App {
     var body: some Scene {
         WindowGroup {
             
+//            ParsedSwiftUIViewDemo()
+            
             CodeToSyntaxExploratoryView()
 //            SyntaxToCodeExploratoryView()
             

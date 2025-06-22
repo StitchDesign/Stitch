@@ -8,8 +8,8 @@
 import SwiftUI
 import Foundation
 
-// Since all the files are in the same directory, we can access the types and
-// functions defined in other files without additional imports
+// The project already has these types and functions imported
+// We don't need explicit imports because they're part of the same module
 
 struct CodeToSyntaxExploratoryView: View {
     // Tab selection
@@ -106,8 +106,7 @@ struct CodeToSyntaxExploratoryView: View {
         let selectedCode = self.examples[self.selectedTab].code
         self.swiftUICode = selectedCode
         
-        // For demo purposes, get the parsed representation for each example
-//        let exampleOutput = getParsedSwiftUIExample(for: self.selectedTab)
+        // Parse the SwiftUI code to get the ViewNode representation
         let output = parseSwiftUICode(self.swiftUICode)
         self.parsedViewNode = output
     }

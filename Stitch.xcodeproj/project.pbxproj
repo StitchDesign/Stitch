@@ -681,6 +681,8 @@
 		EC66D0432E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */; };
 		EC66D0452E0728FB00355ED8 /* StitchSyntaxHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0442E0728FB00355ED8 /* StitchSyntaxHelpers.swift */; };
 		EC66D0472E072A5300355ED8 /* StitchSyntaxToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */; };
+		EC66D04A2E07EDD500355ED8 /* VPLSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0492E07EDD500355ED8 /* VPLSyntax.swift */; };
+		EC66D04C2E07EF0000355ED8 /* VPLSyntaxTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -1787,6 +1789,8 @@
 		EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToSyntaxExploratoryView.swift; sourceTree = "<group>"; };
 		EC66D0442E0728FB00355ED8 /* StitchSyntaxHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntaxHelpers.swift; sourceTree = "<group>"; };
 		EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntaxToCode.swift; sourceTree = "<group>"; };
+		EC66D0492E07EDD500355ED8 /* VPLSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLSyntax.swift; sourceTree = "<group>"; };
+		EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLSyntaxTest.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -4907,8 +4911,27 @@
 			isa = PBXGroup;
 			children = (
 				EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */,
+				EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */,
 			);
 			path = SwiftUIParsingTests;
+			sourceTree = "<group>";
+		};
+		EC66D0482E07EDC000355ED8 /* VPLSyntax */ = {
+			isa = PBXGroup;
+			children = (
+				EC66D0492E07EDD500355ED8 /* VPLSyntax.swift */,
+			);
+			path = VPLSyntax;
+			sourceTree = "<group>";
+		};
+		EC66D04D2E07F7AF00355ED8 /* legacy */ = {
+			isa = PBXGroup;
+			children = (
+				EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */,
+				EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */,
+				EC66D02B2E062D5C00355ED8 /* ExploratoryView.swift */,
+			);
+			path = legacy;
 			sourceTree = "<group>";
 		};
 		EC6B2E102D76272100804E38 /* PortValuesPreview */ = {
@@ -5176,16 +5199,15 @@
 		ECC08E162E0489BF0058C2FE /* Mapping */ = {
 			isa = PBXGroup;
 			children = (
+				EC66D0482E07EDC000355ED8 /* VPLSyntax */,
 				ECC08E142E0489B80058C2FE /* LayersMappedToSwiftUIViews.swift */,
-				EC2A7DC22E0606080088F694 /* ParsingSwiftUICode.swift */,
+				EC66D04D2E07F7AF00355ED8 /* legacy */,
 				EC66D03A2E070C4100355ED8 /* StitchSyntax.swift */,
 				EC66D0442E0728FB00355ED8 /* StitchSyntaxHelpers.swift */,
 				EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */,
 				EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */,
 				EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */,
 				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
-				EC66D0302E06636E00355ED8 /* SwiftUISyntaxMapping.swift */,
-				EC66D02B2E062D5C00355ED8 /* ExploratoryView.swift */,
 				EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */,
 			);
 			path = Mapping;
@@ -6413,6 +6435,7 @@
 				EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */,
 				B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */,
 				B53E0BEF2D36E1220072FD43 /* LayerInspectorSection.swift in Sources */,
+				EC66D04A2E07EDD500355ED8 /* VPLSyntax.swift in Sources */,
 				B5CAFF922831D07100C2EC38 /* ProjectsListItemBlurView.swift in Sources */,
 				B58902722DDC2C1800CBABAF /* GraphCommands.swift in Sources */,
 				EC0E1AFE2D4B2288004AAA37 /* LLMValueParsingUtils.swift in Sources */,
@@ -6497,6 +6520,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5E5FFBB274C978800C5FE92 /* nodeUIGroupingTests.swift in Sources */,
+				EC66D04C2E07EF0000355ED8 /* VPLSyntaxTest.swift in Sources */,
 				B55185722826FE4100D81717 /* StitchFileTests.swift in Sources */,
 				ECFEFF9E26BDE18A00CF042E /* miscTests.swift in Sources */,
 				EC06A48E2A046521009C9A4A /* JsonPerfTestUtils.swift in Sources */,
