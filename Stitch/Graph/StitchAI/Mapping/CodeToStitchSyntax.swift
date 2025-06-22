@@ -252,36 +252,11 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             }
             
         } else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
-            // This might be a modifier like .padding() or .foregroundColor(Color.blue)
-            log("Found member access expression: \(memberAccessExpr.description)")
-            log("Member name: \(memberAccessExpr.name.text)")
-            dbg("visit → detected modifier call .\(memberAccessExpr.name.text)() with base \(memberAccessExpr.base?.trimmedDescription.prefix(40) ?? "nil")")
-            log("Has base expression: \(memberAccessExpr.base != nil)")
-            
-            if let baseExpr = memberAccessExpr.base,
-               currentViewNode != nil {
-                
-                // This is a modifier applied to a view
-                let modifierName = memberAccessExpr.name.text
-                log("Processing modifier: \(modifierName) for node at index \(String(describing: currentNodeIndex))")
-                
-                // Parse modifier arguments
-                let modifierArguments = parseArguments(from: node)
-                log("Modifier \(modifierName) has \(modifierArguments.count) arguments")
-                dbg("visit → preparing to add modifier '\(modifierName)'   argCount: \(modifierArguments.count)")
-                // Create a new Modifier and add it to the current view using our helper
-                let modifier = Modifier(
-                    name: modifierName,
-                    value: modifierArguments.count == 1 && modifierArguments[0].label == nil ? modifierArguments[0].value : "",
-                    arguments: modifierArguments
-                )
-                
-                // Use our helper method to properly add the modifier
-                addModifier(modifier)
-                dbg("visit → added modifier '\(modifierName)' to \(currentViewNode?.name ?? "unknown")  | total modifiers now: \(currentViewNode?.modifiers.count ?? -1)")
-            } else {
-                log("⚠️ Cannot add modifier: missing base expression or currentViewNode is nil")
-            }
+            // Detected a modifier call (e.g. .padding()).  We *do not* attach the modifier
+            // here because the base view may not have been pushed onto the stack yet.
+            // Instead, we defer actual attachment to `visitPost(_:)`, which runs after the
+            // base `FunctionCallExprSyntax` has been visited.
+            dbg("visit → encountered potential modifier .\(memberAccessExpr.name.text) – deferring to visitPost")
         }
         
         return .visitChildren
@@ -385,6 +360,18 @@ class SwiftUIViewVisitor: SyntaxVisitor {
 
             // Finally, attach the modifier to the current view node
             addModifier(modifier)
+
+            // If this FunctionCallExpr is **not** itself nested inside another
+            // MemberAccessExpr, we have reached the end of the modifier chain
+            // for the current base view. At this point we can safely pop the
+            // base view from the stack so that subsequent sibling views attach
+            // to the correct parent (e.g. the ZStack in `ZStack { Rectangle()… }`).
+            if node.parent?.as(MemberAccessExprSyntax.self) == nil {
+                if let popped = viewStack.popLast() {
+                    dbg("visitPost → popped view \(popped.name) after completing modifier chain")
+                }
+                currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
+            }
         }
     }
 }
