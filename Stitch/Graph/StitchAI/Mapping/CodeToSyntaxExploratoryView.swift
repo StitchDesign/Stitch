@@ -28,11 +28,18 @@ struct CodeToSyntaxExploratoryView: View {
     ]
     
     var body: some View {
+        
         VStack(spacing: 10) {
             Text("SwiftUI Code to ViewNode Demo")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding(.top)
+                   
+            Button("Parse SwiftUI Code") {
+                self.updateDisplayForCurrentExample()
+            }
+            .buttonStyle(.borderedProminent)
+            .padding()
             
             // Tab bar
             TabView(selection: $selectedTab) {
@@ -56,7 +63,7 @@ struct CodeToSyntaxExploratoryView: View {
     }
     
     private func exampleView(for index: Int) -> some View {
-        VStack(spacing: 20) {
+        HStack(spacing: 20) {
             VStack(alignment: .leading, spacing: 10) {
                 Text("SwiftUI Code:")
                     .font(.headline)
@@ -69,7 +76,7 @@ struct CodeToSyntaxExploratoryView: View {
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(8)
                 }
-                .frame(height: 300)
+//                .frame(height: 300)
             }
             .padding(.horizontal)
             
@@ -86,18 +93,13 @@ struct CodeToSyntaxExploratoryView: View {
                             .background(Color.gray.opacity(0.2))
                             .cornerRadius(8)
                     }
-                    .frame(height: 500)
+                    .frame(minHeight: 500)
                 }
                 
                
             }
             .padding(.horizontal)
-            
-            Button("Parse SwiftUI Code") {
-                self.updateDisplayForCurrentExample()
-            }
-            .buttonStyle(.borderedProminent)
-            .padding()
+           
         }
         .padding(.top)
     }

@@ -147,29 +147,35 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         return viewStack[index]
     }
     
+    /// Propagate a mutation at `index` upward through `viewStack`
+    /// so that every ancestor’s `children` array is updated
+    /// and `rootViewNode` stays in sync.
+    private func bubbleChangeUp(from index: Int) {
+        var childIndex = index
+        while childIndex > 0 {
+            let parentIndex = childIndex - 1
+            var parent = viewStack[parentIndex]
+            let child   = viewStack[childIndex]
+            
+            if let match = parent.children.firstIndex(where: { $0.id == child.id }) {
+                parent.children[match] = child
+                viewStack[parentIndex] = parent
+            } else {
+                // Shouldn’t happen, but avoid infinite loop
+                break
+            }
+            childIndex = parentIndex
+        }
+        if !viewStack.isEmpty {
+            rootViewNode = viewStack[0]
+        }
+    }
+
     // Helper to update currentViewNode properly
     private func updateCurrentViewNode(_ newNode: ViewNode) {
         guard let index = currentNodeIndex, index < viewStack.count else { return }
         viewStack[index] = newNode
-        
-        // If this is the root node, update rootViewNode too
-        if index == 0 {
-            rootViewNode = newNode
-        } else if index > 0 {
-            // Update this node as a child in its parent
-            let parentIndex = index - 1
-            var parent = viewStack[parentIndex]
-            if !parent.children.isEmpty {
-                // Find and replace the appropriate child
-                for (childIndex, child) in parent.children.enumerated() {
-                    if child.id == newNode.id {
-                        parent.children[childIndex] = newNode
-                        viewStack[parentIndex] = parent
-                        break
-                    }
-                }
-            }
-        }
+        bubbleChangeUp(from: index)
     }
     
     // Helper to add a modifier to the current view node
@@ -184,29 +190,8 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         log("Adding modifier \(modifier.name) to \(node.name)")
         node.modifiers.append(modifier)
         viewStack[index] = node
-        
-        // If this is the root node, update rootViewNode too
-        if index == 0 {
-            rootViewNode = node
-        } else {
-            // Update this node as a child in its parent
-            let parentIndex = index - 1
-            var parent = viewStack[parentIndex]
-            if !parent.children.isEmpty {
-                // Find and replace the appropriate child
-                for (childIndex, child) in parent.children.enumerated() {
-                    if child.id == node.id {
-                        parent.children[childIndex] = node
-                        viewStack[parentIndex] = parent
-                        // Keep rootViewNode in sync when we modify a direct child of the root
-                        if parentIndex == 0 {
-                            rootViewNode = parent
-                        }
-                        break
-                    }
-                }
-            }
-        }
+        // Bubble the change up to keep all ancestors current
+        bubbleChangeUp(from: index)
         log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
         dbg("addModifier → completed. Node \(node.name) now has \(node.modifiers.count) modifier(s).")
     }
