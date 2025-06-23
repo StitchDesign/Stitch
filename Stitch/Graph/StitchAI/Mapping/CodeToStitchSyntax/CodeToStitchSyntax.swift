@@ -104,13 +104,13 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         var node = viewStack[index]
-        log("Adding modifier \(modName) to \(node.name)")
+        log("Adding modifier \(modName) to \(node.name.string)")
         node.modifiers.append(modifier)
         viewStack[index] = node
         // Bubble the change up to keep all ancestors current
         bubbleChangeUp(from: index)
         log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
-        dbg("addModifier → completed. Node \(node.name) now has \(node.modifiers.count) modifier(s).")
+        dbg("addModifier → completed. Node \(node.name.string) now has \(node.modifiers.count) modifier(s).")
     }
     
     // Visit function call expressions (which represent view initializations and modifiers)
@@ -125,7 +125,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             
             // Create a new ViewNode for this view
             let viewNode = ViewNode(
-                name: viewName,
+                name: .init(from: viewName),
                 arguments: parseArguments(from: node),
                 modifiers: [],
                 children: [],
@@ -143,7 +143,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             } else {
                 // Add as child to the current view node
                 if let currentNode = currentViewNode {
-                    log("Adding \(viewName) as child to \(currentNode.name)")
+                    log("Adding \(viewName) as child to \(currentNode.name.string)")
                     var updatedCurrentNode = currentNode
                     updatedCurrentNode.children.append(viewNode)
                     updateCurrentViewNode(updatedCurrentNode)
@@ -273,7 +273,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             if !viewStack.isEmpty {
                 log("Current stack state:")
                 for (index, stackNode) in viewStack.enumerated() {
-                    log("  [\(index)] \(stackNode.name) with \(stackNode.modifiers.count) modifiers")
+                    log("  [\(index)] \(stackNode.name.string) with \(stackNode.modifiers.count) modifiers")
                 }
             }
             
@@ -281,7 +281,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             if !viewStack.isEmpty {
                 // Before removing the node, make sure we capture any modifiers that were added
                 let lastNode = viewStack.last
-                log("Node being popped: \(lastNode?.name ?? "unknown") with \(lastNode?.modifiers.count ?? 0) modifiers")
+                log("Node being popped: \(lastNode?.name.string ?? "unknown") with \(lastNode?.modifiers.count ?? 0) modifiers")
                 
                 // Remove the last node
                 viewStack.removeLast()
@@ -293,10 +293,10 @@ class SwiftUIViewVisitor: SyntaxVisitor {
                 
                 // Debug the root node state
                 if let root = rootViewNode {
-                    log("Root node: \(root.name) with \(root.modifiers.count) modifiers and \(root.children.count) children")
+                    log("Root node: \(root.name.string) with \(root.modifiers.count) modifiers and \(root.children.count) children")
                     if !root.children.isEmpty {
                         for (index, child) in root.children.enumerated() {
-                            log("  Root child[\(index)]: \(child.name) with \(child.modifiers.count) modifiers")
+                            log("  Root child[\(index)]: \(child.name.string) with \(child.modifiers.count) modifiers")
                         }
                     }
                 }
@@ -336,7 +336,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             // to the correct parent (e.g. the ZStack in `ZStack { Rectangle()… }`).
             if node.parent?.as(MemberAccessExprSyntax.self) == nil {
                 if let popped = viewStack.popLast() {
-                    dbg("visitPost → popped view \(popped.name) after completing modifier chain")
+                    dbg("visitPost → popped view \(popped.name.string) after completing modifier chain")
                 }
                 currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
             }
@@ -348,7 +348,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
 func testSwiftUIToViewNode(swiftUICode: String) {
     if let viewNode = parseSwiftUICode(swiftUICode) {
         print("\n==== PARSED VIEWNODE RESULT ====\n")
-        print("Name: \(viewNode.name)")
+        print("Name: \(viewNode.name.string)")
         print("Arguments: \(viewNode.arguments)")
         print("Modifiers (\(viewNode.modifiers.count)):")
         for (index, modifier) in viewNode.modifiers.enumerated() {
@@ -378,5 +378,3 @@ func runModifierParsingTest() {
     
     print("\n==== TEST COMPLETE ====\n")
 }
-
-

@@ -45,7 +45,7 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
     func buildCreateLayer(for node: ViewNode) -> SACreateLayer {
         SACreateLayer(
             id: node.id,
-            name: node.name,
+            name: node.name.string,
             children: node.children.map { buildCreateLayer(for: $0) }
         )
     }

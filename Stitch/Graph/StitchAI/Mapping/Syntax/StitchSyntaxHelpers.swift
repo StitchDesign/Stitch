@@ -20,7 +20,7 @@ private func describe(_ kind: ArgumentKind) -> String {
 // Formats a ViewNode into a readable string representation - top level so it can be reused
 func formatViewNode(_ node: ViewNode, indent: String = "") -> String {
     var result = "\(indent)ViewNode("
-    result += "\n\(indent)    name: \"\(node.name)\","
+    result += "\n\(indent)    name: \"\(node.name.string)\","
     
     // Format arguments
     result += "\n\(indent)    arguments: ["

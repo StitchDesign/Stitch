@@ -17,7 +17,7 @@ func swiftUICode(from node: ViewNode, indentation: String = "") -> String {
     var code = ""
     
     // Start with the view name
-    code += node.name
+    code += node.name.string
     
     // Add arguments in parentheses if there are any
     if !node.arguments.isEmpty {

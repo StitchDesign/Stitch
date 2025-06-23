@@ -15,7 +15,7 @@ import Foundation
 // Rectangle()
 //     .frame(width: 200, height: 100, alignment: .center)
 let complexModifierExample = ViewNode(
-    name: "Rectangle",
+    name: .init(from: "Rectangle"),
     arguments: [],
     modifiers: [
         Modifier(
@@ -38,12 +38,12 @@ let complexModifierExample = ViewNode(
 //     Rectangle().fill(Color.green)
 // }
 let example1 = ViewNode(
-    name: "ZStack",
+    name: .init(from: "ZStack"),
     arguments: [],
     modifiers: [],
     children: [
         ViewNode(
-            name: "Rectangle",
+            name: .init(from: "Rectangle"),
             arguments: [],
             modifiers: [
                 Modifier(
@@ -55,7 +55,7 @@ let example1 = ViewNode(
             id: "rectangle1"
         ),
         ViewNode(
-            name: "Rectangle",
+            name: .init(from: "Rectangle"),
             arguments: [],
             modifiers: [
                 Modifier(
@@ -74,7 +74,7 @@ let example1 = ViewNode(
 // SwiftUI code:
 // Text("salut")
 let example2 = ViewNode(
-    name: "Text",
+    name: .init(from: "Text"),
     arguments: [Argument(label: nil, value: "\"salut\"", syntaxKind: .literal(.string))],
     modifiers: [],
     children: [],
@@ -84,7 +84,7 @@ let example2 = ViewNode(
 // SwiftUI code:
 // Text("salut").foregroundColor(Color.yellow).padding()
 let example3 = ViewNode(
-    name: "Text",
+    name: .init(from: "Text"),
     arguments: [Argument(label: nil, value: "\"salut\"", syntaxKind: .literal(.string))],
     modifiers: [
         Modifier(
@@ -110,12 +110,12 @@ let example3 = ViewNode(
 //     }
 // }
 let example4 = ViewNode(
-    name: "ZStack",
+    name: .init(from: "ZStack"),
     arguments: [],
     modifiers: [],
     children: [
         ViewNode(
-            name: "Rectangle",
+            name: .init(from: "Rectangle"),
             arguments: [],
             modifiers: [
                 Modifier(
@@ -127,12 +127,12 @@ let example4 = ViewNode(
             id: "rectangle3"
         ),
         ViewNode(
-            name: "VStack",
+            name: .init(from: "VStack"),
             arguments: [],
             modifiers: [],
             children: [
                 ViewNode(
-                    name: "Rectangle",
+                    name: .init(from: "Rectangle"),
                     arguments: [],
                     modifiers: [
                         Modifier(
@@ -144,7 +144,7 @@ let example4 = ViewNode(
                     id: "rectangle4"
                 ),
                 ViewNode(
-                    name: "Rectangle",
+                    name: .init(from: "Rectangle"),
                     arguments: [],
                     modifiers: [
                         Modifier(
@@ -166,7 +166,7 @@ let example4 = ViewNode(
 // Image(systemName: "star.fill")
 
 let example5 = ViewNode(
-    name: "Image",
+    name: .init(from: "Image"),
     arguments: [Argument(label: "systemName", value: "\"star.fill\"", syntaxKind: .literal(.string))],
     modifiers: [],
     children: [],
