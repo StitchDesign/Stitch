@@ -29,7 +29,7 @@ struct SACreateLayer: Equatable, Codable, Hashable {
 /// A concrete, typed mapping from a SwiftUI modifier (or initialiser label)
 /// to a value in the visual‑programming layer.
 struct SASetLayerInput: Equatable, Codable, Hashable {
-    let kind: ViewModifierKind          // `.custom("systemName")` for init args
+    let kind: ModifierKind          // `.custom("systemName")` for init args
     let value: String                   // literal the user entered
 }
 
@@ -62,7 +62,7 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
             actions.append(
                 .setLayerInput(
                     SASetLayerInput(
-                        kind: ViewModifierKind(rawValue: labelString),
+                        kind: ModifierKind(rawValue: labelString),
                         value: arg.value
                     )
                 )
@@ -108,7 +108,7 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
                 case .literal:
                     actions.append(
                         .setLayerInput(
-                            SASetLayerInput(kind: ViewModifierKind(rawValue: actionName), value: arg.value)
+                            SASetLayerInput(kind: ModifierKind(rawValue: actionName), value: arg.value)
                         )
                     )
                 default:

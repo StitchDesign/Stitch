@@ -322,7 +322,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
                 finalArgs = [Argument(label: nil, value: "", syntaxKind: .literal(.unknown))]
             }
             let modifier = Modifier(
-                kind: ViewModifierKind(rawValue: modifierName),
+                kind: ModifierKind(rawValue: modifierName),
                 arguments: finalArgs
             )
 

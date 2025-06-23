@@ -74,7 +74,7 @@ extension Layer {
             return String(describing: Ellipse.self)
         case .rectangle:
             return String(describing: Rectangle.self)
-            
+
         case .image:
             // return String(describing: Image.self)
             return nil
