@@ -52,7 +52,7 @@ struct SyntaxToCodeExploratoryView: View {
     }
     
     private func exampleView(for index: Int) -> some View {
-        VStack(spacing: 20) {
+        HStack(spacing: 20) {
             VStack(alignment: .leading, spacing: 10) {
                 Text("ViewNode Structure:")
                     .font(.headline)
@@ -65,7 +65,7 @@ struct SyntaxToCodeExploratoryView: View {
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(8)
                 }
-                .frame(minHeight: 800)
+                .frame(minHeight: 500)
             }
             .padding(.horizontal)
             
@@ -81,13 +81,9 @@ struct SyntaxToCodeExploratoryView: View {
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
                 }
-//                .frame(height: 500)
             }
             .padding(.horizontal)
-            
-//            Spacer()
         }
-        .padding(.top)
     }
     
     private func updateDisplayForCurrentExample() {
