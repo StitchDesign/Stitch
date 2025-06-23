@@ -96,14 +96,15 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Helper to add a modifier to the current view node
     private func addModifier(_ modifier: Modifier) {
-        dbg("addModifier → \(modifier.name) to current index \(String(describing: currentNodeIndex))")
+        let modName = modifier.kind.rawValue
+        dbg("addModifier → \(modName) to current index \(String(describing: currentNodeIndex))")
         guard let index = currentNodeIndex, index < viewStack.count else {
             log("⚠️ Cannot add modifier: no current view node")
             return
         }
         
         var node = viewStack[index]
-        log("Adding modifier \(modifier.name) to \(node.name)")
+        log("Adding modifier \(modName) to \(node.name)")
         node.modifiers.append(modifier)
         viewStack[index] = node
         // Bubble the change up to keep all ancestors current
@@ -320,7 +321,10 @@ class SwiftUIViewVisitor: SyntaxVisitor {
                 // `.padding()` → synthetic unknown literal
                 finalArgs = [Argument(label: nil, value: "", syntaxKind: .literal(.unknown))]
             }
-            let modifier = Modifier(name: modifierName, arguments: finalArgs)
+            let modifier = Modifier(
+                kind: ViewModifierKind(rawValue: modifierName),
+                arguments: finalArgs
+            )
 
             // Finally, attach the modifier to the current view node
             addModifier(modifier)
@@ -348,7 +352,7 @@ func testSwiftUIToViewNode(swiftUICode: String) {
         print("Arguments: \(viewNode.arguments)")
         print("Modifiers (\(viewNode.modifiers.count)):")
         for (index, modifier) in viewNode.modifiers.enumerated() {
-            print("  [\(index)] \(modifier.name))")
+            print("  [\(index)] \(modifier.kind.rawValue))")
             if !modifier.arguments.isEmpty {
                 print("    Arguments:")
                 for arg in modifier.arguments {

@@ -43,7 +43,7 @@ func formatViewNode(_ node: ViewNode, indent: String = "") -> String {
     if !node.modifiers.isEmpty {
         for (i, modifier) in node.modifiers.enumerated() {
             result += "\n\(indent)        Modifier("
-            result += "\n\(indent)            name: \"\(modifier.name)\","
+            result += "\n\(indent)            kind: \"\(modifier.kind)\","
             // value field removed
             // Format modifier arguments
             result += "\n\(indent)            arguments: ["

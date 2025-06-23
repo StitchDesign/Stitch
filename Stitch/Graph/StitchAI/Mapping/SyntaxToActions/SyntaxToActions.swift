@@ -70,8 +70,9 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
             return false
         }
         if allLiteral {
-            // Emit ONE SASetLayerInput: name = modifier.name, value = joined literal list
+            // Emit ONE SASetLayerInput: name = modifier.kind.rawValue, value = joined literal list
             // Format: "label1: value1, value2"
+            let modName = modifier.kind.rawValue
             let parts: [String] = modifier.arguments.map {
                 if let label = $0.label, !label.isEmpty {
                     return "\(label): \($0.value)"
@@ -80,15 +81,16 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
                 }
             }
             let joined = parts.joined(separator: ", ")
-            actions.append(.setLayerInput(SASetLayerInput(name: modifier.name, value: joined)))
+            actions.append(.setLayerInput(SASetLayerInput(name: modName, value: joined)))
         } else {
             // Emit ONE action per argument
             for arg in modifier.arguments {
                 let actionName: String
-                if let label = arg.label {
-                    actionName = "\(modifier.name).\(label)"
+                let modName = modifier.kind.rawValue
+                if let label = arg.label, !label.isEmpty {
+                    actionName = "\(modName).\(label)"
                 } else {
-                    actionName = modifier.name
+                    actionName = modName
                 }
                 switch arg.syntaxKind {
                 case .literal:
@@ -110,4 +112,3 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
 
     return actions
 }
-

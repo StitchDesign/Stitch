@@ -1,110 +1,12 @@
 //
-//  StitchSyntax.swift
+//  StitchSyntaxExamples.swift
 //  Stitch
 //
-//  Created by Christian J Clampitt on 6/21/25.
+//  Created by Christian J Clampitt on 6/23/25.
 //
 
 import Foundation
-import SwiftUI
-import SwiftSyntax
-import SwiftParser
 
-struct ViewNode {
-    var name: String // the name of the SwiftUI View
-    var arguments: [Argument] // arguments for the View, e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
-    var modifiers: [Modifier] // modifiers for the View, e.g. .padding()
-    var children: [ViewNode]
-    var id: String  // Unique identifier for the node
-}
-
-
-struct Argument {
-    let label: String?
-    let value: String
-    let syntaxKind: ArgumentKind // literal vs declared var vs expression
-}
-
-struct Modifier {
-    let name: String
-    var arguments: [Argument]   // always at least one; an empty call gets a single “unknown” argument
-}
-
-
-
-/// High‑level classification of an argument encountered in SwiftUI code.
-enum ArgumentKind {
-    
-    /*
-     ```swift
-     Rectangle().fill(.blue).opacity(0.5)
-     ```
-     
-     i.e. `FloatLiteralExprSyntax` etc.
-     
-     VPL equivalent = manually set input
-     */
-    case literal(LiteralKind)          // e.g. `.red`, `42`, `"hello"`
-    
-    /*
-     ```swift
-     let x = 0.5
-     Rectangle().fill(.blue).opacity(x)
-     ```
-        
-     i.e. `DeclReferenceExprSyntax`
-     
-     VPL equivalent = incoming edge
-     */
-    case variable(VariableKind)        // e.g. `someVar`, `self.count`
-    
-    /*
-     ```swift
-     Rectangle().fill(.blue).opacity(0.25 + 0.25)
-     Rectangle().fill(.blue).opacity(max(0.3, 0.5))
-     ```
-     
-     i.e. `InfixOperatorExprSyntax`, `FunctionCallExprSyntax`
-     
-     VPL equivalent = incoming edge
-     */
-    case expression(ExpressionKind)    // e.g. `1 + 1`, `min(10, 20)`
-}
-
-/// More granular breakdown of literal forms we might see in SwiftSyntax.
-enum LiteralKind: String {
-    case integer          = "IntegerLiteral"        // `42`
-    case float            = "FloatLiteral"          // `3.14`
-    case string           = "StringLiteral"         // `"hello"`
-    case boolean          = "BooleanLiteral"        // `true`, `false`
-    case nilLiteral       = "NilLiteral"            // `nil`
-    case array            = "ArrayLiteral"          // `[1, 2, 3]`
-    case dictionary       = "DictionaryLiteral"     // `["a": 1]`
-    case tuple            = "TupleLiteral"          // `(x: 1, y: 2)`
-    case regex            = "RegexLiteral"          // `/foo.+bar/`
-    case colorLiteral     = "ColorLiteral"          // `#colorLiteral(...)`
-    case imageLiteral     = "ImageLiteral"          // `#imageLiteral(...)`
-    case fileLiteral      = "FileLiteral"           // `#fileLiteral(...)`
-    case unknown          = "UnknownLiteral"
-}
-
-/// Possible syntactic shapes for a variable reference.
-enum VariableKind: String {
-    case identifier       = "Identifier"            // `x`
-    case memberAccess     = "MemberAccess"          // `object.property`
-}
-
-/// Broad categories of non‑literal expressions.
-enum ExpressionKind: String {
-    case infixOperator    = "InfixOperator"         // `a + b`
-    case prefixOperator   = "PrefixOperator"        // `-x`
-    case postfixOperator  = "PostfixOperator"       // `array!`
-    case functionCall     = "FunctionCall"          // `min(1, 2)`
-    case ternary          = "TernaryConditional"    // `cond ? x : y`
-    case tuple            = "TupleExpr"             // `(x, y)`
-    case closure          = "Closure"               // `{ ... }`
-    case unknown          = "UnknownExpr"
-}
 
 // MARK: EXAMPLES
 
@@ -117,7 +19,7 @@ let complexModifierExample = ViewNode(
     arguments: [],
     modifiers: [
         Modifier(
-            name: "frame",
+            kind: .frame,
             arguments: [
                 Argument(label: "width",  value: "200", syntaxKind: .literal(.integer)),
                 Argument(label: "height", value: "100", syntaxKind: .literal(.integer)),
@@ -145,7 +47,7 @@ let example1 = ViewNode(
             arguments: [],
             modifiers: [
                 Modifier(
-                    name: "fill",
+                    kind: .fill,
                     arguments: [Argument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
@@ -157,7 +59,7 @@ let example1 = ViewNode(
             arguments: [],
             modifiers: [
                 Modifier(
-                    name: "fill",
+                    kind: .fill,
                     arguments: [Argument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                 )
             ],
@@ -186,11 +88,11 @@ let example3 = ViewNode(
     arguments: [Argument(label: nil, value: "\"salut\"", syntaxKind: .literal(.string))],
     modifiers: [
         Modifier(
-            name: "foregroundColor",
+            kind: .foregroundColor,
             arguments: [Argument(label: nil, value: "Color.yellow", syntaxKind: .variable(.memberAccess))]
         ),
         Modifier(
-            name: "padding",
+            kind: .padding,
             arguments: [Argument(label: nil, value: "", syntaxKind: .literal(.unknown))]
         )
     ],
@@ -217,7 +119,7 @@ let example4 = ViewNode(
             arguments: [],
             modifiers: [
                 Modifier(
-                    name: "fill",
+                    kind: .fill,
                     arguments: [Argument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
@@ -234,7 +136,7 @@ let example4 = ViewNode(
                     arguments: [],
                     modifiers: [
                         Modifier(
-                            name: "fill",
+                            kind: .fill,
                             arguments: [Argument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
@@ -246,7 +148,7 @@ let example4 = ViewNode(
                     arguments: [],
                     modifiers: [
                         Modifier(
-                            name: "fill",
+                            kind: .fill,
                             arguments: [Argument(label: nil, value: "Color.red", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
@@ -270,4 +172,5 @@ let example5 = ViewNode(
     children: [],
     id: "image1"
 )
+
 
