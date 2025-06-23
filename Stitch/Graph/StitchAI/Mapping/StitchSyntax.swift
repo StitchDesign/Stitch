@@ -18,6 +18,20 @@ struct ViewNode {
     var id: String  // Unique identifier for the node
 }
 
+
+struct Argument {
+    let label: String?
+    let value: String
+    let syntaxKind: ArgumentKind // literal vs declared var vs expression
+}
+
+struct Modifier {
+    let name: String
+    var arguments: [Argument]   // always at least one; an empty call gets a single “unknown” argument
+}
+
+
+
 /// High‑level classification of an argument encountered in SwiftUI code.
 enum ArgumentKind {
     
@@ -91,21 +105,6 @@ enum ExpressionKind: String {
     case closure          = "Closure"               // `{ ... }`
     case unknown          = "UnknownExpr"
 }
-
-struct Argument {
-    let label: String?
-    let value: String
-    let syntaxKind: ArgumentKind // literal vs declared var vs expression
-}
-
-struct Modifier {
-    let name: String
-    var arguments: [Argument]   // always at least one; an empty call gets a single “unknown” argument
-}
-
-
-
-
 
 // MARK: EXAMPLES
 
