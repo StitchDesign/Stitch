@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import SwiftSyntax
 import SwiftParser
+import SwiftSyntaxBuilder
+
 
 // MARK: - SwiftUI Code to ViewNode
 
@@ -28,94 +30,8 @@ func parseSwiftUICode(_ swiftUICode: String) -> ViewNode? {
     let visitor = SwiftUIViewVisitor(viewMode: .sourceAccurate)
     visitor.walk(sourceFile)
     return visitor.rootViewNode
-    
-//    // Post-process to extract modifiers from the code directly
-//    if var viewNode = visitor.rootViewNode {
-//        // Use string-based detection as a simple but effective approach
-//        let modifiers = extractModifiers(from: swiftUICode)
-//        if !modifiers.isEmpty {
-//            viewNode.modifiers = modifiers
-//            print("Added \(modifiers.count) modifiers via direct extraction")
-//        }
-//        return viewNode
-//    }
-//
-//    return nil
 }
 
-/// Extract modifiers from SwiftUI code using a simple but effective string-based approach
-func extractModifiers(from swiftUICode: String) -> [Modifier] {
-    var modifiers: [Modifier] = []
-    
-    // Remove whitespace for easier parsing
-    let code = swiftUICode.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-    print("Normalized code for modifier extraction: \(code)")
-    
-    // Identify the main view name so we can find modifiers that belong to it
-    guard let mainViewMatch = code.range(of: "(Text|Button|VStack|HStack|ZStack|Image|List|ScrollView|ForEach)\\s*\\(", options: .regularExpression) else {
-        print("Could not identify main view in code")
-        return modifiers
-    }
-    
-    // Extract just the portion of code with modifiers (after the main view)
-    let mainViewPosition = code.distance(from: code.startIndex, to: mainViewMatch.lowerBound)
-    let modifierCode = String(code.dropFirst(mainViewPosition))
-    print("Modifier portion of code: \(modifierCode)")
-    
-    // Basic pattern: look for .modifierName(...) patterns
-    let pattern = "\\.([a-zA-Z][a-zA-Z0-9_]*)\\s*\\(([^\\)]*)\\)"
-    
-    do {
-        let regex = try NSRegularExpression(pattern: pattern, options: [])
-        let matches = regex.matches(in: modifierCode, options: [], range: NSRange(location: 0, length: modifierCode.count))
-        
-        print("Found \(matches.count) potential modifiers in code")
-        
-        for match in matches {
-            if match.numberOfRanges >= 3,
-               let modifierNameRange = Range(match.range(at: 1), in: modifierCode),
-               let argumentsRange = Range(match.range(at: 2), in: modifierCode) {
-                
-                let modifierName = String(modifierCode[modifierNameRange])
-                let argumentsText = String(modifierCode[argumentsRange])
-                
-                print("Extracted modifier: .\(modifierName)(\(argumentsText))")
-                
-                // Parse arguments (simplified)
-                var arguments: [(label: String?, value: String)] = []
-                let args = argumentsText.components(separatedBy: ",")
-                
-                for arg in args {
-                    let trimmedArg = arg.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if trimmedArg.isEmpty { continue }
-                    
-                    // Check if it has a label (name: value)
-                    if let colonIndex = trimmedArg.firstIndex(of: ":") {
-                        let label = String(trimmedArg[..<colonIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
-                        let value = String(trimmedArg[trimmedArg.index(after: colonIndex)...]).trimmingCharacters(in: .whitespacesAndNewlines)
-                        arguments.append((label: label, value: value))
-                    } else {
-                        // No label
-                        arguments.append((label: nil, value: trimmedArg))
-                    }
-                }
-                
-                // Create the modifier
-                let modifier = Modifier(
-                    name: modifierName,
-                    value: arguments.count == 1 && arguments[0].label == nil ? arguments[0].value : "",
-                    arguments: arguments
-                )
-                
-                modifiers.append(modifier)
-            }
-        }
-    } catch {
-        print("Error creating regex: \(error)")
-    }
-    
-    return modifiers
-}
 
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 class SwiftUIViewVisitor: SyntaxVisitor {
@@ -201,9 +117,9 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         log("Visiting function call: \(node.description)")
         log("Current stack depth: \(viewStack.count), current index: \(String(describing: currentNodeIndex))")
         
-        if let identifierExpr = node.calledExpression.as(IdentifierExprSyntax.self) {
+        if let identifierExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
             // This might be a view initialization like Text("Hello")
-            let viewName = identifierExpr.identifier.text
+            let viewName = identifierExpr.baseName.text
             log("Found view initialization: \(viewName)")
             
             // Create a new ViewNode for this view
@@ -245,25 +161,103 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             // here because the base view may not have been pushed onto the stack yet.
             // Instead, we defer actual attachment to `visitPost(_:)`, which runs after the
             // base `FunctionCallExprSyntax` has been visited.
-            dbg("visit → encountered potential modifier .\(memberAccessExpr.name.text) – deferring to visitPost")
+            dbg("visit → encountered potential modifier .\(memberAccessExpr.declName.baseName.text) – deferring to visitPost")
         }
         
         return .visitChildren
     }
     
+//    // Parse arguments from function call
+//    private func parseArguments(from node: FunctionCallExprSyntax) -> [(label: String?, value: String)] {
+//        var arguments: [(label: String?, value: String)] = []
+//        
+//        for argument in node.arguments {
+//            let label = argument.label?.text
+//            
+//            // Convert the expression to a string
+//            let valueText = argument.expression.description.trimmingCharacters(in: .whitespacesAndNewlines)
+//            
+//            arguments.append((label: label, value: valueText))
+//        }
+//    
+//        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+//        
+//        return arguments
+//    }
+
     // Parse arguments from function call
-    private func parseArguments(from node: FunctionCallExprSyntax) -> [(label: String?, value: String)] {
-        var arguments: [(label: String?, value: String)] = []
-        
-        for argument in node.argumentList {
+    private func parseArguments(from node: FunctionCallExprSyntax) -> [Argument] {
+        let arguments = node.arguments.map { argument in
             let label = argument.label?.text
+            let expression = argument.expression
+
+            // Determine argument type clearly:
+            var kind: ArgumentKind = .literal(.unknown)
+                        
+            // Literals
+            if expression.is(IntegerLiteralExprSyntax.self) {
+                kind = .literal(.integer)
+            } else if expression.is(FloatLiteralExprSyntax.self) {
+                kind = .literal(.float)
+            } else if expression.is(StringLiteralExprSyntax.self) {
+                kind = .literal(.string)
+            } else if expression.is(BooleanLiteralExprSyntax.self) {
+                kind = .literal(.boolean)
+            } else if expression.is(NilLiteralExprSyntax.self) {
+                kind = .literal(.nilLiteral)
+            } else if expression.is(ArrayExprSyntax.self) {
+                kind = .literal(.array)
+            } else if expression.is(DictionaryExprSyntax.self) {
+                kind = .literal(.dictionary)
+            } else if expression.is(TupleExprSyntax.self) {
+                kind = .literal(.tuple)
+            } else if expression.is(RegexLiteralExprSyntax.self) {
+                kind = .literal(.regex)
+            }
             
-            // Convert the expression to a string
-            let valueText = argument.expression.description.trimmingCharacters(in: .whitespacesAndNewlines)
-            
-            arguments.append((label: label, value: valueText))
+            //            else if expression.is(ColorLiteralExprSyntax.self) {
+            //                kind = .literal(.colorLiteral)
+            //            } else if expression.is(ImageLiteralExprSyntax.self) {
+            //                kind = .literal(.imageLiteral)
+            //            } else if expression.is(FileLiteralExprSyntax.self) {
+            //                kind = .literal(.fileLiteral)
+            //            }
+            //            else if expression.is(ObjectLiteralExprSyntax.self) {
+            //                kind = .literal
+            //            }
+                       
+            // Variables (includes modifier
+            else if let declRef = expression.as(DeclReferenceExprSyntax.self) {
+                if declRef.baseName.text.contains(".") {
+                    kind = .variable(.memberAccess)
+                } else {
+                    kind = .variable(.identifier)
+                }
+                
+            // Expressions
+            } else if expression.is(InfixOperatorExprSyntax.self) {
+                kind = .expression(.infixOperator)
+            } else if expression.is(PrefixOperatorExprSyntax.self) {
+                kind = .expression(.prefixOperator)
+            } else if expression.is(PostfixOperatorExprSyntax.self) {
+                kind = .expression(.postfixOperator)
+            } else if expression.is(FunctionCallExprSyntax.self) {
+                kind = .expression(.functionCall)
+            } else if expression.is(TernaryExprSyntax.self) {
+                kind = .expression(.ternary)
+            } else if expression.is(TupleExprSyntax.self) {
+                kind = .expression(.tuple)
+            } else if expression.is(ClosureExprSyntax.self) {
+                kind = .expression(.closure)
+            }
+
+            return Argument(
+                label: label,
+                value: expression.trimmedDescription,
+                syntaxKind: kind
+            )
         }
-    
+        
         dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
         
         return arguments
@@ -280,8 +274,8 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     override func visitPost(_ node: FunctionCallExprSyntax) {
         log("Visiting post for function call: \(node.description)")
         
-        if let identExpr = node.calledExpression.as(IdentifierExprSyntax.self) {
-            let viewName = identExpr.identifier.text
+        if let identExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
+            let viewName = identExpr.baseName.text
             log("Post-visiting view initialization: \(viewName)")
             // If this view call is the *base* of a MemberAccessExpr (e.g. Rectangle() in
             // Rectangle().frame(...)), we **keep** it on the stack so that the upcoming
@@ -332,7 +326,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         // (at this point `currentViewNode` should refer to the view
         //  we want to attach the modifier to).
         else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
-            let modifierName = memberAccessExpr.name.text
+            let modifierName = memberAccessExpr.declName.baseName.text
             dbg("visitPost → attaching modifier '\(modifierName)'")
 
             // Parse the arguments for this modifier

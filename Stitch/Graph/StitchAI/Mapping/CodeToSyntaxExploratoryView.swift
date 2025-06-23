@@ -19,6 +19,7 @@ struct CodeToSyntaxExploratoryView: View {
     
     // All examples from StitchSyntax.swift converted to SwiftUI code strings
     let examples: [(name: String, code: String)] = [
+        ("Variable", "let x = 1 + sqrt(4)\n Rectangle().fill(.blue).scaleEffect(x)"),
         ("Complex Modifier", "Rectangle()\n    .frame(width: 200, height: 100, alignment: .center)"),
         ("ZStack with Rectangles", "ZStack {\n    Rectangle()\n        .fill(Color.blue)\n    Rectangle()\n        .fill(Color.green)\n}"),
         ("Simple Text", "Text(\"salut\")"),

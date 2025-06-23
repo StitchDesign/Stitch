@@ -8,6 +8,15 @@
 import Foundation
 
  
+// Nicely formats the nested enum so we can print it in one line
+private func describe(_ kind: ArgumentKind) -> String {
+    switch kind {
+    case .literal(let lit):     return "literal(\(lit))"
+    case .variable(let varKind): return "variable(\(varKind))"
+    case .expression(let expr): return "expression(\(expr))"
+    }
+}
+
 // Formats a ViewNode into a readable string representation - top level so it can be reused
 func formatViewNode(_ node: ViewNode, indent: String = "") -> String {
     var result = "\(indent)ViewNode("
@@ -18,7 +27,8 @@ func formatViewNode(_ node: ViewNode, indent: String = "") -> String {
     if !node.arguments.isEmpty {
         for (i, arg) in node.arguments.enumerated() {
             let label = arg.label != nil ? "\"\(arg.label!)\"" : "nil"
-            result += "\n\(indent)        (label: \(label), value: \(arg.value))"
+            let kindDesc = describe(arg.syntaxKind)
+            result += "\n\(indent)        (label: \(label), value: \(arg.value), kind: \(kindDesc))"
             if i < node.arguments.count - 1 {
                 result += ","
             }
@@ -41,7 +51,8 @@ func formatViewNode(_ node: ViewNode, indent: String = "") -> String {
             if !modifier.arguments.isEmpty {
                 for (j, arg) in modifier.arguments.enumerated() {
                     let label = arg.label != nil ? "\"\(arg.label!)\"" : "nil"
-                    result += "\n\(indent)                (label: \(label), value: \"\(arg.value)\")"
+                    let argKindDesc = describe(arg.syntaxKind)
+                    result += "\n\(indent)                (label: \(label), value: \"\(arg.value)\", kind: \(argKindDesc))"
                     if j < modifier.arguments.count - 1 {
                         result += ","
                     }
