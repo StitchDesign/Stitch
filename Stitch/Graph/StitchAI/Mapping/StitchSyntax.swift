@@ -100,11 +100,7 @@ struct Argument {
 
 struct Modifier {
     let name: String
-    
-    // TODO: replace with just `Argument`s ?
-    let value: String
-    
-    var arguments: [Argument] // For more complex modifiers like .frame(width:height:alignment:)
+    var arguments: [Argument]   // always at least one; an empty call gets a single “unknown” argument
 }
 
 
@@ -123,12 +119,9 @@ let complexModifierExample = ViewNode(
     modifiers: [
         Modifier(
             name: "frame",
-            value: "",
             arguments: [
-                Argument(label: "width", value: "200", syntaxKind: .literal(.integer)),
+                Argument(label: "width",  value: "200", syntaxKind: .literal(.integer)),
                 Argument(label: "height", value: "100", syntaxKind: .literal(.integer)),
-                
-                // CAREFUL: technically `.center` is memberAccess on a SwiftUI alignment type
                 Argument(label: "alignment", value: ".center", syntaxKind: .variable(.memberAccess))
             ]
         )
@@ -154,8 +147,7 @@ let example1 = ViewNode(
             modifiers: [
                 Modifier(
                     name: "fill",
-                    value: "Color.blue",
-                    arguments: []
+                    arguments: [Argument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
@@ -167,8 +159,7 @@ let example1 = ViewNode(
             modifiers: [
                 Modifier(
                     name: "fill",
-                    value: "Color.green",
-                    arguments: []
+                    arguments: [Argument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
@@ -197,13 +188,11 @@ let example3 = ViewNode(
     modifiers: [
         Modifier(
             name: "foregroundColor",
-            value: "Color.yellow",
-            arguments: []
+            arguments: [Argument(label: nil, value: "Color.yellow", syntaxKind: .variable(.memberAccess))]
         ),
         Modifier(
             name: "padding",
-            value: "",
-            arguments: []
+            arguments: [Argument(label: nil, value: "", syntaxKind: .literal(.unknown))]
         )
     ],
     children: [],
@@ -230,8 +219,7 @@ let example4 = ViewNode(
             modifiers: [
                 Modifier(
                     name: "fill",
-                    value: "Color.blue",
-                    arguments: []
+                    arguments: [Argument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
@@ -248,8 +236,7 @@ let example4 = ViewNode(
                     modifiers: [
                         Modifier(
                             name: "fill",
-                            value: "Color.green",
-                            arguments: []
+                            arguments: [Argument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
                     children: [],
@@ -261,8 +248,7 @@ let example4 = ViewNode(
                     modifiers: [
                         Modifier(
                             name: "fill",
-                            value: "Color.red",
-                            arguments: []
+                            arguments: [Argument(label: nil, value: "Color.red", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
                     children: [],

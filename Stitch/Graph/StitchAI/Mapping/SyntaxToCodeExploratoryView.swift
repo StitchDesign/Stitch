@@ -65,7 +65,7 @@ struct SyntaxToCodeExploratoryView: View {
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(8)
                 }
-                .frame(height: 800)
+                .frame(minHeight: 800)
             }
             .padding(.horizontal)
             

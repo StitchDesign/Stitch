@@ -166,24 +166,6 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         
         return .visitChildren
     }
-    
-//    // Parse arguments from function call
-//    private func parseArguments(from node: FunctionCallExprSyntax) -> [(label: String?, value: String)] {
-//        var arguments: [(label: String?, value: String)] = []
-//        
-//        for argument in node.arguments {
-//            let label = argument.label?.text
-//            
-//            // Convert the expression to a string
-//            let valueText = argument.expression.description.trimmingCharacters(in: .whitespacesAndNewlines)
-//            
-//            arguments.append((label: label, value: valueText))
-//        }
-//    
-//        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
-//        
-//        return arguments
-//    }
 
     // Parse arguments from function call
     private func parseArguments(from node: FunctionCallExprSyntax) -> [Argument] {
@@ -333,13 +315,12 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             let modifierArguments = parseArguments(from: node)
             dbg("visitPost → '\(modifierName)' argCount: \(modifierArguments.count)")
 
-            let modifier = Modifier(
-                name: modifierName,
-                value: modifierArguments.count == 1 && modifierArguments[0].label == nil
-                       ? modifierArguments[0].value
-                       : "",
-                arguments: modifierArguments
-            )
+            var finalArgs = modifierArguments
+            if finalArgs.isEmpty {
+                // `.padding()` → synthetic unknown literal
+                finalArgs = [Argument(label: nil, value: "", syntaxKind: .literal(.unknown))]
+            }
+            let modifier = Modifier(name: modifierName, arguments: finalArgs)
 
             // Finally, attach the modifier to the current view node
             addModifier(modifier)
@@ -367,7 +348,7 @@ func testSwiftUIToViewNode(swiftUICode: String) {
         print("Arguments: \(viewNode.arguments)")
         print("Modifiers (\(viewNode.modifiers.count)):")
         for (index, modifier) in viewNode.modifiers.enumerated() {
-            print("  [\(index)] \(modifier.name)(\(modifier.value))")
+            print("  [\(index)] \(modifier.name))")
             if !modifier.arguments.isEmpty {
                 print("    Arguments:")
                 for arg in modifier.arguments {

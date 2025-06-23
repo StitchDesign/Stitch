@@ -56,10 +56,8 @@ func swiftUICode(from node: ViewNode, indentation: String = "") -> String {
             
             code += args
             code += ")"
-        } else if !modifier.value.isEmpty {
-            // Simple modifier with a single value
-            code += "(\(modifier.value))"
-        } else {
+        }
+            else {
             // Modifier with no arguments (like .padding() with no arguments)
             code += "()"
         }

@@ -46,8 +46,8 @@ struct StitchApp: App {
             
 //            ParsedSwiftUIViewDemo()
             
-            CodeToSyntaxExploratoryView()
-//            SyntaxToCodeExploratoryView()
+//            CodeToSyntaxExploratoryView()
+            SyntaxToCodeExploratoryView()
             
             
             // ExploratoryView()
