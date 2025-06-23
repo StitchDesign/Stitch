@@ -26,10 +26,11 @@ struct SACreateLayer: Equatable, Codable, Hashable {
     let children: [SACreateLayer]
 }
 
-// a manual value set in the layer input
+/// A concrete, typed mapping from a SwiftUI modifier (or initialiser label)
+/// to a value in the visual‑programming layer.
 struct SASetLayerInput: Equatable, Codable, Hashable {
-    let name: String // the input which is receiving the
-    let value: String // the manually-set value
+    let kind: ViewModifierKind          // `.custom("systemName")` for init args
+    let value: String                   // literal the user entered
 }
 
 // an edge coming into the layer input
@@ -57,7 +58,15 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
     for arg in viewNode.arguments {
         switch arg.syntaxKind {
         case .literal:
-            actions.append(.setLayerInput(SASetLayerInput(name: arg.label ?? "", value: arg.value)))
+            let labelString = arg.label ?? ""
+            actions.append(
+                .setLayerInput(
+                    SASetLayerInput(
+                        kind: ViewModifierKind(rawValue: labelString),
+                        value: arg.value
+                    )
+                )
+            )
         default:
             actions.append(.incomingEdge(SAIncomingEdge(name: arg.label ?? "")))
         }
@@ -70,9 +79,8 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
             return false
         }
         if allLiteral {
-            // Emit ONE SASetLayerInput: name = modifier.kind.rawValue, value = joined literal list
+            // Emit ONE SASetLayerInput: kind = modifier.kind, value = joined literal list
             // Format: "label1: value1, value2"
-            let modName = modifier.kind.rawValue
             let parts: [String] = modifier.arguments.map {
                 if let label = $0.label, !label.isEmpty {
                     return "\(label): \($0.value)"
@@ -81,7 +89,11 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
                 }
             }
             let joined = parts.joined(separator: ", ")
-            actions.append(.setLayerInput(SASetLayerInput(name: modName, value: joined)))
+            actions.append(
+                .setLayerInput(
+                    SASetLayerInput(kind: modifier.kind, value: joined)
+                )
+            )
         } else {
             // Emit ONE action per argument
             for arg in modifier.arguments {
@@ -94,7 +106,11 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
                 }
                 switch arg.syntaxKind {
                 case .literal:
-                    actions.append(.setLayerInput(SASetLayerInput(name: actionName, value: arg.value)))
+                    actions.append(
+                        .setLayerInput(
+                            SASetLayerInput(kind: ViewModifierKind(rawValue: actionName), value: arg.value)
+                        )
+                    )
                 default:
                     actions.append(.incomingEdge(SAIncomingEdge(name: actionName)))
                 }
