@@ -1,0 +1,56 @@
+//
+//  AIPatchBuilderRequestBody_V0.swift
+//  Stitch
+//
+//  Created by Elliot Boschwitz on 6/4/25.
+//
+
+import Foundation
+
+enum AIPatchBuilderRequestBody_V0 {
+    // https://platform.openai.com/docs/api-reference/making-requests
+    struct AIPatchBuilderRequestBody: StitchAIRequestBodyFormattable {
+        static let markdownLocation = "AIPatchBuilderSystemPrompt_V0"
+        
+        let model: String = "gpt-4o-2024-08-06"
+        let n: Int = 1
+        let temperature: Double = 0.0
+        let response_format = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
+        let messages: [OpenAIMessage]
+        let stream: Bool = false
+        
+        init(userPrompt: String,
+             jsSourceCode: String,
+             layerList: SidebarLayerList) throws {
+            let responseFormat = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
+            let structuredOutputs = responseFormat.json_schema.schema
+            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
+                                                    withExtension: "md") else {
+                throw StitchAIStreamingError.markdownNotFound
+            }
+            
+            let systemPrompt = try String(contentsOf: markdownUrl,
+                                          encoding: .utf8)
+            let fullSystemPrompt = "\(systemPrompt)\nUse the following structured outputs schema:\n\(try structuredOutputs.encodeToPrintableString())"
+            
+            let inputs = AIPatchBuilderRequestInputs(
+                user_prompt: userPrompt,
+                javascript_source_code: jsSourceCode,
+                layer_list: layerList)
+            let userInputsString = try inputs.encodeToPrintableString()
+            
+            self.messages = [
+                .init(role: .system,
+                      content: fullSystemPrompt),
+                .init(role: .user,
+                      content: userInputsString)
+            ]
+        }
+    }
+    
+    struct AIPatchBuilderRequestInputs: Encodable {
+        let user_prompt: String
+        let javascript_source_code: String
+        let layer_list: SidebarLayerList
+    }
+}

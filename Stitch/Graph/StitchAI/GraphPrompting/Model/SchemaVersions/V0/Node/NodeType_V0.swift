@@ -55,7 +55,7 @@ extension StitchAIPortValue_V0.NodeType {
         case .cameraDirection:
             return StitchAIPortValue_V0.PortValueVersion.CameraDirection.self
         case .interactionId:
-            return StitchAIUUID_V1.StitchAIUUID?.self
+            return StitchAIUUID_V0.StitchAIUUID?.self
         case .scrollMode:
             return StitchAIPortValue_V0.PortValueVersion.ScrollMode.self
         case .textAlignment:
@@ -125,7 +125,7 @@ extension StitchAIPortValue_V0.NodeType {
         case .materialThickness:
             return StitchAIPortValue_V0.PortValueVersion.MaterialThickness.self
         case .anchorEntity:
-            return StitchAIUUID?.self
+            return StitchAIUUID_V0.StitchAIUUID?.self
         case .pinToId:
             return StitchAIPortValue_V0.PortValueVersion.PinToId.self
             
@@ -237,7 +237,7 @@ extension StitchAIPortValue_V0.NodeType {
             }
             return .cameraDirection(x)
         case .interactionId:
-            guard let x = anyValue as? StitchAIUUID? else {
+            guard let x = anyValue as? StitchAIUUID_V0.StitchAIUUID? else {
                 if let xString = anyValue as? String,
                    // TODO: how did "None" get wrapped with extra quotes?
                    (xString == "None") {
@@ -425,7 +425,7 @@ extension StitchAIPortValue_V0.NodeType {
             }
             return .materialThickness(x)
         case .anchorEntity:
-            guard let stitchUUID = anyValue as? StitchAIUUID? else {
+            guard let stitchUUID = anyValue as? StitchAIUUID_V0.StitchAIUUID? else {
                 if let xString = anyValue as? String, xString == "None" {
                     return .anchorEntity(nil)
                 }
