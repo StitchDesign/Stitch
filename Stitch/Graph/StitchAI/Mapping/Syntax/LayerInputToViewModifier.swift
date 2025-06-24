@@ -34,9 +34,10 @@ extension ViewNode {
     // derived from name and construct arguments
     func deriveCreateLayerAction() -> SACreateLayer? {
         if let layer: Layer = self.deriveLayer() {
-            return SACreateLayer(id: self.id,
-                                 name: layer.defaultDisplayTitle(), // i.e. what Stitch layer is this?
-                                 children: self.children.compactMap { $0.deriveCreateLayerAction() } )
+            return SACreateLayer(
+                id: self.id,
+                name: layer,
+                children: self.children.compactMap { $0.deriveCreateLayerAction() } )
         }
         return nil
     }
@@ -49,8 +50,8 @@ extension ViewNode {
         switch name {
         
         case .image:
-            switch args.first?.getImageConstructor {
-            case .systemName(let x):
+            switch args.first?.label?.getImageConstructor {
+            case .systemName:
                 return .sfSymbol
             case .none:
                 return nilOrDebugCrash()
@@ -129,25 +130,39 @@ extension ViewNode {
     }
     
     // dervied from modifiers and constructor arguments
-    func deriveSetInputAndIncomingEdgeActions() -> [StitchAction] {
+    func deriveSetInputAndIncomingEdgeActions(_ layer: Layer) -> [StitchAction] {
         
         var actions = [StitchAction]()
         
         // iterate through constructor arguments
         for arg in self.arguments {
             switch arg.syntaxKind {
+                
             case .literal:
-                let labelString = arg.label ?? ""
+//                let labelString = arg.label ?? ""
                 actions.append(
                     .setLayerInput(
                         SASetLayerInput(
-                            kind: ModifierKind(rawValue: labelString),
-                            value: arg.value
+//                            kind: ModifierKind(rawValue: labelString),
+                            
+                            // TODO: JUNE 24: if a constructor-arg does not have a label (e.g. `Text("love")`), should that be a nil-label or a .noLabel case for the associated SwiftUI View ?
+                            kind: arg.label!.toLayerInput!,
+                            
+                            // SwiftUI allows `.padding()` with no arg at all,
+                            // but Stitch requires
+                            value: arg.value ?? ""
                         )
                     )
                 )
-            default:
-                actions.append(.incomingEdge(SAIncomingEdge(name: arg.label ?? "")))
+                
+            case .expression, .variable:
+                actions.append(
+                    .incomingEdge(
+//                        SAIncomingEdge(name: arg.label ?? "")
+                        // TODO: JUNE 24: SEE ABOVE TOO
+                        SAIncomingEdge(name: arg.label!.toLayerInput!)
+                    )
+                )
             }
         } // for arg in ...
 
@@ -167,31 +182,41 @@ extension ViewNode {
                         return $0.value
                     }
                 }
+                
                 let joined = parts.joined(separator: ", ")
                 actions.append(
                     .setLayerInput(
-                        SASetLayerInput(kind: modifier.kind, value: joined)
+                        SASetLayerInput(kind: modifier.kind.toLayerInput(layer: layer)!,
+                                        value: joined)
                     )
                 )
             } else {
                 // Emit ONE action per argument
                 for arg in modifier.arguments {
-                    let actionName: String
-                    let modName = modifier.kind.rawValue
-                    if let label = arg.label, !label.isEmpty {
-                        actionName = "\(modName).\(label)"
-                    } else {
-                        actionName = modName
-                    }
+                    
+//                    let actionName: String
+//                    let modName = modifier.kind.rawValue
+//                    
+//                    if let label = arg.label, !label.isEmpty {
+//                        actionName = "\(modName).\(label)"
+//                    } else {
+//                        actionName = modName
+//                    }
+                    
                     switch arg.syntaxKind {
+                        
                     case .literal:
                         actions.append(
                             .setLayerInput(
-                                SASetLayerInput(kind: ModifierKind(rawValue: actionName), value: arg.value)
+                                SASetLayerInput(kind: modifier.kind.toLayerInput(layer: layer)!, //ModifierKind(rawValue: actionName),
+                                                value: arg.value)
                             )
                         )
-                    default:
-                        actions.append(.incomingEdge(SAIncomingEdge(name: actionName)))
+                        
+                    case .variable, .expression:
+                        actions.append(
+                            .incomingEdge(SAIncomingEdge(name: modifier.kind.toLayerInput(layer: layer)!))
+                        )
                     }
                 }
             }
@@ -204,7 +229,7 @@ extension ViewNode {
     // TODO: actually use this; i.e. update SASetLayerInput to use LayerInputPort
     func deriveLayerInputPorts(_ layer: Layer) -> LayerInputPortSet {
         
-        let portsFromConstructorArgs = self.arguments.compactMap { $0.toLayerInput }
+        let portsFromConstructorArgs = self.arguments.compactMap { $0.label?.toLayerInput }
         
         let portsFromModifiers = self.modifiers.compactMap {
             $0.kind.toLayerInput(layer: layer)
@@ -238,7 +263,7 @@ func nilOrDebugCrash<T>() -> T? {
 // Whether a given LayerInput corresponds to a ViewNode constructor-arg, a ViewNode modifier, or something much more complicated (e.g. pinning);
 enum FromSwiftUIToLayerInput {
     // Simple conversions like `LayerInputPort.text -> Text(<textValue>)`
-    case constructorArgument(ConstructorArgument)
+    case constructorArgument(ConstructorArgumentLabel)
     
     // Simple conversions like `LayerInputPort.scale -> .scaleEffect`
     case modifier(ModifierKind)
@@ -257,7 +282,7 @@ enum FromLayerInputToSwiftUI {
     // e.g. `Text(<textValue>) -> LayerInputPort.text`
     // e.g. `Image(systemName:) -> LayerInputPort.sfSymbol`
     // e.g. `Image(uiImage:) -> LayerInputPort.media`
-    case constructorArgument(ConstructorArgument)
+    case constructorArgument(ConstructorArgumentLabel)
     
     // Simple conversion where a SwiftUI view modifier corresponds to a single LayerInputPort
     // e.g. `.scaleEffect -> LayerInputPort.scale`

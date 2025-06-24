@@ -24,9 +24,10 @@ struct SACreateLayer: Equatable, Codable, Hashable {
     // TODO: should be UUID
     let id: String
     
-    // TODO: should be Layer
-    let name: String
+    let name: Layer
     
+    // Is `children` list really going to be `SACreateLayer` ?
+    // er, that's just a description of 
     let children: [SACreateLayer]
 }
 
@@ -34,13 +35,15 @@ struct SACreateLayer: Equatable, Codable, Hashable {
 /// to a value in the visual‑programming layer.
 struct SASetLayerInput: Equatable, Codable, Hashable {
     // TODO: actually, this should be LayerInputPort (or LayerInputType i.e. packed vs unpacked))
-    let kind: ModifierKind          // `.custom("systemName")` for init args
+//    let kind: ModifierKind          // `.custom("systemName")` for init args
+    let kind: LayerInputPort          // `.custom("systemName")` for init args
     let value: String                   // literal the user entered
 }
 
 // an edge coming into the layer input
 struct SAIncomingEdge: Equatable, Codable, Hashable {
-    let name: String // the input which is receiving the edge
+//    let name: String // the input which is receiving the edge
+    let name: LayerInputPort // the input which is receiving the edge
 }
 
 func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
@@ -58,16 +61,28 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
     // 1. Every ViewNode → one SACreateLayer (with children).
     if let createdLayer = viewNode.deriveCreateLayerAction() {
         actions.append(.createLayer(createdLayer))
+        
+        // 2. For each initializer argument in ViewNode.arguments:
+        // 3. For each modifier in ViewNode.modifiers:
+        actions.append(
+            contentsOf: viewNode.deriveSetInputAndIncomingEdgeActions(createdLayer.name)
+        )
+        
+        // 4. Recurse into children (emit their actions in order).
+        for child in viewNode.children {
+            let childActions = deriveStitchActions(child)
+            for act in childActions {
+                actions.append(act)
+            }
+        }
+    } else {
+        log("deriveStitchActions: Could not create layer for view node. Name: \(viewNode.name), viewNode: \(viewNode)")
     }
+    
     
     //    let createLayer = buildCreateLayer(for: viewNode)
     //    actions.append(.createLayer(createLayer))
     
-
-    // 2. For each initializer argument in ViewNode.arguments:
-    // 3. For each modifier in ViewNode.modifiers:
-    actions.append(contentsOf: viewNode.deriveSetInputAndIncomingEdgeActions())
-        
 //    // 2. For each initializer argument in ViewNode.arguments:
 //    for arg in viewNode.arguments {
 //        switch arg.syntaxKind {
@@ -132,13 +147,7 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
 //        }
 //    }
 
-    // 4. Recurse into children (emit their actions in order).
-    for child in viewNode.children {
-        let childActions = deriveStitchActions(child)
-        for act in childActions {
-            actions.append(act)
-        }
-    }
+   
 
     return actions
 }

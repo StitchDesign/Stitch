@@ -10,40 +10,6 @@ import StitchSchemaKit
 import SwiftUI
 
 
-// https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
-enum TextConstructorArgument: Equatable, Hashable {
-    case noLabel // (String) // i.e. Text(myString)`
-    // case verbatim(String) // i.e. `Text(verbatim: myString)`
-    // case date(date: Date, style: Text.DateStyle)
-}
-
-// https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
-
-// TODO: use an associatedValue or not? ... just use this is a label, and then use the `value: String` or whatever?
-enum ImageConstructorArgument: Equatable, Hashable {
-    case systemName // (String)
-    // case uiImage(uiImage: UIImage)
-    // case asset(name: String)
-    // case data(data: Data)
-}
-
-
-// TODO: have ChatGPT crawl SwiftUI documentation for constructors (usually the "Creating a ..." section) and define more `ConstructorArgument` cases
-
-// https://developer.apple.com/documentation/swiftui/hstack#Creating-a-stack
-struct HStackConstructorArgument: Equatable, Hashable {
-    let alignment: String // VerticalAlignment
-    let spacing: CGFloat?
-    let content: ViewNode
-}
-
-// https://developer.apple.com/documentation/swiftui/vstack#Creating-a-stack
-struct VStackConstructorArgument: Equatable, Hashable {
-    let alignment: String // HorizontalAlignment
-    let spacing: CGFloat?
-    let content: ViewNode
-}
-
 // TODO: combine these functions, so that you can make sure you capture or handle ALL `LayerInputPort` cases? i.e. what is important here
 
 // it's probably more important to make sure we map all existing LayerInputs to SOME kind of ViewNode constructor-arg(s) or modifier(s)
@@ -248,7 +214,7 @@ extension LayerInputPort {
     }
 }
 
-extension ConstructorArgument {
+extension ConstructorArgumentLabel {
     var toLayerInput: LayerInputPort? {
         switch self {
             
@@ -340,8 +306,8 @@ extension ModifierKind {
         case (.foregroundColor, _):
             return .color
 
-        case (.backgroundColor, _):
-            return .color
+            //        case (.backgroundColor, _):
+            //            return .color
                         
         case (.disabled, _): return nil
         case (.background, _): return nil

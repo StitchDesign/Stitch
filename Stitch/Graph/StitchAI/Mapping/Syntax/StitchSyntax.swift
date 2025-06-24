@@ -11,11 +11,17 @@ import SwiftSyntax
 import SwiftParser
 
 struct ViewNode: Equatable, Hashable {
+    
     var name: ViewKind  // strongly-typed SwiftUI view kind
-//    var arguments: [Argument] // arguments for the View, e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
+    
+    // arguments for the View, e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
     var arguments: [ConstructorArgument]
+    
     var modifiers: [Modifier] // modifiers for the View, e.g. .padding()
+    
     var children: [ViewNode]
+    
+    // TODO: use UUID
     var id: String  // Unique identifier for the node
 }
 
@@ -24,8 +30,16 @@ struct Modifier: Equatable, Hashable {
     var arguments: [Argument]   // always at least one; an empty call gets a single “unknown” argument
 }
 
+struct ConstructorArgument: Equatable, Hashable {
+    
+    // TODO: combine labels + values ? how to elegantly handle difference between no args like `Rectangle`, un-labeled args like `Text("love")` and labeled args like `Image(systemName:)`
+    let label: ConstructorArgumentLabel?
+    let value: String?
+    
+    let syntaxKind: ArgumentKind // literal vs declared var vs expression
+}
 
-enum ConstructorArgument: Equatable, Hashable {
+enum ConstructorArgumentLabel: Equatable, Hashable {
     case image(ImageConstructorArgument)
     case text(TextConstructorArgument)
     
@@ -37,21 +51,65 @@ enum ConstructorArgument: Equatable, Hashable {
     case unsupported(Argument)
 }
 
-extension ConstructorArgument {
-    var getImageConstructor: ImageConstructorArgument? {
-        switch self {
-        case .image(let x): return x
-        default: return nil
-        }
-    }
-    
-    var getTextConstructor: TextConstructorArgument? {
-        switch self {
-        case .text(let x): return x
-        default: return nil
+extension ConstructorArgumentLabel {
+    static func from(_ string: String) -> ConstructorArgumentLabel? {
+        switch string {
+        // Image constructors
+        case "systemName":
+            return .image(.systemName)
+
+//        case "uiImage":
+//            return .image(.uiImage)
+//        case "data":
+//            return .image(.data)
+
+        // Text constructors
+            
+//        case "verbatim":
+//            return .text(.verbatim)
+//        case "localizedKey":
+//            return .text(.localizedKey)
+
+        default:
+            return nil
         }
     }
 }
+
+// https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
+enum TextConstructorArgument: Equatable, Hashable {
+    case noLabel // (String) // i.e. Text(myString)`
+    // case verbatim(String) // i.e. `Text(verbatim: myString)`
+    // case date(date: Date, style: Text.DateStyle)
+}
+
+// https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
+
+// TODO: use an associatedValue or not? ... just use this is a label, and then use the `value: String` or whatever?
+enum ImageConstructorArgument: String, Equatable, Hashable {
+    case systemName = "systemName" // (String)
+    // case uiImage(uiImage: UIImage)
+    // case asset(name: String)
+    // case data(data: Data)
+}
+
+
+// TODO: have ChatGPT crawl SwiftUI documentation for constructors (usually the "Creating a ..." section) and define more `ConstructorArgument` cases
+
+// https://developer.apple.com/documentation/swiftui/hstack#Creating-a-stack
+struct HStackConstructorArgument: Equatable, Hashable {
+    let alignment: String // VerticalAlignment
+    let spacing: CGFloat?
+    let content: ViewNode
+}
+
+// https://developer.apple.com/documentation/swiftui/vstack#Creating-a-stack
+struct VStackConstructorArgument: Equatable, Hashable {
+    let alignment: String // HorizontalAlignment
+    let spacing: CGFloat?
+    let content: ViewNode
+}
+
 
 /*
  TODO: some arguments to SwiftUI View constructors are void callbacks (= patch logic?) or SwiftUI views (= another ViewNode)
@@ -70,6 +128,22 @@ struct Argument: Equatable, Hashable {
     let label: String?
     let value: String
     let syntaxKind: ArgumentKind // literal vs declared var vs expression
+}
+
+extension ConstructorArgumentLabel {
+    var getImageConstructor: ImageConstructorArgument? {
+        switch self {
+        case .image(let x): return x
+        default: return nil
+        }
+    }
+    
+    var getTextConstructor: TextConstructorArgument? {
+        switch self {
+        case .text(let x): return x
+        default: return nil
+        }
+    }
 }
 
 
@@ -104,6 +178,78 @@ enum ArgumentKind: Equatable, Hashable {
      VPL equivalent = incoming edge
      */
     case expression(ExpressionKind)    // e.g. `1 + 1`, `min(10, 20)`
+}
+
+extension ArgumentKind {
+    static func fromExpression(_ expression: ExprSyntax) -> Self {
+        
+        // Determine argument type clearly:
+        let kind: ArgumentKind // = .literal(.unknown)
+                    
+        // Literals
+        if expression.is(IntegerLiteralExprSyntax.self) {
+            kind = .literal(.integer)
+        } else if expression.is(FloatLiteralExprSyntax.self) {
+            kind = .literal(.float)
+        } else if expression.is(StringLiteralExprSyntax.self) {
+            kind = .literal(.string)
+        } else if expression.is(BooleanLiteralExprSyntax.self) {
+            kind = .literal(.boolean)
+        } else if expression.is(NilLiteralExprSyntax.self) {
+            kind = .literal(.nilLiteral)
+        } else if expression.is(ArrayExprSyntax.self) {
+            kind = .literal(.array)
+        } else if expression.is(DictionaryExprSyntax.self) {
+            kind = .literal(.dictionary)
+        } else if expression.is(TupleExprSyntax.self) {
+            kind = .literal(.tuple)
+        } else if expression.is(RegexLiteralExprSyntax.self) {
+            kind = .literal(.regex)
+        }
+        
+        //            else if expression.is(ColorLiteralExprSyntax.self) {
+        //                kind = .literal(.colorLiteral)
+        //            } else if expression.is(ImageLiteralExprSyntax.self) {
+        //                kind = .literal(.imageLiteral)
+        //            } else if expression.is(FileLiteralExprSyntax.self) {
+        //                kind = .literal(.fileLiteral)
+        //            }
+        //            else if expression.is(ObjectLiteralExprSyntax.self) {
+        //                kind = .literal
+        //            }
+                   
+        // Variables (includes modifier
+        else if let declRef = expression.as(DeclReferenceExprSyntax.self) {
+            if declRef.baseName.text.contains(".") {
+                kind = .variable(.memberAccess)
+            } else {
+                kind = .variable(.identifier)
+            }
+            
+        // Expressions
+        } else if expression.is(InfixOperatorExprSyntax.self) {
+            kind = .expression(.infixOperator)
+        } else if expression.is(PrefixOperatorExprSyntax.self) {
+            kind = .expression(.prefixOperator)
+        } else if expression.is(PostfixOperatorExprSyntax.self) {
+            kind = .expression(.postfixOperator)
+        } else if expression.is(FunctionCallExprSyntax.self) {
+            kind = .expression(.functionCall)
+        } else if expression.is(TernaryExprSyntax.self) {
+            kind = .expression(.ternary)
+        } else if expression.is(TupleExprSyntax.self) {
+            kind = .expression(.tuple)
+        } else if expression.is(ClosureExprSyntax.self) {
+            kind = .expression(.closure)
+        }
+        
+        // unknown ? crash here?
+        else {
+            kind = .literal(.unknown)
+        }
+        
+        return kind
+    }
 }
 
 /// More granular breakdown of literal forms we might see in SwiftSyntax.

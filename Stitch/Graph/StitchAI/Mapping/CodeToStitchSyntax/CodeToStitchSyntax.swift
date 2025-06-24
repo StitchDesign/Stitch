@@ -126,7 +126,8 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             // Create a new ViewNode for this view
             let viewNode = ViewNode(
                 name: .init(from: viewName),
-                arguments: parseArguments(from: node),
+                // This is creat
+                arguments: parseArgumentsForConstructor(from: node),
                 modifiers: [],
                 children: [],
                 id: generateUniqueID(for: viewName)
@@ -169,75 +170,31 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Parse arguments from function call
-    private func parseArguments(from node: FunctionCallExprSyntax) -> [Argument] {
+    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [ConstructorArgument] {
+        let arguments = node.arguments.map { argument in
+            let label: String? = argument.label?.text
+            let expression = argument.expression
+            return ConstructorArgument(
+                label: label.map { ConstructorArgumentLabel.from($0) } ?? nil,
+                value: expression.trimmedDescription,
+                syntaxKind: .fromExpression(expression)
+            )
+        }
+        
+        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+        
+        return arguments
+    }
+    
+    // Parse arguments from function call
+    private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [Argument] {
         let arguments = node.arguments.map { argument in
             let label = argument.label?.text
             let expression = argument.expression
-
-            // Determine argument type clearly:
-            var kind: ArgumentKind = .literal(.unknown)
-                        
-            // Literals
-            if expression.is(IntegerLiteralExprSyntax.self) {
-                kind = .literal(.integer)
-            } else if expression.is(FloatLiteralExprSyntax.self) {
-                kind = .literal(.float)
-            } else if expression.is(StringLiteralExprSyntax.self) {
-                kind = .literal(.string)
-            } else if expression.is(BooleanLiteralExprSyntax.self) {
-                kind = .literal(.boolean)
-            } else if expression.is(NilLiteralExprSyntax.self) {
-                kind = .literal(.nilLiteral)
-            } else if expression.is(ArrayExprSyntax.self) {
-                kind = .literal(.array)
-            } else if expression.is(DictionaryExprSyntax.self) {
-                kind = .literal(.dictionary)
-            } else if expression.is(TupleExprSyntax.self) {
-                kind = .literal(.tuple)
-            } else if expression.is(RegexLiteralExprSyntax.self) {
-                kind = .literal(.regex)
-            }
-            
-            //            else if expression.is(ColorLiteralExprSyntax.self) {
-            //                kind = .literal(.colorLiteral)
-            //            } else if expression.is(ImageLiteralExprSyntax.self) {
-            //                kind = .literal(.imageLiteral)
-            //            } else if expression.is(FileLiteralExprSyntax.self) {
-            //                kind = .literal(.fileLiteral)
-            //            }
-            //            else if expression.is(ObjectLiteralExprSyntax.self) {
-            //                kind = .literal
-            //            }
-                       
-            // Variables (includes modifier
-            else if let declRef = expression.as(DeclReferenceExprSyntax.self) {
-                if declRef.baseName.text.contains(".") {
-                    kind = .variable(.memberAccess)
-                } else {
-                    kind = .variable(.identifier)
-                }
-                
-            // Expressions
-            } else if expression.is(InfixOperatorExprSyntax.self) {
-                kind = .expression(.infixOperator)
-            } else if expression.is(PrefixOperatorExprSyntax.self) {
-                kind = .expression(.prefixOperator)
-            } else if expression.is(PostfixOperatorExprSyntax.self) {
-                kind = .expression(.postfixOperator)
-            } else if expression.is(FunctionCallExprSyntax.self) {
-                kind = .expression(.functionCall)
-            } else if expression.is(TernaryExprSyntax.self) {
-                kind = .expression(.ternary)
-            } else if expression.is(TupleExprSyntax.self) {
-                kind = .expression(.tuple)
-            } else if expression.is(ClosureExprSyntax.self) {
-                kind = .expression(.closure)
-            }
-
             return Argument(
                 label: label,
                 value: expression.trimmedDescription,
-                syntaxKind: kind
+                syntaxKind: .fromExpression(expression)
             )
         }
         
@@ -313,7 +270,8 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             dbg("visitPost → attaching modifier '\(modifierName)'")
 
             // Parse the arguments for this modifier
-            let modifierArguments = parseArguments(from: node)
+            let modifierArguments = parseArgumentsForModifier(from: node)
+            
             dbg("visitPost → '\(modifierName)' argCount: \(modifierArguments.count)")
 
             var finalArgs = modifierArguments

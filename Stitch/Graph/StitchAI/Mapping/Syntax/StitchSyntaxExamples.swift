@@ -75,7 +75,11 @@ let example1 = ViewNode(
 // Text("salut")
 let example2 = ViewNode(
     name: .init(from: "Text"),
-    arguments: [Argument(label: nil, value: "\"salut\"", syntaxKind: .literal(.string))],
+    arguments: [
+        ConstructorArgument(label: .text(.noLabel),
+                            value: "\"salut\"",
+                            syntaxKind: .literal(.string))
+    ],
     modifiers: [],
     children: [],
     id: "text1"
@@ -85,7 +89,12 @@ let example2 = ViewNode(
 // Text("salut").foregroundColor(Color.yellow).padding()
 let example3 = ViewNode(
     name: .init(from: "Text"),
-    arguments: [Argument(label: nil, value: "\"salut\"", syntaxKind: .literal(.string))],
+    arguments: [
+        ConstructorArgument(label: .text(.noLabel),
+                            value: "\"salut\"",
+                            syntaxKind: .literal(.string))
+        
+    ],
     modifiers: [
         Modifier(
             kind: .foregroundColor,
@@ -167,7 +176,11 @@ let example4 = ViewNode(
 
 let example5 = ViewNode(
     name: .init(from: "Image"),
-    arguments: [Argument(label: "systemName", value: "\"star.fill\"", syntaxKind: .literal(.string))],
+    arguments: [
+        ConstructorArgument(label: .image(.systemName), //"systemName",
+                            value: "\"star.fill\"",
+                            syntaxKind: .literal(.string))
+    ],
     modifiers: [],
     children: [],
     id: "image1"
