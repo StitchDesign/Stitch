@@ -69,7 +69,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         
         let custom_patch_input_values = OpenAISchema(
             type: .array,
-            required: ["patch_input_coordinate", "value", "value_type"],
+            required: ["patch_input_coordinate", "value", "type"],
             items: OpenAIGeneric(types: [
                 AIPatchBuilderResponseFormat_V0.CustomPatchInputValueSchema()
             ])
@@ -168,7 +168,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct CustomPatchInputValue: Codable {
         let patch_input_coordinate: NodeIndexedCoordinate
-        let value: PortValue
+        let value: StitchAIPortValue_V0.StitchAIPortValue
     }
     
     struct AILayerInputPort {
