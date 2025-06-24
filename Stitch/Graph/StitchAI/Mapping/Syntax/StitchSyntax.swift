@@ -10,19 +10,48 @@ import SwiftUI
 import SwiftSyntax
 import SwiftParser
 
-struct ViewNode {
+struct ViewNode: Equatable, Hashable {
     var name: ViewKind  // strongly-typed SwiftUI view kind
-    var arguments: [Argument] // arguments for the View, e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
+//    var arguments: [Argument] // arguments for the View, e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
+    var arguments: [ConstructorArgument]
     var modifiers: [Modifier] // modifiers for the View, e.g. .padding()
     var children: [ViewNode]
     var id: String  // Unique identifier for the node
 }
 
-struct Modifier {
+struct Modifier: Equatable, Hashable {
     let kind: ModifierKind
     var arguments: [Argument]   // always at least one; an empty call gets a single “unknown” argument
 }
 
+
+enum ConstructorArgument: Equatable, Hashable {
+    case image(ImageConstructorArgument)
+    case text(TextConstructorArgument)
+    
+    //    case hStack(HStackConstructorArgument)
+    //    case vStack(VStackConstructorArgument)
+    
+    // Use `Argument` to capture unsupported constructors on SwiftUI Views,
+    // e.g. `Text(Date, style: Text.DateStyle)`
+    case unsupported(Argument)
+}
+
+extension ConstructorArgument {
+    var getImageConstructor: ImageConstructorArgument? {
+        switch self {
+        case .image(let x): return x
+        default: return nil
+        }
+    }
+    
+    var getTextConstructor: TextConstructorArgument? {
+        switch self {
+        case .text(let x): return x
+        default: return nil
+        }
+    }
+}
 
 /*
  TODO: some arguments to SwiftUI View constructors are void callbacks (= patch logic?) or SwiftUI views (= another ViewNode)
@@ -37,7 +66,7 @@ struct Modifier {
  )
  ```
  */
-struct Argument {
+struct Argument: Equatable, Hashable {
     let label: String?
     let value: String
     let syntaxKind: ArgumentKind // literal vs declared var vs expression
@@ -45,7 +74,7 @@ struct Argument {
 
 
 /// High‑level classification of an argument encountered in SwiftUI code.
-enum ArgumentKind {
+enum ArgumentKind: Equatable, Hashable {
     
     /*
      ```swift
@@ -78,7 +107,7 @@ enum ArgumentKind {
 }
 
 /// More granular breakdown of literal forms we might see in SwiftSyntax.
-enum LiteralKind: String {
+enum LiteralKind: String, Equatable, Hashable {
     case integer          = "IntegerLiteral"        // `42`
     case float            = "FloatLiteral"          // `3.14`
     case string           = "StringLiteral"         // `"hello"`
@@ -95,13 +124,13 @@ enum LiteralKind: String {
 }
 
 /// Possible syntactic shapes for a variable reference.
-enum VariableKind: String {
+enum VariableKind: String, Equatable, Hashable {
     case identifier       = "Identifier"            // `x`
     case memberAccess     = "MemberAccess"          // `object.property`
 }
 
 /// Broad categories of non‑literal expressions.
-enum ExpressionKind: String {
+enum ExpressionKind: String, Equatable, Hashable {
     case infixOperator    = "InfixOperator"         // `a + b`
     case prefixOperator   = "PrefixOperator"        // `-x`
     case postfixOperator  = "PostfixOperator"       // `array!`
