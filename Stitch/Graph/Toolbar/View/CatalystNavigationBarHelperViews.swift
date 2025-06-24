@@ -81,8 +81,7 @@ struct CatalystTopBarGraphButtons: View {
                 
 #if STITCH_AI_TESTING
                 StitchButton {
-//                    dispatch(ToggleInsertNodeMenu())
-                    print("hi")
+                    self.document.showTestAIModal = true
                 } label: {
                     Text("Test New AI")
                 }

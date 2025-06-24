@@ -14,6 +14,7 @@ import StitchSchemaKit
 
 struct ContentView: View, KeyboardReadable {
     @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    @State private var testAIPrompt = ""
     
     // Controlled by a GeometryReader that respects keyboard safe-area,
     // so that menuOrigin respects actual height of screen
@@ -151,7 +152,46 @@ struct ContentView: View, KeyboardReadable {
             }
         }, message: {
             Text("Describe your selected subgraph.")
-        })        
+        })
+        .alert("Build a Patch Graph from Existing Layers",
+               isPresented: self.$document.showTestAIModal,
+               actions: {
+            TextField("Prompt", text: self.$testAIPrompt)
+            
+            StitchButton("Create") {
+                do {
+                    let request = try AIPatchServiceRequest(
+                        prompt: testAIPrompt,
+                        layerList: document.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData())
+                    
+                    Task(priority: .high) { [weak document] in
+                        guard let document = document,
+                              let aiManager = document.aiManager else {
+                            return
+                        }
+                        
+                        let result = await request.request(document: document,
+                                                           aiManager: aiManager)
+                        switch result {
+                        case .success(let success):
+                            print("SUCCESS: \(success)")
+                        case .failure(let failure):
+                            fatalError(failure.localizedDescription)
+                        }
+                    }
+                } catch {
+                    fatalErrorIfDebug(error.localizedDescription)
+                }
+                
+                self.testAIPrompt = ""
+            }
+//                    .disabled(testAIPrompt.isEmpty)
+            
+            StitchButton("Cancel", role: .cancel) {
+                self.testAIPrompt = ""
+            }
+        }
+        )
     }
     
     private var fullScreenPreviewView: some View {
