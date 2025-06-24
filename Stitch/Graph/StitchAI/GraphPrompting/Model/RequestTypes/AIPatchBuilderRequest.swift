@@ -62,7 +62,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new patches
         for newPatch in self.patches {
-            let newNode = document.nodeInserted(choice: .patch(.javascript))
+            let newNode = document.nodeInserted(choice: .patch(.javascript),
+                                                nodeId: newPatch.node_id.value)
             
             if let patchNode = newNode.patchNode {
                 let jsSettings = try JavaScriptNodeSettings(
@@ -75,6 +76,9 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                                                document: document)
             }
         }
+        
+        // Update graph data so that input observers are created
+        graph.updateGraphData(document)
         
         // new constants
         for newInputValueSetting in self.custom_patch_input_values {
@@ -112,8 +116,27 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 from: outputPort,
                 to: inputPort)
             
+            guard let fromNodeLocation = document.visibleGraph.getNode(outputPort.nodeId)?.nonLayerCanvasItem?.position,
+                  let destinationNode = document.visibleGraph.getNode(inputPort.nodeId),
+                  let layerInput = inputPort.keyPath?.layerInput else {
+                fatalErrorIfDebug()
+                return
+            }
+
+            // create canvas node
+            var position = fromNodeLocation
+            position.x += 200
+            
+            document.addLayerInputToCanvas(node: destinationNode,
+                                           layerInput: layerInput,
+                                           draggedOutput: nil,
+                                           canvasHeightOffset: nil,
+                                           position: position)
+            
             let _ = document.visibleGraph.edgeAdded(edge: edge)
         }
+        
+        document.encodeProjectInBackground()
     }
 }
 
