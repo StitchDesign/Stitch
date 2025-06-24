@@ -23,12 +23,25 @@ struct Modifier {
     var arguments: [Argument]   // always at least one; an empty call gets a single “unknown” argument
 }
 
+
+/*
+ TODO: some arguments to SwiftUI View constructors are void callbacks (= patch logic?) or SwiftUI views (= another ViewNode)
+ TODO: `Argument.value` should be `enum ArgumentValue { case value(String), actionClosure(???), viewClosure(ViewNode) }`
+ 
+ Note: per chat with Vatsal, can also ask LLM to rewrite certain SwiftUI View closure-styles into non-closure versions etc. in an additional pass.
+ 
+ ```swift
+ Button(
+    action: { ... }, // patch logic?
+    label: { ViewNode }
+ )
+ ```
+ */
 struct Argument {
     let label: String?
     let value: String
     let syntaxKind: ArgumentKind // literal vs declared var vs expression
 }
-
 
 
 /// High‑level classification of an argument encountered in SwiftUI code.
