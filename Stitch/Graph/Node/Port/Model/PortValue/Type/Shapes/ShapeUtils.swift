@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 // Always applied BEFORE .frame and .position
 // Intended for strokes on non-Shape layers.
-struct ApplyStroke: ViewModifier {
+struct PreviewApplyStroke: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
     

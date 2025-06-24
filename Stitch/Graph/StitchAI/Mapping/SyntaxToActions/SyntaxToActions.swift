@@ -21,14 +21,19 @@ enum StitchAction: Equatable, Codable, Hashable {
 
 // create a layer, including its children
 struct SACreateLayer: Equatable, Codable, Hashable {
+    // TODO: should be UUID
     let id: String
+    
+    // TODO: should be Layer
     let name: String
+    
     let children: [SACreateLayer]
 }
 
 /// A concrete, typed mapping from a SwiftUI modifier (or initialiser label)
 /// to a value in the visual‑programming layer.
 struct SASetLayerInput: Equatable, Codable, Hashable {
+    // TODO: actually, this should be LayerInputPort (or LayerInputType i.e. packed vs unpacked))
     let kind: ModifierKind          // `.custom("systemName")` for init args
     let value: String                   // literal the user entered
 }

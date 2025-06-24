@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LayerPaddingModifier: ViewModifier {
+struct PreviewLayerPaddingModifier: ViewModifier {
     
     // Could be for `padding` layer input (i.e. pre-.frame)
     // or `margin` layer input (i.e. post-.frame).

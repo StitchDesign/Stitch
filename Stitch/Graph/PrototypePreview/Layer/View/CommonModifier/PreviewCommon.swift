@@ -78,7 +78,7 @@ struct PreviewCommonModifier: ViewModifier {
                 frameAlignment: frameAlignment))
         
             // Only for MapLayer, specifically for thumbnail-creation edge case
-            .modifier(ClippedModifier(
+            .modifier(PreviewClippedModifier(
                 isClipped: clipForMapLayerProjetThumbnailCreation,
                 // no clipping for map
                 cornerRadius: .zero))
