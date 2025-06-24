@@ -168,7 +168,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct CustomPatchInputValue: Codable {
         let patch_input_coordinate: NodeIndexedCoordinate
-        let value: StitchAIPortValue_V0.StitchAIPortValue
+        let value: Step_V0.PortValue
     }
     
     struct AILayerInputPort {
@@ -202,5 +202,62 @@ extension AIPatchBuilderResponseFormat_V0.AILayerInputPort: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.value.asLLMStepPort)
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
+    enum CodingKeys: String, CodingKey {
+        case patch_input_coordinate
+        case value
+        case value_type
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.patch_input_coordinate = try container
+            .decode(AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate.self,
+                    forKey: .patch_input_coordinate)
+        self.value = try Step_V0.PortValue.decodeFromAI(container: container,
+                                                        valueKey: .value,
+                                                        valueTypeKey: .value_type)
+    }
+    
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(patch_input_coordinate, forKey: .patch_input_coordinate)
+        try Step_V0.PortValue.encodeFromAI(container: &container,
+                                           portValue: self.value,
+                                           valueKey: .value,
+                                           valueTypeKey: .value_type)
+    }
+}
+
+// TODO: move
+extension Step_V0.PortValue {
+    static func decodeFromAI<CodingKeys: CodingKey>(container: KeyedDecodingContainer<CodingKeys>,
+                                                    valueKey: CodingKeys,
+                                                    valueTypeKey: CodingKeys) throws -> Step_V0.PortValue {
+        let nodeTypeString = try container.decode(String.self, forKey: valueTypeKey)
+        
+        guard let nodeType = Step_V0.NodeType(llmString: nodeTypeString) else {
+            throw StitchAIParsingError.nodeTypeParsing(nodeTypeString)
+        }
+        
+        // Parse value given node type
+        let portValueType = nodeType.portValueTypeForStitchAI
+        
+        let decodedValue = try container
+            .decodeIfPresentSitchAI(portValueType, forKey: valueKey)
+        
+        let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
+        return value
+    }
+    
+    static func encodeFromAI<CodingKeys: CodingKey>(container: inout KeyedEncodingContainer<CodingKeys>,
+                                                    portValue: Step_V0.PortValue,
+                                                    valueKey: CodingKeys,
+                                                    valueTypeKey: CodingKeys) throws {
+        try container.encode(portValue.anyCodable, forKey: valueKey)
+        try container.encode(portValue.nodeType, forKey: valueTypeKey)
     }
 }
