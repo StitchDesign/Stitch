@@ -47,7 +47,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         
         let patches = OpenAISchema(
             type: .array,
-            required: ["id", "title", "javascript_source_code", "input_definitions", "output_definitions"],
+            required: ["id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"],
             items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.PatchNodeSchema()])
         )
         
@@ -80,7 +80,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         static let portDefinitions = AIEditJsNodeResponseFormat_V0.JsNodeSettingsSchema.portDefinitions
         
         let id = OpenAISchema(type: .string)
-        let title = OpenAISchema(type: .string)
+        let suggested_title = OpenAISchema(type: .string)
         let javascript_source_code = OpenAISchema(type: .string)
         let input_definitions = Self.portDefinitions
         let output_definitions = Self.portDefinitions
