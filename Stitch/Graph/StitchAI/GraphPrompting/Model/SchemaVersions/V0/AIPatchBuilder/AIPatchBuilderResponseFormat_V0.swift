@@ -158,7 +158,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct LayerInputCoordinate: Codable {
         let layer_id: UUID
-        let input_port_type: LayerInputPort_V31.LayerInputPort
+        let input_port_type: AILayerInputPort
     }
 
     struct NodeIndexedCoordinate: Codable {
@@ -169,5 +169,38 @@ extension AIPatchBuilderResponseFormat_V0 {
     struct CustomPatchInputValue: Codable {
         let patch_input_coordinate: NodeIndexedCoordinate
         let value: PortValue
+    }
+    
+    struct AILayerInputPort {
+        var value: LayerInputPort_V31.LayerInputPort
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.AILayerInputPort: Codable {
+    /// Decodes a value that could be string, int, double, or JSON
+    /// - Parameter decoder: The decoder to read from
+    /// - Throws: DecodingError if value cannot be converted to string
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        // Try decoding as different types, converting each to string
+        if let stringValue = try? container.decode(String.self),
+           let valueFromString = LayerInputPort_V31.LayerInputPort.allCases
+            .first(where: { $0.asLLMStepPort == stringValue }) {
+            self.init(value: valueFromString)
+        } else {
+            throw DecodingError.typeMismatch(
+                String.self,
+                DecodingError.Context(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "StitchAIStringConvertable: unexpected type for \(AIPatchBuilderResponseFormat_V0.AILayerInputPort.self)"
+                )
+            )
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.value.asLLMStepPort)
     }
 }
