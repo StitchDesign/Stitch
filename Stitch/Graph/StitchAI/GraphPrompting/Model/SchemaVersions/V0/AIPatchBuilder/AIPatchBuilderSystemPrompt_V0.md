@@ -31,6 +31,7 @@ struct LayerData {
 ```
 
 ## Decoding JavaScript Source Code
+> Note: make sure any IDs created for a node are valid UUIDs.
 
 ### Extracting Patch Node Info
 Each function in the source code, besides `updateLayerInputs(...)`, is considered a patch node. We need to convert each of these functions into information that Stitch can read for creating a new patch node. Stitch will call the underlying JavaScript code in the function.
@@ -48,9 +49,9 @@ For inputs and outputs, the first nested array in the 2D list represents a port 
 We’ll organize each new node into a structured JSON:
 ```
 struct PatchNode {
-    let id: UUID
+    let node_id: UUID
     let javascript_source_code: String
-    let title: String
+    let suggested_title: String
     let input_definitions: [PatchNodePortDefinition]
     let output_definitions: [PatchNodePortDefinition]
 }
@@ -97,12 +98,15 @@ struct LayerConnection {
 }
 
 struct LayerPortCoordinate {
-    let id: UUID
+    let layer_id: UUID
     let input_label: String
 }
 ```
 
-Make sure `id` maps to the ID described in the input layer list. `input_label` is a string that’s also a unique identifier for some layer input.
+Make sure `layer_id` maps to the ID described in the input layer list. `input_label` is a string that’s also a unique identifier for some layer input.
+
+### Extracting Custom Input Values
+Sometimes a node has an exposed port which needs a custom value. If a PortValue with a layer node ID is used (typically for gesture patch nodes), be sure to use the `"Layer"` value type.
 
 ## Schema Details
 ### Value Types Glossary

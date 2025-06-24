@@ -47,7 +47,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         
         let patches = OpenAISchema(
             type: .array,
-            required: ["id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"],
+            required: ["node_id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"],
             items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.PatchNodeSchema()])
         )
         
@@ -69,7 +69,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         
         let custom_patch_input_values = OpenAISchema(
             type: .array,
-            required: ["patch_input_coordinate", "value", "type"],
+            required: ["patch_input_coordinate", "value", "value_type"],
             items: OpenAIGeneric(types: [
                 AIPatchBuilderResponseFormat_V0.CustomPatchInputValueSchema()
             ])
@@ -79,7 +79,7 @@ enum AIPatchBuilderResponseFormat_V0 {
     struct PatchNodeSchema: Encodable {
         static let portDefinitions = AIEditJsNodeResponseFormat_V0.JsNodeSettingsSchema.portDefinitions
         
-        let id = OpenAISchema(type: .string)
+        let node_id = OpenAISchema(type: .string)
         let suggested_title = OpenAISchema(type: .string)
         let javascript_source_code = OpenAISchema(type: .string)
         let input_definitions = Self.portDefinitions
@@ -139,7 +139,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct PatchNode: Codable {
-        let id: UUID
+        let node_id: StitchAIUUID
         let javascript_source_code: String
         let suggested_title: String
         let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
@@ -157,12 +157,12 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct LayerInputCoordinate: Codable {
-        let layer_id: UUID
+        let layer_id: StitchAIUUID
         let input_port_type: AILayerInputPort
     }
 
     struct NodeIndexedCoordinate: Codable {
-        let node_id: UUID
+        let node_id: StitchAIUUID
         let port_index: Int
     }
     
