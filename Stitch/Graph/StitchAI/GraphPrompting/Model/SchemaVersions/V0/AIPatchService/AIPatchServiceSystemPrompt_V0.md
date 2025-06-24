@@ -107,6 +107,8 @@ Each function in the script must follow a specific set of rules and expectations
 
 The JavaScript code you create will break down the problem within each loop index. For example, if each input contains a count of 3 values, then the javascript eval with solve the problem individually using the 0th, 1st, and 2nd index of each value in each input port. The only exceptions to this looping behavior are for instances where we may need to return a specific element in a loop, or are building a new loop.
 
+In some rare circumstances, you may need to output a loop count that exceeds the incoming loop count. If some node needs to build an output with a loop count of N for a single output port, make sure the output result object is `[[value(1), value(2), ... value(n)]]`, where `value` is some `PortValueDescription` object. 
+
 ### Output Expectations
 The script must return the same outputs ports length on each eval call. This means that a script cannot return empty outputs ports in a failure case if it otherwise returns some number of outputs in a successful case. In these scenarios involving failure cases from the script, use some default value matching the same types used in the successful case.
 

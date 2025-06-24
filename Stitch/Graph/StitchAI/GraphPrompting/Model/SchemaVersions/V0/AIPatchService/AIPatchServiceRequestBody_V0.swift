@@ -12,9 +12,9 @@ enum AIPatchServiceRequestBody_V0 {
     struct AIPatchServiceRequestBody : Encodable {
         static let markdownLocation = "AIPatchServiceSystemPrompt_V0"
         
-        let model: String = "gpt-4o-2024-08-06"
+        let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
-        let temperature: Double = 0.0
+        let temperature: Double = 1.0
         let messages: [OpenAIMessage]
         let stream: Bool = false
         
