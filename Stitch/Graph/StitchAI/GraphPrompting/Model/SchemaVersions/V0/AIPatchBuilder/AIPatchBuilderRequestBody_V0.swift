@@ -19,8 +19,9 @@ enum AIPatchBuilderRequestBody_V0 {
         let messages: [OpenAIMessage]
         let stream: Bool = false
         
-        init(secrets: Secrets,
-             userPrompt: String) throws {
+        init(userPrompt: String,
+             jsSourceCode: String,
+             layerList: SidebarLayerList) throws {
             let responseFormat = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
             let structuredOutputs = responseFormat.json_schema.schema
             guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
@@ -30,13 +31,26 @@ enum AIPatchBuilderRequestBody_V0 {
             
             let systemPrompt = try String(contentsOf: markdownUrl,
                                           encoding: .utf8)
+            let fullSystemPrompt = "\(systemPrompt)\nUse the following structured outputs schema:\n\(try structuredOutputs.encodeToPrintableString())"
+            
+            let inputs = AIPatchBuilderRequestInputs(
+                user_prompt: userPrompt,
+                javascript_source_code: jsSourceCode,
+                layer_list: layerList)
+            let userInputsString = try inputs.encodeToPrintableString()
             
             self.messages = [
                 .init(role: .system,
-                      content: systemPrompt),
+                      content: fullSystemPrompt),
                 .init(role: .user,
-                      content: userPrompt)
+                      content: userInputsString)
             ]
         }
+    }
+    
+    struct AIPatchBuilderRequestInputs: Encodable {
+        let user_prompt: String
+        let javascript_source_code: String
+        let layer_list: SidebarLayerList
     }
 }

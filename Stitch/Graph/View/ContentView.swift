@@ -159,10 +159,12 @@ struct ContentView: View, KeyboardReadable {
             TextField("Prompt", text: self.$testAIPrompt)
             
             StitchButton("Create") {
+                let layerList = document.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
+                
                 do {
                     let request = try AIPatchServiceRequest(
                         prompt: testAIPrompt,
-                        layerList: document.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData())
+                        layerList: layerList)
                     
                     Task(priority: .high) { [weak document] in
                         guard let document = document,
@@ -173,10 +175,27 @@ struct ContentView: View, KeyboardReadable {
                         let result = await request.request(document: document,
                                                            aiManager: aiManager)
                         switch result {
-                        case .success(let success):
-                            print("SUCCESS: \(success)")
+                        case .success(let jsSourceCode):
+                            print("SUCCESS Patch Service:\n\(jsSourceCode)")
+                            
+                            let patchBuilderRequest = try AIPatchBuilderRequest(
+                                prompt: testAIPrompt,
+                                jsSourceCode: jsSourceCode,
+                                layerList: layerList)
+                            
+                            let patchBuilderResult = await patchBuilderRequest
+                                .request(document: document,
+                                         aiManager: aiManager)
+                            
+                            switch patchBuilderResult {
+                            case .success(let success):
+                                print("SUCCESS Patch Builder:\n\(success)")
+                            case .failure(let failure):
+                                fatalErrorIfDebug(failure.localizedDescription)
+                            }
+                            
                         case .failure(let failure):
-                            fatalError(failure.localizedDescription)
+                            fatalErrorIfDebug(failure.localizedDescription)
                         }
                     }
                 } catch {

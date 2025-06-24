@@ -130,7 +130,7 @@ enum AIPatchBuilderResponseFormat_V0 {
 
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
-    struct GraphData {
+    struct GraphData: Codable {
         let patches: [AIPatchBuilderResponseFormat_V0.PatchNode]
 //        let layers: [Self.LayerNode]
         let patch_connections: [PatchConnection]
@@ -138,7 +138,7 @@ extension AIPatchBuilderResponseFormat_V0 {
         let custom_patch_input_values: [CustomPatchInputValue]
     }
     
-    struct PatchNode {
+    struct PatchNode: Codable {
         let id: UUID
         let javascript_source_code: String
         let title: String
@@ -146,27 +146,27 @@ extension AIPatchBuilderResponseFormat_V0 {
         let output_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
     }
     
-    struct PatchConnection {
+    struct PatchConnection: Codable {
         let src_port: NodeIndexedCoordinate   // source node's output port
         let dest_port: NodeIndexedCoordinate  // destination patch node's input port
     }
     
-    struct LayerConnection {
+    struct LayerConnection: Codable {
         let src_port: NodeIndexedCoordinate   // source node's output port
         let dest_port: NodeIndexedCoordinate  // destination patch node's input port
     }
     
-    struct LayerInputCoordinate {
+    struct LayerInputCoordinate: Codable {
         let layer_id: UUID
         let input_port_type: LayerInputPort_V31.LayerInputPort
     }
 
-    struct NodeIndexedCoordinate {
+    struct NodeIndexedCoordinate: Codable {
         let node_id: UUID
         let port_index: Int
     }
     
-    struct CustomPatchInputValue {
+    struct CustomPatchInputValue: Codable {
         let patch_input_coordinate: NodeIndexedCoordinate
         let value: PortValue
     }
