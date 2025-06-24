@@ -141,7 +141,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     struct PatchNode: Codable {
         let id: UUID
         let javascript_source_code: String
-        let title: String
+        let suggested_title: String
         let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
         let output_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
     }
@@ -153,7 +153,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct LayerConnection: Codable {
         let src_port: NodeIndexedCoordinate   // source node's output port
-        let dest_port: NodeIndexedCoordinate  // destination patch node's input port
+        let dest_port: LayerInputCoordinate   // destination patch node's input port
     }
     
     struct LayerInputCoordinate: Codable {
