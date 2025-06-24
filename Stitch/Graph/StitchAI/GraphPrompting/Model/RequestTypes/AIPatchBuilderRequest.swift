@@ -54,3 +54,83 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         fatalError()
     }
 }
+
+extension CurrentAIPatchBuilderResponseFormat.GraphData {
+    @MainActor
+    func apply(to document: StitchDocumentViewModel) throws {
+        let graph = document.visibleGraph
+        
+        // new patches
+        for newPatch in self.patches {
+            let newNode = document.nodeInserted(choice: .patch(.javascript))
+            
+            if let patchNode = newNode.patchNode {
+                let jsSettings = try JavaScriptNodeSettings(
+                    suggestedTitle: newPatch.suggested_title,
+                    script: newPatch.javascript_source_code,
+                    inputDefinitions: newPatch.input_definitions.map(JavaScriptPortDefinition.init),
+                    outputDefinitions: newPatch.output_definitions.map(JavaScriptPortDefinition.init))
+                
+                patchNode.processNewJavascript(response: jsSettings,
+                                               document: document)
+            }
+        }
+        
+        // new constants
+        for newInputValueSetting in self.custom_patch_input_values {
+            let inputCoordinate = NodeIOCoordinate(from: newInputValueSetting.patch_input_coordinate)
+            let migratedValue = try newInputValueSetting.value.migrate()
+            
+            guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
+                log("applyAction: could not apply setInput")
+                // fatalErrorIfDebug()
+                throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+            }
+            
+            // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
+            graph.inputEditCommitted(input: input,
+                                     value: migratedValue,
+                                     activeIndex: document.activeIndex)
+        }
+        
+        // new edges to downstream patches
+        for newPatchEdge in self.patch_connections {
+            let inputPort = NodeIOCoordinate(from: newPatchEdge.dest_port)
+            let outputPort = NodeIOCoordinate(from: newPatchEdge.src_port)
+            let edge: PortEdgeData = PortEdgeData(
+                from: outputPort,
+                to: inputPort)
+            
+            let _ = document.visibleGraph.edgeAdded(edge: edge)
+        }
+        
+        // new edges to downstream layers
+        for newLayerEdge in self.layer_connections {
+            let inputPort = try NodeIOCoordinate(from: newLayerEdge.dest_port)
+            let outputPort = NodeIOCoordinate(from: newLayerEdge.src_port)
+            let edge: PortEdgeData = PortEdgeData(
+                from: outputPort,
+                to: inputPort)
+            
+            let _ = document.visibleGraph.edgeAdded(edge: edge)
+        }
+    }
+}
+
+extension NodeIOCoordinate {
+    init(from aiPatchCoordinate: CurrentAIPatchBuilderResponseFormat.NodeIndexedCoordinate) {
+        self.init(portId: aiPatchCoordinate.port_index,
+                  nodeId: aiPatchCoordinate.node_id.value)
+    }
+    
+    init(from aiLayerCoordinate: CurrentAIPatchBuilderResponseFormat.LayerInputCoordinate) throws {
+        let portType = Step_V0.NodeIOPortType
+            .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.value,
+                           portType: .packed))
+        
+        let migratedPortType = try portType.convert(to: NodeIOPortType.self)
+        
+        self.init(portType: migratedPortType,
+                  nodeId: aiLayerCoordinate.layer_id.value)
+    }
+}

@@ -139,7 +139,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct PatchNode: Codable {
-        let node_id: StitchAIUUID
+        let node_id: StitchAIUUID_V0.StitchAIUUID
         let javascript_source_code: String
         let suggested_title: String
         let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
@@ -157,12 +157,12 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct LayerInputCoordinate: Codable {
-        let layer_id: StitchAIUUID
+        let layer_id: StitchAIUUID_V0.StitchAIUUID
         let input_port_type: AILayerInputPort
     }
 
     struct NodeIndexedCoordinate: Codable {
-        let node_id: StitchAIUUID
+        let node_id: StitchAIUUID_V0.StitchAIUUID
         let port_index: Int
     }
     

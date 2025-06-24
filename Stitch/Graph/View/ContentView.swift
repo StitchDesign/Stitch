@@ -188,8 +188,13 @@ struct ContentView: View, KeyboardReadable {
                                          aiManager: aiManager)
                             
                             switch patchBuilderResult {
-                            case .success(let success):
-                                print("SUCCESS Patch Builder:\n\(success)")
+                            case .success(let patchBuildResult):
+                                print("SUCCESS Patch Builder:\n\(patchBuildResult)")
+                                try await MainActor.run { [weak document] in
+                                    guard let document = document else { return }
+                                    try patchBuildResult.apply(to: document)
+                                }
+                                
                             case .failure(let failure):
                                 fatalErrorIfDebug(failure.localizedDescription)
                             }

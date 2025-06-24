@@ -121,6 +121,7 @@ extension StitchAIRequestable {
         } catch let error as StitchAIManagerError {
             throw error
         } catch {
+            print(error)
             throw StitchAIManagerError.contentDataDecodingError(content, error.localizedDescription)
         }
     }
