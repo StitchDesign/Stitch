@@ -16,7 +16,6 @@ struct AIPatchServiceRequest: StitchAIRequestable {
     
     @MainActor
     init(prompt: String,
-         layerList: SidebarLayerList,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -26,8 +25,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AIPatchServiceRequestBody(prompt: prompt,
-                                                  layerList: layerList)
+        self.body = try AIPatchServiceRequestBody(prompt: prompt)
     }
     
     @MainActor
