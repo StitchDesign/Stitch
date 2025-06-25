@@ -33,8 +33,8 @@ struct LayerData {
 ## Decoding JavaScript Source Code
 > Note: make sure any IDs created for a node are valid UUIDs.
 
-### Extracting Patch Node Info
-Each function in the source code, besides `updateLayerInputs(...)`, is considered a patch node. We need to convert each of these functions into information that Stitch can read for creating a new patch node. Stitch will call the underlying JavaScript code in the function.
+### Extracting Javascript Patch Node Info
+Each function in the source code, besides `updateLayerInputs(...)`, is considered a "JavaScript"" patch node. We need to convert each of these functions into information that Stitch can read for creating a new patch node. Stitch will call the underlying JavaScript code in the function.
 
 Each function sends and receives a 2D list of a specific JSON type, consisting of a value and a classifier of the value type that’s used:
 ```
@@ -44,11 +44,11 @@ Each function sends and receives a 2D list of a specific JSON type, consisting o
 }
 ```
 
-For inputs and outputs, the first nested array in the 2D list represents a port in a node. Each port contains a list of values, representing the inner nested array.  For example, in the stripped down example above with \[[5,7,9]], this would represent a single port with 3 values. Instead just ints, each value will contain the JSON format just specified.
+For inputs and outputs, the first nested array in the 2D list represents a port in a node. Each port contains a list of values, representing the inner nested array.  For example, in the stripped down example above with `[[5,7,9]]`, this would represent a single port with 3 values. Instead just ints, each value will contain the JSON format just specified.
 
 We’ll organize each new node into a structured JSON:
 ```
-struct PatchNode {
+struct JavaScriptPatchNode {
     let node_id: UUID
     let javascript_source_code: String
     let suggested_title: String
@@ -68,6 +68,17 @@ More details on to create this payload:
 * For each port definition, `label` stores a short, user-friendly label description of a port.
 * The length of `input_definitions` must exactly match the length of input ports expected in the `evaluate` function signature, and `output_definitions` length must exactly match the length of output ports returned by `evaluate`.
 * `strict_type` refers to the type (i.e. number, text, etc) of values processed at that port, which will not change for the lifetime of that port’s definition. Check out the Value Types Glossary section below for a full list of supported types.
+
+### Extracting Native Patch Nodes
+A "native" patch node is any patch node defined outside the scope of the JavaScript source code. They are invoked inside `updateLayerInputs` by calling keys upon a `NATIVE_STITCH_PATCH_FUNCTIONS` dictionary. In the same manner JavaScript patch nodes are created based on invocations inside `updateLayerInputs`, do the same for native patches.
+
+For example each time `NATIVE_STITCH_PATCH_FUNCTIONS["dragInteraction || Patch"]` is invoked, create a new "native" patch node, like so:
+```
+{
+    node_id: "D3F3C5B0-1C2B-4F5B-8F3B-2C5B1C2B4F5B",
+    node_name: "dragInteraction || Patch"
+}
+``` 
 
 ### Extracting Patch Connections
 A “connection” is an edge between a node’s output port and another node’s input port. Connections must be inferred based on calls between functions: if function A depends on results from function B, then we say there’s an edge between A and B where B’s outputs connect to A’s inputs.

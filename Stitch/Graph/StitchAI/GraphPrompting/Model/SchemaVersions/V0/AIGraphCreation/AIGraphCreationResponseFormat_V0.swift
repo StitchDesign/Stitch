@@ -58,7 +58,7 @@ enum AIGraphCreationResponseFormat_V0 {
                                     description: "Array of node UUIDs",
                                     items: OpenAIGeneric(types: [OpenAISchema(type: .string)]))
         
-        let NodeName = OpenAISchemaEnum(values: CurrentStep.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
+        let NodeName = OpenAISchemaEnum(values: Step_V0.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
         
         let ValueType = OpenAISchemaEnum(values:
                                             StitchAINodeType.allCases
@@ -66,7 +66,7 @@ enum AIGraphCreationResponseFormat_V0 {
             .map { $0.asLLMStepNodeType }
         )
         
-        let LayerPorts = OpenAISchemaEnum(values: CurrentStep.LayerInputPort.allCases
+        let LayerPorts = OpenAISchemaEnum(values: Step_V0.LayerInputPort.allCases
             .map { $0.asLLMStepPort }
         )
     }

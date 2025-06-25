@@ -60,8 +60,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
     func apply(to document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
         
-        // new patches
-        for newPatch in self.patches {
+        // new js patches
+        for newPatch in self.javascript_patches {
             let newNode = document.nodeInserted(choice: .patch(.javascript),
                                                 nodeId: newPatch.node_id.value)
             
@@ -75,6 +75,14 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 patchNode.processNewJavascript(response: jsSettings,
                                                document: document)
             }
+        }
+        
+        // new native patches
+        for newPatch in self.native_patches {
+            let migratedNodeName = try newPatch.node_name.convert(to: PatchOrLayer.self)
+            
+            let _ = document.nodeInserted(choice: migratedNodeName,
+                                          nodeId: newPatch.node_id.value)
         }
         
         // Update graph data so that input observers are created

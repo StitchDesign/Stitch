@@ -98,7 +98,7 @@ extension StitchAIRequestable {
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed
     /// - Returns: Parsed ContentJSON structure
-    static func parseOpanAIResponse(content: String) throws -> Self.InitialDecodedResult {
+    static func parseOpenAIResponse(content: String) throws -> Self.InitialDecodedResult {
         guard let contentData = content.data(using: .utf8) else {
             print("Debug - raw content: \(content)")
             throw DecodingError.dataCorrupted(DecodingError.Context(
@@ -121,7 +121,7 @@ extension StitchAIRequestable {
         } catch let error as StitchAIManagerError {
             throw error
         } catch {
-            print(error)
+            print("parseOpenAIResponse error: \(error)")
             throw StitchAIManagerError.contentDataDecodingError(content, error.localizedDescription)
         }
     }

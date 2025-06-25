@@ -160,7 +160,7 @@ extension StitchAIManager {
                     return .failure(StitchAIManagerError.responseDecodingFailure("No choice found."))
                 }
                 
-                let initialDecodedResult = try AIRequest.parseOpanAIResponse(content: firstChoice.message.content)
+                let initialDecodedResult = try AIRequest.parseOpenAIResponse(content: firstChoice.message.content)
                 let result = try AIRequest.validateResponse(decodedResult: initialDecodedResult)
                 
                 
