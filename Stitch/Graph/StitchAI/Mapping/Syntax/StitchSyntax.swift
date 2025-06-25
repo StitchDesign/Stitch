@@ -15,7 +15,7 @@ struct ViewNode: Equatable, Hashable {
     var name: ViewKind  // strongly-typed SwiftUI view kind
     
     // arguments for the View, e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
-    var arguments: [ConstructorArgument]
+    var constructorArguments: [ConstructorArgument]
     
     var modifiers: [Modifier] // modifiers for the View, e.g. .padding()
     
@@ -32,65 +32,58 @@ struct Modifier: Equatable, Hashable {
 
 struct ConstructorArgument: Equatable, Hashable {
     
-    // TODO: combine labels + values ? how to elegantly handle difference between no args like `Rectangle`, un-labeled args like `Text("love")` and labeled args like `Image(systemName:)`
-    let label: ConstructorArgumentLabel?
-    let value: String?
+    /*
+     TODO: combine labels + values ? how to elegantly handle difference between no args like `Rectangle`, un-labeled args like `Text("love")` and labeled args like `Image(systemName:)`
+     
+     Note: `Rectangle()` actually takes NO constructor arguments
+     
+     */
+    let label: ConstructorArgumentLabel
+    
+    // Note: some SwiftUI view modifiers "do not take an argument" (e.g. `.padding()`; though this is technically just defaulting to a default argument), BUT EVERY CONSTRUCTOR FOR A SWIFTUI VIEW TAKES AN ARGUMENT, so this is non-optional
+    let value: String
     
     let syntaxKind: ArgumentKind // literal vs declared var vs expression
 }
 
-enum ConstructorArgumentLabel: Equatable, Hashable {
-    case image(ImageConstructorArgument)
-    case text(TextConstructorArgument)
+// TODO: a way to represent the type of the SwiftUI View constructor arg ?
+// Note: this can only really properly be resolved into a LayerInputPort with the help of the known layer
+enum ConstructorArgumentLabel: String, Equatable, Hashable {
+    
+    
+    // argument without a label, e.g. SwiftUI Text: `Text("love")`;
+    // Note: SwiftUI views that do not take arguments at all (e.g. `Rectangle()`) will not actually have constructor-args
+    // https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
+    case unlabeled = ""
+    
+    
+    // SwiftUI Image
+    // https://developer.apple.com/documentation/swiftui/image#Creating-an-image
+    case systemName = "systemName"
+    
+    // HStack, VStack, ZStack
+    // case alignment = "alignment"
+    // case spacing = "spacing"
     
     //    case hStack(HStackConstructorArgument)
     //    case vStack(VStackConstructorArgument)
     
     // Use `Argument` to capture unsupported constructors on SwiftUI Views,
     // e.g. `Text(Date, style: Text.DateStyle)`
-    case unsupported(Argument)
+    
+    // Rather than keeping around which argument was unsupported, we should log at the given site etc. and react
+    case unsupported //(Argument)
 }
 
 extension ConstructorArgumentLabel {
-    static func from(_ string: String) -> ConstructorArgumentLabel? {
+    static func from(_ string: String?) -> ConstructorArgumentLabel? {
         switch string {
-        // Image constructors
-        case "systemName":
-            return .image(.systemName)
-
-//        case "uiImage":
-//            return .image(.uiImage)
-//        case "data":
-//            return .image(.data)
-
-        // Text constructors
-            
-//        case "verbatim":
-//            return .text(.verbatim)
-//        case "localizedKey":
-//            return .text(.localizedKey)
-
-        default:
-            return nil
+        case .none:
+            return .unlabeled
+        case .some(let x):
+            return Self(rawValue: x)
         }
     }
-}
-
-// https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
-enum TextConstructorArgument: Equatable, Hashable {
-    case noLabel // (String) // i.e. Text(myString)`
-    // case verbatim(String) // i.e. `Text(verbatim: myString)`
-    // case date(date: Date, style: Text.DateStyle)
-}
-
-// https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
-
-// TODO: use an associatedValue or not? ... just use this is a label, and then use the `value: String` or whatever?
-enum ImageConstructorArgument: String, Equatable, Hashable {
-    case systemName = "systemName" // (String)
-    // case uiImage(uiImage: UIImage)
-    // case asset(name: String)
-    // case data(data: Data)
 }
 
 
@@ -129,23 +122,6 @@ struct Argument: Equatable, Hashable {
     let value: String
     let syntaxKind: ArgumentKind // literal vs declared var vs expression
 }
-
-extension ConstructorArgumentLabel {
-    var getImageConstructor: ImageConstructorArgument? {
-        switch self {
-        case .image(let x): return x
-        default: return nil
-        }
-    }
-    
-    var getTextConstructor: TextConstructorArgument? {
-        switch self {
-        case .text(let x): return x
-        default: return nil
-        }
-    }
-}
-
 
 /// High‑level classification of an argument encountered in SwiftUI code.
 enum ArgumentKind: Equatable, Hashable {

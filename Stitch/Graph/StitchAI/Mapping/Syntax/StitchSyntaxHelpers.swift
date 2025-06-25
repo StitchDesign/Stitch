@@ -24,12 +24,12 @@ func formatViewNode(_ node: ViewNode, indent: String = "") -> String {
     
     // Format arguments
     result += "\n\(indent)    arguments: ["
-    if !node.arguments.isEmpty {
-        for (i, arg) in node.arguments.enumerated() {
-            let label = arg.label != nil ? "\"\(arg.label!)\"" : "nil"
+    if !node.constructorArguments.isEmpty {
+        for (i, arg) in node.constructorArguments.enumerated() {
+            let label = "\"\(arg.label)\""
             let kindDesc = describe(arg.syntaxKind)
             result += "\n\(indent)        (label: \(label), value: \(arg.value), kind: \(kindDesc))"
-            if i < node.arguments.count - 1 {
+            if i < node.constructorArguments.count - 1 {
                 result += ","
             }
         }

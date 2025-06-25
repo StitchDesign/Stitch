@@ -12,61 +12,155 @@ import SwiftUI
 
 // TODO: combine these functions, so that you can make sure you capture or handle ALL `LayerInputPort` cases? i.e. what is important here
 
-// it's probably more important to make sure we map all existing LayerInputs to SOME kind of ViewNode constructor-arg(s) or modifier(s)
-// Adapted from `toSwiftUIViewModifier`
+struct EdgeOrigin: Equatable, Codable, Hashable {
+    let id: NodeId
+    let port: Int
+}
+
+enum StitchValueOrEdge: Equatable {
+    // a manually-set, always-scalar value
+    case value(PortValue)
+    
+    // an incoming edge
+    case edge(NodeId, Int) // `from node id + from port`
+    
+    var asSwiftUILiteralOrVariable: String {
+        switch self {
+        case .value(let x):
+            return x.asSwiftUILiteral
+        case .edge(let x, let y):
+            // TODO: JUNE 24: probably will use edge.origin's NodeId and Int to ... what? look up a proper variable name? ... Can see how Elliot does it?
+            return "x"
+        }
+    }
+    
+    var asSwiftSyntaxKind: ArgumentKind {
+        switch self {
+        case .value:
+            // TODO: JUNE 24: Do you need all these different individual syntax-literal types? ... if so, then should map on
+            return ArgumentKind.literal(.string)
+        case .edge(let x, let y):
+            // TODO: JUNE 24: do we always want to treat an incoming edge as a variable ? ... a variable is just an evaluated expression ?
+            return ArgumentKind.variable(.identifier) // `x`
+        }
+    }
+}
+
+extension PortValue {
+    // TODO: JUNE 24: should return a Codable ? ... How do you map between Swift/SwiftUI types and Stitch's PortValue types ? ... see note in `LayerInputPort.toSwiftUI`
+    var asSwiftUILiteral: String {
+        switch self {
+        case .number(let x):
+            return x.description
+        case .string(let x):
+            return x.string
+        default:
+            return "IMPLEMENT ME: \(self.display)"
+        }
+    }
+}
+
+// TODO: JUNE 24: how to handle loops? ... note: this is not used anywhere yet
 extension LayerInputPort {
-    func toSwiftUI(_ viewNode: ViewNode, layer: Layer) -> FromLayerInputToSwiftUI {
+    func toSwiftUI(_ viewNode: ViewNode,
+                   port: StitchValueOrEdge, // loops? should pass in `value` ?
+                   layer: Layer) -> FromLayerInputToSwiftUI {
+        
+        // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. .opacity but not .size
+        let buildModifier = { (kind: ModifierKind) -> Modifier in
+            Modifier(kind: kind,
+                     arguments: [
+                        Argument(label: nil, // assumes unlabeled
+                                 value: port.asSwiftUILiteralOrVariable,
+                                 syntaxKind: port.asSwiftSyntaxKind)
+                     ])
+        }
         
         // We switch on `self` because we want to cover all LayerInput cases
         switch self {
             
-        case .text: return .constructorArgument(.text(.noLabel))
+        case .anchoring:
+            // TODO: JUNE 24: handle `functions`
+            return .function(.anchoring)
             
-            // ── Required geometry & layout ──────────────────────────────
-        case .position:                    return .modifier(.position)
-                    
-        case .scale:                       return .modifier(.scaleEffect)
-        case .anchoring:                   return .function(.anchoring)
-        case .opacity:                     return .modifier(.opacity)
-        case .zIndex:                      return .modifier(.zIndex)
+        case .text:
+            // return .constructorArgument(.text(.noLabel))
+            return .constructorArgument(.init(
+                
+                label: .unlabeled,
+                
+                // TODO: JUNE 24: tricky: how to go from a VPL literal or edge to SwiftUI code contained with a
+                // `value` is either a literal (manually-set value) or an expression (incoming edge);
+                // if manually-set PortValue, then will be a Swift type literal (e.g. `5`, `"love"`, `CGSize(width: 50, height: 100)`
+                // if incoming-edge, then will be a Swift declared-constant
+                value: port.asSwiftUILiteralOrVariable,
+                
+                syntaxKind: port.asSwiftSyntaxKind))
             
-            // ── Common appearance modifiers ─────────────────────────────
+            
+        case .sfSymbol:
+            return .constructorArgument(.init(
+                label: .systemName,
+                value: port.asSwiftUILiteralOrVariable,
+                syntaxKind: port.asSwiftSyntaxKind))
+            
+            
+            // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
+        case .position:
+            // return .modifier(.position)
+            return .modifier(Modifier(kind: .position,
+                                      arguments: [
+                                        // NOT CORRECT?: discrepancy between
+                                        Argument(label: "x",
+                                                 // NEED TO UNPACK THE PORT VALUE ?
+                                                 value: port.asSwiftUILiteralOrVariable,
+                                                 syntaxKind: port.asSwiftSyntaxKind),
+                                        Argument(label: "y",
+                                                 value: port.asSwiftUILiteralOrVariable,
+                                                 syntaxKind: port.asSwiftSyntaxKind)
+                                      ]))
+            
+
+            
         
         // TODO: JUNE 23: .fill for Layer.rectangle, Layer.oval etc.; but .foregroundColor for Layer.text
         case .color:
             switch layer {
             case .text, .textField:
-                return .modifier(.foregroundColor)
+                return .modifier(buildModifier(.foregroundColor))
             default: // case .rectangle, .oval:
-                return .modifier(.fill)
+                return .modifier(buildModifier(.fill))
             }
             
         case .rotationX, .rotationY, .rotationZ:
-            return .modifier(.rotation3DEffect)
+            return .unsupported // MORE COMPLICATED
+            // return .modifier(buildModifier(.rotation3DEffect, nil))
             
-        case .blur, .blurRadius:           return .modifier(.blur)
-        case .blendMode:                   return .modifier(.blendMode)
-        case .brightness:                  return .modifier(.brightness)
-        case .colorInvert:                 return .modifier(.colorInvert)
-        case .contrast:                    return .modifier(.contrast)
-        case .hueRotation:                 return .modifier(.hueRotation)
-        case .saturation:                  return .modifier(.saturation)
-        case .enabled:                     return .modifier(.disabled)
-        case .backgroundColor:             return .modifier(.background)
-        case .isClipped, .clipped:         return .modifier(.clipped)
-        case .padding:                     return .modifier(.padding)
-        case .cornerRadius:                return .modifier(.cornerRadius)
-        case .fontSize, .textFont:         return .modifier(.font)
-        case .textAlignment:               return .modifier(.multilineTextAlignment)
-        case .textDecoration:              return .modifier(.underline)
-        case .keyboardType:                return .modifier(.keyboardType)
-        case .isSpellCheckEnabled:         return .modifier(.disableAutocorrection)
+        case .scale:                       return .modifier(buildModifier(.scaleEffect))
+        case .opacity:                     return .modifier(buildModifier(.opacity))
+        case .zIndex:                      return .modifier(buildModifier(.zIndex))
+        case .blur, .blurRadius:           return .modifier(buildModifier(.blur))
+        case .blendMode:                   return .modifier(buildModifier(.blendMode))
+        case .brightness:                  return .modifier(buildModifier(.brightness))
+        case .colorInvert:                 return .modifier(buildModifier(.colorInvert))
+        case .contrast:                    return .modifier(buildModifier(.contrast))
+        case .hueRotation:                 return .modifier(buildModifier(.hueRotation))
+        case .saturation:                  return .modifier(buildModifier(.saturation))
+        case .enabled:                     return .modifier(buildModifier(.disabled))
+        case .backgroundColor:             return .modifier(buildModifier(.background))
+        case .isClipped, .clipped:         return .modifier(buildModifier(.clipped))
+        case .padding:                     return .modifier(buildModifier(.padding))
+        case .cornerRadius:                return .modifier(buildModifier(.cornerRadius))
+        case .fontSize, .textFont:         return .modifier(buildModifier(.font))
+        case .textAlignment:               return .modifier(buildModifier(.multilineTextAlignment))
+        case .textDecoration:              return .modifier(buildModifier(.underline))
+        case .keyboardType:                return .modifier(buildModifier(.keyboardType))
+        case .isSpellCheckEnabled:         return .modifier(buildModifier(.disableAutocorrection))
 
-        case .sfSymbol:                    return .constructorArgument(.image(.systemName))
-            
-            // TODO: JUNE 23: complicatd: size, minSize, maxSize are actually
-        case .size:                        return .modifier(.frame)
-        case .minSize, .maxSize:           return .modifier(.frame)
+        
+        // TODO: JUNE 23: complicatd: size, minSize, maxSize are actually a combination of arguments to the SwiftUI .frame view modifier
+        case .size:                        return .modifier(buildModifier(.frame))
+        case .minSize, .maxSize:           return .modifier(buildModifier(.frame))
             
         // TODO: JUNE 23: complicated; all of these correspond to different arguments *on the same SwiftUI .shadow view modifier*
         case .shadowColor, .shadowOpacity, .shadowRadius, .shadowOffset:
@@ -85,8 +179,10 @@ extension LayerInputPort {
             return .unsupported
             
             // What is this for? It's the 3D Model?
-        case .isAnimating:                 return .unsupported // return ".animation"
-        case .fitStyle:                    return .unsupported // return ".aspectRatio"
+        case .isAnimating:
+            return .unsupported // return ".animation"
+        case .fitStyle:
+            return .unsupported // return ".aspectRatio"
             
             // ── No SwiftUI analogue ────────────────────────────────────
             // Explicitly unsupported ports (no SwiftUI equivalent)
@@ -214,30 +310,31 @@ extension LayerInputPort {
     }
 }
 
-extension ConstructorArgumentLabel {
-    var toLayerInput: LayerInputPort? {
-        switch self {
+extension ConstructorArgument {
+    func toLayerInput(_ layer: Layer) -> LayerInputPort? {
+        switch self.label {
             
-        case .image(let imageConstructorArgument):
-            switch imageConstructorArgument {
-            case .systemName:
-                return .sfSymbol
-            }
-        
-        case .text(let textConstructorArgument):
-            switch textConstructorArgument {
-            case .noLabel:
+        case .systemName:
+            return .sfSymbol
+            
+        // TODO: JUNE 24: *many* SwiftUU
+        case .unlabeled:
+            switch layer {
+            case .text, .textField:
                 return .text
+            default:
+                return nil
             }
-        
-        case .unsupported(let argument):
+            
+            
+        case .unsupported:
             return nil
         }
     }
 }
 
 extension ModifierKind {
-    func toLayerInput(layer: Layer) -> LayerInputPort? {
+    func toLayerInput(_ layer: Layer) -> LayerInputPort? {
         switch (self, layer) {
             // Universal modifiers (same for every layer)
         case (.scaleEffect, _):

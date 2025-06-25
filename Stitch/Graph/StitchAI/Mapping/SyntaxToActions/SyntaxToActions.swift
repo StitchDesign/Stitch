@@ -8,59 +8,45 @@
 import SwiftUI
 import OrderedCollections
 
-// Start out with simple actions now; just want to test; can we create proper StepActions later
+// MARK: 'actions' just in the sense of being something our VPL can consume
 
-typealias StitchActions = [StitchAction]
-typealias StitchActionOrderedSet = OrderedSet<StitchAction>
+typealias VPLLayerConcepts = [VPLLayerConcept]
+typealias VPLLayerConceptOrderedSet = OrderedSet<VPLLayerConcept>
 
-enum StitchAction: Equatable, Codable, Hashable {
-    case createLayer(SACreateLayer)
-    case setLayerInput(SASetLayerInput)
-    case incomingEdge(SAIncomingEdge)
+enum VPLLayerConcept: Equatable, Codable, Hashable {
+    case layer(VPLLayer)
+    case layerInputSet(VPLLayerInputSet)
+    case incomingEdge(VPLIncomingEdge)
 }
 
 // create a layer, including its children
-struct SACreateLayer: Equatable, Codable, Hashable {
-    // TODO: should be UUID
-    let id: String
-    
+struct VPLLayer: Equatable, Codable, Hashable {
+    let id: String // TODO: should be UUID
     let name: Layer
-    
-    // Is `children` list really going to be `SACreateLayer` ?
-    // er, that's just a description of 
-    let children: [SACreateLayer]
+    let children: [VPLLayer]
 }
 
 /// A concrete, typed mapping from a SwiftUI modifier (or initialiser label)
 /// to a value in the visual‑programming layer.
-struct SASetLayerInput: Equatable, Codable, Hashable {
-    // TODO: actually, this should be LayerInputPort (or LayerInputType i.e. packed vs unpacked))
-//    let kind: ModifierKind          // `.custom("systemName")` for init args
-    let kind: LayerInputPort          // `.custom("systemName")` for init args
-    let value: String                   // literal the user entered
+struct VPLLayerInputSet: Equatable, Codable, Hashable {
+    let kind: LayerInputPort
+    
+    // TODO: JUNE 24: use PortValue instead of String; reuse parsing logic from StepAction parsing etc. ?
+    // let value: PortValue  // literal the user entered
+    let value: String  // literal the user entered
 }
 
 // an edge coming into the layer input
-struct SAIncomingEdge: Equatable, Codable, Hashable {
-//    let name: String // the input which is receiving the edge
+struct VPLIncomingEdge: Equatable, Codable, Hashable {
     let name: LayerInputPort // the input which is receiving the edge
 }
 
-func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
-    var actions = StitchActionOrderedSet()
-
-//    // Helper: Build the SACreateLayer tree for this node and its children.
-//    func buildCreateLayer(for node: ViewNode) -> SACreateLayer {
-//        SACreateLayer(
-//            id: node.id,
-//            name: node.name.string,
-//            children: node.children.map { buildCreateLayer(for: $0) }
-//        )
-//    }
+func deriveStitchActions(_ viewNode: ViewNode) -> VPLLayerConceptOrderedSet {
+    var actions = VPLLayerConceptOrderedSet()
 
     // 1. Every ViewNode → one SACreateLayer (with children).
     if let createdLayer = viewNode.deriveCreateLayerAction() {
-        actions.append(.createLayer(createdLayer))
+        actions.append(.layer(createdLayer))
         
         // 2. For each initializer argument in ViewNode.arguments:
         // 3. For each modifier in ViewNode.modifiers:
@@ -76,78 +62,9 @@ func deriveStitchActions(_ viewNode: ViewNode) -> StitchActionOrderedSet {
             }
         }
     } else {
+        // if we can't create the layer, then we can't (or shouldn't) process its constructor-args, modifiers and children
         log("deriveStitchActions: Could not create layer for view node. Name: \(viewNode.name), viewNode: \(viewNode)")
     }
     
-    
-    //    let createLayer = buildCreateLayer(for: viewNode)
-    //    actions.append(.createLayer(createLayer))
-    
-//    // 2. For each initializer argument in ViewNode.arguments:
-//    for arg in viewNode.arguments {
-//        switch arg.syntaxKind {
-//        case .literal:
-//            let labelString = arg.label ?? ""
-//            actions.append(
-//                .setLayerInput(
-//                    SASetLayerInput(
-//                        kind: ModifierKind(rawValue: labelString),
-//                        value: arg.value
-//                    )
-//                )
-//            )
-//        default:
-//            actions.append(.incomingEdge(SAIncomingEdge(name: arg.label ?? "")))
-//        }
-//    }
-//
-//    // 3. For each modifier in ViewNode.modifiers:
-//    for modifier in viewNode.modifiers {
-//        let allLiteral = modifier.arguments.allSatisfy {
-//            if case .literal = $0.syntaxKind { return true }
-//            return false
-//        }
-//        if allLiteral {
-//            // Emit ONE SASetLayerInput: kind = modifier.kind, value = joined literal list
-//            // Format: "label1: value1, value2"
-//            let parts: [String] = modifier.arguments.map {
-//                if let label = $0.label, !label.isEmpty {
-//                    return "\(label): \($0.value)"
-//                } else {
-//                    return $0.value
-//                }
-//            }
-//            let joined = parts.joined(separator: ", ")
-//            actions.append(
-//                .setLayerInput(
-//                    SASetLayerInput(kind: modifier.kind, value: joined)
-//                )
-//            )
-//        } else {
-//            // Emit ONE action per argument
-//            for arg in modifier.arguments {
-//                let actionName: String
-//                let modName = modifier.kind.rawValue
-//                if let label = arg.label, !label.isEmpty {
-//                    actionName = "\(modName).\(label)"
-//                } else {
-//                    actionName = modName
-//                }
-//                switch arg.syntaxKind {
-//                case .literal:
-//                    actions.append(
-//                        .setLayerInput(
-//                            SASetLayerInput(kind: ModifierKind(rawValue: actionName), value: arg.value)
-//                        )
-//                    )
-//                default:
-//                    actions.append(.incomingEdge(SAIncomingEdge(name: actionName)))
-//                }
-//            }
-//        }
-//    }
-
-   
-
     return actions
 }

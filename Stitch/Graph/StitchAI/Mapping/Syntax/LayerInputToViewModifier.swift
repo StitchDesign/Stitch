@@ -32,9 +32,9 @@ import StitchSchemaKit
 
 extension ViewNode {
     // derived from name and construct arguments
-    func deriveCreateLayerAction() -> SACreateLayer? {
+    func deriveCreateLayerAction() -> VPLLayer? {
         if let layer: Layer = self.deriveLayer() {
-            return SACreateLayer(
+            return VPLLayer(
                 id: self.id,
                 name: layer,
                 children: self.children.compactMap { $0.deriveCreateLayerAction() } )
@@ -44,21 +44,21 @@ extension ViewNode {
     
     func deriveLayer() -> Layer? {
         let name: ViewKind = self.name
-        let args: [ConstructorArgument] = self.arguments
+        let args: [ConstructorArgument] = self.constructorArguments
 
         // Vast majority of cases, there is a 1:1 mapping of ViewKind to Layer
         switch name {
         
         case .image:
-            switch args.first?.label?.getImageConstructor {
+            switch args.first?.label {
             case .systemName:
                 return .sfSymbol
-            case .none:
-                return nilOrDebugCrash()
+            default:
+                return .image
             }
         
         case .roundedRectangle:
-            return nilOrDebugCrash()
+            return nil // nilOrDebugCrash()
         
         case .rectangle: return .rectangle
         case .ellipse: return .oval
@@ -79,18 +79,22 @@ extension ViewNode {
         case .videoPlayer: return .video
         case .model3D: return .model3D
         
-        case .circle: return nil
+        case .circle: return nil // oval but not quite the same..
         case .capsule: return nil
-        case .path: return nil
-        case .color: return nil
-        case .linearGradient: return nil
-        case .radialGradient: return nil
-        case .angularGradient: return nil
-        case .material: return nil
-        case .canvas: return nil
+        case .path: return nil // Canvas sketch ?
+        case .color: return nil // both Layer.hitArea AND Layer.colorFill
+        
+        case .linearGradient: return .linearGradient
+        case .radialGradient: return .radialGradient
+        case .angularGradient: return .angularGradient
+        case .material: return .material
+        
+        // TODO: JUNE 24: what actually is SwiftUI sketch ?
+        case .canvas: return .canvasSketch
             
-        // Just TextField with a specific .keyboardType ? So need to look at modifiers as well ?
-        case .secureField: return nil
+        case .secureField:
+            // TODO: JUNE 24: ought to return `(Layer.textField, LayerInputPort.keyboardType, UIKeyboardType.password)` ? ... so a SwiftUI View can correspond to more than just a Layer ?
+            return .textField
             
         case .label: return nil
         case .asyncImage: return nil
@@ -126,48 +130,47 @@ extension ViewNode {
         case .timelineSchedule: return nil
         case .custom(_): return nil
         }
-        
     }
     
     // dervied from modifiers and constructor arguments
-    func deriveSetInputAndIncomingEdgeActions(_ layer: Layer) -> [StitchAction] {
+    func deriveSetInputAndIncomingEdgeActions(_ layer: Layer) -> [VPLLayerConcept] {
         
-        var actions = [StitchAction]()
+        var actions = [VPLLayerConcept]()
         
         // iterate through constructor arguments
-        for arg in self.arguments {
+        for arg in self.constructorArguments {
+            
+            guard let port = arg.toLayerInput(layer) else {
+                log("deriveSetInputAndIncomingEdgeActions: could not handle constructor argument label: \(arg.label)")
+                // fatalErrorIfDebug()
+                continue
+            }
+            
             switch arg.syntaxKind {
-                
+            
             case .literal:
-//                let labelString = arg.label ?? ""
                 actions.append(
-                    .setLayerInput(
-                        SASetLayerInput(
-//                            kind: ModifierKind(rawValue: labelString),
-                            
-                            // TODO: JUNE 24: if a constructor-arg does not have a label (e.g. `Text("love")`), should that be a nil-label or a .noLabel case for the associated SwiftUI View ?
-                            kind: arg.label!.toLayerInput!,
-                            
-                            // SwiftUI allows `.padding()` with no arg at all,
-                            // but Stitch requires
-                            value: arg.value ?? ""
-                        )
-                    )
+                    .layerInputSet(VPLLayerInputSet(kind: port,
+                                                    value: arg.value))
                 )
                 
             case .expression, .variable:
                 actions.append(
-                    .incomingEdge(
-//                        SAIncomingEdge(name: arg.label ?? "")
-                        // TODO: JUNE 24: SEE ABOVE TOO
-                        SAIncomingEdge(name: arg.label!.toLayerInput!)
-                    )
+                    .incomingEdge(VPLIncomingEdge(name: port))
                 )
-            }
+            } // switch
+            
         } // for arg in ...
 
         // iterate through modifiers
         for modifier in self.modifiers {
+            
+            guard let port = modifier.kind.toLayerInput(layer) else {
+                log("could not create layer input for modifier \(modifier)")
+                continue
+            }
+            
+            // JUNE 24: PROPERLY HANDLE WHEN INPUT HAS ONE FIELD WITH A LITERAL AND ANOTHER FIELD WITH AN INCOMING EDGE
             let allLiteral = modifier.arguments.allSatisfy {
                 if case .literal = $0.syntaxKind { return true }
                 return false
@@ -184,55 +187,35 @@ extension ViewNode {
                 }
                 
                 let joined = parts.joined(separator: ", ")
-                actions.append(
-                    .setLayerInput(
-                        SASetLayerInput(kind: modifier.kind.toLayerInput(layer: layer)!,
-                                        value: joined)
-                    )
-                )
+                actions.append(.layerInputSet(VPLLayerInputSet(kind: port,
+                                                               value: joined)))
             } else {
                 // Emit ONE action per argument
                 for arg in modifier.arguments {
-                    
-//                    let actionName: String
-//                    let modName = modifier.kind.rawValue
-//                    
-//                    if let label = arg.label, !label.isEmpty {
-//                        actionName = "\(modName).\(label)"
-//                    } else {
-//                        actionName = modName
-//                    }
-                    
                     switch arg.syntaxKind {
-                        
                     case .literal:
-                        actions.append(
-                            .setLayerInput(
-                                SASetLayerInput(kind: modifier.kind.toLayerInput(layer: layer)!, //ModifierKind(rawValue: actionName),
-                                                value: arg.value)
-                            )
-                        )
-                        
+                    actions.append(.layerInputSet(VPLLayerInputSet(kind: port,
+                                                                   value: arg.value)))
                     case .variable, .expression:
-                        actions.append(
-                            .incomingEdge(SAIncomingEdge(name: modifier.kind.toLayerInput(layer: layer)!))
-                        )
+                        actions.append(.incomingEdge(VPLIncomingEdge(name: port)))
                     }
                 }
             }
+            
         } // for modifier in ...
         
         return actions
     }
     
-    
     // TODO: actually use this; i.e. update SASetLayerInput to use LayerInputPort
     func deriveLayerInputPorts(_ layer: Layer) -> LayerInputPortSet {
         
-        let portsFromConstructorArgs = self.arguments.compactMap { $0.label?.toLayerInput }
+        let portsFromConstructorArgs = self.constructorArguments.compactMap {
+            $0.toLayerInput(layer)
+        }
         
         let portsFromModifiers = self.modifiers.compactMap {
-            $0.kind.toLayerInput(layer: layer)
+            $0.kind.toLayerInput(layer)
         }
         
         let ports = portsFromConstructorArgs + portsFromModifiers
@@ -282,14 +265,14 @@ enum FromLayerInputToSwiftUI {
     // e.g. `Text(<textValue>) -> LayerInputPort.text`
     // e.g. `Image(systemName:) -> LayerInputPort.sfSymbol`
     // e.g. `Image(uiImage:) -> LayerInputPort.media`
-    case constructorArgument(ConstructorArgumentLabel)
+    case constructorArgument(ConstructorArgument)
     
     // Simple conversion where a SwiftUI view modifier corresponds to a single LayerInputPort
     // e.g. `.scaleEffect -> LayerInputPort.scale`
     // e.g. `.opacity -> LayerInputPort.opacity`
     
     // see `mapModifierToLayerInput` for handling really simple cases like this
-    case modifier(ModifierKind)
+    case modifier(Modifier)
     
     case function(ConversionFunction)
     
@@ -298,7 +281,7 @@ enum FromLayerInputToSwiftUI {
 }
 
 
-
+// TODO: JUNE 24: a more complex mapping
 enum ConversionFunction {
     // LayerInputPort.anchoring, which is a function of a layer size, layer position, layer anchoring and parent size
     case anchoring

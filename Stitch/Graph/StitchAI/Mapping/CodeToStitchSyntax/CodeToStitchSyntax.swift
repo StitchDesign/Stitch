@@ -127,12 +127,12 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             let viewNode = ViewNode(
                 name: .init(from: viewName),
                 // This is creat
-                arguments: parseArgumentsForConstructor(from: node),
+                constructorArguments: parseArgumentsForConstructor(from: node),
                 modifiers: [],
                 children: [],
                 id: generateUniqueID(for: viewName)
             )
-            log("Created new ViewNode for \(viewName) with \(viewNode.arguments.count) arguments")
+            log("Created new ViewNode for \(viewName) with \(viewNode.constructorArguments.count) arguments")
             
             // Set as root or add as child to current node
             if viewStack.isEmpty {
@@ -171,11 +171,19 @@ class SwiftUIViewVisitor: SyntaxVisitor {
 
     // Parse arguments from function call
     private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [ConstructorArgument] {
-        let arguments = node.arguments.map { argument in
-            let label: String? = argument.label?.text
+        
+        let arguments = node.arguments.compactMap { (argument) -> ConstructorArgument? in
+            
+            guard let label = ConstructorArgumentLabel.from(argument.label?.text) else {
+                // If we cannot
+                log("could not create constructor argument label for argument.label: \(String(describing: argument.label))")
+                return nil
+            }
+            
             let expression = argument.expression
+            
             return ConstructorArgument(
-                label: label.map { ConstructorArgumentLabel.from($0) } ?? nil,
+                label: label,
                 value: expression.trimmedDescription,
                 syntaxKind: .fromExpression(expression)
             )
@@ -307,7 +315,7 @@ func testSwiftUIToViewNode(swiftUICode: String) {
     if let viewNode = parseSwiftUICode(swiftUICode) {
         print("\n==== PARSED VIEWNODE RESULT ====\n")
         print("Name: \(viewNode.name.string)")
-        print("Arguments: \(viewNode.arguments)")
+        print("Arguments: \(viewNode.constructorArguments)")
         print("Modifiers (\(viewNode.modifiers.count)):")
         for (index, modifier) in viewNode.modifiers.enumerated() {
             print("  [\(index)] \(modifier.kind.rawValue))")

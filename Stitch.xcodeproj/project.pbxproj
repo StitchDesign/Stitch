@@ -878,7 +878,6 @@
 		ECB238C92E0A192E00D55A25 /* ViewKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238C82E0A192E00D55A25 /* ViewKind.swift */; };
 		ECB238CB2E0A194E00D55A25 /* ViewModifierKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238CA2E0A194D00D55A25 /* ViewModifierKind.swift */; };
 		ECB238CD2E0A469200D55A25 /* ViewModifierToLayerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238CC2E0A469200D55A25 /* ViewModifierToLayerInput.swift */; };
-		ECB238CF2E0A6CFB00D55A25 /* LayerToView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238CE2E0A6CFB00D55A25 /* LayerToView.swift */; };
 		ECB33C6226F15A1C0069885B /* DeviceAndIdentityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB33C6126F15A1C0069885B /* DeviceAndIdentityUtils.swift */; };
 		ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */; };
 		ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD52DB14D80006EFB93 /* StitchEngine */; };
@@ -1981,7 +1980,6 @@
 		ECB238C82E0A192E00D55A25 /* ViewKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewKind.swift; sourceTree = "<group>"; };
 		ECB238CA2E0A194D00D55A25 /* ViewModifierKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifierKind.swift; sourceTree = "<group>"; };
 		ECB238CC2E0A469200D55A25 /* ViewModifierToLayerInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifierToLayerInput.swift; sourceTree = "<group>"; };
-		ECB238CE2E0A6CFB00D55A25 /* LayerToView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerToView.swift; sourceTree = "<group>"; };
 		ECB33C6126F15A1C0069885B /* DeviceAndIdentityUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAndIdentityUtils.swift; sourceTree = "<group>"; };
 		ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardHeightReadable.swift; sourceTree = "<group>"; };
 		ECB46CDA2DB171B5006EFB93 /* LayerInputFieldBlocking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputFieldBlocking.swift; sourceTree = "<group>"; };
@@ -5151,7 +5149,6 @@
 				ECB238C22E0A10D900D55A25 /* StitchSyntaxExamples.swift */,
 				EC66D0442E0728FB00355ED8 /* StitchSyntaxHelpers.swift */,
 				ECB238C02E0A10B400D55A25 /* LayerInputToViewModifier.swift */,
-				ECB238CE2E0A6CFB00D55A25 /* LayerToView.swift */,
 				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
 			);
 			path = Syntax;
@@ -6095,7 +6092,6 @@
 				EC8C5C272616709B0099C374 /* ClassicAnimation.swift in Sources */,
 				B5849FF92DFC8BCE00D668ED /* StepTypeDefinitions_V0.swift in Sources */,
 				EC135E142BBC460E003AB96F /* SpringHelpers.swift in Sources */,
-				ECB238CF2E0A6CFB00D55A25 /* LayerToView.swift in Sources */,
 				EC5263032B59D83600EE1E52 /* HandleStitchAction.swift in Sources */,
 				B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */,
 				EC49149E293596E100D74344 /* SplitTextNode.swift in Sources */,

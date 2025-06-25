@@ -20,13 +20,13 @@ func swiftUICode(from node: ViewNode, indentation: String = "") -> String {
     code += node.name.string
     
     // Add arguments in parentheses if there are any
-    if !node.arguments.isEmpty {
+    if !node.constructorArguments.isEmpty {
         code += "("
         
         // Add each argument
-        let args = node.arguments.enumerated().map { index, arg -> String in
+        let args = node.constructorArguments.enumerated().map { index, arg -> String in
             // If there's a label, include it followed by a colon
-            let label = arg.label != nil ? "\(arg.label!): " : ""
+            let label = arg.label.rawValue.isEmpty ? "" : "\(arg.label.rawValue): "
             return "\(label)\(arg.value)"
         }.joined(separator: ", ")
         
@@ -65,7 +65,7 @@ func swiftUICode(from node: ViewNode, indentation: String = "") -> String {
     
     // Add children in a closure if there are any
     if !node.children.isEmpty {
-        if node.arguments.isEmpty {
+        if node.constructorArguments.isEmpty {
             code += " {"
         } else {
             code += "{" // Add space before brace for views with arguments
