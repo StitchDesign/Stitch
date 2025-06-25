@@ -166,11 +166,10 @@ Stitch doesn't support usage of the following view modifiers:
 ### Disallowed Views
 * `GeometryReader`: use the "deviceInfo || Patch" native patch funciton for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
 
-
-
-
-
-
+The full list of unsupported views includes:
+```
+\(SyntaxViewName.unsupportedViews)
+```
 
 ### Other Disallowed Behavior
 In most scenarios, you should not need to replicate functionality that would involve usage of class objects or usage of libraries other than SwiftUI. Native patch nodes largely handle these scenarios for you. Each listed scenario must use native patch nodes.
