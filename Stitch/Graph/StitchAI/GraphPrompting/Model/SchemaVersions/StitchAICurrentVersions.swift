@@ -5,31 +5,34 @@
 //  Created by Elliot Boschwitz on 6/1/25.
 //
 
-//#if !STITCH_AI_V1
-//typealias CurrentStep = Step_V0
-//typealias CurrentStepType = StepType_V0
-//typealias CurrentStitchAIPortValue = StitchAIPortValue_V0
-//typealias CurrentStitchAIPosition = StitchAIPosition_V0
-//typealias CurrentStitchAIUUID = StitchAIUUID_V0
-//typealias CurrentStitchAIColor = StitchAIColor_V0
-//typealias CurrentStitchAISize = StitchAISize_V0
-//typealias CurrentStitchAISizeDimension = StitchAISizeDimension_V0
-//typealias CurrentJavaScriptNodeSettingsAI = JavaScriptNodeSettingsAI_V0
-//typealias CurrentJavaScriptPortDefinitionAI = JavaScriptPortDefinitionAI_V0
-//typealias CurrentAIGraphCreationRequestBody = AIGraphCreationRequestBody_V0
-//typealias CurrentAIGraphDescriptionRequestBody = AIGraphDescriptionRequestBody_V0
-//typealias CurrentAIEditJsSystemPrompt = AIEditJsNodeSystemPrompt_V0
-//typealias CurrentAIGraphCreationResponseFormat = AIGraphCreationResponseFormat_V0
-//typealias CurrentAIEditJsNodeResponseFormat = AIEditJsNodeResponseFormat_V0
-//typealias CurrentAIEditJsNodeRequestBody = AIEditJsNodeRequestBody_V0
-//typealias CurrentStitchAIRequestBodyFormattable = StitchAIRequestBodyFormattable_V0
-//typealias CurrentAIGraphCreationContentJSON = AIGraphCreationContentJSON_V0
-//typealias CurrentStepActionAddNode = StepActionAddNode_V0
-//typealias CurrentStepActionConnectionAdded = StepActionConnectionAdded_V0
-//typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V0
-//typealias CurrentStepActionSetInput = StepActionSetInput_V0
-//typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V0
-//#else
+#if !STITCH_AI_V1
+typealias CurrentStep = Step_V0
+typealias CurrentStepType = StepType_V0
+typealias CurrentStitchAIPortValue = StitchAIPortValue_V0
+typealias CurrentStitchAIPosition = StitchAIPosition_V0
+typealias CurrentStitchAIUUID = StitchAIUUID_V0
+typealias CurrentStitchAIColor = StitchAIColor_V0
+typealias CurrentStitchAISize = StitchAISize_V0
+typealias CurrentStitchAISizeDimension = StitchAISizeDimension_V0
+typealias CurrentJavaScriptNodeSettingsAI = JavaScriptNodeSettingsAI_V0
+typealias CurrentJavaScriptPortDefinitionAI = JavaScriptPortDefinitionAI_V0
+typealias CurrentAIGraphCreationRequestBody = AIGraphCreationRequestBody_V0
+typealias CurrentAIGraphDescriptionRequestBody = AIGraphDescriptionRequestBody_V0
+typealias CurrentAIEditJsSystemPrompt = AIEditJsNodeSystemPrompt_V0
+typealias CurrentAIGraphCreationResponseFormat = AIGraphCreationResponseFormat_V0
+typealias CurrentAIEditJsNodeResponseFormat = AIEditJsNodeResponseFormat_V0
+typealias CurrentAIEditJsNodeRequestBody = AIEditJsNodeRequestBody_V0
+typealias CurrentStitchAIRequestBodyFormattable = StitchAIRequestBodyFormattable_V0
+typealias CurrentAIGraphCreationContentJSON = AIGraphCreationContentJSON_V0
+typealias CurrentStepActionAddNode = StepActionAddNode_V0
+typealias CurrentStepActionConnectionAdded = StepActionConnectionAdded_V0
+typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V0
+typealias CurrentStepActionSetInput = StepActionSetInput_V0
+typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V0
+typealias CurrentAIPatchServiceRequestBody = AIPatchServiceRequestBody_V0
+typealias CurrentAIPatchBuilderRequestBody = AIPatchBuilderRequestBody_V0
+typealias CurrentAIPatchBuilderResponseFormat = AIPatchBuilderResponseFormat_V0
+#else
 typealias CurrentStep = Step_V1
 typealias CurrentStepType = StepType_V1
 typealias CurrentStitchAIPortValue = StitchAIPortValue_V1
@@ -53,7 +56,7 @@ typealias CurrentStepActionConnectionAdded = StepActionConnectionAdded_V1
 typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V1
 typealias CurrentStepActionSetInput = StepActionSetInput_V1
 typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V1
-//#endif
+#endif
 
 typealias Step = CurrentStep.Step
 typealias Steps = [Step]
@@ -83,3 +86,5 @@ typealias StepActionConnectionAdded = CurrentStepActionConnectionAdded.StepActio
 typealias StepActionChangeValueType = CurrentStepActionChangeValueType.StepActionChangeValueType
 typealias StepActionSetInput = CurrentStepActionSetInput.StepActionSetInput
 typealias StepActionLayerGroupCreated = CurrentStepActionLayerGroupCreated.StepActionLayerGroupCreated
+typealias AIPatchServiceRequestBody = CurrentAIPatchServiceRequestBody.AIPatchServiceRequestBody
+typealias AIPatchBuilderRequestBody = CurrentAIPatchBuilderRequestBody.AIPatchBuilderRequestBody

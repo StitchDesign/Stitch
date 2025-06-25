@@ -129,6 +129,8 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var stitchAITrainingTip = StitchAITrainingTip()
     
+    @MainActor var showTestAIModal: Bool = false
+    
 #if !targetEnvironment(macCatalyst)
     @MainActor var selectedTab = ProjectTab.patch
 #endif

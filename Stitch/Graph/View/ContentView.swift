@@ -14,6 +14,7 @@ import StitchSchemaKit
 
 struct ContentView: View, KeyboardReadable {
     @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
+    @State private var testAIPrompt = ""
     
     // Controlled by a GeometryReader that respects keyboard safe-area,
     // so that menuOrigin respects actual height of screen
@@ -151,7 +152,75 @@ struct ContentView: View, KeyboardReadable {
             }
         }, message: {
             Text("Describe your selected subgraph.")
-        })        
+        })
+        .alert("Build a Patch Graph from Existing Layers",
+               isPresented: self.$document.showTestAIModal,
+               actions: {
+            TextField("Prompt", text: self.$testAIPrompt)
+            
+            StitchButton("Create") {
+                let layerList = document.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
+                
+                do {
+                    let request = try AIPatchServiceRequest(
+                        prompt: testAIPrompt,
+                        layerList: layerList)
+                    
+                    Task(priority: .high) { [weak document] in
+                        guard let document = document,
+                              let aiManager = document.aiManager else {
+                            return
+                        }
+                        
+                        let result = await request.request(document: document,
+                                                           aiManager: aiManager)
+                        switch result {
+                        case .success(let jsSourceCode):
+                            print("SUCCESS Patch Service:\n\(jsSourceCode)")
+                            
+                            let patchBuilderRequest = try AIPatchBuilderRequest(
+                                prompt: testAIPrompt,
+                                jsSourceCode: jsSourceCode,
+                                layerList: layerList)
+                            
+                            let patchBuilderResult = await patchBuilderRequest
+                                .request(document: document,
+                                         aiManager: aiManager)
+                            
+                            switch patchBuilderResult {
+                            case .success(let patchBuildResult):
+                                print("SUCCESS Patch Builder:\n\(patchBuildResult)")
+                                await MainActor.run { [weak document] in
+                                    guard let document = document else { return }
+                                    
+                                    do {
+                                        try patchBuildResult.apply(to: document)
+                                    } catch {
+                                        fatalErrorIfDebug(error.localizedDescription)
+                                    }
+                                }
+                                
+                            case .failure(let failure):
+                                fatalErrorIfDebug(failure.localizedDescription)
+                            }
+                            
+                        case .failure(let failure):
+                            fatalErrorIfDebug(failure.localizedDescription)
+                        }
+                    }
+                } catch {
+                    fatalErrorIfDebug(error.localizedDescription)
+                }
+                
+                self.testAIPrompt = ""
+            }
+//                    .disabled(testAIPrompt.isEmpty)
+            
+            StitchButton("Cancel", role: .cancel) {
+                self.testAIPrompt = ""
+            }
+        }
+        )
     }
     
     private var fullScreenPreviewView: some View {

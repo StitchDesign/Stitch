@@ -275,6 +275,13 @@
 		B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */; };
 		B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */; };
 		B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */; };
+		B5B31CD42E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CD02E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift */; };
+		B5B31CD72E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5B31CD22E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md */; };
+		B5B31CDA2E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */; };
+		B5B31CDC2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */; };
+		B5B31CDE2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */; };
+		B5B31CE42E0A27FA003EABA2 /* AIPatchServiceRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */; };
+		B5B31CE62E0A3232003EABA2 /* AIPatchBuilderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */; };
 		B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */; };
 		B5B8105C2D77E1C90095DA9D /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5B8105B2D77E1C90095DA9D /* StitchEngine */; };
 		B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */; };
@@ -1404,6 +1411,13 @@
 		B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenPreviewViewWrapper.swift; sourceTree = "<group>"; };
 		B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHostingController.swift; sourceTree = "<group>"; };
 		B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMediaUtils.swift; sourceTree = "<group>"; };
+		B5B31CD02E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchServiceRequestBody_V0.swift; sourceTree = "<group>"; };
+		B5B31CD22E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIPatchServiceSystemPrompt_V0.md; sourceTree = "<group>"; };
+		B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderRequestBody_V0.swift; sourceTree = "<group>"; };
+		B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIPatchBuilderSystemPrompt_V0.md; sourceTree = "<group>"; };
+		B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderResponseFormat_V0.swift; sourceTree = "<group>"; };
+		B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchServiceRequest.swift; sourceTree = "<group>"; };
+		B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderRequest.swift; sourceTree = "<group>"; };
 		B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDefinition.swift; sourceTree = "<group>"; };
 		B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordiante.swift; sourceTree = "<group>"; };
 		B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemViewModel.swift; sourceTree = "<group>"; };
@@ -2433,6 +2447,8 @@
 		B5136F432DED0AAF007F12D0 /* V0 */ = {
 			isa = PBXGroup;
 			children = (
+				B5B31CD32E05F7C9003EABA2 /* AIPatchService */,
+				B5B31CD82E09F3B7003EABA2 /* AIPatchBuilder */,
 				B525786D2DF510C4003ABD2C /* AIGraphDescription */,
 				B53BF63A2DF0A05E004EA770 /* AIGraphCreation */,
 				B53BF6412DF0AC09004EA770 /* AIEditJsNode */,
@@ -4331,6 +4347,25 @@
 			path = ScreenRecorder;
 			sourceTree = "<group>";
 		};
+		B5B31CD32E05F7C9003EABA2 /* AIPatchService */ = {
+			isa = PBXGroup;
+			children = (
+				B5B31CD02E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift */,
+				B5B31CD22E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md */,
+			);
+			path = AIPatchService;
+			sourceTree = "<group>";
+		};
+		B5B31CD82E09F3B7003EABA2 /* AIPatchBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */,
+				B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */,
+				B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */,
+			);
+			path = AIPatchBuilder;
+			sourceTree = "<group>";
+		};
 		B5B95B962CB6D64800DA64B3 /* System */ = {
 			isa = PBXGroup;
 			children = (
@@ -4368,6 +4403,8 @@
 				EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */,
 				B5D34C8D2DF5391F007405BF /* AIGraphCreationRequest.swift */,
 				B5D34C8F2DF53947007405BF /* AIGraphDescriptionRequest.swift */,
+				B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */,
+				B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */,
 				B5D34C912DF53966007405BF /* AIJsNodeEditRequest.swift */,
 			);
 			path = RequestTypes;
@@ -5549,10 +5586,12 @@
 				B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */,
 				B5A8899A2DFBD2F6000A8148 /* AIGraphCreationSystemPrompt_V0.md in Resources */,
 				B5EE9A962DE66D0A00DB85C3 /* README.md in Resources */,
+				B5B31CD72E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
+				B5B31CDC2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5691,6 +5730,7 @@
 				B5849FE72DFBDF3600D668ED /* StepType_V1.swift in Sources */,
 				B5849FE82DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift in Sources */,
 				B5849FE92DFBDF3600D668ED /* StitchAINodeType_V1.swift in Sources */,
+				B5B31CDA2E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift in Sources */,
 				B5849FEA2DFBDF3600D668ED /* Step_V1.swift in Sources */,
 				B5849FEB2DFBDF3600D668ED /* AIGraphDescriptionRequestBody_V1.swift in Sources */,
 				B5849FEC2DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift in Sources */,
@@ -5717,6 +5757,7 @@
 				EC75FA8C2DE034C600FF87E8 /* OpenAIRequestConfig.swift in Sources */,
 				B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */,
 				ECD83E9E2D4D87AD002B7A3E /* LLMActionPositionNodeUtil.swift in Sources */,
+				B5B31CDE2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift in Sources */,
 				B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */,
 				B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */,
 				EC6C68D02937CA800023B700 /* ReverseProgressNode.swift in Sources */,
@@ -5944,6 +5985,7 @@
 				EC0093DC26D6B8BA000EAE08 /* AbsoluteValueNode.swift in Sources */,
 				B5C53FAF2CED1FAC0069612E /* NodeLayout.swift in Sources */,
 				EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */,
+				B5B31CE62E0A3232003EABA2 /* AIPatchBuilderRequest.swift in Sources */,
 				B5C553992DDBFF80005B7766 /* InsertNodeCommands.swift in Sources */,
 				B55500B62C1B98B00081C3F1 /* SingleDropdownKind.swift in Sources */,
 				ECE35EDE27CEDB7100CB8F5C /* LayerDimensionUtils.swift in Sources */,
@@ -6250,6 +6292,7 @@
 				B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */,
 				ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */,
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
+				B5B31CE42E0A27FA003EABA2 /* AIPatchServiceRequest.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
 				ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
@@ -6294,6 +6337,7 @@
 				ECB801E12640892F00C93449 /* FileImportView.swift in Sources */,
 				ECC558A1294A91EC0025BB42 /* LayerDraggedHelpers.swift in Sources */,
 				ECE2AFEC2C0A475F00F5FE87 /* InsertNodeMenuState.swift in Sources */,
+				B5B31CD42E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift in Sources */,
 				B5E0DDFA28DBF4B90080BE71 /* StitchFileManagerProject.swift in Sources */,
 				EC560E11293A80EE00350046 /* LoopOptionSwitchNode.swift in Sources */,
 				ECDE943228089DF500005401 /* NodeView.swift in Sources */,
@@ -7325,6 +7369,156 @@
 			};
 			name = "Dev Debug";
 		};
+		B5B31CDF2E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = STITCH_AI_TESTING;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = "Stitch AI Testing";
+		};
+		B5B31CE02E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 510;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = Stitch/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.7.5;
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = "Stitch AI Testing";
+		};
+		B5B31CE12E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				INFOPLIST_FILE = StitchTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitchTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/Stitch";
+			};
+			name = "Stitch AI Testing";
+		};
+		B5B31CE22E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = StitchQuickLookExtension/StitchQuickLookExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StitchQuickLookExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StitchQuickLookExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.61;
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch.quicklook;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Stitch AI Testing";
+		};
 		B5B54E27295A2AC400D1E45D /* Local Only */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7573,6 +7767,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				200BD864254F66EE00692903 /* Debug */,
+				B5B31CDF2E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7362E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F62DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E27295A2AC400D1E45D /* Local Only */,
@@ -7586,6 +7781,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				200BD867254F66EE00692903 /* Debug */,
+				B5B31CE02E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7372E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F72DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E28295A2AC400D1E45D /* Local Only */,
@@ -7599,6 +7795,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				208AFA9325D45B440035B250 /* Debug */,
+				B5B31CE12E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7382E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F82DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E29295A2AC400D1E45D /* Local Only */,
@@ -7612,6 +7809,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E4CC7D1C28F48EF7008EA1C0 /* Debug */,
+				B5B31CE22E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7392E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F92DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E2A295A2AC400D1E45D /* Local Only */,
