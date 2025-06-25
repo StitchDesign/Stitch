@@ -199,8 +199,6 @@ extension CurrentStep.Patch {
                 .indexOf, .subarray, .setValueForKey, .valueForKey, .valueAtIndex,
                 .valueAtPath:
             return .arrayOperation
-        case .javascript:
-            return .jsAINode
         }
     }
 }

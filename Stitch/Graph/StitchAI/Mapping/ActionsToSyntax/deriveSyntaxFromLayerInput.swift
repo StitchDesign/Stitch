@@ -10,9 +10,8 @@ import Foundation
 
 // TODO: JUNE 24: how to handle loops? ... note: this is not used anywhere yet
 extension LayerInputPort {
-    func toSwiftUISyntax(_ viewNode: SyntaxView,
-                   port: StitchValueOrEdge, // loops? should pass in `value` ?
-                   layer: Layer) -> FromLayerInputToSyntax {
+    func toSwiftUISyntax(port: StitchValueOrEdge, // loops? should pass in `value` ?
+                         layer: Layer) -> FromLayerInputToSyntax {
         
         // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. can handle .opacity but not .frame
         let buildModifier = { (kind: SyntaxViewModifierName) -> SyntaxViewModifier in

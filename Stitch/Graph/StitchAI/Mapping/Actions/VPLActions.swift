@@ -31,9 +31,7 @@ struct VPLLayer: Equatable, Codable, Hashable {
 /// A concrete, typed mapping from a SwiftUI modifier (or initialiser label)
 /// to a value in the visual‑programming layer.
 struct VPLLayerInputSet: Equatable, Codable, Hashable {
-    
     let id: UUID // WHICH layer's layer input is being updated
-    
     let input: LayerInputPort
     
     // TODO: JUNE 24: use PortValue instead of String; reuse parsing logic from StepAction parsing etc. ?
