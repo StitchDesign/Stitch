@@ -7,22 +7,61 @@
 
 import SwiftUI
 
+
+extension ActionsToSyntaxToCodeExploratoryView {
+        
+    static let example1: VPLLayerConceptOrderedSet = {
+        let id = UUID()
+        return [
+            .layer(.init(id: id, name: .rectangle, children: [])),
+            .layerInputSet(.init(id: id, input: .color, value: "Color.red")),
+            .layerInputSet(.init(id: id, input: .opacity, value: "0.5")),
+            .layerInputSet(.init(id: id, input: .scale, value: "2")),
+        ]
+    }()
+    
+    static let example2: VPLLayerConceptOrderedSet = {
+        let id = UUID()
+        return [
+            .layer(.init(id: id, name: .oval, children: [])),
+            .layerInputSet(.init(id: id, input: .color, value: "Color.blue")),
+            .layerInputSet(.init(id: id, input: .opacity, value: "0.5")),
+            .layerInputSet(.init(id: id, input: .scale, value: "2")),
+        ]
+    }()
+    
+    static let example3: VPLLayerConceptOrderedSet = {
+        let id = UUID()
+        return [
+            .layer(.init(id: id, name: .text, children: [])),
+            .layerInputSet(.init(id: id, input: .color, value: "Color.green")),
+            .layerInputSet(.init(id: id, input: .zIndex, value: "88")),
+            .layerInputSet(.init(id: id, input: .clipped, value: "true")),
+            .layerInputSet(.init(id: id, input: .scale, value: "2")),
+        ]
+    }()
+    
+    static let example4: VPLLayerConceptOrderedSet = {
+        let id = UUID()
+        return [
+            .layer(.init(id: id, name: .sfSymbol, children: [])),
+            .layerInputSet(.init(id: id, input: .color, value: "Color.green")),
+            .layerInputSet(.init(id: id, input: .sfSymbol, value: "star.fill")),
+            .layerInputSet(.init(id: id, input: .scale, value: "2")),
+        ]
+    }()
+}
+
 /// Playground view that lets you:
 /// 1. Paste or edit a JSON array of StitchActions (`VPLLayerConceptOrderedSet`),
 /// 2. Convert them into a `SyntaxView`,
 /// 3. Generate the equivalent SwiftUI source code – all side‑by‑side.
 struct ActionsToSyntaxToCodeExploratoryView: View {
 
-    static let demoLayerId = UUID()
+    
     
     // MARK: - UI State
-    @State private var actionsText: String = "[]"        // editable JSON
-    @State private var actions: VPLLayerConceptOrderedSet = [
-        .layer(.init(id: Self.demoLayerId, name: .rectangle, children: [])),
-        .layerInputSet(.init(id: Self.demoLayerId, input: .color, value: "Color.red")),
-        .layerInputSet(.init(id: Self.demoLayerId, input: .opacity, value: "0.5")),
-        .layerInputSet(.init(id: Self.demoLayerId, input: .scale, value: "2")),
-    ]
+    @State private var actions = Self.example1
     @State private var syntaxView: SyntaxView?
     @State private var swiftUICodeString: String = ""
     @State private var errorMessage: String?

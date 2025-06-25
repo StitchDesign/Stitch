@@ -41,13 +41,18 @@ struct StitchApp: App {
         FirebaseApp.configure()
     }
 
+#if DEV_DEBUG
     var body: some Scene {
         WindowGroup {
-              
-//            ActionsToSyntaxToCodeExploratoryView()
-//            CodeToSyntaxToActionsExploratoryView()
-//            CodeToSyntaxExploratoryView()
-//            SyntaxToCodeExploratoryView()
+            ActionsToSyntaxToCodeExploratoryView()
+            //            CodeToSyntaxToActionsExploratoryView()
+            //            CodeToSyntaxExploratoryView()
+            //            SyntaxToCodeExploratoryView()
+        }
+    }
+#else
+    var body: some Scene {
+        WindowGroup {
             
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
@@ -111,5 +116,6 @@ struct StitchApp: App {
         }
         #endif
     }
+#endif
 }
 
