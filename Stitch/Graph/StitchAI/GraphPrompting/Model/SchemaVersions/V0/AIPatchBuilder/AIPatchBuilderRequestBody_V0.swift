@@ -12,9 +12,9 @@ enum AIPatchBuilderRequestBody_V0 {
     struct AIPatchBuilderRequestBody: StitchAIRequestBodyFormattable {
         static let markdownLocation = "AIPatchBuilderSystemPrompt_V0"
         
-        let model: String = "gpt-4o-2024-08-06"
+        let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
-        let temperature: Double = 0.0
+        let temperature: Double = 1.0
         let response_format = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
         let messages: [OpenAIMessage]
         let stream: Bool = false

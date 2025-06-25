@@ -23,16 +23,19 @@ enum AIPatchBuilderResponseFormat_V0 {
         let defs = PatchBuilderStructuredOutputsDefinitions()
         let schema = OpenAISchema(type: .object,
                                   properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                  required: ["patches", "patch_connections", "layer_connections", "custom_input_values"])
+                                  required: ["javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_input_values"])
         let strict = true
     }
 
     struct PatchBuilderStructuredOutputsDefinitions: Encodable {
-        // Types
+        // Value Types
         let ValueType = OpenAISchemaEnum(values: Step_V0.NodeType.allCases
             .filter { $0 != .none }
             .map { $0.asLLMStepNodeType }
         )
+        
+        // Node Kinds
+        let NodeName = OpenAISchemaEnum(values: Step_V0.NodeKind.getAiNodeDescriptions().map(\.nodeKind))
         
         let LayerPorts = OpenAISchemaEnum(values: Step_V0.LayerInputPort.allCases
             .map { $0.asLLMStepPort }
@@ -45,10 +48,16 @@ enum AIPatchBuilderResponseFormat_V0 {
             properties: NodeIndexedCoordinateSchema(),
             required: ["node_id", "port_index"])
         
-        let patches = OpenAISchema(
+        let javascript_patches = OpenAISchema(
             type: .array,
             required: ["node_id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"],
-            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.PatchNodeSchema()])
+            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.JsPatchNodeSchema()])
+        )
+        
+        let native_patches = OpenAISchema(
+            type: .array,
+            required: ["node_id", "node_name"],
+            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.NativePatchNodeSchema()])
         )
         
         let patch_connections = OpenAISchema(
@@ -76,7 +85,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         )
     }
 
-    struct PatchNodeSchema: Encodable {
+    struct JsPatchNodeSchema: Encodable {
         static let portDefinitions = AIEditJsNodeResponseFormat_V0.JsNodeSettingsSchema.portDefinitions
         
         let node_id = OpenAISchema(type: .string)
@@ -84,6 +93,11 @@ enum AIPatchBuilderResponseFormat_V0 {
         let javascript_source_code = OpenAISchema(type: .string)
         let input_definitions = Self.portDefinitions
         let output_definitions = Self.portDefinitions
+    }
+    
+    struct NativePatchNodeSchema: Encodable {
+        let node_id = OpenAISchema(type: .string)
+        let node_name = OpenAISchemaRef(ref: "NodeName")
     }
     
     struct PatchConnectionSchema: Encodable {
@@ -131,19 +145,25 @@ enum AIPatchBuilderResponseFormat_V0 {
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
     struct GraphData: Codable {
-        let patches: [AIPatchBuilderResponseFormat_V0.PatchNode]
+        let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
+        let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
 //        let layers: [Self.LayerNode]
         let patch_connections: [PatchConnection]
         let layer_connections: [LayerConnection]
         let custom_patch_input_values: [CustomPatchInputValue]
     }
     
-    struct PatchNode: Codable {
+    struct JsPatchNode: Codable {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         let javascript_source_code: String
         let suggested_title: String
         let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
         let output_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
+    }
+    
+    struct NativePatchNode: Codable {
+        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let node_name: StitchAIPatchOrLayer
     }
     
     struct PatchConnection: Codable {
@@ -173,6 +193,25 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct AILayerInputPort {
         var value: LayerInputPort_V31.LayerInputPort
+    }
+    
+    struct StitchAIPatchOrLayer: StitchAIStringConvertable {
+        var value: Step_V0.PatchOrLayer
+    }
+}
+
+extension Step_V0.PatchOrLayer: StitchAIValueStringConvertable {
+    var encodableString: String {
+        self.asLLMStepNodeName
+    }
+    
+    public init?(_ description: String) {
+        do {
+            self = try Self.fromLLMNodeName(description)
+        } catch {
+            fatalErrorIfDebug("PatchOrLayer error: \(error.localizedDescription)")
+            return nil
+        }
     }
 }
 
