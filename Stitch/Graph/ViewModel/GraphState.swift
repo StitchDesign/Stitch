@@ -938,7 +938,7 @@ extension GraphState {
     
     // Note: this assumes the LayerGroup has already been created, so e.g. cannot use in cases 
     @MainActor
-    func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
+    func getLayerChildren(for groupId: NodeId) -> NodeIdOrderedSet {
         
         guard let layerGroupItem = self.layersSidebarViewModel.items.get(groupId) else {
             log("getLayerChildren: had no sidebar item for \(groupId)")
@@ -950,7 +950,7 @@ extension GraphState {
             return .init()
         }
         
-        let layerChildren = children.map(\.id).toSet
+        let layerChildren = children.map(\.id).toOrderedSet
         log("getLayerChildren: layerChildren: \(layerChildren)")
         return layerChildren
         

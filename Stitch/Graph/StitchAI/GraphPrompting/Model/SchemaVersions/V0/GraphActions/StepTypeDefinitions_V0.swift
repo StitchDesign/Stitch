@@ -96,7 +96,7 @@ enum StepActionLayerGroupCreated_V0 {
         static let structuredOutputsCodingKeys: Set<Step_V0.Step.CodingKeys> = [.stepType, .nodeId, .children]
         
         var nodeId: NodeId
-        var children: NodeIdSet
+        var children: NodeIdOrderedSet
     
         static func createStructuredOutputs() -> AIGraphCreationResponseFormat_V0.AIGraphCreationStepSchema {
             .init(stepType: .sidebarGroupCreated,

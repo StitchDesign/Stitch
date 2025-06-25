@@ -43,31 +43,36 @@ struct StitchApp: App {
 
     var body: some Scene {
         WindowGroup {
+                        
+            //            CodeToSyntaxToActionsExploratoryView()
+            //            CodeToSyntaxExploratoryView()
+            //            SyntaxToCodeExploratoryView()
+            
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
-                    
+
                     // Load and configure the state of all the tips of the app
                     try? Tips.configure()
-                    
+
                     // For testing
                     #if DEV_DEBUG
                     try? Tips.resetDatastore()
                     #endif
-                    
+
                     dispatch(DirectoryUpdatedOnAppOpen())
-                    
+
                     SentrySDK.start { options in
                         guard let secrets = try? Secrets() else {
                             return
                         }
-                        
+
                         options.dsn = secrets.sentryDSN
                         options.enableMetricKit = true
                         options.enableMetricKitRawPayload = true
                         options.debug = false
                     }
-                    
+
                     #if !DEBUG
                     Self.configureFirebaseIfPossible()
                     #endif
@@ -95,7 +100,7 @@ struct StitchApp: App {
         .commands {
             StitchCommands(store: store,
                            activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
-          
+
         }
         
         #if targetEnvironment(macCatalyst)

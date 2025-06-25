@@ -1,0 +1,14 @@
+{
+  "languages": {
+    "swift": {
+      "sourcekitlsp": {
+        "xcodebuild": {
+          "enabled": true,
+          "project": "Stitch.xcodeproj",
+          "scheme": "Stitch",
+          "configuration": "Dev Debug"
+        }
+      }
+    }
+  }
+}

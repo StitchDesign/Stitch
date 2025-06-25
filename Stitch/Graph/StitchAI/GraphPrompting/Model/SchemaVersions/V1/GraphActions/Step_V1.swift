@@ -49,7 +49,7 @@ enum Step_V1: StitchSchemaVersionable {
         var toNodeId: StitchAIUUID?     // Target node for connections
         var value: PortValue? // Associated value data
         var valueType: NodeType?     // Type of the node
-        var children: NodeIdSet? // Child nodes if this is a group
+        var children: NodeIdOrderedSet? // Child nodes if this is a group
         
         init(stepType: StepType,
              nodeId: UUID? = nil,
@@ -60,7 +60,7 @@ enum Step_V1: StitchSchemaVersionable {
              toNodeId: UUID? = nil,
              value: PortValue? = nil,
              valueType: NodeType? = nil,
-             children: NodeIdSet? = nil) {
+             children: NodeIdOrderedSet? = nil) {
             self.stepType = stepType
             self.nodeId = .init(value: nodeId)
             self.nodeName = nodeName
@@ -140,7 +140,7 @@ enum Step_V1: StitchSchemaVersionable {
             }
 
             // Important: Layer Groups do not have node type, so we must decode children
-            self.children = try container.decodeIfPresent(NodeIdSet.self, forKey: .children)
+            self.children = try container.decodeIfPresent(NodeIdOrderedSet.self, forKey: .children)
             
             // MARK: node type required for everything below this line
             guard let nodeTypeString = try container.decodeIfPresent(String.self, forKey: .valueType) else {

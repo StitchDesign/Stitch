@@ -9,6 +9,18 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct PreviewScaleModifier: ViewModifier {
+    
+    let scale: CGFloat
+    let pivot: Anchoring
+    
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(CGFloat(scale),
+                         anchor: pivot.toPivot)
+    }
+}
+
 // To avoid a bug where GeometryReader treats a rotated view as increased in size,
 // we use _Rotation3DEffect.ignoredByLayout instead of .rotation3DEffect:
 // Discussion here: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
