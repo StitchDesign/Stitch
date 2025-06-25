@@ -143,6 +143,9 @@ Sometimes, a specific layer is looped, meaning one of the layers inputs receives
 * **When to use:** when a layer requires tracking a press interaction.
 * **Node name label:** `pressInteraction || patch`
 
+## Special Considerations for Native Nodes
+* For the `"rgbColor || Patch"` node, RGB values are processed on a decimal between 0 and 1 instead of 0 - 255.
+
 # Patch Examples
 Each function should mimic logic composed in patch nodes in Stitch (or Origami Studio). We provide an example list of patches to demonstrate the kind of functions expected in the JavaScript source code:
 ```
