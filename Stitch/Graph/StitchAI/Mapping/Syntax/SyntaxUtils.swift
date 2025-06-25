@@ -9,7 +9,7 @@ import Foundation
 
  
 // Nicely formats the nested enum so we can print it in one line
-private func describe(_ kind: ArgumentKind) -> String {
+private func describe(_ kind: SyntaxArgumentKind) -> String {
     switch kind {
     case .literal(let lit):     return "literal(\(lit))"
     case .variable(let varKind): return "variable(\(varKind))"
@@ -18,7 +18,7 @@ private func describe(_ kind: ArgumentKind) -> String {
 }
 
 // Formats a ViewNode into a readable string representation - top level so it can be reused
-func formatViewNode(_ node: ViewNode, indent: String = "") -> String {
+func formatViewNode(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)ViewNode("
     result += "\n\(indent)    name: \"\(node.name.string)\","
     

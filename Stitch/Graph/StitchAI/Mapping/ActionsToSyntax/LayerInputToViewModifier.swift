@@ -13,24 +13,13 @@ import StitchSchemaKit
 // e.g. size -> .frame
 // e.g. opacity -> .opacity
 
-/*
- TODO: this is more complicated `layer input -> SwiftUI view modifier`.
- 
- A Stitch layer input may map to tons of business logic (e.g. pinning) or a SwiftUI View constructor-argument.
- 
- 
- you actually want a data structure that's more like
- you want a single function for the mapping; so all the inputs, to all the ouput possibilities
- */
-
-
-/*
+ /*
  a couple things you want to know:
  - I want a "create layer" action. What do I need to know, from the ViewNode?
  - I want a "set layer input" action. What do I need to know, from the ViewNode?
  */
 
-extension ViewNode {
+extension SyntaxView {
     // derived from name and construct arguments
     func deriveCreateLayerAction() -> VPLLayer? {
         if let layer: Layer = self.deriveLayer() {
@@ -43,8 +32,8 @@ extension ViewNode {
     }
     
     func deriveLayer() -> Layer? {
-        let name: ViewKind = self.name
-        let args: [ConstructorArgument] = self.constructorArguments
+        let name: SyntaxViewName = self.name
+        let args: [SyntaxViewConstructorArgument] = self.constructorArguments
 
         // Vast majority of cases, there is a 1:1 mapping of ViewKind to Layer
         switch name {
@@ -246,10 +235,10 @@ func nilOrDebugCrash<T>() -> T? {
 // Whether a given LayerInput corresponds to a ViewNode constructor-arg, a ViewNode modifier, or something much more complicated (e.g. pinning);
 enum FromSwiftUIToLayerInput {
     // Simple conversions like `LayerInputPort.text -> Text(<textValue>)`
-    case constructorArgument(ConstructorArgumentLabel)
+    case constructorArgument(SyntaxConstructorArgumentLabel)
     
     // Simple conversions like `LayerInputPort.scale -> .scaleEffect`
-    case modifier(ModifierKind)
+    case modifier(SyntaxViewModifierName)
         
     //  When the LayerInputPort corresponds to something more complicated than a single SwiftUI view modifier or single SwiftUI view constructor
     // e.g. LayerInputPort.anchoring, which is a function of a layer size, layer position, layer anchoring and parent size
@@ -265,14 +254,14 @@ enum FromLayerInputToSwiftUI {
     // e.g. `Text(<textValue>) -> LayerInputPort.text`
     // e.g. `Image(systemName:) -> LayerInputPort.sfSymbol`
     // e.g. `Image(uiImage:) -> LayerInputPort.media`
-    case constructorArgument(ConstructorArgument)
+    case constructorArgument(SyntaxViewConstructorArgument)
     
     // Simple conversion where a SwiftUI view modifier corresponds to a single LayerInputPort
     // e.g. `.scaleEffect -> LayerInputPort.scale`
     // e.g. `.opacity -> LayerInputPort.opacity`
     
     // see `mapModifierToLayerInput` for handling really simple cases like this
-    case modifier(Modifier)
+    case modifier(SyntaxViewModifier)
     
     case function(ConversionFunction)
     
@@ -296,7 +285,7 @@ extension LayerInputPort {
 
     /// A typed equivalent of `swiftUIModifier`.
     /// Returns `nil` when there is no direct SwiftUI modifier match.
-    var toSwiftUIViewModifier: ModifierKind? {
+    var toSwiftUIViewModifier: SyntaxViewModifierName? {
         switch self {
         // ── Required geometry & layout ──────────────────────────────
         case .position:                    return .custom("position")
@@ -428,6 +417,7 @@ extension LayerInputPort {
                  .scrollJumpToYStyle,
                  .scrollJumpToY,
                  .scrollJumpToYLocation:
+            
                 return nil
         }
     }

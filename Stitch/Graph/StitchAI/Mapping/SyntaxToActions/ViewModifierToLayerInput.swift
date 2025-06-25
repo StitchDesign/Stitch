@@ -34,14 +34,14 @@ enum StitchValueOrEdge: Equatable {
         }
     }
     
-    var asSwiftSyntaxKind: ArgumentKind {
+    var asSwiftSyntaxKind: SyntaxArgumentKind {
         switch self {
         case .value:
             // TODO: JUNE 24: Do you need all these different individual syntax-literal types? ... if so, then should map on
-            return ArgumentKind.literal(.string)
+            return SyntaxArgumentKind.literal(.string)
         case .edge(let x, let y):
             // TODO: JUNE 24: do we always want to treat an incoming edge as a variable ? ... a variable is just an evaluated expression ?
-            return ArgumentKind.variable(.identifier) // `x`
+            return SyntaxArgumentKind.variable(.identifier) // `x`
         }
     }
 }
@@ -62,15 +62,15 @@ extension PortValue {
 
 // TODO: JUNE 24: how to handle loops? ... note: this is not used anywhere yet
 extension LayerInputPort {
-    func toSwiftUI(_ viewNode: ViewNode,
+    func toSwiftUI(_ viewNode: SyntaxView,
                    port: StitchValueOrEdge, // loops? should pass in `value` ?
                    layer: Layer) -> FromLayerInputToSwiftUI {
         
         // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. .opacity but not .size
-        let buildModifier = { (kind: ModifierKind) -> Modifier in
-            Modifier(kind: kind,
+        let buildModifier = { (kind: SyntaxViewModifierName) -> SyntaxViewModifier in
+            SyntaxViewModifier(kind: kind,
                      arguments: [
-                        Argument(label: nil, // assumes unlabeled
+                        SyntaxViewModifierArgument(label: nil, // assumes unlabeled
                                  value: port.asSwiftUILiteralOrVariable,
                                  syntaxKind: port.asSwiftSyntaxKind)
                      ])
@@ -108,14 +108,14 @@ extension LayerInputPort {
             // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
         case .position:
             // return .modifier(.position)
-            return .modifier(Modifier(kind: .position,
+            return .modifier(SyntaxViewModifier(kind: .position,
                                       arguments: [
                                         // NOT CORRECT?: discrepancy between
-                                        Argument(label: "x",
+                                        SyntaxViewModifierArgument(label: "x",
                                                  // NEED TO UNPACK THE PORT VALUE ?
                                                  value: port.asSwiftUILiteralOrVariable,
                                                  syntaxKind: port.asSwiftSyntaxKind),
-                                        Argument(label: "y",
+                                        SyntaxViewModifierArgument(label: "y",
                                                  value: port.asSwiftUILiteralOrVariable,
                                                  syntaxKind: port.asSwiftSyntaxKind)
                                       ]))
@@ -310,7 +310,7 @@ extension LayerInputPort {
     }
 }
 
-extension ConstructorArgument {
+extension SyntaxViewConstructorArgument {
     func toLayerInput(_ layer: Layer) -> LayerInputPort? {
         switch self.label {
             
@@ -333,7 +333,7 @@ extension ConstructorArgument {
     }
 }
 
-extension ModifierKind {
+extension SyntaxViewModifierName {
     func toLayerInput(_ layer: Layer) -> LayerInputPort? {
         switch (self, layer) {
             // Universal modifiers (same for every layer)
@@ -425,7 +425,7 @@ extension ModifierKind {
 ///   - modifier: The ModifierKind to map
 ///   - layer: The Layer type to map for
 /// - Returns: The corresponding LayerInputPort if a mapping exists, nil otherwise
-func mapModifierToLayerInput(modifier: ModifierKind,
+func mapModifierToLayerInput(modifier: SyntaxViewModifierName,
                              layer: Layer) -> LayerInputPort? {
     
     switch (modifier, layer) {

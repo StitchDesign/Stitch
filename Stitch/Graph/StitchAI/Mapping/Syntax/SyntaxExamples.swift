@@ -14,16 +14,16 @@ import Foundation
 // SwiftUI code:
 // Rectangle()
 //     .frame(width: 200, height: 100, alignment: .center)
-let complexModifierExample = ViewNode(
+let complexModifierExample = SyntaxView(
     name: .init(from: "Rectangle"),
     constructorArguments: [],
     modifiers: [
-        Modifier(
+        SyntaxViewModifier(
             kind: .frame,
             arguments: [
-                Argument(label: "width",  value: "200", syntaxKind: .literal(.integer)),
-                Argument(label: "height", value: "100", syntaxKind: .literal(.integer)),
-                Argument(label: "alignment", value: ".center", syntaxKind: .variable(.memberAccess))
+                SyntaxViewModifierArgument(label: "width",  value: "200", syntaxKind: .literal(.integer)),
+                SyntaxViewModifierArgument(label: "height", value: "100", syntaxKind: .literal(.integer)),
+                SyntaxViewModifierArgument(label: "alignment", value: ".center", syntaxKind: .variable(.memberAccess))
             ]
         )
     ],
@@ -37,30 +37,30 @@ let complexModifierExample = ViewNode(
 //     Rectangle().fill(Color.blue)
 //     Rectangle().fill(Color.green)
 // }
-let example1 = ViewNode(
+let example1 = SyntaxView(
     name: .init(from: "ZStack"),
     constructorArguments: [],
     modifiers: [],
     children: [
-        ViewNode(
+        SyntaxView(
             name: .init(from: "Rectangle"),
             constructorArguments: [],
             modifiers: [
-                Modifier(
+                SyntaxViewModifier(
                     kind: .fill,
-                    arguments: [Argument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
+                    arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
             id: "rectangle1"
         ),
-        ViewNode(
+        SyntaxView(
             name: .init(from: "Rectangle"),
             constructorArguments: [],
             modifiers: [
-                Modifier(
+                SyntaxViewModifier(
                     kind: .fill,
-                    arguments: [Argument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
+                    arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
@@ -73,10 +73,10 @@ let example1 = ViewNode(
 
 // SwiftUI code:
 // Text("salut")
-let example2 = ViewNode(
+let example2 = SyntaxView(
     name: .init(from: "Text"),
     constructorArguments: [
-        ConstructorArgument(label: .unlabeled,
+        SyntaxViewConstructorArgument(label: .unlabeled,
                             value: "\"salut\"",
                             syntaxKind: .literal(.string))
     ],
@@ -87,22 +87,22 @@ let example2 = ViewNode(
 
 // SwiftUI code:
 // Text("salut").foregroundColor(Color.yellow).padding()
-let example3 = ViewNode(
+let example3 = SyntaxView(
     name: .init(from: "Text"),
     constructorArguments: [
-        ConstructorArgument(label: .unlabeled,
+        SyntaxViewConstructorArgument(label: .unlabeled,
                             value: "\"salut\"",
                             syntaxKind: .literal(.string))
         
     ],
     modifiers: [
-        Modifier(
+        SyntaxViewModifier(
             kind: .foregroundColor,
-            arguments: [Argument(label: nil, value: "Color.yellow", syntaxKind: .variable(.memberAccess))]
+            arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.yellow", syntaxKind: .variable(.memberAccess))]
         ),
-        Modifier(
+        SyntaxViewModifier(
             kind: .padding,
-            arguments: [Argument(label: nil, value: "", syntaxKind: .literal(.unknown))]
+            arguments: [SyntaxViewModifierArgument(label: nil, value: "", syntaxKind: .literal(.unknown))]
         )
     ],
     children: [],
@@ -118,47 +118,47 @@ let example3 = ViewNode(
 //        Rectangle().fill(Color.red)
 //     }
 // }
-let example4 = ViewNode(
+let example4 = SyntaxView(
     name: .init(from: "ZStack"),
     constructorArguments: [],
     modifiers: [],
     children: [
-        ViewNode(
+        SyntaxView(
             name: .init(from: "Rectangle"),
             constructorArguments: [],
             modifiers: [
-                Modifier(
+                SyntaxViewModifier(
                     kind: .fill,
-                    arguments: [Argument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
+                    arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
             id: "rectangle3"
         ),
-        ViewNode(
+        SyntaxView(
             name: .init(from: "VStack"),
             constructorArguments: [],
             modifiers: [],
             children: [
-                ViewNode(
+                SyntaxView(
                     name: .init(from: "Rectangle"),
                     constructorArguments: [],
                     modifiers: [
-                        Modifier(
+                        SyntaxViewModifier(
                             kind: .fill,
-                            arguments: [Argument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
+                            arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
                     children: [],
                     id: "rectangle4"
                 ),
-                ViewNode(
+                SyntaxView(
                     name: .init(from: "Rectangle"),
                     constructorArguments: [],
                     modifiers: [
-                        Modifier(
+                        SyntaxViewModifier(
                             kind: .fill,
-                            arguments: [Argument(label: nil, value: "Color.red", syntaxKind: .variable(.memberAccess))]
+                            arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.red", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
                     children: [],
@@ -174,10 +174,10 @@ let example4 = ViewNode(
 // SwiftUI code:
 // Image(systemName: "star.fill")
 
-let example5 = ViewNode(
+let example5 = SyntaxView(
     name: .init(from: "Image"),
     constructorArguments: [
-        ConstructorArgument(label: .systemName,
+        SyntaxViewConstructorArgument(label: .systemName,
                             value: "\"star.fill\"",
                             syntaxKind: .literal(.string))
     ],

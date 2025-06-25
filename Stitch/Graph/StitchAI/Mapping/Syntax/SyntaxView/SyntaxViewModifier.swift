@@ -1,13 +1,48 @@
 //
-//  ViewModifierKind.swift
+//  Modifier.swift
 //  Stitch
 //
-//  Created by Christian J Clampitt on 6/23/25.
+//  Created by Christian J Clampitt on 6/24/25.
 //
 
 import Foundation
-import SwiftUI
+import SwiftSyntax
+import SwiftParser
 
+
+struct SyntaxViewModifier: Equatable, Hashable {
+
+    // representation of a SwiftUI view modifier name
+    let kind: SyntaxViewModifierName
+    
+    // representation of argument(s) to SwiftUI view modifer
+    var arguments: [SyntaxViewModifierArgument]
+}
+
+
+/*
+ TODO: some arguments to SwiftUI View constructors are void callbacks (= patch logic?) or SwiftUI views (= another ViewNode)
+ TODO: `Argument.value` should be `enum ArgumentValue { case value(String), actionClosure(???), viewClosure(ViewNode) }`
+ 
+ Note: per chat with Vatsal, can also ask LLM to rewrite certain SwiftUI View closure-styles into non-closure versions etc. in an additional pass.
+ 
+ ```swift
+ Button(
+    action: { ... }, // patch logic?
+    label: { ViewNode }
+ )
+ ```
+ */
+struct SyntaxViewModifierArgument: Equatable, Hashable {
+    let label: String?
+    let value: String
+    
+    // literal vs declared var vs expression
+    let syntaxKind: SyntaxArgumentKind
+}
+
+
+// MARK: representation of
 
 // TODO: this list falls very short of being the full list of SwiftUI view modifiers
 
@@ -15,7 +50,7 @@ import SwiftUI
 /// (No such list or enum is otherwise already exposed by SwiftUI for us programmatically.)
 /// `rawValue` is **always** the textual name of the modifier as it appears in
 /// source (e.g. `"fill"`, `"frame"`). Any unknown name is stored using `.custom`.
-enum ModifierKind: Codable, Hashable {
+enum SyntaxViewModifierName: Codable, Hashable {
     case fill
     case frame
     case padding
@@ -50,7 +85,7 @@ enum ModifierKind: Codable, Hashable {
 }
 
 // MARK: - RawRepresentable conformance
-extension ModifierKind: RawRepresentable {
+extension SyntaxViewModifierName: RawRepresentable {
     init(rawValue: String) {
         switch rawValue {
         case "fill":              self = .fill

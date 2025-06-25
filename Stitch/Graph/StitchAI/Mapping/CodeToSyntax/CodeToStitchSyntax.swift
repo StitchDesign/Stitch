@@ -15,7 +15,7 @@ import SwiftSyntaxBuilder
 // MARK: - SwiftUI Code to ViewNode
 
 /// Parses SwiftUI code into a ViewNode structure
-func parseSwiftUICode(_ swiftUICode: String) -> ViewNode? {
+func parseSwiftUICode(_ swiftUICode: String) -> SyntaxView? {
     print("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
     
     // Fall back to the original visitor-based approach for now
@@ -35,9 +35,9 @@ func parseSwiftUICode(_ swiftUICode: String) -> ViewNode? {
 
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 class SwiftUIViewVisitor: SyntaxVisitor {
-    var rootViewNode: ViewNode?
+    var rootViewNode: SyntaxView?
     private var currentNodeIndex: Int? // Index into the view stack
-    private var viewStack: [ViewNode] = []
+    private var viewStack: [SyntaxView] = []
     private var idCounter = 0
     
     // Debug logging for tracing the parsing process
@@ -58,7 +58,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     }
     
     // Helper to get current ViewNode
-    private var currentViewNode: ViewNode? {
+    private var currentViewNode: SyntaxView? {
         guard let index = currentNodeIndex, index < viewStack.count else { return nil }
         return viewStack[index]
     }
@@ -88,14 +88,14 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Helper to update currentViewNode properly
-    private func updateCurrentViewNode(_ newNode: ViewNode) {
+    private func updateCurrentViewNode(_ newNode: SyntaxView) {
         guard let index = currentNodeIndex, index < viewStack.count else { return }
         viewStack[index] = newNode
         bubbleChangeUp(from: index)
     }
     
     // Helper to add a modifier to the current view node
-    private func addModifier(_ modifier: Modifier) {
+    private func addModifier(_ modifier: SyntaxViewModifier) {
         let modName = modifier.kind.rawValue
         dbg("addModifier → \(modName) to current index \(String(describing: currentNodeIndex))")
         guard let index = currentNodeIndex, index < viewStack.count else {
@@ -124,7 +124,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             log("Found view initialization: \(viewName)")
             
             // Create a new ViewNode for this view
-            let viewNode = ViewNode(
+            let viewNode = SyntaxView(
                 name: .init(from: viewName),
                 // This is creat
                 constructorArguments: parseArgumentsForConstructor(from: node),
@@ -170,11 +170,11 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Parse arguments from function call
-    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [ConstructorArgument] {
+    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [SyntaxViewConstructorArgument] {
         
-        let arguments = node.arguments.compactMap { (argument) -> ConstructorArgument? in
+        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewConstructorArgument? in
             
-            guard let label = ConstructorArgumentLabel.from(argument.label?.text) else {
+            guard let label = SyntaxConstructorArgumentLabel.from(argument.label?.text) else {
                 // If we cannot
                 log("could not create constructor argument label for argument.label: \(String(describing: argument.label))")
                 return nil
@@ -182,7 +182,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             
             let expression = argument.expression
             
-            return ConstructorArgument(
+            return SyntaxViewConstructorArgument(
                 label: label,
                 value: expression.trimmedDescription,
                 syntaxKind: .fromExpression(expression)
@@ -195,11 +195,11 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     }
     
     // Parse arguments from function call
-    private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [Argument] {
+    private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
         let arguments = node.arguments.map { argument in
             let label = argument.label?.text
             let expression = argument.expression
-            return Argument(
+            return SyntaxViewModifierArgument(
                 label: label,
                 value: expression.trimmedDescription,
                 syntaxKind: .fromExpression(expression)
@@ -285,10 +285,10 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             var finalArgs = modifierArguments
             if finalArgs.isEmpty {
                 // `.padding()` → synthetic unknown literal
-                finalArgs = [Argument(label: nil, value: "", syntaxKind: .literal(.unknown))]
+                finalArgs = [SyntaxViewModifierArgument(label: nil, value: "", syntaxKind: .literal(.unknown))]
             }
-            let modifier = Modifier(
-                kind: ModifierKind(rawValue: modifierName),
+            let modifier = SyntaxViewModifier(
+                kind: SyntaxViewModifierName(rawValue: modifierName),
                 arguments: finalArgs
             )
 

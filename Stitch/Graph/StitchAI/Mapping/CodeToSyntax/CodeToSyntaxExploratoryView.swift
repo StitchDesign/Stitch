@@ -15,7 +15,7 @@ struct CodeToSyntaxExploratoryView: View {
     // Tab selection
     @State private var selectedTab = 0
     @State private var swiftUICode: String = ""
-    @State private var parsedViewNode: ViewNode? = nil
+    @State private var parsedViewNode: SyntaxView? = nil
     
     // All examples from StitchSyntax.swift converted to SwiftUI code strings
     let examples: [(name: String, code: String)] = [

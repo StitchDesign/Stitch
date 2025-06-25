@@ -14,7 +14,7 @@ struct SyntaxToCodeExploratoryView: View {
     @State private var viewNodeDescription: String = ""
     
     // All examples from StitchSyntax.swift
-    let examples: [(name: String, viewNode: ViewNode)] = [
+    let examples: [(name: String, viewNode: SyntaxView)] = [
         ("Complex Modifier", complexModifierExample),
         ("ZStack with Rectangles", example1),
         ("Simple Text", example2),

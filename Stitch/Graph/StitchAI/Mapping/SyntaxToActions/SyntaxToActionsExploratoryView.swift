@@ -44,7 +44,7 @@ struct SyntaxToActionsExploratoryView: View {
     // -- UI State --
     @State private var selectedTab = 0
     @State private var swiftUICode: String = ""
-    @State private var parsedViewNode: ViewNode?
+    @State private var parsedViewNode: SyntaxView?
     @State private var actions: VPLLayerConceptOrderedSet = []
 
     // -- Body --

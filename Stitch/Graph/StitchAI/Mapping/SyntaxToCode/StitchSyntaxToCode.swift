@@ -13,7 +13,7 @@ import SwiftParser
 // MARK: - ViewNode to SwiftUI Code
 
 /// Converts a ViewNode to SwiftUI code string
-func swiftUICode(from node: ViewNode, indentation: String = "") -> String {
+func swiftUICode(from node: SyntaxView, indentation: String = "") -> String {
     var code = ""
     
     // Start with the view name
@@ -83,7 +83,7 @@ func swiftUICode(from node: ViewNode, indentation: String = "") -> String {
 }
 
 // Example usage function to test the conversion
-func testViewNodeToSwiftUI(viewNode: ViewNode) {
+func testViewNodeToSwiftUI(viewNode: SyntaxView) {
     let code = swiftUICode(from: viewNode)
     print("Generated SwiftUI code:\n\n\(code)\n")
 }
