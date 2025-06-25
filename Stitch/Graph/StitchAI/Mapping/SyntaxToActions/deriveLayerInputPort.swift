@@ -133,6 +133,7 @@ extension SyntaxViewModifierName {
         case (.keyboardType, _): return .keyboardType
         case (.disableAutocorrection, _): return nil
         case (.clipped, _): return .clipped // return .isClipped
+            
         case (.custom(_), _): return nil
         }
     }
