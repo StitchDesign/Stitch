@@ -56,7 +56,7 @@ struct CodeToSyntaxToActionsExploratoryView: View {
     // -- Body --
     var body: some View {
         VStack(spacing: 12) {
-            Text("Code → ViewNode → StitchActions")
+            Text("Code → Syntax → Actions")
                 .font(.title2).bold()
 
             Button("Parse") { parseCurrent() }
@@ -83,7 +83,7 @@ struct CodeToSyntaxToActionsExploratoryView: View {
 
             // Editable SwiftUI code
             VStack(alignment: .leading) {
-                Text("SwiftUI code").font(.headline)
+                Text("Code").font(.headline)
                 TextEditor(text: $swiftUICode)
                     .font(.system(.body, design: .monospaced))
                     .onChange(of: swiftUICode) { _ in parseCurrent() }
@@ -94,7 +94,7 @@ struct CodeToSyntaxToActionsExploratoryView: View {
 
             // Parsed ViewNode
             VStack(alignment: .leading) {
-                Text("Parsed ViewNode").font(.headline)
+                Text("Syntax").font(.headline)
                 ScrollView {
                     if let node = parsedViewNode {
                         Text(formatSyntaxView(node))
@@ -110,7 +110,7 @@ struct CodeToSyntaxToActionsExploratoryView: View {
 
             // Derived StitchActions
             VStack(alignment: .leading) {
-                Text("Derived StitchActions").font(.headline)
+                Text("Actions").font(.headline)
                 ScrollView {
                     if actions.isEmpty {
                         Text("—")

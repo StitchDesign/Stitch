@@ -36,7 +36,7 @@ protocol GraphReader {
     
     @MainActor var layersSidebarViewModel: LayersSidebarViewModel { get }
     
-    @MainActor func getLayerChildren(for groupId: NodeId) -> NodeIdOrderedSet
+    @MainActor func getLayerChildren(for groupId: NodeId) -> NodeIdSet
     
     @MainActor func createSchema() -> GraphEntity
 

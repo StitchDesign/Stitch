@@ -12,7 +12,7 @@ extension LayerInputPort {
 
     /// A typed equivalent of `swiftUIModifier`.
     /// Returns `nil` when there is no direct SwiftUI modifier match.
-    var toSwiftUIViewModifier: SyntaxViewModifierName? {
+    var toSwiftUIViewModifierName: SyntaxViewModifierName? {
         switch self {
         // ── Required geometry & layout ──────────────────────────────
         case .position:                    return .custom("position")

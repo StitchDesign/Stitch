@@ -43,10 +43,11 @@ struct StitchApp: App {
 
     var body: some Scene {
         WindowGroup {
-                        
-            //            CodeToSyntaxToActionsExploratoryView()
-            //            CodeToSyntaxExploratoryView()
-            //            SyntaxToCodeExploratoryView()
+              
+//            ActionsToSyntaxToCodeExploratoryView()
+//            CodeToSyntaxToActionsExploratoryView()
+//            CodeToSyntaxExploratoryView()
+//            SyntaxToCodeExploratoryView()
             
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
@@ -97,6 +98,7 @@ struct StitchApp: App {
         //        .windowStyle(HiddenTitleBarWindowStyle())
         //        .windowStyle(.hiddenTitleBar)
         //        #endif
+        
         .commands {
             StitchCommands(store: store,
                            activeReduxFocusedField: store.currentDocument?.reduxFocusedField)
