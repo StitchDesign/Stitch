@@ -13,7 +13,7 @@ import SwiftUI
 /// 1. edit a SwiftUI snippet,
 /// 2. see the parsed `ViewNode`,
 /// 3. see the derived StitchActions – all side-by-side.
-struct SyntaxToActionsExploratoryView: View {
+struct CodeToSyntaxToActionsExploratoryView: View {
 
     // -- Demo snippets to cycle through --
     private let examples: [(title: String, code: String)] = [

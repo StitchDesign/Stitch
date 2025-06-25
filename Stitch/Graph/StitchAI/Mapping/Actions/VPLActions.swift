@@ -47,7 +47,7 @@ struct VPLIncomingEdge: Equatable, Codable, Hashable {
 }
 
 
-
+// TODO: use something like this data structure instead for the PatchService ?
 struct VPLLayerData: Equatable, Codable, Hashable {
     var trees: [VPLLayer]
     var setInputs: [VPLLayerInputSet]
