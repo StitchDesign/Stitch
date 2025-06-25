@@ -163,7 +163,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct NativePatchNode: Codable {
         let node_id: StitchAIUUID_V0.StitchAIUUID
-        let node_name: Step_V0.PatchOrLayer
+        let node_name: StitchAIPatchOrLayer
     }
     
     struct PatchConnection: Codable {
@@ -194,31 +194,24 @@ extension AIPatchBuilderResponseFormat_V0 {
     struct AILayerInputPort {
         var value: LayerInputPort_V31.LayerInputPort
     }
+    
+    struct StitchAIPatchOrLayer: StitchAIStringConvertable {
+        var value: Step_V0.PatchOrLayer
+    }
 }
 
-//extension AIPatchBuilderResponseFormat_V0.NativePatchNode {
-//    enum CodingKeys : String, CodingKey {
-//        case node_id
-//        case node_name
-//    }
-//    
-//    init(from decoder: any Decoder) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
-//        self.node_name = try container.decode(String.self, forKey: .node_name)
-//    }
-//}
-
-extension Step_V0.PatchOrLayer: Codable {
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let stringValue = try container.decode(String.self)
-        self = try .fromLLMNodeName(stringValue)
+extension Step_V0.PatchOrLayer: StitchAIValueStringConvertable {
+    var encodableString: String {
+        self.asLLMStepNodeName
     }
     
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.asLLMStepNodeName)
+    public init?(_ description: String) {
+        do {
+            self = try Self.fromLLMNodeName(description)
+        } catch {
+            fatalErrorIfDebug("PatchOrLayer error: \(error.localizedDescription)")
+            return nil
+        }
     }
 }
 

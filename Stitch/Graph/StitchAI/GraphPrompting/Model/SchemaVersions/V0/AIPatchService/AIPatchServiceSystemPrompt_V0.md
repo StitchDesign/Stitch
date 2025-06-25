@@ -137,6 +137,7 @@ Sometimes, a specific layer is looped, meaning one of the layers inputs receives
 ### Drag Interaction
 * **When to use:** when a layer requires tracking a drag interaction.
 * **Node name label:** `dragInteraction || patch`
+* Special considerations: the "Max" input, if left with an empty position value of {x: 0, y: 0}, will be ignored by the eval and produce typical dragging eval behavior.
 
 ### Press Interaction
 * **When to use:** when a layer requires tracking a press interaction.

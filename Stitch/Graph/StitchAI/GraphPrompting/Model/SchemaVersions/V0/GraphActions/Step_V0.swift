@@ -33,7 +33,7 @@ enum Step_V0: StitchSchemaVersionable {
     typealias PreviousInstance = Self.Step
     // MARK: - end
     
-    public enum PatchOrLayer: Hashable {
+    public enum PatchOrLayer: Hashable, Codable {
         case patch(Step_V0.Patch), layer(Step_V0.Layer)
     }
     

@@ -79,7 +79,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new native patches
         for newPatch in self.native_patches {
-            let migratedNodeName = try newPatch.node_name.convert(to: PatchOrLayer.self)
+            let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
             let _ = document.nodeInserted(choice: migratedNodeName,
                                           nodeId: newPatch.node_id.value)
