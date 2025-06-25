@@ -97,7 +97,7 @@ struct SyntaxToActionsExploratoryView: View {
                 Text("Parsed ViewNode").font(.headline)
                 ScrollView {
                     if let node = parsedViewNode {
-                        Text(formatViewNode(node))
+                        Text(formatSyntaxView(node))
                             .font(.system(.body, design: .monospaced))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding()

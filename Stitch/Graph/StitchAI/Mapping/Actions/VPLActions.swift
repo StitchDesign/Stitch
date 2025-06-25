@@ -34,7 +34,7 @@ struct VPLLayerInputSet: Equatable, Codable, Hashable {
     
     let id: UUID // WHICH layer's layer input is being updated
     
-    let kind: LayerInputPort
+    let input: LayerInputPort
     
     // TODO: JUNE 24: use PortValue instead of String; reuse parsing logic from StepAction parsing etc. ?
     // let value: PortValue  // literal the user entered

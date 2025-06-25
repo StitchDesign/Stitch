@@ -86,7 +86,7 @@ struct CodeToSyntaxExploratoryView: View {
                 
                 if let parsedNode = self.parsedViewNode {
                     ScrollView {
-                        Text(formatViewNode(parsedNode))
+                        Text(formatSyntaxView(parsedNode))
                             .font(.system(.body, design: .monospaced))
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)

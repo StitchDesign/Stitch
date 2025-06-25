@@ -67,7 +67,7 @@ extension SyntaxView {
             case .literal:
                 actions.append(
                     .layerInputSet(VPLLayerInputSet(id: id,
-                                                    kind: port,
+                                                    input: port,
                                                     value: arg.value))
                 )
                 
@@ -105,7 +105,7 @@ extension SyntaxView {
                 
                 let joined = parts.joined(separator: ", ")
                 actions.append(.layerInputSet(VPLLayerInputSet(id: id,
-                                                               kind: port,
+                                                               input: port,
                                                                value: joined)))
             } else {
                 // Emit ONE action per argument
@@ -114,7 +114,7 @@ extension SyntaxView {
                     case .literal:
                         actions.append(.layerInputSet(VPLLayerInputSet(
                             id: id,
-                            kind: port,
+                            input: port,
                             value: arg.value)))
                         
                     case .variable, .expression:

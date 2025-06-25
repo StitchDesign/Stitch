@@ -89,7 +89,7 @@ struct SyntaxToCodeExploratoryView: View {
     private func updateDisplayForCurrentExample() {
         let selectedViewNode = examples[selectedTab].viewNode
         generatedCode = swiftUICode(from: selectedViewNode)
-        viewNodeDescription = formatViewNode(selectedViewNode)
+        viewNodeDescription = formatSyntaxView(selectedViewNode)
     }
 }
 

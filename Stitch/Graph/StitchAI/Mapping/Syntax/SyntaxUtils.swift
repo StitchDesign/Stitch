@@ -24,12 +24,12 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
 }
 
 // Formats a ViewNode into a readable string representation - top level so it can be reused
-func formatViewNode(_ node: SyntaxView, indent: String = "") -> String {
-    var result = "\(indent)ViewNode("
-    result += "\n\(indent)    name: \"\(node.name.string)\","
+func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
+    var result = "\(indent)SyntaxView("
+    result += "\n\(indent)    name: \"\(node.name)\","
     
     // Format arguments
-    result += "\n\(indent)    arguments: ["
+    result += "\n\(indent)    constructorArguments: ["
     if !node.constructorArguments.isEmpty {
         for (i, arg) in node.constructorArguments.enumerated() {
             let label = "\"\(arg.label)\""
@@ -48,7 +48,7 @@ func formatViewNode(_ node: SyntaxView, indent: String = "") -> String {
     result += "\n\(indent)    modifiers: ["
     if !node.modifiers.isEmpty {
         for (i, modifier) in node.modifiers.enumerated() {
-            result += "\n\(indent)        Modifier("
+            result += "\n\(indent)        SyntaxViewModifier("
             result += "\n\(indent)            kind: \"\(modifier.kind)\","
             // value field removed
             // Format modifier arguments
@@ -80,7 +80,7 @@ func formatViewNode(_ node: SyntaxView, indent: String = "") -> String {
     result += "\n\(indent)    children: ["
     if !node.children.isEmpty {
         for (i, child) in node.children.enumerated() {
-            result += "\n" + formatViewNode(child, indent: indent + "        ")
+            result += "\n" + formatSyntaxView(child, indent: indent + "        ")
             if i < node.children.count - 1 {
                 result += ","
             }
