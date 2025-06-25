@@ -10,59 +10,7 @@ import SwiftUI
 
 extension ActionsToSyntaxToCodeExploratoryView {
         
-    static let example1: VPLLayerConceptOrderedSet = {
-        let id = UUID()
-        return [
-            .layer(.init(id: id, name: .rectangle, children: [])),
-            .layerInputSet(.init(id: id, input: .color, value: "Color.red")),
-            .layerInputSet(.init(id: id, input: .opacity, value: "0.5")),
-            .layerInputSet(.init(id: id, input: .scale, value: "2")),
-        ]
-    }()
     
-    static let example2: VPLLayerConceptOrderedSet = {
-        let id = UUID()
-        return [
-            .layer(.init(id: id, name: .oval, children: [])),
-            .layerInputSet(.init(id: id, input: .color, value: "Color.blue")),
-            .layerInputSet(.init(id: id, input: .opacity, value: "0.5")),
-            .layerInputSet(.init(id: id, input: .scale, value: "2")),
-        ]
-    }()
-    
-    static let example3: VPLLayerConceptOrderedSet = {
-        let id = UUID()
-        return [
-            .layer(.init(id: id, name: .text, children: [])),
-            .layerInputSet(.init(id: id, input: .color, value: "Color.green")),
-            .layerInputSet(.init(id: id, input: .zIndex, value: "88")),
-            .layerInputSet(.init(id: id, input: .clipped, value: "true")),
-            .layerInputSet(.init(id: id, input: .scale, value: "2")),
-        ]
-    }()
-    
-    static let example4: VPLLayerConceptOrderedSet = {
-        let id = UUID()
-        return [
-            .layer(.init(id: id, name: .sfSymbol, children: [])),
-            .layerInputSet(.init(id: id, input: .color, value: "Color.green")),
-            .layerInputSet(.init(id: id, input: .sfSymbol, value: "star.fill")),
-            .layerInputSet(.init(id: id, input: .scale, value: "2")),
-        ]
-    }()
-    
-    static let example5: VPLLayerConceptOrderedSet = {
-        let id = UUID()
-        let idChild = UUID()
-        let childLayer = VPLLayer(id: idChild, name: .sfSymbol, children: [])
-        return [
-            .layer(.init(id: id, name: .group, children: [childLayer])),
-            .layer(childLayer),
-            .layerInputSet(.init(id: idChild, input: .color, value: "Color.green")),
-            .layerInputSet(.init(id: idChild, input: .sfSymbol, value: "star.fill")),
-            .layerInputSet(.init(id: id, input: .scale, value: "2")),
-        ]
-    }()
 }
 
 /// Playground view that lets you:
@@ -71,15 +19,8 @@ extension ActionsToSyntaxToCodeExploratoryView {
 /// 3. Generate the equivalent SwiftUI source code – all side‑by‑side.
 struct ActionsToSyntaxToCodeExploratoryView: View {
 
-    
     // Demo sets to cycle through
-    private static let examples: [(title: String, set: VPLLayerConceptOrderedSet)] = [
-        ("Rectangle",  Self.example1),
-        ("Oval",       Self.example2),
-        ("Text",       Self.example3),
-        ("SF Symbol",  Self.example4),
-        ("Nested",  Self.example5)
-    ]
+    private static let examples = ASTExplorerView.actionExamples
 
     // MARK: - UI State
     @State private var selectedTab = 0

@@ -12,6 +12,7 @@ import SwiftUI
 import SwiftSyntax
 import SwiftParser
 
+
 /// Playground that shows the *full* Stitch round‑trip.
 /// You type SwiftUI code → it is parsed into `SyntaxView` → converted
 /// to `StitchActions` → rebuilt back into a `SyntaxView` → and then
@@ -19,14 +20,14 @@ import SwiftParser
 /// side‑by‑side so you can visually verify loss‑/faithfulness.
 struct ASTExplorerView: View {
 
-    // MARK: State
-    @State private var originalCode: String =
-    """
-    Rectangle()
-        .fill(.red)
-        .frame(width: 150, height: 80)
-    """
+    // MARK: Demo snippets (copied from Code→Syntax→Actions view)
+    private static let examples = Self.codeExamples
 
+    // MARK: - UI State
+    @State private var selectedTab = 0
+    @State private var codes: [String] = examples.map(\.code)
+
+    // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
     @State private var stitchedActions: VPLLayerConceptOrderedSet = []
     @State private var rebuiltSyntax: SyntaxView?
@@ -41,47 +42,61 @@ struct ASTExplorerView: View {
             Button("Transform") { transform() }
                 .buttonStyle(.borderedProminent)
 
-            TabView {
-                HStack(spacing: 18) {
-                    stageView(
-                        title: "Original SwiftUI code",
-                        text: originalCode,
-                        isEditor: true,
-                        editorBinding: $originalCode
-                    )
-
-                    stageView(
-                        title: "Parsed SyntaxView",
-                        text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
-                    )
-
-                    stageView(
-                        title: "Derived StitchActions",
-                        text: stitchedActions.isEmpty ? "—" : stitchedActions.prettyPrinted
-                    )
-
-                    stageView(
-                        title: "Re‑built SyntaxView",
-                        text: rebuiltSyntax.map { formatSyntaxView($0) } ?? "—"
-                    )
-
-                    stageView(
-                        title: "Regenerated SwiftUI code",
-                        text: regeneratedCode.isEmpty ? "—" : regeneratedCode
-                    )
+            TabView(selection: $selectedTab) {
+                ForEach(Self.examples.indices, id: \.self) { idx in
+                    roundTripLayout(for: idx)
+                        .tabItem { Text(Self.examples[idx].title) }
+                        .tag(idx)
                 }
-                .padding(.vertical)
-                .tabItem { Text("Round‑Trip") }
             }
+            .tabViewStyle(.automatic)
             .onAppear { transform() }
+            .onChange(of: selectedTab) { _ in transform() }
         }
         .padding()
     }
 
+    // MARK: - Single‑tab layout
+    @ViewBuilder
+    private func roundTripLayout(for idx: Int) -> some View {
+        let binding = Binding<String>(
+            get: { codes[idx] },
+            set: { codes[idx] = $0; transform() }
+        )
+
+        HStack(spacing: 18) {
+            stageView(
+                title: "Original SwiftUI code",
+                text: codes[idx],
+                isEditor: true,
+                editorBinding: binding
+            )
+            stageView(
+                title: "Parsed SyntaxView",
+                text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
+            )
+            stageView(
+                title: "Derived StitchActions",
+                text: stitchedActions.isEmpty ? "—" : stitchedActions.prettyPrinted
+            )
+            stageView(
+                title: "Re‑built SyntaxView",
+                text: rebuiltSyntax.map { formatSyntaxView($0) } ?? "—"
+            )
+            stageView(
+                title: "Regenerated SwiftUI code",
+                text: regeneratedCode.isEmpty ? "—" : regeneratedCode
+            )
+        }
+        .padding(.vertical)
+    }
+
     // MARK: Helpers
     private func transform() {
+        let currentCode = codes[selectedTab]
+
         // Parse code → Syntax
-        guard let syntax = parseSwiftUICode(originalCode) else {
+        guard let syntax = parseSwiftUICode(currentCode) else {
             firstSyntax = nil
             stitchedActions = []
             rebuiltSyntax = nil

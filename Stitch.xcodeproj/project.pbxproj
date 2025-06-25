@@ -1057,6 +1057,7 @@
 		ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */; };
 		ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */; };
 		ECE963AA2E0C5710003420C5 /* ASTExplorerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */; };
+		ECE963AC2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE963AB2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift */; };
 		ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */; };
 		ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53112DCAC10700C3A09D /* SampleProjects.swift */; };
 		ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */; };
@@ -2162,6 +2163,7 @@
 		ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASTExplorerView.swift; sourceTree = "<group>"; };
+		ECE963AB2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASTExplorerViewExamples.swift; sourceTree = "<group>"; };
 		ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericFlyoutView.swift; sourceTree = "<group>"; };
 		ECEA53112DCAC10700C3A09D /* SampleProjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjects.swift; sourceTree = "<group>"; };
 		ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjectsView.swift; sourceTree = "<group>"; };
@@ -5316,6 +5318,7 @@
 			children = (
 				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
+				ECE963AB2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift */,
 				ECB238D02E0B8BA100D55A25 /* Actions */,
 				ECB238C42E0A10F900D55A25 /* Syntax */,
 				ECB238D82E0B8C9C00D55A25 /* ActionsToSyntax */,
@@ -6580,6 +6583,7 @@
 				ECA4FCC528EB4140006B4F23 /* NetworkRequestUITestView.swift in Sources */,
 				B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */,
 				EC1CB6282949190C00FF755D /* CurveNode.swift in Sources */,
+				ECE963AC2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift in Sources */,
 				ECB238BF2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift in Sources */,
 				B5D34C922DF5396E007405BF /* AIJsNodeEditRequest.swift in Sources */,
 				ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */,
