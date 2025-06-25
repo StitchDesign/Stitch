@@ -16,37 +16,7 @@ import SwiftUI
 struct CodeToSyntaxToActionsExploratoryView: View {
 
     // -- Demo snippets to cycle through --
-    private let examples: [(title: String, code: String)] = [
-       
-        ("Rectangle", """
-         Rectangle()
-             .frame(width: 200, height: 100)
-         """),
-        
-        ("Simple Text", #"Text("salut")"#),
-        
-        ("Modifiers Text", #"Text("salut").foregroundColor(Color.yellow).padding()"#),
-        
-        ("Image", #"Image(systemName: "star.fill")"#),
-        
-        ("ZStack Rectangles", """
-         ZStack {
-             Rectangle().fill(Color.blue)
-             Rectangle().fill(Color.green)
-         }
-         """),
-        
-        ("Nested Views", """
-         ZStack {
-             Rectangle().fill(Color.blue)
-             VStack {
-                 Rectangle().fill(Color.green)
-                 Rectangle().fill(Color.red)
-             }
-         }
-         """)
-    ]
-
+    private let examples = ASTExplorerView.codeExamples
     // -- UI State --
     @State private var selectedTab = 0
     @State private var swiftUICode: String = ""

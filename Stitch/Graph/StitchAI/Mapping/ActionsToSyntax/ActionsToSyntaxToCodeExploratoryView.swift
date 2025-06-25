@@ -7,22 +7,24 @@
 
 import SwiftUI
 
+
+extension ActionsToSyntaxToCodeExploratoryView {
+        
+    
+}
+
 /// Playground view that lets you:
 /// 1. Paste or edit a JSON array of StitchActions (`VPLLayerConceptOrderedSet`),
 /// 2. Convert them into a `SyntaxView`,
 /// 3. Generate the equivalent SwiftUI source code – all side‑by‑side.
 struct ActionsToSyntaxToCodeExploratoryView: View {
 
-    static let demoLayerId = UUID()
-    
+    // Demo sets to cycle through
+    private static let examples = ASTExplorerView.actionExamples
+
     // MARK: - UI State
-    @State private var actionsText: String = "[]"        // editable JSON
-    @State private var actions: VPLLayerConceptOrderedSet = [
-        .layer(.init(id: Self.demoLayerId, name: .rectangle, children: [])),
-        .layerInputSet(.init(id: Self.demoLayerId, input: .color, value: "Color.red")),
-        .layerInputSet(.init(id: Self.demoLayerId, input: .opacity, value: "0.5")),
-        .layerInputSet(.init(id: Self.demoLayerId, input: .scale, value: "2")),
-    ]
+    @State private var selectedTab = 0
+    @State private var actions: VPLLayerConceptOrderedSet = Self.examples[0].set
     @State private var syntaxView: SyntaxView?
     @State private var swiftUICodeString: String = ""
     @State private var errorMessage: String?
@@ -30,7 +32,7 @@ struct ActionsToSyntaxToCodeExploratoryView: View {
     // MARK: - Body
     var body: some View {
         VStack(spacing: 12) {
-            Text("StitchActions → ViewNode → SwiftUI code")
+            Text("Actions → Syntax → Code")
                 .font(.title2).bold()
 
             Button("Generate") { self.generate() }
@@ -42,55 +44,67 @@ struct ActionsToSyntaxToCodeExploratoryView: View {
                     .font(.callout)
             }
 
-            HStack(spacing: 18) {
-                // Editable StitchActions JSON
-                VStack(alignment: .leading) {
-                    Text("Actions").font(.headline)
-                    Text("\(self.actions)")
-                        .font(.system(.body, design: .monospaced))
-                        .padding()
-                        .border(Color.secondary)
-                    Spacer()
-                }
-
-                // Parsed SyntaxView
-                VStack(alignment: .leading) {
-                    Text("Syntax").font(.headline)
-                    ScrollView {
-                        if let node = self.syntaxView {
-                            Text(formatSyntaxView(node))
-                                .font(.system(.body, design: .monospaced))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding()
-                        } else {
-                            Text("—")
-                        }
-                    }
-                    .border(Color.secondary)
-                }
-
-                // Generated SwiftUI code
-                VStack(alignment: .leading) {
-                    Text("Code").font(.headline)
-                    ScrollView {
-                        if self.swiftUICodeString.isEmpty {
-                            Text("—")
-                        } else {
-                            Text(self.swiftUICodeString)
-                                .font(.system(.body, design: .monospaced))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding()
-                        }
-                    }
-                    .border(Color.secondary)
+            TabView(selection: $selectedTab) {
+                ForEach(Self.examples.indices, id: \.self) { idx in
+                    tabContent(for: idx)
+                        .tabItem { Text(Self.examples[idx].title) }
+                        .tag(idx)
                 }
             }
-            .padding(.vertical)
+            .tabViewStyle(.automatic)
+            .onAppear { loadExample(0) }
+            .onChange(of: selectedTab) { loadExample($0) }
         }
         .padding()
-        .onAppear {
-            self.generate()
+    }
+
+    // MARK: - Single‑tab layout
+    @ViewBuilder
+    private func tabContent(for idx: Int) -> some View {
+        HStack(spacing: 18) {
+            // Editable StitchActions JSON
+            VStack(alignment: .leading) {
+                Text("Actions").font(.headline)
+                Text("\(self.actions)")
+                    .font(.system(.body, design: .monospaced))
+                    .padding()
+                    .border(Color.secondary)
+                Spacer()
+            }
+
+            // Parsed SyntaxView
+            VStack(alignment: .leading) {
+                Text("Syntax").font(.headline)
+                ScrollView {
+                    if let node = self.syntaxView {
+                        Text(formatSyntaxView(node))
+                            .font(.system(.body, design: .monospaced))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                    } else {
+                        Text("—")
+                    }
+                }
+                .border(Color.secondary)
+            }
+
+            // Generated SwiftUI code
+            VStack(alignment: .leading) {
+                Text("Code").font(.headline)
+                ScrollView {
+                    if self.swiftUICodeString.isEmpty {
+                        Text("—")
+                    } else {
+                        Text(self.swiftUICodeString)
+                            .font(.system(.body, design: .monospaced))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                    }
+                }
+                .border(Color.secondary)
+            }
         }
+        .padding(.vertical)
     }
 
     // MARK: - Helpers
@@ -107,6 +121,11 @@ struct ActionsToSyntaxToCodeExploratoryView: View {
 
         self.syntaxView = node
         self.swiftUICodeString = swiftUICode(from: node)
+    }
+
+    private func loadExample(_ idx: Int) {
+        self.actions = Self.examples[idx].set
+        self.generate()
     }
 }
 
