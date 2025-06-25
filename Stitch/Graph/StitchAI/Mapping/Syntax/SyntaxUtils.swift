@@ -8,6 +8,12 @@
 import Foundation
 
  
+func nilOrDebugCrash<T>() -> T? {
+    fatalErrorIfDebug()
+    return nil
+}
+
+
 // Nicely formats the nested enum so we can print it in one line
 private func describe(_ kind: SyntaxArgumentKind) -> String {
     switch kind {

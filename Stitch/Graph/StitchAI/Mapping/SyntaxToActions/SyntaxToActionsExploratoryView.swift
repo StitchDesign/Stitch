@@ -134,7 +134,7 @@ struct SyntaxToActionsExploratoryView: View {
     private func parseCurrent() {
         parsedViewNode = parseSwiftUICode(swiftUICode)
         if let node = parsedViewNode {
-            actions = deriveStitchActions(node)
+            actions = node.deriveStitchActions()
         } else {
             actions = []
         }
