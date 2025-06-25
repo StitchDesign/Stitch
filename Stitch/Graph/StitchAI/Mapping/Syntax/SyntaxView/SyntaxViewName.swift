@@ -10,7 +10,7 @@ import SwiftUI
 /// A growing catalogue of SwiftUI view types we recognise.
 /// Use `ViewKind(from:)` to convert a textual identifier into a typed case;
 /// use `.string` to go the other way.  Anything unknown is stored in `.custom`.
-enum SyntaxViewName: Equatable, Codable, Hashable {
+enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable {
     // ── Basic shapes & drawing ─────────────────────────────────────────────
     case rectangle
     case roundedRectangle
@@ -55,91 +55,21 @@ enum SyntaxViewName: Equatable, Codable, Hashable {
 
     // ── Misc / effects wrappers ──────────────────────────────────────────
     case anyView, preview, timelineSchedule
-
-    // ── Fallback for everything else ─────────────────────────────────────
-    case custom(String)
 }
 
 // MARK: - String ↔︎ enum helpers
 extension SyntaxViewName {
-
     /// Create from the identifier that appears in Swift source
     /// (`"Rectangle"`, `"Text"`, …). Falls back to `.custom`.
-    init(from identifier: String) {
-        switch identifier {
-        case "Rectangle":              self = .rectangle
-        case "RoundedRectangle":       self = .roundedRectangle
-        case "Circle":                 self = .circle
-        case "Ellipse":                self = .ellipse
-        case "Capsule":                self = .capsule
-        case "Path":                   self = .path
-        case "Color":                  self = .color
-        case "LinearGradient":         self = .linearGradient
-        case "RadialGradient":         self = .radialGradient
-        case "AngularGradient":        self = .angularGradient
-        case "Material":               self = .material
-        case "Canvas":                 self = .canvas
-
-        case "Text":                   self = .text
-        case "TextField":              self = .textField
-        case "SecureField":            self = .secureField
-        case "Label":                  self = .label
-        case "Image":                  self = .image
-        case "AsyncImage":             self = .asyncImage
-        case "SymbolEffect":           self = .symbolEffect
-
-        case "Group":                  self = .group
-        case "VStack":                 self = .vStack
-        case "HStack":                 self = .hStack
-        case "ZStack":                 self = .zStack
-        case "LazyVStack":             self = .lazyVStack
-        case "LazyHStack":             self = .lazyHStack
-        case "LazyVGrid":              self = .lazyVGrid
-        case "LazyHGrid":              self = .lazyHGrid
-        case "Grid":                   self = .grid
-        case "Spacer":                 self = .spacer
-        case "Divider":                self = .divider
-        case "GeometryReader":         self = .geometryReader
-        case "AlignmentGuide":         self = .alignmentGuide
-
-        case "ScrollView":             self = .scrollView
-        case "List":                   self = .list
-        case "Table":                  self = .table
-        case "OutlineGroup":           self = .outlineGroup
-        case "ForEach":                self = .forEach
-
-        case "NavigationStack":        self = .navigationStack
-        case "NavigationSplitView":    self = .navigationSplit
-        case "NavigationLink":         self = .navigationLink
-        case "TabView":                self = .tabView
-        case "Form":                   self = .form
-        case "Section":                self = .section
-
-        case "Button":                 self = .button
-        case "Toggle":                 self = .toggle
-        case "Slider":                 self = .slider
-        case "Stepper":                self = .stepper
-        case "Picker":                 self = .picker
-        case "DatePicker":             self = .datePicker
-        case "Gauge":                  self = .gauge
-        case "ProgressView":           self = .progressView
-        case "Link":                   self = .link
-
-        case "VideoPlayer":            self = .videoPlayer
-        case "Map":                    self = .map
-        case "Model3D":                self = .model3D
-        case "TimelineView":           self = .timelineView
-
-        case "AnyView":                self = .anyView
-        case "Preview":                self = .preview
-        case "TimelineSchedule":       self = .timelineSchedule
-
-        default:                       self = .custom(identifier)
-        }
+    init?(from identifier: String) {
+        guard let rawValue = SyntaxViewName(rawValue: identifier) else { return nil }
+        self = rawValue
     }
+    
+    var string: String { self.rawValue }
 
     /// Convert back to the Swift identifier string.
-    var string: String {
+    var rawValue: String {
         switch self {
         case .rectangle:              return "Rectangle"
         case .roundedRectangle:       return "RoundedRectangle"
@@ -207,8 +137,14 @@ extension SyntaxViewName {
         case .anyView:                return "AnyView"
         case .preview:                return "Preview"
         case .timelineSchedule:       return "TimelineSchedule"
-
-        case .custom(let name):       return name
         }
+    }
+    
+    static let unsupportedViews: [Self] = Self.allCases.filter {
+        !$0.isSupported
+    }
+    
+    var isSupported: Bool {
+        self.deriveLayer(args: []) != nil
     }
 }

@@ -117,11 +117,17 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         if let identifierExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
             // This might be a view initialization like Text("Hello")
             let viewName = identifierExpr.baseName.text
+            
+            guard let nameType = SyntaxViewName(from: viewName) else {
+                fatalErrorIfDebug("No view discovered for: \(viewName)")
+                return .skipChildren
+            }
+            
             log("Found view initialization: \(viewName)")
             
             // Create a new ViewNode for this view
             let viewNode = SyntaxView(
-                name: .init(from: viewName),
+                name: nameType,
                 // This is creat
                 constructorArguments: parseArgumentsForConstructor(from: node),
                 modifiers: [],
