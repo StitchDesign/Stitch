@@ -282,6 +282,7 @@
 		B5B31CDE2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */; };
 		B5B31CE42E0A27FA003EABA2 /* AIPatchServiceRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */; };
 		B5B31CE62E0A3232003EABA2 /* AIPatchBuilderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */; };
+		B5B31CE82E0C6772003EABA2 /* AIPatchServiceSystemPromptGenerator_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE72E0C6769003EABA2 /* AIPatchServiceSystemPromptGenerator_V0.swift */; };
 		B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */; };
 		B5B8105C2D77E1C90095DA9D /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5B8105B2D77E1C90095DA9D /* StitchEngine */; };
 		B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */; };
@@ -1421,6 +1422,7 @@
 		B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderResponseFormat_V0.swift; sourceTree = "<group>"; };
 		B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchServiceRequest.swift; sourceTree = "<group>"; };
 		B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderRequest.swift; sourceTree = "<group>"; };
+		B5B31CE72E0C6769003EABA2 /* AIPatchServiceSystemPromptGenerator_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchServiceSystemPromptGenerator_V0.swift; sourceTree = "<group>"; };
 		B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDefinition.swift; sourceTree = "<group>"; };
 		B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordiante.swift; sourceTree = "<group>"; };
 		B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemViewModel.swift; sourceTree = "<group>"; };
@@ -4356,6 +4358,7 @@
 		B5B31CD32E05F7C9003EABA2 /* AIPatchService */ = {
 			isa = PBXGroup;
 			children = (
+				B5B31CE72E0C6769003EABA2 /* AIPatchServiceSystemPromptGenerator_V0.swift */,
 				B5B31CD02E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift */,
 				B5B31CD22E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md */,
 			);
@@ -5941,6 +5944,7 @@
 				B548533929371E7B00C43828 /* ARUtils.swift in Sources */,
 				ECDD4E0E2CC065BE003B4F9A /* MaterialLayerNode.swift in Sources */,
 				ECE35EDC27CEDB3F00CB8F5C /* LayerSizeUtils.swift in Sources */,
+				B5B31CE82E0C6772003EABA2 /* AIPatchServiceSystemPromptGenerator_V0.swift in Sources */,
 				E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */,
 				B55500E22C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift in Sources */,
 				EC71FF1C2D13C469002C0BA3 /* StitchUIScrollHelpers.swift in Sources */,
