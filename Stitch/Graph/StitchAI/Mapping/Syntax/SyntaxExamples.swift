@@ -28,7 +28,7 @@ let complexModifierExample = SyntaxView(
         )
     ],
     children: [],
-    id: "rectangle6"
+    id: UUID()
 )
 
 
@@ -52,7 +52,7 @@ let example1 = SyntaxView(
                 )
             ],
             children: [],
-            id: "rectangle1"
+            id: UUID()
         ),
         SyntaxView(
             name: .init(from: "Rectangle"),
@@ -64,10 +64,10 @@ let example1 = SyntaxView(
                 )
             ],
             children: [],
-            id: "rectangle2"
+            id: UUID()
         )
     ],
-    id: "zstack1"
+    id: UUID()
 )
 
 
@@ -82,7 +82,7 @@ let example2 = SyntaxView(
     ],
     modifiers: [],
     children: [],
-    id: "text1"
+    id: UUID()
 )
 
 // SwiftUI code:
@@ -106,7 +106,7 @@ let example3 = SyntaxView(
         )
     ],
     children: [],
-    id: "text2"
+    id: UUID()
 )
 
 
@@ -133,7 +133,7 @@ let example4 = SyntaxView(
                 )
             ],
             children: [],
-            id: "rectangle3"
+            id: UUID()
         ),
         SyntaxView(
             name: .init(from: "VStack"),
@@ -150,7 +150,7 @@ let example4 = SyntaxView(
                         )
                     ],
                     children: [],
-                    id: "rectangle4"
+                    id: UUID()
                 ),
                 SyntaxView(
                     name: .init(from: "Rectangle"),
@@ -162,13 +162,13 @@ let example4 = SyntaxView(
                         )
                     ],
                     children: [],
-                    id: "rectangle5"
+                    id: UUID()
                 )
             ],
-            id: "vstack1"
+            id: UUID()
         )
     ],
-    id: "zstack2"
+    id: UUID()
 )
 
 // SwiftUI code:
@@ -183,7 +183,7 @@ let example5 = SyntaxView(
     ],
     modifiers: [],
     children: [],
-    id: "image1"
+    id: UUID()
 )
 
 

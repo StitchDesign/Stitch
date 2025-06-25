@@ -28,6 +28,7 @@ extension SyntaxView {
             return nil // nilOrDebugCrash()
             
         case .rectangle: return .rectangle
+            
         case .ellipse: return .oval
             
             // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return

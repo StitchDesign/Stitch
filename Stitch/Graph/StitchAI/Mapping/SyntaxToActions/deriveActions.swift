@@ -20,7 +20,9 @@ extension SyntaxView {
             
             // 2. For each initializer argument in ViewNode.arguments:
             // 3. For each modifier in ViewNode.modifiers:
-            actions.append(contentsOf: self.deriveSetInputAndIncomingEdgeActions(createdLayer.name))
+            actions.append(contentsOf: self.deriveSetInputAndIncomingEdgeActions(
+                createdLayer.name,
+                id: createdLayer.id))
             
             // 4. Recurse into children (emit their actions in order).
             for child in self.children {
@@ -47,7 +49,7 @@ extension SyntaxView {
     }
         
     // dervied from modifiers and constructor arguments
-    func deriveSetInputAndIncomingEdgeActions(_ layer: Layer) -> [VPLLayerConcept] {
+    func deriveSetInputAndIncomingEdgeActions(_ layer: Layer, id: UUID) -> [VPLLayerConcept] {
         
         var actions = [VPLLayerConcept]()
         
@@ -64,7 +66,8 @@ extension SyntaxView {
             
             case .literal:
                 actions.append(
-                    .layerInputSet(VPLLayerInputSet(kind: port,
+                    .layerInputSet(VPLLayerInputSet(id: id,
+                                                    kind: port,
                                                     value: arg.value))
                 )
                 
@@ -101,15 +104,19 @@ extension SyntaxView {
                 }
                 
                 let joined = parts.joined(separator: ", ")
-                actions.append(.layerInputSet(VPLLayerInputSet(kind: port,
+                actions.append(.layerInputSet(VPLLayerInputSet(id: id,
+                                                               kind: port,
                                                                value: joined)))
             } else {
                 // Emit ONE action per argument
                 for arg in modifier.arguments {
                     switch arg.syntaxKind {
                     case .literal:
-                    actions.append(.layerInputSet(VPLLayerInputSet(kind: port,
-                                                                   value: arg.value)))
+                        actions.append(.layerInputSet(VPLLayerInputSet(
+                            id: id,
+                            kind: port,
+                            value: arg.value)))
+                        
                     case .variable, .expression:
                         actions.append(.incomingEdge(VPLIncomingEdge(name: port)))
                     }

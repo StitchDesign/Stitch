@@ -38,4 +38,3 @@ enum FromSyntaxToLayerInput {
     // if the mapping function returns `nil`, then the conversion is unsupported.
     case unsupported
 }
-

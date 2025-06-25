@@ -51,11 +51,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     #endif
     }
     
-    // Generates a unique ID for a view node
-    private func generateUniqueID(for viewName: String) -> String {
-        idCounter += 1
-        return viewName.lowercased() + String(idCounter)
-    }
+    
     
     // Helper to get current ViewNode
     private var currentViewNode: SyntaxView? {
@@ -130,8 +126,9 @@ class SwiftUIViewVisitor: SyntaxVisitor {
                 constructorArguments: parseArgumentsForConstructor(from: node),
                 modifiers: [],
                 children: [],
-                id: generateUniqueID(for: viewName)
+                id: UUID()
             )
+            
             log("Created new ViewNode for \(viewName) with \(viewNode.constructorArguments.count) arguments")
             
             // Set as root or add as child to current node

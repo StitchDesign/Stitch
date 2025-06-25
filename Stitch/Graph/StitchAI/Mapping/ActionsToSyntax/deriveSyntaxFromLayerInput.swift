@@ -14,7 +14,7 @@ extension LayerInputPort {
                    port: StitchValueOrEdge, // loops? should pass in `value` ?
                    layer: Layer) -> FromLayerInputToSyntax {
         
-        // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. .opacity but not .size
+        // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. can handle .opacity but not .frame
         let buildModifier = { (kind: SyntaxViewModifierName) -> SyntaxViewModifier in
             SyntaxViewModifier(kind: kind,
                      arguments: [

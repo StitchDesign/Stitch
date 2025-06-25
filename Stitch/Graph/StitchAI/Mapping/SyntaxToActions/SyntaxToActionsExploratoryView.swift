@@ -17,18 +17,25 @@ struct SyntaxToActionsExploratoryView: View {
 
     // -- Demo snippets to cycle through --
     private let examples: [(title: String, code: String)] = [
-        ("Complex Frame", """
+       
+        ("Rectangle", """
          Rectangle()
-             .frame(width: 200, height: 100, alignment: .center)
+             .frame(width: 200, height: 100)
          """),
+        
+        ("Simple Text", #"Text("salut")"#),
+        
+        ("Modifiers Text", #"Text("salut").foregroundColor(Color.yellow).padding()"#),
+        
+        ("Image", #"Image(systemName: "star.fill")"#),
+        
         ("ZStack Rectangles", """
          ZStack {
              Rectangle().fill(Color.blue)
              Rectangle().fill(Color.green)
          }
          """),
-        ("Simple Text", #"Text("salut")"#),
-        ("Modifiers Text", #"Text("salut").foregroundColor(Color.yellow).padding()"#),
+        
         ("Nested Views", """
          ZStack {
              Rectangle().fill(Color.blue)
@@ -37,8 +44,7 @@ struct SyntaxToActionsExploratoryView: View {
                  Rectangle().fill(Color.red)
              }
          }
-         """),
-        ("Image", #"Image(systemName: "star.fill")"#)
+         """)
     ]
 
     // -- UI State --

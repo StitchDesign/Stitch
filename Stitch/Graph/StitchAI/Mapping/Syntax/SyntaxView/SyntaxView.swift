@@ -25,5 +25,5 @@ struct SyntaxView: Equatable, Hashable {
     var children: [SyntaxView]
     
     // TODO: use UUID
-    var id: String  // Unique identifier for the node
+    var id: UUID  // Unique identifier for the node
 }
