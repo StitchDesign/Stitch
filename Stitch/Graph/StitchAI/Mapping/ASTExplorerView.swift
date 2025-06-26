@@ -77,7 +77,7 @@ struct ASTExplorerView: View {
             )
             stageView(
                 title: "Derived StitchActions",
-                text: stitchedActions.isEmpty ? "—" : stitchedActions.prettyPrinted
+                text: stitchedActions.humanReadable
             )
             stageView(
                 title: "Re‑built SyntaxView",
@@ -148,12 +148,45 @@ struct ASTExplorerView: View {
 }
 
 
-/// Quick pretty printer for the ordered actions array.
+// MARK: – Pretty‑printing helpers for VPL actions
 private extension VPLLayerConceptOrderedSet {
-    var prettyPrinted: String {
-        self.enumerated().map { idx, act in
-            "\n[\(idx)] \(String(describing: act))"
-        }.joined(separator: "\n")
+
+    /// A multi‑line, human‑readable description of the ordered actions list.
+    /// Returns “—” when the set is empty.
+    var humanReadable: String {
+        guard !isEmpty else { return "—" }
+        return enumerated()
+            .map { "\n[\($0)] \(describe($1, indent: ""))" }
+            .joined(separator: "\n")
+    }
+
+    // MARK: - Internals
+
+    /// Formats a single concept.
+    private func describe(_ concept: VPLLayerConcept, indent: String) -> String {
+        switch concept {
+        case .layer(let layer):
+            return describe(layer, indent: indent)
+        case .layerInputSet(let set):
+            return "\(indent)setInput(layerID: \(set.id), input: \(set.input), value: \(set.value))"
+        case .incomingEdge(let edge):
+            return "\(indent)incomingEdge(toInput: \(edge.name))"
+        }
+    }
+
+    /// Formats a layer and its children recursively.
+    private func describe(_ layer: VPLLayer, indent: String) -> String {
+        var lines: [String] = []
+        lines.append("\(indent)layer(id: \(layer.id), name: \(layer.name.defaultDisplayTitle())) {")
+        if layer.children.isEmpty {
+            lines.append("\(indent)    (no children)")
+        } else {
+            for child in layer.children {
+                lines.append(describe(child, indent: indent + "    "))
+            }
+        }
+        lines.append("\(indent)}")
+        return lines.joined(separator: "\n")
     }
 }
 
