@@ -163,8 +163,7 @@ struct ContentView: View, KeyboardReadable {
                 
                 do {
                     let request = try AIPatchServiceRequest(
-                        prompt: testAIPrompt,
-                        layerList: layerList)
+                        prompt: testAIPrompt)
                     
                     Task(priority: .high) { [weak document] in
                         guard let document = document,
