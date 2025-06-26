@@ -57,6 +57,8 @@ func stringCoercer(_ values: PortValues) -> PortValues {
             return value
             //        case .json(let x):
             //            return x.value.coerceToPortValue(ofType: .string)
+        case .color(let x):
+            return .string(.init(x.asHexDisplay))
         default:
             return defaultString
         }
@@ -132,6 +134,14 @@ func colorCoercer(_ values: PortValues, graphTime: TimeInterval) -> PortValues {
             return $0 // color stays same
             //        case .json(let x):
             //            return x.value.coerceToPortValue(ofType: .color)
+        case .string(let x):
+            // see logic in `StitchCustomColorPickerView`
+            if let colorFromHex = ColorConversionUtils.hexToColor(x.string) {
+                return .color(colorFromHex)
+            } else {
+                fallthrough
+            }
+                        
         default:
             return .color($0.asGrayscaleColor(graphTime: graphTime)) // all others, try to coerce to grayscale color
         }

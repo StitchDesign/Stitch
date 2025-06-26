@@ -78,7 +78,6 @@ extension SyntaxViewConstructorArgument {
 }
 
 
-
 extension SyntaxViewModifierName {
     
     func deriveLayerInputPort(_ layer: Layer) -> LayerInputPort? {

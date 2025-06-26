@@ -26,7 +26,7 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
 // Formats a ViewNode into a readable string representation - top level so it can be reused
 func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)SyntaxView("
-    result += "\n\(indent)    name: \"\(node.name)\","
+    result += "\n\(indent)    name: \"\(node.name.rawValue)\","
     
     // Format arguments
     result += "\n\(indent)    constructorArguments: ["
@@ -49,7 +49,7 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     if !node.modifiers.isEmpty {
         for (i, modifier) in node.modifiers.enumerated() {
             result += "\n\(indent)        SyntaxViewModifier("
-            result += "\n\(indent)            kind: \"\(modifier.name)\","
+            result += "\n\(indent)            kind: \"\(modifier.name.rawValue)\","
             // value field removed
             // Format modifier arguments
             result += "\n\(indent)            arguments: ["
