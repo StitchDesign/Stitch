@@ -78,14 +78,6 @@ struct CatalystTopBarGraphButtons: View {
                 } label: {
                     Text("Add Nodes")
                 }
-                
-#if STITCH_AI_TESTING
-                StitchButton {
-                    self.document.showTestAIModal = true
-                } label: {
-                    Text("Test New AI")
-                }
-#endif
             }
             
             CatalystNavBarButton(.ADD_NODE_SF_SYMBOL_NAME,

@@ -28,6 +28,9 @@ final actor StitchAIManager {
     let postgrest: PostgrestClient
       
     @MainActor var currentTask: CurrentAITask?
+    
+    // Tracks task for new AI strat
+    @MainActor var currentTaskTesting: Task<AIPatchBuilderRequest.FinalDecodedResult, any Error>?
 
     init?() throws {
         guard let secrets = try Secrets() else {
@@ -76,6 +79,7 @@ extension StitchAIManager {
         
         currentTask.task.cancel()
         self.currentTask = nil
+        self.currentTaskTesting = nil
     }
 }
 
