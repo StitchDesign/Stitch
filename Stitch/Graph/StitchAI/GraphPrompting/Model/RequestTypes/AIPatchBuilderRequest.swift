@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+enum AIPatchBuilderRequestError: Error {
+    case nodeIdNotFound
+}
+
 struct AIPatchBuilderRequest: StitchAIRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
@@ -58,7 +62,10 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
 extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.
     @MainActor
-    func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerNode) throws -> SidebarLayerData {
+    func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerNode,
+                               idMap: inout [UUID : UUID]) throws -> SidebarLayerData {
+        let newId = UUID()
+        idMap.updateValue(newId, forKey: newLayer.node_id.value)
         let graph = self.visibleGraph
         
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
@@ -66,7 +73,7 @@ extension StitchDocumentViewModel {
         // Creates new layer node view model
         let newLayerNode = graph
             .createNode(graphTime: self.graphStepState.graphTime,
-                        newNodeId: newLayer.node_id.value,
+                        newNodeId: newId,
                         highestZIndex: graph.highestZIndex,
                         choice: migratedNodeName,
                         center: self.newCanvasItemInsertionLocation)
@@ -79,7 +86,8 @@ extension StitchDocumentViewModel {
             var sidebarChildrenData = [SidebarLayerData]()
             for child in children {
                 // Recursive call
-                let newChildLayerData = try self.createLayerNodeFromAI(newLayer: child)
+                let newChildLayerData = try self.createLayerNodeFromAI(newLayer: child,
+                                                                       idMap: &idMap)
                 sidebarChildrenData.append(newChildLayerData)
             }
             
@@ -113,10 +121,15 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
     func apply(to document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
         
+        // Track node ID map to create new IDs, fixing ID reusage issue
+        var idMap = [UUID : UUID]()
+        
         // new js patches
         for newPatch in self.javascript_patches {
+            let newId = UUID()
+            idMap.updateValue(newId, forKey: newPatch.node_id.value)
             let newNode = document.nodeInserted(choice: .patch(.javascript),
-                                                nodeId: newPatch.node_id.value)
+                                                nodeId: newId)
             
             if let patchNode = newNode.patchNode {
                 let jsSettings = try JavaScriptNodeSettings(
@@ -132,16 +145,19 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new native patches
         for newPatch in self.native_patches {
+            let newId = UUID()
+            idMap.updateValue(newId, forKey: newPatch.node_id.value)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
             let _ = document.nodeInserted(choice: migratedNodeName,
-                                          nodeId: newPatch.node_id.value)
+                                          nodeId: newId)
         }
         
         // new layer nodes
         var newLayerSidebarDataList = [SidebarLayerData]()
         for newLayer in self.layers {
-            let newSidebarData = try document.createLayerNodeFromAI(newLayer: newLayer)
+            let newSidebarData = try document.createLayerNodeFromAI(newLayer: newLayer,
+                                                                    idMap: &idMap)
             newLayerSidebarDataList.append(newSidebarData)
         }
         
@@ -155,22 +171,30 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new constants for patches
         for newInputValueSetting in self.custom_patch_input_values {
-            let inputCoordinate = NodeIOCoordinate(from: newInputValueSetting.patch_input_coordinate)
+            let inputCoordinate = try NodeIOCoordinate(
+                from: newInputValueSetting.patch_input_coordinate,
+                idMap: idMap)
             try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
                                                       value: newInputValueSetting.value)
         }
         
         // new constants for layers
         for newInputValueSetting in self.custom_layer_input_values {
-            let inputCoordinate = try NodeIOCoordinate(from: newInputValueSetting.layer_input_coordinate)
+            let inputCoordinate = try NodeIOCoordinate(
+                from: newInputValueSetting.layer_input_coordinate,
+                idMap: idMap)
             try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
                                                       value: newInputValueSetting.value)
         }
         
         // new edges to downstream patches
         for newPatchEdge in self.patch_connections {
-            let inputPort = NodeIOCoordinate(from: newPatchEdge.dest_port)
-            let outputPort = NodeIOCoordinate(from: newPatchEdge.src_port)
+            let inputPort = try NodeIOCoordinate(
+                from: newPatchEdge.dest_port,
+                idMap: idMap)
+            let outputPort = try NodeIOCoordinate(
+                from: newPatchEdge.src_port,
+                idMap: idMap)
             let edge: PortEdgeData = PortEdgeData(
                 from: outputPort,
                 to: inputPort)
@@ -180,8 +204,12 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new edges to downstream layers
         for newLayerEdge in self.layer_connections {
-            let inputPort = try NodeIOCoordinate(from: newLayerEdge.dest_port)
-            let outputPort = NodeIOCoordinate(from: newLayerEdge.src_port)
+            let inputPort = try NodeIOCoordinate(
+                from: newLayerEdge.dest_port,
+                idMap: idMap)
+            let outputPort = try NodeIOCoordinate(
+                from: newLayerEdge.src_port,
+                idMap: idMap)
             let edge: PortEdgeData = PortEdgeData(
                 from: outputPort,
                 to: inputPort)
@@ -211,12 +239,22 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
 }
 
 extension NodeIOCoordinate {
-    init(from aiPatchCoordinate: CurrentAIPatchBuilderResponseFormat.NodeIndexedCoordinate) {
+    init(from aiPatchCoordinate: CurrentAIPatchBuilderResponseFormat.NodeIndexedCoordinate,
+         idMap: [UUID : UUID]) throws {
+        guard let newId = idMap.get(aiPatchCoordinate.node_id.value) else {
+            throw AIPatchBuilderRequestError.nodeIdNotFound
+        }
+        
         self.init(portId: aiPatchCoordinate.port_index,
-                  nodeId: aiPatchCoordinate.node_id.value)
+                  nodeId: newId)
     }
     
-    init(from aiLayerCoordinate: CurrentAIPatchBuilderResponseFormat.LayerInputCoordinate) throws {
+    init(from aiLayerCoordinate: CurrentAIPatchBuilderResponseFormat.LayerInputCoordinate,
+         idMap: [UUID : UUID]) throws {
+        guard let newId = idMap.get(aiLayerCoordinate.layer_id.value) else {
+            throw AIPatchBuilderRequestError.nodeIdNotFound
+        }
+        
         let portType = Step_V0.NodeIOPortType
             .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.value,
                            portType: .packed))
@@ -224,6 +262,6 @@ extension NodeIOCoordinate {
         let migratedPortType = try portType.convert(to: NodeIOPortType.self)
         
         self.init(portType: migratedPortType,
-                  nodeId: aiLayerCoordinate.layer_id.value)
+                  nodeId: newId)
     }
 }
