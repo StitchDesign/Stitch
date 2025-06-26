@@ -146,21 +146,21 @@ Make sure `layer_id` maps to the ID described in the input layer list. `input_la
 Nodes might need custom values defined at their input ports. The structured outputs properties which track these events are:
 * `custom_layer_input_values`: for layer inputs
 * `custom_patch_input_values`: for patch inputs
-
 **Note:** omit custom input values for any newly-created layer or native patch nodes whose custom-defined inputs match the default values listed below in "Inputs and Outputs Definitions for Patches and Layers"."
-
 Instructions below detail how to extract these values from Swift code.
-
 #### Custom Layer Input Values
 A custom input value can be detected when a raw value is directly provided into some aspect of the `var body`. For example, if a view uses `.position(x: 5, y: 10)`, we can infer a custom input with position (5, 10) is needed for the `position` input of a layer.
-
 Do *not* mark a port as needing a custom input value if that value is expressed as a local variable, such as with `@State`. We must instead create a new layer connection if state is used to update some part of the view.
-
 #### Custom Patch Input Values
-
 Custom patch input values are determined entirely within `updateInputValues`. If some custom value is passed into the inputs of another function, and that value uses some raw type and not expressed as a local variable, then it is a custom value.
-
 If a PortValue with a layer node ID is used (typically for gesture patch nodes), be sure to use the `"Layer"` value type.
+## Converting SwiftUI to Stitch Concepts
+One of your tasks is to determine which Stitch concepts to harness given some SwiftUI view component. This section notes special considerations for various SwiftUI view components.
+### Mapping to View Modifiers
+Strictly adhere to these mapping rules:
+* `offset`: maps to the `"Position"` Stitch layer input port.
+### Other Notes
+* The `Offset in Group` layer input can only be used for layers which are nested inside some other group layer.
 # Data Glossary
 ## `PortValue` Example Payloads
 Here's an example payload for each `PortValue` by its type:

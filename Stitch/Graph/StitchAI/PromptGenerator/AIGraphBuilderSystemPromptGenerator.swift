@@ -207,6 +207,16 @@ Custom patch input values are determined entirely within `updateInputValues`. If
 
 If a PortValue with a layer node ID is used (typically for gesture patch nodes), be sure to use the `"Layer"` value type.
 
+## Converting SwiftUI to Stitch Concepts
+One of your tasks is to determine which Stitch concepts to harness given some SwiftUI view component. This section notes special considerations for various SwiftUI view components.
+
+### Mapping to View Modifiers
+Strictly adhere to these mapping rules:
+* `offset`: maps to the `"Position"` Stitch layer input port.
+
+### Other Notes
+* The `Offset in Group` layer input can only be used for layers which are nested inside some other group layer.
+
 # Data Glossary
 
 ## `PortValue` Example Payloads
