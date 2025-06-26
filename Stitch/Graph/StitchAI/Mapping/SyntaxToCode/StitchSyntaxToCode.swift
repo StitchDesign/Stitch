@@ -42,7 +42,7 @@ func swiftUICode(from node: SyntaxView, indentation: String = "") -> String {
     // Add modifiers
     for modifier in node.modifiers {
         code += "\n\(indentation)    ."
-        code += modifier.kind.rawValue
+        code += modifier.name.rawValue
         
         // Handle the modifier value or arguments
         if !modifier.arguments.isEmpty {

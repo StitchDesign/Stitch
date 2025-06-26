@@ -35,8 +35,8 @@ struct VPLLayerInputSet: Equatable, Codable, Hashable {
     let input: LayerInputPort
     
     // TODO: JUNE 24: use PortValue instead of String; reuse parsing logic from StepAction parsing etc. ?
-    // let value: PortValue  // literal the user entered
-    let value: String  // literal the user entered
+    let value: PortValue  // literal the user entered
+//    let value: String  // literal the user entered
 }
 
 // an edge coming into the layer input

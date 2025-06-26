@@ -14,8 +14,8 @@ extension LayerInputPort {
                          layer: Layer) -> FromLayerInputToSyntax {
         
         // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. can handle .opacity but not .frame
-        let buildModifier = { (kind: SyntaxViewModifierName) -> SyntaxViewModifier in
-            SyntaxViewModifier(kind: kind,
+        let buildModifier = { (name: SyntaxViewModifierName) -> SyntaxViewModifier in
+            SyntaxViewModifier(name: name,
                      arguments: [
                         SyntaxViewModifierArgument(label: .noLabel, // assumes unlabeled
                                  value: port.asSwiftUILiteralOrVariable,
@@ -34,7 +34,7 @@ extension LayerInputPort {
             // return .constructorArgument(.text(.noLabel))
             return .constructorArgument(.init(
                 
-                label: .unlabeled,
+                label: .noLabel,
                 
                 // TODO: JUNE 24: tricky: how to go from a VPL literal or edge to SwiftUI code contained with a
                 // `value` is either a literal (manually-set value) or an expression (incoming edge);
@@ -56,7 +56,7 @@ extension LayerInputPort {
         case .position:
             // return .modifier(.position)
             return .modifier(SyntaxViewModifier(
-                kind: .position,
+                name: .position,
                 arguments: [
                     // NOT CORRECT?: discrepancy between
                     SyntaxViewModifierArgument(label: .x,

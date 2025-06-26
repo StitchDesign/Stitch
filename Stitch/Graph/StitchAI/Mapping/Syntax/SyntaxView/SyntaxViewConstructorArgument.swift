@@ -32,7 +32,7 @@ enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
     // argument without a label, e.g. SwiftUI Text: `Text("love")`;
     // Note: SwiftUI views that do not take arguments at all (e.g. `Rectangle()`) will not actually have constructor-args
     // https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
-    case unlabeled = ""
+    case noLabel = ""
     
     // case verbatim = "verbatim"
     
@@ -55,7 +55,7 @@ extension SyntaxConstructorArgumentLabel {
     static func from(_ string: String?) -> SyntaxConstructorArgumentLabel? {
         switch string {
         case .none:
-            return .unlabeled
+            return .noLabel
         case .some(let x):
             return Self(rawValue: x)
         }
