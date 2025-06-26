@@ -29,6 +29,13 @@ extension ASTExplorerView {
              Rectangle().fill(Color.green)
          }
          """),
+       
+        ("ZStack with modifier", """
+         ZStack {
+             Rectangle()
+                .fill(Color.blue)
+         }.scaleEffect(2)
+         """),
         
         ("Nested", """
          ZStack {
