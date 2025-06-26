@@ -96,7 +96,8 @@ extension SyntaxView {
                 // Emit ONE SASetLayerInput: kind = modifier.kind, value = joined literal list
                 // Format: "label1: value1, value2"
                 let parts: [String] = modifier.arguments.map {
-                    if let label = $0.label, !label.isEmpty {
+                    let label = $0.label
+                    if !label.rawValue.isEmpty {
                         return "\(label): \($0.value)"
                     } else {
                         return $0.value

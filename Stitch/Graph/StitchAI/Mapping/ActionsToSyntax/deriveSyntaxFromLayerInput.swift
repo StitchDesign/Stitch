@@ -17,7 +17,7 @@ extension LayerInputPort {
         let buildModifier = { (kind: SyntaxViewModifierName) -> SyntaxViewModifier in
             SyntaxViewModifier(kind: kind,
                      arguments: [
-                        SyntaxViewModifierArgument(label: nil, // assumes unlabeled
+                        SyntaxViewModifierArgument(label: .noLabel, // assumes unlabeled
                                  value: port.asSwiftUILiteralOrVariable,
                                  syntaxKind: port.asSwiftSyntaxKind)
                      ])
@@ -55,17 +55,18 @@ extension LayerInputPort {
             // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
         case .position:
             // return .modifier(.position)
-            return .modifier(SyntaxViewModifier(kind: .position,
-                                      arguments: [
-                                        // NOT CORRECT?: discrepancy between
-                                        SyntaxViewModifierArgument(label: "x",
-                                                 // NEED TO UNPACK THE PORT VALUE ?
-                                                 value: port.asSwiftUILiteralOrVariable,
-                                                 syntaxKind: port.asSwiftSyntaxKind),
-                                        SyntaxViewModifierArgument(label: "y",
-                                                 value: port.asSwiftUILiteralOrVariable,
-                                                 syntaxKind: port.asSwiftSyntaxKind)
-                                      ]))
+            return .modifier(SyntaxViewModifier(
+                kind: .position,
+                arguments: [
+                    // NOT CORRECT?: discrepancy between
+                    SyntaxViewModifierArgument(label: .x,
+                                               // NEED TO UNPACK THE PORT VALUE ?
+                                               value: port.asSwiftUILiteralOrVariable,
+                                               syntaxKind: port.asSwiftSyntaxKind),
+                    SyntaxViewModifierArgument(label: .y,
+                                               value: port.asSwiftUILiteralOrVariable,
+                                               syntaxKind: port.asSwiftSyntaxKind)
+                ]))
             
 
             

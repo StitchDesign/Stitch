@@ -178,7 +178,6 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             }
             
             let expression = argument.expression
-            
             return SyntaxViewConstructorArgument(
                 label: label,
                 value: expression.trimmedDescription,
@@ -193,8 +192,13 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Parse arguments from function call
     private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
-        let arguments = node.arguments.map { argument in
-            let label = argument.label?.text
+        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
+            
+            guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
+                log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
+                return nil
+            }
+            
             let expression = argument.expression
             return SyntaxViewModifierArgument(
                 label: label,
@@ -282,7 +286,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             var finalArgs = modifierArguments
             if finalArgs.isEmpty {
                 // `.padding()` → synthetic unknown literal
-                finalArgs = [SyntaxViewModifierArgument(label: nil, value: "", syntaxKind: .literal(.unknown))]
+                finalArgs = [SyntaxViewModifierArgument(label: .noLabel, value: "", syntaxKind: .literal(.unknown))]
             }
             let modifier = SyntaxViewModifier(
                 kind: SyntaxViewModifierName(rawValue: modifierName),
@@ -319,7 +323,7 @@ func testSwiftUIToViewNode(swiftUICode: String) {
             if !modifier.arguments.isEmpty {
                 print("    Arguments:")
                 for arg in modifier.arguments {
-                    print("      \(arg.label ?? "_"): \(arg.value)")
+                    print("      \(arg.label): \(arg.value)")
                 }
             }
         }

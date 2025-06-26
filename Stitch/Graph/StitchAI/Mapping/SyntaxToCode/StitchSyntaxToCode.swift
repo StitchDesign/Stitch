@@ -50,7 +50,7 @@ func swiftUICode(from node: SyntaxView, indentation: String = "") -> String {
             code += "("
             
             let args = modifier.arguments.enumerated().map { index, arg -> String in
-                let label = arg.label != nil ? "\(arg.label!): " : ""
+                let label = arg.label.rawValue.isEmpty ? "" : "\(arg.label): "
                 return "\(label)\(arg.value)"
             }.joined(separator: ", ")
             

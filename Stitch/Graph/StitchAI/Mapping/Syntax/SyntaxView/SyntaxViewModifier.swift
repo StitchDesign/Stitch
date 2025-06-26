@@ -10,6 +10,7 @@ import SwiftSyntax
 import SwiftParser
 
 
+
 struct SyntaxViewModifier: Equatable, Hashable {
 
     // representation of a SwiftUI view modifier name
@@ -34,13 +35,37 @@ struct SyntaxViewModifier: Equatable, Hashable {
  ```
  */
 struct SyntaxViewModifierArgument: Equatable, Hashable {
-    let label: String?
+    let label: SyntaxViewModifierArgumentLabel // TODO: JUNE 25: use `SyntaxViewModifierArgumentLabel`
     let value: String
     
     // literal vs declared var vs expression
     let syntaxKind: SyntaxArgumentKind
 }
 
+// all possible modifier arg labels together
+enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable {
+    case noLabel = "", // e.g. `.fill()`, `.foregroundColor()`
+         
+         // e.g. `.frame(width:height:alignment:)`
+         width = "width",
+         height = "height",
+         alignment = "alignment",
+         
+         // e.g. position(x:y:)
+         x = "x",
+         y = "y"
+}
+
+extension SyntaxViewModifierArgumentLabel {
+    static func from(_ string: String?) -> SyntaxViewModifierArgumentLabel? {
+        switch string {
+        case .none:
+            return .noLabel
+        case .some(let x):
+            return Self(rawValue: x)
+        }
+    }
+}
 
 // MARK: representation of
 

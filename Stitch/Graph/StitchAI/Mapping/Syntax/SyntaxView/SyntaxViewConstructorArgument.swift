@@ -43,10 +43,7 @@ enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
     // HStack, VStack, ZStack
     // case alignment = "alignment"
     // case spacing = "spacing"
-    
-    // case hStack(HStackConstructorArgument)
-    // case vStack(VStackConstructorArgument)
-    
+        
     // Use `Argument` to capture unsupported constructors on SwiftUI Views,
     // e.g. `Text(Date, style: Text.DateStyle)`
     

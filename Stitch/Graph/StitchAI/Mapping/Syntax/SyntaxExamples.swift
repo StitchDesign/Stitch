@@ -21,9 +21,9 @@ let complexModifierExample = SyntaxView(
         SyntaxViewModifier(
             kind: .frame,
             arguments: [
-                SyntaxViewModifierArgument(label: "width",  value: "200", syntaxKind: .literal(.integer)),
-                SyntaxViewModifierArgument(label: "height", value: "100", syntaxKind: .literal(.integer)),
-                SyntaxViewModifierArgument(label: "alignment", value: ".center", syntaxKind: .variable(.memberAccess))
+                SyntaxViewModifierArgument(label: .width,  value: "200", syntaxKind: .literal(.integer)),
+                SyntaxViewModifierArgument(label: .height, value: "100", syntaxKind: .literal(.integer)),
+                SyntaxViewModifierArgument(label: .alignment, value: ".center", syntaxKind: .variable(.memberAccess))
             ]
         )
     ],
@@ -48,7 +48,7 @@ let example1 = SyntaxView(
             modifiers: [
                 SyntaxViewModifier(
                     kind: .fill,
-                    arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
+                    arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
@@ -60,7 +60,7 @@ let example1 = SyntaxView(
             modifiers: [
                 SyntaxViewModifier(
                     kind: .fill,
-                    arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
+                    arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
@@ -98,11 +98,11 @@ let example3 = SyntaxView(
     modifiers: [
         SyntaxViewModifier(
             kind: .foregroundColor,
-            arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.yellow", syntaxKind: .variable(.memberAccess))]
+            arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.yellow", syntaxKind: .variable(.memberAccess))]
         ),
         SyntaxViewModifier(
             kind: .padding,
-            arguments: [SyntaxViewModifierArgument(label: nil, value: "", syntaxKind: .literal(.unknown))]
+            arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "", syntaxKind: .literal(.unknown))]
         )
     ],
     children: [],
@@ -129,7 +129,7 @@ let example4 = SyntaxView(
             modifiers: [
                 SyntaxViewModifier(
                     kind: .fill,
-                    arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
+                    arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
                 )
             ],
             children: [],
@@ -146,7 +146,7 @@ let example4 = SyntaxView(
                     modifiers: [
                         SyntaxViewModifier(
                             kind: .fill,
-                            arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.green", syntaxKind: .variable(.memberAccess))]
+                            arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.green", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
                     children: [],
@@ -158,7 +158,7 @@ let example4 = SyntaxView(
                     modifiers: [
                         SyntaxViewModifier(
                             kind: .fill,
-                            arguments: [SyntaxViewModifierArgument(label: nil, value: "Color.red", syntaxKind: .variable(.memberAccess))]
+                            arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.red", syntaxKind: .variable(.memberAccess))]
                         )
                     ],
                     children: [],
