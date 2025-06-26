@@ -92,7 +92,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Helper to add a modifier to the current view node
     private func addModifier(_ modifier: SyntaxViewModifier) {
-        let modName = modifier.kind.rawValue
+        let modName = modifier.name.rawValue
         dbg("addModifier → \(modName) to current index \(String(describing: currentNodeIndex))")
         guard let index = currentNodeIndex, index < viewStack.count else {
             log("⚠️ Cannot add modifier: no current view node")
@@ -184,7 +184,6 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             }
             
             let expression = argument.expression
-            
             return SyntaxViewConstructorArgument(
                 label: label,
                 value: expression.trimmedDescription,
@@ -199,8 +198,13 @@ class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Parse arguments from function call
     private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
-        let arguments = node.arguments.map { argument in
-            let label = argument.label?.text
+        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
+            
+            guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
+                log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
+                return nil
+            }
+            
             let expression = argument.expression
             return SyntaxViewModifierArgument(
                 label: label,
@@ -288,10 +292,10 @@ class SwiftUIViewVisitor: SyntaxVisitor {
             var finalArgs = modifierArguments
             if finalArgs.isEmpty {
                 // `.padding()` → synthetic unknown literal
-                finalArgs = [SyntaxViewModifierArgument(label: nil, value: "", syntaxKind: .literal(.unknown))]
+                finalArgs = [SyntaxViewModifierArgument(label: .noLabel, value: "", syntaxKind: .literal(.unknown))]
             }
             let modifier = SyntaxViewModifier(
-                kind: SyntaxViewModifierName(rawValue: modifierName),
+                name: SyntaxViewModifierName(rawValue: modifierName),
                 arguments: finalArgs
             )
 
@@ -321,11 +325,11 @@ func testSwiftUIToViewNode(swiftUICode: String) {
         print("Arguments: \(viewNode.constructorArguments)")
         print("Modifiers (\(viewNode.modifiers.count)):")
         for (index, modifier) in viewNode.modifiers.enumerated() {
-            print("  [\(index)] \(modifier.kind.rawValue))")
+            print("  [\(index)] \(modifier.name.rawValue))")
             if !modifier.arguments.isEmpty {
                 print("    Arguments:")
                 for arg in modifier.arguments {
-                    print("      \(arg.label ?? "_"): \(arg.value)")
+                    print("      \(arg.label): \(arg.value)")
                 }
             }
         }

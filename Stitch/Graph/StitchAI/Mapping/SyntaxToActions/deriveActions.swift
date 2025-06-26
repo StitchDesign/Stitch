@@ -56,8 +56,15 @@ extension SyntaxView {
         // iterate through constructor arguments
         for arg in self.constructorArguments {
             
-            guard let port = arg.toLayerInput(layer) else {
+            guard let port: LayerInputPort = arg.deriveLayerInputPort(layer) else {
                 log("deriveSetInputAndIncomingEdgeActions: could not handle constructor argument label: \(arg.label)")
+                // fatalErrorIfDebug()
+                continue
+            }
+            
+            // TODO: alternatively, rely on the layer input port's default port-value and user-input-edit logic?
+            guard let portValue = arg.derivePortValue(layer) else {
+                log("deriveSetInputAndIncomingEdgeActions: could not handle constructor argument value: \(arg.value)")
                 // fatalErrorIfDebug()
                 continue
             }
@@ -66,9 +73,11 @@ extension SyntaxView {
             
             case .literal:
                 actions.append(
-                    .layerInputSet(VPLLayerInputSet(id: id,
-                                                    input: port,
-                                                    value: arg.value))
+                    .layerInputSet(VPLLayerInputSet(
+                        id: id,
+                        input: port,
+                        value: portValue
+                    ))
                 )
                 
             case .expression, .variable:
@@ -82,46 +91,42 @@ extension SyntaxView {
         // iterate through modifiers
         for modifier in self.modifiers {
             
-            guard let port = modifier.kind.toLayerInput(layer) else {
+            guard let port = modifier.name.deriveLayerInputPort(layer) else {
                 log("could not create layer input for modifier \(modifier)")
                 continue
             }
             
-            // JUNE 24: PROPERLY HANDLE WHEN INPUT HAS ONE FIELD WITH A LITERAL AND ANOTHER FIELD WITH AN INCOMING EDGE
-            let allLiteral = modifier.arguments.allSatisfy {
-                if case .literal = $0.syntaxKind { return true }
-                return false
+            
+            // Start with a default port value of the correct kind for this layer input
+            var portValue = port.getDefaultValue(for: layer)
+            
+            // Iterate through the modifier's arguments,
+            // parsing each arg's `value` as if it were a user-edit;
+            // workings equally well
+            for (index, arg) in modifier.arguments.enumerated() {
+                portValue = portValue.parseInputEdit(
+                    fieldValue: .string(.init(arg.value)),
+                    fieldIndex: index)
             }
-            if allLiteral {
-                // Emit ONE SASetLayerInput: kind = modifier.kind, value = joined literal list
-                // Format: "label1: value1, value2"
-                let parts: [String] = modifier.arguments.map {
-                    if let label = $0.label, !label.isEmpty {
-                        return "\(label): \($0.value)"
-                    } else {
-                        return $0.value
-                    }
-                }
-                
-                let joined = parts.joined(separator: ", ")
-                actions.append(.layerInputSet(VPLLayerInputSet(id: id,
-                                                               input: port,
-                                                               value: joined)))
-            } else {
-                // Emit ONE action per argument
-                for arg in modifier.arguments {
-                    switch arg.syntaxKind {
-                    case .literal:
-                        actions.append(.layerInputSet(VPLLayerInputSet(
-                            id: id,
-                            input: port,
-                            value: arg.value)))
-                        
-                    case .variable, .expression:
-                        actions.append(.incomingEdge(VPLIncomingEdge(name: port)))
-                    }
-                }
-            }
+            
+            actions.append(.layerInputSet(
+                VPLLayerInputSet(id: id,
+                                 input: port,
+                                 value: portValue)
+            ))
+            
+            
+            // TODO: handle incoming edges
+            // TODO: handle unpacked layer inputs where some fields receive edges, others manually-set values
+            //            for arg in modifier.arguments {
+            //                switch arg.syntaxKind {
+            //                case .variable, .expression:
+            //                    actions.append(.incomingEdge(VPLIncomingEdge(name: port)))
+            //                default:
+            //                    continue
+            //                }
+            //            }
+            
             
         } // for modifier in ...
         

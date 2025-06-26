@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 extension SyntaxView {
@@ -14,11 +15,11 @@ extension SyntaxView {
     func deriveLayerInputPorts(_ layer: Layer) -> LayerInputPortSet {
         
         let portsFromConstructorArgs = self.constructorArguments.compactMap {
-            $0.toLayerInput(layer)
+            $0.deriveLayerInputPort(layer)
         }
         
         let portsFromModifiers = self.modifiers.compactMap {
-            $0.kind.toLayerInput(layer)
+            $0.name.deriveLayerInputPort(layer)
         }
         
         let ports = portsFromConstructorArgs + portsFromModifiers
@@ -31,14 +32,38 @@ extension SyntaxView {
 }
 
 extension SyntaxViewConstructorArgument {
-    func toLayerInput(_ layer: Layer) -> LayerInputPort? {
+    
+    func derivePortValue(_ layer: Layer) -> PortValue? {
+        let label: SyntaxConstructorArgumentLabel = self.label
+        let value: String = self.value
+        
+        switch (label, layer) {
+        
+        case (.systemName, _):
+            return .string(.init(value))
+        
+        case (_, let text) where text == .text || text == .textField:
+            return .string(.init(value))
+            
+        case (.noLabel, _):
+            // e.g. `Rectangle()`, `Ellipse`,
+            // i.e. there's no constructor argument at all
+            return nil
+            
+        case (.unsupported, _):
+            log("had unsupported label for label \(label) and value \(value)")
+            return nil
+        }
+    }
+    
+    func deriveLayerInputPort(_ layer: Layer) -> LayerInputPort? {
         switch self.label {
             
         case .systemName:
             return .sfSymbol
             
         // TODO: JUNE 24: *many* SwiftUI ...
-        case .unlabeled:
+        case .noLabel:
             switch layer {
             case .text, .textField:
                 return .text
@@ -52,8 +77,11 @@ extension SyntaxViewConstructorArgument {
     }
 }
 
+
+
 extension SyntaxViewModifierName {
-    func toLayerInput(_ layer: Layer) -> LayerInputPort? {
+    
+    func deriveLayerInputPort(_ layer: Layer) -> LayerInputPort? {
         switch (self, layer) {
             // Universal modifiers (same for every layer)
         case (.scaleEffect, _):

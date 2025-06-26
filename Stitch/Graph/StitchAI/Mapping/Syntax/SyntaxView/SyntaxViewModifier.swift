@@ -13,7 +13,7 @@ import SwiftParser
 struct SyntaxViewModifier: Equatable, Hashable {
 
     // representation of a SwiftUI view modifier name
-    let kind: SyntaxViewModifierName
+    let name: SyntaxViewModifierName
     
     // representation of argument(s) to SwiftUI view modifer
     var arguments: [SyntaxViewModifierArgument]
@@ -25,7 +25,7 @@ struct SyntaxViewModifier: Equatable, Hashable {
  TODO: `Argument.value` should be `enum ArgumentValue { case value(String), actionClosure(???), viewClosure(ViewNode) }`
  
  Note: per chat with Vatsal, can also ask LLM to rewrite certain SwiftUI View closure-styles into non-closure versions etc. in an additional pass.
- 
+
  ```swift
  Button(
     action: { ... }, // patch logic?
@@ -34,11 +34,36 @@ struct SyntaxViewModifier: Equatable, Hashable {
  ```
  */
 struct SyntaxViewModifierArgument: Equatable, Hashable {
-    let label: String?
+    let label: SyntaxViewModifierArgumentLabel
     let value: String
     
     // literal vs declared var vs expression
     let syntaxKind: SyntaxArgumentKind
+}
+
+
+enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable {
+    case noLabel = "", // e.g. `.fill(Color.red)`, `.foregroundColor(Color.green)`
+         
+         // e.g. `.frame(width:height:alignment:)`
+         width = "width",
+         height = "height",
+         alignment = "alignment",
+         
+         // e.g. position(x:y:)
+         x = "x",
+         y = "y"
+}
+
+extension SyntaxViewModifierArgumentLabel {
+    static func from(_ string: String?) -> SyntaxViewModifierArgumentLabel? {
+        switch string {
+        case .none:
+            return .noLabel
+        case .some(let x):
+            return Self(rawValue: x)
+        }
+    }
 }
 
 

@@ -49,13 +49,13 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     if !node.modifiers.isEmpty {
         for (i, modifier) in node.modifiers.enumerated() {
             result += "\n\(indent)        SyntaxViewModifier("
-            result += "\n\(indent)            kind: \"\(modifier.kind)\","
+            result += "\n\(indent)            kind: \"\(modifier.name)\","
             // value field removed
             // Format modifier arguments
             result += "\n\(indent)            arguments: ["
             if !modifier.arguments.isEmpty {
                 for (j, arg) in modifier.arguments.enumerated() {
-                    let label = arg.label != nil ? "\"\(arg.label!)\"" : "nil"
+                    let label = arg.label == .noLabel ? "" : "\"\(arg.label)\""
                     let argKindDesc = describe(arg.syntaxKind)
                     result += "\n\(indent)                (label: \(label), value: \"\(arg.value)\", kind: \(argKindDesc))"
                     if j < modifier.arguments.count - 1 {

@@ -96,7 +96,8 @@ extension SyntaxView {
 //            if let viewModifierName = inputSet.input.toSwiftUIViewModifierName
             let syntaxScenario: FromLayerInputToSyntax = inputSet.input.toSwiftUISyntax(
                 // TODO: JUNE 24: handle proper PortValue here
-                port: .value(PortValue.string(.init(inputSet.value))),
+//                port: .value(PortValue.string(.init(inputSet.value))),
+                valueOrEdge: .value(inputSet.value),
                 layer: layer.name)
             
             switch syntaxScenario {
