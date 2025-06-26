@@ -28,7 +28,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         
         // Construct http payload
         self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
-                                                  jsSourceCode: jsSourceCode,
+                                                  swiftUiSourceCode: jsSourceCode,
                                                   layerList: layerList)
     }
     

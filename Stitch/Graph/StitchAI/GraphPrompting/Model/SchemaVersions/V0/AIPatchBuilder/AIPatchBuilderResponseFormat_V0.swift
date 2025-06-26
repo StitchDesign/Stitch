@@ -15,7 +15,7 @@ enum AIPatchBuilderResponseFormat_V0 {
     }
 
     struct AIPatchBuilderJsonSchema: OpenAIJsonSchema {
-        let name = "PatchBuilder"
+        let name = "GraphBuilder"
         let schema = PatchBuilderStructuredOutputsPayload()
     }
     
@@ -23,7 +23,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         let defs = PatchBuilderStructuredOutputsDefinitions()
         let schema = OpenAISchema(type: .object,
                                   properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                  required: ["javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_input_values"])
+                                  required: ["layers", "javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_input_values"])
         let strict = true
     }
 
@@ -40,6 +40,13 @@ enum AIPatchBuilderResponseFormat_V0 {
         let LayerPorts = OpenAISchemaEnum(values: Step_V0.LayerInputPort.allCases
             .map { $0.asLLMStepPort }
         )
+        
+        let Layer_Nodes = OpenAISchema(
+            type: .array,
+            required: ["node_id", "node_name"],
+            description: "A nested list of layer nodes to be created in the graph.",
+            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.LayerNodeSchema()])
+        )
     }
     
     struct GraphBuilderSchema: Encodable {
@@ -47,6 +54,8 @@ enum AIPatchBuilderResponseFormat_V0 {
             type: .object,
             properties: NodeIndexedCoordinateSchema(),
             required: ["node_id", "port_index"])
+        
+        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
         
         let javascript_patches = OpenAISchema(
             type: .array,
@@ -83,6 +92,13 @@ enum AIPatchBuilderResponseFormat_V0 {
                 AIPatchBuilderResponseFormat_V0.CustomPatchInputValueSchema()
             ])
         )
+    }
+    
+    struct LayerNodeSchema: Encodable {
+        let node_id = OpenAISchema(type: .string)
+        let suggested_title = OpenAISchema(type: .string)
+        let node_name = OpenAISchemaRef(ref: "NodeName")
+        let children = OpenAISchemaRef(ref: "Layer_Nodes")
     }
 
     struct JsPatchNodeSchema: Encodable {
@@ -145,12 +161,54 @@ enum AIPatchBuilderResponseFormat_V0 {
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
     struct GraphData: Codable {
+        let layer_nodes: [AIPatchBuilderResponseFormat_V0.LayerNode]
         let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
 //        let layers: [Self.LayerNode]
         let patch_connections: [PatchConnection]
         let layer_connections: [LayerConnection]
         let custom_patch_input_values: [CustomPatchInputValue]
+    }
+    
+    struct LayerNode: Codable {
+        let node_id: StitchAIUUID_V0.StitchAIUUID
+        var suggested_title: String?
+        let node_name: StitchAIPatchOrLayer
+        var children: [LayerNode]?
+        
+        enum CodingKeys: String, CodingKey {
+            case node_id
+            case suggested_title
+            case node_name
+            case children
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(node_id, forKey: .node_id)
+            try container.encode(node_name, forKey: .node_name)
+            
+            try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
+
+            // Only encode children if group layer
+            try container.encodeIfPresent(children, forKey: .children)
+        }
+        
+        init(from decoder: any Decoder) throws {
+            var container = try decoder.container(keyedBy: CodingKeys.self)
+            node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
+            suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
+            node_name = try container.decode(StitchAIPatchOrLayer.self, forKey: .node_name)
+            
+            if let children = try container.decodeIfPresent([LayerNode].self, forKey: .children) {
+                self.children = children
+            } else {
+                // Make sure we have an empty list if layer is a group
+                if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
+                    self.children = []
+                }
+            }
+        }
     }
     
     struct JsPatchNode: Codable {
