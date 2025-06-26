@@ -23,7 +23,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         let defs = PatchBuilderStructuredOutputsDefinitions()
         let schema = OpenAISchema(type: .object,
                                   properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                  required: ["layers", "javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_input_values"])
+                                  required: ["layers", "javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_patch_input_values", "custom_layer_input_values"])
         let strict = true
     }
 
@@ -47,14 +47,26 @@ enum AIPatchBuilderResponseFormat_V0 {
             description: "A nested list of layer nodes to be created in the graph.",
             items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.LayerNodeSchema()])
         )
-    }
-    
-    struct GraphBuilderSchema: Encodable {
-        static let nodeIndexedCoordinateSchema = OpenAISchema(
+        
+        let Values = OpenAIGeneric(types: [
+            OpenAISchema(type: .number),
+            OpenAISchema(type: .string),
+            OpenAISchema(type: .boolean),
+            OpenAISchema(type: .object, additionalProperties: false)
+          ])
+        
+        let PatchCoordinate = OpenAISchema(
             type: .object,
             properties: NodeIndexedCoordinateSchema(),
             required: ["node_id", "port_index"])
         
+        let LayerInputCoordinate = OpenAISchema(
+            type: .object,
+            properties: LayerInputCoordinateSchema(),
+            required: ["layer_id", "input_port_type"])
+    }
+    
+    struct GraphBuilderSchema: Encodable {
         let layers = OpenAISchemaRef(ref: "Layer_Nodes")
         
         let javascript_patches = OpenAISchema(
@@ -82,6 +94,14 @@ enum AIPatchBuilderResponseFormat_V0 {
             required: ["src_port", "dest_port"],
             items: OpenAIGeneric(types: [
                 AIPatchBuilderResponseFormat_V0.LayerConnectionSchema()
+            ])
+        )
+
+        let custom_layer_input_values = OpenAISchema(
+            type: .array,
+            required: ["layer_input_coordinate", "value", "value_type"],
+            items: OpenAIGeneric(types: [
+                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
             ])
         )
         
@@ -117,28 +137,24 @@ enum AIPatchBuilderResponseFormat_V0 {
     }
     
     struct PatchConnectionSchema: Encodable {
-        let src_port = AIPatchBuilderResponseFormat_V0.GraphBuilderSchema.nodeIndexedCoordinateSchema
-        let dest_port = AIPatchBuilderResponseFormat_V0.GraphBuilderSchema.nodeIndexedCoordinateSchema
+        let src_port = OpenAISchemaRef(ref: "PatchCoordinate")
+        let dest_port = OpenAISchemaRef(ref: "PatchCoordinate")
     }
     
     struct LayerConnectionSchema: Encodable {
-        let src_port = AIPatchBuilderResponseFormat_V0.GraphBuilderSchema.nodeIndexedCoordinateSchema
-        let dest_port = OpenAISchema(
-            type: .object,
-            properties: LayerInputCoordinateSchema(),
-            required: ["layer_id", "input_port_type"])
+        let src_port = OpenAISchemaRef(ref: "PatchCoordinate")
+        let dest_port = OpenAISchemaRef(ref: "LayerInputCoordinate")
     }
     
     struct CustomPatchInputValueSchema: Encodable {
-        let patch_input_coordinate = AIPatchBuilderResponseFormat_V0.GraphBuilderSchema.nodeIndexedCoordinateSchema
-        
-        let value = OpenAIGeneric(types: [
-            OpenAISchema(type: .number),
-            OpenAISchema(type: .string),
-            OpenAISchema(type: .boolean),
-            OpenAISchema(type: .object, additionalProperties: false)
-          ])
-        
+        let patch_input_coordinate = OpenAISchemaRef(ref: "PatchCoordinate")
+        let value = OpenAISchemaRef(ref: "Values")
+        let value_type = OpenAISchemaRef(ref: "ValueType")
+    }
+    
+    struct CustomLayerInputValueSchema: Encodable {
+        let layer_input_coordinate = OpenAISchemaRef(ref: "LayerInputCoordinate")
+        let value = OpenAISchemaRef(ref: "Values")
         let value_type = OpenAISchemaRef(ref: "ValueType")
     }
     
@@ -166,6 +182,7 @@ extension AIPatchBuilderResponseFormat_V0 {
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
         let patch_connections: [PatchConnection]
         let layer_connections: [LayerConnection]
+        let custom_layer_input_values: [CustomLayerInputValue]
         let custom_patch_input_values: [CustomPatchInputValue]
     }
     
@@ -194,7 +211,7 @@ extension AIPatchBuilderResponseFormat_V0 {
         }
         
         init(from decoder: any Decoder) throws {
-            var container = try decoder.container(keyedBy: CodingKeys.self)
+            let container = try decoder.container(keyedBy: CodingKeys.self)
             node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
             suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
             node_name = try container.decode(StitchAIPatchOrLayer.self, forKey: .node_name)
@@ -245,6 +262,11 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct CustomPatchInputValue: Codable {
         let patch_input_coordinate: NodeIndexedCoordinate
+        let value: Step_V0.PortValue
+    }
+    
+    struct CustomLayerInputValue: Codable {
+        let layer_input_coordinate: LayerInputCoordinate
         let value: Step_V0.PortValue
     }
     

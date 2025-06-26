@@ -21,6 +21,6 @@ extension Step_V0.NodeIOPortType {
 
 extension Step_V0.LayerInputPort {
     var asLLMStepPort: String {
-        self.label(useShortLabel: true)
+        self.label(useShortLabel: false)
     }
 }

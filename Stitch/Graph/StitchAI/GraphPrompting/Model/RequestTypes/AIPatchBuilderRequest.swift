@@ -88,6 +88,24 @@ extension StitchDocumentViewModel {
         
         return sidebarData
     }
+    
+    @MainActor
+    func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
+                                      value: CurrentStep.PortValue) throws {
+        let graph = self.visibleGraph
+        let migratedValue = try value.migrate()
+        
+        guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
+            log("applyAction: could not apply setInput")
+            // fatalErrorIfDebug()
+            throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+        }
+        
+        // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
+        graph.inputEditCommitted(input: input,
+                                 value: migratedValue,
+                                 activeIndex: self.activeIndex)
+    }
 }
 
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
@@ -135,21 +153,18 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         // Update graph data so that input observers are created
         graph.updateGraphData(document)
         
-        // new constants
+        // new constants for patches
         for newInputValueSetting in self.custom_patch_input_values {
             let inputCoordinate = NodeIOCoordinate(from: newInputValueSetting.patch_input_coordinate)
-            let migratedValue = try newInputValueSetting.value.migrate()
-            
-            guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
-                log("applyAction: could not apply setInput")
-                // fatalErrorIfDebug()
-                throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
-            }
-            
-            // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
-            graph.inputEditCommitted(input: input,
-                                     value: migratedValue,
-                                     activeIndex: document.activeIndex)
+            try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
+                                                      value: newInputValueSetting.value)
+        }
+        
+        // new constants for layers
+        for newInputValueSetting in self.custom_layer_input_values {
+            let inputCoordinate = try NodeIOCoordinate(from: newInputValueSetting.layer_input_coordinate)
+            try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
+                                                      value: newInputValueSetting.value)
         }
         
         // new edges to downstream patches
