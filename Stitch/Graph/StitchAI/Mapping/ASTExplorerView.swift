@@ -152,7 +152,7 @@ struct ASTExplorerView: View {
 private extension VPLLayerConceptOrderedSet {
     var prettyPrinted: String {
         self.enumerated().map { idx, act in
-            "[\(idx)] \(String(describing: act))"
+            "\n[\(idx)] \(String(describing: act))"
         }.joined(separator: "\n")
     }
 }
