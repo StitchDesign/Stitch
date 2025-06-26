@@ -2,7 +2,8 @@
 You are an assistant that **generates source code for a SwiftUI view**. This code will be run inside a visual prototyping tool called Stitch.
 * Your output is **not executed**, it is **emitted as code** to be interpreted later.
 * Return _only_ the Swift source code (no commentary).
-* Omit any newlines tags ("\n") from the string response.
+* Omit any newlines tags ("
+") from the string response.
 * **DO NOT evaluate the code. DO NOT execute any part of it. Only return the source code as a complete Swift string.**
 * You are writing the logic of a visual programming graph, using pure Swift functions.
 * The code must define a top-level function `updateLayerInputs(...)`, which serves as the entry point for updating visual layer inputs.
@@ -232,14 +233,13 @@ Here's an example payload for each `PortValue` by its type:
     },
     {
       "example" : {
-        "id" : "7D1D9845-548E-4F2B-9934-087627AB9C52",
+        "id" : "A3221B6F-57D6-450A-B03E-AFF54DCEE961",
         "value" : {
         }
       },
       "type" : "JSON"
     },
-    {
-      "example" : "get",
+    {      "example" : "get",
       "type" : "Network Request Type"
     },
     {
@@ -301,7 +301,8 @@ Here's an example payload for each `PortValue` by its type:
       "example" : "medium",
       "type" : "Date and Time Format"
     },
-    {      "example" : {
+    {
+      "example" : {
         "_baseFrame" : [
           [
             0,
@@ -460,50 +461,1625 @@ Here's an example payload for each `PortValue` by its type:
 }
 ```
 ## Patch Examples
-Each function should mimic logic composed in patch nodes in Stitch (or Origami Studio). We provide an example list of patches to demonstrate the kind of functions expected in the Swift source code:
-[Optional(Stitch.StitchAINodeIODescription(nodeKind: "value || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "add || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "convertPosition || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "From Parent", value: StitchSchemaKit.PortValue_V31.PortValue.assignedLayer(nil)), Stitch.StitchAIPortValueDescription(label: "From Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "To Parent", value: StitchSchemaKit.PortValue_V31.PortValue.assignedLayer(nil)), Stitch.StitchAIPortValueDescription(label: "To Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "dragInteraction || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Layer", value: StitchSchemaKit.PortValue_V31.PortValue.assignedLayer(nil)), Stitch.StitchAIPortValueDescription(label: "Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Momentum", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Start", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Reset", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Clip", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Min", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Max", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Velocity", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Translation", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "pressInteraction || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Layer", value: StitchSchemaKit.PortValue_V31.PortValue.assignedLayer(nil)), Stitch.StitchAIPortValueDescription(label: "Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Delay", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.3))], outputs: [Stitch.StitchAIPortValueDescription(label: "Down", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Tapped", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Double Tapped", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Velocity", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Translation", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "legacyScrollInteraction || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Layer", value: StitchSchemaKit.PortValue_V31.PortValue.assignedLayer(nil)), Stitch.StitchAIPortValueDescription(label: "Scroll X", value: StitchSchemaKit.PortValue_V31.PortValue.scrollMode(StitchSchemaKit.ScrollMode_V31.ScrollMode.free)), Stitch.StitchAIPortValueDescription(label: "Scroll Y", value: StitchSchemaKit.PortValue_V31.PortValue.scrollMode(StitchSchemaKit.ScrollMode_V31.ScrollMode.free)), Stitch.StitchAIPortValueDescription(label: "Content Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Direction Locking", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Page Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Page Padding", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Jump Style X", value: StitchSchemaKit.PortValue_V31.PortValue.scrollJumpStyle(StitchSchemaKit.ScrollJumpStyle_V31.ScrollJumpStyle.instant)), Stitch.StitchAIPortValueDescription(label: "Jump to X", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump Position X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump Style Y", value: StitchSchemaKit.PortValue_V31.PortValue.scrollJumpStyle(StitchSchemaKit.ScrollJumpStyle_V31.ScrollJumpStyle.instant)), Stitch.StitchAIPortValueDescription(label: "Jump to Y", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump Position Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Deceleration Rate", value: StitchSchemaKit.PortValue_V31.PortValue.scrollDecelerationRate(StitchSchemaKit.ScrollDecelerationRate_V31.ScrollDecelerationRate.normal))], outputs: [Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "repeatingPulse || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Frequency", value: StitchSchemaKit.PortValue_V31.PortValue.number(3.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "delay || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Delay", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Style", value: StitchSchemaKit.PortValue_V31.PortValue.delayStyle(StitchSchemaKit.DelayStyle_V31.DelayStyle.always))], outputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "pack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "W", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "H", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "unpack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "W", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "H", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "counter || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Increase", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Decrease", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump to Number", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Maximum Count", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "switch || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Flip", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Turn On", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Turn Off", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "On/Off", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "multiply || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "optionPicker || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Option", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loop || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Count", value: StitchSchemaKit.PortValue_V31.PortValue.number(3.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "time || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Time", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.03335145837627351)), Stitch.StitchAIPortValueDescription(label: "Frame", value: StitchSchemaKit.PortValue_V31.PortValue.number(2.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "deviceTime || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Seconds", value: StitchSchemaKit.PortValue_V31.PortValue.number(1750883622.0)), Stitch.StitchAIPortValueDescription(label: "Milliseconds", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.912013053894043))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "location || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Override", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 87671AA0-1C67-4A4B-9F45-C6CC65FEEDD5, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Latitude", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Longitude", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Name", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 4E96CF1C-0BD4-4762-8C63-A35A2EF22DB0, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "random || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Randomize", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Start Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "End Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(50.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "greaterOrEqual || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(200.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "lessThanOrEqual || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(200.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "equals || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Threshold", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "restartPrototype || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Restart", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "divide || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "hslColor || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Hue", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.8)), Stitch.StitchAIPortValueDescription(label: "Lightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.8)), Stitch.StitchAIPortValueDescription(label: "Alpha", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.64 0.96 0.96 1))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "or || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "and || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "not || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "springAnimation || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Mass", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stiffness", value: StitchSchemaKit.PortValue_V31.PortValue.number(130.5)), Stitch.StitchAIPortValueDescription(label: "Damping", value: StitchSchemaKit.PortValue_V31.PortValue.number(18.85))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "popAnimation || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Bounciness", value: StitchSchemaKit.PortValue_V31.PortValue.number(5.0)), Stitch.StitchAIPortValueDescription(label: "Speed", value: StitchSchemaKit.PortValue_V31.PortValue.number(10.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "bouncyConverter || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Bounciness", value: StitchSchemaKit.PortValue_V31.PortValue.number(5.0)), Stitch.StitchAIPortValueDescription(label: "Speed", value: StitchSchemaKit.PortValue_V31.PortValue.number(10.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Friction", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Tension", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "optionSwitch || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Set to 0", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Set to 1", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Set to 2", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Option", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "pulseOnChange || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "pulse || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "On/Off", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "Turned On", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Turned Off", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "classicAnimation || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Duration", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Curve", value: StitchSchemaKit.PortValue_V31.PortValue.animationCurve(StitchSchemaKit.ClassicAnimationCurve_V31.ClassicAnimationCurve.linear))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "cubicBezierAnimation || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Duration", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "1st Control Point X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.17)), Stitch.StitchAIPortValueDescription(label: "1st Control Point Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.17)), Stitch.StitchAIPortValueDescription(label: "2nd Control Point X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "2nd Control Point y", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Path", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "curve || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Curve", value: StitchSchemaKit.PortValue_V31.PortValue.animationCurve(StitchSchemaKit.ClassicAnimationCurve_V31.ClassicAnimationCurve.linear))], outputs: [Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "cubicBezierCurve || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "1st Control Point X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.17)), Stitch.StitchAIPortValueDescription(label: "1st Control Point Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.17)), Stitch.StitchAIPortValueDescription(label: "2nd Control Point X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "2nd Control Point Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "2D Progress", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "repeatingAnimation || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Duration", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Curve", value: StitchSchemaKit.PortValue_V31.PortValue.animationCurve(StitchSchemaKit.ClassicAnimationCurve_V31.ClassicAnimationCurve.linear)), Stitch.StitchAIPortValueDescription(label: "Mirrored", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Reset", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopBuilder || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Values", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopInsert || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 1 0.270588 0.227451 1)), Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.74902 0.352941 0.94902 1)), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Insert", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "imageClassification || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Model", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Image", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))], outputs: [Stitch.StitchAIPortValueDescription(label: "Classification", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: D84FC677-4AF1-4582-AA1B-F30AEFF25D5A, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Confidence", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "objectDetection || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Model", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Image", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Crop & Scale", value: StitchSchemaKit.PortValue_V31.PortValue.vnImageCropOption(__C.VNImageCropAndScaleOption))], outputs: [Stitch.StitchAIPortValueDescription(label: "Detections", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: DBEAA1A1-CC36-4698-9292-F5F0184BFF9E, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Confidence", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Locations", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Bounding Box", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "transition || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5)), Stitch.StitchAIPortValueDescription(label: "Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(50.0)), Stitch.StitchAIPortValueDescription(label: "End", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(75.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "imageImport || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "cameraFeed || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Enable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Camera", value: StitchSchemaKit.PortValue_V31.PortValue.cameraDirection(StitchSchemaKit.CameraDirection_V31.CameraDirection.front)), Stitch.StitchAIPortValueDescription(label: "Orientation", value: StitchSchemaKit.PortValue_V31.PortValue.cameraOrientation(StitchSchemaKit.StitchCameraOrientation_V31.StitchCameraOrientation.portrait))], outputs: [Stitch.StitchAIPortValueDescription(label: "Stream", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "raycasting || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Request", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Origin", value: StitchSchemaKit.PortValue_V31.PortValue.plane(StitchSchemaKit.Plane_V31.Plane.any)), Stitch.StitchAIPortValueDescription(label: "X Offsest", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Y Offset", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Transform", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "arAnchor || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Transform", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 1.0, scaleY: 1.0, scaleZ: 1.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "AR Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchorEntity(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "sampleAndHold || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Sample", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Reset", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "grayscale || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Media", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))], outputs: [Stitch.StitchAIPortValueDescription(label: "Grayscale", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopSelect || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Input", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 3844FB3D-2CEA-4989-9ED7-8FD82FC4D75E, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Index Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: D17E2E1E-06FB-43F3-A97B-FBCF0E82C24D, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "videoImport || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Scrubbable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Scrub Time", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Playing", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Looped", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Peak Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Playback", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Duration", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "sampleRange || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Start", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "End", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "soundImport || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Jump Time", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Playing", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Looped", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Play Rate", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Sound", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Peak Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Playback", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Duration", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Volume Spectrum", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "speaker || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Sound", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "microphone || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Peak Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "networkRequest || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "URL", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: FAC0F5A9-01C4-4D3F-A4D2-CC726DFF273F, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "URL Parameters", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Body", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Headers", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Method", value: StitchSchemaKit.PortValue_V31.PortValue.networkRequestType(StitchSchemaKit.NetworkRequestType_V31.NetworkRequestType.get)), Stitch.StitchAIPortValueDescription(label: "Request", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Loading", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Result", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: EAFCE55C-0924-49AE-9CAC-E066A6161927, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Errored", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Error", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: C3EEA6B5-2B34-4FA0-8D25-DEACE439B0C5, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Headers", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 4128A2F2-0A70-4599-9516-44F76EE453BC, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "valueForKey || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Object", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: B3A077E3-2B10-4AFB-B5D6-C1BF7E922D04, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Key", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: AC6F5C27-CD87-42CC-A771-B14E2915FD33, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: EB68EFD9-CC5A-442B-AE1D-B4072BD240F3, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "valueAtIndex || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: F9213CE1-3CE2-4E2B-BEE4-133F79C6CE75, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: A0A34E5B-F62C-4D2B-AE22-E92E5BEB1E91, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopOverArray || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-})))], outputs: [Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Items", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 6EA98467-A946-4355-B39E-93CAF9A3D9F3, value: [
-])))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "setValueForKey || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Object", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Key", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 2676ED4D-D3E5-4B52-85D5-F7601A200B17, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Object", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 43A5F2B0-2D0E-4CDF-A468-6D53BB8F3E96, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "jsonObject || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Key", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: E8D00632-0625-4169-9F91-0442EFE36270, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Object", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 8253440D-9EF7-43AE-8066-8EE7A8348DB3, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "jsonArray || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 9726324F-FFCD-4234-9D3E-E57FC8683E82, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "arrayAppend || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 8D3B5863-E36C-4100-AD29-CF8604160FC7, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Item", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: DA5B18DA-18C6-48C7-A254-DC78A5124AC4, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Append", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 1EDFB66F-8083-4CFD-B8F7-54E1152F25EB, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "arrayCount || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-})))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "arrayJoin || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-})))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: AD52AE14-2A0F-4328-ACB4-CE8FBF9E4B44, value: [
-])))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "arrayReverse || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-})))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: E1E480CE-6A65-41E3-93D9-93FC9B7E20CE, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "arraySort || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Ascending", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: D31EC5DC-37FB-452B-B821-26DA900E4920, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "getKeys || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Object", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-})))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 7F20E5AF-1A10-4F32-8B75-141F72466AF0, value: [
-])))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "indexOf || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Item", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: CC3D8584-409D-4FC9-8E9C-FAA65CF3D325, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(-1.0)), Stitch.StitchAIPortValueDescription(label: "Contains", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "subArray || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Array", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 6EA98467-A946-4355-B39E-93CAF9A3D9F3, value: [
-]))), Stitch.StitchAIPortValueDescription(label: "Location", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Length", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Subarray", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 4F9851D1-4D13-4061-9CAE-338904A6100A, value: [
-])))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "valueAtPath || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Object", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: D6216781-0614-42ED-B71E-057C59925134, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Path", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: D49E4403-5354-4C90-9C44-7452BA192735, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: D808546E-EDE3-4F9B-9A1D-9961964FFCBE, value: {
-})))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "deviceMotion || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Has Acceleration", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Acceleration", value: StitchSchemaKit.PortValue_V31.PortValue.point3D(StitchSchemaKit.Point3D_V31.Point3D(x: 0.0, y: 0.0, z: 0.0))), Stitch.StitchAIPortValueDescription(label: "Has Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.point3D(StitchSchemaKit.Point3D_V31.Point3D(x: 0.0, y: 0.0, z: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "deviceInfo || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Screen Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 1728.0, height: 1117.0))), Stitch.StitchAIPortValueDescription(label: "Screen Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Orientation", value: StitchSchemaKit.PortValue_V31.PortValue.deviceOrientation(StitchSchemaKit.StitchDeviceOrientation_V31.StitchDeviceOrientation.unknown)), Stitch.StitchAIPortValueDescription(label: "Device Type", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "Mac", id: 60F6F8F2-17E7-4E0A-919C-C75198DC61E7, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Appearance", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "Dark", id: E8F3D981-5C42-49EB-B879-78A00496F8B1, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Safe Area Top", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Safe Area Bottom", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "smoothValue || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Hysteresis", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.4)), Stitch.StitchAIPortValueDescription(label: "Reset", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "velocity || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "clip || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Min", value: StitchSchemaKit.PortValue_V31.PortValue.number(-5.0)), Stitch.StitchAIPortValueDescription(label: "Max", value: StitchSchemaKit.PortValue_V31.PortValue.number(5.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "max || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "mod || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "absoluteValue || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "round || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Places", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rounded Up", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "progress || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "End", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "reverseProgress || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "End", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "wirelessBroadcaster || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "wirelessReceiver || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "rgbColor || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Red", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Green", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blue", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Alpha", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "arcTan2 || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "sine || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Angle", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "cosine || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Angle", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "hapticFeedback || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Play", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Style", value: StitchSchemaKit.PortValue_V31.PortValue.mobileHapticStyle(StitchSchemaKit.MobileHapticStyle_V31.MobileHapticStyle.heavy))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "imageToBase64 || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: D45DCCFC-A154-4D9C-9FB6-344ECAA94D4F, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "base64ToImage || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: E0C35840-6B4D-471E-B376-05FEAB5C2250, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "onPrototypeStart || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "soulver || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "34% of 2k", id: A1496841-BA15-49BA-8A1B-2D68498BED37, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "680", id: D7BF0D61-6C41-44C3-B1ED-756E927E3F9E, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "optionEquals || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Option", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "a", id: 238B1D0B-09CC-4DB7-91F3-16A8245C0330, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "a", id: 9955BD73-8890-44E2-8910-031193863514, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "b", id: FBCF3B22-E604-451F-8458-AA1757F3C6DD, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Equals", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "subtract || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "squareRoot || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "length || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "min || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "power || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "equalsExactly || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "greaterThan || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "lessThan || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(200.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "colorToHsl || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1))], outputs: [Stitch.StitchAIPortValueDescription(label: "Hue", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Lightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Alpha", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "colorToHex || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1))], outputs: [Stitch.StitchAIPortValueDescription(label: "Hex", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "#000000FF", id: 9933D36B-60AC-46B0-A4EC-867A7C09D780, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "colorToRgb || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1))], outputs: [Stitch.StitchAIPortValueDescription(label: "Red", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Green", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blue", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Alpha", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "hexColor || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Hex", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "#000000FF", id: 4E35B10E-23FF-41BC-9729-15BBB9BD8FA4, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "splitText || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: D8FDEC9C-55BE-4136-83BF-80553FB72D14, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Token", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 7B944A13-0EA4-45D7-A637-E97BD64F7B4A, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 077659EE-01F1-40A7-97DB-59EFAD94F61F, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "textEndsWith || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 8702C67C-417F-4D7B-A43D-8FA23DFCAAF8, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Suffix", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 4B9197A9-0F8C-4B25-87BE-2E8FBBD16F68, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "textLength || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 42533A6D-B931-489E-8ACA-6A9F6202CAA2, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "textReplace || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 3F64EFCC-E6C1-492D-8C3B-7ED47D53F851, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Find", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 89084372-6C28-4BE5-ADE6-C297D4B72819, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Replace", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 80FFA34F-37C3-4363-B989-215C29F46DB8, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Case Sensitive", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: E665FE55-8A0D-4AE9-9F59-33EEAAD5987C, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "textStartsWith || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 1921F3D1-4766-499E-B948-62647F6ED3B0, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Prefix", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: E9180692-D39F-415C-A6ED-33456EB15CD8, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "textTransform || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 1DA1693A-E092-4ABC-9B8D-718C449D57D4, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Transform", value: StitchSchemaKit.PortValue_V31.PortValue.textTransform(StitchSchemaKit.TextTransform_V31.TextTransform.uppercase))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: EFAC12AC-4630-4D6E-8DC4-E9F52C3367F4, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "trimText || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: D724EA99-F7AA-4BD4-B45B-1A896ABEE9D0, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Length", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: B9730EF8-DC46-4B57-A591-67CD50D1D9E1, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "dateAndTimeFormatter || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Time", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Format", value: StitchSchemaKit.PortValue_V31.PortValue.dateAndTimeFormat(StitchSchemaKit.DateAndTimeFormat_V31.DateAndTimeFormat.medium)), Stitch.StitchAIPortValueDescription(label: "Custom Format", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 0DF09F5E-AA2B-4100-8744-C90ADD36C3E7, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "Jan 1, 1970 at 12:00:00 AM", id: 5633F435-917F-4231-B5ED-92D5E0DB38AC, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "stopwatch || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Start", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Stop", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Reset", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Time", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "optionSender || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Option", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Value", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Default", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "any || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Grouping", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopCount || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopDedupe || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopFilter || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Input", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: EC848BDB-79EA-4A67-9B72-A872BD190CE4, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Include", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: EC848BDB-79EA-4A67-9B72-A872BD190CE4, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopOptionSwitch || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Option", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopRemove || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: ADB7A0B2-27AD-4A04-9CEB-EF8B6B9FDBAA, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Remove", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 20849ED1-9462-4822-BA56-EB6D065EF6DF, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopReverse || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopShuffle || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shuffle", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopSum || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "loopToArray || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 6A2F8A61-EEAE-4812-AB55-24DCC8E42852, value: [
-  0
-])))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "runningTotal || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Loop", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "layerInfo || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Layer", value: StitchSchemaKit.PortValue_V31.PortValue.assignedLayer(nil))], outputs: [Stitch.StitchAIPortValueDescription(label: "Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Parent", value: StitchSchemaKit.PortValue_V31.PortValue.assignedLayer(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "triangleShape || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "First Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Second Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, -100.0))), Stitch.StitchAIPortValueDescription(label: "Third Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((100.0, 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(Optional(StitchSchemaKit.CustomShape_V31.CustomShape(shapes: [StitchSchemaKit.ShapeAndRect_V31.ShapeAndRect.triangle(StitchSchemaKit.TriangleData_V31.TriangleData(p1: (0.0, 0.0), p2: (0.0, -100.0), p3: (100.0, 0.0)))], _baseFrame: (0.0, 0.0, 100.0, 100.0), _west: 0.0, _east: 100.0, _north: -100.0, _south: 0.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "circleShape || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(10.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(Optional(StitchSchemaKit.CustomShape_V31.CustomShape(shapes: [StitchSchemaKit.ShapeAndRect_V31.ShapeAndRect.circle((0.0, 0.0, 20.0, 20.0))], _baseFrame: (0.0, 0.0, 20.0, 20.0), _west: -10.0, _east: 10.0, _north: -10.0, _south: 10.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "ovalShape || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 20.0, height: 20.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(Optional(StitchSchemaKit.CustomShape_V31.CustomShape(shapes: [StitchSchemaKit.ShapeAndRect_V31.ShapeAndRect.oval((0.0, 0.0, 20.0, 20.0))], _baseFrame: (0.0, 0.0, 20.0, 20.0), _west: -10.0, _east: 10.0, _north: -10.0, _south: 10.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "roundedRectangleShape || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(Optional(StitchSchemaKit.CustomShape_V31.CustomShape(shapes: [StitchSchemaKit.ShapeAndRect_V31.ShapeAndRect.rectangle(StitchSchemaKit.RoundedRectangleData_V31.RoundedRectangleData(rect: (0.0, 0.0, 100.0, 100.0), cornerRadius: 4.0))], _baseFrame: (0.0, 0.0, 100.0, 100.0), _west: -50.0, _east: 50.0, _north: -50.0, _south: 50.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "union || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shape(nil)), Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shape(nil))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shape(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "keyboard || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Key", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "a", id: A02CA62E-3F1F-4B8F-9923-15E6E80FD091, isLargeString: false)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Down", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "jsonToShape || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "JSON", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 90EBDFF8-528B-45EB-B940-A9DA3EB10EA8, value: {
-}))), Stitch.StitchAIPortValueDescription(label: "Coordinate Space", value: StitchSchemaKit.PortValue_V31.PortValue.position((1.0, 1.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(nil)), Stitch.StitchAIPortValueDescription(label: "Error", value: StitchSchemaKit.PortValue_V31.PortValue.json(StitchSchemaKit.StitchJSON_V31.StitchJSON(id: 4C09A805-47E1-4BCA-94E9-676F55B27090, value: {
-  "Error" : "instructionsMalformed"
-}))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "shapeToCommands || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(Optional(StitchSchemaKit.CustomShape_V31.CustomShape(shapes: [StitchSchemaKit.ShapeAndRect_V31.ShapeAndRect.custom([StitchSchemaKit.JSONShapeCommand_V31.JSONShapeCommand.moveTo((0.0, 0.0)), StitchSchemaKit.JSONShapeCommand_V31.JSONShapeCommand.lineTo((100.0, 100.0)), StitchSchemaKit.JSONShapeCommand_V31.JSONShapeCommand.curveTo(StitchSchemaKit.JSONCurveTo_V31.JSONCurveTo(point: (200.0, 200.0), controlPoint1: (150.0, 100.0), controlPoint2: (150.0, 200.0)))])], _baseFrame: (0.0, 0.0, 200.0, 200.0), _west: 0.0, _east: 200.0, _north: 0.0, _south: 200.0))))], outputs: [Stitch.StitchAIPortValueDescription(label: "Commands", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.moveTo(point: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "commandsToShape || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Commands", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.moveTo(point: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0))))], outputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(Optional(StitchSchemaKit.CustomShape_V31.CustomShape(shapes: [StitchSchemaKit.ShapeAndRect_V31.ShapeAndRect.custom([StitchSchemaKit.JSONShapeCommand_V31.JSONShapeCommand.moveTo((0.0, 0.0)), StitchSchemaKit.JSONShapeCommand_V31.JSONShapeCommand.lineTo((100.0, 100.0)), StitchSchemaKit.JSONShapeCommand_V31.JSONShapeCommand.curveTo(StitchSchemaKit.JSONCurveTo_V31.JSONCurveTo(point: (200.0, 200.0), controlPoint1: (150.0, 100.0), controlPoint2: (150.0, 200.0)))])], _baseFrame: (0.0, 0.0, 200.0, 200.0), _west: 0.0, _east: 200.0, _north: 0.0, _south: 200.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "mouse || Patch", inputs: [], outputs: [Stitch.StitchAIPortValueDescription(label: "Down", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Velocity", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "sizePack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "W", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "H", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "sizeUnpack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "W", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "H", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "positionPack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "positionUnpack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "point3DPack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.point3D(StitchSchemaKit.Point3D_V31.Point3D(x: 0.0, y: 0.0, z: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "point3DUnpack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.point3D(StitchSchemaKit.Point3D_V31.Point3D(x: 0.0, y: 0.0, z: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "point4DPack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "W", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.point4D(StitchSchemaKit.Point4D_V31.Point4D(x: 0.0, y: 0.0, z: 0.0, w: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "point4DUnpack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.point4D(StitchSchemaKit.Point4D_V31.Point4D(x: 0.0, y: 0.0, z: 0.0, w: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "W", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "transformPack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Position X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Position Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Position Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Scale X", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 0.0, scaleY: 0.0, scaleZ: 0.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "transformUnpack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 0.0, scaleY: 0.0, scaleZ: 0.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Position X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Position Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Position Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Scale X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Scale Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Scale Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "closePath || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.closePath))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.moveTo(point: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "moveToPack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.moveTo(point: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "lineToPack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.moveTo(point: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "curveToPack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Curve From", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Curve To", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.moveTo(point: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0))))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "curveToUnpack || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCommand(StitchSchemaKit.ShapeCommand_V31.ShapeCommand.curveTo(curveFrom: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0), point: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0), curveTo: StitchSchemaKit.PathPoint_V31.PathPoint(x: 0.0, y: 0.0))))], outputs: [Stitch.StitchAIPortValueDescription(label: "Point", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Curve From", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Curve To", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "mathExpression || Patch", inputs: [], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "qrCodeDetection || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Image", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))], outputs: [Stitch.StitchAIPortValueDescription(label: "QR Code Detected", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Message", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 29345CF0-63B9-4C4E-AB84-3F401971FF6E, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Locations", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Bounding Box", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "delay1 || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))], outputs: [Stitch.StitchAIPortValueDescription(label: "", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "durationAndBounceConverter || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Duration", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Bounce", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5))], outputs: [Stitch.StitchAIPortValueDescription(label: "Stiffness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Damping", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "responseAndDampingRatioConverter || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Response", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Damping Ratio", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5))], outputs: [Stitch.StitchAIPortValueDescription(label: "Stiffness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Damping", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "settlingDurationAndDampingRatioConverter || Patch", inputs: [Stitch.StitchAIPortValueDescription(label: "Settling Duration", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Damping Ratio", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5))], outputs: [Stitch.StitchAIPortValueDescription(label: "Stiffness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Damping", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0))]))]
+Each function should mimic logic composed in patch nodes in Stitch (or Origami Studio). We provide an example list of patches to demonstrate the kind of functions expected in the Swift source code:```
+[
+  {
+    "description" : "stores a value.",
+    "node_kind" : "value || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Adds two numbers together.",
+    "node_kind" : "add || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size",
+      "string"
+    ]
+  },
+  {
+    "description" : "converts position values between layers.",
+    "node_kind" : "convertPosition || Patch"
+  },
+  {
+    "description" : "detects a drag interaction.",
+    "node_kind" : "dragInteraction || Patch"
+  },
+  {
+    "description" : "detects a press interaction.",
+    "node_kind" : "pressInteraction || Patch"
+  },
+  {
+    "description" : "Adds scroll interaction to a specified layer.",
+    "node_kind" : "legacyScrollInteraction || Patch"
+  },
+  {
+    "description" : "A node that will fire a pulse at a defined interval.",
+    "node_kind" : "repeatingPulse || Patch"
+  },
+  {
+    "description" : "delays a value by a specified number of seconds.",
+    "node_kind" : "delay || Patch"
+  },
+  {
+    "description" : "creates a new value from inputs.",
+    "node_kind" : "pack || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "position",
+      "shapeCommand",
+      "size",
+      "transform"
+    ]
+  },
+  {
+    "description" : "splits a value into components.",
+    "node_kind" : "unpack || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "position",
+      "shapeCommand",
+      "size",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Counter that can be incremented, decremented, or set to a specified value. Starts at 0.",
+    "node_kind" : "counter || Patch"
+  },
+  {
+    "description" : "A node that will flip between an On and Off state whenever a pulse is received.",
+    "node_kind" : "switch || Patch"
+  },
+  {
+    "description" : "Multiplies two numbers together.",
+    "node_kind" : "multiply || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "The Option Picker node lets you cycle through and select one of N inputs to use a the output. Multiple inputs can be added and removed from the node, and it can be configured to work with a variety of node types.",
+    "node_kind" : "optionPicker || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Generate a loop of indices. For example, an input of 3 outputs a loop of [0, 1, 2].",
+    "node_kind" : "loop || Patch"
+  },
+  {
+    "description" : "Returns number of seconds and frames since a prototype started.",
+    "node_kind" : "time || Patch"
+  },
+  {
+    "description" : "Returns the current time of the device your prototype is running on.",
+    "node_kind" : "deviceTime || Patch"
+  },
+  {
+    "description" : "gets the current location.",
+    "node_kind" : "location || Patch"
+  },
+  {
+    "description" : "generates a random value.",
+    "node_kind" : "random || Patch"
+  },
+  {
+    "description" : "Checks if one value is greater or equal to another.",
+    "node_kind" : "greaterOrEqual || Patch"
+  },
+  {
+    "description" : "Checks if one value is less than or equal to another.",
+    "node_kind" : "lessThanOrEqual || Patch"
+  },
+  {
+    "description" : "Checks if two values are equal.",
+    "node_kind" : "equals || Patch"
+  },
+  {
+    "description" : "A node that will restart the state of your prototype. All inputs and outputs of th nodes on your graph will be reset.",
+    "node_kind" : "restartPrototype || Patch"
+  },
+  {
+    "description" : "Divides one number by another.",
+    "node_kind" : "divide || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "generates a color from HSL components.",
+    "node_kind" : "hslColor || Patch"
+  },
+  {
+    "description" : "Logical OR operation.",
+    "node_kind" : "or || Patch"
+  },
+  {
+    "description" : "Logical AND operation.",
+    "node_kind" : "and || Patch"
+  },
+  {
+    "description" : "Logical NOT operation.",
+    "node_kind" : "not || Patch"
+  },
+  {
+    "description" : "Creates an animation based off of the physical model of a spring",
+    "node_kind" : "springAnimation || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : " Animates a value using a spring effect.",
+    "node_kind" : "popAnimation || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "Converts bounce and duration values to spring animation parameters.",
+    "node_kind" : "bouncyConverter || Patch"
+  },
+  {
+    "description" : "Used to control two or more states with an index value. N number of inputs can b added to the node.",
+    "node_kind" : "optionSwitch || Patch"
+  },
+  {
+    "description" : "The Pulse On Change node outputs a pulse if an input value comes in that i different from the specified value.",
+    "node_kind" : "pulseOnChange || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Outputs a pulse event when it's toggled on or off.",
+    "node_kind" : "pulse || Patch"
+  },
+  {
+    "description" : "Animates a number using a standard animation curve.",
+    "node_kind" : "classicAnimation || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "Creates custom animation curves by defining two control points",
+    "node_kind" : "cubicBezierAnimation || Patch"
+  },
+  {
+    "description" : "Defines an animation curve.",
+    "node_kind" : "curve || Patch"
+  },
+  {
+    "description" : "Creates a cubic bezier curve for animations.",
+    "node_kind" : "cubicBezierCurve || Patch"
+  },
+  {
+    "description" : "Repeatedly animates a number.",
+    "node_kind" : "repeatingAnimation || Patch"
+  },
+  {
+    "description" : "Creates a new loop with specified values.",
+    "node_kind" : "loopBuilder || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Insert a new value at a particular index in a loop.",
+    "node_kind" : "loopInsert || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "performs image classification on an image or video.",
+    "node_kind" : "imageClassification || Patch"
+  },
+  {
+    "description" : "detects objects in an image or video.",
+    "node_kind" : "objectDetection || Patch"
+  },
+  {
+    "description" : "Controls transitions between states.",
+    "node_kind" : "transition || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "imports an image asset.",
+    "node_kind" : "imageImport || Patch"
+  },
+  {
+    "description" : "creates a live camera feed.",
+    "node_kind" : "cameraFeed || Patch"
+  },
+  {
+    "description" : "Returns a 3D location in physical space that corresponds to a given 2D location o the screen.",
+    "node_kind" : "raycasting || Patch"
+  },
+  {
+    "description" : "Creates an AR anchor from a 3D model and an ARTransform. Represents the positio and orientation of a 3D item in the physical environment.",
+    "node_kind" : "arAnchor || Patch"
+  },
+  {
+    "description" : "stores a value until new one is received.",
+    "node_kind" : "sampleAndHold || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "applies grayscale effect to image/video.",
+    "node_kind" : "grayscale || Patch"
+  },
+  {
+    "description" : "Selects specific elements from a loop.",
+    "node_kind" : "loopSelect || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "imports a video asset.",
+    "node_kind" : "videoImport || Patch"
+  },
+  {
+    "description" : "samples a range of values.",
+    "node_kind" : "sampleRange || Patch"
+  },
+  {
+    "description" : "imports an audio asset.",
+    "node_kind" : "soundImport || Patch"
+  },
+  {
+    "description" : "handles audio speaker output.",
+    "node_kind" : "speaker || Patch"
+  },
+  {
+    "description" : "handles microphone input.",
+    "node_kind" : "microphone || Patch"
+  },
+  {
+    "description" : "The Network Request node allows you to make HTTP GET and POST requests to an endpoint. Results are returned as JSON.",
+    "node_kind" : "networkRequest || Patch",
+    "types" : [
+      "json",
+      "media",
+      "string"
+    ]
+  },
+  {
+    "description" : "extracts a value from JSON by key.",
+    "node_kind" : "valueForKey || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "extracts a value from JSON by index.",
+    "node_kind" : "valueAtIndex || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Iterates over elements in an array.",
+    "node_kind" : "loopOverArray || Patch"
+  },
+  {
+    "description" : "Sets a value for a specified key in an object.",
+    "node_kind" : "setValueForKey || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "creates a JSON object from key-value pairs.",
+    "node_kind" : "jsonObject || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "creates a JSON array from inputs.",
+    "node_kind" : "jsonArray || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : " This node appends to the end of the provided array.",
+    "node_kind" : "arrayAppend || Patch"
+  },
+  {
+    "description" : "This node returns the number of items in an array.",
+    "node_kind" : "arrayCount || Patch"
+  },
+  {
+    "description" : "Joins array elements into a string.",
+    "node_kind" : "arrayJoin || Patch"
+  },
+  {
+    "description" : "This node reverses the order of the items in the array.",
+    "node_kind" : "arrayReverse || Patch"
+  },
+  {
+    "description" : "This node sorts the array in ascending order.",
+    "node_kind" : "arraySort || Patch"
+  },
+  {
+    "description" : "Gets all keys from an object.",
+    "node_kind" : "getKeys || Patch"
+  },
+  {
+    "description" : "Gets the index of an element in an array.",
+    "node_kind" : "indexOf || Patch"
+  },
+  {
+    "description" : "Returns a subarray from a given array.",
+    "node_kind" : "subArray || Patch"
+  },
+  {
+    "description" : "extracts a value from JSON by path.",
+    "node_kind" : "valueAtPath || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Returns the acceleration and rotation values of the device the patch is running on.",
+    "node_kind" : "deviceMotion || Patch"
+  },
+  {
+    "description" : "gets info of the running device.",
+    "node_kind" : "deviceInfo || Patch"
+  },
+  {
+    "description" : "smoothes input value.",
+    "node_kind" : "smoothValue || Patch"
+  },
+  {
+    "description" : "measures velocity over time.",
+    "node_kind" : "velocity || Patch"
+  },
+  {
+    "description" : "Clips a value to a specified range.",
+    "node_kind" : "clip || Patch"
+  },
+  {
+    "description" : "Finds the maximum of two numbers.",
+    "node_kind" : "max || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size",
+      "string"
+    ]
+  },
+  {
+    "description" : "Calculates the remainder of a division.",
+    "node_kind" : "mod || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "Finds the absolute value of a number.",
+    "node_kind" : "absoluteValue || Patch"
+  },
+  {
+    "description" : "Rounds a number to the nearest integer.",
+    "node_kind" : "round || Patch"
+  },
+  {
+    "description" : "calculates progress value.",
+    "node_kind" : "progress || Patch"
+  },
+  {
+    "description" : "calculates inverse progress.",
+    "node_kind" : "reverseProgress || Patch"
+  },
+  {
+    "description" : "Sends a value to a selected Wireless Receiver node. Useful for organizing large complicated projects by replacing cables between patches.",
+    "node_kind" : "wirelessBroadcaster || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "-Used with the Wireless Broadcaster node to route values across the graph. Useful fo organizing large, complicated projects.",
+    "node_kind" : "wirelessReceiver || Patch"
+  },
+  {
+    "description" : "Creates a color from RGBA components.",
+    "node_kind" : "rgbColor || Patch"
+  },
+  {
+    "description" : "Calculates the arctangent of a quotient.",
+    "node_kind" : "arcTan2 || Patch"
+  },
+  {
+    "description" : "Calculates the sine of an angle.",
+    "node_kind" : "sine || Patch"
+  },
+  {
+    "description" : "Calculates the cosine of an angle.",
+    "node_kind" : "cosine || Patch"
+  },
+  {
+    "description" : "generates haptic feedback.",
+    "node_kind" : "hapticFeedback || Patch"
+  },
+  {
+    "description" : "converts an image to a base64 string.",
+    "node_kind" : "imageToBase64 || Patch"
+  },
+  {
+    "description" : "converts a base64 string to an image.",
+    "node_kind" : "base64ToImage || Patch"
+  },
+  {
+    "description" : "fires pulse when prototype starts.",
+    "node_kind" : "onPrototypeStart || Patch"
+  },
+  {
+    "description" : "evaluates plain-text math expressions.",
+    "node_kind" : "soulver || Patch"
+  },
+  {
+    "description" : "Checks if an option equals a specific value.",
+    "node_kind" : "optionEquals || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Subtracts one number from another.",
+    "node_kind" : "subtract || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "Calculates the square root of a number.",
+    "node_kind" : "squareRoot || Patch",
+    "types" : [
+      "3dPoint",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "Calculates the length of a collection.",
+    "node_kind" : "length || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size",
+      "string"
+    ]
+  },
+  {
+    "description" : "Finds the minimum of two numbers.",
+    "node_kind" : "min || Patch",
+    "types" : [
+      "3dPoint",
+      "color",
+      "number",
+      "position",
+      "size",
+      "string"
+    ]
+  },
+  {
+    "description" : "Raises a number to the power of another.",
+    "node_kind" : "power || Patch",
+    "types" : [
+      "3dPoint",
+      "number",
+      "position",
+      "size"
+    ]
+  },
+  {
+    "description" : "Checks if two values are exactly equal.",
+    "node_kind" : "equalsExactly || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Checks if one value is greater than another.",
+    "node_kind" : "greaterThan || Patch"
+  },
+  {
+    "description" : "Checks if one value is less than another.",
+    "node_kind" : "lessThan || Patch"
+  },
+  {
+    "description" : "converts a color to HSL components.",
+    "node_kind" : "colorToHsl || Patch"
+  },
+  {
+    "description" : "converts a color to a hex string.",
+    "node_kind" : "colorToHex || Patch"
+  },
+  {
+    "description" : "converts a color to RGB components.",
+    "node_kind" : "colorToRgb || Patch"
+  },
+  {
+    "description" : "converts a hex string to a color.",
+    "node_kind" : "hexColor || Patch"
+  },
+  {
+    "description" : "Splits text into parts.",
+    "node_kind" : "splitText || Patch"
+  },
+  {
+    "description" : "Checks if text ends with a specific substring.",
+    "node_kind" : "textEndsWith || Patch"
+  },
+  {
+    "description" : "Calculates the length of a text string.",
+    "node_kind" : "textLength || Patch"
+  },
+  {
+    "description" : "Replaces text within a string.",
+    "node_kind" : "textReplace || Patch"
+  },
+  {
+    "description" : "Checks if text starts with a specific substring.",
+    "node_kind" : "textStartsWith || Patch"
+  },
+  {
+    "description" : "Transforms text into a different format.",
+    "node_kind" : "textTransform || Patch"
+  },
+  {
+    "description" : "Removes whitespace from the beginning and end of a text string.",
+    "node_kind" : "trimText || Patch"
+  },
+  {
+    "description" : "creates a human-readable date/time value from a time in seconds.",
+    "node_kind" : "dateAndTimeFormatter || Patch"
+  },
+  {
+    "description" : "measures elapsed time in seconds.",
+    "node_kind" : "stopwatch || Patch"
+  },
+  {
+    "description" : "Used to pick an output to send a value to. Multiple value types can be used wit this node.",
+    "node_kind" : "optionSender || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Returns true if any input is true.",
+    "node_kind" : "any || Patch"
+  },
+  {
+    "description" : "Counts the number of elements in a loop.",
+    "node_kind" : "loopCount || Patch"
+  },
+  {
+    "description" : "Removes duplicate elements from a loop.",
+    "node_kind" : "loopDedupe || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Filters elements in a loop based on a condition.",
+    "node_kind" : "loopFilter || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Switches between different loop options.",
+    "node_kind" : "loopOptionSwitch || Patch"
+  },
+  {
+    "description" : "Removes a value from a specified index in a loop.",
+    "node_kind" : "loopRemove || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Reverse the order of the values in a loop",
+    "node_kind" : "loopReverse || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Randomly reorders the values in a loop.",
+    "node_kind" : "loopShuffle || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "Calculates the sum of every value in a loop.",
+    "node_kind" : "loopSum || Patch"
+  },
+  {
+    "description" : "Converts a loop into an array.",
+    "node_kind" : "loopToArray || Patch",
+    "types" : [
+      "3dPoint",
+      "4dPoint",
+      "anchor",
+      "animationCurve",
+      "bool",
+      "cameraDirection",
+      "cameraOrientation",
+      "color",
+      "fit",
+      "json",
+      "layer",
+      "layerDimension",
+      "layerStroke",
+      "media",
+      "networkRequestType",
+      "number",
+      "orientation",
+      "padding",
+      "pinToId",
+      "position",
+      "pulse",
+      "shape",
+      "shapeCommand",
+      "size",
+      "sizingScenario",
+      "spacing",
+      "string",
+      "textDecoration",
+      "textFont",
+      "transform"
+    ]
+  },
+  {
+    "description" : "continuously sums values.",
+    "node_kind" : "runningTotal || Patch"
+  },
+  {
+    "description" : "Returns information about a specified layer.",
+    "node_kind" : "layerInfo || Patch"
+  },
+  {
+    "description" : "generates a triangle shape.",
+    "node_kind" : "triangleShape || Patch"
+  },
+  {
+    "description" : "generates a circle shape.",
+    "node_kind" : "circleShape || Patch"
+  },
+  {
+    "description" : "generates an oval shape.",
+    "node_kind" : "ovalShape || Patch"
+  },
+  {
+    "description" : "generates a rounded rectangle shape.",
+    "node_kind" : "roundedRectangleShape || Patch"
+  },
+  {
+    "description" : "Combines two or more shapes to generate a new shape.",
+    "node_kind" : "union || Patch"
+  },
+  {
+    "description" : "handles keyboard input.",
+    "node_kind" : "keyboard || Patch"
+  },
+  {
+    "description" : "creates a Shape from JSON.",
+    "node_kind" : "jsonToShape || Patch"
+  },
+  {
+    "description" : "takes a shape as input, outputs the commands to generate the shape.",
+    "node_kind" : "shapeToCommands || Patch"
+  },
+  {
+    "description" : "generates a shape from a given loop of shape commands.",
+    "node_kind" : "commandsToShape || Patch"
+  },
+  {
+    "description" : "handles mouse input.",
+    "node_kind" : "mouse || Patch"
+  },
+  {
+    "description" : "Packs two Layer Dimension inputs to a single Layer Size output.",
+    "node_kind" : "sizePack || Patch"
+  },
+  {
+    "description" : "Unpacks a single Layer Size input to two Layer Size outputs.",
+    "node_kind" : "sizeUnpack || Patch"
+  },
+  {
+    "description" : "Packs two Number inputs to a single Position output.",
+    "node_kind" : "positionPack || Patch"
+  },
+  {
+    "description" : "Unpacks a position into X and Y components.",
+    "node_kind" : "positionUnpack || Patch"
+  },
+  {
+    "description" : "Packs three Number inputs to a single Point3D output.",
+    "node_kind" : "point3DPack || Patch"
+  },
+  {
+    "description" : "Unpacks a 3D point into X, Y, and Z components.",
+    "node_kind" : "point3DUnpack || Patch"
+  },
+  {
+    "description" : "Packs four Number inputs to a single Point4D output.",
+    "node_kind" : "point4DPack || Patch"
+  },
+  {
+    "description" : "Unpacks a 4D point into X, Y, Z, and W components.",
+    "node_kind" : "point4DUnpack || Patch"
+  },
+  {
+    "description" : "packs inputs into a transform.",
+    "node_kind" : "transformPack || Patch"
+  },
+  {
+    "description" : "unpacks a transform.",
+    "node_kind" : "transformUnpack || Patch"
+  },
+  {
+    "description" : "ClosePath shape command.",
+    "node_kind" : "closePath || Patch"
+  },
+  {
+    "description" : "packs a position into a MoveTo shape command.",
+    "node_kind" : "moveToPack || Patch"
+  },
+  {
+    "description" : "packs a position into a LineTo shape command.",
+    "node_kind" : "lineToPack || Patch"
+  },
+  {
+    "description" : "Packs Point, CurveTo and CurveFrom position inputs into a CurveTo ShapeCommand.",
+    "node_kind" : "curveToPack || Patch"
+  },
+  {
+    "description" : "Unpack packs CurveTo ShapeCommand into a Point, CurveTo and CurveFrom position outputs.",
+    "node_kind" : "curveToUnpack || Patch"
+  },
+  {
+    "description" : "Evaluates a mathematical expression.",
+    "node_kind" : "mathExpression || Patch"
+  },
+  {
+    "description" : "detects the value of a QR code from an image or video.",
+    "node_kind" : "qrCodeDetection || Patch"
+  },
+  {
+    "description" : "delays incoming value by 1 frame.",
+    "node_kind" : "delay1 || Patch"
+  },
+  {
+    "description" : "Convert duration and bounce values to mass, stiffness and damping for a Spring Animation node.",
+    "node_kind" : "durationAndBounceConverter || Patch"
+  },
+  {
+    "description" : "Convert response and damping ratio to mass, stiffness and damping for a Spring Animation node.",
+    "node_kind" : "responseAndDampingRatioConverter || Patch"
+  },
+  {
+    "description" : "Convert settling duration and damping ratio to mass, stiffness and damping for a Spring Animation node.",
+    "node_kind" : "settlingDurationAndDampingRatioConverter || Patch"
+  }
+]
+```
 ## Layer Info
 ### Layer  Types
 You may expect the following layer types:
-[Optional(Stitch.StitchAINodeIODescription(nodeKind: "text || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Pivot", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Text", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "Text", id: 29B05DD1-A6BF-4A70-98AE-5220E9BCD6FE, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Text Font", value: StitchSchemaKit.PortValue_V31.PortValue.textFont(StitchSchemaKit.StitchFont_V31.StitchFont(fontChoice: StitchSchemaKit.StitchFontChoice_V31.StitchFontChoice.sf, fontWeight: StitchSchemaKit.StitchFontWeight_V31.StitchFontWeight.SF_regular))), Stitch.StitchAIPortValueDescription(label: "Font Size", value: StitchSchemaKit.PortValue_V31.PortValue.layerDimension(36.0)), Stitch.StitchAIPortValueDescription(label: "Text Alignment", value: StitchSchemaKit.PortValue_V31.PortValue.textAlignment(StitchSchemaKit.LayerTextAlignment_V31.LayerTextAlignment.left)), Stitch.StitchAIPortValueDescription(label: "Vertical Text Alignment", value: StitchSchemaKit.PortValue_V31.PortValue.textVerticalAlignment(StitchSchemaKit.LayerTextVerticalAlignment_V31.LayerTextVerticalAlignment.top)), Stitch.StitchAIPortValueDescription(label: "Text Decoration", value: StitchSchemaKit.PortValue_V31.PortValue.textDecoration(StitchSchemaKit.LayerTextDecoration_V31.LayerTextDecoration.none)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "oval || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Pivot", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "rectangle || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Corner Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Pivot", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "image || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Image", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 393.0, height: 200.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Fit Style", value: StitchSchemaKit.PortValue_V31.PortValue.fitStyle(StitchSchemaKit.VisualMediaFitStyle_V31.VisualMediaFitStyle.fill)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Clipped", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "group || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: hug, height: hug))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Clipped", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaK0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Column Spacing", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Row Spacing", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Cell Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Content Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Auto Scroll", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Scroll X Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Jump Style X", value: StitchSchemaKit.PortValue_V31.PortValue.scrollJumpStyle(StitchSchemaKit.ScrollJumpStyle_V31.ScrollJumpStyle.instant)), Stitch.StitchAIPortValueDescription(label: "Jump to X", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump Position X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Scroll Y Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Jump Style Y", value: StitchSchemaKit.PortValue_V31.PortValue.scrollJumpStyle(StitchSchemaKit.ScrollJumpStyle_V31.ScrollJumpStyle.instant)), Stitch.StitchAIPortValueDescription(label: "Jump to Y", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Jump Position Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Children Alignment", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Spacing", value: StitchSchemaKit.PortValue_V31.PortValue.spacing(StitchSchemaKit.StitchSpacing_V31.StitchSpacing.number(0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Scroll Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "video || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Video", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 393.0, height: 200.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Fit Style", value: StitchSchemaKit.PortValue_V31.PortValue.fitStyle(StitchSchemaKit.VisualMediaFitStyle_V31.VisualMediaFitStyle.fill)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Clipped", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "3dModel || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "3D Model", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil)), Stitch.StitchAIPortValueDescription(label: "Anchor Entity", value: StitchSchemaKit.PortValue_V31.PortValue.anchorEntity(nil)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "3D Transform", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 1.0, scaleY: 1.0, scaleZ: 1.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0))), Stitch.StitchAIPortValueDescription(label: "Animating", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Translation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "realityView || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Camera Direction", value: StitchSchemaKit.PortValue_V31.PortValue.cameraDirection(StitchSchemaKit.CameraDirection_V31.CameraDirection.back)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 393.0, height: 200.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Camera Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Shadows Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "shape || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Shape", value: StitchSchemaKit.PortValue_V31.PortValue.shape(nil)), Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Coordinate System", value: StitchSchemaKit.PortValue_V31.PortValue.shapeCoordinates(StitchSchemaKit.ShapeCoordinates_V31.ShapeCoordinates.relative)), Stitch.StitchAIPortValueDescription(label: "Pivot", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "colorFill || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Enable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "hitArea || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Enable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Setup Mode", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "canvasSketch || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Line Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Line Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 200.0, height: 200.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Image", value: StitchSchemaKit.PortValue_V31.PortValue.asyncMedia(nil))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "textField || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 300.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Pivot", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Text Font", value: StitchSchemaKit.PortValue_V31.PortValue.textFont(StitchSchemaKit.StitchFont_V31.StitchFont(fontChoice: StitchSchemaKit.StitchFontChoice_V31.StitchFontChoice.sf, fontWeight: StitchSchemaKit.StitchFontWeight_V31.StitchFontWeight.SF_regular))), Stitch.StitchAIPortValueDescription(label: "Font Size", value: StitchSchemaKit.PortValue_V31.PortValue.layerDimension(36.0)), Stitch.StitchAIPortValueDescription(label: "Text Alignment", value: StitchSchemaKit.PortValue_V31.PortValue.textAlignment(StitchSchemaKit.LayerTextAlignment_V31.LayerTextAlignment.left)), Stitch.StitchAIPortValueDescription(label: "Vertical Text Alignment", value: StitchSchemaKit.PortValue_V31.PortValue.textVerticalAlignment(StitchSchemaKit.LayerTextVerticalAlignment_V31.LayerTextVerticalAlignment.top)), Stitch.StitchAIPortValueDescription(label: "Text Decoration", value: StitchSchemaKit.PortValue_V31.PortValue.textDecoration(StitchSchemaKit.LayerTextDecoration_V31.LayerTextDecoration.none)), Stitch.StitchAIPortValueDescription(label: "Placeholder", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "Placeholder Text", id: 5DAC2903-CA92-43D0-BF67-C908B7E1594A, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Begin Editing", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "End Editing", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Set Text", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Text To Set", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 0D11CEEA-15CB-4561-860E-6F275134E52F, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Secure Entry", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Spellcheck Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true))], outputs: [Stitch.StitchAIPortValueDescription(label: "Field", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 44C59853-5A70-4300-A67D-3221D8A624A6, isLargeString: false)))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "map || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Map Style", value: StitchSchemaKit.PortValue_V31.PortValue.mapType(StitchSchemaKit.StitchMapType_V31.StitchMapType.standard)), Stitch.StitchAIPortValueDescription(label: "Lat/Long", value: StitchSchemaKit.PortValue_V31.PortValue.position((38.0, -122.5))), Stitch.StitchAIPortValueDescription(label: "Span", value: StitchSchemaKit.PortValue_V31.PortValue.position((1.0, 1.0))), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 200.0, height: 500.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "progressIndicator || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Animating", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Style", value: StitchSchemaKit.PortValue_V31.PortValue.progressIndicatorStyle(StitchSchemaKit.ProgressIndicatorStyle_V31.ProgressIndicatorStyle.circular)), Stitch.StitchAIPortValueDescription(label: "Progress", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "toggleSwitch || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Toggle", value: StitchSchemaKit.PortValue_V31.PortValue.pulse(0.0)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [Stitch.StitchAIPortValueDescription(label: "Enabled", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false))])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "linearGradient || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Enable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Start Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "End Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 1.0))), Stitch.StitchAIPortValueDescription(label: "Start Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 1 0.839216 0.0392157 1)), Stitch.StitchAIPortValueDescription(label: "End Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.0392157 0.517647 1 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "radialGradient || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Enable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Start Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 1 0.839216 0.0392157 1)), Stitch.StitchAIPortValueDescription(label: "End Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.0392157 0.517647 1 1)), Stitch.StitchAIPortValueDescription(label: "Start Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Start Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "End Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0)), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "angularGradient || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Enable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Start Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 1 0.839216 0.0392157 1)), Stitch.StitchAIPortValueDescription(label: "End Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.0392157 0.517647 1 1)), Stitch.StitchAIPortValueDescription(label: "Center Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Start Angle", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "End Angle", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0)), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "sfSymbol || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "SF Symbol", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "pencil.and.scribble", id: 927FBFEC-DB30-4B84-AD2E-EE4767F23A23, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Corner Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Pivot", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "videoStreaming || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Enable", value: StitchSchemaKit.PortValue_V31.PortValue.bool(true)), Stitch.StitchAIPortValueDescription(label: "Video URL", value: StitchSchemaKit.PortValue_V31.PortValue.string(StitchSchemaKit.StitchStringValue_V31.StitchStringValue(string: "", id: 0757AECC-3FB6-4D93-B66F-2060C028520C, isLargeString: false))), Stitch.StitchAIPortValueDescription(label: "Volume", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.5)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 300.0, height: 400.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "material || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Rotation X", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Y", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Rotation Z", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Pivot", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.5, y: 0.5))), Stitch.StitchAIPortValueDescription(label: "Masks", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Shadow Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Shadow Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Shadow Offset", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Material", value: StitchSchemaKit.PortValue_V31.PortValue.materialThickness(StitchSchemaKit.MaterialThickness_V31.MaterialThickness.regular)), Stitch.StitchAIPortValueDescription(label: "Device Appearance", value: StitchSchemaKit.PortValue_V31.PortValue.deviceAppearance(StitchSchemaKit.DeviceAppearance_V31.DeviceAppearance.system)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Position", value: StitchSchemaKit.PortValue_V31.PortValue.layerStroke(StitchSchemaKit.LayerStroke_V31.LayerStroke.none)), Stitch.StitchAIPortValueDescription(label: "Stroke Width", value: StitchSchemaKit.PortValue_V31.PortValue.number(4.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0 0 0 1)), Stitch.StitchAIPortValueDescription(label: "Stroke Start", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Stroke End", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Cap", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineCap(StitchSchemaKit.StrokeLineCap_V31.StrokeLineCap.round)), Stitch.StitchAIPortValueDescription(label: "Stroke Line Join", value: StitchSchemaKit.PortValue_V31.PortValue.strokeLineJoin(StitchSchemaKit.StrokeLineJoin_V31.StrokeLineJoin.round)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "box || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Anchor Entity", value: StitchSchemaKit.PortValue_V31.PortValue.anchorEntity(nil)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "3D Transform", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 1.0, scaleY: 1.0, scaleZ: 1.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0))), Stitch.StitchAIPortValueDescription(label: "Translation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Corner Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Metallic", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Size 3D", value: StitchSchemaKit.PortValue_V31.PortValue.point3D(StitchSchemaKit.Point3D_V31.Point3D(x: 100.0, y: 100.0, z: 100.0))), Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "sphere || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Anchor Entity", value: StitchSchemaKit.PortValue_V31.PortValue.anchorEntity(nil)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "3D Transform", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 1.0, scaleY: 1.0, scaleZ: 1.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0))), Stitch.StitchAIPortValueDescription(label: "Translation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Metallic", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0)), Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "cylinder || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Anchor Entity", value: StitchSchemaKit.PortValue_V31.PortValue.anchorEntity(nil)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "3D Transform", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 1.0, scaleY: 1.0, scaleZ: 1.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0))), Stitch.StitchAIPortValueDescription(label: "Translation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Metallic", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0)), Stitch.StitchAIPortValueDescription(label: "Height", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0)), Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: [])), Optional(Stitch.StitchAINodeIODescription(nodeKind: "cone || Layer", inputs: [Stitch.StitchAIPortValueDescription(label: "Anchor Entity", value: StitchSchemaKit.PortValue_V31.PortValue.anchorEntity(nil)), Stitch.StitchAIPortValueDescription(label: "Position", value: StitchSchemaKit.PortValue_V31.PortValue.position((0.0, 0.0))), Stitch.StitchAIPortValueDescription(label: "Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 100.0, height: 100.0))), Stitch.StitchAIPortValueDescription(label: "Opacity", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Anchoring", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Z Index", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "3D Transform", value: StitchSchemaKit.PortValue_V31.PortValue.transform(StitchSchemaKit.StitchTransform_V31.StitchTransform(positionX: 0.0, positionY: 0.0, positionZ: 0.0, scaleX: 1.0, scaleY: 1.0, scaleZ: 1.0, rotationX: 0.0, rotationY: 0.0, rotationZ: 0.0))), Stitch.StitchAIPortValueDescription(label: "Translation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Scale", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Metallic", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Radius", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0)), Stitch.StitchAIPortValueDescription(label: "Height", value: StitchSchemaKit.PortValue_V31.PortValue.number(100.0)), Stitch.StitchAIPortValueDescription(label: "Color", value: StitchSchemaKit.PortValue_V31.PortValue.color(UIExtendedSRGBColorSpace 0.639216 0.537255 0.929412 1)), Stitch.StitchAIPortValueDescription(label: "Blur", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Blend Mode", value: StitchSchemaKit.PortValue_V31.PortValue.blendMode(StitchSchemaKit.StitchBlendMode_V31.StitchBlendMode.normal)), Stitch.StitchAIPortValueDescription(label: "Brightness", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Color Invert", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Contrast", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Hue Rotation", value: StitchSchemaKit.PortValue_V31.PortValue.number(0.0)), Stitch.StitchAIPortValueDescription(label: "Saturation", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Width Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Height Axis", value: StitchSchemaKit.PortValue_V31.PortValue.number(1.0)), Stitch.StitchAIPortValueDescription(label: "Content Mode", value: StitchSchemaKit.PortValue_V31.PortValue.contentMode(StitchSchemaKit.StitchContentMode_V31.StitchContentMode.fit)), Stitch.StitchAIPortValueDescription(label: "Sizing", value: StitchSchemaKit.PortValue_V31.PortValue.sizingScenario(StitchSchemaKit.SizingScenario_V31.SizingScenario.auto)), Stitch.StitchAIPortValueDescription(label: "Min Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Max Size", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: auto, height: auto))), Stitch.StitchAIPortValueDescription(label: "Pinned", value: StitchSchemaKit.PortValue_V31.PortValue.bool(false)), Stitch.StitchAIPortValueDescription(label: "Pin To", value: StitchSchemaKit.PortValue_V31.PortValue.pinTo(StitchSchemaKit.PinToId_V31.PinToId.root)), Stitch.StitchAIPortValueDescription(label: "Pin Anchor", value: StitchSchemaKit.PortValue_V31.PortValue.anchoring(StitchSchemaKit.Anchoring_V31.Anchoring(x: 0.0, y: 0.0))), Stitch.StitchAIPortValueDescription(label: "Pin Offset", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Padding", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Layer Margin", value: StitchSchemaKit.PortValue_V31.PortValue.padding(StitchSchemaKit.StitchPadding_V31.StitchPadding(top: 0.0, right: 0.0, bottom: 0.0, left: 0.0))), Stitch.StitchAIPortValueDescription(label: "Offset in Group", value: StitchSchemaKit.PortValue_V31.PortValue.size(StitchSchemaKit.LayerSize_V31.LayerSize(width: 0.0, height: 0.0)))], outputs: []))]
+```
+[
+  {
+    "description" : "displays a text string.",
+    "node_kind" : "text || Layer"
+  },
+  {
+    "description" : "displays an oval.",
+    "node_kind" : "oval || Layer"
+  },
+  {
+    "description" : "displays a rectangle.",
+    "node_kind" : "rectangle || Layer"
+  },
+  {
+    "description" : "displays an image.",
+    "node_kind" : "image || Layer"
+  },
+  {
+    "description" : "A container layer that can hold multiple child layers.",
+    "node_kind" : "group || Layer"
+  },
+  {
+    "description" : "displays a video.",
+    "node_kind" : "video || Layer"
+  },
+  {
+    "description" : "Layer - display a 3D model asset (of a USDZ file type) in the preview window.",
+    "node_kind" : "3dModel || Layer"
+  },
+  {
+    "description" : "displays AR scene output.",
+    "node_kind" : "realityView || Layer"
+  },
+  {
+    "description" : "takes a Shape and displays it.",
+    "node_kind" : "shape || Layer"
+  },
+  {
+    "description" : "displays a color fill.",
+    "node_kind" : "colorFill || Layer"
+  },
+  {
+    "description" : "A layer that defines an interactive area for touch input.",
+    "node_kind" : "hitArea || Layer"
+  },
+  {
+    "description" : "draw custom shapes interactively.",
+    "node_kind" : "canvasSketch || Layer"
+  },
+  {    "description" : "An editable text input field.",
+    "node_kind" : "textField || Layer"
+  },
+  {
+    "description" : "The Map node will display an Apple Maps UI in the preview window.",
+    "node_kind" : "map || Layer"
+  },
+  {
+    "description" : "Displays a progress indicator or loading state.",
+    "node_kind" : "progressIndicator || Layer"
+  },
+  {
+    "description" : "A toggle switch control layer.",
+    "node_kind" : "toggleSwitch || Layer"
+  },
+  {
+    "description" : "Creates a linear gradient.",
+    "node_kind" : "linearGradient || Layer"
+  },
+  {
+    "description" : "-Creates a radial gradient.",
+    "node_kind" : "radialGradient || Layer"
+  },
+  {
+    "description" : "Creates an angular gradient.",
+    "node_kind" : "angularGradient || Layer"
+  },
+  {
+    "description" : "Creates an SF Symbol.",
+    "node_kind" : "sfSymbol || Layer"
+  },
+  {
+    "description" : "displays a streaming video.",
+    "node_kind" : "videoStreaming || Layer"
+  },
+  {
+    "description" : "A Material Effect layer.",
+    "node_kind" : "material || Layer"
+  },
+  {
+    "description" : "A box 3D shape, which can be used inside a Reality View.",
+    "node_kind" : "box || Layer"
+  },
+  {
+    "description" : "A sphere 3D shape, which can be used inside a Reality View.",
+    "node_kind" : "sphere || Layer"
+  },
+  {
+    "description" : "A cylinder 3D shape, which can be used inside a Reality View.",
+    "node_kind" : "cylinder || Layer"
+  },
+  {
+    "description" : "A cylinder 3D shape, which can be used inside a Reality View.",
+    "node_kind" : "cone || Layer"
+  }
+]
+```
 ### Inputs and Outputs Definitions for Patches and Layers
 The schema below presents the list of inputs and outputs supported for each native patch and layer in Stitch. Patches here cannot be invoked unless previously stated as permissible earlier in this document. Layers themselves cannot be created here, however we can set inputs to layers that are passed into the `updateLayerInputs` function. 
 **Please note the value types for `label` used specifically for layer nodes below. This refers to the name of the layer port that is used for `LayerPortCoordinate`**. 
@@ -544,6 +2120,75 @@ Each patch and layer supports the following inputs and outputs:
         "nodeKind" : "counter || Patch",
         "outputs" : [
           {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "value || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Flip",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Turn On",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Turn Off",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "switch || Patch",
+        "outputs" : [
+          {
+            "label" : "On/Off",
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Randomize",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Start Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End Value",
+            "value" : 50,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "random || Patch",
+        "outputs" : [
+          {
+            "label" : "Value",
             "value" : 0,
             "valueType" : "number"
           }
@@ -928,48 +2573,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "value || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Flip",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Turn On",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Turn Off",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "switch || Patch",
-        "outputs" : [
-          {
-            "label" : "On/Off",
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Line Color",
             "value" : "#000000FF",
             "valueType" : "color"
@@ -1072,8 +2675,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "layerStroke"
           },
           {
-            "label" : "Stroke Width",
-            "value" : 4,
+            "label" : "Stroke Width",            "value" : 4,
             "valueType" : "number"
           },
           {
@@ -1233,58 +2835,12 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "media"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Randomize",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Start Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End Value",
-            "value" : 50,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "random || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
       }
     ]
   },
   {
     "header" : "Math Operation Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "min || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
       {
         "inputs" : [
           {
@@ -1297,6 +2853,32 @@ Each patch and layer supports the following inputs and outputs:
           {
             "value" : "680",
             "valueType" : "string"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Min",
+            "value" : -5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Max",
+            "value" : 5,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "clip || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
           }
         ]
       },
@@ -1327,17 +2909,6 @@ Each patch and layer supports the following inputs and outputs:
       },
       {
         "inputs" : [
-        ],
-        "nodeKind" : "mathExpression || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
           {
             "value" : 0,
             "valueType" : "number"
@@ -1351,21 +2922,6 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "length || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
             "valueType" : "number"
           }
         ]
@@ -1392,6 +2948,32 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "squareRoot || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+        ],
+        "nodeKind" : "mathExpression || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "value" : 0,
             "valueType" : "number"
           },
@@ -1411,7 +2993,7 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : 0,
+            "value" : 1,
             "valueType" : "number"
           },
           {
@@ -1419,7 +3001,41 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "multiply || Patch",
+        "nodeKind" : "min || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "absoluteValue || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "mod || Patch",
         "outputs" : [
           {
             "value" : 0,
@@ -1451,6 +3067,40 @@ Each patch and layer supports the following inputs and outputs:
           {
             "value" : 1,
             "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "length || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "multiply || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
           },
           {
             "value" : 0,
@@ -1461,81 +3111,6 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "absoluteValue || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "squareRoot || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "mod || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Min",
-            "value" : -5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Max",
-            "value" : 5,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "clip || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
             "valueType" : "number"
           }
         ]
@@ -1545,44 +3120,6 @@ Each patch and layer supports the following inputs and outputs:
   {
     "header" : "Comparison Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "and || Patch",
-        "outputs" : [
-          {
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "or || Patch",
-        "outputs" : [
-          {
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ]
-      },
       {
         "inputs" : [
           {
@@ -1609,11 +3146,68 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           },
           {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "greaterThan || Patch",
+        "outputs" : [
+          {
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 200,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "lessThan || Patch",
+        "outputs" : [
+          {
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
             "value" : 200,
             "valueType" : "number"
           }
         ],
         "nodeKind" : "greaterOrEqual || Patch",
+        "outputs" : [
+          {
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "or || Patch",
         "outputs" : [
           {
             "value" : false,
@@ -1656,7 +3250,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "lessThan || Patch",
+        "nodeKind" : "lessThanOrEqual || Patch",
         "outputs" : [
           {
             "value" : true,
@@ -1667,18 +3261,18 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : 0,
-            "valueType" : "number"
+            "value" : false,
+            "valueType" : "bool"
           },
           {
-            "value" : 200,
-            "valueType" : "number"
+            "value" : false,
+            "valueType" : "bool"
           }
         ],
-        "nodeKind" : "lessThanOrEqual || Patch",
+        "nodeKind" : "and || Patch",
         "outputs" : [
           {
-            "value" : true,
+            "value" : false,
             "valueType" : "bool"
           }
         ]
@@ -1694,25 +3288,6 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : true,
-            "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "greaterThan || Patch",
-        "outputs" : [
-          {
-            "value" : false,
             "valueType" : "bool"
           }
         ]
@@ -1736,7 +3311,8 @@ Each patch and layer supports the following inputs and outputs:
           }
         ],
         "nodeKind" : "bouncyConverter || Patch",
-        "outputs" : [          {
+        "outputs" : [
+          {
             "label" : "Friction",
             "value" : 0,
             "valueType" : "number"
@@ -1756,20 +3332,182 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           },
           {
-            "label" : "Bounciness",
-            "value" : 5,
+            "label" : "Duration",
+            "value" : 1,
             "valueType" : "number"
           },
           {
-            "label" : "Speed",
-            "value" : 10,
-            "valueType" : "number"
+            "label" : "Curve",
+            "value" : "linear",
+            "valueType" : "animationCurve"
           }
         ],
-        "nodeKind" : "popAnimation || Patch",
+        "nodeKind" : "classicAnimation || Patch",
         "outputs" : [
           {
             "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "1st Control Point X",
+            "value" : 0.17000000000000001,
+            "valueType" : "number"
+          },
+          {
+            "label" : "1st Control Point Y",
+            "value" : 0.17000000000000001,
+            "valueType" : "number"
+          },
+          {
+            "label" : "2nd Control Point X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "2nd Control Point Y",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "cubicBezierCurve || Patch",
+        "outputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "2D Progress",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Enabled",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Duration",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Curve",
+            "value" : "linear",
+            "valueType" : "animationCurve"
+          },
+          {
+            "label" : "Mirrored",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Reset",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "repeatingAnimation || Patch",
+        "outputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Duration",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Bounce",
+            "value" : 0.5,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "durationAndBounceConverter || Patch",
+        "outputs" : [
+          {
+            "label" : "Stiffness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Damping",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Settling Duration",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Damping Ratio",
+            "value" : 0.5,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "settlingDurationAndDampingRatioConverter || Patch",
+        "outputs" : [
+          {
+            "label" : "Stiffness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Damping",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0.5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Start",
+            "value" : 50,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End",
+            "value" : 100,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "transition || Patch",
+        "outputs" : [
+          {
+            "value" : 75,
             "valueType" : "number"
           }
         ]
@@ -1835,189 +3573,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Curve",
-            "value" : "linear",
-            "valueType" : "animationCurve"
-          }
-        ],
-        "nodeKind" : "curve || Patch",
-        "outputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0.5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Start",
-            "value" : 50,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End",
-            "value" : 100,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "transition || Patch",
-        "outputs" : [
-          {
-            "value" : 75,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "1st Control Point X",
-            "value" : 0.17000000000000001,
-            "valueType" : "number"
-          },
-          {
-            "label" : "1st Control Point Y",
-            "value" : 0.17000000000000001,
-            "valueType" : "number"
-          },
-          {
-            "label" : "2nd Control Point X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "2nd Control Point Y",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "cubicBezierCurve || Patch",
-        "outputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "2D Progress",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Settling Duration",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Damping Ratio",
-            "value" : 0.5,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "settlingDurationAndDampingRatioConverter || Patch",
-        "outputs" : [
-          {
-            "label" : "Stiffness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Damping",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Duration",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Curve",
-            "value" : "linear",
-            "valueType" : "animationCurve"
-          }
-        ],
-        "nodeKind" : "classicAnimation || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Enabled",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Duration",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Curve",
-            "value" : "linear",
-            "valueType" : "animationCurve"
-          },
-          {
-            "label" : "Mirrored",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Reset",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "repeatingAnimation || Patch",
-        "outputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Value",
             "value" : 0,
             "valueType" : "number"
@@ -2067,27 +3622,47 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Duration",
-            "value" : 1,
+            "label" : "Value",
+            "value" : 0,
             "valueType" : "number"
           },
           {
-            "label" : "Bounce",
-            "value" : 0.5,
+            "label" : "Bounciness",
+            "value" : 5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Speed",
+            "value" : 10,
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "durationAndBounceConverter || Patch",
+        "nodeKind" : "popAnimation || Patch",
         "outputs" : [
           {
-            "label" : "Stiffness",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Progress",
             "value" : 0,
             "valueType" : "number"
           },
           {
-            "label" : "Damping",
-            "value" : 0,
-            "valueType" : "number"
+            "label" : "Curve",
+            "value" : "linear",
+            "valueType" : "animationCurve"
+          }
+        ],
+        "nodeKind" : "curve || Patch",
+        "outputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,            "valueType" : "number"
           }
         ]
       }
@@ -2115,20 +3690,14 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "On/Off",
-            "value" : false,
-            "valueType" : "bool"
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
           }
         ],
-        "nodeKind" : "pulse || Patch",
+        "nodeKind" : "pulseOnChange || Patch",
         "outputs" : [
           {
-            "label" : "Turned On",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Turned Off",
             "value" : 0,
             "valueType" : "pulse"
           }
@@ -2149,14 +3718,20 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
+            "label" : "On/Off",
+            "value" : false,
+            "valueType" : "bool"
           }
         ],
-        "nodeKind" : "pulseOnChange || Patch",
+        "nodeKind" : "pulse || Patch",
         "outputs" : [
           {
+            "label" : "Turned On",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Turned Off",
             "value" : 0,
             "valueType" : "pulse"
           }
@@ -2167,6 +3742,276 @@ Each patch and layer supports the following inputs and outputs:
   {
     "header" : "Shape Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "label" : "Color",
+            "value" : "#A389EDFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Rotation X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Corner Radius",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Pivot",
+            "value" : {
+              "x" : 0.5,
+              "y" : 0.5
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Masks",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Offset",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "rectangle || Layer",
+        "outputs" : [
+        ]
+      },
       {
         "inputs" : [
           {
@@ -2214,8 +4059,7 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Opacity",
             "value" : 1,
             "valueType" : "number"
-          },
-          {
+          },          {
             "label" : "Scale",
             "value" : 1,
             "valueType" : "number"
@@ -2504,11 +4348,6 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           },
           {
-            "label" : "Corner Radius",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
             "label" : "Pivot",
             "value" : {
               "x" : 0.5,
@@ -2563,270 +4402,6 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Color Invert",
             "value" : false,
             "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",
-            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "rectangle || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Color",
-            "value" : "#A389EDFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Rotation X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Pivot",
-            "value" : {
-              "x" : 0.5,
-              "y" : 0.5
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Masks",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Offset",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,            "valueType" : "bool"
           },
           {
             "label" : "Contrast",
@@ -2989,17 +4564,346 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "string"
           },
           {
-            "label" : "Prefix",
+            "label" : "Position",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Length",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "trimText || Patch",
+        "outputs" : [
+          {
+            "value" : "",
+            "valueType" : "string"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Time",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Format",
+            "value" : "medium",
+            "valueType" : "dateAndTimeFormat"
+          },
+          {
+            "label" : "Custom Format",
             "value" : "",
             "valueType" : "string"
           }
         ],
-        "nodeKind" : "textStartsWith || Patch",
+        "nodeKind" : "dateAndTimeFormatter || Patch",
         "outputs" : [
           {
-            "value" : true,
-            "valueType" : "bool"
+            "value" : "Jan 1, 1970 at 12:00:00 AM",
+            "valueType" : "string"
           }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Color",
+            "value" : "#A389EDFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Rotation X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Pivot",
+            "value" : {
+              "x" : 0.5,
+              "y" : 0.5
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Masks",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Offset",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Text",
+            "value" : "Text",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Text Font",
+            "value" : {
+              "fontChoice" : "SF",
+              "fontWeight" : "SF_regular"
+            },
+            "valueType" : "textFont"
+          },
+          {
+            "label" : "Font Size",
+            "value" : "36.0",
+            "valueType" : "layerDimension"
+          },
+          {
+            "label" : "Text Alignment",
+            "value" : "left",
+            "valueType" : "textHorizontalAlignment"
+          },
+          {
+            "label" : "Vertical Text Alignment",
+            "value" : "top",
+            "valueType" : "textVerticalAlignment"
+          },
+          {
+            "label" : "Text Decoration",
+            "value" : "None",
+            "valueType" : "textDecoration"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "text || Layer",
+        "outputs" : [
         ]
       },
       {
@@ -3016,32 +4920,6 @@ Each patch and layer supports the following inputs and outputs:
           }
         ],
         "nodeKind" : "textTransform || Patch",
-        "outputs" : [
-          {
-            "value" : "",
-            "valueType" : "string"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Text",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Position",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Length",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "trimText || Patch",
         "outputs" : [
           {
             "value" : "",
@@ -3421,6 +5299,27 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "string"
           },
           {
+            "label" : "Prefix",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "textStartsWith || Patch",
+        "outputs" : [
+          {
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Text",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
             "label" : "Token",
             "value" : "",
             "valueType" : "string"
@@ -3432,346 +5331,6 @@ Each patch and layer supports the following inputs and outputs:
             "value" : "",
             "valueType" : "string"
           }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Time",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Format",
-            "value" : "medium",
-            "valueType" : "dateAndTimeFormat"
-          },
-          {
-            "label" : "Custom Format",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "dateAndTimeFormatter || Patch",
-        "outputs" : [
-          {
-            "value" : "Jan 1, 1970 at 12:00:00 AM",
-            "valueType" : "string"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Text",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "textLength || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Color",
-            "value" : "#A389EDFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Rotation X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Pivot",
-            "value" : {
-              "x" : 0.5,
-              "y" : 0.5
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Masks",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Offset",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",
-            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Text",
-            "value" : "Text",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Text Font",
-            "value" : {
-              "fontChoice" : "SF",
-              "fontWeight" : "SF_regular"
-            },
-            "valueType" : "textFont"
-          },
-          {
-            "label" : "Font Size",
-            "value" : "36.0",
-            "valueType" : "layerDimension"
-          },
-          {
-            "label" : "Text Alignment",
-            "value" : "left",
-            "valueType" : "textHorizontalAlignment"
-          },
-          {
-            "label" : "Vertical Text Alignment",
-            "value" : "top",
-            "valueType" : "textVerticalAlignment"
-          },
-          {
-            "label" : "Text Decoration",
-            "value" : "None",
-            "valueType" : "textDecoration"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "text || Layer",
-        "outputs" : [
         ]
       },
       {
@@ -3794,93 +5353,28 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "bool"
           }
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Text",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "textLength || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
       }
     ]
   },
   {
     "header" : "Media Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "base64ToImage || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Jump Time",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Jump",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Playing",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Looped",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Play Rate",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "soundImport || Patch",
-        "outputs" : [
-          {
-            "label" : "Sound",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Peak Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Playback",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Duration",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Volume Spectrum",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
       {
         "inputs" : [
           {
@@ -4396,77 +5890,17 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Scrubbable",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scrub Time",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Playing",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Looped",
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "videoImport || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Peak Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Playback",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Duration",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
+            "label" : "Media",
             "value" : null,
             "valueType" : "media"
           }
         ],
-        "nodeKind" : "imageImport || Patch",
+        "nodeKind" : "grayscale || Patch",
         "outputs" : [
           {
+            "label" : "Grayscale",
             "value" : null,
             "valueType" : "media"
-          },
-          {
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
           }
         ]
       },
@@ -4490,26 +5924,22 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Enabled",
-            "value" : false,
-            "valueType" : "bool"
+            "value" : null,
+            "valueType" : "media"
           }
         ],
-        "nodeKind" : "microphone || Patch",
+        "nodeKind" : "imageImport || Patch",
         "outputs" : [
           {
             "value" : null,
             "valueType" : "media"
           },
           {
-            "label" : "Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Peak Volume",
-            "value" : 0,
-            "valueType" : "number"
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
           }
         ]
       },
@@ -4554,6 +5984,98 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Enabled",
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "microphone || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Peak Volume",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Jump Time",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Jump",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Playing",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Looped",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Play Rate",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "soundImport || Patch",
+        "outputs" : [
+          {
+            "label" : "Sound",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Peak Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Playback",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Duration",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Volume Spectrum",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "value" : null,
             "valueType" : "media"
           }
@@ -4563,6 +6085,21 @@ Each patch and layer supports the following inputs and outputs:
           {
             "value" : "",
             "valueType" : "string"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "base64ToImage || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
           }
         ]
       },
@@ -4800,6 +6337,61 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Scrubbable",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scrub Time",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Playing",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Looped",
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "videoImport || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Peak Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Playback",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Duration",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "Enable",
             "value" : true,
             "valueType" : "bool"
@@ -4962,8 +6554,7 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Stroke Width",
             "value" : 4,
             "valueType" : "number"
-          },
-          {
+          },          {
             "label" : "Stroke Color",
             "value" : "#000000FF",
             "valueType" : "color"
@@ -5049,29 +6640,48 @@ Each patch and layer supports the following inputs and outputs:
         "nodeKind" : "video || Layer",
         "outputs" : [
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Media",
-            "value" : null,
-            "valueType" : "media"
-          }
-        ],
-        "nodeKind" : "grayscale || Patch",
-        "outputs" : [
-          {
-            "label" : "Grayscale",
-            "value" : null,
-            "valueType" : "media"
-          }
-        ]
       }
     ]
   },
   {
     "header" : "Position and Transform Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "W",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "point4DPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "w" : 0,
+              "x" : 0,
+              "y" : 0,
+              "z" : 0
+            },
+            "valueType" : "4dPoint"
+          }
+        ]
+      },
       {
         "inputs" : [
           {
@@ -5099,6 +6709,132 @@ Each patch and layer supports the following inputs and outputs:
               "z" : 0
             },
             "valueType" : "3dPoint"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "positionPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "From Parent",
+            "value" : null,
+            "valueType" : "layer"
+          },
+          {
+            "label" : "From Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Point",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "To Parent",
+            "value" : null,
+            "valueType" : "layer"
+          },
+          {
+            "label" : "To Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          }
+        ],
+        "nodeKind" : "convertPosition || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "positionUnpack || Patch",
+        "outputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "x" : 0,
+              "y" : 0,
+              "z" : 0
+            },
+            "valueType" : "3dPoint"
+          }
+        ],
+        "nodeKind" : "point3DUnpack || Patch",
+        "outputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Z",
+            "value" : 0,
+            "valueType" : "number"
           }
         ]
       },
@@ -5133,6 +6869,72 @@ Each patch and layer supports the following inputs and outputs:
           },
           {
             "label" : "W",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 0,
+              "scaleY" : 0,
+              "scaleZ" : 0
+            },
+            "valueType" : "transform"
+          }
+        ],
+        "nodeKind" : "transformUnpack || Patch",
+        "outputs" : [
+          {
+            "label" : "Position X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Position Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Position Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Z",
             "value" : 0,
             "valueType" : "number"
           }
@@ -5203,233 +7005,6 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "transform"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 0,
-              "scaleY" : 0,
-              "scaleZ" : 0
-            },
-            "valueType" : "transform"
-          }
-        ],
-        "nodeKind" : "transformUnpack || Patch",
-        "outputs" : [
-          {
-            "label" : "Position X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Position Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Position Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale Y",
-            "value" : 0,
-            "valueType" : "number"          },
-          {
-            "label" : "Scale Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Z",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "positionPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "positionUnpack || Patch",
-        "outputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "From Parent",
-            "value" : null,
-            "valueType" : "layer"
-          },
-          {
-            "label" : "From Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Point",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "To Parent",
-            "value" : null,
-            "valueType" : "layer"
-          },
-          {
-            "label" : "To Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          }
-        ],
-        "nodeKind" : "convertPosition || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "x" : 0,
-              "y" : 0,
-              "z" : 0
-            },
-            "valueType" : "3dPoint"
-          }
-        ],
-        "nodeKind" : "point3DUnpack || Patch",
-        "outputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Z",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "W",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "point4DPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "w" : 0,
-              "x" : 0,
-              "y" : 0,
-              "z" : 0
-            },
-            "valueType" : "4dPoint"
-          }
-        ]
       }
     ]
   },
@@ -5444,33 +7019,81 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "layer"
           },
           {
-            "label" : "Enabled",
-            "value" : true,
-            "valueType" : "bool"
+            "label" : "Scroll X",
+            "value" : "free",
+            "valueType" : "scrollMode"
           },
           {
-            "label" : "Delay",
-            "value" : 0.29999999999999999,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "pressInteraction || Patch",
-        "outputs" : [
+            "label" : "Scroll Y",
+            "value" : "free",
+            "valueType" : "scrollMode"
+          },
           {
-            "label" : "Down",
+            "label" : "Content Size",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Direction Locking",
             "value" : false,
             "valueType" : "bool"
           },
           {
-            "label" : "Tapped",
+            "label" : "Page Size",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Page Padding",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Jump Style X",
+            "value" : "instant",
+            "valueType" : "scrollJumpStyle"
+          },
+          {
+            "label" : "Jump to X",
             "value" : 0,
             "valueType" : "pulse"
           },
           {
-            "label" : "Double Tapped",
+            "label" : "Jump Position X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Jump Style Y",
+            "value" : "instant",
+            "valueType" : "scrollJumpStyle"
+          },
+          {
+            "label" : "Jump to Y",
             "value" : 0,
             "valueType" : "pulse"
           },
+          {
+            "label" : "Jump Position Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Deceleration Rate",
+            "value" : "normal",
+            "valueType" : "scrollDecelerationRate"
+          }
+        ],        "nodeKind" : "legacyScrollInteraction || Patch",
+        "outputs" : [
           {
             "label" : "Position",
             "value" : {
@@ -5478,22 +7101,6 @@ Each patch and layer supports the following inputs and outputs:
               "y" : 0
             },
             "valueType" : "position"
-          },
-          {
-            "label" : "Velocity",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Translation",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
           }
         ]
       },
@@ -5612,7 +7219,8 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Layer Padding",
             "value" : {
               "bottom" : 0,
-              "left" : 0,              "right" : 0,
+              "left" : 0,
+              "right" : 0,
               "top" : 0
             },
             "valueType" : "padding"
@@ -5638,6 +7246,67 @@ Each patch and layer supports the following inputs and outputs:
         ],
         "nodeKind" : "hitArea || Layer",
         "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Layer",
+            "value" : null,
+            "valueType" : "layer"
+          },
+          {
+            "label" : "Enabled",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Delay",
+            "value" : 0.29999999999999999,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "pressInteraction || Patch",
+        "outputs" : [
+          {
+            "label" : "Down",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Tapped",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Double Tapped",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Velocity",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Translation",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
         ]
       },
       {
@@ -5723,100 +7392,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Layer",
-            "value" : null,
-            "valueType" : "layer"
-          },
-          {
-            "label" : "Scroll X",
-            "value" : "free",
-            "valueType" : "scrollMode"
-          },
-          {
-            "label" : "Scroll Y",
-            "value" : "free",
-            "valueType" : "scrollMode"
-          },
-          {
-            "label" : "Content Size",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Direction Locking",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Page Size",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Page Padding",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Jump Style X",
-            "value" : "instant",
-            "valueType" : "scrollJumpStyle"
-          },
-          {
-            "label" : "Jump to X",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Jump Position X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Jump Style Y",
-            "value" : "instant",
-            "valueType" : "scrollJumpStyle"
-          },
-          {
-            "label" : "Jump to Y",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Jump Position Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Deceleration Rate",
-            "value" : "normal",
-            "valueType" : "scrollDecelerationRate"
-          }
-        ],
-        "nodeKind" : "legacyScrollInteraction || Patch",
-        "outputs" : [
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Key",
             "value" : "a",
             "valueType" : "string"
@@ -5874,7 +7449,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "URL Parameters",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -5883,7 +7458,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Body",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -5892,7 +7467,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Headers",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -5929,7 +7504,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Error",
             "value" : {
-              "id" : "4739530B-604B-40F5-A171-12B12CD72802",
+              "id" : "BCD24FAB-3DB5-4B5E-8593-03FB466C636A",
               "value" : {
               }
             },
@@ -5938,31 +7513,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Headers",
             "value" : {
-              "id" : "3D5BE5A9-B4FD-41C3-AEB1-EB043C0B7000",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "jsonArray || Patch",
-        "outputs" : [
-          {
-            "label" : "Array",
-            "value" : {
-              "id" : "F5C701CE-9D56-47AC-BDF2-406DF2D0C959",
+              "id" : "889B8D55-7ED1-438A-B4A9-6BDE63447F4A",
               "value" : {
               }
             },
@@ -5988,7 +7539,31 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Object",
             "value" : {
-              "id" : "CD6E453A-DD4F-4954-8551-8E4BCAE68113",
+              "id" : "4F539544-21CF-4CC0-8C5F-7CE5E3F6B660",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "jsonArray || Patch",
+        "outputs" : [
+          {
+            "label" : "Array",
+            "value" : {
+              "id" : "F20C6A7C-C01F-4903-9A7E-2E233A46EB87",
               "value" : {
               }
             },
@@ -6004,91 +7579,30 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : 0,
-            "valueType" : "pulse"
+            "label" : "Array",
+            "value" : {
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
           }
         ],
-        "nodeKind" : "loopOptionSwitch || Patch",
+        "nodeKind" : "loopOverArray || Patch",
         "outputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loopSum || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shuffle",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "loopShuffle || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : "#FF453AFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Value",
-            "value" : "#BF5AF2FF",
-            "valueType" : "color"
-          },
           {
             "label" : "Index",
             "value" : 0,
             "valueType" : "number"
           },
           {
-            "label" : "Insert",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "loopInsert || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
+            "label" : "Items",
+            "value" : {
+              "id" : "DF7F7EEB-D129-4EA0-B94D-8380A77F66F9",
+              "value" : [
+              ]
+            },
+            "valueType" : "json"
           }
         ]
       },
@@ -6104,66 +7618,12 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : {
-              "id" : "C46D229E-9553-4F91-9C1C-E575B21E7237",
+              "id" : "97FD3D82-9E33-4453-A2B2-A7C4174EBD57",
               "value" : [
                 0
               ]
             },
             "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Input",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Index Loop",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loopSelect || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Input",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Include",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loopFilter || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
           }
         ]
       },
@@ -6207,25 +7667,30 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "loopCount || Patch",
+        "nodeKind" : "loopSum || Patch",
         "outputs" : [
           {
-            "value" : 1,
+            "value" : 0,
             "valueType" : "number"
           }
         ]
-      },
-      {
+      },      {
         "inputs" : [
           {
             "label" : "Loop",
             "value" : 0,
             "valueType" : "number"
+          },
+          {
+            "label" : "Shuffle",
+            "value" : 0,
+            "valueType" : "pulse"
           }
         ],
-        "nodeKind" : "loopReverse || Patch",
+        "nodeKind" : "loopShuffle || Patch",
         "outputs" : [
           {
+            "label" : "Loop",
             "value" : 0,
             "valueType" : "number"
           }
@@ -6241,6 +7706,43 @@ Each patch and layer supports the following inputs and outputs:
         ],
         "nodeKind" : "loop || Patch",
         "outputs" : [
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : "#FF3B30FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Value",
+            "value" : "#AF52DEFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Insert",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "loopInsert || Patch",
+        "outputs" : [
+          {
+            "label" : "Loop",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
           {
             "label" : "Index",
             "value" : 0,
@@ -6273,14 +7775,25 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Loop",
-            "value" : 0,
+            "label" : "Input",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Include",
+            "value" : 1,
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "runningTotal || Patch",
+        "nodeKind" : "loopFilter || Patch",
         "outputs" : [
           {
+            "label" : "Loop",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Index",
             "value" : 0,
             "valueType" : "number"
           }
@@ -6289,30 +7802,16 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Array",
-            "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ],
-        "nodeKind" : "loopOverArray || Patch",
-        "outputs" : [
-          {
-            "label" : "Index",
+            "label" : "Loop",
             "value" : 0,
             "valueType" : "number"
-          },
+          }
+        ],
+        "nodeKind" : "loopCount || Patch",
+        "outputs" : [
           {
-            "label" : "Items",
-            "value" : {
-              "id" : "6EA98467-A946-4355-B39E-93CAF9A3D9F3",
-              "value" : [
-              ]
-            },
-            "valueType" : "json"
+            "value" : 1,
+            "valueType" : "number"
           }
         ]
       },
@@ -6352,12 +7851,458 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "loopOptionSwitch || Patch",
+        "outputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Input",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Index Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loopSelect || Patch",
+        "outputs" : [
+          {
+            "label" : "Loop",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "runningTotal || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loopReverse || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
       }
     ]
   },
   {
     "header" : "Utility Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "onPrototypeStart || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Start",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "End",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],        "nodeKind" : "sampleRange || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "delay1 || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Delay",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Style",
+            "value" : "Always",
+            "valueType" : "delayStyle"
+          }
+        ],
+        "nodeKind" : "delay || Patch",
+        "outputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Hex",
+            "value" : "#000000FF",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "hexColor || Patch",
+        "outputs" : [
+          {
+            "label" : "Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Start",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Stop",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Reset",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "stopwatch || Patch",
+        "outputs" : [
+          {
+            "label" : "Time",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Grouping",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "any || Patch",
+        "outputs" : [
+          {
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Play",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Style",
+            "value" : "Heavy",
+            "valueType" : "hapticStyle"
+          }
+        ],
+        "nodeKind" : "hapticFeedback || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Red",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Green",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blue",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Alpha",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "rgbColor || Patch",
+        "outputs" : [
+          {
+            "value" : "#000000FF",
+            "valueType" : "color"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Layer",
+            "value" : null,
+            "valueType" : "layer"
+          }
+        ],
+        "nodeKind" : "layerInfo || Patch",
+        "outputs" : [
+          {
+            "label" : "Enabled",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Scale",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Parent",
+            "value" : null,
+            "valueType" : "layer"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hysteresis",
+            "value" : 0.40000000000000002,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Reset",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "smoothValue || Patch",
+        "outputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "velocity || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : "#000000FF",
+            "valueType" : "color"
+          }
+        ],
+        "nodeKind" : "colorToRgb || Patch",
+        "outputs" : [
+          {
+            "label" : "Red",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Green",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blue",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Alpha",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "time || Patch",
+        "outputs" : [
+          {
+            "label" : "Time",
+            "value" : 0.033872916596010327,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Frame",
+            "value" : 2,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          }
+        ],
+        "nodeKind" : "colorToHex || Patch",
+        "outputs" : [
+          {
+            "label" : "Hex",
+            "value" : "#000000FF",
+            "valueType" : "string"
+          }
+        ]
+      },
       {
         "inputs" : [
           {
@@ -6389,7 +8334,8 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Blur",
             "value" : 0,
             "valueType" : "number"
-          },          {
+          },
+          {
             "label" : "Blend Mode",
             "value" : "Normal",
             "valueType" : "blendMode"
@@ -6484,18 +8430,18 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Red",
-            "value" : 0,
+            "label" : "Hue",
+            "value" : 0.5,
             "valueType" : "number"
           },
           {
-            "label" : "Green",
-            "value" : 0,
+            "label" : "Saturation",
+            "value" : 0.80000000000000004,
             "valueType" : "number"
           },
           {
-            "label" : "Blue",
-            "value" : 0,
+            "label" : "Lightness",
+            "value" : 0.80000000000000004,
             "valueType" : "number"
           },
           {
@@ -6504,10 +8450,10 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "rgbColor || Patch",
+        "nodeKind" : "hslColor || Patch",
         "outputs" : [
           {
-            "value" : "#000000FF",
+            "value" : "#A3F5F5FF",
             "valueType" : "color"
           }
         ]
@@ -6515,15 +8461,26 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Value",
             "value" : 0,
             "valueType" : "number"
+          },
+          {
+            "label" : "Sample",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Reset",
+            "value" : 0,
+            "valueType" : "pulse"
           }
         ],
-        "nodeKind" : "onPrototypeStart || Patch",
+        "nodeKind" : "sampleAndHold || Patch",
         "outputs" : [
           {
             "value" : 0,
-            "valueType" : "pulse"
+            "valueType" : "number"
           }
         ]
       },
@@ -6557,395 +8514,13 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "velocity || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Hue",
-            "value" : 0.5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 0.80000000000000004,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Lightness",
-            "value" : 0.80000000000000004,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Alpha",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "hslColor || Patch",
-        "outputs" : [
-          {
-            "value" : "#A3F5F5FF",
-            "valueType" : "color"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Start",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "End",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "sampleRange || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Layer",
-            "value" : null,
-            "valueType" : "layer"
-          }
-        ],
-        "nodeKind" : "layerInfo || Patch",
-        "outputs" : [
-          {
-            "label" : "Enabled",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Scale",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Parent",
-            "value" : null,
-            "valueType" : "layer"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "time || Patch",
-        "outputs" : [
-          {
-            "label" : "Time",
-            "value" : 0.033351458376273513,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Frame",
-            "value" : 2,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : "#000000FF",
-            "valueType" : "color"
-          }
-        ],
-        "nodeKind" : "colorToRgb || Patch",
-        "outputs" : [
-          {
-            "label" : "Red",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Green",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blue",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Alpha",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Play",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Style",
-            "value" : "Heavy",
-            "valueType" : "hapticStyle"
-          }
-        ],
-        "nodeKind" : "hapticFeedback || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Sample",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Reset",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "sampleAndHold || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hysteresis",
-            "value" : 0.40000000000000002,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Reset",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "smoothValue || Patch",
-        "outputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Hex",
-            "value" : "#000000FF",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "hexColor || Patch",
-        "outputs" : [
-          {
-            "label" : "Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "delay1 || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Delay",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Style",
-            "value" : "Always",
-            "valueType" : "delayStyle"
-          }
-        ],
-        "nodeKind" : "delay || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Start",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Stop",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Reset",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "stopwatch || Patch",
-        "outputs" : [
-          {
-            "label" : "Time",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          }
-        ],
-        "nodeKind" : "colorToHex || Patch",
-        "outputs" : [
-          {
-            "label" : "Hex",
-            "value" : "#000000FF",
-            "valueType" : "string"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Grouping",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "any || Patch",
-        "outputs" : [
-          {
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ]
       }
     ]
   },
   {
     "header" : "Additional Math and Trigonometry Nodes",
-    "nodes" : [      {
+    "nodes" : [
+      {
         "inputs" : [
           {
             "label" : "Angle",
@@ -6953,10 +8528,10 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "sine || Patch",
+        "nodeKind" : "cosine || Patch",
         "outputs" : [
           {
-            "value" : 0,
+            "value" : 1,
             "valueType" : "number"
           }
         ]
@@ -6990,10 +8565,10 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "cosine || Patch",
+        "nodeKind" : "sine || Patch",
         "outputs" : [
           {
-            "value" : 1,
+            "value" : 0,
             "valueType" : "number"
           }
         ]
@@ -7003,143 +8578,6 @@ Each patch and layer supports the following inputs and outputs:
   {
     "header" : "Additional Pack/Unpack Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "unpack || Patch",
-        "outputs" : [
-          {
-            "label" : "W",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "H",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "type" : "closePath"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ],
-        "nodeKind" : "closePath || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "point" : {
-                "x" : 0,
-                "y" : 0
-              },
-              "type" : "moveTo"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Point",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Curve From",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Curve To",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "curveToPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "point" : {
-                "x" : 0,
-                "y" : 0
-              },
-              "type" : "moveTo"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Point",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "lineToPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "point" : {
-                "x" : 0,
-                "y" : 0
-              },
-              "type" : "moveTo"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "W",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "H",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "pack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ]
-      },
       {
         "inputs" : [
           {
@@ -7241,6 +8679,54 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "value" : {
+              "type" : "closePath"
+            },
+            "valueType" : "shapeCommand"
+          }
+        ],
+        "nodeKind" : "closePath || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "point" : {
+                "x" : 0,
+                "y" : 0
+              },
+              "type" : "moveTo"
+            },
+            "valueType" : "shapeCommand"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Point",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "lineToPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "point" : {
+                "x" : 0,
+                "y" : 0
+              },
+              "type" : "moveTo"
+            },
+            "valueType" : "shapeCommand"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "W",
             "value" : 0,
             "valueType" : "number"
@@ -7261,470 +8747,100 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "size"
           }
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "unpack || Patch",
+        "outputs" : [          {
+            "label" : "W",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "H",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "W",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "H",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "pack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Point",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Curve From",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Curve To",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "curveToPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "point" : {
+                "x" : 0,
+                "y" : 0
+              },
+              "type" : "moveTo"
+            },
+            "valueType" : "shapeCommand"
+          }
+        ]
       }
     ]
   },
   {
     "header" : "AR and 3D Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "label" : "Anchor Entity",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "3D Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          },
-          {
-            "label" : "Translation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scale",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Rotation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Metallic",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Radius",
-            "value" : 100,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height",
-            "value" : 100,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color",
-            "value" : "#A389EDFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "cone || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Anchor Entity",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "3D Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          },
-          {
-            "label" : "Translation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scale",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Rotation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Metallic",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Radius",
-            "value" : 100,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height",
-            "value" : 100,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color",
-            "value" : "#A389EDFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "cylinder || Layer",
-        "outputs" : [
-        ]
-      },
       {
         "inputs" : [
           {
@@ -7760,476 +8876,6 @@ Each patch and layer supports the following inputs and outputs:
             "value" : null,
             "valueType" : "media"
           }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          }
-        ],
-        "nodeKind" : "arAnchor || Patch",
-        "outputs" : [
-          {
-            "label" : "AR Anchor",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "3D Model",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Anchor Entity",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "3D Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          },
-          {
-            "label" : "Animating",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Translation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scale",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Rotation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "3dModel || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Anchor Entity",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "3D Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          },
-          {
-            "label" : "Translation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scale",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Rotation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Metallic",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Radius",
-            "value" : 100,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color",
-            "value" : "#A389EDFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "sphere || Layer",
-        "outputs" : [
         ]
       },
       {
@@ -8474,6 +9120,707 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "3D Model",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Anchor Entity",
+            "value" : null,
+            "valueType" : "anchorEntity"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "3D Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          },
+          {
+            "label" : "Animating",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Translation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scale",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Rotation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "3dModel || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          }
+        ],
+        "nodeKind" : "arAnchor || Patch",
+        "outputs" : [
+          {
+            "label" : "AR Anchor",
+            "value" : null,
+            "valueType" : "anchorEntity"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Anchor Entity",
+            "value" : null,
+            "valueType" : "anchorEntity"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "3D Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          },
+          {
+            "label" : "Translation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scale",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Rotation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Metallic",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Radius",
+            "value" : 100,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height",
+            "value" : 100,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color",
+            "value" : "#A389EDFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "cylinder || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Anchor Entity",
+            "value" : null,
+            "valueType" : "anchorEntity"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "3D Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          },
+          {
+            "label" : "Translation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scale",
+            "value" : false,
+            "valueType" : "bool"          },
+          {
+            "label" : "Rotation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Metallic",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Radius",
+            "value" : 100,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height",
+            "value" : 100,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color",
+            "value" : "#A389EDFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "cone || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "Anchor Entity",
             "value" : null,
             "valueType" : "anchorEntity"
@@ -8703,12 +10050,263 @@ Each patch and layer supports the following inputs and outputs:
         "nodeKind" : "box || Layer",
         "outputs" : [
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Anchor Entity",
+            "value" : null,
+            "valueType" : "anchorEntity"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "3D Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          },
+          {
+            "label" : "Translation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scale",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Rotation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Metallic",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Radius",
+            "value" : 100,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color",
+            "value" : "#A389EDFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "sphere || Layer",
+        "outputs" : [
+        ]
       }
     ]
   },
   {
     "header" : "Machine Learning Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "label" : "Model",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Image",
+            "value" : null,
+            "valueType" : "media"
+          }
+        ],
+        "nodeKind" : "imageClassification || Patch",
+        "outputs" : [
+          {
+            "label" : "Classification",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Confidence",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
       {
         "inputs" : [
           {
@@ -8756,33 +10354,6 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "size"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Model",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Image",
-            "value" : null,
-            "valueType" : "media"
-          }
-        ],
-        "nodeKind" : "imageClassification || Patch",
-        "outputs" : [
-          {
-            "label" : "Classification",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Confidence",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
       }
     ]
   },
@@ -8822,29 +10393,29 @@ Each patch and layer supports the following inputs and outputs:
           },
           {
             "label" : "Start Color",
-            "value" : "#FFD60AFF",
+            "value" : "#FFCC00FF",
             "valueType" : "color"
           },
           {
             "label" : "End Color",
-            "value" : "#0A84FFFF",
+            "value" : "#007AFFFF",
             "valueType" : "color"
           },
           {
-            "label" : "Start Anchor",
+            "label" : "Center Anchor",
             "value" : {
               "x" : 0.5,
-              "y" : 0
+              "y" : 0.5
             },
             "valueType" : "anchor"
           },
           {
-            "label" : "Start Radius",
+            "label" : "Start Angle",
             "value" : 1,
             "valueType" : "number"
           },
           {
-            "label" : "End Radius",
+            "label" : "End Angle",
             "value" : 100,
             "valueType" : "number"
           },
@@ -8997,7 +10568,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "size"
           }
         ],
-        "nodeKind" : "radialGradient || Layer",
+        "nodeKind" : "angularGradient || Layer",
         "outputs" : [
         ]
       },
@@ -9065,12 +10636,12 @@ Each patch and layer supports the following inputs and outputs:
           },
           {
             "label" : "Start Color",
-            "value" : "#FFD60AFF",
+            "value" : "#FFCC00FF",
             "valueType" : "color"
           },
           {
             "label" : "End Color",
-            "value" : "#0A84FFFF",
+            "value" : "#007AFFFF",
             "valueType" : "color"
           },
           {
@@ -9244,29 +10815,29 @@ Each patch and layer supports the following inputs and outputs:
           },
           {
             "label" : "Start Color",
-            "value" : "#FFD60AFF",
+            "value" : "#FFCC00FF",
             "valueType" : "color"
           },
           {
             "label" : "End Color",
-            "value" : "#0A84FFFF",
+            "value" : "#007AFFFF",
             "valueType" : "color"
           },
           {
-            "label" : "Center Anchor",
+            "label" : "Start Anchor",
             "value" : {
               "x" : 0.5,
-              "y" : 0.5
+              "y" : 0
             },
             "valueType" : "anchor"
           },
           {
-            "label" : "Start Angle",
+            "label" : "Start Radius",
             "value" : 1,
             "valueType" : "number"
           },
           {
-            "label" : "End Angle",
+            "label" : "End Radius",
             "value" : 100,
             "valueType" : "number"
           },
@@ -9377,7 +10948,8 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Pin Anchor",
             "value" : {
-              "x" : 0,              "y" : 0
+              "x" : 0,
+              "y" : 0
             },
             "valueType" : "anchor"
           },
@@ -9418,7 +10990,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "size"
           }
         ],
-        "nodeKind" : "angularGradient || Layer",
+        "nodeKind" : "radialGradient || Layer",
         "outputs" : [
         ]
       }
@@ -9427,276 +10999,6 @@ Each patch and layer supports the following inputs and outputs:
   {
     "header" : "Layer Effect Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Rotation X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Pivot",
-            "value" : {
-              "x" : 0.5,
-              "y" : 0.5
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Masks",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Offset",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Material",
-            "value" : "Regular",
-            "valueType" : "materializeThickness"
-          },
-          {
-            "label" : "Device Appearance",
-            "value" : "System",
-            "valueType" : "deviceAppearance"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",
-            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "material || Layer",
-        "outputs" : [
-        ]
-      },
       {
         "inputs" : [
           {
@@ -9969,13 +11271,9 @@ Each patch and layer supports the following inputs and outputs:
           }
         ],
         "nodeKind" : "sfSymbol || Layer",
-        "outputs" : [        ]
-      }
-    ]
-  },
-  {
-    "header" : "Additional Layer Nodes",
-    "nodes" : [
+        "outputs" : [
+        ]
+      },
       {
         "inputs" : [
           {
@@ -9987,16 +11285,272 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "position"
           },
           {
+            "label" : "Rotation X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
             "label" : "Size",
             "value" : {
-              "height" : "20.0",
-              "width" : "20.0"
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Pivot",
+            "value" : {
+              "x" : 0.5,
+              "y" : 0.5
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Masks",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Offset",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Material",
+            "value" : "Regular",
+            "valueType" : "materializeThickness"
+          },
+          {
+            "label" : "Device Appearance",
+            "value" : "System",
+            "valueType" : "deviceAppearance"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
             },
             "valueType" : "size"
           }
         ],
-        "nodeKind" : "ovalShape || Patch",
+        "nodeKind" : "material || Layer",
         "outputs" : [
+        ]
+      }
+    ]
+  },
+  {
+    "header" : "Additional Layer Nodes",
+    "nodes" : [
+      {
+        "inputs" : [
           {
             "label" : "Shape",
             "value" : {
@@ -10006,32 +11560,72 @@ Each patch and layer supports the following inputs and outputs:
                   0
                 ],
                 [
-                  20,
-                  20
+                  200,
+                  200
                 ]
               ],
-              "_east" : 10,
-              "_north" : -10,
-              "_south" : 10,
-              "_west" : -10,
+              "_east" : 200,
+              "_north" : 0,
+              "_south" : 200,
+              "_west" : 0,
               "shapes" : [
                 {
-                  "oval" : {
+                  "custom" : {
                     "_0" : [
-                      [
-                        0,
-                        0
-                      ],
-                      [
-                        20,
-                        20
-                      ]
+                      {
+                        "moveTo" : {
+                          "_0" : [
+                            0,
+                            0
+                          ]
+                        }
+                      },
+                      {
+                        "lineTo" : {
+                          "_0" : [
+                            100,
+                            100
+                          ]
+                        }
+                      },
+                      {
+                        "curveTo" : {
+                          "_0" : {
+                            "controlPoint1" : [
+                              150,
+                              100
+                            ],
+                            "controlPoint2" : [
+                              150,
+                              200
+                            ],
+                            "point" : [
+                              200,
+                              200
+                            ]
+                          }
+                        }
+                      }
                     ]
                   }
                 }
               ]
             },
             "valueType" : "shape"
+          }
+        ],
+        "nodeKind" : "shapeToCommands || Patch",
+        "outputs" : [
+          {
+            "label" : "Commands",
+            "value" : {
+              "point" : {
+                "x" : 0,
+                "y" : 0
+              },
+              "type" : "moveTo"
+            },
+            "valueType" : "shapeCommand"
           }
         ]
       },
@@ -10094,7 +11688,7 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "First Point",
+            "label" : "Position",
             "value" : {
               "x" : 0,
               "y" : 0
@@ -10102,23 +11696,20 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "position"
           },
           {
-            "label" : "Second Point",
+            "label" : "Size",
             "value" : {
-              "x" : 0,
-              "y" : -100
+              "height" : "100.0",
+              "width" : "100.0"
             },
-            "valueType" : "position"
+            "valueType" : "size"
           },
           {
-            "label" : "Third Point",
-            "value" : {
-              "x" : 100,
-              "y" : 0
-            },
-            "valueType" : "position"
+            "label" : "Radius",
+            "value" : 4,
+            "valueType" : "number"
           }
         ],
-        "nodeKind" : "triangleShape || Patch",
+        "nodeKind" : "roundedRectangleShape || Patch",
         "outputs" : [
           {
             "label" : "Shape",
@@ -10133,50 +11724,30 @@ Each patch and layer supports the following inputs and outputs:
                   100
                 ]
               ],
-              "_east" : 100,
-              "_north" : -100,
-              "_south" : 0,
-              "_west" : 0,
+              "_east" : 50,
+              "_north" : -50,
+              "_south" : 50,
+              "_west" : -50,
               "shapes" : [
                 {
-                  "triangle" : {
+                  "rectangle" : {
                     "_0" : {
-                      "p1" : [
-                        0,
-                        0
-                      ],
-                      "p2" : [
-                        0,
-                        -100
-                      ],
-                      "p3" : [
-                        100,
-                        0
+                      "cornerRadius" : 4,
+                      "rect" : [
+                        [
+                          0,
+                          0
+                        ],
+                        [
+                          100,
+                          100
+                        ]
                       ]
                     }
                   }
                 }
               ]
             },
-            "valueType" : "shape"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : null,
-            "valueType" : "shape"
-          },
-          {
-            "value" : null,
-            "valueType" : "shape"
-          }
-        ],
-        "nodeKind" : "union || Patch",
-        "outputs" : [
-          {
-            "value" : null,
             "valueType" : "shape"
           }
         ]
@@ -10264,7 +11835,26 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Position",
+            "value" : null,
+            "valueType" : "shape"
+          },
+          {
+            "value" : null,
+            "valueType" : "shape"
+          }
+        ],
+        "nodeKind" : "union || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "shape"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "First Point",
             "value" : {
               "x" : 0,
               "y" : 0
@@ -10272,20 +11862,22 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "position"
           },
           {
-            "label" : "Size",
+            "label" : "Second Point",
             "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
+              "x" : 0,
+              "y" : -100
             },
-            "valueType" : "size"
+            "valueType" : "position"
           },
           {
-            "label" : "Radius",
-            "value" : 4,
-            "valueType" : "number"
+            "label" : "Third Point",
+            "value" : {
+              "x" : 100,
+              "y" : 0
+            },
+            "valueType" : "position"
           }
-        ],
-        "nodeKind" : "roundedRectangleShape || Patch",
+        ],        "nodeKind" : "triangleShape || Patch",
         "outputs" : [
           {
             "label" : "Shape",
@@ -10300,24 +11892,25 @@ Each patch and layer supports the following inputs and outputs:
                   100
                 ]
               ],
-              "_east" : 50,
-              "_north" : -50,
-              "_south" : 50,
-              "_west" : -50,
+              "_east" : 100,
+              "_north" : -100,
+              "_south" : 0,
+              "_west" : 0,
               "shapes" : [
                 {
-                  "rectangle" : {
+                  "triangle" : {
                     "_0" : {
-                      "cornerRadius" : 4,
-                      "rect" : [
-                        [
-                          0,
-                          0
-                        ],
-                        [
-                          100,
-                          100
-                        ]
+                      "p1" : [
+                        0,
+                        0
+                      ],
+                      "p2" : [
+                        0,
+                        -100
+                      ],
+                      "p3" : [
+                        100,
+                        0
                       ]
                     }
                   }
@@ -10331,6 +11924,25 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "20.0",
+              "width" : "20.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "ovalShape || Patch",
+        "outputs" : [
+          {
             "label" : "Shape",
             "value" : {
               "_baseFrame" : [
@@ -10339,72 +11951,32 @@ Each patch and layer supports the following inputs and outputs:
                   0
                 ],
                 [
-                  200,
-                  200
+                  20,
+                  20
                 ]
               ],
-              "_east" : 200,
-              "_north" : 0,
-              "_south" : 200,
-              "_west" : 0,
+              "_east" : 10,
+              "_north" : -10,
+              "_south" : 10,
+              "_west" : -10,
               "shapes" : [
                 {
-                  "custom" : {
+                  "oval" : {
                     "_0" : [
-                      {
-                        "moveTo" : {
-                          "_0" : [
-                            0,
-                            0
-                          ]
-                        }
-                      },
-                      {
-                        "lineTo" : {
-                          "_0" : [
-                            100,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "curveTo" : {
-                          "_0" : {
-                            "controlPoint1" : [
-                              150,
-                              100
-                            ],
-                            "controlPoint2" : [
-                              150,
-                              200
-                            ],
-                            "point" : [
-                              200,
-                              200
-                            ]
-                          }
-                        }
-                      }
+                      [
+                        0,
+                        0
+                      ],
+                      [
+                        20,
+                        20
+                      ]
                     ]
                   }
                 }
               ]
             },
             "valueType" : "shape"
-          }
-        ],
-        "nodeKind" : "shapeToCommands || Patch",
-        "outputs" : [
-          {
-            "label" : "Commands",
-            "value" : {
-              "point" : {
-                "x" : 0,
-                "y" : 0
-              },
-              "type" : "moveTo"
-            },
-            "valueType" : "shapeCommand"
           }
         ]
       },
@@ -10413,7 +11985,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "JSON",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -10438,7 +12010,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Error",
             "value" : {
-              "id" : "BE52A06B-46A4-4D2C-983F-3717207F0C6F",
+              "id" : "1D720B37-B6AC-424A-8244-6FFBF3CFBB6A",
               "value" : {
                 "Error" : "instructionsMalformed"
               }
@@ -10498,312 +12070,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Animating",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Style",
-            "value" : "Circular",
-            "valueType" : "progressStyle"
-          },
-          {
-            "label" : "Progress",
-            "value" : 0.5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Offset",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",
-            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "progressIndicator || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "progress || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "reverseProgress || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Set to 0",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Set to 1",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Set to 2",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "optionSwitch || Patch",
-        "outputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "optionPicker || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Option",
             "value" : "a",
             "valueType" : "string"
@@ -10827,40 +12093,6 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Equals",
             "value" : true,
             "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Default",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "optionSender || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
           }
         ]
       },
@@ -11071,6 +12303,346 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "bool"
           }
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Default",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "optionSender || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "progress || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Animating",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Style",
+            "value" : "Circular",
+            "valueType" : "progressStyle"
+          },
+          {
+            "label" : "Progress",
+            "value" : 0.5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Offset",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "progressIndicator || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Set to 0",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Set to 1",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Set to 2",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "optionSwitch || Patch",
+        "outputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "optionPicker || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "reverseProgress || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
       }
     ]
   },
@@ -11084,16 +12656,65 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
+        "nodeKind" : "deviceInfo || Patch",
+        "outputs" : [
+          {
+            "label" : "Screen Size",
+            "value" : {
+              "height" : "1117.0",
+              "width" : "1728.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Screen Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Orientation",
+            "value" : "Unknown",
+            "valueType" : "deviceOrientation"
+          },
+          {
+            "label" : "Device Type",
+            "value" : "Mac",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Appearance",
+            "value" : "Dark",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Safe Area Top",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Safe Area Bottom",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
         "nodeKind" : "deviceTime || Patch",
         "outputs" : [
           {
             "label" : "Seconds",
-            "value" : 1750883623,
+            "value" : 1750948285,
             "valueType" : "number"
           },
           {
             "label" : "Milliseconds",
-            "value" : 0.42264699935913086,
+            "value" : 0.19039106369018555,
             "valueType" : "number"
           }
         ]
@@ -11163,55 +12784,6 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "3dPoint"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "deviceInfo || Patch",
-        "outputs" : [
-          {
-            "label" : "Screen Size",
-            "value" : {
-              "height" : "1117.0",
-              "width" : "1728.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Screen Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Orientation",
-            "value" : "Unknown",
-            "valueType" : "deviceOrientation"
-          },
-          {
-            "label" : "Device Type",
-            "value" : "Mac",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Appearance",
-            "value" : "Dark",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Safe Area Top",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Safe Area Bottom",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
       }
     ]
   },
@@ -11223,30 +12795,26 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Array",
             "value" : {
-              "id" : "6EA98467-A946-4355-B39E-93CAF9A3D9F3",
-              "value" : [
-              ]
+              "id" : "B6FB51D6-C0B8-4ECC-9719-26AC02E9D2CC",
+              "value" : {
+              }
             },
             "valueType" : "json"
           },
           {
-            "label" : "Location",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Length",
+            "label" : "Index",
             "value" : 0,
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "subArray || Patch",
+        "nodeKind" : "valueAtIndex || Patch",
         "outputs" : [
-          {            "label" : "Subarray",
+          {
+            "label" : "Value",
             "value" : {
-              "id" : "E9C54CC8-34EA-4A75-A662-8BA79149B2EE",
-              "value" : [
-              ]
+              "id" : "73CE16BF-A792-4325-8A1B-47A5139712E8",
+              "value" : {
+              }
             },
             "valueType" : "json"
           }
@@ -11257,7 +12825,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Array",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -11277,37 +12845,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Object",
             "value" : {
-              "id" : "83E1254A-DF47-42A1-AE85-23D68BF8589D",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Path",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "valueAtPath || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : {
-              "id" : "1771E222-1ADA-4566-8411-8330460BFEEC",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "2A9FF925-461F-4BCF-86D4-2B34DCA59423",
+              "id" : "F4520B2B-D5AA-43C7-B2A9-69D9D327FFD5",
               "value" : {
               }
             },
@@ -11324,7 +12862,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Value",
             "value" : {
-              "id" : "4BBEC178-596A-45D7-9AB1-F537E696D893",
+              "id" : "F368F2A3-153B-4792-843B-74B67C671171",
               "value" : {
               }
             },
@@ -11337,7 +12875,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Array",
             "value" : {
-              "id" : "60A0DCB0-296D-4777-824F-C9D527AC115D",
+              "id" : "976ABF62-1887-463A-8151-548E284C23B6",
               "value" : {
               }
             },
@@ -11346,7 +12884,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Item",
             "value" : {
-              "id" : "4FD3BB93-2C8A-4CFB-B3B0-FA17E1F735A6",
+              "id" : "5B604006-4589-465D-A99C-0BBFB8B474E7",
               "value" : {
               }
             },
@@ -11363,7 +12901,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Array",
             "value" : {
-              "id" : "20ABECF9-5E96-462F-A7C5-6E2EA35224AD",
+              "id" : "B5B056BE-9E9A-406F-BB2E-4D894DD677B4",
               "value" : {
               }
             },
@@ -11375,7 +12913,38 @@ Each patch and layer supports the following inputs and outputs:
         "inputs" : [
           {
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "value" : {
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ],
+        "nodeKind" : "arrayJoin || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "id" : "60B83BE0-D8B5-4D28-B646-A52C24E8EF0A",
+              "value" : [
+              ]
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -11386,7 +12955,7 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : {
-              "id" : "691C605E-8B70-4CD5-89E2-71DD91E8B4A7",
+              "id" : "9876D455-D18A-4E53-83D2-B6420E05AA49",
               "value" : {
               }
             },
@@ -11399,20 +12968,31 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Object",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
             "valueType" : "json"
+          },
+          {
+            "label" : "Key",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
           }
         ],
-        "nodeKind" : "getKeys || Patch",
+        "nodeKind" : "setValueForKey || Patch",
         "outputs" : [
           {
+            "label" : "Object",
             "value" : {
-              "id" : "B23D7012-376A-4B7D-9671-8D01D7F704C5",
-              "value" : [
-              ]
+              "id" : "D8508A5E-C4BF-45F8-8366-130CD3B4045C",
+              "value" : {
+              }
             },
             "valueType" : "json"
           }
@@ -11422,7 +13002,7 @@ Each patch and layer supports the following inputs and outputs:
         "inputs" : [
           {
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -11438,7 +13018,7 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : {
-              "id" : "72F07F9D-984E-44B4-8FAA-FA87E9EA9EB2",
+              "id" : "EEC5F737-0F9F-4C36-B3D9-944B2B228D33",
               "value" : {
               }
             },
@@ -11449,9 +13029,33 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Object",
+            "value" : {
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ],
+        "nodeKind" : "getKeys || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "id" : "78FEBC4D-8756-4191-9048-522612820A14",
+              "value" : [
+              ]
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "Array",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "8AC484C7-46C1-4678-BB39-DCD6235A843C",
               "value" : {
               }
             },
@@ -11480,63 +13084,33 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Object",
-            "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Key",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "setValueForKey || Patch",
-        "outputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "0C126F37-A40A-4971-AA2A-475A41FEB1D9",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Array",
             "value" : {
-              "id" : "79EEC756-187C-493C-8DE0-6588AD2075FB",
-              "value" : {
-              }
+              "id" : "DF7F7EEB-D129-4EA0-B94D-8380A77F66F9",
+              "value" : [
+              ]
             },
             "valueType" : "json"
           },
           {
-            "label" : "Index",
+            "label" : "Location",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Length",
             "value" : 0,
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "valueAtIndex || Patch",
+        "nodeKind" : "subArray || Patch",
         "outputs" : [
           {
-            "label" : "Value",
+            "label" : "Subarray",
             "value" : {
-              "id" : "DA3CD735-95BB-47AF-BFDB-16B5E0015E78",
-              "value" : {
-              }
+              "id" : "29D28F50-E65E-4DD4-B9BF-4EE36325CE82",
+              "value" : [
+              ]
             },
             "valueType" : "json"
           }
@@ -11545,29 +13119,28 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Object",
             "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
+              "id" : "2CF2120D-9839-4ED7-A105-1AF14B94124D",
               "value" : {
               }
             },
             "valueType" : "json"
           },
           {
-            "value" : {
-              "id" : "90EBDFF8-528B-45EB-B940-A9DA3EB10EA8",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
+            "label" : "Path",
+            "value" : "",
+            "valueType" : "string"
           }
         ],
-        "nodeKind" : "arrayJoin || Patch",
+        "nodeKind" : "valueAtPath || Patch",
         "outputs" : [
           {
+            "label" : "Value",
             "value" : {
-              "id" : "407C4BB6-C441-4C4D-81D2-653DF066780A",
-              "value" : [
-              ]
+              "id" : "70A58F26-AC17-4F27-A014-EEC1ACDBB68E",
+              "value" : {
+              }
             },
             "valueType" : "json"
           }

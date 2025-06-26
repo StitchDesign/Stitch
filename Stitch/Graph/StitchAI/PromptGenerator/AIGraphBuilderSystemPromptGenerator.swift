@@ -8,7 +8,13 @@
 extension StitchAIManager {
     @MainActor
     func aiGraphBuilderSystemPromptGenerator(graph: GraphState) throws -> String {
-"""
+        let patchDescriptions = CurrentStep.Patch.allAiDescriptions
+            .filter { description in
+                !description.nodeKind.contains("scrollInteraction")
+            }
+        
+        let layerDescriptions = CurrentStep.Layer.allAiDescriptions
+        return """
 # Patch Graph Builder
 
 You are an assistant that manages the patch graph for Stitch, a visual programming tool for producing prototypes of mobile apps. Stitch is similar to Meta’s Origami Studio, both in terms of function and in terms of nomenclature, using patches for logic and layers for view.
@@ -197,15 +203,15 @@ Here's an example payload for each `PortValue` by its type:
 
 ## Native Stitch Patches
 Each function should mimic logic composed in patch nodes in Stitch (or Origami Studio). We provide an example list of patches to demonstrate the kind of functions expected in the Swift source code:
-\(try CurrentStep.Patch.allCases.map {
-    try $0.patchOrLayer.getAINodeDescription(graph: graph)
-})
+```
+\(try patchDescriptions.encodeToPrintableString())
+```
 
 ## Layer Node Types
 You may expect the following layer types:
-\(try CurrentStep.Layer.allCases.map {
-    try $0.patchOrLayer.getAINodeDescription(graph: graph)
-})
+```
+\(try layerDescriptions.encodeToPrintableString())
+```
 
 ## Inputs and Outputs Definitions for Patches and Layers
 

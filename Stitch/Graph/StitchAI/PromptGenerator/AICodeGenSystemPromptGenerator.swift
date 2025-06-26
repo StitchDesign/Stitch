@@ -8,7 +8,14 @@
 extension StitchAIManager {
     @MainActor
     func aiCodeGenSystemPromptGenerator(graph: GraphState) throws -> String {
-"""
+        let patchDescriptions = CurrentStep.Patch.allAiDescriptions
+            .filter { description in
+                !description.nodeKind.contains("scrollInteraction")
+            }
+        
+        let layerDescriptions = CurrentStep.Layer.allAiDescriptions
+        
+        return """
 # SwiftUI Code Creator
 
 You are an assistant that **generates source code for a SwiftUI view**. This code will be run inside a visual prototyping tool called Stitch.
@@ -217,16 +224,17 @@ Here's an example payload for each `PortValue` by its type:
 
 ## Patch Examples
 Each function should mimic logic composed in patch nodes in Stitch (or Origami Studio). We provide an example list of patches to demonstrate the kind of functions expected in the Swift source code:
-\(try CurrentStep.Patch.allCases.map {
-    try $0.patchOrLayer.getAINodeDescription(graph: graph)
-})
 
-## Layer Info
-### Layer  Types
+```
+\(try patchDescriptions.encodeToPrintableString())
+```
+
+## Layer Types
 You may expect the following layer types:
-\(try CurrentStep.Layer.allCases.map {
-    try $0.patchOrLayer.getAINodeDescription(graph: graph)
-})
+
+```
+\(try layerDescriptions.encodeToPrintableString())
+```
 
 ### Inputs and Outputs Definitions for Patches and Layers
 
