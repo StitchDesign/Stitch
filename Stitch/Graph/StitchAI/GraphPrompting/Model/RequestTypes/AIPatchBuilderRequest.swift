@@ -66,6 +66,7 @@ extension StitchDocumentViewModel {
         // Creates new layer node view model
         let newLayerNode = graph
             .createNode(graphTime: self.graphStepState.graphTime,
+                        newNodeId: newLayer.node_id.value,
                         highestZIndex: graph.highestZIndex,
                         choice: migratedNodeName,
                         center: self.newCanvasItemInsertionLocation)

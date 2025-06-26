@@ -164,7 +164,6 @@ extension AIPatchBuilderResponseFormat_V0 {
         let layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
         let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
-//        let layers: [Self.LayerNode]
         let patch_connections: [PatchConnection]
         let layer_connections: [LayerConnection]
         let custom_patch_input_values: [CustomPatchInputValue]
