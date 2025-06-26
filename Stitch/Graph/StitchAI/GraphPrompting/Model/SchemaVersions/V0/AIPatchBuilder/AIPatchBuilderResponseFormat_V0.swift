@@ -161,7 +161,7 @@ enum AIPatchBuilderResponseFormat_V0 {
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
     struct GraphData: Codable {
-        let layer_nodes: [AIPatchBuilderResponseFormat_V0.LayerNode]
+        let layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
         let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
 //        let layers: [Self.LayerNode]

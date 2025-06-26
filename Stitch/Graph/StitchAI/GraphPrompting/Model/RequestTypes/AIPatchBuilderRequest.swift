@@ -55,6 +55,40 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     }
 }
 
+extension StitchDocumentViewModel {
+    /// Recursively creates new sidebar layer data from AI result after creating nodes.
+    @MainActor
+    func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerNode) throws -> SidebarLayerData {
+        let graph = self.visibleGraph
+        
+        let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
+        
+        // Creates new layer node view model
+        let newLayerNode = graph
+            .createNode(graphTime: self.graphStepState.graphTime,
+                        highestZIndex: graph.highestZIndex,
+                        choice: migratedNodeName,
+                        center: self.newCanvasItemInsertionLocation)
+        graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
+                                                      forKey: newLayerNode.id)
+        
+        var sidebarData = SidebarLayerData(id: newLayerNode.id)
+        
+        if let children = newLayer.children {
+            var sidebarChildrenData = [SidebarLayerData]()
+            for child in children {
+                // Recursive call
+                let newChildLayerData = try self.createLayerNodeFromAI(newLayer: child)
+                sidebarChildrenData.append(newChildLayerData)
+            }
+            
+            sidebarData.children = sidebarChildrenData
+        }
+        
+        return sidebarData
+    }
+}
+
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
     func apply(to document: StitchDocumentViewModel) throws {
@@ -84,6 +118,18 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             let _ = document.nodeInserted(choice: migratedNodeName,
                                           nodeId: newPatch.node_id.value)
         }
+        
+        // new layer nodes
+        var newLayerSidebarDataList = [SidebarLayerData]()
+        for newLayer in self.layers {
+            let newSidebarData = try document.createLayerNodeFromAI(newLayer: newLayer)
+            newLayerSidebarDataList.append(newSidebarData)
+        }
+        
+        // Update sidebar view model data with new layer data in beginning
+        let oldSidebarList = graph.layersSidebarViewModel.createdOrderedEncodedData()
+        let newList = newLayerSidebarDataList + oldSidebarList
+        graph.layersSidebarViewModel.update(from: newList)
         
         // Update graph data so that input observers are created
         graph.updateGraphData(document)

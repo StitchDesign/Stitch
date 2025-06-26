@@ -135,7 +135,7 @@ Rules to follow:
 * The root SwiftUI view will always be a `ZStack`. Do not create a layer for the root view, and instead treat that as the root prototyping board. Our outputs of layers starts with the first nesting of views inside the root `ZStack`.
 * If some SwiftUI closure is created with nested views inside, create a "group" layer and make a "children" property where we nest child layers.
 * The only exception to making a group for nested views is if a `RealityView` is created, if so, make a "reality" layer and assign `children` property inside a reality layer.
-* You can create a `suggested_title` for the layer if a short descriptive title exists that's more useful than the default name. Otherwise you may leave this blank and let Stitch use a default title.
+* You can create a `suggested_title` for the layer if a short descriptive title exists that's more useful than the default name. **Do not create a `suggested_title` property if no title is needed.
 
 **The full list of supported layers can be seen in "Layer Node Types"**.
 
