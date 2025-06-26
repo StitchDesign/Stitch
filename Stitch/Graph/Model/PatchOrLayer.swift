@@ -94,6 +94,24 @@ extension PatchOrLayer {
             return nil
         }
     }
+    
+    var patch: Patch? {
+        switch self {
+        case .patch(let patch):
+            return patch
+        case .layer:
+            return nil
+        }
+    }
+    
+    var layer: Layer? {
+        switch self {
+        case .patch:
+            return nil
+        case .layer(let layer):
+            return layer
+        }
+    }
 }
 
 extension Patch {
