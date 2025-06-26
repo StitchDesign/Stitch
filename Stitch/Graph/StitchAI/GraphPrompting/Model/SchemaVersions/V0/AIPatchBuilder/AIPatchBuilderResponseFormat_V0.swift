@@ -350,6 +350,33 @@ extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
     }
 }
 
+extension AIPatchBuilderResponseFormat_V0.CustomLayerInputValue {
+    enum CodingKeys: String, CodingKey {
+        case layer_input_coordinate
+        case value
+        case value_type
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.layer_input_coordinate = try container
+            .decode(AIPatchBuilderResponseFormat_V0.LayerInputCoordinate.self,
+                    forKey: .layer_input_coordinate)
+        self.value = try Step_V0.PortValue.decodeFromAI(container: container,
+                                                        valueKey: .value,
+                                                        valueTypeKey: .value_type)
+    }
+    
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(layer_input_coordinate, forKey: .layer_input_coordinate)
+        try Step_V0.PortValue.encodeFromAI(container: &container,
+                                           portValue: self.value,
+                                           valueKey: .value,
+                                           valueTypeKey: .value_type)
+    }
+}
+
 // TODO: move
 extension Step_V0.PortValue {
     static func decodeFromAI<CodingKeys: CodingKey>(container: KeyedDecodingContainer<CodingKeys>,
