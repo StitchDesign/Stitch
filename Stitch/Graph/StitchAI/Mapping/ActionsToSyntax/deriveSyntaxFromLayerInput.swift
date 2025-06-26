@@ -10,7 +10,7 @@ import Foundation
 
 // TODO: JUNE 24: how to handle loops? ... note: this is not used anywhere yet
 extension LayerInputPort {
-    func toSwiftUISyntax(port: StitchValueOrEdge, // loops? should pass in `value` ?
+    func toSwiftUISyntax(valueOrEdge: StitchValueOrEdge, // loops? should pass in `value` ?
                          layer: Layer) -> FromLayerInputToSyntax {
         
         // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. can handle .opacity but not .frame
@@ -18,8 +18,8 @@ extension LayerInputPort {
             SyntaxViewModifier(name: name,
                      arguments: [
                         SyntaxViewModifierArgument(label: .noLabel, // assumes unlabeled
-                                 value: port.asSwiftUILiteralOrVariable,
-                                 syntaxKind: port.asSwiftSyntaxKind)
+                                 value: valueOrEdge.asSwiftUILiteralOrVariable,
+                                 syntaxKind: valueOrEdge.asSwiftSyntaxKind)
                      ])
         }
         
@@ -40,16 +40,16 @@ extension LayerInputPort {
                 // `value` is either a literal (manually-set value) or an expression (incoming edge);
                 // if manually-set PortValue, then will be a Swift type literal (e.g. `5`, `"love"`, `CGSize(width: 50, height: 100)`
                 // if incoming-edge, then will be a Swift declared-constant
-                value: port.asSwiftUILiteralOrVariable,
+                value: valueOrEdge.asSwiftUILiteralOrVariable,
                 
-                syntaxKind: port.asSwiftSyntaxKind))
+                syntaxKind: valueOrEdge.asSwiftSyntaxKind))
             
             
         case .sfSymbol:
             return .constructorArgument(.init(
                 label: .systemName,
-                value: port.asSwiftUILiteralOrVariable,
-                syntaxKind: port.asSwiftSyntaxKind))
+                value: valueOrEdge.asSwiftUILiteralOrVariable,
+                syntaxKind: valueOrEdge.asSwiftSyntaxKind))
             
             
             // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
@@ -61,14 +61,28 @@ extension LayerInputPort {
                     // NOT CORRECT?: discrepancy between
                     SyntaxViewModifierArgument(label: .x,
                                                // NEED TO UNPACK THE PORT VALUE ?
-                                               value: port.asSwiftUILiteralOrVariable,
-                                               syntaxKind: port.asSwiftSyntaxKind),
+                                               value: valueOrEdge.asSwiftUILiteralOrVariable,
+                                               syntaxKind: valueOrEdge.asSwiftSyntaxKind),
                     SyntaxViewModifierArgument(label: .y,
-                                               value: port.asSwiftUILiteralOrVariable,
-                                               syntaxKind: port.asSwiftSyntaxKind)
+                                               value: valueOrEdge.asSwiftUILiteralOrVariable,
+                                               syntaxKind: valueOrEdge.asSwiftSyntaxKind)
                 ]))
             
-
+        case .size:
+            return .modifier(SyntaxViewModifier(
+                name: .frame,
+                arguments: [
+                    SyntaxViewModifierArgument(
+                        label: .width,
+                        // TODO: JUNE 25: SMARTER, MORE PROGRAMMATIC WAY OF UNPACKING A MULTIFIELD PORT VALUE INTO VIEW-MODIFIER-ARGUMENTS
+                        value: valueOrEdge.getValue?.getSize?.width.asNumber.description ?? "0",
+                        syntaxKind: valueOrEdge.asSwiftSyntaxKind),
+                    SyntaxViewModifierArgument(
+                        label: .height,
+                        value: valueOrEdge.getValue?.getSize?.height.asNumber.description ?? "0",
+                        //value: valueOrEdge.asSwiftUILiteralOrVariable,
+                        syntaxKind: valueOrEdge.asSwiftSyntaxKind)
+                ]))
             
         
         // TODO: JUNE 23: .fill for Layer.rectangle, Layer.oval etc.; but .foregroundColor for Layer.text
@@ -107,7 +121,6 @@ extension LayerInputPort {
 
         
         // TODO: JUNE 23: complicatd: size, minSize, maxSize are actually a combination of arguments to the SwiftUI .frame view modifier
-        case .size:                        return .modifier(buildModifier(.frame))
         case .minSize, .maxSize:           return .modifier(buildModifier(.frame))
             
         // TODO: JUNE 23: complicated; all of these correspond to different arguments *on the same SwiftUI .shadow view modifier*

@@ -37,18 +37,37 @@ enum StitchValueOrEdge: Equatable {
             return SyntaxArgumentKind.variable(.identifier) // `x`
         }
     }
+    
+    var getValue: PortValue? {
+        switch self {
+        case .value(let x): return x
+        default: return nil
+        }
+    }
+    
+    var getIncomingEdge: (NodeId, Int)? {
+        switch self {
+        case .edge(let x, let y): return (x, y)
+        default: return nil
+        }
+    }
 }
 
 extension PortValue {
+    
     // TODO: JUNE 24: should return a Codable ? ... How do you map between Swift/SwiftUI types and Stitch's PortValue types ? ... see note in `LayerInputPort.toSwiftUI`
     var asSwiftUILiteral: String {
-        switch self {
-        case .number(let x):
-            return x.description
-        case .string(let x):
-            return x.string
-        default:
+        
+        // TODO: JUNE 25: where did our `PortValue.usesMultipleFields` method go? ... Could use a check
+        let isMultifield = self.createFieldValuesList(
+            nodeIO: .input,
+            layerInputPort: nil,
+            isLayerInspector: false).count > 1
+        
+        if isMultifield {
             return "IMPLEMENT ME: \(self.display)"
+        } else {
+            return self.display
         }
     }
 }
