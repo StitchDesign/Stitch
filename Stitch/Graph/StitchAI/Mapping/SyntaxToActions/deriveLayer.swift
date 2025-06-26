@@ -71,8 +71,14 @@ extension SyntaxView {
         let name: SyntaxViewName = self.name
         let args: [SyntaxViewConstructorArgument] = self.constructorArguments
         
+        return name.deriveLayer(args: args)
+    }
+}
+
+extension SyntaxViewName {
+    func deriveLayer(args: [SyntaxViewConstructorArgument]) -> Layer? {
         // Vast majority of cases, there is a 1:1 mapping of ViewKind to Layer
-        switch name {
+        switch self {
             
         case .image:
             switch args.first?.label {
@@ -154,7 +160,6 @@ extension SyntaxView {
         case .anyView: return nil
         case .preview: return nil
         case .timelineSchedule: return nil
-        case .custom(_): return nil
         }
     }
 }

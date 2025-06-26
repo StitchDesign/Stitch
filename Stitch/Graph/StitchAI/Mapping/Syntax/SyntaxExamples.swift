@@ -15,7 +15,7 @@ import Foundation
 // Rectangle()
 //     .frame(width: 200, height: 100, alignment: .center)
 let complexModifierExample = SyntaxView(
-    name: .init(from: "Rectangle"),
+    name: .init(from: "Rectangle")!,
     constructorArguments: [],
     modifiers: [
         SyntaxViewModifier(
@@ -38,12 +38,12 @@ let complexModifierExample = SyntaxView(
 //     Rectangle().fill(Color.green)
 // }
 let example1 = SyntaxView(
-    name: .init(from: "ZStack"),
+    name: .init(from: "ZStack")!,
     constructorArguments: [],
     modifiers: [],
     children: [
         SyntaxView(
-            name: .init(from: "Rectangle"),
+            name: .init(from: "Rectangle")!,
             constructorArguments: [],
             modifiers: [
                 SyntaxViewModifier(
@@ -55,7 +55,7 @@ let example1 = SyntaxView(
             id: UUID()
         ),
         SyntaxView(
-            name: .init(from: "Rectangle"),
+            name: .init(from: "Rectangle")!,
             constructorArguments: [],
             modifiers: [
                 SyntaxViewModifier(
@@ -74,7 +74,7 @@ let example1 = SyntaxView(
 // SwiftUI code:
 // Text("salut")
 let example2 = SyntaxView(
-    name: .init(from: "Text"),
+    name: .init(from: "Text")!,
     constructorArguments: [
         SyntaxViewConstructorArgument(label: .noLabel,
                             value: "\"salut\"",
@@ -88,7 +88,7 @@ let example2 = SyntaxView(
 // SwiftUI code:
 // Text("salut").foregroundColor(Color.yellow).padding()
 let example3 = SyntaxView(
-    name: .init(from: "Text"),
+    name: .init(from: "Text")!,
     constructorArguments: [
         SyntaxViewConstructorArgument(label: .noLabel,
                             value: "\"salut\"",
@@ -119,12 +119,12 @@ let example3 = SyntaxView(
 //     }
 // }
 let example4 = SyntaxView(
-    name: .init(from: "ZStack"),
+    name: .init(from: "ZStack")!,
     constructorArguments: [],
     modifiers: [],
     children: [
         SyntaxView(
-            name: .init(from: "Rectangle"),
+            name: .init(from: "Rectangle")!,
             constructorArguments: [],
             modifiers: [
                 SyntaxViewModifier(
@@ -136,12 +136,12 @@ let example4 = SyntaxView(
             id: UUID()
         ),
         SyntaxView(
-            name: .init(from: "VStack"),
+            name: .init(from: "VStack")!,
             constructorArguments: [],
             modifiers: [],
             children: [
                 SyntaxView(
-                    name: .init(from: "Rectangle"),
+                    name: .init(from: "Rectangle")!,
                     constructorArguments: [],
                     modifiers: [
                         SyntaxViewModifier(
@@ -153,7 +153,7 @@ let example4 = SyntaxView(
                     id: UUID()
                 ),
                 SyntaxView(
-                    name: .init(from: "Rectangle"),
+                    name: .init(from: "Rectangle")!,
                     constructorArguments: [],
                     modifiers: [
                         SyntaxViewModifier(
@@ -175,7 +175,7 @@ let example4 = SyntaxView(
 // Image(systemName: "star.fill")
 
 let example5 = SyntaxView(
-    name: .init(from: "Image"),
+    name: .init(from: "Image")!,
     constructorArguments: [
         SyntaxViewConstructorArgument(label: .systemName,
                             value: "\"star.fill\"",
