@@ -10,7 +10,7 @@ import SwiftSyntax
 
 
 /// High‑level classification of an argument encountered in SwiftUI code.
-enum SyntaxArgumentKind: Equatable, Hashable {
+enum SyntaxArgumentKind: Equatable, Hashable, Codable, Sendable {
     
     /*
      ```swift
@@ -115,7 +115,7 @@ extension SyntaxArgumentKind {
 }
 
 /// More granular breakdown of literal forms we might see in SwiftSyntax.
-enum SyntaxArgumentLiteralKind: String, Equatable, Hashable {
+enum SyntaxArgumentLiteralKind: String, Equatable, Hashable, Codable {
     case integer          = "IntegerLiteral"        // `42`
     case float            = "FloatLiteral"          // `3.14`
     case string           = "StringLiteral"         // `"hello"`
@@ -132,13 +132,13 @@ enum SyntaxArgumentLiteralKind: String, Equatable, Hashable {
 }
 
 /// Possible syntactic shapes for a variable reference.
-enum SyntaxArgumentVariableKind: String, Equatable, Hashable {
+enum SyntaxArgumentVariableKind: String, Equatable, Hashable, Codable {
     case identifier       = "Identifier"            // `x`
     case memberAccess     = "MemberAccess"          // `object.property`
 }
 
 /// Broad categories of non‑literal expressions.
-enum SyntaxArgumentExpressionKind: String, Equatable, Hashable {
+enum SyntaxArgumentExpressionKind: String, Equatable, Hashable, Codable {
     case infixOperator    = "InfixOperator"         // `a + b`
     case prefixOperator   = "PrefixOperator"        // `-x`
     case postfixOperator  = "PostfixOperator"       // `array!`

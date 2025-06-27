@@ -10,7 +10,7 @@ import SwiftUI
 /// A growing catalogue of SwiftUI view types we recognise.
 /// Use `ViewKind(from:)` to convert a textual identifier into a typed case;
 /// use `.string` to go the other way.  Anything unknown is stored in `.custom`.
-enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable {
+enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendable {
     case rectangle = "Rectangle"
     case roundedRectangle = "RoundedRectangle"
     case circle = "Circle"

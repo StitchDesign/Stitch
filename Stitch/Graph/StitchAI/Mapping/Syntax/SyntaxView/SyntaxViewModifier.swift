@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftParser
 
 
-struct SyntaxViewModifier: Equatable, Hashable {
+struct SyntaxViewModifier: Equatable, Hashable, Sendable, Codable {
 
     // representation of a SwiftUI view modifier name
     let name: SyntaxViewModifierName
@@ -33,7 +33,7 @@ struct SyntaxViewModifier: Equatable, Hashable {
  )
  ```
  */
-struct SyntaxViewModifierArgument: Equatable, Hashable {
+struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable, Codable {
     let label: SyntaxViewModifierArgumentLabel
     let value: String
     
@@ -42,7 +42,7 @@ struct SyntaxViewModifierArgument: Equatable, Hashable {
 }
 
 
-enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable {
+enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable, Sendable, Codable {
     case noLabel = "", // e.g. `.fill(Color.red)`, `.foregroundColor(Color.green)`
          
          // e.g. `.frame(width:height:alignment:)`
@@ -75,7 +75,7 @@ extension SyntaxViewModifierArgumentLabel {
 /// (No such list or enum is otherwise already exposed by SwiftUI for us programmatically.)
 /// `rawValue` is **always** the textual name of the modifier as it appears in
 /// source (e.g. `"fill"`, `"frame"`). Any unknown name is stored using `.custom`.
-enum SyntaxViewModifierName: Codable, Hashable {
+enum SyntaxViewModifierName: Codable, Hashable, Equatable, Sendable {
     case fill
     case frame
     case padding

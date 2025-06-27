@@ -8,7 +8,7 @@
 import Foundation
 
 // fka `ViewNode`
-struct SyntaxView: Equatable, Hashable {
+struct SyntaxView: Equatable, Hashable, Sendable {
     
     // representation of a SwiftUI View
     // e.g. `Text`, `Rectangle`, `Image`
