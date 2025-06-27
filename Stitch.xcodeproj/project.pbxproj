@@ -964,6 +964,9 @@
 		ECC558A7294A9B340025BB42 /* ScrollInteractionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC558A6294A9B340025BB42 /* ScrollInteractionUtils.swift */; };
 		ECC558A9294A9B3A0025BB42 /* DragInteractionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC558A8294A9B3A0025BB42 /* DragInteractionUtils.swift */; };
 		ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */; };
+		ECC734742E0DE95A00AC266C /* CodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734732E0DE95A00AC266C /* CodeExamples.swift */; };
+		ECC734762E0DE9AE00AC266C /* ActionExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734752E0DE9AE00AC266C /* ActionExamples.swift */; };
+		ECC734782E0E452E00AC266C /* deriveSyntaxViewName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */; };
 		ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */; };
 		ECC738312BB6360B00A680B5 /* AnchorGridIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */; };
 		ECCA95952899CFFC002D241F /* FocusedUserEditField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */; };
@@ -1059,7 +1062,6 @@
 		ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */; };
 		ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */; };
 		ECE963AA2E0C5710003420C5 /* ASTExplorerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */; };
-		ECE963AC2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE963AB2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift */; };
 		ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */; };
 		ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53112DCAC10700C3A09D /* SampleProjects.swift */; };
 		ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */; };
@@ -2078,6 +2080,9 @@
 		ECC558A6294A9B340025BB42 /* ScrollInteractionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollInteractionUtils.swift; sourceTree = "<group>"; };
 		ECC558A8294A9B3A0025BB42 /* DragInteractionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragInteractionUtils.swift; sourceTree = "<group>"; };
 		ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNamesDropDownChoiceView.swift; sourceTree = "<group>"; };
+		ECC734732E0DE95A00AC266C /* CodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeExamples.swift; sourceTree = "<group>"; };
+		ECC734752E0DE9AE00AC266C /* ActionExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionExamples.swift; sourceTree = "<group>"; };
+		ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveSyntaxViewName.swift; sourceTree = "<group>"; };
 		ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationOpAnchoring.swift; sourceTree = "<group>"; };
 		ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnchorGridIconView.swift; sourceTree = "<group>"; };
 		ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedUserEditField.swift; sourceTree = "<group>"; };
@@ -2167,7 +2172,6 @@
 		ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASTExplorerView.swift; sourceTree = "<group>"; };
-		ECE963AB2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASTExplorerViewExamples.swift; sourceTree = "<group>"; };
 		ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericFlyoutView.swift; sourceTree = "<group>"; };
 		ECEA53112DCAC10700C3A09D /* SampleProjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjects.swift; sourceTree = "<group>"; };
 		ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjectsView.swift; sourceTree = "<group>"; };
@@ -5258,6 +5262,7 @@
 				ECB238EA2E0B94B800D55A25 /* FromLayerInputToSyntax.swift */,
 				ECB238E82E0B941E00D55A25 /* deriveViewModifierName.swift */,
 				ECB238EE2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift */,
+				ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */,
 				ECCD49E52E0BBD3F00E99CE1 /* ActionsToSyntaxToCodeExploratoryView.swift */,
 			);
 			path = ActionsToSyntax;
@@ -5324,7 +5329,7 @@
 			children = (
 				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
-				ECE963AB2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift */,
+				ECC734722E0DE92F00AC266C /* Examples */,
 				ECB238D02E0B8BA100D55A25 /* Actions */,
 				ECB238C42E0A10F900D55A25 /* Syntax */,
 				ECB238D82E0B8C9C00D55A25 /* ActionsToSyntax */,
@@ -5333,6 +5338,15 @@
 				ECB238C62E0A111800D55A25 /* SyntaxToCode */,
 			);
 			path = Mapping;
+			sourceTree = "<group>";
+		};
+		ECC734722E0DE92F00AC266C /* Examples */ = {
+			isa = PBXGroup;
+			children = (
+				ECC734732E0DE95A00AC266C /* CodeExamples.swift */,
+				ECC734752E0DE9AE00AC266C /* ActionExamples.swift */,
+			);
+			path = Examples;
 			sourceTree = "<group>";
 		};
 		ECD8871D2941416E00003B47 /* Shape */ = {
@@ -5985,6 +5999,7 @@
 				EC2942432BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift in Sources */,
 				EC28CCA2287E35F500987792 /* PatchEvaluation.swift in Sources */,
 				ECB9A8672AEB48FF006E65EE /* HSLSliderView.swift in Sources */,
+				ECC734742E0DE95A00AC266C /* CodeExamples.swift in Sources */,
 				EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */,
 				B5136F4E2DED2C07007F12D0 /* NodeType_V0.swift in Sources */,
 				20D9D79425D5A78900F5C7A4 /* Parsers.swift in Sources */,
@@ -6022,6 +6037,7 @@
 				EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */,
 				ECF236802CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift in Sources */,
 				ECE708662B8D49D5009F4525 /* ClosePathNode.swift in Sources */,
+				ECC734782E0E452E00AC266C /* deriveSyntaxViewName.swift in Sources */,
 				EC4081252C0114060047989F /* StitchCustomURL.swift in Sources */,
 				205BB3B125BA203D00F144A7 /* PortView.swift in Sources */,
 				E4D7EA152BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift in Sources */,
@@ -6320,6 +6336,7 @@
 				B5FEE4CA28AEF88100B50BCD /* AppSettingsView.swift in Sources */,
 				E4F8AABD2BD6ED9600E9BA4D /* AngularGradientNode.swift in Sources */,
 				ECA92A3C260A6A7400281B52 /* RestartPrototypeNode.swift in Sources */,
+				ECC734762E0DE9AE00AC266C /* ActionExamples.swift in Sources */,
 				EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */,
 				ECD936582B714EFA008969E3 /* AnimatableStraightLine.swift in Sources */,
 				EC2614532B897C3200BEB066 /* Point4DUnpackNode.swift in Sources */,
@@ -6591,7 +6608,6 @@
 				ECA4FCC528EB4140006B4F23 /* NetworkRequestUITestView.swift in Sources */,
 				B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */,
 				EC1CB6282949190C00FF755D /* CurveNode.swift in Sources */,
-				ECE963AC2E0C5AFE003420C5 /* ASTExplorerViewExamples.swift in Sources */,
 				ECB238BF2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift in Sources */,
 				B5D34C922DF5396E007405BF /* AIJsNodeEditRequest.swift in Sources */,
 				ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */,

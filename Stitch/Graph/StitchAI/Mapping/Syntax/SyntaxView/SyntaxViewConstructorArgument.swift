@@ -40,6 +40,8 @@ enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
     // https://developer.apple.com/documentation/swiftui/image#Creating-an-image
     case systemName = "systemName"
     
+    case cornerRadius = "cornerRadius"
+    
     // HStack, VStack, ZStack
     // case alignment = "alignment"
     // case spacing = "spacing"

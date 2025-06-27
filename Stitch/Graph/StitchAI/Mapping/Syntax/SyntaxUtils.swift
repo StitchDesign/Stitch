@@ -32,7 +32,7 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     result += "\n\(indent)    constructorArguments: ["
     if !node.constructorArguments.isEmpty {
         for (i, arg) in node.constructorArguments.enumerated() {
-            let label = "\"\(arg.label)\""
+            let label = "\(arg.label)"
             let kindDesc = describe(arg.syntaxKind)
             result += "\n\(indent)        (label: \(label), value: \(arg.value), kind: \(kindDesc))"
             if i < node.constructorArguments.count - 1 {
@@ -49,7 +49,7 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     if !node.modifiers.isEmpty {
         for (i, modifier) in node.modifiers.enumerated() {
             result += "\n\(indent)        SyntaxViewModifier("
-            result += "\n\(indent)            kind: \"\(modifier.name.rawValue)\","
+            result += "\n\(indent)            name: \(modifier.name.rawValue),"
             // value field removed
             // Format modifier arguments
             result += "\n\(indent)            arguments: ["

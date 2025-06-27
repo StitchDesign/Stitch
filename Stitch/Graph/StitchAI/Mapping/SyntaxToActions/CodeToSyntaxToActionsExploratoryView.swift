@@ -16,7 +16,7 @@ import SwiftUI
 struct CodeToSyntaxToActionsExploratoryView: View {
 
     // -- Demo snippets to cycle through --
-    private let examples = ASTExplorerView.codeExamples
+    private let examples = MappingExamples.codeExamples
     // -- UI State --
     @State private var selectedTab = 0
     @State private var swiftUICode: String = ""
@@ -109,8 +109,9 @@ struct CodeToSyntaxToActionsExploratoryView: View {
 
     private func parseCurrent() {
         parsedViewNode = parseSwiftUICode(swiftUICode)
-        if let node = parsedViewNode {
-            actions = node.deriveStitchActions()
+        if let node = parsedViewNode,
+           let _actions = node.deriveStitchActions() {
+            actions = _actions
         } else {
             actions = []
         }

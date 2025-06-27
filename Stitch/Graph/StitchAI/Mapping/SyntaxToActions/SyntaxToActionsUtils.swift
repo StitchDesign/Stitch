@@ -29,9 +29,10 @@ enum StitchValueOrEdge: Equatable {
     
     var asSwiftSyntaxKind: SyntaxArgumentKind {
         switch self {
-        case .value:
-            // TODO: JUNE 24: Do you need all these different individual syntax-literal types? ... if so, then should map on
-            return SyntaxArgumentKind.literal(.string)
+        
+        case .value(let x):
+            return x.asSwiftSyntaxKind
+            
         case .edge(let x, let y):
             // TODO: JUNE 24: do we always want to treat an incoming edge as a variable ? ... a variable is just an evaluated expression ?
             return SyntaxArgumentKind.variable(.identifier) // `x`
@@ -69,5 +70,10 @@ extension PortValue {
         } else {
             return self.display
         }
+    }
+    
+    var asSwiftSyntaxKind: SyntaxArgumentKind {
+        // TODO: JUNE 24: Do you need all these different individual syntax-literal types? ... if so, then should map on
+        .literal(.string)
     }
 }

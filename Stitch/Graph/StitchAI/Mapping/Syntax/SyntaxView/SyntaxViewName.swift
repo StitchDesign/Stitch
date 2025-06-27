@@ -92,10 +92,14 @@ extension SyntaxViewName {
     }
     
     var isSupported: Bool {
-        self.deriveLayer(args: []) != nil
+        self.deriveLayer(id: .init(),
+                         args: [],
+                         modifiers: []) != nil
     }
     
 //    static let disabledViews: [Self] = Self.allCases.filter {
 //        $0.deriveLayer() == nil
 //    }
 }
+
+

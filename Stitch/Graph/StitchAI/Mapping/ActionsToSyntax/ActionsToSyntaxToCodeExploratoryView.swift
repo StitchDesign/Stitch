@@ -20,7 +20,7 @@ extension ActionsToSyntaxToCodeExploratoryView {
 struct ActionsToSyntaxToCodeExploratoryView: View {
 
     // Demo sets to cycle through
-    private static let examples = ASTExplorerView.actionExamples
+    private static let examples = MappingExamples.actionExamples
 
     // MARK: - UI State
     @State private var selectedTab = 0
