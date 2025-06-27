@@ -84,25 +84,33 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                 case .success(let patchBuildResult):
                     print("SUCCESS Patch Builder:\n\(patchBuildResult)")
                     
-                    await MainActor.run { [weak document] in
+                    DispatchQueue.main.async { [weak document] in
                         guard let document = document else { return }
                         
                         do {
                             try patchBuildResult.applyAIGraph(to: document)
                         } catch {
-                            fatalErrorIfDebug(error.localizedDescription)
+                            log("Error applying AI graph: \(error.localizedDescription)")
+                            document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
                         }
+
+                        document.aiManager?.currentTaskTesting = nil
+                        document.insertNodeMenuState.show = false
                     }
                     
                     return patchBuildResult
                     
                 case .failure(let failure):
                     print(failure.localizedDescription)
+                    document.aiManager?.currentTaskTesting = nil
+                    document.insertNodeMenuState.show = false
                     throw failure
                 }
                 
             case .failure(let failure):
                 print(failure.localizedDescription)
+                document.aiManager?.currentTaskTesting = nil
+                document.insertNodeMenuState.show = false
                 throw failure
             }
         }
