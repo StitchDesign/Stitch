@@ -86,7 +86,6 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                     
                     await MainActor.run { [weak document] in
                         guard let document = document else { return }
-                        document.aiManager?.currentTaskTesting = nil
                         
                         do {
                             try patchBuildResult.apply(to: document)
@@ -99,13 +98,11 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                     
                 case .failure(let failure):
                     print(failure.localizedDescription)
-                    document.aiManager?.currentTaskTesting = nil
                     throw failure
                 }
                 
             case .failure(let failure):
                 print(failure.localizedDescription)
-                document.aiManager?.currentTaskTesting = nil
                 throw failure
             }
         }

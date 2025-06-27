@@ -187,7 +187,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct LayerNode: Codable {
-        let node_id: String
+        let node_id: StitchAIUUID_V0.StitchAIUUID
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerNode]?
@@ -212,7 +212,7 @@ extension AIPatchBuilderResponseFormat_V0 {
         
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            node_id = try container.decode(String.self, forKey: .node_id)
+            node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
             suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
             node_name = try container.decode(StitchAIPatchOrLayer.self, forKey: .node_name)
             
@@ -228,7 +228,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct JsPatchNode: Codable {
-        let node_id: String
+        let node_id: StitchAIUUID_V0.StitchAIUUID
         let javascript_source_code: String
         let suggested_title: String
         let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
@@ -236,7 +236,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct NativePatchNode: Codable {
-        let node_id: String
+        let node_id: StitchAIUUID_V0.StitchAIUUID
         let node_name: StitchAIPatchOrLayer
     }
     
@@ -251,12 +251,12 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct LayerInputCoordinate: Codable {
-        let layer_id: String
+        let layer_id: StitchAIUUID_V0.StitchAIUUID
         let input_port_type: AILayerInputPort
     }
 
     struct NodeIndexedCoordinate: Codable {
-        let node_id: String
+        let node_id: StitchAIUUID_V0.StitchAIUUID
         let port_index: Int
     }
     
