@@ -15,12 +15,12 @@ struct SyntaxToCodeExploratoryView: View {
     
     // All examples from StitchSyntax.swift
     let examples: [(name: String, viewNode: SyntaxView)] = [
-        ("Complex Modifier", complexModifierExample),
-        ("ZStack with Rectangles", example1),
-        ("Simple Text", example2),
-        ("Text with Modifiers", example3),
-        ("Nested Views", example4),
-        ("Image Example", example5)
+        ("Complex Modifier", MappingExamples.complexModifierExample),
+        ("ZStack with Rectangles", MappingExamples.example1),
+        ("Simple Text", MappingExamples.example2),
+        ("Text with Modifiers", MappingExamples.example3),
+        ("Nested Views", MappingExamples.example4),
+        ("Image Example", MappingExamples.example5)
     ]
     
     var body: some View {
