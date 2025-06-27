@@ -878,7 +878,6 @@
 		ECB1B7B426FB9DFF006D9C95 /* MediaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7B326FB9DFF006D9C95 /* MediaLibrary.swift */; };
 		ECB1B7B826FB9E67006D9C95 /* MediaKeyUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7B726FB9E67006D9C95 /* MediaKeyUtils.swift */; };
 		ECB238BF2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238BE2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift */; };
-		ECB238C32E0A10D900D55A25 /* SyntaxExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238C22E0A10D900D55A25 /* SyntaxExamples.swift */; };
 		ECB238C92E0A192E00D55A25 /* SyntaxViewName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238C82E0A192E00D55A25 /* SyntaxViewName.swift */; };
 		ECB238D22E0B8BBC00D55A25 /* VPLActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238D12E0B8BBC00D55A25 /* VPLActions.swift */; };
 		ECB238D42E0B8C1100D55A25 /* SyntaxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238D32E0B8C1100D55A25 /* SyntaxView.swift */; };
@@ -967,6 +966,7 @@
 		ECC734742E0DE95A00AC266C /* CodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734732E0DE95A00AC266C /* CodeExamples.swift */; };
 		ECC734762E0DE9AE00AC266C /* ActionExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734752E0DE9AE00AC266C /* ActionExamples.swift */; };
 		ECC734782E0E452E00AC266C /* deriveSyntaxViewName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */; };
+		ECC7347A2E0F310B00AC266C /* SyntaxExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734792E0F310B00AC266C /* SyntaxExamples.swift */; };
 		ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */; };
 		ECC738312BB6360B00A680B5 /* AnchorGridIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */; };
 		ECCA95952899CFFC002D241F /* FocusedUserEditField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */; };
@@ -2000,7 +2000,6 @@
 		ECB1B7B326FB9DFF006D9C95 /* MediaLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLibrary.swift; sourceTree = "<group>"; };
 		ECB1B7B726FB9E67006D9C95 /* MediaKeyUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaKeyUtils.swift; sourceTree = "<group>"; };
 		ECB238BE2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToSyntaxToActionsExploratoryView.swift; sourceTree = "<group>"; };
-		ECB238C22E0A10D900D55A25 /* SyntaxExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxExamples.swift; sourceTree = "<group>"; };
 		ECB238C82E0A192E00D55A25 /* SyntaxViewName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewName.swift; sourceTree = "<group>"; };
 		ECB238D12E0B8BBC00D55A25 /* VPLActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLActions.swift; sourceTree = "<group>"; };
 		ECB238D32E0B8C1100D55A25 /* SyntaxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxView.swift; sourceTree = "<group>"; };
@@ -2083,6 +2082,7 @@
 		ECC734732E0DE95A00AC266C /* CodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeExamples.swift; sourceTree = "<group>"; };
 		ECC734752E0DE9AE00AC266C /* ActionExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionExamples.swift; sourceTree = "<group>"; };
 		ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveSyntaxViewName.swift; sourceTree = "<group>"; };
+		ECC734792E0F310B00AC266C /* SyntaxExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxExamples.swift; sourceTree = "<group>"; };
 		ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationOpAnchoring.swift; sourceTree = "<group>"; };
 		ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnchorGridIconView.swift; sourceTree = "<group>"; };
 		ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedUserEditField.swift; sourceTree = "<group>"; };
@@ -5198,7 +5198,6 @@
 		ECB238C42E0A10F900D55A25 /* Syntax */ = {
 			isa = PBXGroup;
 			children = (
-				ECB238C22E0A10D900D55A25 /* SyntaxExamples.swift */,
 				EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */,
 				ECB238D72E0B8C7600D55A25 /* SyntaxView */,
 			);
@@ -5345,6 +5344,7 @@
 			children = (
 				ECC734732E0DE95A00AC266C /* CodeExamples.swift */,
 				ECC734752E0DE9AE00AC266C /* ActionExamples.swift */,
+				ECC734792E0F310B00AC266C /* SyntaxExamples.swift */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -6089,6 +6089,7 @@
 				EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
+				ECC7347A2E0F310B00AC266C /* SyntaxExamples.swift in Sources */,
 				EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */,
 				EC65AC2B2DC112030046E59C /* CommonEditingViewHelpers.swift in Sources */,
 				B55500C82C1B9FCF0081C3F1 /* LayerDimensionField.swift in Sources */,
@@ -6291,7 +6292,6 @@
 				ECA92A58260A6C1D00281B52 /* Coordinate.swift in Sources */,
 				B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */,
 				B5969F8C2C2CAAA60012F4BD /* NodeRowViewModel.swift in Sources */,
-				ECB238C32E0A10D900D55A25 /* SyntaxExamples.swift in Sources */,
 				B57F3A822947B4BC00DFC0AE /* SideEffectCoordinator.swift in Sources */,
 				B58E97D52DF0B671007913E3 /* AIGraphCreationRequestBody_V0.swift in Sources */,
 				EC0B03502DF200E40045E894 /* StitchAIRequestable.swift in Sources */,
