@@ -63,9 +63,9 @@ extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.
     @MainActor
     func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerNode,
-                               idMap: inout [UUID : UUID]) throws -> SidebarLayerData {
+                               idMap: inout [String : UUID]) throws -> SidebarLayerData {
         let newId = UUID()
-        idMap.updateValue(newId, forKey: newLayer.node_id.value)
+        idMap.updateValue(newId, forKey: newLayer.node_id)
         let graph = self.visibleGraph
         
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
@@ -122,12 +122,12 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
-        var idMap = [UUID : UUID]()
+        var idMap = [String : UUID]()
         
         // new js patches
         for newPatch in self.javascript_patches {
             let newId = UUID()
-            idMap.updateValue(newId, forKey: newPatch.node_id.value)
+            idMap.updateValue(newId, forKey: newPatch.node_id)
             let newNode = document.nodeInserted(choice: .patch(.javascript),
                                                 nodeId: newId)
             
@@ -146,7 +146,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         // new native patches
         for newPatch in self.native_patches {
             let newId = UUID()
-            idMap.updateValue(newId, forKey: newPatch.node_id.value)
+            idMap.updateValue(newId, forKey: newPatch.node_id)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
             let _ = document.nodeInserted(choice: migratedNodeName,
@@ -240,8 +240,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
 
 extension NodeIOCoordinate {
     init(from aiPatchCoordinate: CurrentAIPatchBuilderResponseFormat.NodeIndexedCoordinate,
-         idMap: [UUID : UUID]) throws {
-        guard let newId = idMap.get(aiPatchCoordinate.node_id.value) else {
+         idMap: [String : UUID]) throws {
+        guard let newId = idMap.get(aiPatchCoordinate.node_id) else {
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         
@@ -250,8 +250,8 @@ extension NodeIOCoordinate {
     }
     
     init(from aiLayerCoordinate: CurrentAIPatchBuilderResponseFormat.LayerInputCoordinate,
-         idMap: [UUID : UUID]) throws {
-        guard let newId = idMap.get(aiLayerCoordinate.layer_id.value) else {
+         idMap: [String : UUID]) throws {
+        guard let newId = idMap.get(aiLayerCoordinate.layer_id) else {
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         

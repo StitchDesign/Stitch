@@ -119,7 +119,7 @@ extension StitchAIRequestable {
             print("MessageStruct: successfully decoded with \(result)")
             return result
         } catch let error as StitchAIManagerError {
-            throw error
+            throw error
         } catch {
             print("parseOpenAIResponse error: \(error)")
             throw StitchAIManagerError.contentDataDecodingError(content, error.localizedDescription)
