@@ -21,7 +21,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     @MainActor
     init(prompt: String,
          jsSourceCode: String,
-         layerList: SidebarLayerList,
+         layerList: SidebarLayerList?,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -99,10 +99,39 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
-                                      value: CurrentStep.PortValue) throws {
+                                      value: CurrentStep.PortValue,
+                                      idMap: [UUID : UUID]) throws {
         let graph = self.visibleGraph
-        let migratedValue = try value.migrate()
+        var migratedValue = try value.migrate()
         
+        // remap values with UUID
+        switch migratedValue {
+        case .assignedLayer(let layerNodeId):
+            guard let layerNodeId = layerNodeId else {
+                break
+            }
+            
+            guard let newId = idMap[layerNodeId.asNodeId] else {
+                throw AIPatchBuilderRequestError.nodeIdNotFound
+            }
+            
+            migratedValue = .assignedLayer(.init(newId))
+            
+        case .anchorEntity(let nodeId):
+            guard let nodeId = nodeId else {
+                break
+            }
+            
+            guard let newId = idMap[nodeId] else {
+                throw AIPatchBuilderRequestError.nodeIdNotFound
+            }
+            
+            migratedValue = .anchorEntity(.init(newId))
+
+        default:
+            break
+        }
+
         guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
             log("applyAction: could not apply setInput")
             // fatalErrorIfDebug()
@@ -118,7 +147,7 @@ extension StitchDocumentViewModel {
 
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
-    func apply(to document: StitchDocumentViewModel) throws {
+    func applyAIGraph(to document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
@@ -175,7 +204,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 from: newInputValueSetting.patch_input_coordinate,
                 idMap: idMap)
             try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-                                                      value: newInputValueSetting.value)
+                                                      value: newInputValueSetting.value,
+                                                      idMap: idMap)
         }
         
         // new constants for layers
@@ -184,7 +214,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 from: newInputValueSetting.layer_input_coordinate,
                 idMap: idMap)
             try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-                                                      value: newInputValueSetting.value)
+                                                      value: newInputValueSetting.value,
+                                                      idMap: idMap)
         }
         
         // new edges to downstream patches

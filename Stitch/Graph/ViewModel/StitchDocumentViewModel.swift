@@ -129,8 +129,6 @@ final class StitchDocumentViewModel: Sendable {
     
     @MainActor var stitchAITrainingTip = StitchAITrainingTip()
     
-    @MainActor var showTestAIModal: Bool = false
-    
 #if !targetEnvironment(macCatalyst)
     @MainActor var selectedTab = ProjectTab.patch
 #endif
@@ -466,7 +464,8 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor var isLoadingAI: Bool {
-        self.aiManager?.currentTask != nil
+        self.aiManager?.currentTask != nil ||
+        self.aiManager?.currentTaskTesting != nil
     }
 }
 

@@ -49,4 +49,70 @@ struct AIPatchServiceRequest: StitchAIRequestable {
         // Unsupported
         fatalError()
     }
+    
+    @MainActor
+    static func getRequestTask(userPrompt: String,
+                               document: StitchDocumentViewModel) throws -> Task<AIPatchBuilderRequest.FinalDecodedResult,
+    any Error> {
+        let request = try AIPatchServiceRequest(
+            prompt: userPrompt)
+        
+        return Task(priority: .high) { [weak document] in
+            guard let document = document,
+                  let aiManager = document.aiManager else {
+                throw StitchAIManagerError.secretsNotFound
+            }
+            
+            let result = await request.request(document: document,
+                                               aiManager: aiManager)
+            switch result {
+            case .success(let jsSourceCode):
+                print("SUCCESS Patch Service:\n\(jsSourceCode)")
+                
+                let patchBuilderRequest = try AIPatchBuilderRequest(
+                    prompt: userPrompt,
+                    jsSourceCode: jsSourceCode,
+                    
+                    // Nil for now, provides option later for mapping
+                    layerList: nil)
+                
+                let patchBuilderResult = await patchBuilderRequest
+                    .request(document: document,
+                             aiManager: aiManager)
+                
+                switch patchBuilderResult {
+                case .success(let patchBuildResult):
+                    print("SUCCESS Patch Builder:\n\(patchBuildResult)")
+                    
+                    DispatchQueue.main.async { [weak document] in
+                        guard let document = document else { return }
+                        
+                        do {
+                            try patchBuildResult.applyAIGraph(to: document)
+                        } catch {
+                            log("Error applying AI graph: \(error.localizedDescription)")
+                            document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
+                        }
+
+                        document.aiManager?.currentTaskTesting = nil
+                        document.insertNodeMenuState.show = false
+                    }
+                    
+                    return patchBuildResult
+                    
+                case .failure(let failure):
+                    print(failure.localizedDescription)
+                    document.aiManager?.currentTaskTesting = nil
+                    document.insertNodeMenuState.show = false
+                    throw failure
+                }
+                
+            case .failure(let failure):
+                print(failure.localizedDescription)
+                document.aiManager?.currentTaskTesting = nil
+                document.insertNodeMenuState.show = false
+                throw failure
+            }
+        }
+    }
 }
