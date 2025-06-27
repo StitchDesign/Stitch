@@ -88,7 +88,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                         guard let document = document else { return }
                         
                         do {
-                            try patchBuildResult.apply(to: document)
+                            try patchBuildResult.applyAIGraph(to: document)
                         } catch {
                             fatalErrorIfDebug(error.localizedDescription)
                         }
