@@ -42,6 +42,9 @@ extension SyntaxViewConstructorArgument {
         case (.systemName, _):
             return .string(.init(value))
         
+        case (.cornerRadius, _):
+            return .number(toNumber(value) ?? .zero)
+            
         case (_, let text) where text == .text || text == .textField:
             return .string(.init(value))
             
@@ -62,6 +65,9 @@ extension SyntaxViewConstructorArgument {
         case .systemName:
             return .sfSymbol
             
+        case .cornerRadius:
+            return .cornerRadius
+            
         // TODO: JUNE 24: *many* SwiftUI ...
         case .noLabel:
             switch layer {
@@ -70,9 +76,10 @@ extension SyntaxViewConstructorArgument {
             default:
                 return nil
             }
-            
+           
         case .unsupported:
             return nil
+
         }
     }
 }

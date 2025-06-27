@@ -15,11 +15,60 @@ import OrderedCollections
 typealias VPLLayerConcepts = [VPLLayerConcept]
 typealias VPLLayerConceptOrderedSet = OrderedSet<VPLLayerConcept>
 
+
 enum VPLLayerConcept: Equatable, Codable, Hashable {
     case layer(VPLLayer)
     case layerInputSet(VPLLayerInputSet)
     case incomingEdge(VPLIncomingEdge)
 }
+
+// Data associated with a layer; usually values
+// e.g. `SyntaxViewName.vStack` corresponds to `Layer.group` + `LayerInputPort.orientation = .vertical`
+//struct VPLLayerSettings: Equatable, Codable, Hashable {
+//}
+
+// Maybe better to just have the `deriveLayer` function return `(VPLLayer, VPLLayerInputSet)`
+
+typealias VPLLayerDerivationResult = (
+    
+    // the layer created from code
+    layer: VPLLayer,
+    
+    // the value or edge required for creating the layer from code
+    valueOrEdges: [VPLLayerConcept]
+)
+
+
+//enum VPLLayerDerivationResult: Equatable, Codable, Hashable {
+//    
+//    // a layer group always needs an orientation
+//    // SwiftUI code -> Stitch layer.group + orientation input
+//    case group(orientation: StitchOrientation)
+//    
+//    // SwiftUI RoundedRectangle -> Stitch layer.rectangle + cornerRadius input
+//    // TODO: what about `cornerSize: CGSize` ?
+//    case roundedRectangle(cornerRadius: CGFloat)
+//    
+//    // A simple
+//    case simple(Layer)
+//    
+//    var layer: Layer {
+//        switch self {
+//        case .group: return .group
+//        case .roundedRectangle: return .rectangle
+//        case .simple(let x): return x
+//        }
+//    }
+//}
+
+//extension VPLLayerDerivationResult {
+//    func deriveActions() -> [VPLLayerConcept] {
+//        // layer becomes a VPLLayer
+//        [
+//            .layer(.init(id: <#T##UUID#>, name: <#T##Layer#>, children: <#T##[VPLLayer]#>))
+//        ]
+//    }
+//}
 
 // create a layer, including its children
 struct VPLLayer: Equatable, Codable, Hashable {
@@ -45,8 +94,8 @@ struct VPLIncomingEdge: Equatable, Codable, Hashable {
 }
 
 
-// TODO: use something like this data structure instead for the PatchService ?
-struct VPLLayerData: Equatable, Codable, Hashable {
-    var trees: [VPLLayer]
-    var setInputs: [VPLLayerInputSet]
-}
+//// TODO: use something like this data structure instead for the PatchService ?
+//struct VPLLayerResult: Equatable, Codable, Hashable {
+//    var trees: [VPLLayer]
+//    var setInputs: [VPLLayerInputSet]
+//}

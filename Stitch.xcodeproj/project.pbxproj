@@ -964,6 +964,7 @@
 		ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */; };
 		ECC734742E0DE95A00AC266C /* CodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734732E0DE95A00AC266C /* CodeExamples.swift */; };
 		ECC734762E0DE9AE00AC266C /* ActionExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734752E0DE9AE00AC266C /* ActionExamples.swift */; };
+		ECC734782E0E452E00AC266C /* deriveSyntaxViewName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */; };
 		ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */; };
 		ECC738312BB6360B00A680B5 /* AnchorGridIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */; };
 		ECCA95952899CFFC002D241F /* FocusedUserEditField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */; };
@@ -2077,6 +2078,7 @@
 		ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNamesDropDownChoiceView.swift; sourceTree = "<group>"; };
 		ECC734732E0DE95A00AC266C /* CodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeExamples.swift; sourceTree = "<group>"; };
 		ECC734752E0DE9AE00AC266C /* ActionExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionExamples.swift; sourceTree = "<group>"; };
+		ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveSyntaxViewName.swift; sourceTree = "<group>"; };
 		ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationOpAnchoring.swift; sourceTree = "<group>"; };
 		ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnchorGridIconView.swift; sourceTree = "<group>"; };
 		ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedUserEditField.swift; sourceTree = "<group>"; };
@@ -5254,6 +5256,7 @@
 				ECB238EA2E0B94B800D55A25 /* FromLayerInputToSyntax.swift */,
 				ECB238E82E0B941E00D55A25 /* deriveViewModifierName.swift */,
 				ECB238EE2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift */,
+				ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */,
 				ECCD49E52E0BBD3F00E99CE1 /* ActionsToSyntaxToCodeExploratoryView.swift */,
 			);
 			path = ActionsToSyntax;
@@ -6026,6 +6029,7 @@
 				EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */,
 				ECF236802CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift in Sources */,
 				ECE708662B8D49D5009F4525 /* ClosePathNode.swift in Sources */,
+				ECC734782E0E452E00AC266C /* deriveSyntaxViewName.swift in Sources */,
 				EC4081252C0114060047989F /* StitchCustomURL.swift in Sources */,
 				205BB3B125BA203D00F144A7 /* PortView.swift in Sources */,
 				E4D7EA152BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift in Sources */,
