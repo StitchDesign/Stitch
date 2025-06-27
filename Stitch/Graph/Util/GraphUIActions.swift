@@ -176,11 +176,11 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             return .noChange
         }
         
-#if !STITCH_AI_TESTING
-        try? AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
-                                                         aiManager: aiManager,
-                                                         document: document)
-#else
+//#if !STITCH_AI_TESTING
+//        try? AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
+//                                                         aiManager: aiManager,
+//                                                         document: document)
+//#else
         do {
             aiManager.currentTaskTesting = try AIPatchServiceRequest
                 .getRequestTask(userPrompt: prompt,
@@ -188,7 +188,7 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         } catch {
             document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
         }
-#endif
+//#endif
         
         return .noChange
     }

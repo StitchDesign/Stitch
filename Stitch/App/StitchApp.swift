@@ -41,17 +41,17 @@ struct StitchApp: App {
         FirebaseApp.configure()
     }
 
-#if DEV_DEBUG
-    var body: some Scene {
-        WindowGroup {
-            ASTExplorerView()
-            //            ActionsToSyntaxToCodeExploratoryView()
-            //            CodeToSyntaxToActionsExploratoryView()
-            //            CodeToSyntaxExploratoryView()
-            //            SyntaxToCodeExploratoryView()
-        }
-    }
-#else
+//#if DEV_DEBUG
+//    var body: some Scene {
+//        WindowGroup {
+//            ASTExplorerView()
+//            //            ActionsToSyntaxToCodeExploratoryView()
+//            //            CodeToSyntaxToActionsExploratoryView()
+//            //            CodeToSyntaxExploratoryView()
+//            //            SyntaxToCodeExploratoryView()
+//        }
+//    }
+//#else
     var body: some Scene {
         WindowGroup {
             
@@ -117,6 +117,6 @@ struct StitchApp: App {
         }
         #endif
     }
-#endif
+//#endif
 }
 
