@@ -109,8 +109,9 @@ struct CodeToSyntaxToActionsExploratoryView: View {
 
     private func parseCurrent() {
         parsedViewNode = parseSwiftUICode(swiftUICode)
-        if let node = parsedViewNode {
-            actions = node.deriveStitchActions()
+        if let node = parsedViewNode,
+           let _actions = node.deriveStitchActions() {
+            actions = _actions
         } else {
             actions = []
         }

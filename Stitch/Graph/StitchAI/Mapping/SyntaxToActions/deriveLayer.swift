@@ -6,67 +6,60 @@
 //
 
 import Foundation
-
+import StitchSchemaKit
 
 
 extension SyntaxView {
-    func deriveLayer() -> Layer? {
-        self.name.deriveLayer(args: self.constructorArguments)
-    }
-}
+    
+    /// Leaf-level mapping for **this** node only
+    func deriveLayer() -> (layer: VPLLayer,
+                                   extras: VPLLayerConcepts)? {
 
-extension SyntaxViewName {
-    func deriveLayer(args: [SyntaxViewConstructorArgument]) -> Layer? {
-        // Vast majority of cases, there is a 1:1 mapping of ViewKind to Layer
-        switch self {
+        let constructorArgs: [SyntaxViewConstructorArgument] = self.constructorArguments
+        
+        // ── Base mapping from SyntaxViewName → Layer ────────────────────────
+        var layerType: Layer
+        var extras: VPLLayerConcepts = []
+
+        switch self.name {
+        case .rectangle:         layerType = .rectangle
+            
+        // Note: Swift Circle is a little bit different
+        case .circle, .ellipse:  layerType = .oval
+        
+        // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return
+        case .text: layerType = .text
+            
+        // SwiftUI TextField view has different arg-constructors, but those do not change the Layer we return
+        case .textField: layerType = .textField
             
         case .image:
-            switch args.first?.label {
-            case .systemName:
-                return .sfSymbol
-            default:
-                return .image
+            switch constructorArgs.first?.label {
+            case .systemName: layerType = .sfSymbol
+            default: layerType = .image
             }
             
-        case .roundedRectangle:
-            return nil // nilOrDebugCrash()
-            
-        case .rectangle: return .rectangle
-            
-        case .ellipse: return .oval
-            
-            // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return
-        case .text: return .text
-            
-            // SwiftUI TextField view has different arg-constructors, but those do not change the Layer we return
-        case .textField: return .textField
-            
-            // All 'stacks' are just a layer group; V vs H vs Z vs Grid is just the orientation input
-        case .vStack, .hStack, .zStack, .lazyVStack, .lazyHStack, .lazyVGrid, .lazyHGrid, .grid:
-            return .group
-            
-        case .map: return .map
+        case .map: layerType = .map
             
             // Revisit these
-        case .videoPlayer: return .video
-        case .model3D: return .model3D
+        case .videoPlayer: layerType = .video
+        case .model3D: layerType = .model3D
             
-        case .circle: return nil // oval but not quite the same..
-        case .capsule: return nil
-        case .path: return nil // Canvas sketch ?
-        case .color: return nil // both Layer.hitArea AND Layer.colorFill
-            
-        case .linearGradient: return .linearGradient
-        case .radialGradient: return .radialGradient
-        case .angularGradient: return .angularGradient
-        case .material: return .material
+        case .linearGradient: layerType = .linearGradient
+        case .radialGradient: layerType = .radialGradient
+        case .angularGradient: layerType = .angularGradient
+        case .material: layerType = .material
             
             // TODO: JUNE 24: what actually is SwiftUI sketch ?
-        case .canvas: return .canvasSketch
+        case .canvas: layerType = .canvasSketch
             
         case .secureField:
             // TODO: JUNE 24: ought to return `(Layer.textField, LayerInputPort.keyboardType, UIKeyboardType.password)` ? ... so a SwiftUI View can correspond to more than just a Layer ?
-            return .textField
+            layerType = .textField
+            
+        case .capsule: return nil
+        case .path: return nil // Canvas sketch ?
+        case .color: return nil // both Layer.hitArea AND Layer.colorFill
             
         case .label: return nil
         case .asyncImage: return nil
@@ -100,6 +93,106 @@ extension SyntaxViewName {
         case .anyView: return nil
         case .preview: return nil
         case .timelineSchedule: return nil
+            
+            
+        // TODO: JUNE 26: handle incoming edges as well
+        // Views that create a set-input as well
+            
+        case .hStack:
+            layerType = .group
+            extras.append(
+                .layerInputSet(VPLLayerInputSet(id: id,
+                                                input: .orientation,
+                                                value: .orientation(.horizontal)))
+            )
+
+        case .vStack:
+            layerType = .group
+            extras.append(
+                .layerInputSet(VPLLayerInputSet(id: id,
+                                                input: .orientation,
+                                                value: .orientation(.vertical)))
+            )
+
+        case .zStack:
+            layerType = .group
+            extras.append(
+                .layerInputSet(VPLLayerInputSet(id: id,
+                                                input: .orientation,
+                                                value: .orientation(.none)))
+            )
+
+        case .roundedRectangle:
+            layerType = .rectangle
+            if let arg = constructorArguments.first(where: { $0.label == .cornerRadius }),
+               let radius = Double(arg.value) {
+                extras.append(
+                    .layerInputSet(VPLLayerInputSet(id: id,
+                                                    input: .cornerRadius,
+                                                    value: .number(radius)))
+                )
+            }
+
+        default:
+            layerType = .hitArea   // safe fallback
         }
+
+        // ── Generic constructor‑argument handling (literals & edges) ─────────
+        for arg in constructorArguments {
+
+            // Skip the specialised RoundedRectangle .cornerRadius
+            if self.name == .roundedRectangle && arg.label == .cornerRadius { continue }
+
+            guard let port = arg.deriveLayerInputPort(layerType),
+                  let portValue = arg.derivePortValue(layerType) else { continue }
+
+            switch arg.syntaxKind {
+            case .literal:
+                extras.append(
+                    .layerInputSet(VPLLayerInputSet(id: id,
+                                                    input: port,
+                                                    value: portValue))
+                )
+            case .variable, .expression:
+                extras.append(.incomingEdge(VPLIncomingEdge(name: port)))
+            }
+        }
+
+        // ── Generic modifier handling ────────────────────────────────────────
+        for modifier in modifiers {
+
+            guard let port = modifier.name.deriveLayerInputPort(layerType) else { continue }
+
+            // Start with default value for that port
+            var portValue = port.getDefaultValue(for: layerType)
+
+            if modifier.arguments.count == 1, let arg = modifier.arguments.first {
+
+                var raw = arg.value
+                if let c = Color.fromSystemName(raw) { raw = c.asHexDisplay }
+                let input = PortValue.string(.init(raw))
+
+                let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
+                if let first = coerced.first { portValue = first }
+
+            } else {
+                for (idx, arg) in modifier.arguments.enumerated() {
+                    portValue = portValue.parseInputEdit(
+                        fieldValue: .string(.init(arg.value)),
+                        fieldIndex: idx
+                    )
+                }
+            }
+
+            extras.append(
+                .layerInputSet(VPLLayerInputSet(id: id,
+                                                input: port,
+                                                value: portValue))
+            )
+        }
+
+        // Final bare layer (children added later)
+        return (VPLLayer(id: id, name: layerType, children: []), extras)
     }
+    
 }

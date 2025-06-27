@@ -26,6 +26,10 @@ extension MappingExamples {
              .offset(x: 200, y: 200)
          """),
         
+        ("RoundedRectangle", """
+         RoundedRectangle(cornerRadius: 25)
+         """),
+        
         ("Frame", """
          Rectangle()
              .frame(width: 200, height: 100)

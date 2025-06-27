@@ -187,7 +187,7 @@ struct ASTExplorerView: View {
         firstSyntax = syntax
 
         // Syntax → Actions
-        stitchedActions = syntax.deriveStitchActions()
+        stitchedActions = syntax.deriveStitchActions() ?? []
 
         // Actions → Syntax
         rebuiltSyntax = SyntaxView.build(from: stitchedActions)
