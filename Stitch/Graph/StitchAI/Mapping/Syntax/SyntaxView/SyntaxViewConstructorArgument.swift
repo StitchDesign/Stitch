@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct SyntaxViewConstructorArgument: Equatable, Hashable {
+struct SyntaxViewConstructorArgument: Equatable, Hashable, Sendable {
     
     /*
      TODO: combine labels + values ? how to elegantly handle difference between no args like `Rectangle`, un-labeled args like `Text("love")` and labeled args like `Image(systemName:)`
