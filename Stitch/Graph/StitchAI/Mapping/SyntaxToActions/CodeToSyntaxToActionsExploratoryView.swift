@@ -16,7 +16,7 @@ import SwiftUI
 struct CodeToSyntaxToActionsExploratoryView: View {
 
     // -- Demo snippets to cycle through --
-    private let examples = ASTExplorerView.codeExamples
+    private let examples = MappingExamples.codeExamples
     // -- UI State --
     @State private var selectedTab = 0
     @State private var swiftUICode: String = ""

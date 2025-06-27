@@ -87,8 +87,23 @@ extension SyntaxViewModifierName {
             return .scale
         case (.opacity, _):
             return .opacity
-        case (.offset, _):
+        
+        /*
+         TODO: JUNE 26: UI positioning is complicated by VPL anchoring and VPL "offset in VStack/HStack"
+         
+         Rules?:
+         - SwiftUI .position modifier *always* becomes Stitch LayerInputPort.position
+         
+         - SwiftUI .offset modifier becomes Stitch LayerInputPort.offsetInGroup if view's parent is e.g. VStack, else becomes Stitch LayerInputPort.position
+         
+         */
+        case (.position, _):
             return .position
+
+        case (.offset, _):
+            // TODO: if view's parent is VStack/HStack, return .offsetInGroup instead ?
+            return .position
+            
         case (.rotationEffect, _):
             return .rotationZ
         case (.rotation3DEffect, _):
@@ -130,8 +145,6 @@ extension SyntaxViewModifierName {
             //        // Shadow would need to be broken down into multiple inputs:
             //        // .shadowColor, .shadowRadius, .shadowOffset, .shadowOpacity
             //        return .shadowRadius
-            
-        case (.position, _): return .position
             
         // TODO: JUNE 23: .frame modifier is actually several different LayerInputPort cases: .size, .minSize, .maxSize
         case (.frame, _):

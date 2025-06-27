@@ -1,63 +1,15 @@
 //
-//  ASTExplorerViewExamples.swift
+//  MappingActionExamples.swift
 //  Stitch
 //
-//  Created by Christian J Clampitt on 6/25/25.
+//  Created by Christian J Clampitt on 6/26/25.
 //
 
 import Foundation
 import SwiftUI
 
 
-extension ASTExplorerView {
-    static let codeExamples: [(title: String, code: String)] = [
-        
-        ("Rectangle", """
-         Rectangle()
-             .frame(width: 200, height: 100)
-         """),
-        
-        ("Text", #"Text("salut")"#),
-        
-        ("Text with color", #"Text("salut").foregroundColor(Color.yellow).padding()"#),
-        
-        ("Image", #"Image(systemName: "star.fill")"#),
-        
-        ("ZStack Rectangles", """
-         ZStack {
-             Rectangle().fill(Color.blue)
-             Rectangle().fill(Color.green)
-         }
-         """),
-       
-        ("ZStack with modifier", """
-         ZStack {
-             Rectangle()
-                .fill(Color.blue)
-         }.scaleEffect(2)
-         """),
-        
-        ("Nested", """
-         ZStack {
-             Rectangle().fill(Color.blue)
-             VStack {
-                 Rectangle().fill(Color.green)
-                 Rectangle().fill(Color.red)
-             }
-         }
-         """),
-        
-        ("Nested with scale", """
-         ZStack {
-             Rectangle().fill(Color.blue)
-             VStack {
-                 Rectangle().fill(Color.green)
-                 Rectangle().fill(Color.red)
-             }
-         }.scaleEffect(4)
-         """),
-    ]
-    
+extension MappingExamples {
     
     static let actionExamples: [(title: String, set: VPLLayerConceptOrderedSet)] = [
         ("Rectangle",  Self.actionExample1),

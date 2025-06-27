@@ -1,4 +1,3 @@
-
 //
 //  ASTExplorerView.swift
 //  Stitch
@@ -20,8 +19,24 @@ import SwiftParser
 /// side‑by‑side so you can visually verify loss‑/faithfulness.
 struct ASTExplorerView: View {
 
+    /// Which transformation stages should be displayed.
+    enum Stage: CaseIterable, Hashable {
+        case originalCode, parsedSyntax, derivedActions, rebuiltSyntax, regeneratedCode
+
+        /// User‑facing title for each stage.
+        var title: String {
+            switch self {
+            case .originalCode:      return "Original SwiftUI code"
+            case .parsedSyntax:      return "Parsed SyntaxView"
+            case .derivedActions:    return "Derived StitchActions"
+            case .rebuiltSyntax:     return "Re‑built SyntaxView"
+            case .regeneratedCode:   return "Regenerated SwiftUI code"
+            }
+        }
+    }
+
     // MARK: Demo snippets (copied from Code→Syntax→Actions view)
-    private static let examples = Self.codeExamples
+    private static let examples = MappingExamples.codeExamples
 
     // MARK: - UI State
     @State private var selectedTab = 0
@@ -33,11 +48,33 @@ struct ASTExplorerView: View {
     @State private var rebuiltSyntax: SyntaxView?
     @State private var regeneratedCode: String = ""
 
+    /// Controls which columns are visible.  Defaults to showing all.
+    @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
+
+    init(initialVisibleStages: Set<Stage> = Set(Stage.allCases)) {
+        _visibleStages = State(initialValue: initialVisibleStages)
+    }
+
     // MARK: Body
     var body: some View {
         VStack(spacing: 12) {
             Text("Full Round‑Trip Explorer")
                 .font(.title2).bold()
+
+            // Toggle bar to show/hide individual transformation stages
+            HStack(spacing: 12) {
+                ForEach(Stage.allCases, id: \.self) { stage in
+                    Button(action: { toggleStage(stage) }) {
+                        Label(stage.title,
+                              systemImage: visibleStages.contains(stage)
+                              ? "checkmark.circle.fill"
+                              : "circle")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, alignment: .center)
 
             Button("Transform") { transform() }
                 .buttonStyle(.borderedProminent)
@@ -50,10 +87,21 @@ struct ASTExplorerView: View {
                 }
             }
             .tabViewStyle(.automatic)
-            .onAppear { transform() }
             .onChange(of: selectedTab) { _ in transform() }
         }
         .padding()
+        .onAppear { transform() }   // auto‑transform as soon as the view appears
+    }
+
+    /// Toggles visibility for a single stage with animation.
+    private func toggleStage(_ stage: Stage) {
+        withAnimation {
+            if visibleStages.contains(stage) {
+                visibleStages.remove(stage)
+            } else {
+                visibleStages.insert(stage)
+            }
+        }
     }
 
     // MARK: - Single‑tab layout
@@ -65,30 +113,63 @@ struct ASTExplorerView: View {
         )
 
         HStack(spacing: 18) {
-            stageView(
-                title: "Original SwiftUI code",
-                text: codes[idx],
-                isEditor: true,
-                editorBinding: binding
-            )
-            stageView(
-                title: "Parsed SyntaxView",
-                text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
-            )
-            stageView(
-                title: "Derived StitchActions",
-                text: stitchedActions.humanReadable
-            )
-            stageView(
-                title: "Re‑built SyntaxView",
-                text: rebuiltSyntax.map { formatSyntaxView($0) } ?? "—"
-            )
-            stageView(
-                title: "Regenerated SwiftUI code",
-                text: regeneratedCode.isEmpty ? "—" : regeneratedCode
-            )
+            ForEach(Stage.allCases.filter { visibleStages.contains($0) }, id: \.self) { stage in
+                switch stage {
+
+                case .originalCode:
+                    Group {
+                        stageView(
+                            title: Stage.originalCode.title,
+                            text: codes[idx],
+                            isEditor: true,
+                            editorBinding: binding
+                        )
+                    }
+                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
+                                            removal:   .move(edge: .bottom).combined(with: .opacity)))
+
+                case .parsedSyntax:
+                    Group {
+                        stageView(
+                            title: Stage.parsedSyntax.title,
+                            text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
+                        )
+                    }
+                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
+                                            removal:   .move(edge: .bottom).combined(with: .opacity)))
+
+                case .derivedActions:
+                    Group {
+                        stageView(
+                            title: Stage.derivedActions.title,
+                            text: stitchedActions.humanReadable
+                        )
+                    }
+                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
+                                            removal:   .move(edge: .bottom).combined(with: .opacity)))
+
+                case .rebuiltSyntax:
+                    Group {
+                        stageView(
+                            title: Stage.rebuiltSyntax.title,
+                            text: rebuiltSyntax.map { formatSyntaxView($0) } ?? "—"
+                        )
+                    }
+                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
+                                            removal:   .move(edge: .bottom).combined(with: .opacity)))
+
+                case .regeneratedCode:
+                    Group {
+                        stageView(
+                            title: Stage.regeneratedCode.title,
+                            text: regeneratedCode.isEmpty ? "—" : regeneratedCode
+                        )
+                    }
+                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
+                                            removal:   .move(edge: .bottom).combined(with: .opacity)))
+                }
+            }
         }
-        .padding(.vertical)
     }
 
     // MARK: Helpers
