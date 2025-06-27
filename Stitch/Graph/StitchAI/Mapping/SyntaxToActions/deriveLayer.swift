@@ -7,21 +7,22 @@
 
 import Foundation
 import StitchSchemaKit
+import SwiftUI
 
 
-extension SyntaxView {
+extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
-    func deriveLayer() -> (layer: VPLLayer,
-                                   extras: VPLLayerConcepts)? {
-
-        let constructorArgs: [SyntaxViewConstructorArgument] = self.constructorArguments
+    func deriveLayer(id: UUID,
+                     args: [SyntaxViewConstructorArgument],
+                     modifiers: [SyntaxViewModifier]) -> (layer: VPLLayer,
+                           extras: VPLLayerConcepts)? {
         
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var layerType: Layer
         var extras: VPLLayerConcepts = []
 
-        switch self.name {
+        switch self {
         case .rectangle:         layerType = .rectangle
             
         // Note: Swift Circle is a little bit different
@@ -34,7 +35,7 @@ extension SyntaxView {
         case .textField: layerType = .textField
             
         case .image:
-            switch constructorArgs.first?.label {
+            switch args.first?.label {
             case .systemName: layerType = .sfSymbol
             default: layerType = .image
             }
@@ -124,7 +125,7 @@ extension SyntaxView {
 
         case .roundedRectangle:
             layerType = .rectangle
-            if let arg = constructorArguments.first(where: { $0.label == .cornerRadius }),
+            if let arg = args.first(where: { $0.label == .cornerRadius }),
                let radius = Double(arg.value) {
                 extras.append(
                     .layerInputSet(VPLLayerInputSet(id: id,
@@ -138,10 +139,11 @@ extension SyntaxView {
         }
 
         // ── Generic constructor‑argument handling (literals & edges) ─────────
-        for arg in constructorArguments {
+        for arg in args {
 
+            // TODO: why are we skipping these ?
             // Skip the specialised RoundedRectangle .cornerRadius
-            if self.name == .roundedRectangle && arg.label == .cornerRadius { continue }
+            if self == .roundedRectangle && arg.label == .cornerRadius { continue }
 
             guard let port = arg.deriveLayerInputPort(layerType),
                   let portValue = arg.derivePortValue(layerType) else { continue }

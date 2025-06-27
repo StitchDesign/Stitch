@@ -15,7 +15,10 @@ extension SyntaxView {
     func recursivelyDeriveActions() -> VPLLayerConcepts? {
         
         // 1. Map this node
-        if var (layer, concepts) = deriveLayer() {
+        if var (layer, concepts) = self.name.deriveLayer(
+            id: self.id,
+            args: self.constructorArguments,
+            modifiers: self.modifiers) {
             var childLayers: [VPLLayer] = []
             
             // 2. Recurse into children
