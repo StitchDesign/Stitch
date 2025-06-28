@@ -173,22 +173,24 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         guard let document = store.currentDocument,
               let aiManager = document.aiManager else {
+            log("SubmitUserPromptToOpenAI: missing either document or aiManager", .logToServer)
             return .noChange
         }
         
 //#if !STITCH_AI_TESTING
 //        try? AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
 //                                                         aiManager: aiManager,
-//                                                         document: document)
-//#else
+        //                                                         document: document)
+        //#else
         do {
             aiManager.currentTaskTesting = try AIPatchServiceRequest
                 .getRequestTask(userPrompt: prompt,
                                 document: document)
         } catch {
+            log("SubmitUserPromptToOpenAI: had error: \(error.localizedDescription)", .logToServer)
             document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
         }
-//#endif
+        //#endif
         
         return .noChange
     }
