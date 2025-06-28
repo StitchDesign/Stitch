@@ -60,6 +60,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
         return Task(priority: .high) { [weak document] in
             guard let document = document,
                   let aiManager = document.aiManager else {
+                log("AIPatchServiceRequest: getRequestTask: no document or ai manager", .logToServer)
                 throw StitchAIManagerError.secretsNotFound
             }
             
@@ -101,6 +102,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                     return patchBuildResult
                     
                 case .failure(let failure):
+                    log("AIPatchServiceRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
                     print(failure.localizedDescription)
                     document.aiManager?.currentTaskTesting = nil
                     document.insertNodeMenuState.show = false
@@ -108,6 +110,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                 }
                 
             case .failure(let failure):
+                log("AIPatchServiceRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
                 print(failure.localizedDescription)
                 document.aiManager?.currentTaskTesting = nil
                 document.insertNodeMenuState.show = false

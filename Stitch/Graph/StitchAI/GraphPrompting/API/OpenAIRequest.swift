@@ -115,7 +115,7 @@ extension StitchAIManager {
         
         guard let urlRequest = Self.getURLRequestForOpenAI(request: request,
                                                            secrets: self.secrets) else {
-            fatalErrorIfDebug()
+            log("StitchAIManager: startOpenAIRequest: could not get request", .logToServer)
             return .failure(.urlRequestCreationFailure)
         }
         
@@ -140,6 +140,7 @@ extension StitchAIManager {
             
         case .failure(let error):
             // Note: `error` might be a cancellation, which is acceptable and not an error
+            log("StitchAIManager: startOpenAIRequest: streaming error: \(error.localizedDescription)", .logToServer)
             if let error = handleOpenAIStreamingError(
                 error,
                 attempt: attempt,
