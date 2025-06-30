@@ -72,6 +72,11 @@ struct PreviewTextLayer: View {
                       fontSize: fontSize,
                       textDecoration: textDecoration,
                       textFont: textFont)
+        
+        // For text, `auto` along a dimension means, "Don't squish me; let me take up as much space as I need"
+        .fixedSize(horizontal: size.width == .auto,
+                   vertical: size.height == .auto)
+        
         .opacity(opacity)
         .modifier(PreviewCommonModifier(
             document: document,

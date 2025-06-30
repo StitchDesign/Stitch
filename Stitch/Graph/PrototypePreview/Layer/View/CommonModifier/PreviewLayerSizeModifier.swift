@@ -111,9 +111,9 @@ struct LayerSizeModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        
-        // TODO: remove once this view is cleaned up; but very helpful for debugging atm
-        //        logInView("LayerSizeModifier: BODY")
+
+        //        // Note: very helpful for debugging
+        //        logInView("LayerSizeModifier: BODY for layer node \(viewModel.id.layerNodeId)")
         //        logInView("LayerSizeModifier: alignment: \(alignment)")
         //
         //        logInView("LayerSizeModifier: usesParentPercentForWidth: \(usesParentPercentForWidth)")
