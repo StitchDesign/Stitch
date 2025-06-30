@@ -44,7 +44,7 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchedActions: VPLActionOrderedSet = []
+    @State private var stitchActions: VPLActionOrderedSet = []
     @State private var rebuiltSyntax: SyntaxView?
     @State private var regeneratedCode: String = ""
 
@@ -142,7 +142,7 @@ struct ASTExplorerView: View {
                     Group {
                         stageView(
                             title: Stage.derivedActions.title,
-                            text: stitchedActions.humanReadable
+                            text: stitchActions.humanReadable
                         )
                     }
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
@@ -179,7 +179,7 @@ struct ASTExplorerView: View {
         // Parse code → Syntax
         guard let syntax = parseSwiftUICode(currentCode) else {
             firstSyntax = nil
-            stitchedActions = []
+            stitchActions = []
             rebuiltSyntax = nil
             regeneratedCode = ""
             return
@@ -187,10 +187,10 @@ struct ASTExplorerView: View {
         firstSyntax = syntax
 
         // Syntax → Actions
-        stitchedActions = syntax.deriveStitchActions() ?? []
+        stitchActions = syntax.deriveStitchActions() ?? []
 
         // Actions → Syntax
-        rebuiltSyntax = SyntaxView.build(from: stitchedActions)
+        rebuiltSyntax = SyntaxView.build(from: stitchActions)
 
         // Syntax → Code
         if let rebuilt = rebuiltSyntax {
