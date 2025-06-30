@@ -71,9 +71,9 @@ struct PreviewTextLayer: View {
                       alignment: alignment,
                       fontSize: fontSize,
                       textDecoration: textDecoration,
-                      textFont: textFont)
-//        .fixedSize(horizontal: !size.width.isNumber,
-//                   vertical: !size.height.isNumber)
+                      textFont: textFont)        
+        .fixedSize(horizontal: size.width == .auto,
+                   vertical: size.height == .auto)
         .opacity(opacity)
         .modifier(PreviewCommonModifier(
             document: document,
@@ -105,8 +105,6 @@ struct PreviewTextLayer: View {
             parentIsScrollableGrid: parentIsScrollableGrid,
             frameAlignment: alignment ?? .topLeading
         ))
-        .fixedSize(horizontal: !size.width.isNumber,
-                   vertical: !size.height.isNumber)
     }
 }
 
