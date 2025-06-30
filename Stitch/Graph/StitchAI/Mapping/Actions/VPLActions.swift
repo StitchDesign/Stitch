@@ -12,74 +12,26 @@ import OrderedCollections
 
 // MARK: 'actions' just in the sense of being something our VPL can consume
 
-typealias VPLLayerConcepts = [VPLLayerConcept]
-typealias VPLLayerConceptOrderedSet = OrderedSet<VPLLayerConcept>
+typealias VPLActions = [VPLAction]
+typealias VPLActionOrderedSet = OrderedSet<VPLAction>
 
 
-enum VPLLayerConcept: Equatable, Codable, Hashable {
-    case layer(VPLLayer)
-    case layerInputSet(VPLLayerInputSet)
-    case incomingEdge(VPLIncomingEdge)
+enum VPLAction: Equatable, Codable, Hashable {
+    case createNode(VPLCreateNode)
+    case setInput(VPLSetInput)
+    case createEdge(VPLCreateEdge)
 }
 
-// Data associated with a layer; usually values
-// e.g. `SyntaxViewName.vStack` corresponds to `Layer.group` + `LayerInputPort.orientation = .vertical`
-//struct VPLLayerSettings: Equatable, Codable, Hashable {
-//}
-
-// Maybe better to just have the `deriveLayer` function return `(VPLLayer, VPLLayerInputSet)`
-
-typealias VPLLayerDerivationResult = (
-    
-    // the layer created from code
-    layer: VPLLayer,
-    
-    // the value or edge required for creating the layer from code
-    valueOrEdges: [VPLLayerConcept]
-)
-
-
-//enum VPLLayerDerivationResult: Equatable, Codable, Hashable {
-//    
-//    // a layer group always needs an orientation
-//    // SwiftUI code -> Stitch layer.group + orientation input
-//    case group(orientation: StitchOrientation)
-//    
-//    // SwiftUI RoundedRectangle -> Stitch layer.rectangle + cornerRadius input
-//    // TODO: what about `cornerSize: CGSize` ?
-//    case roundedRectangle(cornerRadius: CGFloat)
-//    
-//    // A simple
-//    case simple(Layer)
-//    
-//    var layer: Layer {
-//        switch self {
-//        case .group: return .group
-//        case .roundedRectangle: return .rectangle
-//        case .simple(let x): return x
-//        }
-//    }
-//}
-
-//extension VPLLayerDerivationResult {
-//    func deriveActions() -> [VPLLayerConcept] {
-//        // layer becomes a VPLLayer
-//        [
-//            .layer(.init(id: <#T##UUID#>, name: <#T##Layer#>, children: <#T##[VPLLayer]#>))
-//        ]
-//    }
-//}
-
 // create a layer, including its children
-struct VPLLayer: Equatable, Codable, Hashable {
+struct VPLCreateNode: Equatable, Codable, Hashable {
     let id: UUID
     let name: Layer
-    let children: [VPLLayer]
+    let children: [VPLCreateNode]
 }
 
 /// A concrete, typed mapping from a SwiftUI modifier (or initialiser label)
 /// to a value in the visual‑programming layer.
-struct VPLLayerInputSet: Equatable, Codable, Hashable {
+struct VPLSetInput: Equatable, Codable, Hashable {
     let id: UUID // WHICH layer's layer input is being updated
     let input: LayerInputPort
     
@@ -89,7 +41,7 @@ struct VPLLayerInputSet: Equatable, Codable, Hashable {
 }
 
 // an edge coming into the layer input
-struct VPLIncomingEdge: Equatable, Codable, Hashable {
+struct VPLCreateEdge: Equatable, Codable, Hashable {
     let name: LayerInputPort // the input which is receiving the edge
 }
 

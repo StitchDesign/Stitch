@@ -12,32 +12,32 @@ import SwiftUI
 extension SyntaxView {
 
     /// Recursive conversion to **flattened** `[VPLLayerConcept]`
-    func recursivelyDeriveActions() -> VPLLayerConcepts? {
+    func recursivelyDeriveActions() -> VPLActions? {
         
         // 1. Map this node
         if var (layer, concepts) = self.name.deriveLayer(
             id: self.id,
             args: self.constructorArguments,
             modifiers: self.modifiers) {
-            var childLayers: [VPLLayer] = []
+            var childLayers: [VPLCreateNode] = []
             
             // 2. Recurse into children
             for child in children {
                 if let childConcepts = child.recursivelyDeriveActions() {
                     // First concept for every child must be its `.layer`
-                    if case let .layer(childLayer) = childConcepts[0] {
+                    if case let .createNode(childLayer) = childConcepts[0] {
                         childLayers.append(childLayer)
                     }
                     concepts.append(contentsOf: childConcepts) // depth-first
                 }
             }
             
-            let layerWithChildren = VPLLayer(id: layer.id,
+            let layerWithChildren = VPLCreateNode(id: layer.id,
                                              name: layer.name,
                                              children: childLayers)
             
             // 3. Prepend *this* fully-assembled layer concept
-            concepts.insert(.layer(layerWithChildren), at: 0)
+            concepts.insert(.createNode(layerWithChildren), at: 0)
             
             return concepts
         } else {
@@ -49,9 +49,9 @@ extension SyntaxView {
 
 extension SyntaxView {
     
-    func deriveStitchActions() -> VPLLayerConceptOrderedSet? {
+    func deriveStitchActions() -> VPLActionOrderedSet? {
         if let concepts = recursivelyDeriveActions() {
-            return VPLLayerConceptOrderedSet(concepts)
+            return VPLActionOrderedSet(concepts)
         } else {
             return nil
         }

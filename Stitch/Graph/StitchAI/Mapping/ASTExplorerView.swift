@@ -44,7 +44,7 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchedActions: VPLLayerConceptOrderedSet = []
+    @State private var stitchActions: VPLActionOrderedSet = []
     @State private var rebuiltSyntax: SyntaxView?
     @State private var regeneratedCode: String = ""
 
@@ -142,7 +142,7 @@ struct ASTExplorerView: View {
                     Group {
                         stageView(
                             title: Stage.derivedActions.title,
-                            text: stitchedActions.humanReadable
+                            text: stitchActions.humanReadable
                         )
                     }
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
@@ -179,7 +179,7 @@ struct ASTExplorerView: View {
         // Parse code → Syntax
         guard let syntax = parseSwiftUICode(currentCode) else {
             firstSyntax = nil
-            stitchedActions = []
+            stitchActions = []
             rebuiltSyntax = nil
             regeneratedCode = ""
             return
@@ -187,10 +187,10 @@ struct ASTExplorerView: View {
         firstSyntax = syntax
 
         // Syntax → Actions
-        stitchedActions = syntax.deriveStitchActions() ?? []
+        stitchActions = syntax.deriveStitchActions() ?? []
 
         // Actions → Syntax
-        rebuiltSyntax = SyntaxView.build(from: stitchedActions)
+        rebuiltSyntax = SyntaxView.build(from: stitchActions)
 
         // Syntax → Code
         if let rebuilt = rebuiltSyntax {
@@ -230,7 +230,7 @@ struct ASTExplorerView: View {
 
 
 // MARK: – Pretty‑printing helpers for VPL actions
-private extension VPLLayerConceptOrderedSet {
+private extension VPLActionOrderedSet {
 
     /// A multi‑line, human‑readable description of the ordered actions list.
     /// Returns “—” when the set is empty.
@@ -244,19 +244,19 @@ private extension VPLLayerConceptOrderedSet {
     // MARK: - Internals
 
     /// Formats a single concept.
-    private func describe(_ concept: VPLLayerConcept, indent: String) -> String {
+    private func describe(_ concept: VPLAction, indent: String) -> String {
         switch concept {
-        case .layer(let layer):
+        case .createNode(let layer):
             return describe(layer, indent: indent)
-        case .layerInputSet(let set):
+        case .setInput(let set):
             return "\(indent)setInput(layerID: \(set.id), input: \(set.input), value: \(set.value))"
-        case .incomingEdge(let edge):
+        case .createEdge(let edge):
             return "\(indent)incomingEdge(toInput: \(edge.name))"
         }
     }
 
     /// Formats a layer and its children recursively.
-    private func describe(_ layer: VPLLayer, indent: String) -> String {
+    private func describe(_ layer: VPLCreateNode, indent: String) -> String {
         var lines: [String] = []
         lines.append("\(indent)layer(id: \(layer.id), name: \(layer.name.defaultDisplayTitle())) {")
         if layer.children.isEmpty {
