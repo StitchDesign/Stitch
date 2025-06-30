@@ -1,5 +1,5 @@
 //
-//  AIPatchServiceRequestBody_V0.swift
+//  AICodeGenRequestBody_V0.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 6/4/25.
@@ -7,10 +7,10 @@
 
 import Foundation
 
-enum AIPatchServiceRequestBody_V0 {
+enum AICodeGenRequestBody_V0 {
     // https://platform.openai.com/docs/api-reference/making-requests
-    struct AIPatchServiceRequestBody : Encodable {
-        static let markdownLocation = "AIPatchServiceSystemPrompt_V0"
+    struct AICodeGenRequestBody : Encodable {
+        static let markdownLocation = "AICodeGenSystemPrompt_V0"
         
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
@@ -36,7 +36,7 @@ enum AIPatchServiceRequestBody_V0 {
         }
     }
     
-    struct AIPatchServiceRequestInputs: Encodable {
+    struct AICodeGenRequestInputs: Encodable {
         let user_prompt: String
         let layer_list: SidebarLayerList
     }

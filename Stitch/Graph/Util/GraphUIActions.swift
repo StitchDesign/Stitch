@@ -183,7 +183,7 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         //                                                         document: document)
         //#else
         do {
-            aiManager.currentTaskTesting = try AIPatchServiceRequest
+            aiManager.currentTaskTesting = try AICodeGenRequest
                 .getRequestTask(userPrompt: prompt,
                                 document: document)
         } catch {

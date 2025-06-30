@@ -38,7 +38,7 @@ final class OpenAIRequestTests: XCTestCase {
             return
         }
         
-        let requestTest = try AIPatchServiceRequest(prompt: "testing")
+        let requestTest = try AICodeGenRequest(prompt: "testing")
         let result = await requestTest.request(document: mockDocument,
                                                aiManager: aiManager)
         switch result {
