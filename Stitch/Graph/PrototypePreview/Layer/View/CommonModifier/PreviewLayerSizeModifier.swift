@@ -112,26 +112,26 @@ struct LayerSizeModifier: ViewModifier {
     
     func body(content: Content) -> some View {
 
-        // Note: very helpful for debugging
-        logInView("LayerSizeModifier: BODY for layer node \(viewModel.id.layerNodeId)")
-        logInView("LayerSizeModifier: alignment: \(alignment)")
-        
-        logInView("LayerSizeModifier: usesParentPercentForWidth: \(usesParentPercentForWidth)")
-        logInView("LayerSizeModifier: usesParentPercentForHeight: \(usesParentPercentForHeight)")
-        
-        logInView("LayerSizeModifier: usesFillForWidth: \(usesFillForWidth)")
-        logInView("LayerSizeModifier: usesFillForHeight: \(usesFillForHeight)")
-        
-        logInView("LayerSizeModifier: width: \(width)")
-        logInView("LayerSizeModifier: height: \(height)")
-        
-        logInView("LayerSizeModifier: minWidth: \(minWidth)")
-        logInView("LayerSizeModifier: maxWidth: \(maxWidth)")
-        logInView("LayerSizeModifier: minHeight: \(minHeight)")
-        logInView("LayerSizeModifier: maxHeight: \(maxHeight)")
-        
-        logInView("LayerSizeModifier: finalMaxHeight: \(finalMaxHeight)")
-        logInView("LayerSizeModifier: finalMaxWidth: \(finalMaxWidth)")
+        //        // Note: very helpful for debugging
+        //        logInView("LayerSizeModifier: BODY for layer node \(viewModel.id.layerNodeId)")
+        //        logInView("LayerSizeModifier: alignment: \(alignment)")
+        //
+        //        logInView("LayerSizeModifier: usesParentPercentForWidth: \(usesParentPercentForWidth)")
+        //        logInView("LayerSizeModifier: usesParentPercentForHeight: \(usesParentPercentForHeight)")
+        //
+        //        logInView("LayerSizeModifier: usesFillForWidth: \(usesFillForWidth)")
+        //        logInView("LayerSizeModifier: usesFillForHeight: \(usesFillForHeight)")
+        //
+        //        logInView("LayerSizeModifier: width: \(width)")
+        //        logInView("LayerSizeModifier: height: \(height)")
+        //
+        //        logInView("LayerSizeModifier: minWidth: \(minWidth)")
+        //        logInView("LayerSizeModifier: maxWidth: \(maxWidth)")
+        //        logInView("LayerSizeModifier: minHeight: \(minHeight)")
+        //        logInView("LayerSizeModifier: maxHeight: \(maxHeight)")
+        //
+        //        logInView("LayerSizeModifier: finalMaxHeight: \(finalMaxHeight)")
+        //        logInView("LayerSizeModifier: finalMaxWidth: \(finalMaxWidth)")
         
                
         // TODO: the below conditionals can be simplified, but are currently evolving; will be cleaned up after final iterations on conditional input logic
@@ -140,7 +140,7 @@ struct LayerSizeModifier: ViewModifier {
         
         
         if isPinnedViewRendering && (viewModel.isPinned.getBool ?? false) {
-            logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
+            // logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
               // If this is the "PinnedView" for View A,
               // then View A's "GhostView" will already have read the appropriate size etc. for View A.
               // So we can just use the layer view model's pinnedSize
@@ -151,7 +151,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Width is pt, but height is auto (so can use min/max height)
         else if let width = width, !height.isDefined {
-            logInView("LayerSizeModifier: defined width but not height")
+            // logInView("LayerSizeModifier: defined width but not height")
             
             content
             // Note: parent-percentage supports min/max along a dimension
@@ -163,14 +163,14 @@ struct LayerSizeModifier: ViewModifier {
                 .frame(width: usesFillForWidth ? nil : width,
                        alignment: alignment)
                 
-//                .frame(minHeight: minHeight,
-//                       maxHeight: maxHeight,
-//                       alignment: alignment)
+                .frame(minHeight: minHeight,
+                       maxHeight: maxHeight,
+                       alignment: alignment)
         }
         
         // Height is pt, but width is auto (so can use min/max width)
         else if let height = height, !width.isDefined {
-            logInView("LayerSizeModifier: defined height but not width")
+            // logInView("LayerSizeModifier: defined height but not width")
                 
             content
                 .frame(minHeight: usesParentPercentForHeight ? minHeight : nil, alignment: alignment)
@@ -186,7 +186,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Both height and width are pt (so no min/max size at all)
         else if let width = width, let height = height {
-            logInView("LayerSizeModifier: defined width and height")
+            // logInView("LayerSizeModifier: defined width and height")
             content
                 .frame(minWidth: usesParentPercentForWidth ? minWidth : nil, alignment: alignment)
                 .frame(maxWidth: finalMaxWidth, alignment: alignment)
@@ -203,7 +203,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Both height and width are auto, so use min/max height and width
         else if someMinMaxDefined {
-            logInView("LayerSizeModifier: defined min-max")
+            // logInView("LayerSizeModifier: defined min-max")
             content.frame(minWidth: minWidth,
                           maxWidth: finalMaxWidth,
                           minHeight: minHeight,
@@ -213,7 +213,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Default
         else {
-            logInView("LayerSizeModifier: default")
+            // logInView("LayerSizeModifier: default")
             content.frame(width: width,
                           height: height,
                           alignment: alignment)
