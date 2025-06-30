@@ -29,6 +29,9 @@ typealias CurrentStepActionConnectionAdded = StepActionConnectionAdded_V0
 typealias CurrentStepActionChangeValueType = StepActionChangeValueType_V0
 typealias CurrentStepActionSetInput = StepActionSetInput_V0
 typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V0
+typealias CurrentAIPatchServiceRequestBody = AIPatchServiceRequestBody_V0
+typealias CurrentAIPatchBuilderRequestBody = AIPatchBuilderRequestBody_V0
+typealias CurrentAIPatchBuilderResponseFormat = AIPatchBuilderResponseFormat_V0
 #else
 typealias CurrentStep = Step_V1
 typealias CurrentStepType = StepType_V1
@@ -83,3 +86,5 @@ typealias StepActionConnectionAdded = CurrentStepActionConnectionAdded.StepActio
 typealias StepActionChangeValueType = CurrentStepActionChangeValueType.StepActionChangeValueType
 typealias StepActionSetInput = CurrentStepActionSetInput.StepActionSetInput
 typealias StepActionLayerGroupCreated = CurrentStepActionLayerGroupCreated.StepActionLayerGroupCreated
+typealias AIPatchServiceRequestBody = CurrentAIPatchServiceRequestBody.AIPatchServiceRequestBody
+typealias AIPatchBuilderRequestBody = CurrentAIPatchBuilderRequestBody.AIPatchBuilderRequestBody

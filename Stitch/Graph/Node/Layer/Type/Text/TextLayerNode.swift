@@ -67,9 +67,7 @@ struct TextLayerNode: LayerNodeDefinition {
     .union(.pinning)
     .union(.layerPaddingAndMargin)
     .union(.offsetInGroup)
-    
-    
-    
+        
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
                         viewModel: LayerViewModel,

@@ -34,6 +34,7 @@ public enum NodeSection: String, CaseIterable, CustomStringConvertible {
     case progressState = "Progress and State Nodes"
     case deviceSystem = "Device and System Nodes"
     case arrayOperation = "Array Operation Nodes"
+    case jsAINode = "Javascript AI Node"
 }
 
 extension NodeSection {

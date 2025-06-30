@@ -464,7 +464,8 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor var isLoadingAI: Bool {
-        self.aiManager?.currentTask != nil
+        self.aiManager?.currentTask != nil ||
+        self.aiManager?.currentTaskTesting != nil
     }
 }
 

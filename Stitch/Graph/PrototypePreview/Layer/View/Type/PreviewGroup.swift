@@ -170,11 +170,11 @@ struct PreviewGroupLayer: View {
                         
         // .clipped modifier should come before the offset/position modifier,
         // so that it's affected by the offset/position modifier
-            .modifier(ClippedModifier(isClipped: isClipped,
+            .modifier(PreviewClippedModifier(isClipped: isClipped,
                                       cornerRadius: strokeAdjustedCornerRadius))
         
         // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
-            .modifier(ApplyStroke(viewModel: layerViewModel,
+            .modifier(PreviewApplyStroke(viewModel: layerViewModel,
                                   isPinnedViewRendering: isPinnedViewRendering,
                                   stroke: stroke,
                                   // Uses non-stroke adjusted corner radius, since .stitchStroke will handle the adjustment 
@@ -279,7 +279,7 @@ struct PreviewGroupLayer: View {
     }
 }
 
-struct ClippedModifier: ViewModifier {
+struct PreviewClippedModifier: ViewModifier {
 
     let isClipped: Bool
     let cornerRadius: CGFloat

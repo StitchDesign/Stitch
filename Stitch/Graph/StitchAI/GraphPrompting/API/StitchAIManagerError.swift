@@ -50,7 +50,6 @@ extension StitchAIStepHandlingError: CustomStringConvertible {
     }
 }
 
-
 // MARK: An error we encounter when opening or closing a stream request
  
 enum StitchAIStreamingError: Error {

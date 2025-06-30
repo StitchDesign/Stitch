@@ -19,6 +19,18 @@ extension CurrentStep.NodeKind {
     }
 }
 
+extension CurrentStep.Patch {
+    var patchOrLayer: CurrentStep.PatchOrLayer {
+        .patch(self)
+    }
+}
+
+extension CurrentStep.Layer {
+    var patchOrLayer: CurrentStep.PatchOrLayer {
+        .layer(self)
+    }
+}
+
 struct StitchAINodeKindDescription {
     let nodeKind: String
     let description: String
@@ -49,6 +61,79 @@ struct StitchAINodeSectionDescription: Encodable {
     var nodes: [StitchAINodeIODescription]
 }
 
+extension CurrentStep.PatchOrLayer {
+    @MainActor
+    func getAINodeDescription(graph: GraphState) throws -> StitchAINodeIODescription? {
+        guard let migratedPatchOrLayer = try? self.convert(to: PatchOrLayer.self) else {
+            fatalErrorIfDebug("StitchAINodeSectionDescription: unable to convert patchOrLayer for: \(self)")
+            return nil
+        }
+        
+        // Use node definitions, if available
+        if let graphNode = migratedPatchOrLayer.graphNode {
+            return try .init(graphNode)
+        }
+        
+        // Backup plan: create default node, extract data from there
+        guard let defaultNode = migratedPatchOrLayer
+            .createDefaultNode(id: .init(),
+                               activeIndex: .init(.zero),
+                               graphDelegate: graph) else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        let inputs: [StitchAIPortValueDescription] = try defaultNode.inputsObservers.compactMap { inputObserver in
+            let runtimeValue = inputObserver.getActiveValue(activeIndex: .init(.zero))
+            
+            // Backwards compat check for runtime's PortValue
+            // Silent failures allow for new port value types to get ignored, which should be ok for layers
+            guard let migratedValue = try? runtimeValue.convert(to: CurrentStep.PortValue.self) else {
+                switch self {
+                case .patch(let patch):
+                    fatalErrorIfDebug("Issues reading values for patch \(patch) on value \(runtimeValue)")
+                    throw StitchAIManagerError.portValueDescriptionNotSupported(self.asLLMStepNodeName)
+                
+                case .layer:
+                    // Less of a big deal for layers to not support inputs since ordering isn't important
+                    return nil
+                }
+            }
+            
+            return StitchAIPortValueDescription(
+                label: inputObserver.label(node: defaultNode,
+                                           coordinate: .input(inputObserver.id),
+                                           graph: graph),
+                value: migratedValue)
+        }
+        
+        // Calculate node to get outputs values
+        if let evalResult = defaultNode.evaluate() {
+            defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues, graph: graph)
+        }
+        
+        let outputs: [StitchAIPortValueDescription] = try defaultNode.outputsObservers.map { outputObserver in
+            let runtimeValue = outputObserver.getActiveValue(activeIndex: .init(.zero))
+            
+            // Backwards compat check for runtime's PortValue
+            let migratedValue = try runtimeValue.convert(to: CurrentStep.PortValue.self)
+            
+            return StitchAIPortValueDescription(
+                label: outputObserver.label(node: defaultNode,
+                                            coordinate: .output(outputObserver.id),
+                                            graph: graph),
+                value: migratedValue)
+        }
+        
+        assertInDebug(inputs.first { $0.value == .none } == nil)
+        assertInDebug(outputs.first { $0.value == .none } == nil)
+        
+        return .init(nodeKind: self.asLLMStepNodeName,
+                     inputs: inputs,
+                     outputs: outputs)
+    }
+}
+
 extension StitchAINodeSectionDescription {
     @MainActor
     init(_ section: NodeSection,
@@ -56,73 +141,7 @@ extension StitchAINodeSectionDescription {
         let nodesInSection: [StitchAINodeIODescription] = try section
             .getNodesForSection()
             .compactMap { patchOrLayer -> StitchAINodeIODescription? in
-                guard let migratedPatchOrLayer = try? patchOrLayer.convert(to: PatchOrLayer.self) else {
-                    fatalErrorIfDebug("StitchAINodeSectionDescription: unable to convert patchOrLayer for: \(patchOrLayer)")
-                    return nil
-                }
-                
-                // Use node definitions, if available
-                if let graphNode = migratedPatchOrLayer.graphNode {
-                    return try .init(graphNode)
-                }
-                
-                // Backup plan: create default node, extract data from there
-                guard let defaultNode = migratedPatchOrLayer
-                    .createDefaultNode(id: .init(),
-                                       activeIndex: .init(.zero),
-                                       graphDelegate: graph) else {
-                    fatalErrorIfDebug()
-                    return nil
-                }
-                
-                let inputs: [StitchAIPortValueDescription] = try defaultNode.inputsObservers.compactMap { inputObserver in
-                    let runtimeValue = inputObserver.getActiveValue(activeIndex: .init(.zero))
-                    
-                    // Backwards compat check for runtime's PortValue
-                    // Silent failures allow for new port value types to get ignored, which should be ok for layers
-                    guard let migratedValue = try? runtimeValue.convert(to: CurrentStep.PortValue.self) else {
-                        switch patchOrLayer {
-                        case .patch(let patch):
-                            fatalErrorIfDebug("Issues reading values for patch \(patch) on value \(runtimeValue)")
-                            throw StitchAIManagerError.portValueDescriptionNotSupported(patchOrLayer.asLLMStepNodeName)
-                        
-                        case .layer:
-                            // Less of a big deal for layers to not support inputs since ordering isn't important
-                            return nil
-                        }
-                    }
-                    
-                    return StitchAIPortValueDescription(
-                        label: inputObserver.label(node: defaultNode,
-                                                   coordinate: .input(inputObserver.id),
-                                                   graph: graph),
-                        value: migratedValue)
-                }
-                
-                // Calculate node to get outputs values
-                if let evalResult = defaultNode.evaluate() {
-                    defaultNode.updateOutputsObservers(newValuesList: evalResult.outputsValues, graph: graph)
-                }
-                
-                let outputs: [StitchAIPortValueDescription] = try defaultNode.outputsObservers.map { outputObserver in
-                    let runtimeValue = outputObserver.getActiveValue(activeIndex: .init(.zero))
-                    
-                    // Backwards compat check for runtime's PortValue
-                    let migratedValue = try runtimeValue.convert(to: CurrentStep.PortValue.self)
-                    
-                    return StitchAIPortValueDescription(
-                        label: outputObserver.label(node: defaultNode,
-                                                    coordinate: .output(outputObserver.id),
-                                                    graph: graph),
-                        value: migratedValue)
-                }
-                
-                assertInDebug(inputs.first { $0.value == .none } == nil)
-                assertInDebug(outputs.first { $0.value == .none } == nil)
-                
-                return .init(nodeKind: patchOrLayer.asLLMStepNodeName,
-                             inputs: inputs,
-                             outputs: outputs)
+                try patchOrLayer.getAINodeDescription(graph: graph)
             }
         
         self.header = section.description

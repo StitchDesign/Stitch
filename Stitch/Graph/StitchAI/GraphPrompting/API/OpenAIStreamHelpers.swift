@@ -151,7 +151,7 @@ extension StitchAIManager {
         switch result {
         case .success(let success):
             let jsonResponse = String(data: success.0, encoding: .utf8)
-            log("Successful AI response:\n\(jsonResponse)")
+            print("Successful AI response:\n\(jsonResponse)")
             do {
                 let response = try JSONDecoder().decode(OpenAIResponse.self, from: success.0)
                 
@@ -160,7 +160,7 @@ extension StitchAIManager {
                     return .failure(StitchAIManagerError.responseDecodingFailure("No choice found."))
                 }
                 
-                let initialDecodedResult = try AIRequest.parseOpanAIResponse(content: firstChoice.message.content)
+                let initialDecodedResult = try AIRequest.parseOpenAIResponse(content: firstChoice.message.content)
                 let result = try AIRequest.validateResponse(decodedResult: initialDecodedResult)
                 
                 

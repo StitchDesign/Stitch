@@ -11,7 +11,9 @@ import StitchSchemaKit
 
 import SwiftyJSON
 
-class OpenAIRequestTests: XCTestCase {
+final class OpenAIRequestTests: XCTestCase {
+    @MainActor let mockDocument = StitchDocumentViewModel.createEmpty()
+    
     func testSecretsNotNil() throws {
         // Make sure we simulate first-run experience
         UserDefaults.standard.setValue(
@@ -25,6 +27,25 @@ class OpenAIRequestTests: XCTestCase {
             let path = Secrets.getPath()!
             let contents = try! String(contentsOf: path, encoding: .utf8)
             XCTFail("testSecretsNotNil failed with error: \(error)\njson: \(contents)")
+        }
+    }
+    
+    /// Tests if Open AI queries can be established.
+    @MainActor
+    func testStitchAIRequestable() async throws {
+        guard let aiManager = mockDocument.aiManager else {
+            XCTFail("testStitchAIRequestable: no AI manager found.")
+            return
+        }
+        
+        let requestTest = try AIPatchServiceRequest(prompt: "testing")
+        let result = await requestTest.request(document: mockDocument,
+                                               aiManager: aiManager)
+        switch result {
+        case .success:
+            break
+        case .failure(let failure):
+            XCTFail(failure.description)
         }
     }
     

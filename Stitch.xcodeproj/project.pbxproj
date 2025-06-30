@@ -45,6 +45,7 @@
 		B50192062C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */; };
 		B50192092C6D100E00A048ED /* LayerInputObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192082C6D100E00A048ED /* LayerInputObserver.swift */; };
 		B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B501920B2C6D144D00A048ED /* StitchEngine */; };
+		B503B0CE2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B503B0CD2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift */; };
 		B504CFD12D2F953F00E245DA /* DebugModePopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B504CFD02D2F953C00E245DA /* DebugModePopover.swift */; };
 		B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */; };
 		B5072B882DD2FD0500C4597B /* StitchAITips.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5072B872DD2FCFB00C4597B /* StitchAITips.swift */; };
@@ -275,6 +276,14 @@
 		B5B20BB0279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */; };
 		B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */; };
 		B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */; };
+		B5B31CD42E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CD02E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift */; };
+		B5B31CD72E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5B31CD22E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md */; };
+		B5B31CDA2E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */; };
+		B5B31CDC2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */; };
+		B5B31CDE2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */; };
+		B5B31CE42E0A27FA003EABA2 /* AIPatchServiceRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */; };
+		B5B31CE62E0A3232003EABA2 /* AIPatchBuilderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */; };
+		B5B31CE82E0C6772003EABA2 /* AICodeGenSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE72E0C6769003EABA2 /* AICodeGenSystemPromptGenerator.swift */; };
 		B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */; };
 		B5B8105C2D77E1C90095DA9D /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5B8105B2D77E1C90095DA9D /* StitchEngine */; };
 		B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */; };
@@ -670,6 +679,14 @@
 		EC65AC332DC1A3500046E59C /* InputFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */; };
 		EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC342DC1AB580046E59C /* OutputFieldView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
+		EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */; };
+		EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */; };
+		EC66D03F2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */; };
+		EC66D0412E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */; };
+		EC66D0432E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */; };
+		EC66D0452E0728FB00355ED8 /* SyntaxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */; };
+		EC66D0472E072A5300355ED8 /* StitchSyntaxToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */; };
+		EC66D04C2E07EF0000355ED8 /* VPLSyntaxTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -860,6 +877,21 @@
 		ECB1B7B226FB9D7A006D9C95 /* FileUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7B126FB9D7A006D9C95 /* FileUtils.swift */; };
 		ECB1B7B426FB9DFF006D9C95 /* MediaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7B326FB9DFF006D9C95 /* MediaLibrary.swift */; };
 		ECB1B7B826FB9E67006D9C95 /* MediaKeyUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B7B726FB9E67006D9C95 /* MediaKeyUtils.swift */; };
+		ECB238BF2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238BE2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift */; };
+		ECB238C92E0A192E00D55A25 /* SyntaxViewName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238C82E0A192E00D55A25 /* SyntaxViewName.swift */; };
+		ECB238D22E0B8BBC00D55A25 /* VPLActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238D12E0B8BBC00D55A25 /* VPLActions.swift */; };
+		ECB238D42E0B8C1100D55A25 /* SyntaxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238D32E0B8C1100D55A25 /* SyntaxView.swift */; };
+		ECB238D62E0B8C3200D55A25 /* SyntaxViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238D52E0B8C3200D55A25 /* SyntaxViewModifier.swift */; };
+		ECB238DA2E0B8D2800D55A25 /* SyntaxViewConstructorArgument.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238D92E0B8D2800D55A25 /* SyntaxViewConstructorArgument.swift */; };
+		ECB238DF2E0B914100D55A25 /* SyntaxArgumentKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238DE2E0B914100D55A25 /* SyntaxArgumentKind.swift */; };
+		ECB238E12E0B922200D55A25 /* SyntaxToActionsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238E02E0B922200D55A25 /* SyntaxToActionsUtils.swift */; };
+		ECB238E32E0B932100D55A25 /* deriveActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238E22E0B932100D55A25 /* deriveActions.swift */; };
+		ECB238E52E0B936C00D55A25 /* deriveLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238E42E0B936C00D55A25 /* deriveLayer.swift */; };
+		ECB238E72E0B939600D55A25 /* deriveLayerInputPort.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238E62E0B939600D55A25 /* deriveLayerInputPort.swift */; };
+		ECB238E92E0B941E00D55A25 /* deriveViewModifierName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238E82E0B941E00D55A25 /* deriveViewModifierName.swift */; };
+		ECB238EB2E0B94B800D55A25 /* FromLayerInputToSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238EA2E0B94B800D55A25 /* FromLayerInputToSyntax.swift */; };
+		ECB238ED2E0B94D000D55A25 /* FromSyntaxToLayerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238EC2E0B94D000D55A25 /* FromSyntaxToLayerInput.swift */; };
+		ECB238EF2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB238EE2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift */; };
 		ECB33C6226F15A1C0069885B /* DeviceAndIdentityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB33C6126F15A1C0069885B /* DeviceAndIdentityUtils.swift */; };
 		ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */; };
 		ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = ECB46CD52DB14D80006EFB93 /* StitchEngine */; };
@@ -891,6 +923,11 @@
 		ECB9A86F2AEB4950006E65EE /* AlphaSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9A86E2AEB4950006E65EE /* AlphaSliderView.swift */; };
 		ECBB853F25E9BA5500C1EE40 /* PreviewText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */; };
 		ECBB94732D60007A005311D5 /* HomescreenProjectSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB94722D60007A005311D5 /* HomescreenProjectSelectionState.swift */; };
+		ECBC56FB2E05FE1100BF5CA7 /* SwiftBasicFormat in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */; };
+		ECBC56FD2E05FE1100BF5CA7 /* SwiftCompilerPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FC2E05FE1100BF5CA7 /* SwiftCompilerPlugin */; };
+		ECBC56FF2E05FE1100BF5CA7 /* SwiftDiagnostics in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FE2E05FE1100BF5CA7 /* SwiftDiagnostics */; };
+		ECBC57012E05FE1100BF5CA7 /* SwiftIDEUtils in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC57002E05FE1100BF5CA7 /* SwiftIDEUtils */; };
+		ECBC57032E05FE1100BF5CA7 /* SwiftIfConfig in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC57022E05FE1100BF5CA7 /* SwiftIfConfig */; };
 		ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBC95FA27613D9200508966 /* evalTests+2.swift */; };
 		ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */; };
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
@@ -926,11 +963,16 @@
 		ECC558A7294A9B340025BB42 /* ScrollInteractionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC558A6294A9B340025BB42 /* ScrollInteractionUtils.swift */; };
 		ECC558A9294A9B3A0025BB42 /* DragInteractionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC558A8294A9B3A0025BB42 /* DragInteractionUtils.swift */; };
 		ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */; };
+		ECC734742E0DE95A00AC266C /* CodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734732E0DE95A00AC266C /* CodeExamples.swift */; };
+		ECC734762E0DE9AE00AC266C /* ActionExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734752E0DE9AE00AC266C /* ActionExamples.swift */; };
+		ECC734782E0E452E00AC266C /* deriveSyntaxViewName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */; };
+		ECC7347A2E0F310B00AC266C /* SyntaxExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734792E0F310B00AC266C /* SyntaxExamples.swift */; };
 		ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */; };
 		ECC738312BB6360B00A680B5 /* AnchorGridIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */; };
 		ECCA95952899CFFC002D241F /* FocusedUserEditField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */; };
 		ECCC04C02A3268A20099D021 /* nodeTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCC04BF2A3268A20099D021 /* nodeTypeTests.swift */; };
 		ECCD0701291EEB16004639AA /* defaultGraphView.png in Resources */ = {isa = PBXBuildFile; fileRef = ECCD0700291EEB16004639AA /* defaultGraphView.png */; };
+		ECCD49E62E0BBD3F00E99CE1 /* ActionsToSyntaxToCodeExploratoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCD49E52E0BBD3F00E99CE1 /* ActionsToSyntaxToCodeExploratoryView.swift */; };
 		ECCE40E327E29B5D0068484B /* ICloudSyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCE40E227E29B5D0068484B /* ICloudSyncStatus.swift */; };
 		ECCEB26829634CB5007E35D1 /* ShapeAndRectUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26729634CB5007E35D1 /* ShapeAndRectUtils.swift */; };
 		ECCEB26A2963928D007E35D1 /* UnionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB2692963928D007E35D1 /* UnionNode.swift */; };
@@ -940,7 +982,7 @@
 		ECCF23512D4C6C5A00BC2F2F /* StepTypeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */; };
 		ECCF23532D4C6C7B00BC2F2F /* StepType_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23522D4C6C7B00BC2F2F /* StepType_V0.swift */; };
 		ECCF23552D4C6C9300BC2F2F /* Step_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF23542D4C6C9300BC2F2F /* Step_V0.swift */; };
-		ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */; };
+		ECCF930D2C7908F7002786D5 /* PreviewLayerPaddingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF930C2C7908F7002786D5 /* PreviewLayerPaddingModifier.swift */; };
 		ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */; };
 		ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3652C35E09400E94D60 /* LengthDimension.swift */; };
 		ECCFB3682C35E0FD00E94D60 /* AspectRatioData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3672C35E0FD00E94D60 /* AspectRatioData.swift */; };
@@ -1019,6 +1061,7 @@
 		ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708692B8D4AF8009F4525 /* CurveToPackNode.swift */; };
 		ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */; };
 		ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */; };
+		ECE963AA2E0C5710003420C5 /* ASTExplorerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */; };
 		ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */; };
 		ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53112DCAC10700C3A09D /* SampleProjects.swift */; };
 		ECEA53142DCAEAC100C3A09D /* SampleProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */; };
@@ -1153,6 +1196,7 @@
 		B500F3672DE6BF1400904992 /* StitchDocsPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocsPopoverView.swift; sourceTree = "<group>"; };
 		B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputUnpackedPortObserver.swift; sourceTree = "<group>"; };
 		B50192082C6D100E00A048ED /* LayerInputObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputObserver.swift; sourceTree = "<group>"; };
+		B503B0CD2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphBuilderSystemPromptGenerator.swift; sourceTree = "<group>"; };
 		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
 		B5072B872DD2FCFB00C4597B /* StitchAITips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITips.swift; sourceTree = "<group>"; };
@@ -1375,6 +1419,14 @@
 		B5B20BAF279925EC008A2B5A /* FullScreenPreviewViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenPreviewViewWrapper.swift; sourceTree = "<group>"; };
 		B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHostingController.swift; sourceTree = "<group>"; };
 		B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMediaUtils.swift; sourceTree = "<group>"; };
+		B5B31CD02E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchServiceRequestBody_V0.swift; sourceTree = "<group>"; };
+		B5B31CD22E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIPatchServiceSystemPrompt_V0.md; sourceTree = "<group>"; };
+		B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderRequestBody_V0.swift; sourceTree = "<group>"; };
+		B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIPatchBuilderSystemPrompt_V0.md; sourceTree = "<group>"; };
+		B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderResponseFormat_V0.swift; sourceTree = "<group>"; };
+		B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchServiceRequest.swift; sourceTree = "<group>"; };
+		B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderRequest.swift; sourceTree = "<group>"; };
+		B5B31CE72E0C6769003EABA2 /* AICodeGenSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeGenSystemPromptGenerator.swift; sourceTree = "<group>"; };
 		B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDefinition.swift; sourceTree = "<group>"; };
 		B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordiante.swift; sourceTree = "<group>"; };
 		B5B95B972CB6D67200DA64B3 /* StitchSystemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSystemViewModel.swift; sourceTree = "<group>"; };
@@ -1759,6 +1811,14 @@
 		EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldValueView.swift; sourceTree = "<group>"; };
 		EC65AC342DC1AB580046E59C /* OutputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
+		EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestrictedSwiftUIScopeJSON.swift; sourceTree = "<group>"; };
+		EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToStitchSyntax.swift; sourceTree = "<group>"; };
+		EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxToCodeExploratoryView.swift; sourceTree = "<group>"; };
+		EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewNodeToSwiftUICodeTests.swift; sourceTree = "<group>"; };
+		EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToSyntaxExploratoryView.swift; sourceTree = "<group>"; };
+		EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxUtils.swift; sourceTree = "<group>"; };
+		EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntaxToCode.swift; sourceTree = "<group>"; };
+		EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLSyntaxTest.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -1939,6 +1999,21 @@
 		ECB1B7B126FB9D7A006D9C95 /* FileUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtils.swift; sourceTree = "<group>"; };
 		ECB1B7B326FB9DFF006D9C95 /* MediaLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLibrary.swift; sourceTree = "<group>"; };
 		ECB1B7B726FB9E67006D9C95 /* MediaKeyUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaKeyUtils.swift; sourceTree = "<group>"; };
+		ECB238BE2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToSyntaxToActionsExploratoryView.swift; sourceTree = "<group>"; };
+		ECB238C82E0A192E00D55A25 /* SyntaxViewName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewName.swift; sourceTree = "<group>"; };
+		ECB238D12E0B8BBC00D55A25 /* VPLActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLActions.swift; sourceTree = "<group>"; };
+		ECB238D32E0B8C1100D55A25 /* SyntaxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxView.swift; sourceTree = "<group>"; };
+		ECB238D52E0B8C3200D55A25 /* SyntaxViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewModifier.swift; sourceTree = "<group>"; };
+		ECB238D92E0B8D2800D55A25 /* SyntaxViewConstructorArgument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewConstructorArgument.swift; sourceTree = "<group>"; };
+		ECB238DE2E0B914100D55A25 /* SyntaxArgumentKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxArgumentKind.swift; sourceTree = "<group>"; };
+		ECB238E02E0B922200D55A25 /* SyntaxToActionsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxToActionsUtils.swift; sourceTree = "<group>"; };
+		ECB238E22E0B932100D55A25 /* deriveActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveActions.swift; sourceTree = "<group>"; };
+		ECB238E42E0B936C00D55A25 /* deriveLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveLayer.swift; sourceTree = "<group>"; };
+		ECB238E62E0B939600D55A25 /* deriveLayerInputPort.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveLayerInputPort.swift; sourceTree = "<group>"; };
+		ECB238E82E0B941E00D55A25 /* deriveViewModifierName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveViewModifierName.swift; sourceTree = "<group>"; };
+		ECB238EA2E0B94B800D55A25 /* FromLayerInputToSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FromLayerInputToSyntax.swift; sourceTree = "<group>"; };
+		ECB238EC2E0B94D000D55A25 /* FromSyntaxToLayerInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FromSyntaxToLayerInput.swift; sourceTree = "<group>"; };
+		ECB238EE2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveSyntaxFromLayerInput.swift; sourceTree = "<group>"; };
 		ECB33C6126F15A1C0069885B /* DeviceAndIdentityUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAndIdentityUtils.swift; sourceTree = "<group>"; };
 		ECB3739F28136B4E007AC702 /* KeyboardHeightReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardHeightReadable.swift; sourceTree = "<group>"; };
 		ECB46CDA2DB171B5006EFB93 /* LayerInputFieldBlocking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputFieldBlocking.swift; sourceTree = "<group>"; };
@@ -2004,11 +2079,16 @@
 		ECC558A6294A9B340025BB42 /* ScrollInteractionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollInteractionUtils.swift; sourceTree = "<group>"; };
 		ECC558A8294A9B3A0025BB42 /* DragInteractionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragInteractionUtils.swift; sourceTree = "<group>"; };
 		ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNamesDropDownChoiceView.swift; sourceTree = "<group>"; };
+		ECC734732E0DE95A00AC266C /* CodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeExamples.swift; sourceTree = "<group>"; };
+		ECC734752E0DE9AE00AC266C /* ActionExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionExamples.swift; sourceTree = "<group>"; };
+		ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deriveSyntaxViewName.swift; sourceTree = "<group>"; };
+		ECC734792E0F310B00AC266C /* SyntaxExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxExamples.swift; sourceTree = "<group>"; };
 		ECC7382C2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationOpAnchoring.swift; sourceTree = "<group>"; };
 		ECC738302BB6360B00A680B5 /* AnchorGridIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnchorGridIconView.swift; sourceTree = "<group>"; };
 		ECCA95942899CFFC002D241F /* FocusedUserEditField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedUserEditField.swift; sourceTree = "<group>"; };
 		ECCC04BF2A3268A20099D021 /* nodeTypeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = nodeTypeTests.swift; sourceTree = "<group>"; };
 		ECCD0700291EEB16004639AA /* defaultGraphView.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = defaultGraphView.png; sourceTree = "<group>"; };
+		ECCD49E52E0BBD3F00E99CE1 /* ActionsToSyntaxToCodeExploratoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionsToSyntaxToCodeExploratoryView.swift; sourceTree = "<group>"; };
 		ECCE40E227E29B5D0068484B /* ICloudSyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudSyncStatus.swift; sourceTree = "<group>"; };
 		ECCEB26729634CB5007E35D1 /* ShapeAndRectUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeAndRectUtils.swift; sourceTree = "<group>"; };
 		ECCEB2692963928D007E35D1 /* UnionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnionNode.swift; sourceTree = "<group>"; };
@@ -2018,7 +2098,7 @@
 		ECCF23502D4C6C5A00BC2F2F /* StepTypeAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepTypeAction.swift; sourceTree = "<group>"; };
 		ECCF23522D4C6C7B00BC2F2F /* StepType_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepType_V0.swift; sourceTree = "<group>"; };
 		ECCF23542D4C6C9300BC2F2F /* Step_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step_V0.swift; sourceTree = "<group>"; };
-		ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPaddingModifier.swift; sourceTree = "<group>"; };
+		ECCF930C2C7908F7002786D5 /* PreviewLayerPaddingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewLayerPaddingModifier.swift; sourceTree = "<group>"; };
 		ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericalLayerDimension.swift; sourceTree = "<group>"; };
 		ECCFB3652C35E09400E94D60 /* LengthDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LengthDimension.swift; sourceTree = "<group>"; };
 		ECCFB3672C35E0FD00E94D60 /* AspectRatioData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AspectRatioData.swift; sourceTree = "<group>"; };
@@ -2091,6 +2171,7 @@
 		ECE708692B8D4AF8009F4525 /* CurveToPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveToPackNode.swift; sourceTree = "<group>"; };
 		ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardEdgeHelpers.swift; sourceTree = "<group>"; };
+		ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASTExplorerView.swift; sourceTree = "<group>"; };
 		ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericFlyoutView.swift; sourceTree = "<group>"; };
 		ECEA53112DCAC10700C3A09D /* SampleProjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjects.swift; sourceTree = "<group>"; };
 		ECEA53132DCAEAC100C3A09D /* SampleProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleProjectsView.swift; sourceTree = "<group>"; };
@@ -2192,6 +2273,7 @@
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
 				ECA76BA42DFD13E90018D16C /* PostgREST in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
+				ECBC56FF2E05FE1100BF5CA7 /* SwiftDiagnostics in Frameworks */,
 				ECE5857C2DB6D39C00749ED3 /* StitchEngine in Frameworks */,
 				B5BAB04A2CD8019400693EC5 /* StitchEngine in Frameworks */,
 				B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */,
@@ -2199,11 +2281,15 @@
 				EC39E75C26822ACA00674841 /* AudioKit in Frameworks */,
 				B5BAB0412CD6C28D00693EC5 /* StitchEngine in Frameworks */,
 				ECE585762DB6C84F00749ED3 /* StitchEngine in Frameworks */,
+				ECBC56FB2E05FE1100BF5CA7 /* SwiftBasicFormat in Frameworks */,
 				EC53F3C3287E27250021095B /* Numerics in Frameworks */,
+				ECBC57032E05FE1100BF5CA7 /* SwiftIfConfig in Frameworks */,
+				ECBC56FD2E05FE1100BF5CA7 /* SwiftCompilerPlugin in Frameworks */,
 				ECB46CD62DB14D80006EFB93 /* StitchEngine in Frameworks */,
 				EC15E42A2602A08B006F2E08 /* CloudKit.framework in Frameworks */,
 				ECA76BA02DFD13E90018D16C /* Auth in Frameworks */,
 				201953DA25B25D3300D5296C /* Tagged in Frameworks */,
+				ECBC57012E05FE1100BF5CA7 /* SwiftIDEUtils in Frameworks */,
 				EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */,
 				EC843C002DEF66D200A38BB9 /* StitchSchemaKit in Frameworks */,
 			);
@@ -2282,6 +2368,7 @@
 		208AFA8D25D45B440035B250 /* StitchTests */ = {
 			isa = PBXGroup;
 			children = (
+				EC66D02D2E064E0800355ED8 /* SwiftUIParsingTests */,
 				B5305CE5285150D1008F11F4 /* SampleData */,
 				B54C37B9281BB8B400D81E43 /* SampleProjects */,
 				B54C37B62818FB4D00D81E43 /* Versioning */,
@@ -2374,6 +2461,8 @@
 		B5136F432DED0AAF007F12D0 /* V0 */ = {
 			isa = PBXGroup;
 			children = (
+				B5B31CD32E05F7C9003EABA2 /* AIPatchService */,
+				B5B31CD82E09F3B7003EABA2 /* AIPatchBuilder */,
 				B525786D2DF510C4003ABD2C /* AIGraphDescription */,
 				B53BF63A2DF0A05E004EA770 /* AIGraphCreation */,
 				B53BF6412DF0AC09004EA770 /* AIEditJsNode */,
@@ -2838,7 +2927,7 @@
 				ECCFB36B2C35E16300E94D60 /* PreviewLayerSizeModifier.swift */,
 				ECCFB36D2C35E18800E94D60 /* PreviewCommonSizeModifier.swift */,
 				EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */,
-				ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */,
+				ECCF930C2C7908F7002786D5 /* PreviewLayerPaddingModifier.swift */,
 				B55500EE2C1BADB20081C3F1 /* PreviewCommonMisc.swift */,
 				ECEF8D0C2BFD4460004FABCD /* LayerSizeReader.swift */,
 				EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */,
@@ -4272,6 +4361,25 @@
 			path = ScreenRecorder;
 			sourceTree = "<group>";
 		};
+		B5B31CD32E05F7C9003EABA2 /* AIPatchService */ = {
+			isa = PBXGroup;
+			children = (
+				B5B31CD02E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift */,
+				B5B31CD22E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md */,
+			);
+			path = AIPatchService;
+			sourceTree = "<group>";
+		};
+		B5B31CD82E09F3B7003EABA2 /* AIPatchBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */,
+				B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */,
+				B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */,
+			);
+			path = AIPatchBuilder;
+			sourceTree = "<group>";
+		};
 		B5B95B962CB6D64800DA64B3 /* System */ = {
 			isa = PBXGroup;
 			children = (
@@ -4309,6 +4417,8 @@
 				EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */,
 				B5D34C8D2DF5391F007405BF /* AIGraphCreationRequest.swift */,
 				B5D34C8F2DF53947007405BF /* AIGraphDescriptionRequest.swift */,
+				B5B31CE32E0A27FA003EABA2 /* AIPatchServiceRequest.swift */,
+				B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */,
 				B5D34C912DF53966007405BF /* AIJsNodeEditRequest.swift */,
 			);
 			path = RequestTypes;
@@ -4354,6 +4464,8 @@
 			isa = PBXGroup;
 			children = (
 				B5EFD5B02D5D8967006A68FB /* StitchAISystemPromptGenerator.swift */,
+				B5B31CE72E0C6769003EABA2 /* AICodeGenSystemPromptGenerator.swift */,
+				B503B0CD2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift */,
 			);
 			path = PromptGenerator;
 			sourceTree = "<group>";
@@ -4388,6 +4500,7 @@
 		E40B2F512CB86D55005F5479 /* StitchAI */ = {
 			isa = PBXGroup;
 			children = (
+				ECC08E162E0489BF0058C2FE /* Mapping */,
 				B5F3D0B02DE3CBBA00103676 /* PromptGenerator */,
 				B521A1002DE19D5400662B13 /* View */,
 				E4D0D2D52CE6AE3500E482E4 /* DatasetRecording */,
@@ -4867,6 +4980,15 @@
 			path = NodeTag;
 			sourceTree = "<group>";
 		};
+		EC66D02D2E064E0800355ED8 /* SwiftUIParsingTests */ = {
+			isa = PBXGroup;
+			children = (
+				EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */,
+				EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */,
+			);
+			path = SwiftUIParsingTests;
+			sourceTree = "<group>";
+		};
 		EC6B2E102D76272100804E38 /* PortValuesPreview */ = {
 			isa = PBXGroup;
 			children = (
@@ -5073,6 +5195,78 @@
 			path = Type;
 			sourceTree = "<group>";
 		};
+		ECB238C42E0A10F900D55A25 /* Syntax */ = {
+			isa = PBXGroup;
+			children = (
+				EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */,
+				ECB238D72E0B8C7600D55A25 /* SyntaxView */,
+			);
+			path = Syntax;
+			sourceTree = "<group>";
+		};
+		ECB238C52E0A110600D55A25 /* SyntaxToActions */ = {
+			isa = PBXGroup;
+			children = (
+				ECB238EC2E0B94D000D55A25 /* FromSyntaxToLayerInput.swift */,
+				ECB238E02E0B922200D55A25 /* SyntaxToActionsUtils.swift */,
+				ECB238E22E0B932100D55A25 /* deriveActions.swift */,
+				ECB238E42E0B936C00D55A25 /* deriveLayer.swift */,
+				ECB238E62E0B939600D55A25 /* deriveLayerInputPort.swift */,
+				ECB238BE2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift */,
+			);
+			path = SyntaxToActions;
+			sourceTree = "<group>";
+		};
+		ECB238C62E0A111800D55A25 /* SyntaxToCode */ = {
+			isa = PBXGroup;
+			children = (
+				EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */,
+				EC66D03E2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift */,
+			);
+			path = SyntaxToCode;
+			sourceTree = "<group>";
+		};
+		ECB238C72E0A112300D55A25 /* CodeToSyntax */ = {
+			isa = PBXGroup;
+			children = (
+				EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */,
+				EC66D0422E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift */,
+			);
+			path = CodeToSyntax;
+			sourceTree = "<group>";
+		};
+		ECB238D02E0B8BA100D55A25 /* Actions */ = {
+			isa = PBXGroup;
+			children = (
+				ECB238D12E0B8BBC00D55A25 /* VPLActions.swift */,
+			);
+			path = Actions;
+			sourceTree = "<group>";
+		};
+		ECB238D72E0B8C7600D55A25 /* SyntaxView */ = {
+			isa = PBXGroup;
+			children = (
+				ECB238D32E0B8C1100D55A25 /* SyntaxView.swift */,
+				ECB238C82E0A192E00D55A25 /* SyntaxViewName.swift */,
+				ECB238D92E0B8D2800D55A25 /* SyntaxViewConstructorArgument.swift */,
+				ECB238DE2E0B914100D55A25 /* SyntaxArgumentKind.swift */,
+				ECB238D52E0B8C3200D55A25 /* SyntaxViewModifier.swift */,
+			);
+			path = SyntaxView;
+			sourceTree = "<group>";
+		};
+		ECB238D82E0B8C9C00D55A25 /* ActionsToSyntax */ = {
+			isa = PBXGroup;
+			children = (
+				ECB238EA2E0B94B800D55A25 /* FromLayerInputToSyntax.swift */,
+				ECB238E82E0B941E00D55A25 /* deriveViewModifierName.swift */,
+				ECB238EE2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift */,
+				ECC734772E0E452E00AC266C /* deriveSyntaxViewName.swift */,
+				ECCD49E52E0BBD3F00E99CE1 /* ActionsToSyntaxToCodeExploratoryView.swift */,
+			);
+			path = ActionsToSyntax;
+			sourceTree = "<group>";
+		};
 		ECB33C5926F12F5E0069885B /* Home */ = {
 			isa = PBXGroup;
 			children = (
@@ -5127,6 +5321,32 @@
 				ECB7C72128A56C4B00252DE7 /* ClassicAnimationNumber.swift */,
 			);
 			path = Eval;
+			sourceTree = "<group>";
+		};
+		ECC08E162E0489BF0058C2FE /* Mapping */ = {
+			isa = PBXGroup;
+			children = (
+				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
+				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
+				ECC734722E0DE92F00AC266C /* Examples */,
+				ECB238D02E0B8BA100D55A25 /* Actions */,
+				ECB238C42E0A10F900D55A25 /* Syntax */,
+				ECB238D82E0B8C9C00D55A25 /* ActionsToSyntax */,
+				ECB238C52E0A110600D55A25 /* SyntaxToActions */,
+				ECB238C72E0A112300D55A25 /* CodeToSyntax */,
+				ECB238C62E0A111800D55A25 /* SyntaxToCode */,
+			);
+			path = Mapping;
+			sourceTree = "<group>";
+		};
+		ECC734722E0DE92F00AC266C /* Examples */ = {
+			isa = PBXGroup;
+			children = (
+				ECC734732E0DE95A00AC266C /* CodeExamples.swift */,
+				ECC734752E0DE9AE00AC266C /* ActionExamples.swift */,
+				ECC734792E0F310B00AC266C /* SyntaxExamples.swift */,
+			);
+			path = Examples;
 			sourceTree = "<group>";
 		};
 		ECD8871D2941416E00003B47 /* Shape */ = {
@@ -5267,6 +5487,11 @@
 				ECA76BA52DFD13E90018D16C /* Realtime */,
 				ECA76BA72DFD13E90018D16C /* Storage */,
 				ECA76BA92DFD13E90018D16C /* Supabase */,
+				ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */,
+				ECBC56FC2E05FE1100BF5CA7 /* SwiftCompilerPlugin */,
+				ECBC56FE2E05FE1100BF5CA7 /* SwiftDiagnostics */,
+				ECBC57002E05FE1100BF5CA7 /* SwiftIDEUtils */,
+				ECBC57022E05FE1100BF5CA7 /* SwiftIfConfig */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -5356,6 +5581,7 @@
 				EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */,
 				ECDAD6452DFBFCE700CE346F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				ECA76B9E2DFD13E90018D16C /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5389,10 +5615,12 @@
 				B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */,
 				B5A8899A2DFBD2F6000A8148 /* AIGraphCreationSystemPrompt_V0.md in Resources */,
 				B5EE9A962DE66D0A00DB85C3 /* README.md in Resources */,
+				B5B31CD72E05F7C9003EABA2 /* AIPatchServiceSystemPrompt_V0.md in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
+				B5B31CDC2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5459,6 +5687,8 @@
 				B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */,
 				B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */,
 				B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */,
+				EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */,
+				EC66D0432E0723DD00355ED8 /* CodeToSyntaxExploratoryView.swift in Sources */,
 				E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */,
 				ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */,
 				EC2BBF042947BBC2005BCCDB /* ColorFillLayerNode.swift in Sources */,
@@ -5471,6 +5701,7 @@
 				EC9AB63D28DFE33A002810BC /* LayerDragEndedActions.swift in Sources */,
 				EC49069F2CCACF0100165554 /* ColorFlyoutView.swift in Sources */,
 				EC17ACC426B4BC5900137EA5 /* StitchVideoMetadata.swift in Sources */,
+				ECB238E32E0B932100D55A25 /* deriveActions.swift in Sources */,
 				ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */,
 				ECEC4A442CE2FB900062ACAF /* StateChangeToStepAction.swift in Sources */,
 				EC1224A32B98F1E20011D687 /* StitchBlendMode.swift in Sources */,
@@ -5528,6 +5759,7 @@
 				B5849FE72DFBDF3600D668ED /* StepType_V1.swift in Sources */,
 				B5849FE82DFBDF3600D668ED /* AIGraphCreationRequestBody_V1.swift in Sources */,
 				B5849FE92DFBDF3600D668ED /* StitchAINodeType_V1.swift in Sources */,
+				B5B31CDA2E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift in Sources */,
 				B5849FEA2DFBDF3600D668ED /* Step_V1.swift in Sources */,
 				B5849FEB2DFBDF3600D668ED /* AIGraphDescriptionRequestBody_V1.swift in Sources */,
 				B5849FEC2DFBDF3600D668ED /* AIGraphDescriptionSystemPrompt_V1.swift in Sources */,
@@ -5539,18 +5771,22 @@
 				EC65AC312DC197D60046E59C /* TapToEditTextPickerView.swift in Sources */,
 				EC0F334C2BED93EF008093BC /* GraphDelegate.swift in Sources */,
 				EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */,
+				ECB238E12E0B922200D55A25 /* SyntaxToActionsUtils.swift in Sources */,
 				ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */,
 				ECDCE3502821BBB100D83EC3 /* LayerTextView.swift in Sources */,
 				EC365A8B2D80E4EE0015B8D7 /* LayerInspector3DTransformInputView.swift in Sources */,
+				ECB238E72E0B939600D55A25 /* deriveLayerInputPort.swift in Sources */,
 				ECA4FCC728EB4169006B4F23 /* NetworkRequestContentType.swift in Sources */,
 				EC7451B0294D2C4F00C7EB80 /* LocationManager.swift in Sources */,
 				EC2614512B897BFA00BEB066 /* Point3DUnpackNode.swift in Sources */,
 				EC1587402DE1179400A9C50A /* PatchAndLayerInputSizes.swift in Sources */,
 				B53BF6432DF0AC28004EA770 /* AIEditJsNodeSystemPrompt_V0.swift in Sources */,
+				ECB238EB2E0B94B800D55A25 /* FromLayerInputToSyntax.swift in Sources */,
 				EC2614552B897C4200BEB066 /* MatrixUnpackNode.swift in Sources */,
 				EC75FA8C2DE034C600FF87E8 /* OpenAIRequestConfig.swift in Sources */,
 				B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */,
 				ECD83E9E2D4D87AD002B7A3E /* LLMActionPositionNodeUtil.swift in Sources */,
+				B5B31CDE2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift in Sources */,
 				B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */,
 				B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */,
 				EC6C68D02937CA800023B700 /* ReverseProgressNode.swift in Sources */,
@@ -5592,6 +5828,7 @@
 				B5136F542DED5C5A007F12D0 /* StitchAIUUID_V0.swift in Sources */,
 				EC68A6FE288B314A00689F92 /* GroupNodeCreationActions.swift in Sources */,
 				ECA929F0260A68DF00281B52 /* SplitterPatchNode.swift in Sources */,
+				ECB238DF2E0B914100D55A25 /* SyntaxArgumentKind.swift in Sources */,
 				EC4914912935891700D74344 /* HSLColor.swift in Sources */,
 				E4F8AABB2BD6ED8500E9BA4D /* RadialGradientNode.swift in Sources */,
 				EC8A48F22710EC39001BB4FC /* NodeTypeChangedActions.swift in Sources */,
@@ -5636,10 +5873,13 @@
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
 				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
+				B503B0CE2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */,
 				EC913A722DE54A0E0056CEE1 /* StitchAIRatingToast.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */,
+				EC66D0472E072A5300355ED8 /* StitchSyntaxToCode.swift in Sources */,
+				ECB238DA2E0B8D2800D55A25 /* SyntaxViewConstructorArgument.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,
 				ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */,
 				EC1658822B6AFDDA00FE4AE6 /* EdgeEditingModeInputLabel.swift in Sources */,
@@ -5707,6 +5947,7 @@
 				EC3420E02AF9C2C700EBD896 /* CommentExpansionBoxUtils.swift in Sources */,
 				ECD039252641F28E003926B4 /* GroupLayerNode.swift in Sources */,
 				EC264AF72924709000025C15 /* LayerStroke.swift in Sources */,
+				ECB238D62E0B8C3200D55A25 /* SyntaxViewModifier.swift in Sources */,
 				ECB88E202D0BAD7E0097CF4A /* StitchUIScrollView.swift in Sources */,
 				EC067CEA2BAB710E00F8EB82 /* ClassicAnimationOpSize.swift in Sources */,
 				B55780692CB043B600907BA8 /* StitchComponentViewModel.swift in Sources */,
@@ -5721,6 +5962,7 @@
 				B548533929371E7B00C43828 /* ARUtils.swift in Sources */,
 				ECDD4E0E2CC065BE003B4F9A /* MaterialLayerNode.swift in Sources */,
 				ECE35EDC27CEDB3F00CB8F5C /* LayerSizeUtils.swift in Sources */,
+				B5B31CE82E0C6772003EABA2 /* AICodeGenSystemPromptGenerator.swift in Sources */,
 				E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */,
 				B55500E22C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift in Sources */,
 				EC71FF1C2D13C469002C0BA3 /* StitchUIScrollHelpers.swift in Sources */,
@@ -5757,6 +5999,7 @@
 				EC2942432BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift in Sources */,
 				EC28CCA2287E35F500987792 /* PatchEvaluation.swift in Sources */,
 				ECB9A8672AEB48FF006E65EE /* HSLSliderView.swift in Sources */,
+				ECC734742E0DE95A00AC266C /* CodeExamples.swift in Sources */,
 				EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */,
 				B5136F4E2DED2C07007F12D0 /* NodeType_V0.swift in Sources */,
 				20D9D79425D5A78900F5C7A4 /* Parsers.swift in Sources */,
@@ -5774,8 +6017,10 @@
 				EC0093DC26D6B8BA000EAE08 /* AbsoluteValueNode.swift in Sources */,
 				B5C53FAF2CED1FAC0069612E /* NodeLayout.swift in Sources */,
 				EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */,
+				B5B31CE62E0A3232003EABA2 /* AIPatchBuilderRequest.swift in Sources */,
 				B5C553992DDBFF80005B7766 /* InsertNodeCommands.swift in Sources */,
 				B55500B62C1B98B00081C3F1 /* SingleDropdownKind.swift in Sources */,
+				ECE963AA2E0C5710003420C5 /* ASTExplorerView.swift in Sources */,
 				ECE35EDE27CEDB7100CB8F5C /* LayerDimensionUtils.swift in Sources */,
 				EC68A6FC288B311A00689F92 /* SplitterTypeActions.swift in Sources */,
 				EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */,
@@ -5792,6 +6037,7 @@
 				EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */,
 				ECF236802CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift in Sources */,
 				ECE708662B8D49D5009F4525 /* ClosePathNode.swift in Sources */,
+				ECC734782E0E452E00AC266C /* deriveSyntaxViewName.swift in Sources */,
 				EC4081252C0114060047989F /* StitchCustomURL.swift in Sources */,
 				205BB3B125BA203D00F144A7 /* PortView.swift in Sources */,
 				E4D7EA152BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift in Sources */,
@@ -5843,6 +6089,7 @@
 				EC365A852D7F6ACA0015B8D7 /* CanvasLayerInputView.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
+				ECC7347A2E0F310B00AC266C /* SyntaxExamples.swift in Sources */,
 				EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */,
 				EC65AC2B2DC112030046E59C /* CommonEditingViewHelpers.swift in Sources */,
 				B55500C82C1B9FCF0081C3F1 /* LayerDimensionField.swift in Sources */,
@@ -5853,6 +6100,8 @@
 				8B77BA7B2713D35C00255C40 /* GraphUIActions.swift in Sources */,
 				ECD1F6C32965FDCC00DBD9A8 /* CubicBezierCurveNode.swift in Sources */,
 				EC9AB64528DFE99B002810BC /* ScrollFreeInteractionHelpers.swift in Sources */,
+				EC66D0452E0728FB00355ED8 /* SyntaxUtils.swift in Sources */,
+				ECB238D42E0B8C1100D55A25 /* SyntaxView.swift in Sources */,
 				B5E28AEE2A7AB9180007C0CB /* ProjectToolbar.swift in Sources */,
 				EC9A48DC2D6FC2D2006A1FC9 /* LayerEphemeralState.swift in Sources */,
 				EC609DCE29354C6E00BF60A5 /* LengthNode.swift in Sources */,
@@ -6038,6 +6287,7 @@
 				ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */,
 				ECDE943428089FCE00005401 /* NodesView.swift in Sources */,
 				B55500CA2C1BA37D0081C3F1 /* PortIdAddress.swift in Sources */,
+				ECB238E52E0B936C00D55A25 /* deriveLayer.swift in Sources */,
 				ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */,
 				ECA92A58260A6C1D00281B52 /* Coordinate.swift in Sources */,
 				B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */,
@@ -6076,6 +6326,7 @@
 				B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */,
 				ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */,
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
+				B5B31CE42E0A27FA003EABA2 /* AIPatchServiceRequest.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
 				ECEA53122DCAC10700C3A09D /* SampleProjects.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
@@ -6085,6 +6336,7 @@
 				B5FEE4CA28AEF88100B50BCD /* AppSettingsView.swift in Sources */,
 				E4F8AABD2BD6ED9600E9BA4D /* AngularGradientNode.swift in Sources */,
 				ECA92A3C260A6A7400281B52 /* RestartPrototypeNode.swift in Sources */,
+				ECC734762E0DE9AE00AC266C /* ActionExamples.swift in Sources */,
 				EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */,
 				ECD936582B714EFA008969E3 /* AnimatableStraightLine.swift in Sources */,
 				EC2614532B897C3200BEB066 /* Point4DUnpackNode.swift in Sources */,
@@ -6099,6 +6351,7 @@
 				EC31438728189FDF0023DB26 /* ProjectCreatedActions.swift in Sources */,
 				EC3127F62BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift in Sources */,
 				EC8C1AAD2D7799CA0058D969 /* OutputNodeRowViewModel.swift in Sources */,
+				ECB238ED2E0B94D000D55A25 /* FromSyntaxToLayerInput.swift in Sources */,
 				ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */,
 				EC865B8429E7584F0030FD89 /* TopBarButtonView.swift in Sources */,
 				B55501052C1BC8890081C3F1 /* SidebarSwipeSetting.swift in Sources */,
@@ -6111,7 +6364,7 @@
 				ECCF23512D4C6C5A00BC2F2F /* StepTypeAction.swift in Sources */,
 				EC9AB64728DFEA23002810BC /* ScrollPagingInteractionHelpers.swift in Sources */,
 				B5A2452D2DC095100083A774 /* RecordingView.swift in Sources */,
-				ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */,
+				ECCF930D2C7908F7002786D5 /* PreviewLayerPaddingModifier.swift in Sources */,
 				B557806F2CB04CCC00907BA8 /* GroupNodeType.swift in Sources */,
 				ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */,
 				EC1DE588260AADD7009497CF /* OrNode.swift in Sources */,
@@ -6119,6 +6372,7 @@
 				ECB801E12640892F00C93449 /* FileImportView.swift in Sources */,
 				ECC558A1294A91EC0025BB42 /* LayerDraggedHelpers.swift in Sources */,
 				ECE2AFEC2C0A475F00F5FE87 /* InsertNodeMenuState.swift in Sources */,
+				B5B31CD42E05F7C9003EABA2 /* AIPatchServiceRequestBody_V0.swift in Sources */,
 				B5E0DDFA28DBF4B90080BE71 /* StitchFileManagerProject.swift in Sources */,
 				EC560E11293A80EE00350046 /* LoopOptionSwitchNode.swift in Sources */,
 				ECDE943228089DF500005401 /* NodeView.swift in Sources */,
@@ -6162,6 +6416,7 @@
 				EC16587F2B6AFA8D00FE4AE6 /* EdgeEditingActions.swift in Sources */,
 				20308FA725AD1721008CE3BE /* ContentView.swift in Sources */,
 				B58E97D72DF0B87B007913E3 /* AIEditJsNodeRequestBody_V0.swift in Sources */,
+				ECCD49E62E0BBD3F00E99CE1 /* ActionsToSyntaxToCodeExploratoryView.swift in Sources */,
 				EC11B5A52898848F0097E5A8 /* AdjustmentBarStepScale.swift in Sources */,
 				ECF0B0F42877E45A001D7CFC /* ColorOrbValueButtonView.swift in Sources */,
 				EC4CFB6526FE480700D085F3 /* StitchSoundFile.swift in Sources */,
@@ -6220,6 +6475,7 @@
 				ECE35EE427CEE7E100CB8F5C /* FieldCoercers.swift in Sources */,
 				EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */,
 				ECE585802DB6EF2200749ED3 /* OutputPortUIViewModel.swift in Sources */,
+				EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */,
 				B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */,
 				ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */,
 				205E6DDE25AFCB23001C5C27 /* GraphState.swift in Sources */,
@@ -6245,6 +6501,7 @@
 				B56FFB362C18F06900623CC7 /* BouncyConverter.swift in Sources */,
 				EC844A6C2B5F259C00C79B0B /* StitchFontDropdown.swift in Sources */,
 				EC5734332B75BAD100D93A78 /* LegacyActionConversionUtils.swift in Sources */,
+				ECB238E92E0B941E00D55A25 /* deriveViewModifierName.swift in Sources */,
 				EC0957DC27208C1200B4027F /* GeneratePreview.swift in Sources */,
 				EC47EB342CDF006300995FF5 /* PatchNodeShortcutKeys.swift in Sources */,
 				EC4081292C014E310047989F /* VersionedURL.swift in Sources */,
@@ -6311,6 +6568,7 @@
 				EC281EFB294901C70094BA5D /* HitAreaLayerNode.swift in Sources */,
 				B59660A72C1A52D500BE75D7 /* PreviewLayerView.swift in Sources */,
 				EC2F62972A0D718600D86A50 /* ShapeCommand.swift in Sources */,
+				ECB238C92E0A192E00D55A25 /* SyntaxViewName.swift in Sources */,
 				EC90D13B2800ED80000A6EA8 /* AdjustmentBarPreferenceData.swift in Sources */,
 				E4FD8D042852581900645432 /* UIKitWrapper.swift in Sources */,
 				EC2D8F0C29650AE800062867 /* CubicBezierAnimationNode.swift in Sources */,
@@ -6350,6 +6608,7 @@
 				ECA4FCC528EB4140006B4F23 /* NetworkRequestUITestView.swift in Sources */,
 				B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */,
 				EC1CB6282949190C00FF755D /* CurveNode.swift in Sources */,
+				ECB238BF2E0A041D00D55A25 /* CodeToSyntaxToActionsExploratoryView.swift in Sources */,
 				B5D34C922DF5396E007405BF /* AIJsNodeEditRequest.swift in Sources */,
 				ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */,
 				B58723BB2B27894700EAB0E5 /* StitchDocumentUtil.swift in Sources */,
@@ -6361,6 +6620,7 @@
 				B56FFB422C18F7AB00623CC7 /* SafeAreaInsets.swift in Sources */,
 				ECA2E2B927F6210D00D31ECF /* SidebarListItemSelectionStatus.swift in Sources */,
 				B56EC9F22D81524A00C4ACF3 /* ConnectedEdgeData.swift in Sources */,
+				ECB238D22E0B8BBC00D55A25 /* VPLActions.swift in Sources */,
 				B549AD7229CFC30D002F3252 /* NodePositionUtils.swift in Sources */,
 				EC28D55B26B2142D00E1118E /* LayerGroups.swift in Sources */,
 				20308FAB25AD1721008CE3BE /* MiscUtils.swift in Sources */,
@@ -6392,6 +6652,8 @@
 				EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */,
 				ECB7B5D12A72DD7600E2D30B /* NodeViewModelType.swift in Sources */,
 				EC4081272C014CD70047989F /* StitchRootModifier.swift in Sources */,
+				EC66D03F2E071A8600355ED8 /* SyntaxToCodeExploratoryView.swift in Sources */,
+				ECB238EF2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift in Sources */,
 				EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */,
 				EC2DD178289B6BF80089D501 /* NodeInputChangedActions.swift in Sources */,
 				EC83D8962926E2E700255311 /* GraphUITappedActions.swift in Sources */,
@@ -6418,6 +6680,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5E5FFBB274C978800C5FE92 /* nodeUIGroupingTests.swift in Sources */,
+				EC66D04C2E07EF0000355ED8 /* VPLSyntaxTest.swift in Sources */,
 				B55185722826FE4100D81717 /* StitchFileTests.swift in Sources */,
 				ECFEFF9E26BDE18A00CF042E /* miscTests.swift in Sources */,
 				EC06A48E2A046521009C9A4A /* JsonPerfTestUtils.swift in Sources */,
@@ -6445,6 +6708,7 @@
 				ECCC04C02A3268A20099D021 /* nodeTypeTests.swift in Sources */,
 				EC28CCA6287E3DBA00987792 /* mathTests.swift in Sources */,
 				B5F9EB9B28D3848A00112799 /* FileManagerTests.swift in Sources */,
+				EC66D0412E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7141,6 +7405,156 @@
 			};
 			name = "Dev Debug";
 		};
+		B5B31CDF2E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = STITCH_AI_TESTING;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = "Stitch AI Testing";
+		};
+		B5B31CE02E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = AppIconOrange;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Stitch/Stitch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 510;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = Stitch/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.7.5;
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,6";
+			};
+			name = "Stitch AI Testing";
+		};
+		B5B31CE12E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				INFOPLIST_FILE = StitchTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitchTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stitch.app/Stitch";
+			};
+			name = "Stitch AI Testing";
+		};
+		B5B31CE22E0A1EE9003EABA2 /* Stitch AI Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = StitchQuickLookExtension/StitchQuickLookExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7KKD7RH9A6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StitchQuickLookExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StitchQuickLookExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.61;
+				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch.quicklook;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Stitch AI Testing";
+		};
 		B5B54E27295A2AC400D1E45D /* Local Only */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7389,6 +7803,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				200BD864254F66EE00692903 /* Debug */,
+				B5B31CDF2E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7362E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F62DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E27295A2AC400D1E45D /* Local Only */,
@@ -7402,6 +7817,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				200BD867254F66EE00692903 /* Debug */,
+				B5B31CE02E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7372E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F72DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E28295A2AC400D1E45D /* Local Only */,
@@ -7415,6 +7831,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				208AFA9325D45B440035B250 /* Debug */,
+				B5B31CE12E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7382E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F82DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E29295A2AC400D1E45D /* Local Only */,
@@ -7428,6 +7845,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E4CC7D1C28F48EF7008EA1C0 /* Debug */,
+				B5B31CE22E0A1EE9003EABA2 /* Stitch AI Testing */,
 				B507F7392E0354C500329FEB /* Stitch AI V1 */,
 				B521A0F92DE1243E00662B13 /* Stitch AI Reasoning */,
 				B5B54E2A295A2AC400D1E45D /* Local Only */,
@@ -7550,6 +7968,14 @@
 			requirement = {
 				kind = exactVersion;
 				version = 2.5.1;
+			};
+		};
+		ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swiftlang/swift-syntax.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 601.0.1;
 			};
 		};
 		ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */ = {
@@ -7749,6 +8175,31 @@
 		ECB46CD52DB14D80006EFB93 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
+		};
+		ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftBasicFormat;
+		};
+		ECBC56FC2E05FE1100BF5CA7 /* SwiftCompilerPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftCompilerPlugin;
+		};
+		ECBC56FE2E05FE1100BF5CA7 /* SwiftDiagnostics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftDiagnostics;
+		};
+		ECBC57002E05FE1100BF5CA7 /* SwiftIDEUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftIDEUtils;
+		};
+		ECBC57022E05FE1100BF5CA7 /* SwiftIfConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */;
+			productName = SwiftIfConfig;
 		};
 		ECD517FF2DFB702A008BBB37 /* StitchSchemaKit */ = {
 			isa = XCSwiftPackageProductDependency;

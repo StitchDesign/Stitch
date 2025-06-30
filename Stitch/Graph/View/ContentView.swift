@@ -151,7 +151,7 @@ struct ContentView: View, KeyboardReadable {
             }
         }, message: {
             Text("Describe your selected subgraph.")
-        })        
+        })
     }
     
     private var fullScreenPreviewView: some View {

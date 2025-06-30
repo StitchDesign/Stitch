@@ -10,10 +10,20 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 import StitchEngine
+import OrderedCollections
 
 typealias NodeId = NodeViewModel.ID
 typealias NodeIdSet = Set<NodeId>
+typealias NodeIdOrderedSet = OrderedSet<NodeId>
 typealias NodesViewModelDict = [NodeId: NodeViewModel]
+
+extension NodeIdOrderedSet: @retroactive @unchecked Sendable { }
+
+extension NodeIdList {
+    var toOrderedSet: NodeIdOrderedSet {
+        NodeIdOrderedSet(self)
+    }
+}
 
 @Observable
 final class NodeViewModel: Sendable {
