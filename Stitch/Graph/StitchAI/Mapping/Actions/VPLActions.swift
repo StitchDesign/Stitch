@@ -17,9 +17,9 @@ typealias VPLActionOrderedSet = OrderedSet<VPLAction>
 
 
 enum VPLAction: Equatable, Codable, Hashable {
-    case layer(VPLCreateNode)
-    case layerInputSet(VPLSetInput)
-    case incomingEdge(VPLCreateEdge)
+    case createNode(VPLCreateNode)
+    case setInput(VPLSetInput)
+    case createEdge(VPLCreateEdge)
 }
 
 // create a layer, including its children

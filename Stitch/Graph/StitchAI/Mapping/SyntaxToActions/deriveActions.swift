@@ -25,7 +25,7 @@ extension SyntaxView {
             for child in children {
                 if let childConcepts = child.recursivelyDeriveActions() {
                     // First concept for every child must be its `.layer`
-                    if case let .layer(childLayer) = childConcepts[0] {
+                    if case let .createNode(childLayer) = childConcepts[0] {
                         childLayers.append(childLayer)
                     }
                     concepts.append(contentsOf: childConcepts) // depth-first
@@ -37,7 +37,7 @@ extension SyntaxView {
                                              children: childLayers)
             
             // 3. Prepend *this* fully-assembled layer concept
-            concepts.insert(.layer(layerWithChildren), at: 0)
+            concepts.insert(.createNode(layerWithChildren), at: 0)
             
             return concepts
         } else {

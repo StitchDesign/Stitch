@@ -246,11 +246,11 @@ private extension VPLActionOrderedSet {
     /// Formats a single concept.
     private func describe(_ concept: VPLAction, indent: String) -> String {
         switch concept {
-        case .layer(let layer):
+        case .createNode(let layer):
             return describe(layer, indent: indent)
-        case .layerInputSet(let set):
+        case .setInput(let set):
             return "\(indent)setInput(layerID: \(set.id), input: \(set.input), value: \(set.value))"
-        case .incomingEdge(let edge):
+        case .createEdge(let edge):
             return "\(indent)incomingEdge(toInput: \(edge.name))"
         }
     }

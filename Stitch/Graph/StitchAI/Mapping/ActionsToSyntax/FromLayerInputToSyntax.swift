@@ -53,9 +53,9 @@ extension SyntaxView {
     static func build(from actions: VPLActionOrderedSet) -> Self? {
         // The very first `.layer` action produced by `deriveStitchActions()` is the root.
         guard let rootConcept = actions.first(where: {
-            if case .layer = $0 { return true } else { return false }
+            if case .createNode = $0 { return true } else { return false }
         }),
-            case let .layer(rootLayer) = rootConcept
+            case let .createNode(rootLayer) = rootConcept
         else {
             log("SyntaxView.build: No VPLLayer creation found – cannot rebuild view tree.")
             return nil
@@ -79,7 +79,7 @@ extension SyntaxView {
         
         // Gather all `layerInputSet` concepts that belong to this layer.
         let inputsSet: [VPLSetInput] = actions.compactMap {
-            if case let .layerInputSet(set) = $0,
+            if case let .setInput(set) = $0,
                set.id == layer.id {
                 return set
             }

@@ -102,7 +102,7 @@ extension SyntaxViewName {
         case .hStack:
             layerType = .group
             extras.append(
-                .layerInputSet(VPLSetInput(id: id,
+                .setInput(VPLSetInput(id: id,
                                                 input: .orientation,
                                                 value: .orientation(.horizontal)))
             )
@@ -110,7 +110,7 @@ extension SyntaxViewName {
         case .vStack:
             layerType = .group
             extras.append(
-                .layerInputSet(VPLSetInput(id: id,
+                .setInput(VPLSetInput(id: id,
                                                 input: .orientation,
                                                 value: .orientation(.vertical)))
             )
@@ -118,7 +118,7 @@ extension SyntaxViewName {
         case .zStack:
             layerType = .group
             extras.append(
-                .layerInputSet(VPLSetInput(id: id,
+                .setInput(VPLSetInput(id: id,
                                                 input: .orientation,
                                                 value: .orientation(.none)))
             )
@@ -128,7 +128,7 @@ extension SyntaxViewName {
             if let arg = args.first(where: { $0.label == .cornerRadius }),
                let radius = Double(arg.value) {
                 extras.append(
-                    .layerInputSet(VPLSetInput(id: id,
+                    .setInput(VPLSetInput(id: id,
                                                     input: .cornerRadius,
                                                     value: .number(radius)))
                 )
@@ -151,12 +151,12 @@ extension SyntaxViewName {
             switch arg.syntaxKind {
             case .literal:
                 extras.append(
-                    .layerInputSet(VPLSetInput(id: id,
+                    .setInput(VPLSetInput(id: id,
                                                     input: port,
                                                     value: portValue))
                 )
             case .variable, .expression:
-                extras.append(.incomingEdge(VPLCreateEdge(name: port)))
+                extras.append(.createEdge(VPLCreateEdge(name: port)))
             }
         }
 
@@ -187,7 +187,7 @@ extension SyntaxViewName {
             }
 
             extras.append(
-                .layerInputSet(VPLSetInput(id: id,
+                .setInput(VPLSetInput(id: id,
                                                 input: port,
                                                 value: portValue))
             )
