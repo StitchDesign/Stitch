@@ -1,5 +1,5 @@
 //
-//  AIPatchServiceRequest.swift
+//  AICodeGenRequest.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 6/7/25.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct AIPatchServiceRequest: StitchAIRequestable {
+struct AICodeGenRequest: StitchAIRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: AIPatchServiceRequestBody
+    let body: AICodeGenRequestBody
     static let willStream: Bool = false
     
     @MainActor
@@ -25,7 +25,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AIPatchServiceRequestBody(prompt: prompt)
+        self.body = try AICodeGenRequestBody(prompt: prompt)
     }
     
     @MainActor
@@ -54,13 +54,13 @@ struct AIPatchServiceRequest: StitchAIRequestable {
     static func getRequestTask(userPrompt: String,
                                document: StitchDocumentViewModel) throws -> Task<AIPatchBuilderRequest.FinalDecodedResult,
     any Error> {
-        let request = try AIPatchServiceRequest(
+        let request = try AICodeGenRequest(
             prompt: userPrompt)
         
         return Task(priority: .high) { [weak document] in
             guard let document = document,
                   let aiManager = document.aiManager else {
-                log("AIPatchServiceRequest: getRequestTask: no document or ai manager", .logToServer)
+                log("AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
                 throw StitchAIManagerError.secretsNotFound
             }
             
@@ -102,7 +102,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                     return patchBuildResult
                     
                 case .failure(let failure):
-                    log("AIPatchServiceRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
+                    log("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
                     print(failure.localizedDescription)
                     document.aiManager?.currentTaskTesting = nil
                     document.insertNodeMenuState.show = false
@@ -110,7 +110,7 @@ struct AIPatchServiceRequest: StitchAIRequestable {
                 }
                 
             case .failure(let failure):
-                log("AIPatchServiceRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
+                log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
                 print(failure.localizedDescription)
                 document.aiManager?.currentTaskTesting = nil
                 document.insertNodeMenuState.show = false
