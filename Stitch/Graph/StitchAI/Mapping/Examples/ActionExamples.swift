@@ -11,7 +11,7 @@ import SwiftUI
 
 extension MappingExamples {
     
-    static let actionExamples: [(title: String, set: VPLLayerConceptOrderedSet)] = [
+    static let actionExamples: [(title: String, set: VPLActionOrderedSet)] = [
         ("Rectangle",  Self.actionExample1),
         ("Oval",       Self.actionExample2),
         ("Text",       Self.actionExample3),
@@ -19,7 +19,7 @@ extension MappingExamples {
         ("Nested",  Self.actionExample5)
     ]
     
-    static let actionExample1: VPLLayerConceptOrderedSet = {
+    static let actionExample1: VPLActionOrderedSet = {
         let id = UUID()
         return [
             .layer(.init(id: id, name: .rectangle, children: [])),
@@ -29,7 +29,7 @@ extension MappingExamples {
         ]
     }()
     
-    static let actionExample2: VPLLayerConceptOrderedSet = {
+    static let actionExample2: VPLActionOrderedSet = {
         let id = UUID()
         return [
             .layer(.init(id: id, name: .oval, children: [])),
@@ -39,7 +39,7 @@ extension MappingExamples {
         ]
     }()
     
-    static let actionExample3: VPLLayerConceptOrderedSet = {
+    static let actionExample3: VPLActionOrderedSet = {
         let id = UUID()
         return [
             .layer(.init(id: id, name: .text, children: [])),
@@ -50,7 +50,7 @@ extension MappingExamples {
         ]
     }()
     
-    static let actionExample4: VPLLayerConceptOrderedSet = {
+    static let actionExample4: VPLActionOrderedSet = {
         let id = UUID()
         return [
             .layer(.init(id: id, name: .sfSymbol, children: [])),
@@ -60,10 +60,10 @@ extension MappingExamples {
         ]
     }()
     
-    static let actionExample5: VPLLayerConceptOrderedSet = {
+    static let actionExample5: VPLActionOrderedSet = {
         let id = UUID()
         let idChild = UUID()
-        let childLayer = VPLLayer(id: idChild, name: .sfSymbol, children: [])
+        let childLayer = VPLCreateNode(id: idChild, name: .sfSymbol, children: [])
         return [
             .layer(.init(id: id, name: .group, children: [childLayer])),
             .layer(childLayer),

@@ -50,7 +50,7 @@ extension SyntaxView {
     ///
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
-    static func build(from actions: VPLLayerConceptOrderedSet) -> Self? {
+    static func build(from actions: VPLActionOrderedSet) -> Self? {
         // The very first `.layer` action produced by `deriveStitchActions()` is the root.
         guard let rootConcept = actions.first(where: {
             if case .layer = $0 { return true } else { return false }
@@ -68,8 +68,8 @@ extension SyntaxView {
 
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
-    private static func node(from layer: VPLLayer,
-                             in actions: VPLLayerConceptOrderedSet) -> Self? {
+    private static func node(from layer: VPLCreateNode,
+                             in actions: VPLActionOrderedSet) -> Self? {
 
         // TODO: provide layer group orientation
         guard let viewName = layer.name.deriveSyntaxViewName() else {
@@ -78,7 +78,7 @@ extension SyntaxView {
         }
         
         // Gather all `layerInputSet` concepts that belong to this layer.
-        let inputsSet: [VPLLayerInputSet] = actions.compactMap {
+        let inputsSet: [VPLSetInput] = actions.compactMap {
             if case let .layerInputSet(set) = $0,
                set.id == layer.id {
                 return set

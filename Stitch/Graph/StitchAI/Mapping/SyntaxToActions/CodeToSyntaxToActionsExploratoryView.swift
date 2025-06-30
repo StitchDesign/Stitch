@@ -21,7 +21,7 @@ struct CodeToSyntaxToActionsExploratoryView: View {
     @State private var selectedTab = 0
     @State private var swiftUICode: String = ""
     @State private var parsedViewNode: SyntaxView?
-    @State private var actions: VPLLayerConceptOrderedSet = []
+    @State private var actions: VPLActionOrderedSet = []
 
     // -- Body --
     var body: some View {

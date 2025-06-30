@@ -44,7 +44,7 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchedActions: VPLLayerConceptOrderedSet = []
+    @State private var stitchedActions: VPLActionOrderedSet = []
     @State private var rebuiltSyntax: SyntaxView?
     @State private var regeneratedCode: String = ""
 
@@ -230,7 +230,7 @@ struct ASTExplorerView: View {
 
 
 // MARK: – Pretty‑printing helpers for VPL actions
-private extension VPLLayerConceptOrderedSet {
+private extension VPLActionOrderedSet {
 
     /// A multi‑line, human‑readable description of the ordered actions list.
     /// Returns “—” when the set is empty.
@@ -244,7 +244,7 @@ private extension VPLLayerConceptOrderedSet {
     // MARK: - Internals
 
     /// Formats a single concept.
-    private func describe(_ concept: VPLLayerConcept, indent: String) -> String {
+    private func describe(_ concept: VPLAction, indent: String) -> String {
         switch concept {
         case .layer(let layer):
             return describe(layer, indent: indent)
@@ -256,7 +256,7 @@ private extension VPLLayerConceptOrderedSet {
     }
 
     /// Formats a layer and its children recursively.
-    private func describe(_ layer: VPLLayer, indent: String) -> String {
+    private func describe(_ layer: VPLCreateNode, indent: String) -> String {
         var lines: [String] = []
         lines.append("\(indent)layer(id: \(layer.id), name: \(layer.name.defaultDisplayTitle())) {")
         if layer.children.isEmpty {

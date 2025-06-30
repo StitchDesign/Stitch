@@ -12,14 +12,14 @@ import SwiftUI
 extension SyntaxView {
 
     /// Recursive conversion to **flattened** `[VPLLayerConcept]`
-    func recursivelyDeriveActions() -> VPLLayerConcepts? {
+    func recursivelyDeriveActions() -> VPLActions? {
         
         // 1. Map this node
         if var (layer, concepts) = self.name.deriveLayer(
             id: self.id,
             args: self.constructorArguments,
             modifiers: self.modifiers) {
-            var childLayers: [VPLLayer] = []
+            var childLayers: [VPLCreateNode] = []
             
             // 2. Recurse into children
             for child in children {
@@ -32,7 +32,7 @@ extension SyntaxView {
                 }
             }
             
-            let layerWithChildren = VPLLayer(id: layer.id,
+            let layerWithChildren = VPLCreateNode(id: layer.id,
                                              name: layer.name,
                                              children: childLayers)
             
@@ -49,9 +49,9 @@ extension SyntaxView {
 
 extension SyntaxView {
     
-    func deriveStitchActions() -> VPLLayerConceptOrderedSet? {
+    func deriveStitchActions() -> VPLActionOrderedSet? {
         if let concepts = recursivelyDeriveActions() {
-            return VPLLayerConceptOrderedSet(concepts)
+            return VPLActionOrderedSet(concepts)
         } else {
             return nil
         }

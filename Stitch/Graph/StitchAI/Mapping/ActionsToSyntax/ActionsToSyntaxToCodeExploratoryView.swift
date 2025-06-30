@@ -24,7 +24,7 @@ struct ActionsToSyntaxToCodeExploratoryView: View {
 
     // MARK: - UI State
     @State private var selectedTab = 0
-    @State private var actions: VPLLayerConceptOrderedSet = Self.examples[0].set
+    @State private var actions: VPLActionOrderedSet = Self.examples[0].set
     @State private var syntaxView: SyntaxView?
     @State private var swiftUICodeString: String = ""
     @State private var errorMessage: String?
