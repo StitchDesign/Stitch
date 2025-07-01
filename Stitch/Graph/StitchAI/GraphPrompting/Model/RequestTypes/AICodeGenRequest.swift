@@ -71,6 +71,8 @@ struct AICodeGenRequest: StitchAIRequestable {
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
                 guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
+                    self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
+                                      document: document)
                     throw SwiftUISyntaxError.viewNodeNotFound
                 }
                 
