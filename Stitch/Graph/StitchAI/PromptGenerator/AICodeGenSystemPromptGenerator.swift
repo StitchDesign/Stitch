@@ -170,7 +170,7 @@ Responding to these events is possible using native Stitch patch functions, whic
 ### Disallowed View Modifiers
 Stitch doesn't support usage of the following view modifiers:
 * `gesture`: only `simultaneousGesture` is allowed.
-8 `animation`: instead use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
+* `animation`: instead use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
 
 ### Disallowed Views
 * `GeometryReader`: use the "deviceInfo || Patch" native patch funciton for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
@@ -246,6 +246,93 @@ For layers, if the desired behavior is natively supported through a layer’s in
 
 Each patch and layer supports the following inputs and outputs:
 \(try NodeSection.getAllAIDescriptions(graph: graph).encodeToPrintableString())
+
+
+## Our app has specific requirements and opinions about SwiftUI views
+
+### ScrollView
+
+A ScrollView in our app always contains a single immediate child view, which is either an `HStack`, `VStack`, `ZStack` or `LazyVGrid`.
+
+A ScrollView in our app always has its `axes` parameter explicitly filled in.
+If "y scroll is enabled", then we include the `.vertical` axis.
+If "x scroll is enabled", then we include the `.horizontal` axis.
+We can allow `[.vertical]` or `[.horizontal]` or both (i.e. `[.horizontal, .vertical]`.
+If neither y scroll nor x scroll are enabled, then we do not use a ScrollView at all.
+
+
+Examples of valid ScrollViews in our app:
+
+```swift
+ScrollView([.horizontal, .vertical]) {
+    HStack { 
+        Ellipse()
+        Text("love")
+        // more child views here
+    }
+}
+```
+
+```swift
+ScrollView([.horizontal, .vertical]) {
+    VStack { 
+        Ellipse()
+        Text("love")
+        // more child views here
+    }
+}
+```
+
+```swift
+ScrollView([.horizontal]) {
+    HStack { 
+        Ellipse()
+        Text("love")
+        // more child views here
+    }
+}
+```
+
+```swift
+ScrollView([.vertical]) {
+    VStack { 
+        Ellipse()
+        Text("love")
+        // more child views here
+    }
+}
+```
+
+Examples of invalid ScrollViews in our app:
+
+Invalid because ScrollView contains more than one immediate child:
+```swift
+ScrollView([.vertical]) {
+    Rectangle()
+    VStack { 
+        // child views here
+    }
+}
+```
+
+Also invalid because ScrollView contains more than one immediate child:
+```swift
+ScrollView([.vertical]) {
+    VStack { 
+        // child views here
+    }
+    Ellipse()
+}
+```
+
+Invalid because axes were not specified:
+```swift
+ScrollView() {
+    HStack { 
+        // child views here
+    }
+}
+```
 
 # Final Thoughts
 **The entire return payload must be Swift source code, emitted as a string.**
