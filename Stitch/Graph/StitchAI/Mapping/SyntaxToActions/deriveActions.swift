@@ -10,14 +10,21 @@ import SwiftUI
 
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+    func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
         // ───────────────────────────────────────────────────────────────────
         // Special‑case: ScrollView that directly wraps a single VStack
         // Maps to the same group layer produced by the VStack, but with
         // scrollYEnabled = true so the layer becomes vertically scrollable.
         // ───────────────────────────────────────────────────────────────────
         if self.name == .scrollView {
-            return try handleScrollView()
+            do {
+                if let result = try handleScrollView() {
+                    return result
+                }
+                // No `else`, since it's okay for this view not to be a scroll view
+            } catch {
+                throw error
+            }
         }
         
         // Instantiate with empty data
@@ -25,13 +32,13 @@ extension SyntaxView {
             .LayerData(layers: [],
                        custom_layer_input_values: [])
         
+        
+        
         // 1. Map this node
-        guard var layerData = try self.name.deriveLayerData(
+        var layerData = try self.name.deriveLayerData(
             id: self.id,
             args: self.constructorArguments,
-            modifiers: self.modifiers) else {
-            return nil
-        }
+            modifiers: self.modifiers)
         
         data.custom_layer_input_values += layerData.customLayerInputValues
         
@@ -40,12 +47,12 @@ extension SyntaxView {
         // 2. Recurse into children
         for child in children {
             // depth-first
-            if let childConcepts = try child.deriveStitchActions() {
-                // Append child layers directly to layer at this recursive level
-                childLayers += childConcepts.layers
-                
-                data.custom_layer_input_values += childConcepts.custom_layer_input_values
-            }
+            let childConcepts = try child.deriveStitchActions()
+            // Append child layers directly to layer at this recursive level
+            childLayers += childConcepts.layers
+            
+            data.custom_layer_input_values += childConcepts.custom_layer_input_values
+            
         }
         
         if !childLayers.isEmpty {
@@ -58,10 +65,9 @@ extension SyntaxView {
     }
 }
 
-
-private extension SyntaxView {
+extension SyntaxView {
     /// Handles ScrollView-specific logic including axis detection and scroll behavior
-    private func handleScrollView() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+    func handleScrollView() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
         // Check the scroll axis from constructor arguments
         let scrollAxis = detectScrollAxis()
         
@@ -71,12 +77,13 @@ private extension SyntaxView {
             children.count == 1,
             let stack = children.first,
             // TODO: support `.lazyVGrid` as well
-            (stack.name == .vStack || stack.name == .hStack || stack.name == .zStack),
-            var flattened = try stack.deriveStitchActions()
+            (stack.name == .vStack || stack.name == .hStack || stack.name == .zStack)
         else {
             // Fall back to default handling if structure doesn't match expected pattern
             return nil
         }
+        
+        var flattened = try stack.deriveStitchActions()
         
         // The leading layer from the stack mapping is the group layer
         if let groupLayer = flattened.layers.first {
@@ -167,6 +174,7 @@ private extension SyntaxView {
         case none
     }
 }
+
 
 // https://developer.apple.com/documentation/swiftui/color#Getting-standard-colors
 extension Color {

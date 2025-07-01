@@ -47,6 +47,7 @@ struct ASTExplorerView: View {
     @State private var stitchActions: CurrentAIPatchBuilderResponseFormat.LayerData?
     @State private var rebuiltSyntax: SyntaxView?
     @State private var regeneratedCode: String = ""
+    @State private var errorString: String?
 
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
@@ -91,6 +92,22 @@ struct ASTExplorerView: View {
             }
             .tabViewStyle(.automatic)
             .onChange(of: selectedTab, initial: true) { _, _ in transform() }
+            
+            if let errorString = errorString {
+                VStack(alignment: .leading) {
+                    Text("Error")
+                        .font(.headline)
+                    
+                    HStack {
+                        Text(errorString)
+                            .monospaced()
+                            .padding()
+                        Spacer()
+                    }
+                    .border(Color.secondary)
+                }
+                .padding(.bottom)
+            }
         }
         .padding()
         .onAppear { transform() }   // auto‑transform as soon as the view appears
@@ -179,29 +196,36 @@ struct ASTExplorerView: View {
     private func transform() {
         let currentCode = codes[selectedTab]
 
+        // Reset all values
+        firstSyntax = nil
+        stitchActions = nil
+        rebuiltSyntax = nil
+        regeneratedCode = ""
+        errorString = nil
+
         // Parse code → Syntax
         guard let syntax = SwiftUIViewVisitor.parseSwiftUICode(currentCode) else {
-            firstSyntax = nil
-            stitchActions = nil
-            rebuiltSyntax = nil
-            regeneratedCode = ""
             return
         }
         firstSyntax = syntax
 
-        // Syntax → Actions
-        stitchActions = try? syntax.deriveStitchActions()
-
-        // Actions → Syntax
-        if let actions = stitchActions {
-            rebuiltSyntax = try? SyntaxView.build(from: actions)
-        }
-
-        // Syntax → Code
-        if let rebuilt = rebuiltSyntax {
-            regeneratedCode = swiftUICode(from: rebuilt)
-        } else {
-            regeneratedCode = ""
+        do {
+            // Syntax → Actions
+            stitchActions = try syntax.deriveStitchActions()
+            
+            // Actions → Syntax
+            if let actions = stitchActions {
+                rebuiltSyntax = try SyntaxView.build(from: actions)
+            }
+            
+            // Syntax → Code
+            if let rebuilt = rebuiltSyntax {
+                regeneratedCode = swiftUICode(from: rebuilt)
+            } else {
+                regeneratedCode = ""
+            }
+        } catch {
+            errorString = "\(error)"
         }
     }
 

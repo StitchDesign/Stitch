@@ -33,8 +33,4 @@ enum FromSyntaxToLayerInput {
     //  When the LayerInputPort corresponds to something more complicated than a single SwiftUI view modifier or single SwiftUI view constructor
     // e.g. LayerInputPort.anchoring, which is a function of a layer size, layer position, layer anchoring and parent size
     case function
-    
-    // Heavier business logic cases that have no clear "SwiftUI code <-> VPL steps" equivalent, e.g. pinning;
-    // if the mapping function returns `nil`, then the conversion is unsupported.
-    case unsupported
 }

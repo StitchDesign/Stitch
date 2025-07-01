@@ -30,7 +30,7 @@ final actor StitchAIManager {
     @MainActor var currentTask: CurrentAITask?
     
     // Tracks task for new AI strat
-    @MainActor var currentTaskTesting: Task<AIPatchBuilderRequest.FinalDecodedResult, any Error>?
+    @MainActor var currentTaskTesting: Task<Result<AIPatchBuilderRequest.FinalDecodedResult, any Error>, Never>?
 
     init?() throws {
         guard let secrets = try Secrets() else {

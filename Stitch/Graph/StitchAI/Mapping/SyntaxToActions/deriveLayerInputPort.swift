@@ -52,10 +52,6 @@ extension SyntaxViewConstructorArgument {
             // e.g. `Rectangle()`, `Ellipse`,
             // i.e. there's no constructor argument at all
             return nil
-            
-        case (.unsupported, _):
-            log("had unsupported label for label \(label) and value \(firstValue)")
-            return nil
         }
     }
     
@@ -76,10 +72,6 @@ extension SyntaxViewConstructorArgument {
             default:
                 return nil
             }
-           
-        case .unsupported:
-            return nil
-
         }
     }
 }

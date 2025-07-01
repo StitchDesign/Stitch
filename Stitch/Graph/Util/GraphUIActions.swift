@@ -188,7 +188,8 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
                                 document: document)
         } catch {
             log("SubmitUserPromptToOpenAI: had error: \(error.localizedDescription)", .logToServer)
-            document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
+            AICodeGenRequest.displayError(failure: error,
+                                          document: document)
         }
         //#endif
         

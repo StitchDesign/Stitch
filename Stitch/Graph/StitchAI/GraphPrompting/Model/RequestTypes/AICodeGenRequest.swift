@@ -52,16 +52,22 @@ struct AICodeGenRequest: StitchAIRequestable {
     
     @MainActor
     static func getRequestTask(userPrompt: String,
-                               document: StitchDocumentViewModel) throws -> Task<AIPatchBuilderRequest.FinalDecodedResult,
-    any Error> {
+                               document: StitchDocumentViewModel) throws -> Task<Result<AIPatchBuilderRequest.FinalDecodedResult, any Error>,
+                                                                                 Never> {
         let request = try AICodeGenRequest(
             prompt: userPrompt)
         
-        return Task(priority: .high) { [weak document] in
+        return Task(priority: .high) { [weak document] in            
             guard let document = document,
                   let aiManager = document.aiManager else {
                 log("AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
-                throw StitchAIManagerError.secretsNotFound
+                
+                if let document: StitchDocumentViewModel = document {
+                    return .failure(self.displayError(failure: StitchAIManagerError.secretsNotFound,
+                                                      document: document))
+                } else {
+                    return .failure(StitchAIManagerError.secretsNotFound)
+                }
             }
             
             let result = await request.request(document: document,
@@ -71,70 +77,73 @@ struct AICodeGenRequest: StitchAIRequestable {
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
                 guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
-                    throw SwiftUISyntaxError.viewNodeNotFound
+                    return .failure(self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
+                                                      document: document))
                 }
                 
-                guard let layerData = try viewNode.deriveStitchActions() else {
-                    throw SwiftUISyntaxError.rootLayerNotFound
-                }
-                
-                let patchBuilderRequest = try AIPatchBuilderRequest(
-                    prompt: userPrompt,
-                    swiftUISourceCode: swiftUISourceCode,
-                    layerData: layerData)
-                
-                let patchBuilderResult = await patchBuilderRequest
-                    .request(document: document,
-                             aiManager: aiManager)
-                
-                switch patchBuilderResult {
-                case .success(let patchBuildResult):
-                    print("SUCCESS Patch Builder:\n\(patchBuildResult)")
+                do {
+                    let layerData = try viewNode.deriveStitchActions()
                     
-                    DispatchQueue.main.async { [weak document] in
-                        guard let document = document else { return }
+                    let patchBuilderRequest = try AIPatchBuilderRequest(
+                        prompt: userPrompt,
+                        swiftUISourceCode: swiftUISourceCode,
+                        layerData: layerData)
+                    
+                    let patchBuilderResult = await patchBuilderRequest
+                        .request(document: document,
+                                 aiManager: aiManager)
+                    
+                    switch patchBuilderResult {
+                    case .success(let patchBuildResult):
+                        print("SUCCESS Patch Builder:\n\(patchBuildResult)")
                         
-                        do {
-                            let graphData = CurrentAIPatchBuilderResponseFormat
-                                .GraphData(layer_data: layerData,
-                                           patch_data: patchBuildResult)
-                            try graphData.applyAIGraph(to: document)
-                        } catch {
-                            log("Error applying AI graph: \(error.localizedDescription)")
-                            document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
+                        DispatchQueue.main.async { [weak document] in
+                            guard let document = document else { return }
+                            
+                            do {
+                                let graphData = CurrentAIPatchBuilderResponseFormat
+                                    .GraphData(layer_data: layerData,
+                                               patch_data: patchBuildResult)
+                                try graphData.applyAIGraph(to: document)
+                            } catch {
+                                log("Error applying AI graph: \(error.localizedDescription)")
+                                document.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")
+                            }
+                            
+                            document.aiManager?.currentTaskTesting = nil
+                            document.insertNodeMenuState.show = false
                         }
-
-                        document.aiManager?.currentTaskTesting = nil
-                        document.insertNodeMenuState.show = false
+                        
+                        return .success(patchBuildResult)
+                        
+                    case .failure(let failure):
+                        log("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
+                        return .failure(Self.displayError(failure: failure,
+                                                          document: document))
                     }
-                    
-                    return patchBuildResult
-                    
-                case .failure(let failure):
-                    log("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
-                    Self.displayError(failure: failure,
-                                      document: document)
-                    throw failure
+                } catch {
+                    return .failure(Self.displayError(failure: error,
+                                                      document: document))
                 }
                 
             case .failure(let failure):
                 log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
-                Self.displayError(failure: failure,
-                                  document: document)
-                throw failure
+                return .failure(Self.displayError(failure: failure,
+                                                  document: document))
             }
         }
     }
     
     @MainActor
-    private static func displayError(failure: any Error,
-                                     document: StitchDocumentViewModel) {
+    static func displayError(failure: any Error,
+                             document: StitchDocumentViewModel) -> any Error {
         log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
         print(failure.localizedDescription)
         document.aiManager?.currentTaskTesting = nil
         document.insertNodeMenuState.show = false
         
         // Display error
-        document.storeDelegate?.alertState.stitchFileError = .unknownError(failure.localizedDescription)
+        document.storeDelegate?.alertState.stitchFileError = .unknownError("\(failure)")
+        return failure
     }
 }

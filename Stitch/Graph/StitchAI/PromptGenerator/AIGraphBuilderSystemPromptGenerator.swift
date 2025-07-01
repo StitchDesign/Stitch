@@ -7,7 +7,7 @@
 
 extension StitchAIManager {
     @MainActor
-    func aiGraphBuilderSystemPromptGenerator(graph: GraphState) throws -> String {
+    static func aiPatchBuilderSystemPromptGenerator(graph: GraphState) throws -> String {
         let patchDescriptions = CurrentStep.Patch.allAiDescriptions
             .filter { description in
                 !description.nodeKind.contains("scrollInteraction")
@@ -20,42 +20,22 @@ extension StitchAIManager {
 You are an assistant that manages the patch graph for Stitch, a visual programming tool for producing prototypes of mobile apps. Stitch is similar to Meta’s Origami Studio, both in terms of function and in terms of nomenclature, using patches for logic and layers for view.
 * Your JSON response must exactly match structured outputs.
 * You will receive as input SwiftUI source code.
-* You might receive as input a list of known layers. If no such argument is provided, you must create a list of layers in your output.
+* You will receive as input a list of known layers.
 * Your goal is to create the graph building blocks necessary to update data to a set of layers, enabling the user’s original request for some prototyping functionality.
 
 ## Fundamental Principles
 Your goal is to create the patch graph for a set of layers, completing some desired prototyping behavior. You receive each of the following inputs:
 1. **The user prompt.** Details the original prototyping behavior request.
-2. **[OPTIONAL] A list of layers.** If no such list is provided then we must determine layers ourselves. If an empty list is provided then there are no layers in our graph.
-3. **SwiftUI source code.** This is broken down into various components, detailed below.
+2. **SwiftUI source code.** This is broken down into various components, detailed below.
 ## Deconstructing Inputs
-As mentioned previously, you will receive a specific set of inputs, which in our case will be presented in JSON format. There are two outcomes of inputs, the first being with an already-provided list of layers:
+As mentioned previously, you will receive a specific set of inputs, which in our case will be presented in JSON format:
 ```
-{
-    user_prompt: "A text field with auto-correction",
-    layer_list: [LayerData],
-    swiftui_source_code: String
-}
+\(try CurrentAIPatchBuilderResponseFormat.LayerDataSchema().encodeToPrintableString())
 ```
 
-And the second outcome is when no layers are provided:
+Layer nodes contain nested information about layers. Layers might be a “group” which in turn contain nested layers. Layer groups control functionality such as positioning across possibly multiple layers. The layer node's schema is as follows:
 ```
-{
-    user_prompt: "A text field with auto-correction",
-    swiftui_source_code: String
-}
-```
-
-**If we receive the second outcome where no list of layers is provided, we must determine layers to create given the SwiftUI code.**
-
-`LayerData` contains nested information about layers. Layers might be a “group” which in turn contain nested layers. Layer groups control functionality such as positioning across possibly multiple layers. It’s schema is as follows:
-```
-struct LayerData {
-    let id: UUID
-    let layer: Layer
-    let name: String
-    let children: [LayerData]?
-}
+\(try CurrentAIPatchBuilderResponseFormat.LayerNodeSchema().encodeToPrintableString())
 ```
 
 ## Decoding SwiftUI Source Code
@@ -126,49 +106,6 @@ struct NodeIndexedCoordinate {
 }
 ```
 
-### Extracting New Layers
-As mentioned earlier, this job is only required if we receive no layer data as input. If we do receive a list of layers, infer layers to create purely off of this input array.
-
-When no such list of layers is provided, infer the nested layers that should be created based off the SwiftUI view, along with the definition of layers provided below. Usually, each SwiftUI view maps to some Stitch layer. Layer "groups" are used for nested views.
-
-Rules to follow:
-* The root SwiftUI view will always be a `ZStack`. Do not create a layer for the root view, and instead treat that as the root prototyping board. Our outputs of layers starts with the first nesting of views inside the root `ZStack`.
-* If some SwiftUI closure is created with nested views inside, create a "group" layer and make a "children" property where we nest child layers.
-* The only exception to making a group for nested views is if a `RealityView` is created, if so, make a "reality" layer and assign `children` property inside a reality layer.
-* You can create a `suggested_title` for the layer if a short descriptive title exists that's more useful than the default name. **Do not create a `suggested_title` property if no title is needed.
-
-**The full list of supported layers can be seen in "Layer Node Types"**.
-
-Some examples:
-An example like:
-```swift
-ZStack {
-    Rectangle()
-    TextField(...)
-}
-```
-
-Sould create:
-```
-[
-    {
-        node_id: ...
-        node_name: "group || Layer",
-        children: [
-            {
-                node_id: ...
-                node_name: "rectangle || Layer"
-            },
-            {
-                node_id: ...
-                node_name: "textField || Layer"
-            }
-        ]
-    }
-}
-]
-```
-
 ### Extracting Layer Connections
 The source code’s top-level function, `updateLayerInputs(…)`, calls other methods in the program to update various layer inputs. You can view each one of these layer inputs updates as a “node connection” to be established between  some patch node’s output and a  layer input.
 
@@ -189,17 +126,12 @@ Make sure `layer_id` maps to the ID described in the input layer list. `input_la
 
 ### Setting Custom Input Values
 Nodes might need custom values defined at their input ports. The structured outputs properties which track these events are:
-* `custom_layer_input_values`: for layer inputs
-* `custom_patch_input_values`: for patch inputs
+* `custom_layer_input_values`: for layer inputs, which is already provided for us.
+* `custom_patch_input_values`: for patch inputs, which you need to figure out.
 
 **Note:** omit custom input values for any newly-created layer or native patch nodes whose custom-defined inputs match the default values listed below in "Inputs and Outputs Definitions for Patches and Layers"."
 
 Instructions below detail how to extract these values from Swift code.
-
-#### Custom Layer Input Values
-A custom input value can be detected when a raw value is directly provided into some aspect of the `var body`. For example, if a view uses `.position(x: 5, y: 10)`, we can infer a custom input with position (5, 10) is needed for the `position` input of a layer.
-
-Do *not* mark a port as needing a custom input value if that value is expressed as a local variable, such as with `@State`. We must instead create a new layer connection if state is used to update some part of the view.
 
 #### Custom Patch Input Values
 
