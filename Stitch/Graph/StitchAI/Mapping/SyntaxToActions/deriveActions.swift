@@ -54,7 +54,6 @@ extension SyntaxView {
         // Instantiate with empty data
         var data = CurrentAIPatchBuilderResponseFormat
             .LayerData(layers: [],
-                       layer_connections: [],
                        custom_layer_input_values: [])
         
         // 1. Map this node

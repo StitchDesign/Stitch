@@ -234,7 +234,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // new edges to downstream layers
-        for newLayerEdge in self.layer_data.layer_connections {
+        for newLayerEdge in self.patch_data.layer_connections {
             let inputPort = try NodeIOCoordinate(
                 from: newLayerEdge.dest_port,
                 idMap: idMap)

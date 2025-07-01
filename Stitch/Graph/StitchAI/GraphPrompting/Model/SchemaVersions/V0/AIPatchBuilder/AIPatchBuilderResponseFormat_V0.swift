@@ -23,7 +23,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         let defs = PatchBuilderStructuredOutputsDefinitions()
         let schema = OpenAISchema(type: .object,
                                   properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                  required: ["layers", "javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_patch_input_values", "custom_layer_input_values"])
+                                  required: ["javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_patch_input_values"])
         let strict = true
     }
 
@@ -67,7 +67,7 @@ enum AIPatchBuilderResponseFormat_V0 {
     }
     
     struct GraphBuilderSchema: Encodable {
-        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
+//        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
         
         let javascript_patches = OpenAISchema(
             type: .array,
@@ -97,13 +97,13 @@ enum AIPatchBuilderResponseFormat_V0 {
             ])
         )
 
-        let custom_layer_input_values = OpenAISchema(
-            type: .array,
-            required: ["layer_input_coordinate", "value", "value_type"],
-            items: OpenAIGeneric(types: [
-                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
-            ])
-        )
+//        let custom_layer_input_values = OpenAISchema(
+//            type: .array,
+//            required: ["layer_input_coordinate", "value", "value_type"],
+//            items: OpenAIGeneric(types: [
+//                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
+//            ])
+//        )
         
         let custom_patch_input_values = OpenAISchema(
             type: .array,
@@ -186,11 +186,13 @@ extension AIPatchBuilderResponseFormat_V0 {
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
         let patch_connections: [PatchConnection]
         let custom_patch_input_values: [CustomPatchInputValue]
+    
+        // All connections are captured by patch data regardless of patch or layer
+        let layer_connections: [LayerConnection]
     }
     
     struct LayerData: Codable {
         var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
-        var layer_connections: [LayerConnection]
         var custom_layer_input_values: [CustomLayerInputValue]
     }
     
@@ -327,7 +329,6 @@ extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
 extension AIPatchBuilderResponseFormat_V0.LayerData {
     mutating func append(_ layerData: Self) {
         self.layers += layerData.layers
-        self.layer_connections += layerData.layer_connections
         self.custom_layer_input_values += layerData.custom_layer_input_values
     }
 }
