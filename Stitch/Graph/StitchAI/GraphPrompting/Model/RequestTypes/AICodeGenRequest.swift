@@ -71,12 +71,12 @@ struct AICodeGenRequest: StitchAIRequestable {
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
                 guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
+                    self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
+                                      document: document)
                     throw SwiftUISyntaxError.viewNodeNotFound
                 }
                 
-                guard let layerData = try viewNode.deriveStitchActions() else {
-                    throw SwiftUISyntaxError.rootLayerNotFound
-                }
+                let layerData = try viewNode.deriveStitchActions()
                 
                 let patchBuilderRequest = try AIPatchBuilderRequest(
                     prompt: userPrompt,
@@ -135,6 +135,6 @@ struct AICodeGenRequest: StitchAIRequestable {
         document.insertNodeMenuState.show = false
         
         // Display error
-        document.storeDelegate?.alertState.stitchFileError = .unknownError(failure.localizedDescription)
+        document.storeDelegate?.alertState.stitchFileError = .unknownError("\(failure)")
     }
 }

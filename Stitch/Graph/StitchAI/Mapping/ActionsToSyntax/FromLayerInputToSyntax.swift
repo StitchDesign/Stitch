@@ -27,9 +27,6 @@ enum FromLayerInputToSyntax {
     case modifier(SyntaxViewModifier)
     
     case function(ConversionFunction)
-    
-    // Many, many SwiftUI constructor-args and modifiers are unsupported by Stitch as of June 2025
-    case unsupported
 }
 
 
@@ -101,7 +98,7 @@ extension SyntaxView {
             case .modifier(let viewModifier):
                 modifiers.append(viewModifier)
                 
-            case .unsupported, .function:
+            case .function:
                 log("unsupported or function syntaxScenario for \(inputData)")
                 continue
             }

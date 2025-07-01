@@ -8,9 +8,11 @@
 import Foundation
 
 enum SwiftUISyntaxError: Error {
-//    case unsupportedData
+    case unexpectedEdgeDataFound
     case viewNodeNotFound
-    case rootLayerNotFound
+    case unexpectedViewModifier(SyntaxViewModifierName)
+    case unsupportedLayer(SyntaxViewName)
+    case unsupportedLayerInput(CurrentStep.LayerInputPort)
 }
 
 extension CurrentStep.LayerInputPort {
@@ -20,7 +22,7 @@ extension CurrentStep.LayerInputPort {
         
         guard let value = valueOrEdge.getValue else {
             fatalErrorIfDebug("Incoming edges not yet handled")
-            return .unsupported
+            throw SwiftUISyntaxError.unexpectedEdgeDataFound
         }
         
         // TODO: JUNE 24: ASSUMES SINGLE-PARAMETER PORT VALUE, i.e. can handle .opacity but not .frame
@@ -38,7 +40,7 @@ extension CurrentStep.LayerInputPort {
                 return .modifier(modifier)
             } else {
                 fatalErrorIfDebug("Failed to handle layer input \(self) with value \(value) for modifier \(name)")
-                return .unsupported
+                throw SwiftUISyntaxError.unexpectedViewModifier(name)
             }
         }
         
@@ -73,14 +75,14 @@ extension CurrentStep.LayerInputPort {
             
             // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
         case .position:
-            return buildMultifieldModifier(.position)
+            return try buildMultifieldModifier(.position)
             
         // Stitch's LayerInputPort.offsetInGroup *always* becomes SwiftUI .offset modifier
         case .offsetInGroup:
-            return buildMultifieldModifier(.offset)
+            return try buildMultifieldModifier(.offset)
             
         case .size:
-            return buildMultifieldModifier(.frame)
+            return try buildMultifieldModifier(.frame)
         
         // TODO: JUNE 23: .fill for Layer.rectangle, Layer.oval etc.; but .foregroundColor for Layer.text
         case .color:
@@ -92,7 +94,8 @@ extension CurrentStep.LayerInputPort {
             }
             
         case .rotationX, .rotationY, .rotationZ:
-            return .unsupported // MORE COMPLICATED
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            // MORE COMPLICATED
             // return .modifier(buildModifier(.rotation3DEffect, nil))
             
         case .scale:                       return .modifier(try buildSingleFieldUnlabeledModifier(.scaleEffect))
@@ -122,25 +125,30 @@ extension CurrentStep.LayerInputPort {
             
         // TODO: JUNE 23: complicated; all of these correspond to different arguments *on the same SwiftUI .shadow view modifier*
         case .shadowColor, .shadowOpacity, .shadowRadius, .shadowOffset:
-            return .unsupported // return ".shadow"
+            // return ".shadow"
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
                     
         // TODO: JUNE 23: complicated: can be constructor-arg to a stack OR Spacers within a ForEach
         case .spacing:
-            return .unsupported // return ".padding"
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            // return ".padding"
         
         // TODO: JUNE 23: complicated: the LayerInputPort.masks is actually just a boolean that determines whether we'll mask or not; the SwiftUI x.masks(y) view modifier is more-so determined by layer positioning
         case .masks:
-            return .unsupported // this is just a boolean, actually?
+            // this is just a boolean, actually?
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
         
         // TODO: JUNE 23: complicated: lots and lots of business logic here
         case .isPinned, .pinTo, .pinAnchor, .pinOffset:
-            return .unsupported
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
             
             // What is this for? It's the 3D Model?
         case .isAnimating:
-            return .unsupported // return ".animation"
+            // return ".animation"
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
         case .fitStyle:
-            return .unsupported // return ".aspectRatio"
+            // return ".aspectRatio"
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
             
             // ── No SwiftUI analogue ────────────────────────────────────
             // Explicitly unsupported ports (no SwiftUI equivalent)
@@ -262,7 +270,7 @@ extension CurrentStep.LayerInputPort {
                 .scrollJumpToY,
                 .scrollJumpToYLocation:
             
-            return .unsupported
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
         }
     }
 }
