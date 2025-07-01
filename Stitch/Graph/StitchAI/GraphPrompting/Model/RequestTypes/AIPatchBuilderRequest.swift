@@ -20,8 +20,8 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     
     @MainActor
     init(prompt: String,
-         jsSourceCode: String,
-         layerList: SidebarLayerList?,
+         swiftUISourceCode: String,
+         layerData: CurrentAIPatchBuilderResponseFormat.LayerData,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -32,8 +32,8 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         
         // Construct http payload
         self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
-                                                  swiftUiSourceCode: jsSourceCode,
-                                                  layerList: layerList)
+                                                  swiftUiSourceCode: swiftUISourceCode,
+                                                  layerData: layerData)
     }
     
     @MainActor
@@ -43,17 +43,17 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateResponse(decodedResult: CurrentAIPatchBuilderResponseFormat.GraphData) throws -> CurrentAIPatchBuilderResponseFormat.GraphData {
+    static func validateResponse(decodedResult: CurrentAIPatchBuilderResponseFormat.PatchData) throws -> CurrentAIPatchBuilderResponseFormat.PatchData {
         decodedResult
     }
     
     @MainActor
-    func onSuccessfulDecodingChunk(result: CurrentAIPatchBuilderResponseFormat.GraphData,
+    func onSuccessfulDecodingChunk(result: CurrentAIPatchBuilderResponseFormat.PatchData,
                                    currentAttempt: Int) {
         fatalErrorIfDebug()
     }
     
-    static func buildResponse(from streamingChunks: [CurrentAIPatchBuilderResponseFormat.GraphData]) throws -> CurrentAIPatchBuilderResponseFormat.GraphData {
+    static func buildResponse(from streamingChunks: [CurrentAIPatchBuilderResponseFormat.PatchData]) throws -> CurrentAIPatchBuilderResponseFormat.PatchData {
         // Unsupported
         fatalError()
     }
@@ -154,7 +154,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         var idMap = [UUID : UUID]()
         
         // new js patches
-        for newPatch in self.javascript_patches {
+        for newPatch in self.patch_data.javascript_patches {
             let newId = UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id.value)
             let newNode = document.nodeInserted(choice: .patch(.javascript),
@@ -173,7 +173,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // new native patches
-        for newPatch in self.native_patches {
+        for newPatch in self.patch_data.native_patches {
             let newId = UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id.value)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
@@ -184,7 +184,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new layer nodes
         var newLayerSidebarDataList = [SidebarLayerData]()
-        for newLayer in self.layers {
+        for newLayer in self.layer_data.layers {
             let newSidebarData = try document.createLayerNodeFromAI(newLayer: newLayer,
                                                                     idMap: &idMap)
             newLayerSidebarDataList.append(newSidebarData)
@@ -199,7 +199,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         graph.updateGraphData(document)
         
         // new constants for patches
-        for newInputValueSetting in self.custom_patch_input_values {
+        for newInputValueSetting in self.patch_data.custom_patch_input_values {
             let inputCoordinate = try NodeIOCoordinate(
                 from: newInputValueSetting.patch_input_coordinate,
                 idMap: idMap)
@@ -209,7 +209,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // new constants for layers
-        for newInputValueSetting in self.custom_layer_input_values {
+        for newInputValueSetting in self.layer_data.custom_layer_input_values {
             let inputCoordinate = try NodeIOCoordinate(
                 from: newInputValueSetting.layer_input_coordinate,
                 idMap: idMap)
@@ -219,7 +219,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // new edges to downstream patches
-        for newPatchEdge in self.patch_connections {
+        for newPatchEdge in self.patch_data.patch_connections {
             let inputPort = try NodeIOCoordinate(
                 from: newPatchEdge.dest_port,
                 idMap: idMap)
@@ -234,7 +234,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // new edges to downstream layers
-        for newLayerEdge in self.layer_connections {
+        for newLayerEdge in self.patch_data.layer_connections {
             let inputPort = try NodeIOCoordinate(
                 from: newLayerEdge.dest_port,
                 idMap: idMap)

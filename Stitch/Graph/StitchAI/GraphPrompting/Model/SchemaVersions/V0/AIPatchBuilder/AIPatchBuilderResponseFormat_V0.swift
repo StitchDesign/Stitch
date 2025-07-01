@@ -23,7 +23,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         let defs = PatchBuilderStructuredOutputsDefinitions()
         let schema = OpenAISchema(type: .object,
                                   properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                  required: ["layers", "javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_patch_input_values", "custom_layer_input_values"])
+                                  required: ["javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_patch_input_values"])
         let strict = true
     }
 
@@ -67,7 +67,7 @@ enum AIPatchBuilderResponseFormat_V0 {
     }
     
     struct GraphBuilderSchema: Encodable {
-        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
+//        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
         
         let javascript_patches = OpenAISchema(
             type: .array,
@@ -97,13 +97,13 @@ enum AIPatchBuilderResponseFormat_V0 {
             ])
         )
 
-        let custom_layer_input_values = OpenAISchema(
-            type: .array,
-            required: ["layer_input_coordinate", "value", "value_type"],
-            items: OpenAIGeneric(types: [
-                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
-            ])
-        )
+//        let custom_layer_input_values = OpenAISchema(
+//            type: .array,
+//            required: ["layer_input_coordinate", "value", "value_type"],
+//            items: OpenAIGeneric(types: [
+//                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
+//            ])
+//        )
         
         let custom_patch_input_values = OpenAISchema(
             type: .array,
@@ -177,54 +177,30 @@ enum AIPatchBuilderResponseFormat_V0 {
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
     struct GraphData: Codable {
-        let layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
+        let layer_data: LayerData
+        let patch_data: PatchData
+    }
+    
+    struct PatchData: Codable {
         let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
         let patch_connections: [PatchConnection]
-        let layer_connections: [LayerConnection]
-        let custom_layer_input_values: [CustomLayerInputValue]
         let custom_patch_input_values: [CustomPatchInputValue]
+    
+        // All connections are captured by patch data regardless of patch or layer
+        let layer_connections: [LayerConnection]
     }
     
-    struct LayerNode: Codable {
+    struct LayerData: Codable {
+        var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
+        var custom_layer_input_values: [CustomLayerInputValue]
+    }
+    
+    struct LayerNode {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerNode]?
-        
-        enum CodingKeys: String, CodingKey {
-            case node_id
-            case suggested_title
-            case node_name
-            case children
-        }
-        
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(node_id, forKey: .node_id)
-            try container.encode(node_name, forKey: .node_name)
-            
-            try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
-
-            // Only encode children if group layer
-            try container.encodeIfPresent(children, forKey: .children)
-        }
-        
-        init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
-            suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
-            node_name = try container.decode(StitchAIPatchOrLayer.self, forKey: .node_name)
-            
-            if let children = try container.decodeIfPresent([LayerNode].self, forKey: .children) {
-                self.children = children
-            } else {
-                // Make sure we have an empty list if layer is a group
-                if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
-                    self.children = []
-                }
-            }
-        }
     }
     
     struct JsPatchNode: Codable {
@@ -347,6 +323,53 @@ extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
                                            portValue: self.value,
                                            valueKey: .value,
                                            valueTypeKey: .value_type)
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.LayerNode: Codable {
+    enum CodingKeys: String, CodingKey {
+        case node_id
+        case suggested_title
+        case node_name
+        case children
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(node_id, forKey: .node_id)
+        try container.encode(node_name, forKey: .node_name)
+        
+        try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
+        
+        // Only encode children if group layer
+        try container.encodeIfPresent(children, forKey: .children)
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
+        suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
+        node_name = try container.decode(AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
+        
+        if let children = try container.decodeIfPresent([Self].self, forKey: .children) {
+            self.children = children
+        } else {
+            // Make sure we have an empty list if layer is a group
+            if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
+                self.children = []
+            }
+        }
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.CustomLayerInputValue {
+    init(id: UUID,
+         input: Step_V0.LayerInputPort,
+         value: Step_V0.PortValue) {
+        self = .init(layer_input_coordinate: .init(
+            layer_id: .init(value: id),
+            input_port_type: .init(value: input)),
+                     value: value)
     }
 }
 

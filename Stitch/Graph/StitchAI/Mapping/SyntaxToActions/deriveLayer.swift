@@ -9,18 +9,22 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
+struct SyntaxViewLayerData {
+    var node: CurrentAIPatchBuilderResponseFormat.LayerNode
+    let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+}
 
 extension SyntaxViewName {
+        
     
     /// Leaf-level mapping for **this** node only
     func deriveLayer(id: UUID,
                      args: [SyntaxViewConstructorArgument],
-                     modifiers: [SyntaxViewModifier]) -> (layer: VPLCreateNode,
-                           extras: VPLActions)? {
+                     modifiers: [SyntaxViewModifier]) throws -> SyntaxViewLayerData? {
         
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
-        var layerType: Layer
-        var extras: VPLActions = []
+        var layerType: CurrentStep.Layer
+        var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
 
         switch self {
         case .rectangle:         layerType = .rectangle
@@ -101,36 +105,36 @@ extension SyntaxViewName {
             
         case .hStack:
             layerType = .group
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: .orientation,
-                                                value: .orientation(.horizontal)))
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.horizontal))
             )
 
         case .vStack:
             layerType = .group
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: .orientation,
-                                                value: .orientation(.vertical)))
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.vertical))
             )
 
         case .zStack:
             layerType = .group
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: .orientation,
-                                                value: .orientation(.none)))
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.none))
             )
 
         case .roundedRectangle:
             layerType = .rectangle
             if let arg = args.first(where: { $0.label == .cornerRadius }),
                let radius = Double(arg.value) {
-                extras.append(
-                    .setInput(VPLSetInput(id: id,
-                                                    input: .cornerRadius,
-                                                    value: .number(radius)))
+                customValues.append(
+                    .init(id: id,
+                          input: .cornerRadius,
+                          value: .number(radius))
                 )
             }
 
@@ -150,23 +154,30 @@ extension SyntaxViewName {
 
             switch arg.syntaxKind {
             case .literal:
-                extras.append(
-                    .setInput(VPLSetInput(id: id,
-                                                    input: port,
-                                                    value: portValue))
+                customValues.append(
+                    .init(id: id,
+                          input: port,
+                          value: portValue)
                 )
             case .variable, .expression:
-                extras.append(.createEdge(VPLCreateEdge(name: port)))
+                // Skip variables for edges, using AI instead
+                continue
+//                extras.append(.createEdge(VPLCreateEdge(name: port)))
             }
         }
 
         // ── Generic modifier handling ────────────────────────────────────────
         for modifier in modifiers {
 
-            guard let port = modifier.name.deriveLayerInputPort(layerType) else { continue }
+            guard let port = modifier.name.deriveLayerInputPort(layerType) else {
+                continue
+            }
+            
+            let migratedPort = try port.convert(to: LayerInputPort.self)
+            let migratedLayerType = try layerType.convert(to: Layer.self)
 
             // Start with default value for that port
-            var portValue = port.getDefaultValue(for: layerType)
+            var portValue = migratedPort.getDefaultValue(for: migratedLayerType)
 
             if modifier.arguments.count == 1, let arg = modifier.arguments.first {
 
@@ -185,16 +196,23 @@ extension SyntaxViewName {
                     )
                 }
             }
+            
+            // "Downgrade" PortValue back to supported type for the AI
+            let downgradedValue = try portValue.convert(to: CurrentStep.PortValue.self)
 
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: port,
-                                                value: portValue))
+            customValues.append(
+                .init(id: id,
+                      input: port,
+                      value: downgradedValue)
             )
         }
 
         // Final bare layer (children added later)
-        return (VPLCreateNode(id: id, name: layerType, children: []), extras)
+        let layeNode = CurrentAIPatchBuilderResponseFormat
+            .LayerNode(node_id: .init(value: id),
+                       node_name: .init(value: .layer(layerType)))
+        return .init(node: layeNode,
+                     customLayerInputValues: customValues)
     }
     
 }

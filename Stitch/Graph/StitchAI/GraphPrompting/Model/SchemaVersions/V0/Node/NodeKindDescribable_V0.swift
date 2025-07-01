@@ -123,6 +123,24 @@ extension Step_V0.Layer: NodeKindDescribable_V0.NodeKindDescribable {
 }
 
 extension Step_V0.PatchOrLayer {
+    var patch: Step_V0.Patch? {
+        switch self {
+        case .patch(let patch):
+            return patch
+        case .layer:
+            return nil
+        }
+    }
+    
+    var layer: Step_V0.Layer? {
+        switch self {
+        case .patch:
+            return nil
+        case .layer(let layer):
+            return layer
+        }
+    }
+    
     var asLLMStepNodeName: String {
         switch self {
         case .patch(let x):

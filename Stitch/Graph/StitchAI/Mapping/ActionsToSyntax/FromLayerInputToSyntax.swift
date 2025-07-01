@@ -50,41 +50,33 @@ extension SyntaxView {
     ///
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
-    static func build(from actions: VPLActionOrderedSet) -> Self? {
+    static func build(from actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
         // The very first `.layer` action produced by `deriveStitchActions()` is the root.
-        guard let rootConcept = actions.first(where: {
-            if case .createNode = $0 { return true } else { return false }
-        }),
-            case let .createNode(rootLayer) = rootConcept
-        else {
+        guard let rootLayer = actions.layers.first else {
             log("SyntaxView.build: No VPLLayer creation found – cannot rebuild view tree.")
             return nil
         }
 
-        return node(from: rootLayer, in: actions)
+        return try node(from: rootLayer, in: actions)
     }
 
     // MARK: - Private helpers
 
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
-    private static func node(from layer: VPLCreateNode,
-                             in actions: VPLActionOrderedSet) -> Self? {
+    private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerNode,
+                             in actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
 
         // TODO: provide layer group orientation
-        guard let viewName = layer.name.deriveSyntaxViewName() else {
-            log("Stitch layer has no SwiftUI view equivalent yet?: \(layer)")
+        guard let layer = layerData.node_name.value.layer,
+              let migratedLayer = try? layer.convert(to: Layer.self),
+              let viewName = migratedLayer.deriveSyntaxViewName() else {
+            log("Stitch layer has no SwiftUI view equivalent yet?: \(layerData)")
             return nil
         }
         
         // Gather all `layerInputSet` concepts that belong to this layer.
-        let inputsSet: [VPLSetInput] = actions.compactMap {
-            if case let .setInput(set) = $0,
-               set.id == layer.id {
-                return set
-            }
-            return nil
-        }
+        let customInputEvents = actions.custom_layer_input_values
 
         // Convert those sets into very naïve constructor‑arguments *or* modifiers.
         // For now we treat everything as a modifier unless the corresponding
@@ -92,13 +84,14 @@ extension SyntaxView {
         var constructorArgs: [SyntaxViewConstructorArgument] = []
         var modifiers: [SyntaxViewModifier] = []
 
-        for inputSet in inputsSet {
+        for inputData in customInputEvents {
 //            if let viewModifierName = inputSet.input.toSwiftUIViewModifierName
-            let syntaxScenario: FromLayerInputToSyntax = inputSet.input.toSwiftUISyntax(
+            let syntaxScenario: FromLayerInputToSyntax = try inputData.layer_input_coordinate.input_port_type.value
+                .toSwiftUISyntax(
                 // TODO: JUNE 24: handle proper PortValue here
 //                port: .value(PortValue.string(.init(inputSet.value))),
-                valueOrEdge: .value(inputSet.value),
-                layer: layer.name)
+                valueOrEdge: .value(inputData.value),
+                layer: layer)
             
             switch syntaxScenario {
             
@@ -109,21 +102,22 @@ extension SyntaxView {
                 modifiers.append(viewModifier)
                 
             case .unsupported, .function:
-                log("unsupported or function syntaxScenario for \(inputSet)")
+                log("unsupported or function syntaxScenario for \(inputData)")
                 continue
             }
         }
 
         // Recurse into child layers.
-        let childNodes: [Self] = layer.children.compactMap { node(from: $0, in: actions) }
+        let childNodes: [Self]? = try layerData.children?
+            .compactMap { try node(from: $0, in: actions) }
 
         // Build the actual SyntaxView node.
         return Self(
             name: viewName,
             constructorArguments: constructorArgs,
             modifiers: modifiers,
-            children: childNodes,
-            id: layer.id
+            children: childNodes ?? [],
+            id: layerData.node_id.value
         )
     }
 }

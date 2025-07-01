@@ -124,6 +124,24 @@ func provideGenuinelyUniqueUUIDForAIStep<T: StepActionable>(
 }
 
 extension StitchAIManager {
+    private func fetchWithRetries(
+        _ urlRequest: URLRequest,
+        maxRetries: Int = 3
+    ) async throws -> (Data, URLResponse) {
+        var attempt = 0
+        var delay: UInt64 = 500_000_000  // 0.5s
+
+        while true {
+            do {
+                return try await aiSession.data(for: urlRequest)
+            } catch let err as URLError where err.code == .networkConnectionLost && attempt < maxRetries {
+                attempt += 1
+                try await Task.sleep(nanoseconds: delay)
+                delay *= 2
+                continue
+            }
+        }
+    }
     func makeRequest<AIRequest>(for urlRequest: URLRequest,
                                 with request: AIRequest,
                                 attempt: Int,
@@ -144,8 +162,8 @@ extension StitchAIManager {
                                                    with request: AIRequest,
                                                    attempt: Int,
                                                    document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
-        let result = await Result {
-            try await URLSession.shared.data(for: urlRequest)
+        let result = await Result { @Sendable in
+            try await fetchWithRetries(urlRequest)
         }
                 
         switch result {

@@ -109,7 +109,7 @@ struct CodeToSyntaxExploratoryView: View {
         self.swiftUICode = selectedCode
         
         // Parse the SwiftUI code to get the ViewNode representation
-        let output = parseSwiftUICode(self.swiftUICode)
+        let output = SwiftUIViewVisitor.parseSwiftUICode(self.swiftUICode)
         self.parsedViewNode = output
     }
 }

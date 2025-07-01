@@ -12,7 +12,7 @@ import UIKit
 extension SyntaxView {
     
     // TODO: actually use this; i.e. update SASetLayerInput to use LayerInputPort
-    func deriveLayerInputPorts(_ layer: Layer) -> LayerInputPortSet {
+    func deriveLayerInputPorts(_ layer: CurrentStep.Layer) -> Set<CurrentStep.LayerInputPort> {
         
         let portsFromConstructorArgs = self.constructorArguments.compactMap {
             $0.deriveLayerInputPort(layer)
@@ -23,7 +23,7 @@ extension SyntaxView {
         }
         
         let ports = portsFromConstructorArgs + portsFromModifiers
-        let portsSet = ports.toOrderedSet
+        let portsSet = Set(ports)
         
         assertInDebug(ports.count == portsSet.count)
         
@@ -33,7 +33,7 @@ extension SyntaxView {
 
 extension SyntaxViewConstructorArgument {
     
-    func derivePortValue(_ layer: Layer) -> PortValue? {
+    func derivePortValue(_ layer: CurrentStep.Layer) -> CurrentStep.PortValue? {
         let label: SyntaxConstructorArgumentLabel = self.label
         let value: String = self.value
         
@@ -59,7 +59,7 @@ extension SyntaxViewConstructorArgument {
         }
     }
     
-    func deriveLayerInputPort(_ layer: Layer) -> LayerInputPort? {
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
         switch self.label {
             
         case .systemName:
@@ -87,7 +87,7 @@ extension SyntaxViewConstructorArgument {
 
 extension SyntaxViewModifierName {
     
-    func deriveLayerInputPort(_ layer: Layer) -> LayerInputPort? {
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
         switch (self, layer) {
             // Universal modifiers (same for every layer)
         case (.scaleEffect, _):
@@ -177,7 +177,9 @@ extension SyntaxViewModifierName {
         case (.font, _): return nil
         case (.multilineTextAlignment, _): return nil
         case (.underline, _): return nil
-        case (.keyboardType, _): return .keyboardType
+            
+            // TODO: support after v1 schema
+//        case (.keyboardType, _): return .keyboardType
         case (.disableAutocorrection, _): return nil
         case (.clipped, _): return .clipped // return .isClipped
             

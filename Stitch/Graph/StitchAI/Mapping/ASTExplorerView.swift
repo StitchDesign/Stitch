@@ -44,7 +44,7 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchActions: VPLActionOrderedSet = []
+    @State private var stitchActions: CurrentAIPatchBuilderResponseFormat.LayerData?
     @State private var rebuiltSyntax: SyntaxView?
     @State private var regeneratedCode: String = ""
 
@@ -177,9 +177,9 @@ struct ASTExplorerView: View {
         let currentCode = codes[selectedTab]
 
         // Parse code → Syntax
-        guard let syntax = parseSwiftUICode(currentCode) else {
+        guard let syntax = SwiftUIViewVisitor.parseSwiftUICode(currentCode) else {
             firstSyntax = nil
-            stitchActions = []
+            stitchActions = nil
             rebuiltSyntax = nil
             regeneratedCode = ""
             return
@@ -187,10 +187,12 @@ struct ASTExplorerView: View {
         firstSyntax = syntax
 
         // Syntax → Actions
-        stitchActions = syntax.deriveStitchActions() ?? []
+        stitchActions = try? syntax.deriveStitchActions()
 
         // Actions → Syntax
-        rebuiltSyntax = SyntaxView.build(from: stitchActions)
+        if let actions = stitchActions {
+            rebuiltSyntax = try? SyntaxView.build(from: actions)
+        }
 
         // Syntax → Code
         if let rebuilt = rebuiltSyntax {
@@ -230,45 +232,45 @@ struct ASTExplorerView: View {
 
 
 // MARK: – Pretty‑printing helpers for VPL actions
-private extension VPLActionOrderedSet {
+private extension CurrentAIPatchBuilderResponseFormat.LayerData? {
 
     /// A multi‑line, human‑readable description of the ordered actions list.
     /// Returns “—” when the set is empty.
     var humanReadable: String {
-        guard !isEmpty else { return "—" }
-        return enumerated()
-            .map { "\n[\($0)] \(describe($1, indent: ""))" }
-            .joined(separator: "\n")
+        (try? self?.encodeToPrintableString()) ?? "—"
+//        return enumerated()
+//            .map { "\n[\($0)] \(describe($1, indent: ""))" }
+//            .joined(separator: "\n")
     }
 
     // MARK: - Internals
 
     /// Formats a single concept.
-    private func describe(_ concept: VPLAction, indent: String) -> String {
-        switch concept {
-        case .createNode(let layer):
-            return describe(layer, indent: indent)
-        case .setInput(let set):
-            return "\(indent)setInput(layerID: \(set.id), input: \(set.input), value: \(set.value))"
-        case .createEdge(let edge):
-            return "\(indent)incomingEdge(toInput: \(edge.name))"
-        }
-    }
+//    private func describe(_ concept: VPLAction, indent: String) -> String {
+//        switch concept {
+//        case .createNode(let layer):
+//            return describe(layer, indent: indent)
+//        case .setInput(let set):
+//            return "\(indent)setInput(layerID: \(set.id), input: \(set.input), value: \(set.value))"
+//        case .createEdge(let edge):
+//            return "\(indent)incomingEdge(toInput: \(edge.name))"
+//        }
+//    }
 
     /// Formats a layer and its children recursively.
-    private func describe(_ layer: VPLCreateNode, indent: String) -> String {
-        var lines: [String] = []
-        lines.append("\(indent)layer(id: \(layer.id), name: \(layer.name.defaultDisplayTitle())) {")
-        if layer.children.isEmpty {
-            lines.append("\(indent)    (no children)")
-        } else {
-            for child in layer.children {
-                lines.append(describe(child, indent: indent + "    "))
-            }
-        }
-        lines.append("\(indent)}")
-        return lines.joined(separator: "\n")
-    }
+//    private func describe(_ layer: VPLCreateNode, indent: String) -> String {
+//        var lines: [String] = []
+//        lines.append("\(indent)layer(id: \(layer.id), name: \(layer.name.defaultDisplayTitle())) {")
+//        if layer.children.isEmpty {
+//            lines.append("\(indent)    (no children)")
+//        } else {
+//            for child in layer.children {
+//                lines.append(describe(child, indent: indent + "    "))
+//            }
+//        }
+//        lines.append("\(indent)}")
+//        return lines.joined(separator: "\n")
+//    }
 }
 
 #if DEBUG

@@ -21,7 +21,7 @@ enum AIPatchBuilderRequestBody_V0 {
         
         init(userPrompt: String,
              swiftUiSourceCode: String,
-             layerList: SidebarLayerList?) throws {
+             layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws {
             let responseFormat = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
             let structuredOutputs = responseFormat.json_schema.schema
             guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
@@ -36,7 +36,7 @@ enum AIPatchBuilderRequestBody_V0 {
             let inputs = AIPatchBuilderRequestInputs(
                 user_prompt: userPrompt,
                 swiftui_source_code: swiftUiSourceCode,
-                layer_list: layerList)
+                layer_data: layerData)
             let userInputsString = try inputs.encodeToPrintableString()
             
             self.messages = [
@@ -51,21 +51,21 @@ enum AIPatchBuilderRequestBody_V0 {
     struct AIPatchBuilderRequestInputs: Encodable {
         let user_prompt: String
         let swiftui_source_code: String
-        let layer_list: SidebarLayerList?
+        let layer_data: CurrentAIPatchBuilderResponseFormat.LayerData
         
-        enum CodingKeys: String, CodingKey {
-            case user_prompt
-            case swiftui_source_code
-            case layer_list
-        }
-        
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(user_prompt, forKey: .user_prompt)
-            try container.encode(swiftui_source_code, forKey: .swiftui_source_code)
-            
-            // Only encode if values were provided
-            try container.encodeIfPresent(layer_list, forKey: .layer_list)
-        }
+//        enum CodingKeys: String, CodingKey {
+//            case user_prompt
+//            case swiftui_source_code
+//            case layer_list
+//        }
+//        
+//        func encode(to encoder: Encoder) throws {
+//            var container = encoder.container(keyedBy: CodingKeys.self)
+//            try container.encode(user_prompt, forKey: .user_prompt)
+//            try container.encode(swiftui_source_code, forKey: .swiftui_source_code)
+//            
+//            // Only encode if values were provided
+//            try container.encodeIfPresent(layer_list, forKey: .layer_list)
+//        }
     }
 }

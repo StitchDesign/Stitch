@@ -67,15 +67,21 @@ struct AICodeGenRequest: StitchAIRequestable {
             let result = await request.request(document: document,
                                                aiManager: aiManager)
             switch result {
-            case .success(let jsSourceCode):
-                print("SUCCESS Patch Service:\n\(jsSourceCode)")
+            case .success(let swiftUISourceCode):
+                print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
+                
+                guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
+                    throw SwiftUISyntaxError.viewNodeNotFound
+                }
+                
+                guard let layerData = try viewNode.deriveStitchActions() else {
+                    throw SwiftUISyntaxError.rootLayerNotFound
+                }
                 
                 let patchBuilderRequest = try AIPatchBuilderRequest(
                     prompt: userPrompt,
-                    jsSourceCode: jsSourceCode,
-                    
-                    // Nil for now, provides option later for mapping
-                    layerList: nil)
+                    swiftUISourceCode: swiftUISourceCode,
+                    layerData: layerData)
                 
                 let patchBuilderResult = await patchBuilderRequest
                     .request(document: document,
@@ -89,7 +95,10 @@ struct AICodeGenRequest: StitchAIRequestable {
                         guard let document = document else { return }
                         
                         do {
-                            try patchBuildResult.applyAIGraph(to: document)
+                            let graphData = CurrentAIPatchBuilderResponseFormat
+                                .GraphData(layer_data: layerData,
+                                           patch_data: patchBuildResult)
+                            try graphData.applyAIGraph(to: document)
                         } catch {
                             log("Error applying AI graph: \(error.localizedDescription)")
                             document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
@@ -103,19 +112,29 @@ struct AICodeGenRequest: StitchAIRequestable {
                     
                 case .failure(let failure):
                     log("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
-                    print(failure.localizedDescription)
-                    document.aiManager?.currentTaskTesting = nil
-                    document.insertNodeMenuState.show = false
+                    Self.displayError(failure: failure,
+                                      document: document)
                     throw failure
                 }
                 
             case .failure(let failure):
                 log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
-                print(failure.localizedDescription)
-                document.aiManager?.currentTaskTesting = nil
-                document.insertNodeMenuState.show = false
+                Self.displayError(failure: failure,
+                                  document: document)
                 throw failure
             }
         }
+    }
+    
+    @MainActor
+    private static func displayError(failure: any Error,
+                                     document: StitchDocumentViewModel) {
+        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
+        print(failure.localizedDescription)
+        document.aiManager?.currentTaskTesting = nil
+        document.insertNodeMenuState.show = false
+        
+        // Display error
+        document.storeDelegate?.alertState.stitchFileError = .unknownError(failure.localizedDescription)
     }
 }
