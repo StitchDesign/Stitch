@@ -174,9 +174,10 @@ extension SyntaxViewName {
             }
             
             let migratedPort = try port.convert(to: LayerInputPort.self)
+            let migratedLayerType = try layerType.convert(to: Layer.self)
 
             // Start with default value for that port
-            var portValue = migratedPort.getDefaultValue(for: layerType)
+            var portValue = migratedPort.getDefaultValue(for: migratedLayerType)
 
             if modifier.arguments.count == 1, let arg = modifier.arguments.first {
 

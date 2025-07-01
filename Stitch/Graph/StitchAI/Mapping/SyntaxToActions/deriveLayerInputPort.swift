@@ -33,7 +33,7 @@ extension SyntaxView {
 
 extension SyntaxViewConstructorArgument {
     
-    func derivePortValue(_ layer: Layer) -> CurrentStep.PortValue? {
+    func derivePortValue(_ layer: CurrentStep.Layer) -> CurrentStep.PortValue? {
         let label: SyntaxConstructorArgumentLabel = self.label
         let value: String = self.value
         
