@@ -8,7 +8,7 @@
 import Foundation
 
 
-extension LayerInputPort {
+extension CurrentStep.LayerInputPort {
 
     /// A typed equivalent of `swiftUIModifier`.
     /// Returns `nil` when there is no direct SwiftUI modifier match.
@@ -42,8 +42,8 @@ extension LayerInputPort {
         case .fontSize, .textFont:         return .font
         case .textAlignment:               return .multilineTextAlignment
         case .textDecoration:              return .underline
-        case .keyboardType:                return .keyboardType
-        case .isSpellCheckEnabled:         return .disableAutocorrection
+//        case .keyboardType:                return .keyboardType
+//        case .isSpellCheckEnabled:         return .disableAutocorrection
 
         case .minSize, .maxSize:           return .frame
 
@@ -91,11 +91,11 @@ extension LayerInputPort {
                  .text,
                  .placeholderText,
                  .verticalAlignment,
-                 .beginEditing,
-                 .endEditing,
-                 .setText,
-                 .textToSet,
-                 .isSecureEntry,
+//                 .beginEditing,
+//                 .endEditing,
+//                 .setText,
+//                 .textToSet,
+//                 .isSecureEntry,
                  .image,
                  .video,
                  .model3D,
