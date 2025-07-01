@@ -49,17 +49,6 @@ extension SyntaxView {
     }
 }
 
-//extension SyntaxView {
-//    
-//    func deriveStitchActions() -> AIPatchBuilderResponseFormat_V0.LayerData? {
-//        if let concepts = recursivelyDeriveActions() {
-//            return VPLActionOrderedSet(concepts)
-//        } else {
-//            return nil
-//        }
-//    }
-//}
-
 
 // https://developer.apple.com/documentation/swiftui/color#Getting-standard-colors
 extension Color {

@@ -41,16 +41,6 @@ enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
     case systemName = "systemName"
     
     case cornerRadius = "cornerRadius"
-    
-    // HStack, VStack, ZStack
-    // case alignment = "alignment"
-    // case spacing = "spacing"
-        
-    // Use `Argument` to capture unsupported constructors on SwiftUI Views,
-    // e.g. `Text(Date, style: Text.DateStyle)`
-    
-    // Rather than keeping around which argument was unsupported, we should log at the given site etc. and react
-    case unsupported //(Argument)
 }
 
 extension SyntaxConstructorArgumentLabel {
