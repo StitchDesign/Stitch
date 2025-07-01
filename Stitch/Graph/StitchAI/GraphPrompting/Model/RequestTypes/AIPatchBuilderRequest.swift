@@ -112,6 +112,7 @@ extension StitchDocumentViewModel {
             }
             
             guard let newId = idMap[layerNodeId.asNodeId] else {
+                fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have layerNodeId \(layerNodeId.asNodeId), idMap: \(idMap)")
                 throw AIPatchBuilderRequestError.nodeIdNotFound
             }
             
@@ -123,6 +124,7 @@ extension StitchDocumentViewModel {
             }
             
             guard let newId = idMap[nodeId] else {
+                fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have nodeId \(nodeId), idMap: \(idMap)")
                 throw AIPatchBuilderRequestError.nodeIdNotFound
             }
             
@@ -273,6 +275,7 @@ extension NodeIOCoordinate {
     init(from aiPatchCoordinate: CurrentAIPatchBuilderResponseFormat.NodeIndexedCoordinate,
          idMap: [UUID : UUID]) throws {
         guard let newId = idMap.get(aiPatchCoordinate.node_id.value) else {
+            fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiPatchCoordinate.node_id \(aiPatchCoordinate.node_id), idMap: \(idMap)")
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         
@@ -283,6 +286,7 @@ extension NodeIOCoordinate {
     init(from aiLayerCoordinate: CurrentAIPatchBuilderResponseFormat.LayerInputCoordinate,
          idMap: [UUID : UUID]) throws {
         guard let newId = idMap.get(aiLayerCoordinate.layer_id.value) else {
+            fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiLayerCoordinate.layer_id \(aiLayerCoordinate.layer_id), idMap: \(idMap)")
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         

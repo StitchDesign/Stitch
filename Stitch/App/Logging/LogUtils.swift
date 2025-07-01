@@ -30,6 +30,16 @@ func fatalErrorIfDebug(_ message: String = "") {
 #endif
 }
 
+func fatalErrorIfDevDebug(_ message: String = "") {
+#if DEV_DEBUG
+    fatalError(message)
+#else
+    // When we encounter a "crash if developing locally" while we're running on production,
+    // we should log to Sentry.
+    log(message, .logToServer)
+#endif
+}
+
 func assertInDebug(_ conditional: Bool) {
 #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
     assert(conditional)
