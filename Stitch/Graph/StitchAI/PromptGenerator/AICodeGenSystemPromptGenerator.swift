@@ -177,7 +177,7 @@ Stitch doesn't support usage of the following view modifiers:
 
 The full list of unsupported views includes:
 ```
-\(SyntaxViewName.unsupportedViews)
+\(SyntaxViewName.unsupportedViews.map(\.rawValue))
 ```
 
 ### Other Disallowed Behavior
