@@ -66,8 +66,20 @@ enum AIPatchBuilderResponseFormat_V0 {
             required: ["layer_id", "input_port_type"])
     }
     
+    // MARK: not used in structured outputs, just the system prompt inputs
+    struct LayerDataSchema: Encodable {
+        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
+        
+        let custom_layer_input_values = OpenAISchema(
+            type: .array,
+            required: ["layer_input_coordinate", "value", "value_type"],
+            items: OpenAIGeneric(types: [
+                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
+            ])
+        )
+    }
+    
     struct GraphBuilderSchema: Encodable {
-//        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
         
         let javascript_patches = OpenAISchema(
             type: .array,
@@ -97,14 +109,6 @@ enum AIPatchBuilderResponseFormat_V0 {
             ])
         )
 
-//        let custom_layer_input_values = OpenAISchema(
-//            type: .array,
-//            required: ["layer_input_coordinate", "value", "value_type"],
-//            items: OpenAIGeneric(types: [
-//                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
-//            ])
-//        )
-        
         let custom_patch_input_values = OpenAISchema(
             type: .array,
             required: ["patch_input_coordinate", "value", "value_type"],
