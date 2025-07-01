@@ -7,8 +7,10 @@
 
 import Foundation
 
-enum SwiftUISyntaxError {
+enum SwiftUISyntaxError: Error {
     case unsupportedData
+    case viewNodeNotFound
+    case rootLayerNotFound
 }
 
 extension CurrentStep.LayerInputPort {

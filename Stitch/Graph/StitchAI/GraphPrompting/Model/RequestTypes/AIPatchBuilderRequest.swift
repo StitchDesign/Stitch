@@ -21,7 +21,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     @MainActor
     init(prompt: String,
          swiftUISourceCode: String,
-         layerList: SidebarLayerList?,
+         layerList: CurrentAIPatchBuilderResponseFormat.LayerData,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.

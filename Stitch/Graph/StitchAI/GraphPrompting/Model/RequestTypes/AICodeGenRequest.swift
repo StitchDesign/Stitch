@@ -71,17 +71,17 @@ struct AICodeGenRequest: StitchAIRequestable {
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
                 guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
-                    throw StitchAIManagerError
-                        .swiftUIViewNodeNotFound(userPrompt,
-                                                 swiftUISourceCode)
+                    throw SwiftUISyntaxError.viewNodeNotFound
+                }
+                
+                guard let layerData = viewNode.deriveStitchActions() else {
+                    throw SwiftUISyntaxError.rootLayerNotFound
                 }
                 
                 let patchBuilderRequest = try AIPatchBuilderRequest(
                     prompt: userPrompt,
                     swiftUISourceCode: swiftUISourceCode,
-                    
-                    // Nil for now, provides option later for mapping
-                    layerList: nil)
+                    layerList: layerData)
                 
                 let patchBuilderResult = await patchBuilderRequest
                     .request(document: document,
@@ -95,7 +95,10 @@ struct AICodeGenRequest: StitchAIRequestable {
                         guard let document = document else { return }
                         
                         do {
-                            try patchBuildResult.applyAIGraph(to: document)
+                            let graphData = CurrentAIPatchBuilderResponseFormat
+                                .GraphData(layer_data: layerData,
+                                           patch_data: patchBuildResult)
+                            try graphData.applyAIGraph(to: document)
                         } catch {
                             log("Error applying AI graph: \(error.localizedDescription)")
                             document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
