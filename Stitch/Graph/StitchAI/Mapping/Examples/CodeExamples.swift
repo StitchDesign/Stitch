@@ -99,7 +99,12 @@ extension MappingExamples {
             scrollViewNotTopLevel.code
         ),
         
-        ("ScrollView", """
+        (
+            scrollViewWithAllAxes.title,
+            scrollViewWithAllAxes.code
+        ),
+        
+        ("scroll view without explicit axes", """
          ScrollView {
             VStack {
                 Rectangle()
