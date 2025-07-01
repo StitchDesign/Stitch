@@ -145,7 +145,7 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension CurrentAIPatchBuilderResponseFormat.PatchData {
+extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
@@ -154,7 +154,7 @@ extension CurrentAIPatchBuilderResponseFormat.PatchData {
         var idMap = [UUID : UUID]()
         
         // new js patches
-        for newPatch in self.javascript_patches {
+        for newPatch in self.patch_data.javascript_patches {
             let newId = UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id.value)
             let newNode = document.nodeInserted(choice: .patch(.javascript),
@@ -173,7 +173,7 @@ extension CurrentAIPatchBuilderResponseFormat.PatchData {
         }
         
         // new native patches
-        for newPatch in self.native_patches {
+        for newPatch in self.patch_data.native_patches {
             let newId = UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id.value)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
@@ -184,7 +184,7 @@ extension CurrentAIPatchBuilderResponseFormat.PatchData {
         
         // new layer nodes
         var newLayerSidebarDataList = [SidebarLayerData]()
-        for newLayer in self.layers {
+        for newLayer in self.layer_data.layers {
             let newSidebarData = try document.createLayerNodeFromAI(newLayer: newLayer,
                                                                     idMap: &idMap)
             newLayerSidebarDataList.append(newSidebarData)
@@ -196,10 +196,10 @@ extension CurrentAIPatchBuilderResponseFormat.PatchData {
         graph.layersSidebarViewModel.update(from: newList)
         
         // Update graph data so that input observers are created
-        graph.updatePatchData(document)
+        graph.updateGraphData(document)
         
         // new constants for patches
-        for newInputValueSetting in self.custom_patch_input_values {
+        for newInputValueSetting in self.patch_data.custom_patch_input_values {
             let inputCoordinate = try NodeIOCoordinate(
                 from: newInputValueSetting.patch_input_coordinate,
                 idMap: idMap)
@@ -209,7 +209,7 @@ extension CurrentAIPatchBuilderResponseFormat.PatchData {
         }
         
         // new constants for layers
-        for newInputValueSetting in self.custom_layer_input_values {
+        for newInputValueSetting in self.layer_data.custom_layer_input_values {
             let inputCoordinate = try NodeIOCoordinate(
                 from: newInputValueSetting.layer_input_coordinate,
                 idMap: idMap)
@@ -219,7 +219,7 @@ extension CurrentAIPatchBuilderResponseFormat.PatchData {
         }
         
         // new edges to downstream patches
-        for newPatchEdge in self.patch_connections {
+        for newPatchEdge in self.patch_data.patch_connections {
             let inputPort = try NodeIOCoordinate(
                 from: newPatchEdge.dest_port,
                 idMap: idMap)
@@ -234,7 +234,7 @@ extension CurrentAIPatchBuilderResponseFormat.PatchData {
         }
         
         // new edges to downstream layers
-        for newLayerEdge in self.layer_connections {
+        for newLayerEdge in self.layer_data.layer_connections {
             let inputPort = try NodeIOCoordinate(
                 from: newLayerEdge.dest_port,
                 idMap: idMap)

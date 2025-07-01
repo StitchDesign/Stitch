@@ -176,15 +176,10 @@ enum AIPatchBuilderResponseFormat_V0 {
 
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
-//    struct GraphData: Codable {
-//        let layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
-//        let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
-//        let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
-//        let patch_connections: [PatchConnection]
-//        let layer_connections: [LayerConnection]
-//        let custom_layer_input_values: [CustomLayerInputValue]
-//        let custom_patch_input_values: [CustomPatchInputValue]
-//    }
+    struct GraphData: Codable {
+        let layer_data: LayerData
+        let patch_data: PatchData
+    }
     
     struct PatchData: Codable {
         let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
@@ -193,7 +188,7 @@ extension AIPatchBuilderResponseFormat_V0 {
         let custom_patch_input_values: [CustomPatchInputValue]
     }
     
-    struct LayerData: Encodable {
+    struct LayerData: Codable {
         var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
         var layer_connections: [LayerConnection]
         var custom_layer_input_values: [CustomLayerInputValue]
