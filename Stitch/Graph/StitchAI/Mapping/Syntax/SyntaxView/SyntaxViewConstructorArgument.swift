@@ -29,9 +29,15 @@ struct SyntaxViewConstructorArgument: Equatable, Hashable, Sendable {
 enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
     
     
-    // argument without a label, e.g. SwiftUI Text: `Text("love")`;
-    // Note: SwiftUI views that do not take arguments at all (e.g. `Rectangle()`) will not actually have constructor-args
-    // https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
+    /*
+     argument without a label
+     - e.g. SwiftUI Text: `Text("love")`
+     - e.g. SwiftUI ScrollView: `Scroll(.horizontal) { ... }`
+     
+     Note: SwiftUI views that do not take arguments at all (e.g. `Rectangle()`) will not actually have constructor-args
+     
+     https://developer.apple.com/documentation/swiftui/text#Creating-a-text-view
+     */
     case noLabel = ""
     
     // case verbatim = "verbatim"

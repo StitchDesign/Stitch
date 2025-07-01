@@ -15,7 +15,6 @@ struct SyntaxViewLayerData {
 }
 
 extension SyntaxViewName {
-        
     
     /// Leaf-level mapping for **this** node only
     func deriveLayer(id: UUID,
@@ -75,6 +74,8 @@ extension SyntaxViewName {
         case .geometryReader: return nil
         case .alignmentGuide: return nil
         
+        // Note: A SwiftUI ScrollView is interpreted as a Layer.group with specific orientation and scroll-enabled inputs
+        // Currently we handle this at the `deriveStitchActions` top level
         case .scrollView: return nil // TODO: support
             
         case .list: return nil

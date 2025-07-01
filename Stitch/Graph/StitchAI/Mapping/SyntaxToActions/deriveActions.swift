@@ -11,6 +11,36 @@ import SwiftUI
 
 extension SyntaxView {
     func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+        // ───────────────────────────────────────────────────────────────────
+        // Special‑case: ScrollView that directly wraps a single VStack
+        // Maps to the same group layer produced by the VStack, but with
+        // scrollYEnabled = true so the layer becomes vertically scrollable.
+        // ───────────────────────────────────────────────────────────────────
+        if self.name == .scrollView {
+            guard
+                children.count == 1,
+                let stack = children.first,
+                (stack.name == .vStack || stack.name == .hStack),
+                var flattened = try stack.deriveStitchActions()
+            else {
+                // If the structure isn’t exactly ScrollView { VStack { … } }
+                // fall back to default handling.
+                return nil
+            }
+
+            // The leading layer from the VStack mapping is the group layer.
+            if let groupLayer = flattened.layers.first {
+                flattened.custom_layer_input_values.append(
+                    .init(
+                        id: groupLayer.node_id.value,
+                        input: .scrollYEnabled,
+                        value: .bool(true)
+                    )
+                )
+            }
+
+            return flattened
+        }
         // Instantiate with empty data
         var data = CurrentAIPatchBuilderResponseFormat
             .LayerData(layers: [],
@@ -50,7 +80,7 @@ extension SyntaxView {
 }
 
 //extension SyntaxView {
-//    
+//
 //    func deriveStitchActions() -> AIPatchBuilderResponseFormat_V0.LayerData? {
 //        if let concepts = recursivelyDeriveActions() {
 //            return VPLActionOrderedSet(concepts)
