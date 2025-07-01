@@ -112,19 +112,29 @@ struct AICodeGenRequest: StitchAIRequestable {
                     
                 case .failure(let failure):
                     log("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
-                    print(failure.localizedDescription)
-                    document.aiManager?.currentTaskTesting = nil
-                    document.insertNodeMenuState.show = false
+                    Self.displayError(failure: failure,
+                                      document: document)
                     throw failure
                 }
                 
             case .failure(let failure):
                 log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
-                print(failure.localizedDescription)
-                document.aiManager?.currentTaskTesting = nil
-                document.insertNodeMenuState.show = false
+                Self.displayError(failure: failure,
+                                  document: document)
                 throw failure
             }
         }
+    }
+    
+    @MainActor
+    private static func displayError(failure: any Error,
+                                     document: StitchDocumentViewModel) {
+        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
+        print(failure.localizedDescription)
+        document.aiManager?.currentTaskTesting = nil
+        document.insertNodeMenuState.show = false
+        
+        // Display error
+        document.storeDelegate?.alertState.stitchFileError = .unknownError(failure.localizedDescription)
     }
 }
