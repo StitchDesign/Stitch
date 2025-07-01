@@ -14,27 +14,28 @@ import SwiftSyntaxBuilder
 
 // MARK: - SwiftUI Code to ViewNode
 
-/// Parses SwiftUI code into a ViewNode structure
-func parseSwiftUICode(_ swiftUICode: String) -> SyntaxView? {
-    print("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
-    
-    // Fall back to the original visitor-based approach for now
-    // but add our own post-processing for modifiers
-    let sourceFile = Parser.parse(source: swiftUICode)
-    
-    print("\n==== DEBUG: SOURCE FILE STRUCTURE ====\n")
-    dump(sourceFile)
-    print("\n==== END DEBUG DUMP ====\n")
-    
-    // Create a visitor that will extract the view structure
-    let visitor = SwiftUIViewVisitor(viewMode: .sourceAccurate)
-    visitor.walk(sourceFile)
-    return visitor.rootViewNode
+extension SwiftUIViewVisitor {
+    /// Parses SwiftUI code into a ViewNode structure
+    static func parseSwiftUICode(_ swiftUICode: String) -> SyntaxView? {
+        print("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
+        
+        // Fall back to the original visitor-based approach for now
+        // but add our own post-processing for modifiers
+        let sourceFile = Parser.parse(source: swiftUICode)
+        
+        print("\n==== DEBUG: SOURCE FILE STRUCTURE ====\n")
+        dump(sourceFile)
+        print("\n==== END DEBUG DUMP ====\n")
+        
+        // Create a visitor that will extract the view structure
+        let visitor = SwiftUIViewVisitor(viewMode: .sourceAccurate)
+        visitor.walk(sourceFile)
+        return visitor.rootViewNode
+    }
 }
 
-
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
-class SwiftUIViewVisitor: SyntaxVisitor {
+final class SwiftUIViewVisitor: SyntaxVisitor {
     var rootViewNode: SyntaxView?
     private var currentNodeIndex: Int? // Index into the view stack
     private var viewStack: [SyntaxView] = []
@@ -50,8 +51,6 @@ class SwiftUIViewVisitor: SyntaxVisitor {
         print("🔍 [ModifierDebug] \(message)")
     #endif
     }
-    
-    
     
     // Helper to get current ViewNode
     private var currentViewNode: SyntaxView? {
@@ -320,7 +319,7 @@ class SwiftUIViewVisitor: SyntaxVisitor {
 
 // Example usage function to test the parsing
 func testSwiftUIToViewNode(swiftUICode: String) {
-    if let viewNode = parseSwiftUICode(swiftUICode) {
+    if let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode) {
         print("\n==== PARSED VIEWNODE RESULT ====\n")
         print("Name: \(viewNode.name.rawValue)")
         print("Arguments: \(viewNode.constructorArguments)")

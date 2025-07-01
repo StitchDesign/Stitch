@@ -156,6 +156,7 @@ enum StitchAIManagerError: Error {
     case nodeTypeNotSupported(String)
     case responseDecodingFailure(String)
     case portValueDescriptionNotSupported(String)
+    case swiftUIViewNodeNotFound(String, String)
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -171,6 +172,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "OpenAI respopnse decoding failed with the following error: \(errorMessage)"
         case .portValueDescriptionNotSupported(let nodeKindString):
             return "PortValue descriptions aren't supported for node kind: \(nodeKindString) due to PorValue version mismatch between the AI schema and SSK."
+        case .swiftUIViewNodeNotFound(let userPrompt, let sourceCode):
+            return "Unable to discover view node for user prompt: \(userPrompt)\nSource code:\n\(sourceCode)"
         }
     }
 }

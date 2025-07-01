@@ -50,13 +50,9 @@ extension SyntaxView {
     ///
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
-    static func build(from actions: VPLActionOrderedSet) -> Self? {
+    static func build(from actions: CurrentAIPatchBuilderResponseFormat.LayerData) -> Self? {
         // The very first `.layer` action produced by `deriveStitchActions()` is the root.
-        guard let rootConcept = actions.first(where: {
-            if case .createNode = $0 { return true } else { return false }
-        }),
-            case let .createNode(rootLayer) = rootConcept
-        else {
+        guard let rootLayer = actions.layers.first else {
             log("SyntaxView.build: No VPLLayer creation found – cannot rebuild view tree.")
             return nil
         }
@@ -68,23 +64,19 @@ extension SyntaxView {
 
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
-    private static func node(from layer: VPLCreateNode,
-                             in actions: VPLActionOrderedSet) -> Self? {
+    private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerNode,
+                             in actions: CurrentAIPatchBuilderResponseFormat.LayerData) -> Self? {
 
         // TODO: provide layer group orientation
-        guard let viewName = layer.name.deriveSyntaxViewName() else {
-            log("Stitch layer has no SwiftUI view equivalent yet?: \(layer)")
+        guard let layer = layerData.node_name.value.layer,
+              let migratedLayer = try? layer.convert(to: Layer.self),
+              let viewName = migratedLayer.deriveSyntaxViewName() else {
+            log("Stitch layer has no SwiftUI view equivalent yet?: \(layerData)")
             return nil
         }
         
         // Gather all `layerInputSet` concepts that belong to this layer.
-        let inputsSet: [VPLSetInput] = actions.compactMap {
-            if case let .setInput(set) = $0,
-               set.id == layer.id {
-                return set
-            }
-            return nil
-        }
+        let inputs = actions.custom_layer_input_values
 
         // Convert those sets into very naïve constructor‑arguments *or* modifiers.
         // For now we treat everything as a modifier unless the corresponding
@@ -92,7 +84,7 @@ extension SyntaxView {
         var constructorArgs: [SyntaxViewConstructorArgument] = []
         var modifiers: [SyntaxViewModifier] = []
 
-        for inputSet in inputsSet {
+        for input in inputs {
 //            if let viewModifierName = inputSet.input.toSwiftUIViewModifierName
             let syntaxScenario: FromLayerInputToSyntax = inputSet.input.toSwiftUISyntax(
                 // TODO: JUNE 24: handle proper PortValue here

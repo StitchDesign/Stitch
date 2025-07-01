@@ -67,12 +67,18 @@ struct AICodeGenRequest: StitchAIRequestable {
             let result = await request.request(document: document,
                                                aiManager: aiManager)
             switch result {
-            case .success(let jsSourceCode):
-                print("SUCCESS Patch Service:\n\(jsSourceCode)")
+            case .success(let swiftUISourceCode):
+                print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
+                
+                guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
+                    throw StitchAIManagerError
+                        .swiftUIViewNodeNotFound(userPrompt,
+                                                 swiftUISourceCode)
+                }
                 
                 let patchBuilderRequest = try AIPatchBuilderRequest(
                     prompt: userPrompt,
-                    jsSourceCode: jsSourceCode,
+                    swiftUISourceCode: swiftUISourceCode,
                     
                     // Nil for now, provides option later for mapping
                     layerList: nil)

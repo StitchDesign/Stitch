@@ -10,53 +10,96 @@ import SwiftUI
 
 
 extension SyntaxView {
+//    private struct RecursiveLayerData {
+//        let layer: CurrentAIPatchBuilderResponseFormat.LayerNode
+//        let layerConnections: [CurrentAIPatchBuilderResponseFormat.LayerConnection]
+//        let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+//    }
 
     /// Recursive conversion to **flattened** `[VPLLayerConcept]`
-    func recursivelyDeriveActions() -> VPLActions? {
+//    func recursivelyDeriveActions() -> VPLActions? {
+//        
+//        // 1. Map this node
+//        if var (layer, concepts) = self.name.deriveLayer(
+//            id: self.id,
+//            args: self.constructorArguments,
+//            modifiers: self.modifiers) {
+//            var childLayers: [VPLCreateNode] = []
+//            
+//            // 2. Recurse into children
+//            for child in children {
+//                if let childConcepts = child.recursivelyDeriveActions() {
+//                    // First concept for every child must be its `.layer`
+//                    if case let .createNode(childLayer) = childConcepts[0] {
+//                        childLayers.append(childLayer)
+//                    }
+//                    concepts.append(contentsOf: childConcepts) // depth-first
+//                }
+//            }
+//            
+//            let layerWithChildren = VPLCreateNode(id: layer.id,
+//                                             name: layer.name,
+//                                             children: childLayers)
+//            
+//            // 3. Prepend *this* fully-assembled layer concept
+//            concepts.insert(.createNode(layerWithChildren), at: 0)
+//            
+//            return concepts
+//        } else {
+//            return nil
+//        }
+//    }
+    
+    func deriveStitchActions() -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+        // Instantiate with empty data
+        var data = CurrentAIPatchBuilderResponseFormat
+            .LayerData(layers: [],
+                       layer_connections: [],
+                       custom_layer_input_values: [])
         
         // 1. Map this node
-        if var (layer, concepts) = self.name.deriveLayer(
+        guard let layerData = self.name.deriveLayer(
             id: self.id,
             args: self.constructorArguments,
-            modifiers: self.modifiers) {
-            var childLayers: [VPLCreateNode] = []
-            
-            // 2. Recurse into children
-            for child in children {
-                if let childConcepts = child.recursivelyDeriveActions() {
-                    // First concept for every child must be its `.layer`
-                    if case let .createNode(childLayer) = childConcepts[0] {
-                        childLayers.append(childLayer)
-                    }
-                    concepts.append(contentsOf: childConcepts) // depth-first
-                }
-            }
-            
-            let layerWithChildren = VPLCreateNode(id: layer.id,
-                                             name: layer.name,
-                                             children: childLayers)
-            
-            // 3. Prepend *this* fully-assembled layer concept
-            concepts.insert(.createNode(layerWithChildren), at: 0)
-            
-            return concepts
-        } else {
+            modifiers: self.modifiers) else {
             return nil
         }
         
+        data.layers.append(layerData.node)
+        data.custom_layer_input_values += layerData.customLayerInputValues
+        
+//        var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerNode] = []
+        
+        // 2. Recurse into children
+        for child in children {
+            if let childConcepts = child.deriveStitchActions() {
+                data.append(childConcepts) // depth-first
+            }
+        }
+        
+//        let layerWithChildren = CurrentAIPatchBuilderResponseFormat
+//            .LayerNode(node_id: .init(value: layer.id),
+//                       suggested_title: nil,
+//                       node_name: .init(value: .layer(layer)),
+//                       children: childLayers)
+//        
+//        // 3. Prepend *this* fully-assembled layer concept
+//        childLayers.insert(layerWithChildren, at: 0)
+        
+        return data
     }
 }
 
-extension SyntaxView {
-    
-    func deriveStitchActions() -> VPLActionOrderedSet? {
-        if let concepts = recursivelyDeriveActions() {
-            return VPLActionOrderedSet(concepts)
-        } else {
-            return nil
-        }
-    }
-}
+//extension SyntaxView {
+//    
+//    func deriveStitchActions() -> AIPatchBuilderResponseFormat_V0.LayerData? {
+//        if let concepts = recursivelyDeriveActions() {
+//            return VPLActionOrderedSet(concepts)
+//        } else {
+//            return nil
+//        }
+//    }
+//}
 
 
 // https://developer.apple.com/documentation/swiftui/color#Getting-standard-colors

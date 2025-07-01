@@ -9,18 +9,22 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
+struct SyntaxViewLayerData {
+    let node: CurrentAIPatchBuilderResponseFormat.LayerNode
+    let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+}
 
 extension SyntaxViewName {
+        
     
     /// Leaf-level mapping for **this** node only
     func deriveLayer(id: UUID,
                      args: [SyntaxViewConstructorArgument],
-                     modifiers: [SyntaxViewModifier]) -> (layer: VPLCreateNode,
-                           extras: VPLActions)? {
+                     modifiers: [SyntaxViewModifier]) -> SyntaxViewLayerData? {
         
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var layerType: Layer
-        var extras: VPLActions = []
+        var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
 
         switch self {
         case .rectangle:         layerType = .rectangle
@@ -101,36 +105,36 @@ extension SyntaxViewName {
             
         case .hStack:
             layerType = .group
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: .orientation,
-                                                value: .orientation(.horizontal)))
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.horizontal))
             )
 
         case .vStack:
             layerType = .group
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: .orientation,
-                                                value: .orientation(.vertical)))
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.vertical))
             )
 
         case .zStack:
             layerType = .group
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: .orientation,
-                                                value: .orientation(.none)))
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.none))
             )
 
         case .roundedRectangle:
             layerType = .rectangle
             if let arg = args.first(where: { $0.label == .cornerRadius }),
                let radius = Double(arg.value) {
-                extras.append(
-                    .setInput(VPLSetInput(id: id,
-                                                    input: .cornerRadius,
-                                                    value: .number(radius)))
+                customValues.append(
+                    .init(id: id,
+                          input: .cornerRadius,
+                          value: .number(radius))
                 )
             }
 
@@ -150,10 +154,10 @@ extension SyntaxViewName {
 
             switch arg.syntaxKind {
             case .literal:
-                extras.append(
-                    .setInput(VPLSetInput(id: id,
-                                                    input: port,
-                                                    value: portValue))
+                customValues.append(
+                    .init(id: id,
+                          input: port,
+                          value: portValue)
                 )
             case .variable, .expression:
                 extras.append(.createEdge(VPLCreateEdge(name: port)))

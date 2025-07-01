@@ -177,7 +177,7 @@ struct ASTExplorerView: View {
         let currentCode = codes[selectedTab]
 
         // Parse code → Syntax
-        guard let syntax = parseSwiftUICode(currentCode) else {
+        guard let syntax = SwiftUIViewVisitor.parseSwiftUICode(currentCode) else {
             firstSyntax = nil
             stitchActions = []
             rebuiltSyntax = nil

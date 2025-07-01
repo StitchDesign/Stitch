@@ -176,55 +176,34 @@ enum AIPatchBuilderResponseFormat_V0 {
 
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
-    struct GraphData: Codable {
-        let layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
+//    struct GraphData: Codable {
+//        let layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
+//        let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
+//        let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
+//        let patch_connections: [PatchConnection]
+//        let layer_connections: [LayerConnection]
+//        let custom_layer_input_values: [CustomLayerInputValue]
+//        let custom_patch_input_values: [CustomPatchInputValue]
+//    }
+    
+    struct PatchData: Codable {
         let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
         let patch_connections: [PatchConnection]
-        let layer_connections: [LayerConnection]
-        let custom_layer_input_values: [CustomLayerInputValue]
         let custom_patch_input_values: [CustomPatchInputValue]
     }
     
-    struct LayerNode: Codable {
+    struct LayerData: Encodable {
+        var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
+        var layer_connections: [LayerConnection]
+        var custom_layer_input_values: [CustomLayerInputValue]
+    }
+    
+    struct LayerNode {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerNode]?
-        
-        enum CodingKeys: String, CodingKey {
-            case node_id
-            case suggested_title
-            case node_name
-            case children
-        }
-        
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(node_id, forKey: .node_id)
-            try container.encode(node_name, forKey: .node_name)
-            
-            try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
-
-            // Only encode children if group layer
-            try container.encodeIfPresent(children, forKey: .children)
-        }
-        
-        init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
-            suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
-            node_name = try container.decode(StitchAIPatchOrLayer.self, forKey: .node_name)
-            
-            if let children = try container.decodeIfPresent([LayerNode].self, forKey: .children) {
-                self.children = children
-            } else {
-                // Make sure we have an empty list if layer is a group
-                if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
-                    self.children = []
-                }
-            }
-        }
     }
     
     struct JsPatchNode: Codable {
@@ -347,6 +326,61 @@ extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
                                            portValue: self.value,
                                            valueKey: .value,
                                            valueTypeKey: .value_type)
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.LayerData {
+    mutating func append(_ layerData: Self) {
+        self.layers += layerData.layers
+        self.layer_connections += layerData.layer_connections
+        self.custom_layer_input_values += layerData.custom_layer_input_values
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.LayerNode: Codable {
+    enum CodingKeys: String, CodingKey {
+        case node_id
+        case suggested_title
+        case node_name
+        case children
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(node_id, forKey: .node_id)
+        try container.encode(node_name, forKey: .node_name)
+        
+        try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
+        
+        // Only encode children if group layer
+        try container.encodeIfPresent(children, forKey: .children)
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
+        suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
+        node_name = try container.decode(AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
+        
+        if let children = try container.decodeIfPresent([Self].self, forKey: .children) {
+            self.children = children
+        } else {
+            // Make sure we have an empty list if layer is a group
+            if node_name.value == .layer(.group) || node_name.value == .layer(.realityView) {
+                self.children = []
+            }
+        }
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.CustomLayerInputValue {
+    init(id: UUID,
+         input: Step_V0.LayerInputPort,
+         value: Step_V0.PortValue) {
+        self = .init(layer_input_coordinate: .init(
+            layer_id: .init(value: id),
+            input_port_type: .init(value: input)),
+                     value: value)
     }
 }
 

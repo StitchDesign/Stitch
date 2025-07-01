@@ -20,7 +20,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     
     @MainActor
     init(prompt: String,
-         jsSourceCode: String,
+         swiftUISourceCode: String,
          layerList: SidebarLayerList?,
          config: OpenAIRequestConfig = .default) throws {
         
@@ -32,7 +32,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         
         // Construct http payload
         self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
-                                                  swiftUiSourceCode: jsSourceCode,
+                                                  swiftUiSourceCode: swiftUISourceCode,
                                                   layerList: layerList)
     }
     
@@ -43,17 +43,17 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateResponse(decodedResult: CurrentAIPatchBuilderResponseFormat.GraphData) throws -> CurrentAIPatchBuilderResponseFormat.GraphData {
+    static func validateResponse(decodedResult: CurrentAIPatchBuilderResponseFormat.PatchData) throws -> CurrentAIPatchBuilderResponseFormat.PatchData {
         decodedResult
     }
     
     @MainActor
-    func onSuccessfulDecodingChunk(result: CurrentAIPatchBuilderResponseFormat.GraphData,
+    func onSuccessfulDecodingChunk(result: CurrentAIPatchBuilderResponseFormat.PatchData,
                                    currentAttempt: Int) {
         fatalErrorIfDebug()
     }
     
-    static func buildResponse(from streamingChunks: [CurrentAIPatchBuilderResponseFormat.GraphData]) throws -> CurrentAIPatchBuilderResponseFormat.GraphData {
+    static func buildResponse(from streamingChunks: [CurrentAIPatchBuilderResponseFormat.PatchData]) throws -> CurrentAIPatchBuilderResponseFormat.PatchData {
         // Unsupported
         fatalError()
     }
@@ -145,7 +145,7 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension CurrentAIPatchBuilderResponseFormat.GraphData {
+extension CurrentAIPatchBuilderResponseFormat.PatchData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
@@ -196,7 +196,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         graph.layersSidebarViewModel.update(from: newList)
         
         // Update graph data so that input observers are created
-        graph.updateGraphData(document)
+        graph.updatePatchData(document)
         
         // new constants for patches
         for newInputValueSetting in self.custom_patch_input_values {

@@ -97,7 +97,10 @@ enum SyntaxViewModifierName: Codable, Hashable, Equatable, Sendable {
     case font
     case multilineTextAlignment
     case underline
-    case keyboardType
+    
+    // TODO: support after v1
+//    case keyboardType
+    
     case disableAutocorrection
     case contrast
     case clipped
@@ -135,7 +138,7 @@ extension SyntaxViewModifierName: RawRepresentable {
         case "multilineTextAlignment":
                                    self = .multilineTextAlignment
         case "underline":         self = .underline
-        case "keyboardType":      self = .keyboardType
+//        case "keyboardType":      self = .keyboardType
         case "disableAutocorrection":
                                    self = .disableAutocorrection
         case "contrast":          self = .contrast
@@ -170,7 +173,7 @@ extension SyntaxViewModifierName: RawRepresentable {
         case .multilineTextAlignment:
                                     return "multilineTextAlignment"
         case .underline:         return "underline"
-        case .keyboardType:      return "keyboardType"
+//        case .keyboardType:      return "keyboardType"
         case .disableAutocorrection:
                                     return "disableAutocorrection"
         case .contrast:          return "contrast"

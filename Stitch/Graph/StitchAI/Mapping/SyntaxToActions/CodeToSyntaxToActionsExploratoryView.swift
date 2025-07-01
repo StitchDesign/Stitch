@@ -21,7 +21,7 @@ struct CodeToSyntaxToActionsExploratoryView: View {
     @State private var selectedTab = 0
     @State private var swiftUICode: String = ""
     @State private var parsedViewNode: SyntaxView?
-    @State private var actions: VPLActionOrderedSet = []
+    @State private var actions: AIPatchBuilderResponseFormat_V0.LayerData?
 
     // -- Body --
     var body: some View {
@@ -82,17 +82,19 @@ struct CodeToSyntaxToActionsExploratoryView: View {
             VStack(alignment: .leading) {
                 Text("Actions").font(.headline)
                 ScrollView {
-                    if actions.isEmpty {
-                        Text("—")
-                    } else {
-                        VStack(alignment: .leading, spacing: 2) {
-                            ForEach(Array(actions.enumerated()), id: \.element) { idx, act in
-                                Text("[\(idx)] \(String(describing: act))")
-                                    .font(.system(.body, design: .monospaced))
-                                    .padding()
-                            }
-                        }
+                    if let actions = actions {
+                        Text(try! actions.encodeToPrintableString())
+                            .monospaced()
+//                        VStack(alignment: .leading, spacing: 2) {
+//                            ForEach(Array(actions.enumerated()), id: \.element) { idx, act in
+//                                Text("[\(idx)] \(String(describing: act))")
+//                                    .font(.system(.body, design: .monospaced))
+//                                    .padding()
+//                            }
+//                        }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Text("—")
                     }
                 }
                 .border(Color.secondary)
@@ -108,12 +110,11 @@ struct CodeToSyntaxToActionsExploratoryView: View {
     }
 
     private func parseCurrent() {
-        parsedViewNode = parseSwiftUICode(swiftUICode)
-        if let node = parsedViewNode,
-           let _actions = node.deriveStitchActions() {
-            actions = _actions
+        parsedViewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+        if let node = parsedViewNode {
+            actions = node.deriveStitchActions()
         } else {
-            actions = []
+            actions = nil
         }
     }
 }

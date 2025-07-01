@@ -7,6 +7,9 @@
 
 import Foundation
 
+enum SwiftUISyntaxError {
+    case unsupportedData
+}
 
 extension LayerInputPort {
     
