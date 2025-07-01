@@ -12,7 +12,7 @@ import UIKit
 extension SyntaxView {
     
     // TODO: actually use this; i.e. update SASetLayerInput to use LayerInputPort
-    func deriveLayerInputPorts(_ layer: Layer) -> Set<CurrentStep.LayerInputPort> {
+    func deriveLayerInputPorts(_ layer: CurrentStep.Layer) -> Set<CurrentStep.LayerInputPort> {
         
         let portsFromConstructorArgs = self.constructorArguments.compactMap {
             $0.deriveLayerInputPort(layer)
@@ -59,7 +59,7 @@ extension SyntaxViewConstructorArgument {
         }
     }
     
-    func deriveLayerInputPort(_ layer: Layer) -> CurrentStep.LayerInputPort? {
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
         switch self.label {
             
         case .systemName:
@@ -87,7 +87,7 @@ extension SyntaxViewConstructorArgument {
 
 extension SyntaxViewModifierName {
     
-    func deriveLayerInputPort(_ layer: Layer) -> CurrentStep.LayerInputPort? {
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
         switch (self, layer) {
             // Universal modifiers (same for every layer)
         case (.scaleEffect, _):

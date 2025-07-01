@@ -74,14 +74,14 @@ struct AICodeGenRequest: StitchAIRequestable {
                     throw SwiftUISyntaxError.viewNodeNotFound
                 }
                 
-                guard let layerData = viewNode.deriveStitchActions() else {
+                guard let layerData = try viewNode.deriveStitchActions() else {
                     throw SwiftUISyntaxError.rootLayerNotFound
                 }
                 
                 let patchBuilderRequest = try AIPatchBuilderRequest(
                     prompt: userPrompt,
                     swiftUISourceCode: swiftUISourceCode,
-                    layerList: layerData)
+                    layerData: layerData)
                 
                 let patchBuilderResult = await patchBuilderRequest
                     .request(document: document,

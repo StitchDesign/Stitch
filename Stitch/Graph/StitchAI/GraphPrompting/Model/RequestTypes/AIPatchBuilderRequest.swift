@@ -21,7 +21,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     @MainActor
     init(prompt: String,
          swiftUISourceCode: String,
-         layerList: CurrentAIPatchBuilderResponseFormat.LayerData,
+         layerData: CurrentAIPatchBuilderResponseFormat.LayerData,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -33,7 +33,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         // Construct http payload
         self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
                                                   swiftUiSourceCode: swiftUISourceCode,
-                                                  layerList: layerList)
+                                                  layerData: layerData)
     }
     
     @MainActor

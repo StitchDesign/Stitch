@@ -8,7 +8,7 @@
 import Foundation
 
 enum SwiftUISyntaxError: Error {
-    case unsupportedData
+//    case unsupportedData
     case viewNodeNotFound
     case rootLayerNotFound
 }

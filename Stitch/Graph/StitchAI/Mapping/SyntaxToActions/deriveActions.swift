@@ -50,7 +50,7 @@ extension SyntaxView {
 //        }
 //    }
     
-    func deriveStitchActions() -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+    func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
         // Instantiate with empty data
         var data = CurrentAIPatchBuilderResponseFormat
             .LayerData(layers: [],
@@ -58,7 +58,7 @@ extension SyntaxView {
                        custom_layer_input_values: [])
         
         // 1. Map this node
-        guard let layerData = self.name.deriveLayer(
+        guard let layerData = try self.name.deriveLayer(
             id: self.id,
             args: self.constructorArguments,
             modifiers: self.modifiers) else {
@@ -72,7 +72,7 @@ extension SyntaxView {
         
         // 2. Recurse into children
         for child in children {
-            if let childConcepts = child.deriveStitchActions() {
+            if let childConcepts = try child.deriveStitchActions() {
                 data.append(childConcepts) // depth-first
             }
         }

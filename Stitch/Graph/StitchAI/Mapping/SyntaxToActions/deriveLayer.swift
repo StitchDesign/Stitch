@@ -20,10 +20,10 @@ extension SyntaxViewName {
     /// Leaf-level mapping for **this** node only
     func deriveLayer(id: UUID,
                      args: [SyntaxViewConstructorArgument],
-                     modifiers: [SyntaxViewModifier]) -> SyntaxViewLayerData? {
+                     modifiers: [SyntaxViewModifier]) throws -> SyntaxViewLayerData? {
         
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
-        var layerType: Layer
+        var layerType: CurrentStep.Layer
         var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
 
         switch self {
@@ -160,17 +160,23 @@ extension SyntaxViewName {
                           value: portValue)
                 )
             case .variable, .expression:
-                extras.append(.createEdge(VPLCreateEdge(name: port)))
+                // Skip variables for edges, using AI instead
+                continue
+//                extras.append(.createEdge(VPLCreateEdge(name: port)))
             }
         }
 
         // ── Generic modifier handling ────────────────────────────────────────
         for modifier in modifiers {
 
-            guard let port = modifier.name.deriveLayerInputPort(layerType) else { continue }
+            guard let port = modifier.name.deriveLayerInputPort(layerType) else {
+                continue
+            }
+            
+            let migratedPort = try port.convert(to: LayerInputPort.self)
 
             // Start with default value for that port
-            var portValue = port.getDefaultValue(for: layerType)
+            var portValue = migratedPort.getDefaultValue(for: layerType)
 
             if modifier.arguments.count == 1, let arg = modifier.arguments.first {
 
@@ -189,16 +195,23 @@ extension SyntaxViewName {
                     )
                 }
             }
+            
+            // "Downgrade" PortValue back to supported type for the AI
+            let downgradedValue = try portValue.convert(to: CurrentStep.PortValue.self)
 
-            extras.append(
-                .setInput(VPLSetInput(id: id,
-                                                input: port,
-                                                value: portValue))
+            customValues.append(
+                .init(id: id,
+                      input: port,
+                      value: downgradedValue)
             )
         }
 
         // Final bare layer (children added later)
-        return (VPLCreateNode(id: id, name: layerType, children: []), extras)
+        let layeNode = CurrentAIPatchBuilderResponseFormat
+            .LayerNode(node_id: .init(value: id),
+                       node_name: .init(value: .layer(layerType)))
+        return .init(node: layeNode,
+                     customLayerInputValues: customValues)
     }
     
 }
