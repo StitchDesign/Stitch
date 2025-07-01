@@ -220,13 +220,10 @@ struct ASTExplorerView: View {
                     .border(Color.secondary)
                     .onChange(of: binding.wrappedValue, initial: true) { _,_  in transform() }
             } else {
-                ScrollView {
-                    Text(text)
-                        .font(.system(.body, design: .monospaced))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                }
-                .border(Color.secondary)
+                TextEditor(text: .constant(text))
+                    .font(.system(.body, design: .monospaced))
+                    .padding()
+                    .border(Color.secondary)
             }
         }
         .frame(maxWidth: .infinity)
