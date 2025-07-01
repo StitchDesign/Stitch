@@ -6,16 +6,102 @@
 //
 
 import Foundation
-
+import SwiftUI
 
 // Just a namespace
 struct MappingExamples { }
+
+struct ExampleView: View {
+    var body: some View {
+        
+        ScrollView {
+            VStack {
+                Rectangle()
+                Ellipse()
+            }
+        }
+        
+        ScrollView {
+            HStack {
+                Rectangle()
+                Ellipse()
+            }
+        }
+        
+        ScrollView([.horizontal, .vertical]) {
+            VStack {
+                Rectangle()
+                Ellipse()
+            }
+        }
+    }
+}
+
+struct MappingCodeExample: Sendable {
+    let title: String
+    let code: String
+}
+
+let scrollViewVStack = MappingCodeExample(
+    title: "scrollViewVStack",
+    code:
+"""
+ScrollView {
+    VStack {
+        Rectangle()
+        Ellipse()
+    }
+}
+"""
+)
+
+let scrollViewHStack = MappingCodeExample(
+    title: "scrollViewHStack",
+    code:
+"""
+ScrollView {
+    HStack {
+        Rectangle()
+        Ellipse()
+    }
+}
+"""
+)
+
+let scrollViewNotTopLevel = MappingCodeExample(
+    title: "scroll view not top level",
+    code:
+"""
+ZStack {
+    ScrollView {
+        VStack {
+            Rectangle()
+        }
+    }
+}
+"""
+)
 
 extension MappingExamples {
     
     // TODO: break into separate pieces
     static let codeExamples: [(title: String, code: String)] = [
        
+        (
+            scrollViewVStack.title,
+            scrollViewVStack.code
+        ),
+        
+        (
+            scrollViewHStack.title,
+            scrollViewHStack.code
+        ),
+        
+        (
+            scrollViewNotTopLevel.title,
+            scrollViewNotTopLevel.code
+        ),
+        
         ("ScrollView", """
          ScrollView {
             VStack {
