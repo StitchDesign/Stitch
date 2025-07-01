@@ -10,7 +10,7 @@ import StitchSchemaKit
 import SwiftUI
 
 struct SyntaxViewLayerData {
-    let node: CurrentAIPatchBuilderResponseFormat.LayerNode
+    var node: CurrentAIPatchBuilderResponseFormat.LayerNode
     let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
 }
 

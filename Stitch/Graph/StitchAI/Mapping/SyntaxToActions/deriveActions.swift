@@ -10,46 +10,6 @@ import SwiftUI
 
 
 extension SyntaxView {
-//    private struct RecursiveLayerData {
-//        let layer: CurrentAIPatchBuilderResponseFormat.LayerNode
-//        let layerConnections: [CurrentAIPatchBuilderResponseFormat.LayerConnection]
-//        let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
-//    }
-
-    /// Recursive conversion to **flattened** `[VPLLayerConcept]`
-//    func recursivelyDeriveActions() -> VPLActions? {
-//        
-//        // 1. Map this node
-//        if var (layer, concepts) = self.name.deriveLayer(
-//            id: self.id,
-//            args: self.constructorArguments,
-//            modifiers: self.modifiers) {
-//            var childLayers: [VPLCreateNode] = []
-//            
-//            // 2. Recurse into children
-//            for child in children {
-//                if let childConcepts = child.recursivelyDeriveActions() {
-//                    // First concept for every child must be its `.layer`
-//                    if case let .createNode(childLayer) = childConcepts[0] {
-//                        childLayers.append(childLayer)
-//                    }
-//                    concepts.append(contentsOf: childConcepts) // depth-first
-//                }
-//            }
-//            
-//            let layerWithChildren = VPLCreateNode(id: layer.id,
-//                                             name: layer.name,
-//                                             children: childLayers)
-//            
-//            // 3. Prepend *this* fully-assembled layer concept
-//            concepts.insert(.createNode(layerWithChildren), at: 0)
-//            
-//            return concepts
-//        } else {
-//            return nil
-//        }
-//    }
-    
     func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
         // Instantiate with empty data
         var data = CurrentAIPatchBuilderResponseFormat
@@ -57,33 +17,33 @@ extension SyntaxView {
                        custom_layer_input_values: [])
         
         // 1. Map this node
-        guard let layerData = try self.name.deriveLayer(
+        guard var layerData = try self.name.deriveLayer(
             id: self.id,
             args: self.constructorArguments,
             modifiers: self.modifiers) else {
             return nil
         }
         
-        data.layers.append(layerData.node)
         data.custom_layer_input_values += layerData.customLayerInputValues
         
-//        var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerNode] = []
+        var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerNode] = []
         
         // 2. Recurse into children
         for child in children {
+            // depth-first
             if let childConcepts = try child.deriveStitchActions() {
-                data.append(childConcepts) // depth-first
+                // Append child layers directly to layer at this recursive level
+                childLayers += childConcepts.layers
+                
+                data.custom_layer_input_values += childConcepts.custom_layer_input_values
             }
         }
         
-//        let layerWithChildren = CurrentAIPatchBuilderResponseFormat
-//            .LayerNode(node_id: .init(value: layer.id),
-//                       suggested_title: nil,
-//                       node_name: .init(value: .layer(layer)),
-//                       children: childLayers)
-//        
-//        // 3. Prepend *this* fully-assembled layer concept
-//        childLayers.insert(layerWithChildren, at: 0)
+        if !childLayers.isEmpty {
+            layerData.node.children = childLayers
+        }
+        
+        data.layers.append(layerData.node)
         
         return data
     }

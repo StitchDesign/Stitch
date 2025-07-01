@@ -326,13 +326,6 @@ extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
     }
 }
 
-extension AIPatchBuilderResponseFormat_V0.LayerData {
-    mutating func append(_ layerData: Self) {
-        self.layers += layerData.layers
-        self.custom_layer_input_values += layerData.custom_layer_input_values
-    }
-}
-
 extension AIPatchBuilderResponseFormat_V0.LayerNode: Codable {
     enum CodingKeys: String, CodingKey {
         case node_id
