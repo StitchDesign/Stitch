@@ -102,21 +102,22 @@ extension SyntaxView {
                 modifiers.append(viewModifier)
                 
             case .unsupported, .function:
-                log("unsupported or function syntaxScenario for \(inputSet)")
+                log("unsupported or function syntaxScenario for \(inputData)")
                 continue
             }
         }
 
         // Recurse into child layers.
-        let childNodes: [Self] = layer.children.compactMap { node(from: $0, in: actions) }
+        let childNodes: [Self]? = try layerData.children?
+            .compactMap { try node(from: $0, in: actions) }
 
         // Build the actual SyntaxView node.
         return Self(
             name: viewName,
             constructorArguments: constructorArgs,
             modifiers: modifiers,
-            children: childNodes,
-            id: layer.id
+            children: childNodes ?? [],
+            id: layerData.node_id.value
         )
     }
 }

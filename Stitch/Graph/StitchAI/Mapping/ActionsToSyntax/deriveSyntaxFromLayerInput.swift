@@ -32,8 +32,7 @@ extension CurrentStep.LayerInputPort {
         }
         
         let buildMultifieldModifier = { (name: SyntaxViewModifierName) -> FromLayerInputToSyntax in
-            let migratedValue = try value.migrate()
-            if let modifier = migratedValue.deriveSyntaxViewModifierForMultifieldPortValue(name) {
+            if let modifier = value.deriveSyntaxViewModifierForMultifieldPortValue(name) {
                 return .modifier(modifier)
             } else {
                 fatalErrorIfDebug("Failed to handle layer input \(self) with value \(value) for modifier \(name)")
@@ -72,14 +71,14 @@ extension CurrentStep.LayerInputPort {
             
             // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
         case .position:
-            return try buildMultifieldModifier(.position)
+            return buildMultifieldModifier(.position)
             
         // Stitch's LayerInputPort.offsetInGroup *always* becomes SwiftUI .offset modifier
         case .offsetInGroup:
-            return try buildMultifieldModifier(.offset)
+            return buildMultifieldModifier(.offset)
             
         case .size:
-            return try buildMultifieldModifier(.frame)
+            return buildMultifieldModifier(.frame)
         
         // TODO: JUNE 23: .fill for Layer.rectangle, Layer.oval etc.; but .foregroundColor for Layer.text
         case .color:
@@ -267,10 +266,14 @@ extension CurrentStep.LayerInputPort {
 }
 
 
-extension PortValue {
+extension CurrentStep.PortValue {
     
     var isMultifield: Bool {
-        self.unpackValues().isDefined
+        guard let migratedValue = try? self.migrate() else {
+            fatalErrorIfDebug()
+            return false
+        }
+        return migratedValue.unpackValues().isDefined
     }
     
     // from the port value ALONE, will you know the modifier's arguments ?
@@ -281,7 +284,7 @@ extension PortValue {
     //
     func deriveSyntaxViewModifierForMultifieldPortValue(_ name: SyntaxViewModifierName) -> SyntaxViewModifier? {
         
-        let inputValue: PortValue = self
+        let inputValue = self
         
         // TODO: isn't there some typed way to retrieve a
         guard inputValue.isMultifield else {
