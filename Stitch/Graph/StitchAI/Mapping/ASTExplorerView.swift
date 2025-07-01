@@ -51,7 +51,10 @@ struct ASTExplorerView: View {
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
 
-    init(initialVisibleStages: Set<Stage> = Set(Stage.allCases)) {
+    init(
+//        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
+        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions])
+    ) {
         _visibleStages = State(initialValue: initialVisibleStages)
     }
 
@@ -87,7 +90,7 @@ struct ASTExplorerView: View {
                 }
             }
             .tabViewStyle(.automatic)
-            .onChange(of: selectedTab) { _ in transform() }
+            .onChange(of: selectedTab, initial: true) { _, _ in transform() }
         }
         .padding()
         .onAppear { transform() }   // auto‑transform as soon as the view appears
@@ -215,7 +218,7 @@ struct ASTExplorerView: View {
                     .font(.system(.body, design: .monospaced))
                     .padding()
                     .border(Color.secondary)
-                    .onChange(of: binding.wrappedValue) { _ in transform() }
+                    .onChange(of: binding.wrappedValue, initial: true) { _,_  in transform() }
             } else {
                 ScrollView {
                     Text(text)

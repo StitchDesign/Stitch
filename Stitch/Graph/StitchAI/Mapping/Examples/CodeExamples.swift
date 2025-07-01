@@ -16,6 +16,20 @@ extension MappingExamples {
     // TODO: break into separate pieces
     static let codeExamples: [(title: String, code: String)] = [
        
+        ("ScrollView", """
+         ScrollView {
+            VStack {
+                Rectangle()
+            }
+         }
+         """),
+        
+        ("VStack", """
+         VStack {
+            Rectangle().fill(Color.blue)
+         }
+         """),
+        
         ("Position", """
          Rectangle()
              .position(x: 200, y: 200)
@@ -54,12 +68,6 @@ extension MappingExamples {
              Rectangle()
                 .fill(Color.blue)
          }.scaleEffect(2)
-         """),
-        
-        ("VStack", """
-         VStack {
-            Rectangle().fill(Color.blue)
-         }
          """),
         
         ("Nested", """

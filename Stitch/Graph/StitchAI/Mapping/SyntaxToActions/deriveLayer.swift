@@ -74,7 +74,9 @@ extension SyntaxViewName {
         case .divider: return nil
         case .geometryReader: return nil
         case .alignmentGuide: return nil
+        
         case .scrollView: return nil // TODO: support
+            
         case .list: return nil
         case .table: return nil
         case .outlineGroup: return nil
