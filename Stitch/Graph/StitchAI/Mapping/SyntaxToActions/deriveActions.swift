@@ -11,13 +11,31 @@ import SwiftUI
 
 extension SyntaxView {
     func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
+        // ───────────────────────────────────────────────────────────────────
+        // Special‑case: ScrollView that directly wraps a single VStack
+        // Maps to the same group layer produced by the VStack, but with
+        // scrollYEnabled = true so the layer becomes vertically scrollable.
+        // ───────────────────────────────────────────────────────────────────
+        if self.name == .scrollView {
+            do {
+                if let result = try handleScrollView() {
+                    return result
+                }
+                // No `else`, since it's okay for this view not to be a scroll view
+            } catch {
+                throw error
+            }
+        }
+        
         // Instantiate with empty data
         var data = CurrentAIPatchBuilderResponseFormat
             .LayerData(layers: [],
                        custom_layer_input_values: [])
         
+        
+        
         // 1. Map this node
-        var layerData = try self.name.deriveLayer(
+        var layerData = try self.name.deriveLayerData(
             id: self.id,
             args: self.constructorArguments,
             modifiers: self.modifiers)
@@ -30,11 +48,11 @@ extension SyntaxView {
         for child in children {
             // depth-first
             let childConcepts = try child.deriveStitchActions()
-            
             // Append child layers directly to layer at this recursive level
             childLayers += childConcepts.layers
             
             data.custom_layer_input_values += childConcepts.custom_layer_input_values
+            
         }
         
         if !childLayers.isEmpty {
@@ -44,6 +62,116 @@ extension SyntaxView {
         data.layers.append(layerData.node)
         
         return data
+    }
+}
+
+extension SyntaxView {
+    /// Handles ScrollView-specific logic including axis detection and scroll behavior
+    func handleScrollView() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+        // Check the scroll axis from constructor arguments
+        let scrollAxis = detectScrollAxis()
+        
+        // Only proceed if we have a valid scroll axis and a single stack child
+        guard 
+            scrollAxis != .none,
+            children.count == 1,
+            let stack = children.first,
+            // TODO: support `.lazyVGrid` as well
+            (stack.name == .vStack || stack.name == .hStack || stack.name == .zStack)
+        else {
+            // Fall back to default handling if structure doesn't match expected pattern
+            return nil
+        }
+        
+        var flattened = try stack.deriveStitchActions()
+        
+        // The leading layer from the stack mapping is the group layer
+        if let groupLayer = flattened.layers.first {
+            // Enable the appropriate scroll direction(s) based on the detected axis
+            let nodeID = groupLayer.node_id.value
+            
+            switch scrollAxis {
+            case .vertical:
+                // Enable vertical scrolling only
+                flattened.custom_layer_input_values.append(
+                    .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
+                )
+                
+            case .horizontal:
+                // Enable horizontal scrolling only
+                flattened.custom_layer_input_values.append(
+                    .init(id: nodeID, input: .scrollXEnabled, value: .bool(true))
+                )
+                
+            case .both:
+                // Enable both horizontal and vertical scrolling
+                flattened.custom_layer_input_values.append(contentsOf: [
+                    .init(id: nodeID, input: .scrollXEnabled, value: .bool(true)),
+                    .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
+                ])
+                
+            case .none:
+                // No scrolling enabled
+                break
+            }
+        }
+        
+        return flattened
+    }
+    
+    // Note: this was written very verbosely, but acceptably
+    
+    /// Detects the scroll axis from the ScrollView's constructor arguments
+    private func detectScrollAxis() -> ScrollAxis {
+        // First check for array expressions that explicitly list both axes
+        for arg in constructorArguments {
+            guard let firstValue = arg.values.first else { continue }
+            
+            // Check for array containing both axes
+            if firstValue.value == "[.horizontal, .vertical]" || 
+               firstValue.value == "[.vertical, .horizontal]" ||
+               firstValue.value == "[Axis.horizontal, Axis.vertical]" ||
+               firstValue.value == "[Axis.vertical, Axis.horizontal]" {
+                return .both
+            }
+        }
+        
+        // Then check for individual axis specifications
+        var hasVertical = false
+        var hasHorizontal = false
+        
+        for arg in constructorArguments {
+            for value in arg.values {
+                // Check for vertical axis
+                if [".vertical", "[.vertical]", "Axis.vertical"].contains(value.value) {
+                    hasVertical = true
+                }
+                
+                // Check for horizontal axis
+                if [".horizontal", "[.horizontal]", "Axis.horizontal"].contains(value.value) {
+                    hasHorizontal = true
+                }
+            }
+        }
+        
+        // Determine the result based on which axes were found
+        if hasVertical && hasHorizontal {
+            return .both
+        } else if hasVertical {
+            return .vertical
+        } else if hasHorizontal {
+            return .horizontal
+        }
+        
+        return .none
+    }
+    
+    /// Represents the possible scroll axes for a ScrollView
+    private enum ScrollAxis {
+        case vertical
+        case horizontal
+        case both
+        case none
     }
 }
 

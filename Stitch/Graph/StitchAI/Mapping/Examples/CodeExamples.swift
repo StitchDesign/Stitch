@@ -6,16 +6,118 @@
 //
 
 import Foundation
-
+import SwiftUI
 
 // Just a namespace
 struct MappingExamples { }
+
+struct ExampleView: View {
+    var body: some View {
+    
+        ScrollView([.vertical]) {
+            
+        }
+        
+    } // var body: some View
+}
+
+struct MappingCodeExample: Sendable {
+    let title: String
+    let code: String
+}
+
+
+let scrollViewVStack = MappingCodeExample(
+    title: "scrollViewVStack",
+    code:
+"""
+ScrollView(.vertical) {
+    VStack {
+        Rectangle()
+        Ellipse()
+    }
+}
+"""
+)
+
+let scrollViewHStack = MappingCodeExample(
+    title: "scrollViewHStack",
+    code:
+"""
+ScrollView(.horizontal) {
+    HStack {
+        Rectangle()
+        Ellipse()
+    }
+}
+"""
+)
+
+let scrollViewNotTopLevel = MappingCodeExample(
+    title: "scroll view not top level",
+    code:
+"""
+ZStack {
+    ScrollView(.vertical) {
+        VStack {
+            Rectangle()
+        }
+    }
+}
+"""
+)
+
+let scrollViewWithAllAxes = MappingCodeExample(
+    title: "scroll view, all axes",
+    code:
+"""
+ScrollView([.horizontal, .vertical]) {
+    VStack {
+        Rectangle()
+    }
+}
+"""
+)
 
 extension MappingExamples {
     
     // TODO: break into separate pieces
     static let codeExamples: [(title: String, code: String)] = [
        
+        (
+            scrollViewVStack.title,
+            scrollViewVStack.code
+        ),
+        
+        (
+            scrollViewHStack.title,
+            scrollViewHStack.code
+        ),
+        
+        (
+            scrollViewNotTopLevel.title,
+            scrollViewNotTopLevel.code
+        ),
+        
+        (
+            scrollViewWithAllAxes.title,
+            scrollViewWithAllAxes.code
+        ),
+        
+        ("scroll view without explicit axes", """
+         ScrollView {
+            VStack {
+                Rectangle()
+            }
+         }
+         """),
+        
+        ("VStack", """
+         VStack {
+            Rectangle().fill(Color.blue)
+         }
+         """),
+        
         ("Position", """
          Rectangle()
              .position(x: 200, y: 200)
@@ -54,12 +156,6 @@ extension MappingExamples {
              Rectangle()
                 .fill(Color.blue)
          }.scaleEffect(2)
-         """),
-        
-        ("VStack", """
-         VStack {
-            Rectangle().fill(Color.blue)
-         }
          """),
         
         ("Nested", """

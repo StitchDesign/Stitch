@@ -183,12 +183,31 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 return nil
             }
             
-            let expression = argument.expression
+            
+            let expr = argument.expression
+
+            // Support either a single value or an array literal
+            let syntaxKind = SyntaxArgumentKind.fromExpression(expr)
+            let collectedValues: [SyntaxViewConstructorArgumentValue]
+            if let arrayExpr = expr.as(ArrayExprSyntax.self) {
+                collectedValues = arrayExpr.elements.map { element in
+                    SyntaxViewConstructorArgumentValue(
+                        value: element.expression.trimmedDescription,
+                        syntaxKind: SyntaxArgumentKind.fromExpression(element.expression)
+                    )
+                }
+            } else {
+                collectedValues = [SyntaxViewConstructorArgumentValue(
+                    value: expr.trimmedDescription,
+                    syntaxKind: syntaxKind
+                )]
+            }
+
             return SyntaxViewConstructorArgument(
                 label: label,
-                value: expression.trimmedDescription,
-                syntaxKind: .fromExpression(expression)
+                values: collectedValues
             )
+            
         }
         
         dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")

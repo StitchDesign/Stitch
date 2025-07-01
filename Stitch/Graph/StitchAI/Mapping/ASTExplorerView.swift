@@ -52,7 +52,10 @@ struct ASTExplorerView: View {
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
 
-    init(initialVisibleStages: Set<Stage> = Set(Stage.allCases)) {
+    init(
+//        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
+        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions])
+    ) {
         _visibleStages = State(initialValue: initialVisibleStages)
     }
 
@@ -88,7 +91,7 @@ struct ASTExplorerView: View {
                 }
             }
             .tabViewStyle(.automatic)
-            .onChange(of: selectedTab) { _ in transform() }
+            .onChange(of: selectedTab, initial: true) { _, _ in transform() }
             
             if let errorString = errorString {
                 VStack(alignment: .leading) {
@@ -239,15 +242,12 @@ struct ASTExplorerView: View {
                     .font(.system(.body, design: .monospaced))
                     .padding()
                     .border(Color.secondary)
-                    .onChange(of: binding.wrappedValue) { _ in transform() }
+                    .onChange(of: binding.wrappedValue, initial: true) { _,_  in transform() }
             } else {
-                ScrollView {
-                    Text(text)
-                        .font(.system(.body, design: .monospaced))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                }
-                .border(Color.secondary)
+                TextEditor(text: .constant(text))
+                    .font(.system(.body, design: .monospaced))
+                    .padding()
+                    .border(Color.secondary)
             }
         }
         .frame(maxWidth: .infinity)
@@ -258,43 +258,33 @@ struct ASTExplorerView: View {
 // MARK: – Pretty‑printing helpers for VPL actions
 private extension CurrentAIPatchBuilderResponseFormat.LayerData? {
 
-    /// A multi‑line, human‑readable description of the ordered actions list.
-    /// Returns “—” when the set is empty.
+    /// Pretty‑printed JSON with the nested `{ "orientation": { } }`
+    /// (or `{ "bool": { } }`, etc.) collapsed to a single string value so the
+    /// result is easier for humans to scan.
     var humanReadable: String {
-        (try? self?.encodeToPrintableString()) ?? "—"
-//        return enumerated()
-//            .map { "\n[\($0)] \(describe($1, indent: ""))" }
-//            .joined(separator: "\n")
+        // Convert `nil` to a dash
+        guard let layerData = self else { return "—" }
+
+        // 1) Encode the real structure
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let rawData = try? encoder.encode(layerData),
+              var json = String(data: rawData, encoding: .utf8) else {
+            return "—"
+        }
+
+        // 2) Collapse `"value_type" : { "foo" : { } }` → `"value_type" : "foo"`
+        let pattern = #"\"value_type\"\s*:\s*\{\s*\"([^\"]+)\"\s*:\s*\{\s*\}\s*\}"#
+        if let regex = try? NSRegularExpression(pattern: pattern, options: [.dotMatchesLineSeparators]) {
+            let fullRange = NSRange(location: 0, length: json.utf16.count)
+            json = regex.stringByReplacingMatches(in: json,
+                                                  options: [],
+                                                  range: fullRange,
+                                                  withTemplate: "\"value_type\" : \"$1\"")
+        }
+
+        return json
     }
-
-    // MARK: - Internals
-
-    /// Formats a single concept.
-//    private func describe(_ concept: VPLAction, indent: String) -> String {
-//        switch concept {
-//        case .createNode(let layer):
-//            return describe(layer, indent: indent)
-//        case .setInput(let set):
-//            return "\(indent)setInput(layerID: \(set.id), input: \(set.input), value: \(set.value))"
-//        case .createEdge(let edge):
-//            return "\(indent)incomingEdge(toInput: \(edge.name))"
-//        }
-//    }
-
-    /// Formats a layer and its children recursively.
-//    private func describe(_ layer: VPLCreateNode, indent: String) -> String {
-//        var lines: [String] = []
-//        lines.append("\(indent)layer(id: \(layer.id), name: \(layer.name.defaultDisplayTitle())) {")
-//        if layer.children.isEmpty {
-//            lines.append("\(indent)    (no children)")
-//        } else {
-//            for child in layer.children {
-//                lines.append(describe(child, indent: indent + "    "))
-//            }
-//        }
-//        lines.append("\(indent)}")
-//        return lines.joined(separator: "\n")
-//    }
 }
 
 #if DEBUG
