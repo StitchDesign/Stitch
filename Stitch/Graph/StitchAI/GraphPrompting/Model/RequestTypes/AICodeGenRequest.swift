@@ -101,7 +101,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                             try graphData.applyAIGraph(to: document)
                         } catch {
                             log("Error applying AI graph: \(error.localizedDescription)")
-                            document.storeDelegate?.alertState.stitchFileError = .unknownError(error.localizedDescription)
+                            document.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")
                         }
 
                         document.aiManager?.currentTaskTesting = nil
