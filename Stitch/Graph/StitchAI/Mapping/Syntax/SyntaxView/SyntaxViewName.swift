@@ -92,7 +92,7 @@ extension SyntaxViewName {
     }
     
     var isSupported: Bool {
-        (try? self.deriveLayer(id: .init(),
+        (try? self.deriveLayerData(id: .init(),
                               args: [],
                               modifiers: [])) != nil
     }

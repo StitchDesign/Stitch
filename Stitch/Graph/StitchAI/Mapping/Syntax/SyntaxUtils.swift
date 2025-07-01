@@ -33,8 +33,8 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     if !node.constructorArguments.isEmpty {
         for (i, arg) in node.constructorArguments.enumerated() {
             let label = "\(arg.label)"
-            let kindDesc = describe(arg.syntaxKind)
-            result += "\n\(indent)        (label: \(label), value: \(arg.value), kind: \(kindDesc))"
+            let valuesDesc = arg.values.map { "(\($0.value), \(describe($0.syntaxKind)))" }.joined(separator: ", ")
+            result += "\n\(indent)        (label: \(label), values: [\(valuesDesc)])"
             if i < node.constructorArguments.count - 1 {
                 result += ","
             }

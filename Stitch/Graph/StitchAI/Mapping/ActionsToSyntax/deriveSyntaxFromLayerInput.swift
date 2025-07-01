@@ -51,24 +51,30 @@ extension CurrentStep.LayerInputPort {
             
         case .text:
             // return .constructorArgument(.text(.noLabel))
+            let value = try valueOrEdge.asSwiftUILiteralOrVariable()
+            let syntaxKind = valueOrEdge.asSwiftSyntaxKind
             return .constructorArgument(.init(
-                
                 label: .noLabel,
-                
-                // TODO: JUNE 24: tricky: how to go from a VPL literal or edge to SwiftUI code contained with a
-                // `value` is either a literal (manually-set value) or an expression (incoming edge);
-                // if manually-set PortValue, then will be a Swift type literal (e.g. `5`, `"love"`, `CGSize(width: 50, height: 100)`
-                // if incoming-edge, then will be a Swift declared-constant
-                value: try valueOrEdge.asSwiftUILiteralOrVariable(),
-                
-                syntaxKind: valueOrEdge.asSwiftSyntaxKind))
-            
+                values: [
+                    SyntaxViewConstructorArgumentValue(
+                        value: value,
+                        syntaxKind: syntaxKind
+                    )
+                ]
+            ))
             
         case .sfSymbol:
+            let value = try valueOrEdge.asSwiftUILiteralOrVariable()
+            let syntaxKind = valueOrEdge.asSwiftSyntaxKind
             return .constructorArgument(.init(
                 label: .systemName,
-                value: try valueOrEdge.asSwiftUILiteralOrVariable(),
-                syntaxKind: valueOrEdge.asSwiftSyntaxKind))
+                values: [
+                    SyntaxViewConstructorArgumentValue(
+                        value: value,
+                        syntaxKind: syntaxKind
+                    )
+                ]
+            ))
             
             
             // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.

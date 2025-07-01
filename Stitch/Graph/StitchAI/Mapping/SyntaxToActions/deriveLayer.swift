@@ -17,11 +17,51 @@ struct SyntaxViewLayerData {
 extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
-    func deriveLayer(id: UUID,
-                     args: [SyntaxViewConstructorArgument],
-                     modifiers: [SyntaxViewModifier]) throws -> SyntaxViewLayerData? {
+    func deriveLayerData(id: UUID,
+                         args: [SyntaxViewConstructorArgument],
+                         modifiers: [SyntaxViewModifier]) throws -> SyntaxViewLayerData? {
         
+        var layerType: CurrentStep.Layer
+        var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
+
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
+        guard let (updatedLayerType,
+                   updatedCustomValues) = self.deriveLayerAndCustomValuesFromName(id: id, args: args) else {
+            return nil
+        }
+        
+        layerType = updatedLayerType
+        customValues = updatedCustomValues
+        
+
+        // Handle constructor-arguments
+        customValues = self.deriveCustomValuesFromConstructorArguments(
+            id: id,
+            layerType: layerType,
+            args: args,
+            customValues: customValues)
+        
+        // Handle modifiers
+        customValues = try self.deriveCustomValuesFromViewModifiers(
+            id: id,
+            layerType: layerType,
+            modifiers: modifiers,
+            customValues: customValues)
+
+        // Final bare layer (children added later)
+        let layeNode = CurrentAIPatchBuilderResponseFormat
+            .LayerNode(node_id: .init(value: id),
+                       node_name: .init(value: .layer(layerType)))
+        return .init(node: layeNode,
+                     customLayerInputValues: customValues)
+    }
+    
+    func deriveLayerAndCustomValuesFromName(
+        id: UUID,
+        args: [SyntaxViewConstructorArgument],
+    ) -> (layerType: CurrentStep.Layer,
+          customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue])? {
+        
         var layerType: CurrentStep.Layer
         var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
 
@@ -133,7 +173,8 @@ extension SyntaxViewName {
         case .roundedRectangle:
             layerType = .rectangle
             if let arg = args.first(where: { $0.label == .cornerRadius }),
-               let radius = Double(arg.value) {
+               let firstValue = arg.values.first,
+               let radius = Double(firstValue.value) {
                 customValues.append(
                     .init(id: id,
                           input: .cornerRadius,
@@ -141,34 +182,63 @@ extension SyntaxViewName {
                 )
             }
 
-        default:
-            layerType = .hitArea   // safe fallback
+        // TODO: handle these? `lazyVStack` is a LayerGroup with grid orientation
+        case .lazyVStack, .lazyHStack, .lazyVGrid, .lazyHGrid, .grid:
+            return nil
         }
-
+        
+        return (layerType: layerType,
+                customValues: customValues)
+    }
+    
+    func deriveCustomValuesFromConstructorArguments(
+        id: UUID,
+        layerType: CurrentStep.Layer,
+        args: [SyntaxViewConstructorArgument],
+        customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+    ) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        
+        var customValues = customValues
+        
         // ── Generic constructor‑argument handling (literals & edges) ─────────
         for arg in args {
 
-            // TODO: why are we skipping these ?
+            // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
             // Skip the specialised RoundedRectangle .cornerRadius
             if self == .roundedRectangle && arg.label == .cornerRadius { continue }
 
             guard let port = arg.deriveLayerInputPort(layerType),
                   let portValue = arg.derivePortValue(layerType) else { continue }
 
-            switch arg.syntaxKind {
-            case .literal:
-                customValues.append(
-                    .init(id: id,
-                          input: port,
-                          value: portValue)
-                )
-            case .variable, .expression:
-                // Skip variables for edges, using AI instead
-                continue
-//                extras.append(.createEdge(VPLCreateEdge(name: port)))
+            // Process each value in the argument
+            for value in arg.values {
+                switch value.syntaxKind {
+                case .literal:
+                    customValues.append(
+                        .init(id: id,
+                              input: port,
+                              value: portValue)
+                    )
+                case .variable, .expression:
+                    // Skip variables for edges, using AI instead
+                    continue
+//                    extras.append(.createEdge(VPLCreateEdge(name: port)))
+                }
             }
-        }
-
+        } // for arg in args
+        
+        return customValues
+    }
+    
+    func deriveCustomValuesFromViewModifiers(
+        id: UUID,
+        layerType: CurrentStep.Layer,
+        modifiers: [SyntaxViewModifier],
+        customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        
+        var customValues = customValues
+        
         // ── Generic modifier handling ────────────────────────────────────────
         for modifier in modifiers {
 
@@ -209,13 +279,8 @@ extension SyntaxViewName {
                       value: downgradedValue)
             )
         }
-
-        // Final bare layer (children added later)
-        let layeNode = CurrentAIPatchBuilderResponseFormat
-            .LayerNode(node_id: .init(value: id),
-                       node_name: .init(value: .layer(layerType)))
-        return .init(node: layeNode,
-                     customLayerInputValues: customValues)
+        
+        return customValues
     }
     
 }

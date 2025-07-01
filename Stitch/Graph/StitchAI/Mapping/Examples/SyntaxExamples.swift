@@ -60,7 +60,9 @@ extension MappingExamples {
                 modifiers: [
                     SyntaxViewModifier(
                         name: .fill,
-                        arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.green", syntaxKind: .variable(.memberAccess))]
+                        arguments: [SyntaxViewModifierArgument(label: .noLabel,
+                                                               value: "Color.green",
+                                                               syntaxKind: .variable(.memberAccess))]
                     )
                 ],
                 children: [],
@@ -76,9 +78,13 @@ extension MappingExamples {
     static let example2 = SyntaxView(
         name: .text,
         constructorArguments: [
-            SyntaxViewConstructorArgument(label: .noLabel,
-                                value: "\"salut\"",
-                                syntaxKind: .literal(.string))
+            SyntaxViewConstructorArgument(
+                label: .noLabel,
+                values: [
+                    SyntaxViewConstructorArgumentValue(value: "\"salut\"",
+                                                       syntaxKind: .literal(.string))
+                ]
+            )
         ],
         modifiers: [],
         children: [],
@@ -90,19 +96,27 @@ extension MappingExamples {
     static let example3 = SyntaxView(
         name: .text,
         constructorArguments: [
-            SyntaxViewConstructorArgument(label: .noLabel,
-                                value: "\"salut\"",
-                                syntaxKind: .literal(.string))
+            SyntaxViewConstructorArgument(
+                label: .noLabel,
+                values: [
+                    SyntaxViewConstructorArgumentValue(value: "\"salut\"",
+                                                       syntaxKind: .literal(.string))
+                ]
+            )
             
         ],
         modifiers: [
             SyntaxViewModifier(
                 name: .foregroundColor,
-                arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.yellow", syntaxKind: .variable(.memberAccess))]
+                arguments: [SyntaxViewModifierArgument(label: .noLabel,
+                                                       value: "Color.yellow",
+                                                       syntaxKind: .variable(.memberAccess))]
             ),
             SyntaxViewModifier(
                 name: .padding,
-                arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "", syntaxKind: .literal(.unknown))]
+                arguments: [SyntaxViewModifierArgument(label: .noLabel,
+                                                       value: "",
+                                                       syntaxKind: .literal(.unknown))]
             )
         ],
         children: [],
@@ -129,7 +143,10 @@ extension MappingExamples {
                 modifiers: [
                     SyntaxViewModifier(
                         name: .fill,
-                        arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
+                        arguments: [SyntaxViewModifierArgument(
+                            label: .noLabel,
+                            value: "Color.blue",
+                            syntaxKind: .variable(.memberAccess))]
                     )
                 ],
                 children: [],
@@ -146,7 +163,10 @@ extension MappingExamples {
                         modifiers: [
                             SyntaxViewModifier(
                                 name: .fill,
-                                arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.green", syntaxKind: .variable(.memberAccess))]
+                                arguments: [SyntaxViewModifierArgument(
+                                    label: .noLabel,
+                                    value: "Color.green",
+                                    syntaxKind: .variable(.memberAccess))]
                             )
                         ],
                         children: [],
@@ -158,7 +178,10 @@ extension MappingExamples {
                         modifiers: [
                             SyntaxViewModifier(
                                 name: .fill,
-                                arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.red", syntaxKind: .variable(.memberAccess))]
+                                arguments: [SyntaxViewModifierArgument(
+                                    label: .noLabel,
+                                    value: "Color.red",
+                                    syntaxKind: .variable(.memberAccess))]
                             )
                         ],
                         children: [],
@@ -177,9 +200,13 @@ extension MappingExamples {
     static let example5 = SyntaxView(
         name: .rectangle,
         constructorArguments: [
-            SyntaxViewConstructorArgument(label: .systemName,
-                                value: "\"star.fill\"",
-                                syntaxKind: .literal(.string))
+            SyntaxViewConstructorArgument(
+                label: .systemName,
+                values: [
+                    SyntaxViewConstructorArgumentValue(value: "\"star.fill\"",
+                                                       syntaxKind: .literal(.string))
+                ]
+            )
         ],
         modifiers: [],
         children: [],

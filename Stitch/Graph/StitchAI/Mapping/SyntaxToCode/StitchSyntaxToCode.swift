@@ -27,7 +27,8 @@ func swiftUICode(from node: SyntaxView, indentation: String = "") -> String {
         let args = node.constructorArguments.enumerated().map { index, arg -> String in
             // If there's a label, include it followed by a colon
             let label = arg.label.rawValue.isEmpty ? "" : "\(arg.label.rawValue): "
-            return "\(label)\(arg.value)"
+            let values = arg.values.map { $0.value }.joined(separator: ", ")
+            return "\(label)\(values)"
         }.joined(separator: ", ")
         
         code += args

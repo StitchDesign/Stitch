@@ -41,13 +41,14 @@ extension SyntaxView {
 
             return flattened
         }
+        
         // Instantiate with empty data
         var data = CurrentAIPatchBuilderResponseFormat
             .LayerData(layers: [],
                        custom_layer_input_values: [])
         
         // 1. Map this node
-        guard var layerData = try self.name.deriveLayer(
+        guard var layerData = try self.name.deriveLayerData(
             id: self.id,
             args: self.constructorArguments,
             modifiers: self.modifiers) else {

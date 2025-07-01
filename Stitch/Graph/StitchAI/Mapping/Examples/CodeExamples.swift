@@ -13,28 +13,12 @@ struct MappingExamples { }
 
 struct ExampleView: View {
     var body: some View {
-        
-        ScrollView {
-            VStack {
-                Rectangle()
-                Ellipse()
-            }
+    
+        ScrollView([.vertical]) {
+            
         }
         
-        ScrollView {
-            HStack {
-                Rectangle()
-                Ellipse()
-            }
-        }
-        
-        ScrollView([.horizontal, .vertical]) {
-            VStack {
-                Rectangle()
-                Ellipse()
-            }
-        }
-    }
+    } // var body: some View
 }
 
 struct MappingCodeExample: Sendable {
@@ -42,11 +26,12 @@ struct MappingCodeExample: Sendable {
     let code: String
 }
 
+
 let scrollViewVStack = MappingCodeExample(
     title: "scrollViewVStack",
     code:
 """
-ScrollView {
+ScrollView(.vertical) {
     VStack {
         Rectangle()
         Ellipse()
@@ -59,7 +44,7 @@ let scrollViewHStack = MappingCodeExample(
     title: "scrollViewHStack",
     code:
 """
-ScrollView {
+ScrollView(.horizontal) {
     HStack {
         Rectangle()
         Ellipse()
@@ -73,10 +58,22 @@ let scrollViewNotTopLevel = MappingCodeExample(
     code:
 """
 ZStack {
-    ScrollView {
+    ScrollView(.vertical) {
         VStack {
             Rectangle()
         }
+    }
+}
+"""
+)
+
+let scrollViewWithAllAxes = MappingCodeExample(
+    title: "scroll view, all axes",
+    code:
+"""
+ScrollView([.horizontal, .vertical]) {
+    VStack {
+        Rectangle()
     }
 }
 """

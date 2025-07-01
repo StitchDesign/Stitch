@@ -35,18 +35,18 @@ extension SyntaxViewConstructorArgument {
     
     func derivePortValue(_ layer: CurrentStep.Layer) -> CurrentStep.PortValue? {
         let label: SyntaxConstructorArgumentLabel = self.label
-        let value: String = self.value
+        guard let firstValue = self.values.first?.value else { return nil }
         
         switch (label, layer) {
         
         case (.systemName, _):
-            return .string(.init(value))
+            return .string(.init(firstValue))
         
         case (.cornerRadius, _):
-            return .number(toNumber(value) ?? .zero)
+            return .number(toNumber(firstValue) ?? .zero)
             
         case (_, let text) where text == .text || text == .textField:
-            return .string(.init(value))
+            return .string(.init(firstValue))
             
         case (.noLabel, _):
             // e.g. `Rectangle()`, `Ellipse`,
@@ -54,7 +54,7 @@ extension SyntaxViewConstructorArgument {
             return nil
             
         case (.unsupported, _):
-            log("had unsupported label for label \(label) and value \(value)")
+            log("had unsupported label for label \(label) and value \(firstValue)")
             return nil
         }
     }
