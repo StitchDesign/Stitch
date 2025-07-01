@@ -74,9 +74,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                     throw SwiftUISyntaxError.viewNodeNotFound
                 }
                 
-                guard let layerData = try viewNode.deriveStitchActions() else {
-                    throw SwiftUISyntaxError.rootLayerNotFound
-                }
+                let layerData = try viewNode.deriveStitchActions()
                 
                 let patchBuilderRequest = try AIPatchBuilderRequest(
                     prompt: userPrompt,
@@ -135,6 +133,6 @@ struct AICodeGenRequest: StitchAIRequestable {
         document.insertNodeMenuState.show = false
         
         // Display error
-        document.storeDelegate?.alertState.stitchFileError = .unknownError(failure.localizedDescription)
+        document.storeDelegate?.alertState.stitchFileError = .unknownError("\(failure)")
     }
 }

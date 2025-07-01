@@ -10,8 +10,8 @@ import Foundation
 enum SwiftUISyntaxError: Error {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
-    case rootLayerNotFound
     case unexpectedViewModifier(SyntaxViewModifierName)
+    case unsupportedLayer(SyntaxViewName)
     case unsupportedLayerInput(CurrentStep.LayerInputPort)
 }
 

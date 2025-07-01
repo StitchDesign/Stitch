@@ -10,19 +10,17 @@ import SwiftUI
 
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+    func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
         // Instantiate with empty data
         var data = CurrentAIPatchBuilderResponseFormat
             .LayerData(layers: [],
                        custom_layer_input_values: [])
         
         // 1. Map this node
-        guard var layerData = try self.name.deriveLayer(
+        var layerData = try self.name.deriveLayer(
             id: self.id,
             args: self.constructorArguments,
-            modifiers: self.modifiers) else {
-            return nil
-        }
+            modifiers: self.modifiers)
         
         data.custom_layer_input_values += layerData.customLayerInputValues
         
@@ -31,12 +29,12 @@ extension SyntaxView {
         // 2. Recurse into children
         for child in children {
             // depth-first
-            if let childConcepts = try child.deriveStitchActions() {
-                // Append child layers directly to layer at this recursive level
-                childLayers += childConcepts.layers
-                
-                data.custom_layer_input_values += childConcepts.custom_layer_input_values
-            }
+            let childConcepts = try child.deriveStitchActions()
+            
+            // Append child layers directly to layer at this recursive level
+            childLayers += childConcepts.layers
+            
+            data.custom_layer_input_values += childConcepts.custom_layer_input_values
         }
         
         if !childLayers.isEmpty {

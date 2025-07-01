@@ -20,7 +20,7 @@ extension SyntaxViewName {
     /// Leaf-level mapping for **this** node only
     func deriveLayer(id: UUID,
                      args: [SyntaxViewConstructorArgument],
-                     modifiers: [SyntaxViewModifier]) throws -> SyntaxViewLayerData? {
+                     modifiers: [SyntaxViewModifier]) throws -> SyntaxViewLayerData {
         
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var layerType: CurrentStep.Layer
@@ -62,42 +62,77 @@ extension SyntaxViewName {
             // TODO: JUNE 24: ought to return `(Layer.textField, LayerInputPort.keyboardType, UIKeyboardType.password)` ? ... so a SwiftUI View can correspond to more than just a Layer ?
             layerType = .textField
             
-        case .capsule: return nil
-        case .path: return nil // Canvas sketch ?
-        case .color: return nil // both Layer.hitArea AND Layer.colorFill
+        case .capsule:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .path:
+            throw SwiftUISyntaxError.unsupportedLayer(self) // Canvas sketch ?
+        case .color:
+            throw SwiftUISyntaxError.unsupportedLayer(self) // both Layer.hitArea AND Layer.colorFill
             
-        case .label: return nil
-        case .asyncImage: return nil
-        case .symbolEffect: return nil
-        case .group: return nil
-        case .spacer: return nil
-        case .divider: return nil
-        case .geometryReader: return nil
-        case .alignmentGuide: return nil
-        case .scrollView: return nil // TODO: support
-        case .list: return nil
-        case .table: return nil
-        case .outlineGroup: return nil
-        case .forEach: return nil
-        case .navigationStack: return nil
-        case .navigationSplit: return nil
-        case .navigationLink: return nil
-        case .tabView: return nil
-        case .form: return nil
-        case .section: return nil
-        case .button: return nil
-        case .toggle: return nil
-        case .slider: return nil
-        case .stepper: return nil
-        case .picker: return nil
-        case .datePicker: return nil
-        case .gauge: return nil
-        case .progressView: return nil
-        case .link: return nil
-        case .timelineView: return nil
-        case .anyView: return nil
-        case .preview: return nil
-        case .timelineSchedule: return nil
+        case .label:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .asyncImage:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .symbolEffect:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .group:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .spacer:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .divider:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .geometryReader:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .alignmentGuide:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .scrollView:
+            throw SwiftUISyntaxError.unsupportedLayer(self) // TODO: support
+        case .list:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .table:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .outlineGroup:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .forEach:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .navigationStack:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .navigationSplit:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .navigationLink:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .tabView:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .form:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .section:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .button:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .toggle:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .slider:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .stepper:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .picker:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .datePicker:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .gauge:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .progressView:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .link:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .timelineView:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .anyView:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .preview:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .timelineSchedule:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
             
             
         // TODO: JUNE 26: handle incoming edges as well
