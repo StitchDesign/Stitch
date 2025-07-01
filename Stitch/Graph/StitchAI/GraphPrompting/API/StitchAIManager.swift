@@ -58,6 +58,16 @@ final actor StitchAIManager {
                                 "Authorization": "Bearer \(secrets.supabaseAnonKey)"
                                ])
     }
+    
+    let aiSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.waitsForConnectivity = true
+        config.allowsExpensiveNetworkAccess = true
+        config.allowsConstrainedNetworkAccess = true
+        config.timeoutIntervalForRequest = 60
+        config.timeoutIntervalForResource = 120
+        return URLSession(configuration: config)
+    }()
 }
 
 extension StitchAIManager {
