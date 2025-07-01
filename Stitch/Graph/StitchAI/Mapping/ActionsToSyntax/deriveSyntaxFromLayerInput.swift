@@ -11,12 +11,12 @@ enum SwiftUISyntaxError {
     case unsupportedData
 }
 
-extension LayerInputPort {
+extension CurrentStep.LayerInputPort {
     
     func toSwiftUISyntax(valueOrEdge: StitchValueOrEdge, // loops? should pass in `value` ?
-                         layer: Layer) -> FromLayerInputToSyntax {
+                         layer: CurrentStep.Layer) throws -> FromLayerInputToSyntax {
         
-        guard let value: PortValue = valueOrEdge.getValue else {
+        guard let value = valueOrEdge.getValue else {
             fatalErrorIfDebug("Incoming edges not yet handled")
             return .unsupported
         }
@@ -26,13 +26,14 @@ extension LayerInputPort {
             SyntaxViewModifier(name: name,
                      arguments: [
                         SyntaxViewModifierArgument(label: .noLabel, // assumes unlabeled
-                                 value: valueOrEdge.asSwiftUILiteralOrVariable,
+                                 value: try valueOrEdge.asSwiftUILiteralOrVariable(),
                                  syntaxKind: valueOrEdge.asSwiftSyntaxKind)
                      ])
         }
         
         let buildMultifieldModifier = { (name: SyntaxViewModifierName) -> FromLayerInputToSyntax in
-            if let modifier = value.deriveSyntaxViewModifierForMultifieldPortValue(name) {
+            let migratedValue = try value.migrate()
+            if let modifier = migratedValue.deriveSyntaxViewModifierForMultifieldPortValue(name) {
                 return .modifier(modifier)
             } else {
                 fatalErrorIfDebug("Failed to handle layer input \(self) with value \(value) for modifier \(name)")
@@ -57,7 +58,7 @@ extension LayerInputPort {
                 // `value` is either a literal (manually-set value) or an expression (incoming edge);
                 // if manually-set PortValue, then will be a Swift type literal (e.g. `5`, `"love"`, `CGSize(width: 50, height: 100)`
                 // if incoming-edge, then will be a Swift declared-constant
-                value: valueOrEdge.asSwiftUILiteralOrVariable,
+                value: try valueOrEdge.asSwiftUILiteralOrVariable(),
                 
                 syntaxKind: valueOrEdge.asSwiftSyntaxKind))
             
@@ -65,58 +66,58 @@ extension LayerInputPort {
         case .sfSymbol:
             return .constructorArgument(.init(
                 label: .systemName,
-                value: valueOrEdge.asSwiftUILiteralOrVariable,
+                value: try valueOrEdge.asSwiftUILiteralOrVariable(),
                 syntaxKind: valueOrEdge.asSwiftSyntaxKind))
             
             
             // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
         case .position:
-            return buildMultifieldModifier(.position)
+            return try buildMultifieldModifier(.position)
             
         // Stitch's LayerInputPort.offsetInGroup *always* becomes SwiftUI .offset modifier
         case .offsetInGroup:
-            return buildMultifieldModifier(.offset)
+            return try buildMultifieldModifier(.offset)
             
         case .size:
-            return buildMultifieldModifier(.frame)
+            return try buildMultifieldModifier(.frame)
         
         // TODO: JUNE 23: .fill for Layer.rectangle, Layer.oval etc.; but .foregroundColor for Layer.text
         case .color:
             switch layer {
             case .text, .textField:
-                return .modifier(buildSingleFieldUnlabeledModifier(.foregroundColor))
+                return .modifier(try buildSingleFieldUnlabeledModifier(.foregroundColor))
             default: // case .rectangle, .oval:
-                return .modifier(buildSingleFieldUnlabeledModifier(.fill))
+                return .modifier(try buildSingleFieldUnlabeledModifier(.fill))
             }
             
         case .rotationX, .rotationY, .rotationZ:
             return .unsupported // MORE COMPLICATED
             // return .modifier(buildModifier(.rotation3DEffect, nil))
             
-        case .scale:                       return .modifier(buildSingleFieldUnlabeledModifier(.scaleEffect))
-        case .opacity:                     return .modifier(buildSingleFieldUnlabeledModifier(.opacity))
-        case .zIndex:                      return .modifier(buildSingleFieldUnlabeledModifier(.zIndex))
-        case .blur, .blurRadius:           return .modifier(buildSingleFieldUnlabeledModifier(.blur))
-        case .blendMode:                   return .modifier(buildSingleFieldUnlabeledModifier(.blendMode))
-        case .brightness:                  return .modifier(buildSingleFieldUnlabeledModifier(.brightness))
-        case .colorInvert:                 return .modifier(buildSingleFieldUnlabeledModifier(.colorInvert))
-        case .contrast:                    return .modifier(buildSingleFieldUnlabeledModifier(.contrast))
-        case .hueRotation:                 return .modifier(buildSingleFieldUnlabeledModifier(.hueRotation))
-        case .saturation:                  return .modifier(buildSingleFieldUnlabeledModifier(.saturation))
-        case .enabled:                     return .modifier(buildSingleFieldUnlabeledModifier(.disabled))
-        case .backgroundColor:             return .modifier(buildSingleFieldUnlabeledModifier(.background))
-        case .isClipped, .clipped:         return .modifier(buildSingleFieldUnlabeledModifier(.clipped))
-        case .padding:                     return .modifier(buildSingleFieldUnlabeledModifier(.padding))
-        case .cornerRadius:                return .modifier(buildSingleFieldUnlabeledModifier(.cornerRadius))
-        case .fontSize, .textFont:         return .modifier(buildSingleFieldUnlabeledModifier(.font))
-        case .textAlignment:               return .modifier(buildSingleFieldUnlabeledModifier(.multilineTextAlignment))
-        case .textDecoration:              return .modifier(buildSingleFieldUnlabeledModifier(.underline))
-        case .keyboardType:                return .modifier(buildSingleFieldUnlabeledModifier(.keyboardType))
-        case .isSpellCheckEnabled:         return .modifier(buildSingleFieldUnlabeledModifier(.disableAutocorrection))
+        case .scale:                       return .modifier(try buildSingleFieldUnlabeledModifier(.scaleEffect))
+        case .opacity:                     return .modifier(try buildSingleFieldUnlabeledModifier(.opacity))
+        case .zIndex:                      return .modifier(try buildSingleFieldUnlabeledModifier(.zIndex))
+        case .blur, .blurRadius:           return .modifier(try buildSingleFieldUnlabeledModifier(.blur))
+        case .blendMode:                   return .modifier(try buildSingleFieldUnlabeledModifier(.blendMode))
+        case .brightness:                  return .modifier(try buildSingleFieldUnlabeledModifier(.brightness))
+        case .colorInvert:                 return .modifier(try buildSingleFieldUnlabeledModifier(.colorInvert))
+        case .contrast:                    return .modifier(try buildSingleFieldUnlabeledModifier(.contrast))
+        case .hueRotation:                 return .modifier(try buildSingleFieldUnlabeledModifier(.hueRotation))
+        case .saturation:                  return .modifier(try buildSingleFieldUnlabeledModifier(.saturation))
+        case .enabled:                     return .modifier(try buildSingleFieldUnlabeledModifier(.disabled))
+        case .backgroundColor:             return .modifier(try buildSingleFieldUnlabeledModifier(.background))
+        case .isClipped, .clipped:         return .modifier(try buildSingleFieldUnlabeledModifier(.clipped))
+        case .padding:                     return .modifier(try buildSingleFieldUnlabeledModifier(.padding))
+        case .cornerRadius:                return .modifier(try buildSingleFieldUnlabeledModifier(.cornerRadius))
+        case .fontSize, .textFont:         return .modifier(try buildSingleFieldUnlabeledModifier(.font))
+        case .textAlignment:               return .modifier(try buildSingleFieldUnlabeledModifier(.multilineTextAlignment))
+        case .textDecoration:              return .modifier(try buildSingleFieldUnlabeledModifier(.underline))
+//        case .keyboardType:                return .modifier(try buildSingleFieldUnlabeledModifier(.keyboardType))
+//        case .isSpellCheckEnabled:         return .modifier(try buildSingleFieldUnlabeledModifier(.disableAutocorrection))
 
         
         // TODO: JUNE 23: complicatd: size, minSize, maxSize are actually a combination of arguments to the SwiftUI .frame view modifier
-        case .minSize, .maxSize:           return .modifier(buildSingleFieldUnlabeledModifier(.frame))
+        case .minSize, .maxSize:           return .modifier(try buildSingleFieldUnlabeledModifier(.frame))
             
         // TODO: JUNE 23: complicated; all of these correspond to different arguments *on the same SwiftUI .shadow view modifier*
         case .shadowColor, .shadowOpacity, .shadowRadius, .shadowOffset:
@@ -191,11 +192,11 @@ extension LayerInputPort {
             
             // text field
                 .placeholderText,
-                .beginEditing,
-                .endEditing,
-                .setText,
-                .textToSet,
-                .isSecureEntry,
+//                .beginEditing,
+//                .endEditing,
+//                .setText,
+//                .textToSet,
+//                .isSecureEntry,
             
             // media
                 .image,
@@ -241,7 +242,6 @@ extension LayerInputPort {
             // for children of a layer group
                 .layerPadding,
                 .layerMargin,
-                .offsetInGroup,
             
             // material
                 .materialThickness,
@@ -318,31 +318,31 @@ extension PortValue {
 
 extension CGPoint {
     func deriveSyntaxViewModifierArguments() -> [SyntaxViewModifierArgument] {
-        let x = PortValue.number(self.x)
-        let y = PortValue.number(self.y)
+        let x = CurrentStep.PortValue.number(self.x)
+        let y = CurrentStep.PortValue.number(self.y)
         return [
             SyntaxViewModifierArgument(label: .x,
-                                       value: x.display,
+                                       value: self.x.description,
                                        syntaxKind: x.asSwiftSyntaxKind),
             SyntaxViewModifierArgument(label: .y,
-                                       value: y.display,
+                                       value: self.y.description,
                                        syntaxKind: y.asSwiftSyntaxKind)
         ]
     }
 }
 
-extension LayerSize {
+extension CurrentStitchAIPortValue.LayerSize {
     func deriveSyntaxViewModifierArguments() -> [SyntaxViewModifierArgument] {
-        let width = PortValue.layerDimension(self.width)
-        let height = PortValue.layerDimension(self.height)
+        let width = CurrentStep.PortValue.layerDimension(self.width)
+        let height = CurrentStep.PortValue.layerDimension(self.height)
         
         // TODO: may need to use different labels, e.g. `.minWidth` ?
         return [
             SyntaxViewModifierArgument(label: .width,
-                                       value: width.display,
+                                       value: self.width.description,
                                        syntaxKind: width.asSwiftSyntaxKind),
             SyntaxViewModifierArgument(label: .height,
-                                       value: height.display,
+                                       value: self.height.description,
                                        syntaxKind: height.asSwiftSyntaxKind)
         ]
     }

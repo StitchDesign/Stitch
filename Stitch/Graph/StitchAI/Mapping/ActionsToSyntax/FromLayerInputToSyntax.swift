@@ -50,14 +50,14 @@ extension SyntaxView {
     ///
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
-    static func build(from actions: CurrentAIPatchBuilderResponseFormat.LayerData) -> Self? {
+    static func build(from actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
         // The very first `.layer` action produced by `deriveStitchActions()` is the root.
         guard let rootLayer = actions.layers.first else {
             log("SyntaxView.build: No VPLLayer creation found – cannot rebuild view tree.")
             return nil
         }
 
-        return node(from: rootLayer, in: actions)
+        return try node(from: rootLayer, in: actions)
     }
 
     // MARK: - Private helpers
@@ -65,7 +65,7 @@ extension SyntaxView {
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
     private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerNode,
-                             in actions: CurrentAIPatchBuilderResponseFormat.LayerData) -> Self? {
+                             in actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
 
         // TODO: provide layer group orientation
         guard let layer = layerData.node_name.value.layer,
@@ -76,7 +76,7 @@ extension SyntaxView {
         }
         
         // Gather all `layerInputSet` concepts that belong to this layer.
-        let inputs = actions.custom_layer_input_values
+        let customInputEvents = actions.custom_layer_input_values
 
         // Convert those sets into very naïve constructor‑arguments *or* modifiers.
         // For now we treat everything as a modifier unless the corresponding
@@ -84,13 +84,14 @@ extension SyntaxView {
         var constructorArgs: [SyntaxViewConstructorArgument] = []
         var modifiers: [SyntaxViewModifier] = []
 
-        for input in inputs {
+        for inputData in customInputEvents {
 //            if let viewModifierName = inputSet.input.toSwiftUIViewModifierName
-            let syntaxScenario: FromLayerInputToSyntax = inputSet.input.toSwiftUISyntax(
+            let syntaxScenario: FromLayerInputToSyntax = try inputData.layer_input_coordinate.input_port_type.value
+                .toSwiftUISyntax(
                 // TODO: JUNE 24: handle proper PortValue here
 //                port: .value(PortValue.string(.init(inputSet.value))),
-                valueOrEdge: .value(inputSet.value),
-                layer: layer.name)
+                valueOrEdge: .value(inputData.value),
+                layer: layer)
             
             switch syntaxScenario {
             
