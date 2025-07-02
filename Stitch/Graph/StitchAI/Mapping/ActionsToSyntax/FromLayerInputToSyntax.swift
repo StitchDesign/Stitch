@@ -48,13 +48,6 @@ extension SyntaxView {
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
     static func build(from actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
-//        // The very first `.layer` action produced by `deriveStitchActions()` is the root.
-//        guard let rootLayer = actions.first else {
-//            log("SyntaxView.build: No VPLLayer creation found – cannot rebuild view tree.")
-//            return nil
-//        }
-//
-//        return
         try node(from: actions)
     }
 

@@ -11,10 +11,6 @@ import SwiftUI
 
 extension SyntaxView {
     func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
-        // Instantiate with empty data
-//        var data = CurrentAIPatchBuilderResponseFormat
-//            .LayerData(layers: [],
-//                       custom_layer_input_values: [])
         var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerData] = []
         
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
@@ -22,10 +18,6 @@ extension SyntaxView {
             // depth-first
             let childConcepts = try child.deriveStitchActions()
             childLayers.append(childConcepts)
-            // Append child layers directly to layer at this recursive level
-//            childLayers += childConcepts.layers
-            
-//            data.custom_layer_input_values += childConcepts.custom_layer_input_values
         }
 
         // Map this node
@@ -34,10 +26,6 @@ extension SyntaxView {
             args: self.constructorArguments,
             modifiers: self.modifiers,
             childrenLayers: childLayers)
-        
-//        data.custom_layer_input_values += layerData.customLayerInputValues
-//
-//        data.layers.append(layerData.node)
         
         return layerData
     }
@@ -50,23 +38,8 @@ extension SyntaxViewName {
                                        childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
         // Check the scroll axis from constructor arguments
         let scrollAxis = Self.detectScrollAxis(args: args)
-        
-        // Only proceed if we have a valid scroll axis and a single stack child
-//        guard 
-//            scrollAxis != .none,
-//            children.count == 1,
-//            let stack = children.first,
-//            // TODO: support `.lazyVGrid` as well
-//            (stack.name == .vStack || stack.name == .hStack || stack.name == .zStack)
-//        else {
-//            // Fall back to default handling if structure doesn't match expected pattern
-//            return nil
-//        }
-        
-//        var flattened = try stack.deriveStitchActions()
-//        var customInputs = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        var groupLayer: CurrentAIPatchBuilderResponseFormat.LayerData
-        
+      
+        var groupLayer: CurrentAIPatchBuilderResponseFormat.LayerData  
         let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroup ?? false
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         

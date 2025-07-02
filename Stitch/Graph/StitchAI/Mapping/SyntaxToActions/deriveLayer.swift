@@ -9,11 +9,6 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-//struct SyntaxViewLayerData {
-//    var node: CurrentAIPatchBuilderResponseFormat.LayerNode
-//    let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
-//}
-
 extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
@@ -40,10 +35,6 @@ extension SyntaxViewName {
             layerType: layerType,
             modifiers: modifiers)
 
-//        // Final bare layer (children added later)
-//        let layeNode = CurrentAIPatchBuilderResponseFormat
-//            .LayerNode(node_id: .init(value: id),
-//                       node_name: .init(value: .layer(layerType)))
         layerData.custom_layer_input_values += customInputValues
         layerData.custom_layer_input_values += customModifierValues
         
