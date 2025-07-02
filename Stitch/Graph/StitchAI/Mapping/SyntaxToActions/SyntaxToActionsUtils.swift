@@ -23,7 +23,7 @@ enum StitchValueOrEdge: Equatable {
             return try x.asSwiftUILiteral()
         case .edge(let x, let y):
             // TODO: JUNE 24: probably will use edge.origin's NodeId and Int to ... what? look up a proper variable name? ... Can see how Elliot does it?
-            return "x"
+            return "from x to y"
         }
     }
     

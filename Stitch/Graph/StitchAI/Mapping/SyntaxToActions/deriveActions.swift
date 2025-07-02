@@ -11,10 +11,9 @@ import SwiftUI
 
 extension SyntaxView {
     func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
+        
         // ───────────────────────────────────────────────────────────────────
-        // Special‑case: ScrollView that directly wraps a single VStack
-        // Maps to the same group layer produced by the VStack, but with
-        // scrollYEnabled = true so the layer becomes vertically scrollable.
+        // Special‑case: ScrollView that directly wraps a single V/H/ZStack
         // ───────────────────────────────────────────────────────────────────
         if self.name == .scrollView {
             do {
@@ -31,9 +30,7 @@ extension SyntaxView {
         var data = CurrentAIPatchBuilderResponseFormat
             .LayerData(layers: [],
                        custom_layer_input_values: [])
-        
-        
-        
+                
         // 1. Map this node
         var layerData = try self.name.deriveLayerData(
             id: self.id,

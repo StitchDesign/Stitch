@@ -124,15 +124,11 @@ extension SyntaxViewName {
         
         
         // Note: A SwiftUI ScrollView is interpreted as a Layer.group with specific orientation and scroll-enabled inputs
-        // Currently we handle this at the `deriveStitchActions` top level
+        // NOTE: Currently we handle this at the `deriveStitchActions` top level, and so never actually hit this conditi0on
         case .scrollView:
-            log("HAD SCROLL VIEW")
-            throw SwiftUISyntaxError.unsupportedLayer(self) // TODO: support
-//            if self.name == .scrollView {
-            
-//            return try handleScrollView()
-//            }
-            
+            fatalErrorIfDevDebug("Should have handled SyntaxViewName.scrollView case at top level, prior to calling this function")
+            // TODO: call that function from within here
+            throw SwiftUISyntaxError.unsupportedLayer(self)
             
         case .list:
             throw SwiftUISyntaxError.unsupportedLayer(self)
