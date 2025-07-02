@@ -13,6 +13,7 @@ enum SwiftUISyntaxError: Error {
     case unexpectedViewModifier(SyntaxViewModifierName)
     case unsupportedLayer(SyntaxViewName)
     case unsupportedLayerInput(CurrentStep.LayerInputPort)
+    case incorrectParsing(message: String)
 }
 
 extension CurrentStep.LayerInputPort {

@@ -9,28 +9,6 @@ import Foundation
 import UIKit
 
 
-extension SyntaxView {
-    
-    // TODO: actually use this; i.e. update SASetLayerInput to use LayerInputPort
-    func deriveLayerInputPorts(_ layer: CurrentStep.Layer) -> Set<CurrentStep.LayerInputPort> {
-        
-        let portsFromConstructorArgs = self.constructorArguments.compactMap {
-            $0.deriveLayerInputPort(layer)
-        }
-        
-        let portsFromModifiers = self.modifiers.compactMap {
-            $0.name.deriveLayerInputPort(layer)
-        }
-        
-        let ports = portsFromConstructorArgs + portsFromModifiers
-        let portsSet = Set(ports)
-        
-        assertInDebug(ports.count == portsSet.count)
-        
-        return portsSet
-    }
-}
-
 extension SyntaxViewConstructorArgument {
     
     func derivePortValue(_ layer: CurrentStep.Layer) -> CurrentStep.PortValue? {
@@ -77,15 +55,26 @@ extension SyntaxViewConstructorArgument {
 }
 
 
+enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
+    
+    // Vast majority of cases: a single view modifier name corresponds to a single layer input
+    case simple(CurrentStep.LayerInputPort)
+    
+    // Special case: .rotation3DEffect modifier corresponds to *three* different layer inputs
+    case rotation
+}
+
 extension SyntaxViewModifierName {
     
-    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> DerivedLayerInputPortsResult? {
+        
+                
         switch (self, layer) {
             // Universal modifiers (same for every layer)
         case (.scaleEffect, _):
-            return .scale
+            return .simple(.scale)
         case (.opacity, _):
-            return .opacity
+            return .simple(.opacity)
         
         /*
          TODO: JUNE 26: UI positioning is complicated by VPL anchoring and VPL "offset in VStack/HStack"
@@ -97,78 +86,78 @@ extension SyntaxViewModifierName {
          
          */
         case (.position, _):
-            return .position
+            return .simple(.position)
 
         case (.offset, _):
-            // TODO: if view's parent is VStack/HStack, return .offsetInGroup instead ?
-            return .position
+            // TODO: if view's parent is VStack/HStack, return .simple(.offsetInGroup) instead ?
+            return .simple(.position)
             
         
         case (.rotationEffect, _):
             // .rotationEffect is always a z-axis rotation
-            return .rotationZ
+            return .simple(.rotationZ)
         
         case (.rotation3DEffect, _):
             // Depending on the axis specified in the arguments
             // This would need argument extraction to determine X, Y, or Z
             
             // TODO: JULY 1: .rotation3DEffect
-            return .rotationZ // Default to Z rotation
+            return .rotation
             
         case (.blur, _):
-            return .blurRadius
+            return .simple(.blurRadius)
         case (.blendMode, _):
-            return .blendMode
+            return .simple(.blendMode)
         case (.brightness, _):
-            return .brightness
+            return .simple(.brightness)
         case (.colorInvert, _):
-            return .colorInvert
+            return .simple(.colorInvert)
         case (.contrast, _):
-            return .contrast
+            return .simple(.contrast)
         case (.hueRotation, _):
-            return .hueRotation
+            return .simple(.hueRotation)
         case (.saturation, _):
-            return .saturation
+            return .simple(.saturation)
         
         case (.fill, _): // fill is always color
-            return .color
+            return .simple(.color)
             
             //    case (.font, .text):
-            //        return .font
+            //        return .simple(.font)
             
             //    case (.fontWeight, _):
-            //        //            return .fontWeight
+            //        //            return .simple(.fontWeight)
             //        return nil
             
             //    case (.lineSpacing, _):
-            //        return nil // return .lineSpacing
+            //        return nil // return .simple(.lineSpacing)
             
         case (.cornerRadius, _):
-            return .cornerRadius
+            return .simple(.cornerRadius)
             
             //    case (.shadow, _):
             //        // Shadow would need to be broken down into multiple inputs:
             //        // .shadowColor, .shadowRadius, .shadowOffset, .shadowOpacity
-            //        return .shadowRadius
+            //        return .simple(.shadowRadius)
             
         // TODO: JUNE 23: .frame modifier is actually several different LayerInputPort cases: .size, .minSize, .maxSize
         case (.frame, _):
-            return .size
+            return .simple(.size)
             
         case (.padding, _):
-            return .padding // vs .layerPadding ?!
+            return .simple(.padding) // vs .layerPadding ?!
             
         case (.zIndex, _):
-            return .zIndex
+            return .simple(.zIndex)
         
         case (.foregroundColor, let kind) where kind != .text && kind != .textField:
-            return .color
+            return .simple(.color)
 
         case (.foregroundColor, _):
-            return .color
+            return .simple(.color)
 
             //        case (.backgroundColor, _):
-            //            return .color
+            //            return .simple(.color)
                         
         case (.disabled, _): return nil
         case (.background, _): return nil
@@ -177,9 +166,9 @@ extension SyntaxViewModifierName {
         case (.underline, _): return nil
             
             // TODO: support after v1 schema
-//        case (.keyboardType, _): return .keyboardType
+//        case (.keyboardType, _): return .simple(.keyboardType)
         case (.disableAutocorrection, _): return nil
-        case (.clipped, _): return .clipped // return .isClipped
+        case (.clipped, _): return .simple(.clipped) // return .isClipped
             
         case (.custom(_), _): return nil
         }

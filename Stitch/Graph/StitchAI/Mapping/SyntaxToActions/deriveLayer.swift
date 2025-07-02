@@ -273,87 +273,189 @@ extension SyntaxViewName {
         
         var customValues = customValues
         
-        // ── Generic modifier handling ────────────────────────────────────────
         for modifier in modifiers {
-            
-            // TODO: JULY 1: certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
-            // Might be best to break this into simple vs complex cases ?
-            // Or update the `modifier.name.deriveLayerInputPort` method first ?
-            guard let port = modifier.name.deriveLayerInputPort(layerType) else {
-                continue
-            }
-            
-            let migratedPort = try port.convert(to: LayerInputPort.self)
-            let migratedLayerType = try layerType.convert(to: Layer.self)
-
-            // Start with default value for that port
-            var portValue = migratedPort.getDefaultValue(for: migratedLayerType)
-                        
-            // Process each argument based on its type
-            
-            // index for modifier-arguments might not always be correct ?
-            for (idx, arg) in modifier.arguments.enumerated() {
-                switch arg.value {
-                    
-                case .simple(let data):
-                    
-                    // If we can parse this as a Color...
-                    if let color = Color.fromSystemName(data.value) {
-                        let input = PortValue.string(.init(color.asHexDisplay))
-                        let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
-                        if let first = coerced.first {
-                            portValue = first
-                        } else {
-                            // This can't actually happen
-                            fatalErrorIfDevDebug("should have had at least one value")
-                        }
-                    } else {
-                        // Handle simple value
-                        portValue = portValue.parseInputEdit(
-                            fieldValue: .string(.init(data.value)),
-                            fieldIndex: idx
-                        )
-                    }
-                    
-                case .degrees(let data):
-                    portValue = portValue.parseInputEdit(
-                        fieldValue: .string(.init(data.value)),
-                        fieldIndex: idx
-                    )
-                
-                // A single argument (i.e. label) whose value is a tuple of x-y-z
-                case .axis(let x, let y, let z):
-                    // Handle axis values (e.g., for 3D rotation)
-                    if idx == 0 {
-                        portValue = portValue.parseInputEdit(
-                            fieldValue: .string(.init(x.value)),
-                            fieldIndex: 0
-                        )
-                        portValue = portValue.parseInputEdit(
-                            fieldValue: .string(.init(y.value)),
-                            fieldIndex: 1
-                        )
-                        portValue = portValue.parseInputEdit(
-                            fieldValue: .string(.init(z.value)),
-                            fieldIndex: 2
-                        )
-                    }
-                }
-            }
-            
-           
-            
-            // "Downgrade" PortValue back to supported type for the AI
-            let downgradedValue = try portValue.convert(to: CurrentStep.PortValue.self)
-
-            customValues.append(
-                .init(id: id,
-                      input: port,
-                      value: downgradedValue)
-            )
+            customValues = try deriveCustomValuesFromViewModifier(
+                id: id,
+                layerType: layerType,
+                modifier: modifier,
+                customValues: customValues)
         }
         
         return customValues
     }
     
+    private func deriveCustomValuesFromViewModifier(
+        id: UUID,
+        layerType: CurrentStep.Layer,
+        modifier: SyntaxViewModifier,
+        customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        
+        var customValues = customValues
+        
+        guard let derivationResult = modifier.name.deriveLayerInputPort(layerType) else {
+            throw SwiftUISyntaxError.unexpectedViewModifier(modifier.name)
+        }
+        
+        switch derivationResult {
+            
+        case .simple(let port):
+            customValues = try self.deriveCustomValuesFromSimpleLayerInputTranslation(
+                id: id,
+                port: port,
+                layerType: layerType,
+                modifier: modifier,
+                customValues: customValues)
+            
+        case .rotation:
+            // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
+            customValues = try self.deriveCustomValuesFromRotationLayerInputTranslation(
+                id: id,
+                layerType: layerType,
+                modifier: modifier,
+                customValues: customValues)
+        }
+        
+        return customValues
+    }
+    
+    func deriveCustomValuesFromSimpleLayerInputTranslation(
+        id: UUID,
+        port: CurrentStep.LayerInputPort, // simple because we have a single layer
+        layerType: CurrentStep.Layer,
+        modifier: SyntaxViewModifier,
+        customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        
+        var customValues = customValues
+        
+        let migratedPort = try port.convert(to: LayerInputPort.self)
+        let migratedLayerType = try layerType.convert(to: Layer.self)
+        
+        // Start with default value for that port
+        var portValue: PortValue = migratedPort.getDefaultValue(for: migratedLayerType)
+        
+        // Process each argument based on its type
+        
+        // index for modifier-arguments might not always be correct ?
+        for (idx, arg) in modifier.arguments.enumerated() {
+            
+            switch arg.value {
+                
+            case .degrees, .axis:
+                fatalErrorIfDebug("Only intended for rotation3DEffect case")
+                throw SwiftUISyntaxError.incorrectParsing(message: ".degrees and .axis are only for the rotation layer-inputs derivation")
+                
+            case .simple(let data):
+                
+                // Tricky color case, for Color.systemName etc.
+                if let color = Color.fromSystemName(data.value) {
+                    let input = PortValue.string(.init(color.asHexDisplay))
+                    let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
+                    
+                    if let coercedToColor = coerced.first {
+                        customValues.append(
+                            try .init(id: id,
+                                      port: port,
+                                      value: coercedToColor)
+                        )
+                    } else {
+                        fatalErrorIfDebug("Should not have failed to coerce color ")
+                    }
+                }
+                
+                // Simple, non-color case
+                else {
+                    // Handle simple value
+                    customValues.append(
+                        try .init(id: id,
+                                  port: port,
+                                  value: portValue.parseInputEdit(
+                                    fieldValue: .string(.init(data.value)),
+                                    fieldIndex: idx
+                                ))
+                    )
+                }
+            }
+            
+        } // for (idx, arg) in ...
+        
+        
+        return customValues
+    }
+    
+    func deriveCustomValuesFromRotationLayerInputTranslation(
+        id: UUID,
+        layerType: CurrentStep.Layer,
+        modifier: SyntaxViewModifier,
+        customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        
+        
+        
+        var customValues = customValues
+        
+        if let degreesArgument = modifier.arguments[safe: 0],
+           let axesArgument = modifier.arguments[safe: 1],
+           case .degrees(let degrees) = degreesArgument.value,
+           case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
+           let axisX = toNumber(axisX.value),
+           let axisY = toNumber(axisY.value),
+           let axisZ = toNumber(axisZ.value) {
+            
+            // degrees = *how much* we're rotating the given rotation layer input
+            // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
+            let fn = { (port: CurrentStep.LayerInputPort) in
+                let portValue = try port
+                    .getDefaultValue(layerType: layerType)
+                    .parseInputEdit(fieldValue: .string(.init(degrees.value)),
+                                    fieldIndex: 0)
+                customValues.append(
+                    try .init(id: id, port: port, value: portValue)
+                )
+            }
+            
+            if axisX > 0 {
+                try fn(.rotationX)
+            }
+            if axisY > 0 {
+                try fn(.rotationY)
+            }
+            if axisZ > 0 {
+                try fn(.rotationZ)
+            }
+            
+        } else {
+            fatalErrorIfDebug()
+            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
+        }
+        
+        return customValues
+    }
+}
+
+extension CurrentStep.LayerInputPort {
+    func getDefaultValue(layerType: CurrentStep.Layer) throws -> PortValue {
+        
+        let migratedPort = try self.convert(to: LayerInputPort.self)
+        let migratedLayerType = try layerType.convert(to: Layer.self)
+        
+        // Start with default value for that port
+        return migratedPort.getDefaultValue(for: migratedLayerType)
+    }
+}
+
+extension CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue {
+    
+    init(id: UUID,
+         port: CurrentStep.LayerInputPort,
+         value: PortValue) throws {
+        
+        // "Downgrade" PortValue back to supported type for the AI
+        let downgradedValue = try port.convert(to: CurrentStep.PortValue.self)
+        
+        self.init(id: id,
+                  input: port,
+                  value: downgradedValue)
+    }
 }

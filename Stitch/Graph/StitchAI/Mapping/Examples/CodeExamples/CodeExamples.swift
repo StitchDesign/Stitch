@@ -33,30 +33,13 @@ extension MappingExamples {
     
     // TODO: break into separate pieces
     static let codeExamples: [MappingCodeExample] = [
-        MappingCodeExample(
-            title: scrollViewVStack.title,
-            code: scrollViewVStack.code
-        ),
         
-        MappingCodeExample(
-            title: scrollViewHStack.title,
-            code: scrollViewHStack.code
-        ),
-        
-        MappingCodeExample(
-            title: scrollViewNotTopLevel.title,
-            code: scrollViewNotTopLevel.code
-        ),
-        
-        MappingCodeExample(
-            title: scrollViewWithAllAxes.title,
-            code: scrollViewWithAllAxes.code
-        ),
-        
-        MappingCodeExample(
-            title: scrollViewWithoutExplicitAxes.title,
-            code: scrollViewWithoutExplicitAxes.code
-        ),
+        // ScrollView
+        scrollViewVStack,
+        scrollViewHStack,
+        scrollViewNotTopLevel,
+        scrollViewWithAllAxes,
+        scrollViewWithoutExplicitAxes,
         
         MappingCodeExample(
             title: "VStack",
@@ -219,7 +202,7 @@ extension MappingExamples {
             """
         ),
         
-        // Rotation Examples
+        // Rotation modifier
         rotationEffectBasic,
         rotationEffectAnchor,
         rotationEffectRadians,
