@@ -43,7 +43,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         
         let Layer_Nodes = OpenAISchema(
             type: .array,
-            required: ["node_id", "node_name"],
+            required: ["node_id", "node_name", "custom_layer_input_values"],
             description: "A nested list of layer nodes to be created in the graph.",
             items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.LayerNodeSchema()])
         )
@@ -66,21 +66,7 @@ enum AIPatchBuilderResponseFormat_V0 {
             required: ["layer_id", "input_port_type"])
     }
     
-    // MARK: not used in structured outputs, just the system prompt inputs
-    struct LayerDataSchema: Encodable {
-        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
-        
-        let custom_layer_input_values = OpenAISchema(
-            type: .array,
-            required: ["layer_input_coordinate", "value", "value_type"],
-            items: OpenAIGeneric(types: [
-                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
-            ])
-        )
-    }
-    
     struct GraphBuilderSchema: Encodable {
-        
         let javascript_patches = OpenAISchema(
             type: .array,
             required: ["node_id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"],
@@ -118,11 +104,19 @@ enum AIPatchBuilderResponseFormat_V0 {
         )
     }
     
+    // MARK: not used for outputs, just inputs.
     struct LayerNodeSchema: Encodable {
         let node_id = OpenAISchema(type: .string)
         let suggested_title = OpenAISchema(type: .string)
         let node_name = OpenAISchemaRef(ref: "NodeName")
         let children = OpenAISchemaRef(ref: "Layer_Nodes")
+        let custom_layer_input_values = OpenAISchema(
+            type: .array,
+            required: ["layer_input_coordinate", "value", "value_type"],
+            items: OpenAIGeneric(types: [
+                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
+            ])
+        )
     }
 
     struct JsPatchNodeSchema: Encodable {
