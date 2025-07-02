@@ -44,8 +44,8 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchActions: CurrentAIPatchBuilderResponseFormat.LayerData?
-    @State private var rebuiltSyntax: SyntaxView?
+    @State private var stitchActions: [CurrentAIPatchBuilderResponseFormat.LayerData] = []
+    @State private var rebuiltSyntax: [SyntaxView] = []
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
 
@@ -135,56 +135,48 @@ struct ASTExplorerView: View {
         HStack(spacing: 18) {
             ForEach(Stage.allCases.filter { visibleStages.contains($0) }, id: \.self) { stage in
                 switch stage {
-
+                    
                 case .originalCode:
-                    Group {
-                        stageView(
-                            title: Stage.originalCode.title,
-                            text: codes[idx],
-                            isEditor: true,
-                            editorBinding: binding
-                        )
-                    }
+                    stageView(
+                        title: Stage.originalCode.title,
+                        text: codes[idx],
+                        isEditor: true,
+                        editorBinding: binding
+                    )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
-
+                    
                 case .parsedSyntax:
-                    Group {
-                        stageView(
-                            title: Stage.parsedSyntax.title,
-                            text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
-                        )
-                    }
+                    stageView(
+                        title: Stage.parsedSyntax.title,
+                        text: firstSyntax.map { formatSyntaxView($0) } ?? "—"
+                    )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
-
+                    
                 case .derivedActions:
-                    Group {
-                        stageView(
-                            title: Stage.derivedActions.title,
-                            text: stitchActions.humanReadable
-                        )
-                    }
+                    stageView(
+                        title: Stage.derivedActions.title,
+                        text: (try? stitchActions.encodeToPrintableString()) ?? "—"
+                    )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
-
+                    
                 case .rebuiltSyntax:
-                    Group {
-                        stageView(
-                            title: Stage.rebuiltSyntax.title,
-                            text: rebuiltSyntax.map { formatSyntaxView($0) } ?? "—"
-                        )
-                    }
+                    stageView(
+                        title: Stage.rebuiltSyntax.title,
+                        text: rebuiltSyntax.reduce(into: "") { stringBuilder, syntax in
+                            stringBuilder += "\n\(formatSyntaxView(syntax))"
+                        }
+                    )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
-
+                    
                 case .regeneratedCode:
-                    Group {
-                        stageView(
-                            title: Stage.regeneratedCode.title,
-                            text: regeneratedCode.isEmpty ? "—" : regeneratedCode
-                        )
-                    }
+                    stageView(
+                        title: Stage.regeneratedCode.title,
+                        text: regeneratedCode.isEmpty ? "—" : regeneratedCode
+                    )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
                 }
@@ -198,8 +190,8 @@ struct ASTExplorerView: View {
 
         // Reset all values
         firstSyntax = nil
-        stitchActions = nil
-        rebuiltSyntax = nil
+        stitchActions = []
+        rebuiltSyntax = []
         regeneratedCode = ""
         errorString = nil
 
@@ -214,15 +206,12 @@ struct ASTExplorerView: View {
             stitchActions = try syntax.deriveStitchActions()
             
             // Actions → Syntax
-            if let actions = stitchActions {
-                rebuiltSyntax = try SyntaxView.build(from: actions)
-            }
+            rebuiltSyntax = try SyntaxView.build(from: stitchActions)
             
             // Syntax → Code
-            if let rebuilt = rebuiltSyntax {
-                regeneratedCode = swiftUICode(from: rebuilt)
-            } else {
-                regeneratedCode = ""
+            regeneratedCode = rebuiltSyntax.reduce(into: "") { result, node in
+                let codeString = swiftUICode(from: node)
+                result += "\n\(codeString)"
             }
         } catch {
             errorString = "\(error)"

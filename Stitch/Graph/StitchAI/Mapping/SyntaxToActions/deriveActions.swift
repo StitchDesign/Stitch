@@ -10,24 +10,36 @@ import SwiftUI
 
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
+    func deriveStitchActions() throws -> [CurrentAIPatchBuilderResponseFormat.LayerData] {
         var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerData] = []
         
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
         for child in self.children {
             // depth-first
             let childConcepts = try child.deriveStitchActions()
-            childLayers.append(childConcepts)
+            childLayers += childConcepts
         }
 
         // Map this node
-        let layerData = try self.name.deriveLayerData(
-            id: self.id,
-            args: self.constructorArguments,
-            modifiers: self.modifiers,
-            childrenLayers: childLayers)
-        
-        return layerData
+        do {
+            let layerData = try self.name.deriveLayerData(
+                id: self.id,
+                args: self.constructorArguments,
+                modifiers: self.modifiers,
+                childrenLayers: childLayers)
+    
+            return [layerData]
+        } catch let error as SwiftUISyntaxError {
+            switch error {
+            case .unsupportedLayer, .unsupportedLayerInput:
+                log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
+                // Silent error for unsupported layers
+                return childLayers
+                
+            default:
+                throw error
+            }
+        }
     }
 }
 

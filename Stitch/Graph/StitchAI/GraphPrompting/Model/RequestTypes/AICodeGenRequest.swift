@@ -82,12 +82,12 @@ struct AICodeGenRequest: StitchAIRequestable {
                 }
                 
                 do {
-                    let layerData = try viewNode.deriveStitchActions()
+                    let layerDataList = try viewNode.deriveStitchActions()
                     
                     let patchBuilderRequest = try AIPatchBuilderRequest(
                         prompt: userPrompt,
                         swiftUISourceCode: swiftUISourceCode,
-                        layerData: layerData)
+                        layerDataList: layerDataList)
                     
                     let patchBuilderResult = await patchBuilderRequest
                         .request(document: document,
@@ -102,7 +102,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                             
                             do {
                                 let graphData = CurrentAIPatchBuilderResponseFormat
-                                    .GraphData(layer_data: [layerData],
+                                    .GraphData(layer_data_list: layerDataList,
                                                patch_data: patchBuildResult)
                                 try graphData.applyAIGraph(to: document)
                             } catch {
