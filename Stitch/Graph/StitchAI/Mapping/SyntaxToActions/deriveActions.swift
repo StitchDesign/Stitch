@@ -93,15 +93,25 @@ extension SyntaxViewName {
         switch scrollAxis {
         case .vertical:
             // Enable vertical scrolling only
-            groupLayer.custom_layer_input_values.append(
-                .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
-            )
+            groupLayer.custom_layer_input_values += [
+                .init(id: nodeID,
+                      input: .scrollYEnabled,
+                      value: .bool(true)),
+                .init(id: nodeID,
+                      input: .orientation,
+                      value: .orientation(.vertical))
+            ]
             
         case .horizontal:
             // Enable horizontal scrolling only
-            groupLayer.custom_layer_input_values.append(
-                .init(id: nodeID, input: .scrollXEnabled, value: .bool(true))
-            )
+            groupLayer.custom_layer_input_values += [
+                .init(id: nodeID,
+                      input: .scrollXEnabled,
+                      value: .bool(true)),
+                .init(id: nodeID,
+                      input: .orientation,
+                      value: .orientation(.horizontal))
+            ]
             
         case .both:
             // Enable both horizontal and vertical scrolling

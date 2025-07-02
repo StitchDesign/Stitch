@@ -194,11 +194,7 @@ extension AIPatchBuilderResponseFormat_V0 {
         // All connections are captured by patch data regardless of patch or layer
         let layer_connections: [LayerConnection]
     }
-    
-//    struct LayerData: Codable {
-//        var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
-//    }
-    
+
     struct LayerData {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         var suggested_title: String?
