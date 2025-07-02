@@ -338,6 +338,7 @@ extension SyntaxViewName {
         // Process each argument based on its type
         
         // index for modifier-arguments might not always be correct ?
+        
         for (idx, arg) in modifier.arguments.enumerated() {
             
             switch arg.value {
@@ -352,13 +353,8 @@ extension SyntaxViewName {
                 if let color = Color.fromSystemName(data.value) {
                     let input = PortValue.string(.init(color.asHexDisplay))
                     let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
-                    
                     if let coercedToColor = coerced.first {
-                        customValues.append(
-                            try .init(id: id,
-                                      port: port,
-                                      value: coercedToColor)
-                        )
+                        portValue = coercedToColor
                     } else {
                         fatalErrorIfDebug("Should not have failed to coerce color ")
                     }
@@ -366,20 +362,21 @@ extension SyntaxViewName {
                 
                 // Simple, non-color case
                 else {
-                    // Handle simple value
-                    customValues.append(
-                        try .init(id: id,
-                                  port: port,
-                                  value: portValue.parseInputEdit(
-                                    fieldValue: .string(.init(data.value)),
-                                    fieldIndex: idx
-                                ))
-                    )
+                    portValue = portValue.parseInputEdit(
+                        fieldValue: .string(.init(data.value)),
+                        fieldIndex: idx)
                 }
             }
             
         } // for (idx, arg) in ...
         
+        // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
+        
+        customValues.append(
+            try .init(id: id,
+                      port: port,
+                      value: portValue)
+        )
         
         return customValues
     }
@@ -390,8 +387,6 @@ extension SyntaxViewName {
         modifier: SyntaxViewModifier,
         customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
     ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        
-        
         
         var customValues = customValues
         
