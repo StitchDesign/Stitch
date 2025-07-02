@@ -60,8 +60,8 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
     // Vast majority of cases: a single view modifier name corresponds to a single layer input
     case simple(CurrentStep.LayerInputPort)
     
-    // Special case: .rotation3DEffect modifier corresponds to *three* different layer inputs
-    case rotation
+    // Special case: .rotation3DEffect modifier corresponds to *three* different layer inputs; .rotation also requires special parsing of its `.degrees(x)` arguments
+    case rotationScenario
 }
 
 extension SyntaxViewModifierName {
@@ -91,19 +91,14 @@ extension SyntaxViewModifierName {
         case (.offset, _):
             // TODO: if view's parent is VStack/HStack, return .simple(.offsetInGroup) instead ?
             return .simple(.position)
-            
         
-        case (.rotationEffect, _):
-            // .rotationEffect is always a z-axis rotation
-            return .simple(.rotationZ)
-        
-        case (.rotation3DEffect, _):
-            // Depending on the axis specified in the arguments
-            // This would need argument extraction to determine X, Y, or Z
-            
-            // TODO: JULY 1: .rotation3DEffect
-            return .rotation
-            
+        // Rotation is a more complicated scenario which we handle with special logic
+        case (.rotationEffect, _),
+            (.rotation3DEffect, _):
+            // .rotationEffect is always a z-axis rotation, i.e. .rotationZ
+            // .rotation3DEffect is .rotationX or .rotationY or .rotationZ
+            return .rotationScenario
+                    
         case (.blur, _):
             return .simple(.blurRadius)
         case (.blendMode, _):

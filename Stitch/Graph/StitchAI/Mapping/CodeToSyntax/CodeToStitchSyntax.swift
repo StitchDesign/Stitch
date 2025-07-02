@@ -445,7 +445,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         else if let modifierName = modifierNameIfViewModifier(node) {
             dbg("visitPost → handling view modifier '\(modifierName)'")
             
-            if modifierName == SyntaxViewModifierName.rotation3DEffect.rawValue {
+            if modifierName == SyntaxViewModifierName.rotation3DEffect.rawValue
+                || modifierName == SyntaxViewModifierName.rotationEffect.rawValue
+            {
                 handleRotation3DEffect(node: node)
             } else {
                 handleStandardModifier(node: node, name: modifierName)

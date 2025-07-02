@@ -307,7 +307,7 @@ extension SyntaxViewName {
                 modifier: modifier,
                 customValues: customValues)
             
-        case .rotation:
+        case .rotationScenario:
             // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
             customValues = try self.deriveCustomValuesFromRotationLayerInputTranslation(
                 id: id,
@@ -370,13 +370,9 @@ extension SyntaxViewName {
             
         } // for (idx, arg) in ...
         
+
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
-        
-        customValues.append(
-            try .init(id: id,
-                      port: port,
-                      value: portValue)
-        )
+        customValues.append(try .init(id: id,port: port, value: portValue))
         
         return customValues
     }
@@ -390,28 +386,49 @@ extension SyntaxViewName {
         
         var customValues = customValues
         
-        if let angleArgument = modifier.arguments[safe: 0],
-           let axesArgument = modifier.arguments[safe: 1],
+        
+        guard let angleArgument = modifier.arguments[safe: 0],
+              // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
+              case .angle(let degreesOrRadians) = angleArgument.value else {
+            
+            //#if !DEV_DEBUG
+            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
+            //#endif
+        }
+        
+        
+        // degrees = *how much* we're rotating the given rotation layer input
+        // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
+        let fn = { (port: CurrentStep.LayerInputPort) in
+            let portValue = try port
+                .getDefaultValue(layerType: layerType)
+                .parseInputEdit(fieldValue: .string(.init(degreesOrRadians.value)),
+                                fieldIndex: 0)
+            
+            customValues.append(try .init(id: id, port: port, value: portValue))
+        }
+        
+        // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
+        if let axesArgument = modifier.arguments[safe: 1],
            
-            // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
-            case .angle(let degreesOrRadians) = angleArgument.value,
+            // Note: `axisX` could be a number-literal, which we can test as >0 here -- or it could be a variable, which we cannot test.
+           // We only want to provide `degrees` (e.g. `60` or `x`) if the axis is greater than 1; otherwise we end up with unwanted
+            
+            // Ah! Hold on -- if we have an incoming edge (i.e. a variable), then we won't have to create a custom_value; we would create an `incoming_edge` case instead;
+            // this incoming edge will then determine whether we apply the degrees or not --
+            // ... right, what is the proper way to think about incoming edges here?
+            // at the
+            
+            // what about expressions too, which have no incoming edges (i.e variables), e.g.  1+1 ?
+            // actually -- anything that's not a literal is considered an incoming edge
+            
+            
+            case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
            
-           case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
+            // TODO: JULY 2: what if we have e.g. `axes: (x: myVar, y: 0, z: 0)` instead of just literal? ... in that case, the `x: myVar` would be an incoming_edge, not a custom_value ?
            let axisX = toNumber(axisX.value),
            let axisY = toNumber(axisY.value),
            let axisZ = toNumber(axisZ.value) {
-            
-            // degrees = *how much* we're rotating the given rotation layer input
-            // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
-            let fn = { (port: CurrentStep.LayerInputPort) in
-                let portValue = try port
-                    .getDefaultValue(layerType: layerType)
-                    .parseInputEdit(fieldValue: .string(.init(degreesOrRadians.value)),
-                                    fieldIndex: 0)
-                customValues.append(
-                    try .init(id: id, port: port, value: portValue)
-                )
-            }
             
             if axisX > 0 {
                 try fn(.rotationX)
@@ -424,10 +441,9 @@ extension SyntaxViewName {
             }
         }
         
+        // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
         else {
-            #if !DEV_DEBUG
-            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
-            #endif
+            try fn(.rotationZ)
         }
         
         return customValues
