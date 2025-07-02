@@ -228,31 +228,32 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return arguments
     }
     
+    // TODO: JULY 2: needed clearer entry-points for when we're parsing a view-modifier
     // Parse arguments from function call
     private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
-    
-    // Default handling for other modifiers
-    let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
-        guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
-            log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
-            return nil
+        
+        // Default handling for other modifiers
+        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
+            guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
+                log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
+                return nil
+            }
+            
+            let expression = argument.expression
+            let data = SyntaxViewModifierArgumentData(
+                value: expression.trimmedDescription,
+                syntaxKind: .fromExpression(expression)
+            )
+            return SyntaxViewModifierArgument(
+                label: label,
+                value: .simple(data)
+            )
         }
         
-        let expression = argument.expression
-        let data = SyntaxViewModifierArgumentData(
-            value: expression.trimmedDescription,
-            syntaxKind: .fromExpression(expression)
-        )
-        return SyntaxViewModifierArgument(
-            label: label,
-            value: .simple(data)
-        )
+        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+        
+        return arguments
     }
-    
-    dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
-    
-    return arguments
-}
     
     // Handle closure expressions (for container views like VStack, HStack, ZStack)
     override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
@@ -443,7 +444,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         // Handle view‑modifier calls *after* the base view has been visited
         else if let modifierName = modifierNameIfViewModifier(node) {
             dbg("visitPost → handling view modifier '\(modifierName)'")
-
+            
             if modifierName == SyntaxViewModifierName.rotation3DEffect.rawValue {
                 handleRotation3DEffect(node: node)
             } else {
