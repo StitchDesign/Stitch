@@ -689,4 +689,91 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         XCTAssertTrue(otherInputs.isEmpty, "Should not have any other input types for this layer")
     }
+    
+    func testImageWithSFSymbol() throws {
+        // Given
+        let code = #"Image(systemName: "star.fill")"#
+        
+        // When - Parse the SwiftUI code into a SyntaxView
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+            XCTFail("Failed to parse Image with SF Symbol example")
+            return
+        }
+        
+        // Then - Verify the SyntaxView structure
+        // 1. Check the root view is an Image
+        XCTAssertEqual(syntaxView.name, .image, "Root view should be an Image view")
+        XCTAssertNotEqual(syntaxView.name, .text, "Should be an Image view, not a Text view")
+        
+        // 2. Verify the constructor argument with systemName label
+        XCTAssertEqual(syntaxView.constructorArguments.count, 1, "Image should have one constructor argument")
+        XCTAssertNotEqual(syntaxView.constructorArguments.count, 0, "Image should have a systemName argument")
+        
+        let constructorArg = syntaxView.constructorArguments[0]
+        XCTAssertEqual(constructorArg.label, .systemName, "Argument should be labeled 'systemName'")
+        
+        // 3. Verify the string literal value and its syntax kind
+        XCTAssertEqual(constructorArg.values.count, 1, "Should have exactly one value")
+        let value = constructorArg.values[0]
+        
+        XCTAssertEqual(value.value, "\"star.fill\"", "SF Symbol name should be 'star.fill'")
+        XCTAssertNotEqual(value.value, "star.fill", "SF Symbol name should include quotes")
+        XCTAssertEqual(value.syntaxKind, .literal(.string), "SF Symbol name should be a string literal")
+        
+        // 4. Verify no modifiers or children
+        XCTAssertTrue(syntaxView.modifiers.isEmpty, "Image should have no modifiers")
+        XCTAssertTrue(syntaxView.children.isEmpty, "Image should have no children")
+        
+        // When - Convert to LayerData
+        let layerData = try syntaxView.deriveStitchActions()
+        
+        // Then - Verify the structure of the LayerData
+        // 1. Check that we have exactly one layer (the SF Symbol)
+        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
+        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
+        
+        let symbolLayer = layerData.layers[0]
+        
+        // 2. Check that the layer is an SF Symbol layer
+        if case let .layer(layerType) = symbolLayer.node_name.value {
+            XCTAssertEqual(layerType, .sfSymbol, "Layer type should be sfSymbol")
+            XCTAssertNotEqual(layerType, .text, "Layer should not be a text layer")
+        } else {
+            XCTFail("Expected root layer to be an SF Symbol layer")
+        }
+        
+        // 3. Verify SF Symbol value in LayerData
+        let symbolValues = layerData.custom_layer_input_values.filter { value in
+            value.layer_input_coordinate.input_port_type.value == .sfSymbol
+        }
+        
+        // 4. Verify we have exactly one SF Symbol value
+        XCTAssertEqual(symbolValues.count, 1, "Should have exactly one SF Symbol value")
+        XCTAssertNotEqual(symbolValues.count, 0, "Should have an SF Symbol value")
+        
+        let symbolValue = symbolValues.first!
+        
+        // 5. Verify the SF Symbol value is associated with the correct layer
+        XCTAssertEqual(
+            symbolValue.layer_input_coordinate.layer_id.value,
+            symbolLayer.node_id.value,
+            "SF Symbol value should be associated with the SF Symbol layer"
+        )
+        
+        // 6. Verify the SF Symbol value is "star.fill" (with quotes)
+        if case let .string(symbolName) = symbolValue.value {
+            XCTAssertEqual(symbolName.string, "\"star.fill\"", "SF Symbol should be '\"star.fill\"'")
+            XCTAssertNotEqual(symbolName.string, "star.fill", "SF Symbol should include quotes")
+        } else {
+            XCTFail("Expected SF Symbol value to be a string")
+        }
+        
+        // 7. Verify no other unexpected input types exist for this layer
+        let otherInputs = layerData.custom_layer_input_values.filter { input in
+            input.layer_input_coordinate.layer_id.value == symbolLayer.node_id.value &&
+            input.layer_input_coordinate.input_port_type.value != .sfSymbol
+        }
+        
+        XCTAssertTrue(otherInputs.isEmpty, "Should not have any other input types for this layer")
+    }
 }
