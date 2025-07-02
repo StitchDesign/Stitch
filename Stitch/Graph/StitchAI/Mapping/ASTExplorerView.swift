@@ -48,6 +48,7 @@ struct ASTExplorerView: View {
     @State private var rebuiltSyntax: [SyntaxView] = []
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
+    @State private var silentlyCaughtErrors: [SwiftUISyntaxError] = []
 
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
@@ -95,11 +96,28 @@ struct ASTExplorerView: View {
             
             if let errorString = errorString {
                 VStack(alignment: .leading) {
-                    Text("Error")
+                    Text("Thrown Error")
                         .font(.headline)
                     
                     HStack {
                         Text(errorString)
+                            .monospaced()
+                            .padding()
+                        Spacer()
+                    }
+                    .border(Color.secondary)
+                }
+                .padding(.bottom)
+            }
+            
+            if !self.silentlyCaughtErrors.isEmpty {
+                VStack(alignment: .leading) {
+                    Text("Silently Caught Unsupported Concepts")
+                        .font(.headline)
+                    
+                    HStack {
+                        Text(try! self.silentlyCaughtErrors.map { "\($0)" }
+                                    .encodeToPrintableString())
                             .monospaced()
                             .padding()
                         Spacer()
@@ -194,6 +212,7 @@ struct ASTExplorerView: View {
         rebuiltSyntax = []
         regeneratedCode = ""
         errorString = nil
+        silentlyCaughtErrors = []
 
         // Parse code → Syntax
         guard let syntax = SwiftUIViewVisitor.parseSwiftUICode(currentCode) else {
@@ -203,7 +222,9 @@ struct ASTExplorerView: View {
 
         do {
             // Syntax → Actions
-            stitchActions = try syntax.deriveStitchActions()
+            let stitchActionsResult = try syntax.deriveStitchActions()
+            stitchActions = stitchActionsResult.actions
+            silentlyCaughtErrors = stitchActionsResult.caughtErrors
             
             // Actions → Syntax
             rebuiltSyntax = try SyntaxView.build(from: stitchActions)

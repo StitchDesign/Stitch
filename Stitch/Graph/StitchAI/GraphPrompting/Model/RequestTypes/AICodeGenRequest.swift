@@ -82,7 +82,8 @@ struct AICodeGenRequest: StitchAIRequestable {
                 }
                 
                 do {
-                    let layerDataList = try viewNode.deriveStitchActions()
+                    let actionsResult = try viewNode.deriveStitchActions()
+                    let layerDataList = actionsResult.actions
                     
                     let patchBuilderRequest = try AIPatchBuilderRequest(
                         prompt: userPrompt,

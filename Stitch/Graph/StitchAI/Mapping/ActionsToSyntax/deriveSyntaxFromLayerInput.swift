@@ -10,12 +10,13 @@ import Foundation
 enum SwiftUISyntaxError: Error {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
-    case unexpectedViewModifier(SyntaxViewModifierName)
+    case unsupportedViewModifier(SyntaxViewModifierName)
     case unsupportedLayer(SyntaxViewName)
     case unsupportedLayerInput(CurrentStep.LayerInputPort)
     case unsupportedSyntaxViewName(CurrentStep.Layer)
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed
+    case layerDecodingFailed
     case unexpectedPatchFound(CurrentStep.PatchOrLayer)
 }
 
@@ -49,7 +50,7 @@ extension CurrentStep.LayerInputPort {
                 return .modifier(modifier)
             } else {
                 fatalErrorIfDebug("Failed to handle layer input \(self) with value \(value) for modifier \(name)")
-                throw SwiftUISyntaxError.unexpectedViewModifier(name)
+                throw SwiftUISyntaxError.unsupportedViewModifier(name)
             }
         }
         

@@ -8,33 +8,54 @@
 import Foundation
 import SwiftUI
 
+struct SwiftSyntaxActionsResult {
+    let actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
+    var caughtErrors: [SwiftUISyntaxError]
+}
+
+extension Array where Element == SyntaxView {
+    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+        let allResults = try self.map { try $0.deriveStitchActions() }
+        
+        return .init(actions: allResults.flatMap { $0.actions },
+                     caughtErrors: allResults.flatMap { $0.caughtErrors })
+    }
+}
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> [CurrentAIPatchBuilderResponseFormat.LayerData] {
-        var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerData] = []
-        
+    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        for child in self.children {
-            // depth-first
-            let childConcepts = try child.deriveStitchActions()
-            childLayers += childConcepts
-        }
+        let childResults = try self.children.deriveStitchActions()
 
         // Map this node
         do {
-            let layerData = try self.name.deriveLayerData(
+            var layerData = try self.name.deriveLayerData(
                 id: self.id,
                 args: self.constructorArguments,
                 modifiers: self.modifiers,
-                childrenLayers: childLayers)
+                childrenLayers: childResults.actions)
+            
+            guard let layer = layerData.node_name.value.layer else {
+                fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
+                throw SwiftUISyntaxError.layerDecodingFailed
+            }
+            
+            if !layer.isGroup {
+                // Make sure non-grouped layer has no children
+                assertInDebug(childResults.actions.isEmpty)
+                layerData.children = nil
+            }
     
-            return [layerData]
+            return .init(actions: [layerData],
+                         caughtErrors: childResults.caughtErrors)
         } catch let error as SwiftUISyntaxError {
             switch error {
-            case .unsupportedLayer, .unsupportedLayerInput:
+            case .unsupportedLayer, .unsupportedLayerInput, .unsupportedViewModifier:
                 log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                 // Silent error for unsupported layers
-                return childLayers
+                var resultForSilentFailure = childResults
+                resultForSilentFailure.caughtErrors.append(error)
+                return resultForSilentFailure
                 
             default:
                 throw error

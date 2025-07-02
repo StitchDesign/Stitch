@@ -282,9 +282,7 @@ extension SyntaxViewName {
         
         var customValues = customValues
         
-        guard let derivationResult = modifier.name.deriveLayerInputPort(layerType) else {
-            throw SwiftUISyntaxError.unexpectedViewModifier(modifier.name)
-        }
+        let derivationResult = try modifier.name.deriveLayerInputPort(layerType)
         
         switch derivationResult {
             
