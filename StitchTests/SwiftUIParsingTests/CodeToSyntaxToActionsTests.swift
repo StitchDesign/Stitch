@@ -776,4 +776,111 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         XCTAssertTrue(otherInputs.isEmpty, "Should not have any other input types for this layer")
     }
+    
+    func testRectangleWithRotationEffect() throws {
+        // Given
+        let code = """
+        Rectangle()
+            .rotationEffect(.degrees(45))
+        """
+        
+        // When - Parse the SwiftUI code into a SyntaxView
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+            XCTFail("Failed to parse Rectangle with rotation effect example")
+            return
+        }
+        
+        // Then - Verify the SyntaxView structure
+        // 1. Check the root view is a Rectangle
+        XCTAssertEqual(syntaxView.name, .rectangle, "Root view should be a Rectangle")
+        XCTAssertNotEqual(syntaxView.name, .text, "Should be a Rectangle, not a Text view")
+        
+        // 2. Verify no constructor arguments
+        XCTAssertTrue(syntaxView.constructorArguments.isEmpty, "Rectangle should have no constructor arguments")
+        
+        // 3. Verify the rotation effect modifier
+        XCTAssertEqual(syntaxView.modifiers.count, 1, "Should have one modifier")
+        XCTAssertNotEqual(syntaxView.modifiers.count, 0, "Should have a rotation effect modifier")
+        
+        let modifier = syntaxView.modifiers[0]
+        XCTAssertEqual(modifier.name, .rotationEffect, "Modifier should be rotationEffect")
+        
+        // 4. Verify the rotation effect arguments
+        XCTAssertEqual(modifier.arguments.count, 1, "rotationEffect should have one argument")
+        let angleArg = modifier.arguments[0]
+        
+        switch angleArg.value {
+        case .angle(let angleData): // SyntaxViewModifierArgumentAngle
+            XCTAssertEqual(angleData.value, "45", "Rotation angle should be 45 degrees")
+        default:
+            XCTFail("Should have had angle")
+        }
+        
+        XCTAssertEqual(modifier.arguments.count, 1, "Should have had one argument")
+         
+        // 6. Verify no children
+        XCTAssertTrue(syntaxView.children.isEmpty, "Rectangle should have no children")
+        
+        // When - Convert to LayerData
+        let layerData = try syntaxView.deriveStitchActions()
+        
+        // Then - Verify the structure of the LayerData
+        // 1. Check that we have exactly one layer (the Rectangle)
+        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
+        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
+        
+        let rectangleLayer = layerData.layers[0]
+        
+        // 2. Check that the layer is a rectangle
+        if case let .layer(layerType) = rectangleLayer.node_name.value {
+            XCTAssertEqual(layerType, .rectangle, "Layer type should be rectangle")
+            XCTAssertNotEqual(layerType, .sfSymbol, "Layer should not be an SF Symbol")
+        } else {
+            XCTFail("Expected root layer to be a rectangle")
+        }
+        
+        // 3. Verify rotation value in LayerData
+        let rotationValues = layerData.custom_layer_input_values.filter { value in
+            value.layer_input_coordinate.input_port_type.value == .rotationZ
+        }
+        
+        // 4. Verify we have exactly one rotation value
+        XCTAssertEqual(rotationValues.count, 1, "Should have exactly one rotation value")
+        XCTAssertNotEqual(rotationValues.count, 0, "Should have a rotation value")
+        
+        let rotationValue = rotationValues.first!
+        
+        // 5. Verify the rotation value is associated with the correct layer
+        XCTAssertEqual(
+            rotationValue.layer_input_coordinate.layer_id.value,
+            rectangleLayer.node_id.value,
+            "Rotation value should be associated with the rectangle layer"
+        )
+        
+        switch rotationValue.value {
+        case .number(let x):
+            XCTAssertEqual(x, 45)
+        default:
+            XCTFail()
+        }
+        
+        // 6. Verify the rotation value is 45 degrees (in radians)
+//        let expectedRadians = 45.0 * .pi / 180.0
+//        if case let .number(rotation) = rotationValue.value {
+//            XCTAssertEqual(rotation, expectedRadians, accuracy: 0.0001,
+//                         "Rotation should be 45 degrees in radians")
+//            XCTAssertNotEqual(rotation, 45,
+//                            "Rotation should be in radians, not degrees")
+//        } else {
+//            XCTFail("Expected rotation value to be a number")
+//        }
+//        
+        // 7. Verify no other unexpected input types exist for this layer
+        let otherInputs = layerData.custom_layer_input_values.filter { input in
+            input.layer_input_coordinate.layer_id.value == rectangleLayer.node_id.value &&
+            input.layer_input_coordinate.input_port_type.value != .rotationZ
+        }
+        
+        XCTAssertTrue(otherInputs.isEmpty, "Should not have any other input types for this layer")
+    }
 }

@@ -265,7 +265,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     // MARK: - Modifier Handling
     
     /// Handles the rotation3DEffect modifier specially due to its complex argument structure
-    private func handleRotation3DEffect(node: FunctionCallExprSyntax) {
+    private func handleRotation3DEffect(node: FunctionCallExprSyntax, name: SyntaxViewModifierName) {
         var arguments: [SyntaxViewModifierArgument] = []
         
         // Handle angle parameter (first argument: expected .degrees(...) or .radians(...))
@@ -352,7 +352,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         // Create and add the modifier
         let modifier = SyntaxViewModifier(
-            name: .rotation3DEffect,
+            name: name,
             arguments: arguments
         )
         addModifier(modifier)
@@ -445,10 +445,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         else if let modifierName = modifierNameIfViewModifier(node) {
             dbg("visitPost → handling view modifier '\(modifierName)'")
             
-            if modifierName == SyntaxViewModifierName.rotation3DEffect.rawValue
-                || modifierName == SyntaxViewModifierName.rotationEffect.rawValue
-            {
-                handleRotation3DEffect(node: node)
+            let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName)
+            if (syntaxViewModifierName == .rotationEffect
+                || syntaxViewModifierName == .rotation3DEffect) {
+                handleRotation3DEffect(node: node, name: syntaxViewModifierName)
             } else {
                 handleStandardModifier(node: node, name: modifierName)
             }
