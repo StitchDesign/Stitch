@@ -35,6 +35,54 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable, Codable {
  */
 struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable, Codable {
     let label: SyntaxViewModifierArgumentLabel
+    let value: SyntaxViewModifierArgumentType
+}
+
+
+/*
+ A single given parameter (i.e. a single label)
+ could have a complex (more than just string) value or even multiple associated values, e.g.
+ 
+ ```swift
+ Rectangle()
+     .rotation3DEffect(
+        .degrees(90), // unlabeled, with non-string type
+        axis: (x: 1, y: 0, z: 0) // labeled, with multiple associated values
+    )
+ ```
+ */
+enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Codable {
+    
+    // e.g. .opacity(5.0)
+    case simple(SyntaxViewModifierArgumentData)
+    
+    // e.g. .rotationEffect(.degrees(90), axis: ...)
+    case angle(SyntaxViewModifierArgumentAngle)
+    
+    // e.g. .rotationEffect(..., axis: (x: 1, y: 0, z: 0))
+    case axis(x: SyntaxViewModifierArgumentData,
+              y: SyntaxViewModifierArgumentData,
+              z: SyntaxViewModifierArgumentData)
+    }
+
+// TODO: JULY 2: the argument .rotation3DEffect(_ angle: Angle) could be either Angle.degrees or Angle.radians, but Stitch's rotation layer inputs always uses degrees
+// https://developer.apple.com/documentation/swiftui/view/rotation3deffect(_:axis:anchor:)
+// https://developer.apple.com/documentation/swiftui/angle
+enum SyntaxViewModifierArgumentAngle: Equatable, Hashable, Sendable, Codable {
+    case degrees(SyntaxViewModifierArgumentData) //
+    case radians(SyntaxViewModifierArgumentData)
+    
+    var value: String {
+        switch self {
+        case .degrees(let x):
+            return x.value
+        case .radians(let x):
+            return x.value
+        }
+    }
+}
+
+struct SyntaxViewModifierArgumentData: Equatable, Hashable, Sendable, Codable {
     let value: String
     
     // literal vs declared var vs expression
@@ -52,7 +100,10 @@ enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable, Sendable, Cod
          
          // e.g. position(x:y:)
          x = "x",
-         y = "y"
+         y = "y",
+    
+         // e.g. .rotation3DEffect(..., axis: ...)
+         axis = "axis"
 }
 
 extension SyntaxViewModifierArgumentLabel {
@@ -108,6 +159,7 @@ enum SyntaxViewModifierName: Codable, Hashable, Equatable, Sendable {
     case offset
     // …add more as needed …
 
+    // TODO: JULY 1: REMOVE THIS CASE, SO WE CAN HAVE CASE-ITERABLE VIEW-MODIFIER-NAMES? EFFECTIVELY THIS IS JUST A
     /// Any modifier name not yet mapped to a first-class case.
     case custom(String)
 }

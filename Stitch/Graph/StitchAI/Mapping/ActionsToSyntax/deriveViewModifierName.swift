@@ -15,7 +15,7 @@ extension CurrentStep.LayerInputPort {
     var toSwiftUIViewModifierName: SyntaxViewModifierName? {
         switch self {
         // ── Required geometry & layout ──────────────────────────────
-        case .position:                    return .custom("position")
+        case .position:                    return .position
         case .size:                        return .frame
         case .scale:                       return .scaleEffect
         case .anchoring:                   return nil
