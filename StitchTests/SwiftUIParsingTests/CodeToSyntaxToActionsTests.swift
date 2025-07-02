@@ -27,30 +27,44 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // Then - Verify the root VStack
         XCTAssertEqual(syntaxView.name, .vStack)
-        XCTAssertTrue(syntaxView.constructorArguments.isEmpty)
-        XCTAssertTrue(syntaxView.modifiers.isEmpty)
-        XCTAssertEqual(syntaxView.children.count, 1)
+        XCTAssertNotEqual(syntaxView.name, .hStack, "Should be a VStack, not HStack")
+        XCTAssertTrue(syntaxView.constructorArguments.isEmpty, "VStack should have no constructor arguments")
+        XCTAssertTrue(syntaxView.modifiers.isEmpty, "VStack should have no modifiers")
+        XCTAssertEqual(syntaxView.children.count, 1, "VStack should have exactly one child")
+        XCTAssertNotEqual(syntaxView.children.count, 0, "VStack should have children")
+        XCTAssertNotEqual(syntaxView.children.count, 2, "VStack should have only one child in this test")
         
         // Verify the Rectangle child
         let rectangle = syntaxView.children[0]
-        XCTAssertEqual(rectangle.name, .rectangle)
-        XCTAssertTrue(rectangle.constructorArguments.isEmpty)
-        XCTAssertEqual(rectangle.children.count, 0)
+        XCTAssertEqual(rectangle.name, .rectangle, "Child should be a Rectangle")
+        XCTAssertNotEqual(rectangle.name, .circle, "Child should not be a Circle")
+        XCTAssertTrue(rectangle.constructorArguments.isEmpty, "Rectangle should have no constructor arguments")
+        XCTAssertEqual(rectangle.children.count, 0, "Rectangle should have no children")
         
         // Verify the fill modifier on Rectangle
-        XCTAssertEqual(rectangle.modifiers.count, 1)
+        XCTAssertEqual(rectangle.modifiers.count, 1, "Rectangle should have one modifier")
+        XCTAssertNotEqual(rectangle.modifiers.count, 0, "Rectangle should have a fill modifier")
+        XCTAssertNotEqual(rectangle.modifiers.count, 2, "Rectangle should have only one modifier")
+        
         let fillModifier = rectangle.modifiers[0]
-        XCTAssertEqual(fillModifier.name, .fill)
-        XCTAssertEqual(fillModifier.arguments.count, 1)
+        XCTAssertEqual(fillModifier.name, .fill, "Modifier should be a fill modifier")
+        XCTAssertNotEqual(fillModifier.name, .frame, "Modifier should not be a frame modifier")
+        
+        XCTAssertEqual(fillModifier.arguments.count, 1, "Fill modifier should have one argument")
+        XCTAssertNotEqual(fillModifier.arguments.count, 0, "Fill modifier should have arguments")
         
         let argument = fillModifier.arguments[0]
-        XCTAssertEqual(argument.label, .noLabel)
+        XCTAssertEqual(argument.label, .noLabel, "Fill argument should have no label")
         
         // Verify the argument value is Color.blue
         if case let .simple(data) = argument.value {
-            XCTAssertEqual(data.value, "Color.blue")
-            //            XCTAssertEqual(data.syntaxKind, .variable(.memberAccess))
-            XCTAssertEqual(data.syntaxKind, .literal(.unknown))
+            XCTAssertEqual(data.value, "Color.blue", "Color should be blue")
+            XCTAssertNotEqual(data.value, "Color.red", "Color should not be red")
+            XCTAssertNotEqual(data.value, "blue", "Color should be fully qualified")
+            
+            // Check the syntax kind
+            XCTAssertEqual(data.syntaxKind, .literal(.unknown), "Color syntax kind should be unknown literal")
+            XCTAssertNotEqual(data.syntaxKind, .literal(.integer), "Color should not be an integer")
         } else {
             XCTFail("Expected simple argument value")
         }
@@ -74,25 +88,36 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the VStack)
-        XCTAssertEqual(layerData.layers.count, 1)
+        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one root layer")
+        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
+        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple root layers")
         
         let vstackLayer = layerData.layers[0]
         
         // 2. Check that the VStack is a group with vertical orientation
         if case let .layer(layerType) = vstackLayer.node_name.value {
-            XCTAssertEqual(layerType, .group)
+            XCTAssertEqual(layerType, .group, "VStack should be a group layer")
+            XCTAssertNotEqual(layerType, .rectangle, "VStack should not be a rectangle")
         } else {
             XCTFail("Expected VStack to be a group layer")
         }
         
         // 3. Check that the VStack has one child (the Rectangle)
-        XCTAssertEqual(vstackLayer.children?.count, 1)
+        guard let children = vstackLayer.children else {
+            XCTFail("VStack should have children")
+            return
+        }
         
-        let rectangleLayer = vstackLayer.children![0]
+        XCTAssertEqual(children.count, 1, "VStack should have exactly one child")
+        XCTAssertNotEqual(children.count, 0, "VStack should have children")
+        
+        let rectangleLayer = children[0]
         
         // 4. Check that the child is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {
-            XCTAssertEqual(layerType, .rectangle)
+            XCTAssertEqual(layerType, .rectangle, "Child should be a rectangle")
+            XCTAssertNotEqual(layerType, .oval, "Child should not be a oval")
+            XCTAssertNotEqual(layerType, .group, "Child should not be a group")
         } else {
             XCTFail("Expected child to be a rectangle layer")
         }
@@ -103,24 +128,48 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         }
         
         XCTAssertEqual(fillValues.count, 1, "Expected exactly one fill color value")
+        XCTAssertNotEqual(fillValues.count, 0, "Should have at least one fill color")
+        XCTAssertNotEqual(fillValues.count, 2, "Should not have multiple fill colors")
         
         if let fillValue = fillValues.first {
             // The node ID should match the rectangle layer's ID
-            XCTAssertEqual(fillValue.layer_input_coordinate.layer_id.value,
-                           rectangleLayer.node_id.value)
+            XCTAssertEqual(
+                fillValue.layer_input_coordinate.layer_id.value,
+                rectangleLayer.node_id.value,
+                "Fill value should be associated with the rectangle layer"
+            )
+            
+            // Verify it's not associated with the VStack layer
+            XCTAssertNotEqual(
+                fillValue.layer_input_coordinate.layer_id.value,
+                vstackLayer.node_id.value,
+                "Fill value should not be associated with the VStack layer"
+            )
             
             let blue: Color = ColorConversionUtils.hexToColor(Color.blue.asHexDisplay)!
+            let red: Color = ColorConversionUtils.hexToColor(Color.red.asHexDisplay)!
             
+            // Test positive case
             XCTAssertEqual(
                 fillValue.value,
-                .color(blue)
-                //                .color(.green) // fails, as it should
+                .color(blue),
+                "Fill color should be blue"
             )
             
+            // Test negative cases
             XCTAssertNotEqual(
                 fillValue.value,
-                .color(.green)
+                .color(red),
+                "Fill color should not be red"
             )
+            
+            // Test with explicit .color case
+            if case let .color(fillColor) = fillValue.value {
+                XCTAssertEqual(fillColor, blue, "Fill color should be blue")
+                XCTAssertNotEqual(fillColor, red, "Fill color should not be red")
+            } else {
+                XCTFail("Expected a color value")
+            }
         }
     }
     
@@ -140,20 +189,28 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a Rectangle
         XCTAssertEqual(syntaxView.name, .rectangle, "Root view should be a Rectangle")
+        XCTAssertNotEqual(syntaxView.name, .roundedRectangle, "Should be a plain Rectangle, not RoundedRectangle")
         XCTAssertTrue(syntaxView.constructorArguments.isEmpty, "Rectangle should have no constructor arguments")
         
         // 2. Verify the position modifier
         XCTAssertEqual(syntaxView.modifiers.count, 1, "Should have one modifier (position)")
+        XCTAssertNotEqual(syntaxView.modifiers.count, 0, "Should have a position modifier")
+        XCTAssertNotEqual(syntaxView.modifiers.count, 2, "Should have only one modifier")
+        
         let positionModifier = syntaxView.modifiers[0]
         XCTAssertEqual(positionModifier.name, .position, "Modifier should be a position modifier")
+        XCTAssertNotEqual(positionModifier.name, .offset, "Modifier should not be an offset modifier")
         
         // 3. Check position arguments (x and y)
         XCTAssertEqual(positionModifier.arguments.count, 2, "Position modifier should have two arguments (x and y)")
+        XCTAssertNotEqual(positionModifier.arguments.count, 1, "Position should have both x and y arguments")
         
         // Verify x argument
         if let xArg = positionModifier.arguments.first(where: { $0.label == .x }),
            case let .simple(xData) = xArg.value {
             XCTAssertEqual(xData.value, "200", "X position should be 200")
+            XCTAssertNotEqual(xData.value, "100", "X position should not be 100")
+            XCTAssertEqual(xData.syntaxKind, .literal(.integer), "X position should be an integer")
         } else {
             XCTFail("Could not find or validate x position argument")
         }
@@ -162,6 +219,8 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         if let yArg = positionModifier.arguments.first(where: { $0.label == .y }),
            case let .simple(yData) = yArg.value {
             XCTAssertEqual(yData.value, "200", "Y position should be 200")
+            XCTAssertNotEqual(yData.value, "100", "Y position should not be 100")
+            XCTAssertEqual(yData.syntaxKind, .literal(.integer), "Y position should be an integer")
         } else {
             XCTFail("Could not find or validate y position argument")
         }
@@ -172,12 +231,15 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
         XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
+        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
+        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple layers")
         
         let rectangleLayer = layerData.layers[0]
         
         // 2. Check that the layer is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {
             XCTAssertEqual(layerType, .rectangle, "Layer type should be rectangle")
+            XCTAssertNotEqual(layerType, .oval, "Layer should not be a oval")
         } else {
             XCTFail("Expected root layer to be a rectangle")
         }
@@ -189,12 +251,31 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // 4. Verify we have exactly one position value (combining x and y)
         XCTAssertEqual(positionValues.count, 1, "Should have exactly one position value")
+        XCTAssertNotEqual(positionValues.count, 0, "Should have a position value")
+        XCTAssertNotEqual(positionValues.count, 2, "Should not have multiple position values")
         
         let positionValue = positionValues.first!
         let positionPortValue = positionValue.value
+        
+        // Verify the position is associated with the correct layer
+        XCTAssertEqual(
+            positionValue.layer_input_coordinate.layer_id.value,
+            rectangleLayer.node_id.value,
+            "Position should be associated with the rectangle layer"
+        )
+        
         if case .position(let p) = positionPortValue {
+            // Test exact position
             XCTAssertEqual(p, CGPoint(x: 200, y: 200), "Position should be (200, 200)")
-            XCTAssertNotEqual(p, CGPoint(x: 200, y: 50), "Position should be (200, 200)")
+            
+            // Test incorrect positions
+            XCTAssertNotEqual(p, CGPoint(x: 200, y: 50), "Y position should be 200, not 50")
+            XCTAssertNotEqual(p, CGPoint(x: 100, y: 200), "X position should be 200, not 100")
+            XCTAssertNotEqual(p, CGPoint(x: 0, y: 0), "Position should not be at origin")
+            
+            // Test individual components
+            XCTAssertEqual(p.x, 200, "X coordinate should be 200")
+            XCTAssertEqual(p.y, 200, "Y coordinate should be 200")
         } else {
             XCTFail("Expected position value to be a CGPoint")
         }
