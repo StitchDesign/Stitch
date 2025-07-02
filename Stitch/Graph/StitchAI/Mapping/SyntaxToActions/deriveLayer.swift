@@ -437,8 +437,8 @@ extension SyntaxViewName {
 extension CurrentStep.LayerInputPort {
     func getDefaultValue(layerType: CurrentStep.Layer) throws -> PortValue {
         
-        let migratedPort = try self.convert(to: LayerInputPort.self)
-        let migratedLayerType = try layerType.convert(to: Layer.self)
+        let migratedPort = try! self.convert(to: LayerInputPort.self)
+        let migratedLayerType = try! layerType.convert(to: Layer.self)
         
         // Start with default value for that port
         return migratedPort.getDefaultValue(for: migratedLayerType)
@@ -452,7 +452,7 @@ extension CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue {
          value: PortValue) throws {
         
         // "Downgrade" PortValue back to supported type for the AI
-        let downgradedValue = try port.convert(to: CurrentStep.PortValue.self)
+        let downgradedValue = try! port.convert(to: CurrentStep.PortValue.self)
         
         self.init(id: id,
                   input: port,

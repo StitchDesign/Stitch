@@ -23,6 +23,19 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
     }
 }
 
+/// Nicely formats a `SyntaxViewModifierArgumentType` so that we don't dump the
+/// full struct/enum hierarchy when printing.
+private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
+    switch argType {
+    case .simple(let data):
+        return "simple(\(data.value))"
+    case .degrees(let data):
+        return "degrees(\(data.value))"
+    case .axis(let x, let y, let z):
+        return "axis(x: \(x.value), y: \(y.value), z: \(z.value))"
+    }
+}
+
 // Formats a ViewNode into a readable string representation - top level so it can be reused
 func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)SyntaxView("
@@ -55,8 +68,9 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
             result += "\n\(indent)            arguments: ["
             if !modifier.arguments.isEmpty {
                 for (j, arg) in modifier.arguments.enumerated() {
-                    let label = arg.label == .noLabel ? "" : "\"\(arg.label)\""
-                    result += "\n\(indent)                (label: \(label), value: \"\(arg.value)\")"
+                    let labelDesc = arg.label == .noLabel ? "" : "\"\(arg.label.rawValue)\""
+                    let valueDesc = describe(arg.value)
+                    result += "\n\(indent)                (label: \(labelDesc), value: \(valueDesc))"
                     if j < modifier.arguments.count - 1 {
                         result += ","
                     }
