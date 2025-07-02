@@ -217,6 +217,13 @@ extension MappingExamples {
                 }
             }
             """
-        )
+        ),
+        
+        // Rotation Examples
+        rotationEffectBasic,
+        rotationEffectAnchor,
+        rotationEffectRadians,
+        rotation3DEffectBasic,
+        rotation3DEffectPerspective
     ]
 }
