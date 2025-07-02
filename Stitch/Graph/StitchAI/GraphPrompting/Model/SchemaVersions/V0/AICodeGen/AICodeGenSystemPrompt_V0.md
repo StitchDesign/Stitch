@@ -523,10 +523,6 @@ Each function should mimic logic composed in patch nodes in Stitch (or Origami S
     "node_kind" : "pressInteraction || Patch"
   },
   {
-    "description" : "Adds scroll interaction to a specified layer.",
-    "node_kind" : "legacyScrollInteraction || Patch"
-  },
-  {
     "description" : "A node that will fire a pulse at a defined interval.",
     "node_kind" : "repeatingPulse || Patch"
   },

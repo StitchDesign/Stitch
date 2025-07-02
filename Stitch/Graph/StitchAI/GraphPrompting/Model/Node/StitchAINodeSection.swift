@@ -35,13 +35,16 @@ public enum NodeSection: String, CaseIterable, CustomStringConvertible {
     case deviceSystem = "Device and System Nodes"
     case arrayOperation = "Array Operation Nodes"
     case jsAINode = "Javascript AI Node"
+    case ignoredNodes = "IGNORED NODES"
 }
 
 extension NodeSection {
     // TODO: should we really be passing in a specific GraphState here? aren't these node descriptions independent of any given graph ? None of the defined nodes have connections etc., right?
     @MainActor
     static func getAllAIDescriptions(graph: GraphState) throws -> [StitchAINodeSectionDescription] {
-        try Self.allCases.map {
+        try Self.allCases
+            .filter { $0 != .ignoredNodes }
+            .map {
             try StitchAINodeSectionDescription.init($0, graph: graph)
         }
     }
@@ -144,7 +147,7 @@ extension CurrentStep.Patch {
             return .deviceSystem
             
             // MARK: Interaction Nodes
-        case .dragInteraction, .pressInteraction, .scrollInteraction,
+        case .dragInteraction, .pressInteraction,
                 .keyboard, .mouse:
             return .interaction
             
@@ -199,6 +202,9 @@ extension CurrentStep.Patch {
                 .indexOf, .subarray, .setValueForKey, .valueForKey, .valueAtIndex,
                 .valueAtPath:
             return .arrayOperation
+            
+        case .scrollInteraction:
+            return .ignoredNodes
         }
     }
 }

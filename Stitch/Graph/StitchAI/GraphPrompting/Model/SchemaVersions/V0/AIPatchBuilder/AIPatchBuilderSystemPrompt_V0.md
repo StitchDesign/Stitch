@@ -521,10 +521,6 @@ Each function should mimic logic composed in patch nodes in Stitch (or Origami S
     "node_kind" : "pressInteraction || Patch"
   },
   {
-    "description" : "Adds scroll interaction to a specified layer.",
-    "node_kind" : "legacyScrollInteraction || Patch"
-  },
-  {
     "description" : "A node that will fire a pulse at a defined interval.",
     "node_kind" : "repeatingPulse || Patch"
   },
@@ -7329,100 +7325,6 @@ Each patch and layer supports the following inputs and outputs:
               "width" : "0.0"
             },
             "valueType" : "size"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Layer",
-            "value" : null,
-            "valueType" : "layer"
-          },
-          {
-            "label" : "Scroll X",
-            "value" : "free",
-            "valueType" : "scrollMode"
-          },
-          {
-            "label" : "Scroll Y",
-            "value" : "free",
-            "valueType" : "scrollMode"
-          },
-          {
-            "label" : "Content Size",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Direction Locking",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Page Size",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Page Padding",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Jump Style X",
-            "value" : "instant",
-            "valueType" : "scrollJumpStyle"
-          },
-          {
-            "label" : "Jump to X",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Jump Position X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Jump Style Y",
-            "value" : "instant",
-            "valueType" : "scrollJumpStyle"
-          },
-          {
-            "label" : "Jump to Y",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Jump Position Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Deceleration Rate",
-            "value" : "normal",
-            "valueType" : "scrollDecelerationRate"
-          }
-        ],
-        "nodeKind" : "legacyScrollInteraction || Patch",
-        "outputs" : [
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
           }
         ]
       }
