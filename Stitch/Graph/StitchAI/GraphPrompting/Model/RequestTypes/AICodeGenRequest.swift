@@ -102,7 +102,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                             
                             do {
                                 let graphData = CurrentAIPatchBuilderResponseFormat
-                                    .GraphData(layer_data: layerData,
+                                    .GraphData(layer_data: [layerData],
                                                patch_data: patchBuildResult)
                                 try graphData.applyAIGraph(to: document)
                             } catch {

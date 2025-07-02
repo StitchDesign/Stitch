@@ -181,7 +181,7 @@ enum AIPatchBuilderResponseFormat_V0 {
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
     struct GraphData: Codable {
-        let layer_data: LayerData
+        let layer_data: [LayerData]
         let patch_data: PatchData
     }
     
@@ -435,3 +435,23 @@ extension Step_V0.PortValue {
         try container.encode(portValue.nodeType, forKey: valueTypeKey)
     }
 }
+
+extension Array where Element == CurrentAIPatchBuilderResponseFormat.LayerData {
+    var allNestedCustomInputValues: [AIPatchBuilderResponseFormat_V0.CustomLayerInputValue] {
+        self.flatMap {
+            $0.custom_layer_input_values +
+            ($0.children?.allNestedCustomInputValues ?? [])
+        }
+    }
+}
+
+//extension AIPatchBuilderResponseFormat_V0.LayerData {
+//    func createSidebarLayerData() -> SidebarLayerData {
+//        let children = self.children?.map {
+//            $0.createSidebarLayerData()
+//        }
+//        
+//        return SidebarLayerData(id: self.node_id.value,
+//                                children: children)
+//    }
+//}

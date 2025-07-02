@@ -62,7 +62,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
 extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.
     @MainActor
-    func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerNode,
+    func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerData,
                                idMap: inout [UUID : UUID]) throws -> SidebarLayerData {
         let newId = UUID()
         idMap.updateValue(newId, forKey: newLayer.node_id.value)
@@ -186,7 +186,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new layer nodes
         var newLayerSidebarDataList = [SidebarLayerData]()
-        for newLayer in self.layer_data.layers {
+        for newLayer in self.layer_data {
             let newSidebarData = try document.createLayerNodeFromAI(newLayer: newLayer,
                                                                     idMap: &idMap)
             newLayerSidebarDataList.append(newSidebarData)
@@ -211,7 +211,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // new constants for layers
-        for newInputValueSetting in self.layer_data.custom_layer_input_values {
+        for newInputValueSetting in self.layer_data.allNestedCustomInputValues {
             let inputCoordinate = try NodeIOCoordinate(
                 from: newInputValueSetting.layer_input_coordinate,
                 idMap: idMap)

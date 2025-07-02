@@ -10,12 +10,12 @@ import StitchSchemaKit
 import OrderedCollections
 
 
-typealias AIFlow = CurrentAIPatchBuilderResponseFormat
+//typealias AIFlow = CurrentAIPatchBuilderResponseFormat
 
 // easier names to remember
-typealias VPLActionsData = CurrentAIPatchBuilderResponseFormat.LayerData
-typealias VPLCreateNode = CurrentAIPatchBuilderResponseFormat.LayerNode
-typealias VPLSetInput = CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue
+//typealias VPLActionsData = CurrentAIPatchBuilderResponseFormat.LayerData
+//typealias VPLCreateNode = CurrentAIPatchBuilderResponseFormat.LayerNode
+//typealias VPLSetInput = CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue
 
 
 
