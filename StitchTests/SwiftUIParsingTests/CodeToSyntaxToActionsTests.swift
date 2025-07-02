@@ -131,12 +131,42 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
             .position(x: 200, y: 200)
         """
         
-        // When
+        // When - Parse the SwiftUI code into a SyntaxView
         guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
             XCTFail("Failed to parse Rectangle with position example")
             return
         }
         
+        // Then - Verify the SyntaxView structure
+        // 1. Check the root view is a Rectangle
+        XCTAssertEqual(syntaxView.name, .rectangle, "Root view should be a Rectangle")
+        XCTAssertTrue(syntaxView.constructorArguments.isEmpty, "Rectangle should have no constructor arguments")
+        
+        // 2. Verify the position modifier
+        XCTAssertEqual(syntaxView.modifiers.count, 1, "Should have one modifier (position)")
+        let positionModifier = syntaxView.modifiers[0]
+        XCTAssertEqual(positionModifier.name, .position, "Modifier should be a position modifier")
+        
+        // 3. Check position arguments (x and y)
+        XCTAssertEqual(positionModifier.arguments.count, 2, "Position modifier should have two arguments (x and y)")
+        
+        // Verify x argument
+        if let xArg = positionModifier.arguments.first(where: { $0.label == .x }),
+           case let .simple(xData) = xArg.value {
+            XCTAssertEqual(xData.value, "200", "X position should be 200")
+        } else {
+            XCTFail("Could not find or validate x position argument")
+        }
+         
+        // Verify y argument
+        if let yArg = positionModifier.arguments.first(where: { $0.label == .y }),
+           case let .simple(yData) = yArg.value {
+            XCTAssertEqual(yData.value, "200", "Y position should be 200")
+        } else {
+            XCTFail("Could not find or validate y position argument")
+        }
+        
+        // When - Convert to LayerData
         let layerData = try syntaxView.deriveStitchActions()
         
         // Then - Verify the structure of the LayerData
@@ -152,28 +182,113 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
             XCTFail("Expected root layer to be a rectangle")
         }
         
+        // 3. Verify position values in LayerData
         let positionValues = layerData.custom_layer_input_values.filter { value in
             value.layer_input_coordinate.input_port_type.value == .position
         }
         
-    
-        // 4. Verify we have exactly one position X and Y value
+        // 4. Verify we have exactly one position value (combining x and y)
         XCTAssertEqual(positionValues.count, 1, "Should have exactly one position value")
         
         let positionValue = positionValues.first!
         let positionPortValue = positionValue.value
         if case .position(let p) = positionPortValue {
-            XCTAssertEqual(p,
-                           CGPoint(x: 200, y: 200))
+            XCTAssertEqual(p, CGPoint(x: 200, y: 200), "Position should be (200, 200)")
+            XCTAssertNotEqual(p, CGPoint(x: 200, y: 50), "Position should be (200, 200)")
         } else {
-            XCTFail("Did not have position")
+            XCTFail("Expected position value to be a CGPoint")
         }
         
         // 5. Verify the layer IDs match between the layer and its custom values
         let layerId = rectangleLayer.node_id.value
-        XCTAssertEqual(positionValue.layer_input_coordinate.layer_id.value,
-                       layerId,
-                      "Position value should be associated with the rectangle layer")
-
+        XCTAssertEqual(
+            positionValue.layer_input_coordinate.layer_id.value,
+            layerId,
+            "Position value should be associated with the rectangle layer"
+        )
+    }
+    
+    func testRectangleWithOffsetToLayerData() throws {
+        // Given
+        let code = """
+        Rectangle()
+            .offset(x: 200, y: 200)
+        """
+        
+        // When - Parse the SwiftUI code into a SyntaxView
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+            XCTFail("Failed to parse Rectangle with offset example")
+            return
+        }
+        
+        // Then - Verify the SyntaxView structure
+        // 1. Check the root view is a Rectangle
+        XCTAssertEqual(syntaxView.name, .rectangle, "Root view should be a Rectangle")
+        XCTAssertTrue(syntaxView.constructorArguments.isEmpty, "Rectangle should have no constructor arguments")
+        
+        // 2. Verify the offset modifier
+        XCTAssertEqual(syntaxView.modifiers.count, 1, "Should have one modifier (offset)")
+        let offsetModifier = syntaxView.modifiers[0]
+        XCTAssertEqual(offsetModifier.name, .offset, "Modifier should be an offset modifier")
+        
+        // 3. Check offset arguments (x and y)
+        XCTAssertEqual(offsetModifier.arguments.count, 2, "Offset modifier should have two arguments (x and y)")
+        
+        // Verify x argument
+        if let xArg = offsetModifier.arguments.first(where: { $0.label == .x }),
+           case let .simple(xData) = xArg.value {
+            XCTAssertEqual(xData.value, "200", "X offset should be 200")
+        } else {
+            XCTFail("Could not find or validate x offset argument")
+        }
+         
+        // Verify y argument
+        if let yArg = offsetModifier.arguments.first(where: { $0.label == .y }),
+           case let .simple(yData) = yArg.value {
+            XCTAssertEqual(yData.value, "200", "Y offset should be 200")
+        } else {
+            XCTFail("Could not find or validate y offset argument")
+        }
+        
+        // When - Convert to LayerData
+        let layerData = try syntaxView.deriveStitchActions()
+        
+        // Then - Verify the structure of the LayerData
+        // 1. Check that we have exactly one root layer (the Rectangle)
+        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
+        
+        let rectangleLayer = layerData.layers[0]
+        
+        // 2. Check that the layer is a rectangle
+        if case let .layer(layerType) = rectangleLayer.node_name.value {
+            XCTAssertEqual(layerType, .rectangle, "Layer type should be rectangle")
+        } else {
+            XCTFail("Expected root layer to be a rectangle")
+        }
+        
+        // 3. Verify offset values in LayerData
+        // Note: Based on the example, offset is also represented as a position in the custom values
+        let offsetValues = layerData.custom_layer_input_values.filter { value in
+            value.layer_input_coordinate.input_port_type.value == .position
+        }
+        
+        // 4. Verify we have exactly one position value (combining x and y offset)
+        XCTAssertEqual(offsetValues.count, 1, "Should have exactly one position value for offset")
+        
+        let offsetValue = offsetValues.first!
+        let offsetPortValue = offsetValue.value
+        if case .position(let p) = offsetPortValue {
+            XCTAssertEqual(p, CGPoint(x: 200, y: 200), "Offset should be (200, 200)")
+        } else {
+            XCTFail("Expected offset value to be a CGPoint")
+        }
+        
+        // 5. Verify the layer IDs match between the layer and its custom values
+        let layerId = rectangleLayer.node_id.value
+        XCTAssertEqual(
+            offsetValue.layer_input_coordinate.layer_id.value,
+            layerId,
+            "Offset value should be associated with the rectangle layer"
+        )
     }
 }
