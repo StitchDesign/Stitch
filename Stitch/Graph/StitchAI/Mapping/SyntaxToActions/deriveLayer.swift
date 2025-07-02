@@ -343,7 +343,7 @@ extension SyntaxViewName {
             
             switch arg.value {
                 
-            case .degrees, .axis:
+            case .angle, .axis:
                 fatalErrorIfDebug("Only intended for rotation3DEffect case")
                 throw SwiftUISyntaxError.incorrectParsing(message: ".degrees and .axis are only for the rotation layer-inputs derivation")
                 
@@ -392,7 +392,7 @@ extension SyntaxViewName {
         
         if let degreesArgument = modifier.arguments[safe: 0],
            let axesArgument = modifier.arguments[safe: 1],
-           case .degrees(let degrees) = degreesArgument.value,
+           case .angle(let degrees) = degreesArgument.value,
            case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
            let axisX = toNumber(axisX.value),
            let axisY = toNumber(axisY.value),
@@ -419,10 +419,12 @@ extension SyntaxViewName {
             if axisZ > 0 {
                 try fn(.rotationZ)
             }
-            
-        } else {
-            fatalErrorIfDebug()
+        }
+        
+        else {
+            #if !DEV_DEBUG
             throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
+            #endif
         }
         
         return customValues

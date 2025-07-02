@@ -29,7 +29,7 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     switch argType {
     case .simple(let data):
         return "simple(\(data.value))"
-    case .degrees(let data):
+    case .angle(let data):
         return "degrees(\(data.value))"
     case .axis(let x, let y, let z):
         return "axis(x: \(x.value), y: \(y.value), z: \(z.value))"

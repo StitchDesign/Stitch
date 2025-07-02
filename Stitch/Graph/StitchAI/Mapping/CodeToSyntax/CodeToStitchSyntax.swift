@@ -230,63 +230,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Parse arguments from function call
     private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
-    // Check if this is a rotation3DEffect modifier
-    if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
-       memberAccess.declName.baseName.text == "rotation3DEffect" {
-        
-        var arguments: [SyntaxViewModifierArgument] = []
-        
-        // The first argument should be the angle (e.g., .degrees(90))
-        if let firstArg = node.arguments.first {
-            let expr = firstArg.expression
-            let angleData = SyntaxViewModifierArgumentData(
-                value: expr.trimmedDescription,
-                syntaxKind: .fromExpression(expr)
-            )
-            arguments.append(SyntaxViewModifierArgument(
-                label: .noLabel,
-                value: .degrees(angleData)
-            ))
-        }
-        
-        // Look for axis parameter
-        if let axisArg = node.arguments.first(where: { $0.label?.text == "axis" }),
-           let tupleExpr = axisArg.expression.as(TupleExprSyntax.self) {
-            
-            var xValue = "0", yValue = "0", zValue = "0"
-            var xKind = SyntaxArgumentKind.literal(.float)
-            var yKind = SyntaxArgumentKind.literal(.float)
-            var zKind = SyntaxArgumentKind.literal(.float)
-            
-            for element in tupleExpr.elements {
-                let expr = element.expression
-                 let value = expr.trimmedDescription  // This will give us "1", "0", "0" for the axis values
-                 let kind = SyntaxArgumentKind.fromExpression(expr)
-                 
-                 if element.label?.text == "x" {
-                     xValue = value
-                     xKind = kind
-                 } else if element.label?.text == "y" {
-                     yValue = value
-                     yKind = kind
-                 } else if element.label?.text == "z" {
-                     zValue = value
-                     zKind = kind
-                 }
-            }
-            
-            let xData = SyntaxViewModifierArgumentData(value: xValue, syntaxKind: xKind)
-            let yData = SyntaxViewModifierArgumentData(value: yValue, syntaxKind: yKind)
-            let zData = SyntaxViewModifierArgumentData(value: zValue, syntaxKind: zKind)
-            
-            arguments.append(SyntaxViewModifierArgument(
-                label: .axis,
-                value: .axis(x: xData, y: yData, z: zData)
-            ))
-        }
-        
-        return arguments
-    }
     
     // Default handling for other modifiers
     let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
@@ -324,17 +267,50 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     private func handleRotation3DEffect(node: FunctionCallExprSyntax) {
         var arguments: [SyntaxViewModifierArgument] = []
         
-        // Handle angle parameter (first argument)
+        // Handle angle parameter (first argument: expected .degrees(...) or .radians(...))
         if let firstArg = node.arguments.first {
-            let expr = firstArg.expression
-            let angleData = SyntaxViewModifierArgumentData(
-                value: expr.trimmedDescription,
-                syntaxKind: .fromExpression(expr)
-            )
-            arguments.append(SyntaxViewModifierArgument(
-                label: .noLabel,
-                value: .degrees(angleData)
-            ))
+            let expr: ExprSyntax = firstArg.expression
+
+            var angleArgument: SyntaxViewModifierArgumentAngle?
+
+            // If the expression is a function call (e.g. .degrees(60) or .radians(x))
+            if let call = expr.as(FunctionCallExprSyntax.self),
+               let member = call.calledExpression.as(MemberAccessExprSyntax.self) {
+
+                let fnName = member.declName.baseName.text   // "degrees" or "radians"
+
+                // Extract the inner argument passed to .degrees/_radians
+                if let innerExpr = call.arguments.first?.expression {
+                    let valueString = innerExpr.trimmedDescription
+                    let valueKind   = SyntaxArgumentKind.fromExpression(innerExpr)
+
+                    switch fnName {
+                    case "degrees":
+                        angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
+                    case "radians":
+                        angleArgument = .radians(.init(value: valueString, syntaxKind: valueKind))
+                    default:
+                        break
+                    }
+                }
+            }
+
+            // Fallback: treat any other direct expression as degrees, preserving literal/variable/expr kind.
+            if angleArgument == nil {
+                let valueString = expr.trimmedDescription
+                let valueKind   = SyntaxArgumentKind.fromExpression(expr)
+                angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
+            }
+
+            // Append the constructed angle argument
+            if let angleArgument = angleArgument {
+                arguments.append(
+                    SyntaxViewModifierArgument(
+                        label: .noLabel,
+                        value: .angle(angleArgument)
+                    )
+                )
+            }
         }
         
         // Handle axis parameter
@@ -468,7 +444,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         else if let modifierName = modifierNameIfViewModifier(node) {
             dbg("visitPost → handling view modifier '\(modifierName)'")
 
-            if modifierName == "rotation3DEffect" {
+            if modifierName == SyntaxViewModifierName.rotation3DEffect.rawValue {
                 handleRotation3DEffect(node: node)
             } else {
                 handleStandardModifier(node: node, name: modifierName)
