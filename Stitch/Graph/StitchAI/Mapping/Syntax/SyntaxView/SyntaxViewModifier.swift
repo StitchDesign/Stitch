@@ -36,7 +36,7 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable, Codable {
 struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable, Codable {
     let label: SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
-    }
+}
 
 
 /*
@@ -83,7 +83,10 @@ enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable, Sendable, Cod
          
          // e.g. position(x:y:)
          x = "x",
-         y = "y"
+         y = "y",
+    
+         // e.g. .rotation3DEffect(..., axis: ...)
+         axis = "axis"
 }
 
 extension SyntaxViewModifierArgumentLabel {

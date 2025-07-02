@@ -58,6 +58,19 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return viewStack[index]
     }
     
+    /// Returns the modifier name if `node` is a *view modifier* call
+    /// (i.e. a `FunctionCallExprSyntax` whose `calledExpression` is a
+    /// `MemberAccessExprSyntax` **with a non‑nil base**).
+    /// Helper/static calls that appear only as *arguments* – such as
+    /// `.degrees(90)` or `.black` – have `base == nil`, so they are
+    /// filtered out.
+    private func modifierNameIfViewModifier(_ node: FunctionCallExprSyntax) -> String? {
+        guard let member = node.calledExpression.as(MemberAccessExprSyntax.self),
+              member.base != nil      // nil ⇒ helper call, not a modifier
+        else { return nil }
+        return member.declName.baseName.text
+    }
+    
     /// Propagate a mutation at `index` upward through `viewStack`
     /// so that every ancestor’s `children` array is updated
     /// and `rootViewNode` stays in sync.
@@ -217,28 +230,86 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Parse arguments from function call
     private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
-        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
-            
-            guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
-                log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
-                return nil
-            }
-            
-            let expression = argument.expression
-            let data = SyntaxViewModifierArgumentData(
-                value: expression.trimmedDescription,
-                syntaxKind: .fromExpression(expression)
+    // Check if this is a rotation3DEffect modifier
+    if let memberAccess = node.calledExpression.as(MemberAccessExprSyntax.self),
+       memberAccess.declName.baseName.text == "rotation3DEffect" {
+        
+        var arguments: [SyntaxViewModifierArgument] = []
+        
+        // The first argument should be the angle (e.g., .degrees(90))
+        if let firstArg = node.arguments.first {
+            let expr = firstArg.expression
+            let angleData = SyntaxViewModifierArgumentData(
+                value: expr.trimmedDescription,
+                syntaxKind: .fromExpression(expr)
             )
-            return SyntaxViewModifierArgument(
-                label: label,
-                value: .simple(data)
-            )
+            arguments.append(SyntaxViewModifierArgument(
+                label: .noLabel,
+                value: .degrees(angleData)
+            ))
         }
         
-        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+        // Look for axis parameter
+        if let axisArg = node.arguments.first(where: { $0.label?.text == "axis" }),
+           let tupleExpr = axisArg.expression.as(TupleExprSyntax.self) {
+            
+            var xValue = "0", yValue = "0", zValue = "0"
+            var xKind = SyntaxArgumentKind.literal(.float)
+            var yKind = SyntaxArgumentKind.literal(.float)
+            var zKind = SyntaxArgumentKind.literal(.float)
+            
+            for element in tupleExpr.elements {
+                let expr = element.expression
+                 let value = expr.trimmedDescription  // This will give us "1", "0", "0" for the axis values
+                 let kind = SyntaxArgumentKind.fromExpression(expr)
+                 
+                 if element.label?.text == "x" {
+                     xValue = value
+                     xKind = kind
+                 } else if element.label?.text == "y" {
+                     yValue = value
+                     yKind = kind
+                 } else if element.label?.text == "z" {
+                     zValue = value
+                     zKind = kind
+                 }
+            }
+            
+            let xData = SyntaxViewModifierArgumentData(value: xValue, syntaxKind: xKind)
+            let yData = SyntaxViewModifierArgumentData(value: yValue, syntaxKind: yKind)
+            let zData = SyntaxViewModifierArgumentData(value: zValue, syntaxKind: zKind)
+            
+            arguments.append(SyntaxViewModifierArgument(
+                label: .axis,
+                value: .axis(x: xData, y: yData, z: zData)
+            ))
+        }
         
         return arguments
     }
+    
+    // Default handling for other modifiers
+    let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
+        guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
+            log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
+            return nil
+        }
+        
+        let expression = argument.expression
+        let data = SyntaxViewModifierArgumentData(
+            value: expression.trimmedDescription,
+            syntaxKind: .fromExpression(expression)
+        )
+        return SyntaxViewModifierArgument(
+            label: label,
+            value: .simple(data)
+        )
+    }
+    
+    dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+    
+    return arguments
+}
     
     // Handle closure expressions (for container views like VStack, HStack, ZStack)
     override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
@@ -247,13 +318,105 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
+    // MARK: - Modifier Handling
+    
+    /// Handles the rotation3DEffect modifier specially due to its complex argument structure
+    private func handleRotation3DEffect(node: FunctionCallExprSyntax) {
+        var arguments: [SyntaxViewModifierArgument] = []
+        
+        // Handle angle parameter (first argument)
+        if let firstArg = node.arguments.first {
+            let expr = firstArg.expression
+            let angleData = SyntaxViewModifierArgumentData(
+                value: expr.trimmedDescription,
+                syntaxKind: .fromExpression(expr)
+            )
+            arguments.append(SyntaxViewModifierArgument(
+                label: .noLabel,
+                value: .degrees(angleData)
+            ))
+        }
+        
+        // Handle axis parameter
+        if let axisArg = node.arguments.first(where: { $0.label?.text == "axis" }),
+           let tupleExpr = axisArg.expression.as(TupleExprSyntax.self) {
+            
+            var xValue = "0", yValue = "0", zValue = "0"
+            var xKind = SyntaxArgumentKind.literal(.float)
+            var yKind = SyntaxArgumentKind.literal(.float)
+            var zKind = SyntaxArgumentKind.literal(.float)
+            
+            for element in tupleExpr.elements {
+                let expr = element.expression
+                let value = expr.trimmedDescription
+                let kind = SyntaxArgumentKind.fromExpression(expr)
+                
+                if element.label?.text == "x" {
+                    xValue = value
+                    xKind = kind
+                } else if element.label?.text == "y" {
+                    yValue = value
+                    yKind = kind
+                } else if element.label?.text == "z" {
+                    zValue = value
+                    zKind = kind
+                }
+            }
+            
+            let xData = SyntaxViewModifierArgumentData(value: xValue, syntaxKind: xKind)
+            let yData = SyntaxViewModifierArgumentData(value: yValue, syntaxKind: yKind)
+            let zData = SyntaxViewModifierArgumentData(value: zValue, syntaxKind: zKind)
+            
+            arguments.append(SyntaxViewModifierArgument(
+                label: .axis,
+                value: .axis(x: xData, y: yData, z: zData)
+            ))
+        }
+        
+        // Create and add the modifier
+        let modifier = SyntaxViewModifier(
+            name: .rotation3DEffect,
+            arguments: arguments
+        )
+        addModifier(modifier)
+    }
+    
+    /// Handles standard modifiers with generic argument parsing
+    private func handleStandardModifier(node: FunctionCallExprSyntax, name: String) {
+        let modifierArguments = parseArgumentsForModifier(from: node)
+        
+        var finalArgs = modifierArguments
+        if finalArgs.isEmpty {
+            // For modifiers with no arguments
+            finalArgs = [
+                SyntaxViewModifierArgument(
+                    label: .noLabel,
+                    value: .simple(SyntaxViewModifierArgumentData(
+                        value: "",
+                        syntaxKind: .literal(.unknown)
+                    ))
+                )
+            ]
+        }
+        
+        let modifier = SyntaxViewModifier(
+            name: SyntaxViewModifierName(rawValue: name),
+            arguments: finalArgs
+        )
+        addModifier(modifier)
+    }
+    
+    // MARK: - SyntaxVisitor Overrides
+    
     // When we finish visiting a node, manage the view stack
     override func visitPost(_ node: FunctionCallExprSyntax) {
         log("Visiting post for function call: \(node.description)")
         
+        // Handle view initializations
         if let identExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
             let viewName = identExpr.baseName.text
             log("Post-visiting view initialization: \(viewName)")
+            
             // If this view call is the *base* of a MemberAccessExpr (e.g. Rectangle() in
             // Rectangle().frame(...)), we **keep** it on the stack so that the upcoming
             // modifier call can still access and mutate the current view node.
@@ -298,42 +461,21 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 log("View stack empty, nothing to pop")
             }
         }
+        
+ 
         // ─────────────────────────────────────────────────────────────
-        // Handle modifiers *after* the base view has been visited
-        // (at this point `currentViewNode` should refer to the view
-        //  we want to attach the modifier to).
-        else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
-            let modifierName = memberAccessExpr.declName.baseName.text
-            dbg("visitPost → attaching modifier '\(modifierName)'")
+        // Handle view‑modifier calls *after* the base view has been visited
+        else if let modifierName = modifierNameIfViewModifier(node) {
+            dbg("visitPost → handling view modifier '\(modifierName)'")
 
-            // Parse the arguments for this modifier
-            let modifierArguments = parseArgumentsForModifier(from: node)
-            
-            dbg("visitPost → '\(modifierName)' argCount: \(modifierArguments.count)")
-
-            var finalArgs = modifierArguments
-            if finalArgs.isEmpty {
-                // `.padding()` → synthetic unknown literal
-                finalArgs = [
-                    SyntaxViewModifierArgument(
-                        label: .noLabel,
-                        value: .simple(SyntaxViewModifierArgumentData(value: "", syntaxKind: .literal(.unknown)))
-                    )
-                ]
+            if modifierName == "rotation3DEffect" {
+                handleRotation3DEffect(node: node)
+            } else {
+                handleStandardModifier(node: node, name: modifierName)
             }
-            let modifier = SyntaxViewModifier(
-                name: SyntaxViewModifierName(rawValue: modifierName),
-                arguments: finalArgs
-            )
 
-            // Finally, attach the modifier to the current view node
-            addModifier(modifier)
-
-            // If this FunctionCallExpr is **not** itself nested inside another
-            // MemberAccessExpr, we have reached the end of the modifier chain
-            // for the current base view. At this point we can safely pop the
-            // base view from the stack so that subsequent sibling views attach
-            // to the correct parent (e.g. the ZStack in `ZStack { Rectangle()… }`).
+            // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
+            // we are at the end of the modifier chain; pop the base view.
             if node.parent?.as(MemberAccessExprSyntax.self) == nil {
                 if let popped = viewStack.popLast() {
                     dbg("visitPost → popped view \(popped.name.rawValue) after completing modifier chain")
