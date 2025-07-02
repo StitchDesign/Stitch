@@ -208,6 +208,86 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         )
     }
     
+    func testRoundedRectangleWithCornerRadius() throws {
+        // Given
+        let code = """
+        RoundedRectangle(cornerRadius: 25)
+        """
+        
+        // When
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+            XCTFail("Failed to parse RoundedRectangle example")
+            return
+        }
+        
+        // Then - Verify the root RoundedRectangle
+        XCTAssertEqual(syntaxView.name, .roundedRectangle)
+        XCTAssertEqual(syntaxView.modifiers.count, 0)
+        XCTAssertEqual(syntaxView.children.count, 0)
+        
+        // Verify the constructor arguments
+        XCTAssertEqual(syntaxView.constructorArguments.count, 1)
+        let cornerRadiusArg = syntaxView.constructorArguments[0]
+        
+        // Check the argument label is 'cornerRadius'
+        XCTAssertEqual(cornerRadiusArg.label, .cornerRadius)
+        
+        // Check the argument value is '25' with the correct syntax kind
+        XCTAssertEqual(cornerRadiusArg.values.count, 1)
+        let value = cornerRadiusArg.values[0]
+        XCTAssertEqual(value.value, "25")
+        XCTAssertEqual(value.syntaxKind, .literal(.integer))
+    }
+    
+    func testRoundedRectangleWithCornerRadiusToLayerData() throws {
+        // Given
+        let code = """
+        RoundedRectangle(cornerRadius: 25)
+        """
+        
+        // When
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+            XCTFail("Failed to parse RoundedRectangle example")
+            return
+        }
+        
+        let layerData = try syntaxView.deriveStitchActions()
+        
+        // Then - Verify the structure of the LayerData
+        // 1. Check that we have exactly one root layer (the RoundedRectangle)
+        XCTAssertEqual(layerData.layers.count, 1)
+        
+        let roundedRectLayer = layerData.layers[0]
+        
+        // 2. Check that it's a rectangle layer (RoundedRectangle maps to .rectangle with cornerRadius input)
+        if case let .layer(layerType) = roundedRectLayer.node_name.value {
+            XCTAssertEqual(layerType, .rectangle)
+        } else {
+            XCTFail("Expected a rectangle layer")
+        }
+        
+        // 3. Check that there are custom layer input values for the corner radius
+        XCTAssertFalse(layerData.custom_layer_input_values.isEmpty, "Expected custom_layer_input_values for corner radius")
+        
+        // 4. Find the corner radius input for this layer
+        let layerId = roundedRectLayer.node_id.value
+        let cornerRadiusInputs = layerData.custom_layer_input_values.filter { input in
+            input.layer_input_coordinate.layer_id.value == layerId &&
+            input.layer_input_coordinate.input_port_type.value == .cornerRadius
+        }
+        
+        XCTAssertEqual(cornerRadiusInputs.count, 1, "Expected exactly one corner radius input")
+        
+        let cornerRadiusInput = cornerRadiusInputs[0]
+        
+        // 5. Verify the corner radius value is 25
+        if case let .number(value) = cornerRadiusInput.value {
+            XCTAssertEqual(value, 25, "Expected corner radius to be 25")
+        } else {
+            XCTFail("Expected corner radius to be a number value")
+        }
+    }
+    
     func testRectangleWithOffsetToLayerData() throws {
         // Given
         let code = """
