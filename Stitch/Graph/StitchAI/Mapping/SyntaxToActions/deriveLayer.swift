@@ -9,55 +9,52 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-struct SyntaxViewLayerData {
-    var node: CurrentAIPatchBuilderResponseFormat.LayerNode
-    let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
-}
+//struct SyntaxViewLayerData {
+//    var node: CurrentAIPatchBuilderResponseFormat.LayerNode
+//    let customLayerInputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+//}
 
 extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
     func deriveLayerData(id: UUID,
                          args: [SyntaxViewConstructorArgument],
-                         modifiers: [SyntaxViewModifier]) throws -> SyntaxViewLayerData {
-        var layerType: CurrentStep.Layer
-        var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
+                         modifiers: [SyntaxViewModifier],
+                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
 
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
-        let (updatedLayerType,
-             updatedCustomValues) = try  self.deriveLayerAndCustomValuesFromName(id: id, args: args)
+        var (layerType, layerData) = try self
+            .deriveLayerAndCustomValuesFromName(id: id,
+                                                args: args,
+                                                childrenLayers: childrenLayers)
         
-        layerType = updatedLayerType
-        customValues = updatedCustomValues
-        
-
         // Handle constructor-arguments
-        customValues = self.deriveCustomValuesFromConstructorArguments(
+        let customInputValues = self.deriveCustomValuesFromConstructorArguments(
             id: id,
             layerType: layerType,
-            args: args,
-            customValues: customValues)
+            args: args)
         
         // Handle modifiers
-        customValues = try self.deriveCustomValuesFromViewModifiers(
+        let customModifierValues = try Self.deriveCustomValuesFromViewModifiers(
             id: id,
             layerType: layerType,
-            modifiers: modifiers,
-            customValues: customValues)
+            modifiers: modifiers)
 
-        // Final bare layer (children added later)
-        let layeNode = CurrentAIPatchBuilderResponseFormat
-            .LayerNode(node_id: .init(value: id),
-                       node_name: .init(value: .layer(layerType)))
-        return .init(node: layeNode,
-                     customLayerInputValues: customValues)
+//        // Final bare layer (children added later)
+//        let layeNode = CurrentAIPatchBuilderResponseFormat
+//            .LayerNode(node_id: .init(value: id),
+//                       node_name: .init(value: .layer(layerType)))
+        layerData.custom_layer_input_values += customInputValues
+        layerData.custom_layer_input_values += customModifierValues
+        
+        return layerData
     }
     
     func deriveLayerAndCustomValuesFromName(
         id: UUID,
         args: [SyntaxViewConstructorArgument],
-    ) throws -> (layerType: CurrentStep.Layer,
-          customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]) {
+        childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]
+    ) throws -> (CurrentStep.Layer, CurrentAIPatchBuilderResponseFormat.LayerData) {
         
         var layerType: CurrentStep.Layer
         var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
@@ -98,6 +95,12 @@ extension SyntaxViewName {
             // TODO: JUNE 24: ought to return `(Layer.textField, LayerInputPort.keyboardType, UIKeyboardType.password)` ? ... so a SwiftUI View can correspond to more than just a Layer ?
             layerType = .textField
             
+        case .scrollView:
+            let layerData = try Self
+                .createScrollGroupLayer(args: args,
+                                        childrenLayers: childrenLayers)
+            return (.group, layerData)
+            
         case .capsule:
             throw SwiftUISyntaxError.unsupportedLayer(self)
         case .path:
@@ -121,15 +124,6 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self)
         case .alignmentGuide:
             throw SwiftUISyntaxError.unsupportedLayer(self)
-        
-        
-        // Note: A SwiftUI ScrollView is interpreted as a Layer.group with specific orientation and scroll-enabled inputs
-        // NOTE: Currently we handle this at the `deriveStitchActions` top level, and so never actually hit this conditi0on
-        case .scrollView:
-            fatalErrorIfDevDebug("Should have handled SyntaxViewName.scrollView case at top level, prior to calling this function")
-            // TODO: call that function from within here
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-            
         case .list:
             throw SwiftUISyntaxError.unsupportedLayer(self)
         case .table:
@@ -221,18 +215,25 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self)
         }
         
-        return (layerType: layerType,
-                customValues: customValues)
+        // Final bare layer (children added later)
+        var layerNode = CurrentAIPatchBuilderResponseFormat
+            .LayerData(node_id: .init(value: id),
+                       node_name: .init(value: .layer(layerType)),
+                       custom_layer_input_values: customValues)
+        
+        if !childrenLayers.isEmpty {
+            layerNode.children = childrenLayers
+        }
+        
+        return (layerType, layerNode)
     }
     
     func deriveCustomValuesFromConstructorArguments(
         id: UUID,
         layerType: CurrentStep.Layer,
-        args: [SyntaxViewConstructorArgument],
-        customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
-    ) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        args: [SyntaxViewConstructorArgument]) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
         
-        var customValues = customValues
+        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
         
         // ── Generic constructor‑argument handling (literals & edges) ─────────
         for arg in args {
@@ -264,14 +265,12 @@ extension SyntaxViewName {
         return customValues
     }
     
-    func deriveCustomValuesFromViewModifiers(
+    static func deriveCustomValuesFromViewModifiers(
         id: UUID,
         layerType: CurrentStep.Layer,
-        modifiers: [SyntaxViewModifier],
-        customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
-    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        modifiers: [SyntaxViewModifier]) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
         
-        var customValues = customValues
+        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
         
         for modifier in modifiers {
             customValues = try deriveCustomValuesFromViewModifier(

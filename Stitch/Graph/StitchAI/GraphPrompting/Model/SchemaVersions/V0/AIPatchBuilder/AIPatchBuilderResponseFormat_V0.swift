@@ -195,16 +195,16 @@ extension AIPatchBuilderResponseFormat_V0 {
         let layer_connections: [LayerConnection]
     }
     
-    struct LayerData: Codable {
-        var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
-        var custom_layer_input_values: [CustomLayerInputValue]
-    }
+//    struct LayerData: Codable {
+//        var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
+//    }
     
-    struct LayerNode {
+    struct LayerData {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
-        var children: [LayerNode]?
+        var children: [LayerData]?
+        var custom_layer_input_values: [CustomLayerInputValue] = []
     }
     
     struct JsPatchNode: Codable {
@@ -330,18 +330,20 @@ extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
     }
 }
 
-extension AIPatchBuilderResponseFormat_V0.LayerNode: Codable {
+extension AIPatchBuilderResponseFormat_V0.LayerData: Codable {
     enum CodingKeys: String, CodingKey {
         case node_id
         case suggested_title
         case node_name
         case children
+        case custom_layer_input_values
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(node_id, forKey: .node_id)
         try container.encode(node_name, forKey: .node_name)
+        try container.encode(custom_layer_input_values, forKey: .custom_layer_input_values)
         
         try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
         

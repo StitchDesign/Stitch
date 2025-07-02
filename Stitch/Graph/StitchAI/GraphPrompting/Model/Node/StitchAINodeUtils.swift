@@ -29,6 +29,16 @@ extension CurrentStep.Layer {
     var patchOrLayer: CurrentStep.PatchOrLayer {
         .layer(self)
     }
+    
+    var isGroup: Bool {
+        switch self {
+        case .group, .realityView:
+            return true
+            
+        default:
+            return false
+        }
+    }
 }
 
 struct StitchAINodeKindDescription {

@@ -11,117 +11,122 @@ import SwiftUI
 
 extension SyntaxView {
     func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
-        
-        // ───────────────────────────────────────────────────────────────────
-        // Special‑case: ScrollView that directly wraps a single V/H/ZStack
-        // ───────────────────────────────────────────────────────────────────
-        if self.name == .scrollView {
-            do {
-                if let result = try handleScrollView() {
-                    return result
-                }
-                // No `else`, since it's okay for this view not to be a scroll view
-            } catch {
-                throw error
-            }
-        }
-        
         // Instantiate with empty data
-        var data = CurrentAIPatchBuilderResponseFormat
-            .LayerData(layers: [],
-                       custom_layer_input_values: [])
-                
-        // 1. Map this node
-        var layerData = try self.name.deriveLayerData(
-            id: self.id,
-            args: self.constructorArguments,
-            modifiers: self.modifiers)
+//        var data = CurrentAIPatchBuilderResponseFormat
+//            .LayerData(layers: [],
+//                       custom_layer_input_values: [])
+        var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerData] = []
         
-        data.custom_layer_input_values += layerData.customLayerInputValues
-        
-        var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerNode] = []
-        
-        // 2. Recurse into children
-        for child in children {
+        // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
+        for child in self.children {
             // depth-first
             let childConcepts = try child.deriveStitchActions()
+            childLayers.append(childConcepts)
             // Append child layers directly to layer at this recursive level
-            childLayers += childConcepts.layers
+//            childLayers += childConcepts.layers
             
-            data.custom_layer_input_values += childConcepts.custom_layer_input_values
-            
+//            data.custom_layer_input_values += childConcepts.custom_layer_input_values
         }
+
+        // Map this node
+        let layerData = try self.name.deriveLayerData(
+            id: self.id,
+            args: self.constructorArguments,
+            modifiers: self.modifiers,
+            childrenLayers: childLayers)
         
-        if !childLayers.isEmpty {
-            layerData.node.children = childLayers
-        }
+//        data.custom_layer_input_values += layerData.customLayerInputValues
+//
+//        data.layers.append(layerData.node)
         
-        data.layers.append(layerData.node)
-        
-        return data
+        return layerData
     }
 }
 
-extension SyntaxView {
+extension SyntaxViewName {
     /// Handles ScrollView-specific logic including axis detection and scroll behavior
-    func handleScrollView() throws -> CurrentAIPatchBuilderResponseFormat.LayerData? {
+    static func createScrollGroupLayer(args: [SyntaxViewConstructorArgument],
+//                                       childrenAST: [SyntaxView],
+                                       childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
         // Check the scroll axis from constructor arguments
-        let scrollAxis = detectScrollAxis()
+        let scrollAxis = Self.detectScrollAxis(args: args)
         
         // Only proceed if we have a valid scroll axis and a single stack child
-        guard 
-            scrollAxis != .none,
-            children.count == 1,
-            let stack = children.first,
-            // TODO: support `.lazyVGrid` as well
-            (stack.name == .vStack || stack.name == .hStack || stack.name == .zStack)
-        else {
-            // Fall back to default handling if structure doesn't match expected pattern
-            return nil
-        }
+//        guard 
+//            scrollAxis != .none,
+//            children.count == 1,
+//            let stack = children.first,
+//            // TODO: support `.lazyVGrid` as well
+//            (stack.name == .vStack || stack.name == .hStack || stack.name == .zStack)
+//        else {
+//            // Fall back to default handling if structure doesn't match expected pattern
+//            return nil
+//        }
         
-        var flattened = try stack.deriveStitchActions()
+//        var flattened = try stack.deriveStitchActions()
+//        var customInputs = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+        var groupLayer: CurrentAIPatchBuilderResponseFormat.LayerData
         
-        // The leading layer from the stack mapping is the group layer
-        if let groupLayer = flattened.layers.first {
-            // Enable the appropriate scroll direction(s) based on the detected axis
-            let nodeID = groupLayer.node_id.value
+        let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroup ?? false
+        let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
+        
+        // Create a new nested VStack if no root group
+        if hasRootGroupLayer,
+           let _groupData = childrenLayers.first {
+            groupLayer = _groupData
+        } else if !hasRootGroupLayer {
+            // Add new node as middle-man
+            let newGroupNode = CurrentAIPatchBuilderResponseFormat
+                .LayerData(node_id: .init(value: .init()),
+                           node_name: .init(value: .layer(.group)),
+                           children: childrenLayers)
             
-            switch scrollAxis {
-            case .vertical:
-                // Enable vertical scrolling only
-                flattened.custom_layer_input_values.append(
-                    .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
-                )
-                
-            case .horizontal:
-                // Enable horizontal scrolling only
-                flattened.custom_layer_input_values.append(
-                    .init(id: nodeID, input: .scrollXEnabled, value: .bool(true))
-                )
-                
-            case .both:
-                // Enable both horizontal and vertical scrolling
-                flattened.custom_layer_input_values.append(contentsOf: [
-                    .init(id: nodeID, input: .scrollXEnabled, value: .bool(true)),
-                    .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
-                ])
-                
-            case .none:
-                // No scrolling enabled
-                break
-            }
+            groupLayer = newGroupNode
+        } else {
+            fatalErrorIfDebug("Unexpected scenario for groups in scroll.")
+            throw SwiftUISyntaxError.groupLayerDecodingFailed
+        }
+
+        // Enable the appropriate scroll direction(s) based on the detected axis
+        let nodeID = groupLayer.node_id.value
+        
+        switch scrollAxis {
+        case .vertical:
+            // Enable vertical scrolling only
+            groupLayer.custom_layer_input_values.append(
+                .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
+            )
+            
+        case .horizontal:
+            // Enable horizontal scrolling only
+            groupLayer.custom_layer_input_values.append(
+                .init(id: nodeID, input: .scrollXEnabled, value: .bool(true))
+            )
+            
+        case .both:
+            // Enable both horizontal and vertical scrolling
+            groupLayer.custom_layer_input_values.append(contentsOf: [
+                .init(id: nodeID, input: .scrollXEnabled, value: .bool(true)),
+                .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
+            ])
+            
+        case .none:
+            // No scrolling enabled--make values false in case we change default values later
+            groupLayer.custom_layer_input_values.append(contentsOf: [
+                .init(id: nodeID, input: .scrollXEnabled, value: .bool(false)),
+                .init(id: nodeID, input: .scrollYEnabled, value: .bool(false))
+            ])
         }
         
-        return flattened
+        return groupLayer
     }
     
     // Note: this was written very verbosely, but acceptably
     
     /// Detects the scroll axis from the ScrollView's constructor arguments
-    private func detectScrollAxis() -> ScrollAxis {
+    private static func detectScrollAxis(args: [SyntaxViewConstructorArgument]) -> ScrollAxis {
         // First check for array expressions that explicitly list both axes
-        for arg in constructorArguments {
+        for arg in args {
             guard let firstValue = arg.values.first else { continue }
             
             // Check for array containing both axes
@@ -137,7 +142,7 @@ extension SyntaxView {
         var hasVertical = false
         var hasHorizontal = false
         
-        for arg in constructorArguments {
+        for arg in args {
             for value in arg.values {
                 // Check for vertical axis
                 if [".vertical", "[.vertical]", "Axis.vertical"].contains(value.value) {
@@ -160,7 +165,7 @@ extension SyntaxView {
             return .horizontal
         }
         
-        return .none
+        return .horizontal
     }
     
     /// Represents the possible scroll axes for a ScrollView
