@@ -12,7 +12,7 @@ enum SwiftUISyntaxError: Error {
     case viewNodeNotFound
     case unsupportedViewModifier(SyntaxViewModifierName)
     case unsupportedLayer(SyntaxViewName)
-    case unsupportedLayerInput(CurrentStep.LayerInputPort)
+    case unsupportedSyntaxFromLayerInput(CurrentStep.LayerInputPort)
     case unsupportedSyntaxViewName(CurrentStep.Layer)
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed
@@ -93,7 +93,7 @@ extension CurrentStep.LayerInputPort {
         // So there's not a simple mapping of "this layer input becomes a constructor-arg / view-modifier"
         case .orientation:
             // return .modifier(try buildSingleFieldUnlabeledModifier(.orientation))
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
             
             
         // TODO: JULY 1: handle how .scrollXEnabled and .scrollYEnabled are two different layer input ports that become a "single constructor-arg with two values" for the `syntax -> code`
@@ -141,7 +141,7 @@ extension CurrentStep.LayerInputPort {
             }
 
         case .rotationX, .rotationY, .rotationZ:
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
             // MORE COMPLICATED
             // return .modifier(buildModifier(.rotation3DEffect, nil))
             
@@ -173,29 +173,29 @@ extension CurrentStep.LayerInputPort {
         // TODO: JUNE 23: complicated; all of these correspond to different arguments *on the same SwiftUI .shadow view modifier*
         case .shadowColor, .shadowOpacity, .shadowRadius, .shadowOffset:
             // return ".shadow"
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
                     
         // TODO: JUNE 23: complicated: can be constructor-arg to a stack OR Spacers within a ForEach
         case .spacing:
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
             // return ".padding"
         
         // TODO: JUNE 23: complicated: the LayerInputPort.masks is actually just a boolean that determines whether we'll mask or not; the SwiftUI x.masks(y) view modifier is more-so determined by layer positioning
         case .masks:
             // this is just a boolean, actually?
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
         
         // TODO: JUNE 23: complicated: lots and lots of business logic here
         case .isPinned, .pinTo, .pinAnchor, .pinOffset:
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
             
             // What is this for? It's the 3D Model?
         case .isAnimating:
             // return ".animation"
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
         case .fitStyle:
             // return ".aspectRatio"
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
                         
             // ── No SwiftUI analogue ────────────────────────────────────
             // Explicitly unsupported ports (no SwiftUI equivalent)
@@ -316,7 +316,7 @@ extension CurrentStep.LayerInputPort {
                 .scrollJumpToY,
                 .scrollJumpToYLocation:
             
-            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxFromLayerInput(self)
         }
     }
 }

@@ -50,7 +50,7 @@ extension SyntaxView {
                          caughtErrors: childResults.caughtErrors)
         } catch let error as SwiftUISyntaxError {
             switch error {
-            case .unsupportedLayer, .unsupportedLayerInput, .unsupportedViewModifier:
+            case .unsupportedLayer, .unsupportedViewModifier:
                 log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                 // Silent error for unsupported layers
                 var resultForSilentFailure = childResults
