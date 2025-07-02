@@ -706,7 +706,9 @@
 		EC6EDC3427FF943700843E62 /* SidebarVisibilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */; };
 		EC7062B32E14BFC50017A9F0 /* ScrollViewCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */; };
 		EC7062B52E14C02E0017A9F0 /* RotationModifierCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B42E14C02E0017A9F0 /* RotationModifierCodeExamples.swift */; };
-		EC7062B72E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B62E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift */; };
+		EC7062B72E15B53B0017A9F0 /* ModifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */; };
+		EC7062B92E15E47D0017A9F0 /* StackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B82E15E47D0017A9F0 /* StackTests.swift */; };
+		EC7062BB2E15E5350017A9F0 /* ConstructorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062BA2E15E5350017A9F0 /* ConstructorTests.swift */; };
 		EC71FF1C2D13C469002C0BA3 /* StitchUIScrollHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */; };
 		EC731CB92A37F05100241CB2 /* PatchDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC731CB82A37F05000241CB2 /* PatchDescription.swift */; };
 		EC733DC02639CB2100DD4EC1 /* Interactions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC733DBF2639CB2100DD4EC1 /* Interactions.swift */; };
@@ -1835,7 +1837,9 @@
 		EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityState.swift; sourceTree = "<group>"; };
 		EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewCodeExamples.swift; sourceTree = "<group>"; };
 		EC7062B42E14C02E0017A9F0 /* RotationModifierCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotationModifierCodeExamples.swift; sourceTree = "<group>"; };
-		EC7062B62E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToSyntaxToActionsTests.swift; sourceTree = "<group>"; };
+		EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifierTests.swift; sourceTree = "<group>"; };
+		EC7062B82E15E47D0017A9F0 /* StackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackTests.swift; sourceTree = "<group>"; };
+		EC7062BA2E15E5350017A9F0 /* ConstructorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstructorTests.swift; sourceTree = "<group>"; };
 		EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIScrollHelpers.swift; sourceTree = "<group>"; };
 		EC731CB82A37F05000241CB2 /* PatchDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchDescription.swift; sourceTree = "<group>"; };
 		EC733DBF2639CB2100DD4EC1 /* Interactions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interactions.swift; sourceTree = "<group>"; };
@@ -4977,7 +4981,9 @@
 		EC66D02D2E064E0800355ED8 /* SwiftUIParsingTests */ = {
 			isa = PBXGroup;
 			children = (
-				EC7062B62E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift */,
+				EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */,
+				EC7062B82E15E47D0017A9F0 /* StackTests.swift */,
+				EC7062BA2E15E5350017A9F0 /* ConstructorTests.swift */,
 			);
 			path = SwiftUIParsingTests;
 			sourceTree = "<group>";
@@ -6678,7 +6684,7 @@
 			files = (
 				B5E5FFBB274C978800C5FE92 /* nodeUIGroupingTests.swift in Sources */,
 				B55185722826FE4100D81717 /* StitchFileTests.swift in Sources */,
-				EC7062B72E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift in Sources */,
+				EC7062B72E15B53B0017A9F0 /* ModifierTests.swift in Sources */,
 				ECFEFF9E26BDE18A00CF042E /* miscTests.swift in Sources */,
 				EC06A48E2A046521009C9A4A /* JsonPerfTestUtils.swift in Sources */,
 				B57575F92A187E0600CDB0BA /* previewLayerTests.swift in Sources */,
@@ -6696,8 +6702,10 @@
 				EC14B1D129F84CEA002FDA4F /* inputEditTests.swift in Sources */,
 				ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */,
 				E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */,
+				EC7062B92E15E47D0017A9F0 /* StackTests.swift in Sources */,
 				EC6DF0AB29FA050F0052545E /* jsonPerfTests.swift in Sources */,
 				ECBFDB0B2DB98B4500C1D6D5 /* GraphTests.swift in Sources */,
+				EC7062BB2E15E5350017A9F0 /* ConstructorTests.swift in Sources */,
 				B5F9EB9E28D3927F00112799 /* MockFileManager.swift in Sources */,
 				ECF007A926A1D8D0001329B6 /* jsonTests.swift in Sources */,
 				B54C9BEC2762B01000FA2BC0 /* cameraTests.swift in Sources */,
