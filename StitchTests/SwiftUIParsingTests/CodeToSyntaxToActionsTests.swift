@@ -599,4 +599,94 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         XCTAssertTrue(otherInputs.isEmpty, "Should not have any other input types for this layer")
     }
+    
+    func testTextWithStringLiteral() throws {
+        // Given
+        let code = #"Text("salut")"#
+        
+        // When - Parse the SwiftUI code into a SyntaxView
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+            XCTFail("Failed to parse Text example")
+            return
+        }
+        
+        // Then - Verify the SyntaxView structure
+        // 1. Check the root view is a Text
+        XCTAssertEqual(syntaxView.name, .text, "Root view should be a Text view")
+        XCTAssertNotEqual(syntaxView.name, .vStack, "Should be a Text view, not a VStack")
+        
+        // 2. Verify the constructor argument (the string literal)
+        XCTAssertEqual(syntaxView.constructorArguments.count, 1, "Text should have one constructor argument")
+        XCTAssertNotEqual(syntaxView.constructorArguments.count, 0, "Text should have a string argument")
+        XCTAssertNotEqual(syntaxView.constructorArguments.count, 2, "Text should have only one argument")
+        
+        let constructorArg = syntaxView.constructorArguments[0]
+        XCTAssertEqual(constructorArg.label, .noLabel, "String argument should have no label")
+        
+        // 3. Verify the string literal value and its syntax kind
+        XCTAssertEqual(constructorArg.values.count, 1, "Should have exactly one value")
+        let value = constructorArg.values[0]
+        
+        XCTAssertEqual(value.value, "\"salut\"", "Text content should be 'salut'")
+        XCTAssertNotEqual(value.value, "salut", "Text content should include quotes")
+        XCTAssertEqual(value.syntaxKind, .literal(.string), "Text content should be a string literal")
+        
+        // 4. Verify no modifiers or children
+        XCTAssertTrue(syntaxView.modifiers.isEmpty, "Text should have no modifiers")
+        XCTAssertTrue(syntaxView.children.isEmpty, "Text should have no children")
+        
+        // When - Convert to LayerData
+        let layerData = try syntaxView.deriveStitchActions()
+        
+        // Then - Verify the structure of the LayerData
+        // 1. Check that we have exactly one layer (the Text)
+        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
+        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
+        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple layers")
+        
+        let textLayer = layerData.layers[0]
+        
+        // 2. Check that the layer is a text layer
+        if case let .layer(layerType) = textLayer.node_name.value {
+            XCTAssertEqual(layerType, .text, "Layer type should be text")
+            XCTAssertNotEqual(layerType, .rectangle, "Layer should not be a rectangle")
+        } else {
+            XCTFail("Expected root layer to be a text layer")
+        }
+        
+        // 3. Verify text value in LayerData
+        let textValues = layerData.custom_layer_input_values.filter { value in
+            value.layer_input_coordinate.input_port_type.value == .text
+        }
+        
+        // 4. Verify we have exactly one text value
+        XCTAssertEqual(textValues.count, 1, "Should have exactly one text value")
+        XCTAssertNotEqual(textValues.count, 0, "Should have a text value")
+        XCTAssertNotEqual(textValues.count, 2, "Should not have multiple text values")
+        
+        let textValue = textValues.first!
+        
+        // 5. Verify the text value is associated with the correct layer
+        XCTAssertEqual(
+            textValue.layer_input_coordinate.layer_id.value,
+            textLayer.node_id.value,
+            "Text value should be associated with the text layer"
+        )
+        
+        // 6. Verify the text value is "salut" (with quotes)
+        if case let .string(text) = textValue.value {
+            XCTAssertEqual(text.string, "\"salut\"", "Text should be '\"salut\"'")
+            XCTAssertNotEqual(text.string, "salut", "Text should include quotes")
+        } else {
+            XCTFail("Expected text value to be a string")
+        }
+        
+        // 7. Verify no other unexpected input types exist for this layer
+        let otherInputs = layerData.custom_layer_input_values.filter { input in
+            input.layer_input_coordinate.layer_id.value == textLayer.node_id.value &&
+            input.layer_input_coordinate.input_port_type.value != .text
+        }
+        
+        XCTAssertTrue(otherInputs.isEmpty, "Should not have any other input types for this layer")
+    }
 }
