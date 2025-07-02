@@ -103,12 +103,18 @@ extension SyntaxViewModifierName {
             // TODO: if view's parent is VStack/HStack, return .offsetInGroup instead ?
             return .position
             
+        
         case (.rotationEffect, _):
+            // .rotationEffect is always a z-axis rotation
             return .rotationZ
+        
         case (.rotation3DEffect, _):
             // Depending on the axis specified in the arguments
             // This would need argument extraction to determine X, Y, or Z
+            
+            // TODO: JULY 1: .rotation3DEffect
             return .rotationZ // Default to Z rotation
+            
         case (.blur, _):
             return .blurRadius
         case (.blendMode, _):

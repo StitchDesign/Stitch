@@ -108,6 +108,7 @@ enum SyntaxViewModifierName: Codable, Hashable, Equatable, Sendable {
     case offset
     // …add more as needed …
 
+    // TODO: JULY 1: REMOVE THIS CASE, SO WE CAN HAVE CASE-ITERABLE VIEW-MODIFIER-NAMES? EFFECTIVELY THIS IS JUST A
     /// Any modifier name not yet mapped to a first-class case.
     case custom(String)
 }
