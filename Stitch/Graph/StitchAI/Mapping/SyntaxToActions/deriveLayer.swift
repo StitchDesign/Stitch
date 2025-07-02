@@ -264,7 +264,7 @@ extension SyntaxViewName {
         var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
         
         for modifier in modifiers {
-            customValues = try deriveCustomValuesFromViewModifier(
+            customValues = try Self.deriveCustomValuesFromViewModifier(
                 id: id,
                 layerType: layerType,
                 modifier: modifier,
@@ -274,7 +274,7 @@ extension SyntaxViewName {
         return customValues
     }
     
-    private func deriveCustomValuesFromViewModifier(
+    private static func deriveCustomValuesFromViewModifier(
         id: UUID,
         layerType: CurrentStep.Layer,
         modifier: SyntaxViewModifier,
@@ -290,7 +290,7 @@ extension SyntaxViewName {
         switch derivationResult {
             
         case .simple(let port):
-            customValues = try self.deriveCustomValuesFromSimpleLayerInputTranslation(
+            customValues = try Self.deriveCustomValuesFromSimpleLayerInputTranslation(
                 id: id,
                 port: port,
                 layerType: layerType,
@@ -299,7 +299,7 @@ extension SyntaxViewName {
             
         case .rotationScenario:
             // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
-            customValues = try self.deriveCustomValuesFromRotationLayerInputTranslation(
+            customValues = try Self.deriveCustomValuesFromRotationLayerInputTranslation(
                 id: id,
                 layerType: layerType,
                 modifier: modifier,
@@ -309,7 +309,7 @@ extension SyntaxViewName {
         return customValues
     }
     
-    func deriveCustomValuesFromSimpleLayerInputTranslation(
+    static func deriveCustomValuesFromSimpleLayerInputTranslation(
         id: UUID,
         port: CurrentStep.LayerInputPort, // simple because we have a single layer
         layerType: CurrentStep.Layer,
@@ -367,7 +367,7 @@ extension SyntaxViewName {
         return customValues
     }
     
-    func deriveCustomValuesFromRotationLayerInputTranslation(
+    static func deriveCustomValuesFromRotationLayerInputTranslation(
         id: UUID,
         layerType: CurrentStep.Layer,
         modifier: SyntaxViewModifier,
