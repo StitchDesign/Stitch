@@ -275,7 +275,10 @@ extension SyntaxViewName {
         
         // ── Generic modifier handling ────────────────────────────────────────
         for modifier in modifiers {
-
+            
+            // TODO: JULY 1: certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
+            // Might be best to break this into simple vs complex cases ?
+            // Or update the `modifier.name.deriveLayerInputPort` method first ?
             guard let port = modifier.name.deriveLayerInputPort(layerType) else {
                 continue
             }
@@ -285,24 +288,60 @@ extension SyntaxViewName {
 
             // Start with default value for that port
             var portValue = migratedPort.getDefaultValue(for: migratedLayerType)
-
-            if modifier.arguments.count == 1, let arg = modifier.arguments.first {
-
-                var raw = arg.value
-                if let c = Color.fromSystemName(raw) { raw = c.asHexDisplay }
-                let input = PortValue.string(.init(raw))
-
-                let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
-                if let first = coerced.first { portValue = first }
-
-            } else {
-                for (idx, arg) in modifier.arguments.enumerated() {
+                        
+            // Process each argument based on its type
+            
+            // index for modifier-arguments might not always be correct ?
+            for (idx, arg) in modifier.arguments.enumerated() {
+                switch arg.value {
+                    
+                case .simple(let data):
+                    
+                    // If we can parse this as a Color...
+                    if let color = Color.fromSystemName(data.value) {
+                        let input = PortValue.string(.init(color.asHexDisplay))
+                        let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
+                        if let first = coerced.first {
+                            portValue = first
+                        } else {
+                            // This can't actually happen
+                            fatalErrorIfDevDebug("should have had at least one value")
+                        }
+                    } else {
+                        // Handle simple value
+                        portValue = portValue.parseInputEdit(
+                            fieldValue: .string(.init(data.value)),
+                            fieldIndex: idx
+                        )
+                    }
+                    
+                case .degrees(let data):
                     portValue = portValue.parseInputEdit(
-                        fieldValue: .string(.init(arg.value)),
+                        fieldValue: .string(.init(data.value)),
                         fieldIndex: idx
                     )
+                
+                // A single argument (i.e. label) whose value is a tuple of x-y-z
+                case .axis(let x, let y, let z):
+                    // Handle axis values (e.g., for 3D rotation)
+                    if idx == 0 {
+                        portValue = portValue.parseInputEdit(
+                            fieldValue: .string(.init(x.value)),
+                            fieldIndex: 0
+                        )
+                        portValue = portValue.parseInputEdit(
+                            fieldValue: .string(.init(y.value)),
+                            fieldIndex: 1
+                        )
+                        portValue = portValue.parseInputEdit(
+                            fieldValue: .string(.init(z.value)),
+                            fieldIndex: 2
+                        )
+                    }
                 }
             }
+            
+           
             
             // "Downgrade" PortValue back to supported type for the AI
             let downgradedValue = try portValue.convert(to: CurrentStep.PortValue.self)

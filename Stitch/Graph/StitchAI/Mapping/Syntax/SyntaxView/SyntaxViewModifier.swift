@@ -35,6 +35,37 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable, Codable {
  */
 struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable, Codable {
     let label: SyntaxViewModifierArgumentLabel
+    let value: SyntaxViewModifierArgumentType
+    }
+
+
+/*
+ A single given parameter (i.e. a single label)
+ could have a complex (more than just string) value or even multiple associated values, e.g.
+ 
+ ```swift
+ Rectangle()
+     .rotation3DEffect(
+        .degrees(90), // unlabeled, with non-string type
+        axis: (x: 1, y: 0, z: 0) // labeled, with multiple associated values
+    )
+ ```
+ */
+enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Codable {
+    
+    // e.g. .opacity(5.0)
+    case simple(SyntaxViewModifierArgumentData)
+    
+    // e.g. .rotationEffect(.degrees(90), axis: ...)
+    case degrees(SyntaxViewModifierArgumentData)
+    
+    // e.g. .rotationEffect(..., axis: (x: 1, y: 0, z: 0))
+    case axis(x: SyntaxViewModifierArgumentData,
+              y: SyntaxViewModifierArgumentData,
+              z: SyntaxViewModifierArgumentData)
+    }
+
+struct SyntaxViewModifierArgumentData: Equatable, Hashable, Sendable, Codable {
     let value: String
     
     // literal vs declared var vs expression

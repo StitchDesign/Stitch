@@ -56,8 +56,7 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
             if !modifier.arguments.isEmpty {
                 for (j, arg) in modifier.arguments.enumerated() {
                     let label = arg.label == .noLabel ? "" : "\"\(arg.label)\""
-                    let argKindDesc = describe(arg.syntaxKind)
-                    result += "\n\(indent)                (label: \(label), value: \"\(arg.value)\", kind: \(argKindDesc))"
+                    result += "\n\(indent)                (label: \(label), value: \"\(arg.value)\")"
                     if j < modifier.arguments.count - 1 {
                         result += ","
                     }

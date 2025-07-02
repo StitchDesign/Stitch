@@ -225,10 +225,13 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             }
             
             let expression = argument.expression
-            return SyntaxViewModifierArgument(
-                label: label,
+            let data = SyntaxViewModifierArgumentData(
                 value: expression.trimmedDescription,
                 syntaxKind: .fromExpression(expression)
+            )
+            return SyntaxViewModifierArgument(
+                label: label,
+                value: .simple(data)
             )
         }
         
@@ -311,7 +314,12 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             var finalArgs = modifierArguments
             if finalArgs.isEmpty {
                 // `.padding()` → synthetic unknown literal
-                finalArgs = [SyntaxViewModifierArgument(label: .noLabel, value: "", syntaxKind: .literal(.unknown))]
+                finalArgs = [
+                    SyntaxViewModifierArgument(
+                        label: .noLabel,
+                        value: .simple(SyntaxViewModifierArgumentData(value: "", syntaxKind: .literal(.unknown)))
+                    )
+                ]
             }
             let modifier = SyntaxViewModifier(
                 name: SyntaxViewModifierName(rawValue: modifierName),

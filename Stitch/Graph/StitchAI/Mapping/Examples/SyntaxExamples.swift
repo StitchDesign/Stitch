@@ -21,9 +21,18 @@ extension MappingExamples {
             SyntaxViewModifier(
                 name: .frame,
                 arguments: [
-                    SyntaxViewModifierArgument(label: .width,  value: "200", syntaxKind: .literal(.integer)),
-                    SyntaxViewModifierArgument(label: .height, value: "100", syntaxKind: .literal(.integer)),
-                    SyntaxViewModifierArgument(label: .alignment, value: ".center", syntaxKind: .variable(.memberAccess))
+                    SyntaxViewModifierArgument(
+                        label: .width,
+                        value: .simple(SyntaxViewModifierArgumentData(value: "200", syntaxKind: .literal(.integer)))
+                    ),
+                    SyntaxViewModifierArgument(
+                        label: .height,
+                        value: .simple(SyntaxViewModifierArgumentData(value: "100", syntaxKind: .literal(.integer)))
+                    ),
+                    SyntaxViewModifierArgument(
+                        label: .alignment,
+                        value: .simple(SyntaxViewModifierArgumentData(value: ".center", syntaxKind: .variable(.memberAccess)))
+                    )
                 ]
             )
         ],
@@ -48,7 +57,15 @@ extension MappingExamples {
                 modifiers: [
                     SyntaxViewModifier(
                         name: .fill,
-                        arguments: [SyntaxViewModifierArgument(label: .noLabel, value: "Color.blue", syntaxKind: .variable(.memberAccess))]
+                        arguments: [
+                            SyntaxViewModifierArgument(
+                                label: .noLabel,
+                                value: .simple(SyntaxViewModifierArgumentData(
+                                    value: "Color.blue",
+                                    syntaxKind: .variable(.memberAccess)
+                                ))
+                            )
+                        ]
                     )
                 ],
                 children: [],
@@ -60,9 +77,15 @@ extension MappingExamples {
                 modifiers: [
                     SyntaxViewModifier(
                         name: .fill,
-                        arguments: [SyntaxViewModifierArgument(label: .noLabel,
-                                                               value: "Color.green",
-                                                               syntaxKind: .variable(.memberAccess))]
+                        arguments: [
+                            SyntaxViewModifierArgument(
+                                label: .noLabel,
+                                value: .simple(SyntaxViewModifierArgumentData(
+                                    value: "Color.green",
+                                    syntaxKind: .variable(.memberAccess)
+                                ))
+                            )
+                        ]
                     )
                 ],
                 children: [],
@@ -108,15 +131,27 @@ extension MappingExamples {
         modifiers: [
             SyntaxViewModifier(
                 name: .foregroundColor,
-                arguments: [SyntaxViewModifierArgument(label: .noLabel,
-                                                       value: "Color.yellow",
-                                                       syntaxKind: .variable(.memberAccess))]
+                arguments: [
+                    SyntaxViewModifierArgument(
+                        label: .noLabel,
+                        value: .simple(SyntaxViewModifierArgumentData(
+                            value: "Color.yellow",
+                            syntaxKind: .variable(.memberAccess)
+                        ))
+                    )
+                ]
             ),
             SyntaxViewModifier(
                 name: .padding,
-                arguments: [SyntaxViewModifierArgument(label: .noLabel,
-                                                       value: "",
-                                                       syntaxKind: .literal(.unknown))]
+                arguments: [
+                    SyntaxViewModifierArgument(
+                        label: .noLabel,
+                        value: .simple(SyntaxViewModifierArgumentData(
+                            value: "",
+                            syntaxKind: .literal(.unknown)
+                        ))
+                    )
+                ]
             )
         ],
         children: [],
@@ -143,10 +178,15 @@ extension MappingExamples {
                 modifiers: [
                     SyntaxViewModifier(
                         name: .fill,
-                        arguments: [SyntaxViewModifierArgument(
-                            label: .noLabel,
-                            value: "Color.blue",
-                            syntaxKind: .variable(.memberAccess))]
+                        arguments: [
+                            SyntaxViewModifierArgument(
+                                label: .noLabel,
+                                value: .simple(SyntaxViewModifierArgumentData(
+                                    value: "Color.blue",
+                                    syntaxKind: .variable(.memberAccess)
+                                ))
+                            )
+                        ]
                     )
                 ],
                 children: [],
@@ -163,10 +203,15 @@ extension MappingExamples {
                         modifiers: [
                             SyntaxViewModifier(
                                 name: .fill,
-                                arguments: [SyntaxViewModifierArgument(
-                                    label: .noLabel,
-                                    value: "Color.green",
-                                    syntaxKind: .variable(.memberAccess))]
+                                arguments: [
+                                    SyntaxViewModifierArgument(
+                                        label: .noLabel,
+                                        value: .simple(SyntaxViewModifierArgumentData(
+                                            value: "Color.green",
+                                            syntaxKind: .variable(.memberAccess)
+                                        ))
+                                    )
+                                ]
                             )
                         ],
                         children: [],
@@ -178,10 +223,15 @@ extension MappingExamples {
                         modifiers: [
                             SyntaxViewModifier(
                                 name: .fill,
-                                arguments: [SyntaxViewModifierArgument(
-                                    label: .noLabel,
-                                    value: "Color.red",
-                                    syntaxKind: .variable(.memberAccess))]
+                                arguments: [
+                                    SyntaxViewModifierArgument(
+                                        label: .noLabel,
+                                        value: .simple(SyntaxViewModifierArgumentData(
+                                            value: "Color.red",
+                                            syntaxKind: .variable(.memberAccess)
+                                        ))
+                                    )
+                                ]
                             )
                         ],
                         children: [],

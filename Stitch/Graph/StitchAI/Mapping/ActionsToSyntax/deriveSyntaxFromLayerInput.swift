@@ -29,9 +29,14 @@ extension CurrentStep.LayerInputPort {
         let buildSingleFieldUnlabeledModifier = { (name: SyntaxViewModifierName) -> SyntaxViewModifier in
             SyntaxViewModifier(name: name,
                      arguments: [
-                        SyntaxViewModifierArgument(label: .noLabel, // assumes unlabeled
-                                 value: try valueOrEdge.asSwiftUILiteralOrVariable(),
-                                 syntaxKind: valueOrEdge.asSwiftSyntaxKind)
+                        SyntaxViewModifierArgument(
+                            label: .noLabel, // assumes unlabeled
+//                            value: try valueOrEdge.asSwiftUILiteralOrVariable(),
+//                            syntaxKind: valueOrEdge.asSwiftSyntaxKind
+                            value: .simple(SyntaxViewModifierArgumentData(value: try valueOrEdge.asSwiftUILiteralOrVariable(),
+                                                                          syntaxKind: valueOrEdge.asSwiftSyntaxKind))
+                        )
+                        
                      ])
         }
         
@@ -370,12 +375,20 @@ extension CGPoint {
         let x = CurrentStep.PortValue.number(self.x)
         let y = CurrentStep.PortValue.number(self.y)
         return [
-            SyntaxViewModifierArgument(label: .x,
-                                       value: self.x.description,
-                                       syntaxKind: x.asSwiftSyntaxKind),
-            SyntaxViewModifierArgument(label: .y,
-                                       value: self.y.description,
-                                       syntaxKind: y.asSwiftSyntaxKind)
+            SyntaxViewModifierArgument(
+                label: .x,
+                value: .simple(SyntaxViewModifierArgumentData(
+                    value: self.x.description,
+                    syntaxKind: x.asSwiftSyntaxKind
+                ))
+            ),
+            SyntaxViewModifierArgument(
+                label: .y,
+                value: .simple(SyntaxViewModifierArgumentData(
+                    value: self.y.description,
+                    syntaxKind: y.asSwiftSyntaxKind
+                ))
+            )
         ]
     }
 }
@@ -387,12 +400,20 @@ extension CurrentStitchAIPortValue.LayerSize {
         
         // TODO: may need to use different labels, e.g. `.minWidth` ?
         return [
-            SyntaxViewModifierArgument(label: .width,
-                                       value: self.width.description,
-                                       syntaxKind: width.asSwiftSyntaxKind),
-            SyntaxViewModifierArgument(label: .height,
-                                       value: self.height.description,
-                                       syntaxKind: height.asSwiftSyntaxKind)
+            SyntaxViewModifierArgument(
+                label: .width,
+                value: .simple(SyntaxViewModifierArgumentData(
+                    value: self.width.description,
+                    syntaxKind: width.asSwiftSyntaxKind
+                ))
+            ),
+            SyntaxViewModifierArgument(
+                label: .height,
+                value: .simple(SyntaxViewModifierArgumentData(
+                    value: self.height.description,
+                    syntaxKind: height.asSwiftSyntaxKind
+                ))
+            )
         ]
     }
 }
