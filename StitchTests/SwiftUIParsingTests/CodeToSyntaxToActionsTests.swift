@@ -123,4 +123,57 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
             )
         }
     }
+    
+    func testRectangleWithPositionToLayerData() throws {
+        // Given
+        let code = """
+        Rectangle()
+            .position(x: 200, y: 200)
+        """
+        
+        // When
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+            XCTFail("Failed to parse Rectangle with position example")
+            return
+        }
+        
+        let layerData = try syntaxView.deriveStitchActions()
+        
+        // Then - Verify the structure of the LayerData
+        // 1. Check that we have exactly one root layer (the Rectangle)
+        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
+        
+        let rectangleLayer = layerData.layers[0]
+        
+        // 2. Check that the layer is a rectangle
+        if case let .layer(layerType) = rectangleLayer.node_name.value {
+            XCTAssertEqual(layerType, .rectangle, "Layer type should be rectangle")
+        } else {
+            XCTFail("Expected root layer to be a rectangle")
+        }
+        
+        let positionValues = layerData.custom_layer_input_values.filter { value in
+            value.layer_input_coordinate.input_port_type.value == .position
+        }
+        
+    
+        // 4. Verify we have exactly one position X and Y value
+        XCTAssertEqual(positionValues.count, 1, "Should have exactly one position value")
+        
+        let positionValue = positionValues.first!
+        let positionPortValue = positionValue.value
+        if case .position(let p) = positionPortValue {
+            XCTAssertEqual(p,
+                           CGPoint(x: 200, y: 200))
+        } else {
+            XCTFail("Did not have position")
+        }
+        
+        // 5. Verify the layer IDs match between the layer and its custom values
+        let layerId = rectangleLayer.node_id.value
+        XCTAssertEqual(positionValue.layer_input_coordinate.layer_id.value,
+                       layerId,
+                      "Position value should be associated with the rectangle layer")
+
+    }
 }
