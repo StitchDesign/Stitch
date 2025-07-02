@@ -435,13 +435,17 @@ extension Array where Element == CurrentAIPatchBuilderResponseFormat.LayerData {
     }
 }
 
-//extension AIPatchBuilderResponseFormat_V0.LayerData {
-//    func createSidebarLayerData() -> SidebarLayerData {
-//        let children = self.children?.map {
-//            $0.createSidebarLayerData()
-//        }
-//        
-//        return SidebarLayerData(id: self.node_id.value,
-//                                children: children)
-//    }
-//}
+extension AIPatchBuilderResponseFormat_V0.LayerData {
+    func createSidebarLayerData(idMap: [UUID : UUID]) throws -> SidebarLayerData {
+        guard let newId = idMap.get(self.node_id.value) else {
+            throw AIPatchBuilderRequestError.nodeIdNotFound
+        }
+        
+        let children = try self.children?.map {
+            try $0.createSidebarLayerData(idMap: idMap)
+        }
+        
+        return SidebarLayerData(id: newId,
+                                children: children)
+    }
+}

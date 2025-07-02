@@ -63,7 +63,7 @@ extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.
     @MainActor
     func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerData,
-                               idMap: inout [UUID : UUID]) throws -> SidebarLayerData {
+                               idMap: inout [UUID : UUID]) throws {
         let newId = UUID()
         idMap.updateValue(newId, forKey: newLayer.node_id.value)
         let graph = self.visibleGraph
@@ -79,22 +79,14 @@ extension StitchDocumentViewModel {
                         center: self.newCanvasItemInsertionLocation)
         graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
                                                       forKey: newLayerNode.id)
-        
-        var sidebarData = SidebarLayerData(id: newLayerNode.id)
-        
+                
         if let children = newLayer.children {
-            var sidebarChildrenData = [SidebarLayerData]()
             for child in children {
                 // Recursive call
-                let newChildLayerData = try self.createLayerNodeFromAI(newLayer: child,
-                                                                       idMap: &idMap)
-                sidebarChildrenData.append(newChildLayerData)
+                try self.createLayerNodeFromAI(newLayer: child,
+                                               idMap: &idMap)
             }
-            
-            sidebarData.children = sidebarChildrenData
         }
-        
-        return sidebarData
     }
     
     @MainActor
@@ -184,17 +176,19 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                                           nodeId: newId)
         }
         
-        // new layer nodes
-        var newLayerSidebarDataList = [SidebarLayerData]()
+        // create nested layer nodes in graph
         for newLayer in self.layer_data {
-            let newSidebarData = try document.createLayerNodeFromAI(newLayer: newLayer,
-                                                                    idMap: &idMap)
-            newLayerSidebarDataList.append(newSidebarData)
+            // Recursive caller
+            try document.createLayerNodeFromAI(newLayer: newLayer,
+                                               idMap: &idMap)
         }
+        
+        // Create nested sidebar layer data AFTER idMap gets updated from above layer logic
+        let newSidebarData = try self.layer_data.map { try $0.createSidebarLayerData(idMap: idMap) }
         
         // Update sidebar view model data with new layer data in beginning
         let oldSidebarList = graph.layersSidebarViewModel.createdOrderedEncodedData()
-        let newList = newLayerSidebarDataList + oldSidebarList
+        let newList = newSidebarData + oldSidebarList
         graph.layersSidebarViewModel.update(from: newList)
         
         // Update graph data so that input observers are created
