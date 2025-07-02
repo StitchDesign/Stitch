@@ -25,9 +25,6 @@ struct MappingCodeExample: Sendable {
     let code: String
 }
 
-
-
-
 extension MappingExamples {
     
     // TODO: break into separate pieces
