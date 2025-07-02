@@ -64,7 +64,7 @@ extension CurrentStep.LayerInputPort {
                     )
                 ]
             ))
-            
+                        
         case .sfSymbol:
             let value = try valueOrEdge.asSwiftUILiteralOrVariable()
             let syntaxKind = valueOrEdge.asSwiftSyntaxKind
@@ -79,7 +79,38 @@ extension CurrentStep.LayerInputPort {
             ))
             
             
-            // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
+        // TODO: JULY 1: orientation + LayerGroup become either ZStack or VStack or HStack etc.
+        // So there's not a simple mapping of "this layer input becomes a constructor-arg / view-modifier"
+        case .orientation:
+            // return .modifier(try buildSingleFieldUnlabeledModifier(.orientation))
+            throw SwiftUISyntaxError.unsupportedLayerInput(self)
+            
+            
+        // TODO: JULY 1: handle how .scrollXEnabled and .scrollYEnabled are two different layer input ports that become a "single constructor-arg with two values" for the `syntax -> code`
+        // i.e. `ScrollView([.horizontal, .vertical]) ;
+        // can you reuse any logic elsewhere?
+        case .scrollXEnabled:
+            let value = try valueOrEdge.asSwiftUILiteralOrVariable()
+            let syntaxKind = valueOrEdge.asSwiftSyntaxKind
+            return .constructorArgument(.init(
+                label: .noLabel,
+                values: [
+                    SyntaxViewConstructorArgumentValue(value: value, syntaxKind: syntaxKind)
+                ]
+            ))
+            
+        case .scrollYEnabled:
+            let value = try valueOrEdge.asSwiftUILiteralOrVariable()
+            let syntaxKind = valueOrEdge.asSwiftSyntaxKind
+            return .constructorArgument(.init(
+                label: .noLabel,
+                values: [
+                    SyntaxViewConstructorArgumentValue(value: value, syntaxKind: syntaxKind)
+                ]
+            ))
+            
+            
+        // TODO: JUNE 24: how to handle PortValue.position(CGPoint) as a SwiftUI `.position(x:y:)` modifier? ... But also, this particular mapping is much more complicated, and Stitch only ever relies on the SwiftUI `.offset(width:height:)` modifier.
         case .position:
             return try buildMultifieldModifier(.position)
             
@@ -98,7 +129,7 @@ extension CurrentStep.LayerInputPort {
             default: // case .rectangle, .oval:
                 return .modifier(try buildSingleFieldUnlabeledModifier(.fill))
             }
-            
+
         case .rotationX, .rotationY, .rotationZ:
             throw SwiftUISyntaxError.unsupportedLayerInput(self)
             // MORE COMPLICATED
@@ -128,7 +159,7 @@ extension CurrentStep.LayerInputPort {
         
         // TODO: JUNE 23: complicatd: size, minSize, maxSize are actually a combination of arguments to the SwiftUI .frame view modifier
         case .minSize, .maxSize:           return .modifier(try buildSingleFieldUnlabeledModifier(.frame))
-            
+                    
         // TODO: JUNE 23: complicated; all of these correspond to different arguments *on the same SwiftUI .shadow view modifier*
         case .shadowColor, .shadowOpacity, .shadowRadius, .shadowOffset:
             // return ".shadow"
@@ -155,7 +186,7 @@ extension CurrentStep.LayerInputPort {
         case .fitStyle:
             // return ".aspectRatio"
             throw SwiftUISyntaxError.unsupportedLayerInput(self)
-            
+                        
             // ── No SwiftUI analogue ────────────────────────────────────
             // Explicitly unsupported ports (no SwiftUI equivalent)
         case .lineColor,
@@ -163,7 +194,6 @@ extension CurrentStep.LayerInputPort {
                 .pivot,
             
             // layer group
-                .orientation,
                 .layerGroupAlignment,
             
             // hit area
@@ -267,11 +297,11 @@ extension CurrentStep.LayerInputPort {
             // layer group scrolling
                 .scrollContentSize,
                 .isScrollAuto,
-                .scrollXEnabled,
+                
                 .scrollJumpToXStyle,
                 .scrollJumpToX,
                 .scrollJumpToXLocation,
-                .scrollYEnabled,
+
                 .scrollJumpToYStyle,
                 .scrollJumpToY,
                 .scrollJumpToYLocation:
