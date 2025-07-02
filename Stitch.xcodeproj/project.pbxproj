@@ -681,10 +681,8 @@
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
 		EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */; };
 		EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */; };
-		EC66D0412E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */; };
 		EC66D0452E0728FB00355ED8 /* SyntaxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */; };
 		EC66D0472E072A5300355ED8 /* StitchSyntaxToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */; };
-		EC66D04C2E07EF0000355ED8 /* VPLSyntaxTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */; };
 		EC6826CE2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */; };
 		EC6826D02DE61FB100BD7BB6 /* UploadToSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */; };
 		EC6859092DB06F78004BF315 /* GraphCalculatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6859082DB06F78004BF315 /* GraphCalculatable.swift */; };
@@ -708,6 +706,7 @@
 		EC6EDC3427FF943700843E62 /* SidebarVisibilityState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */; };
 		EC7062B32E14BFC50017A9F0 /* ScrollViewCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */; };
 		EC7062B52E14C02E0017A9F0 /* RotationModifierCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B42E14C02E0017A9F0 /* RotationModifierCodeExamples.swift */; };
+		EC7062B72E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7062B62E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift */; };
 		EC71FF1C2D13C469002C0BA3 /* StitchUIScrollHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */; };
 		EC731CB92A37F05100241CB2 /* PatchDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC731CB82A37F05000241CB2 /* PatchDescription.swift */; };
 		EC733DC02639CB2100DD4EC1 /* Interactions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC733DBF2639CB2100DD4EC1 /* Interactions.swift */; };
@@ -1811,10 +1810,8 @@
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
 		EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestrictedSwiftUIScopeJSON.swift; sourceTree = "<group>"; };
 		EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToStitchSyntax.swift; sourceTree = "<group>"; };
-		EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewNodeToSwiftUICodeTests.swift; sourceTree = "<group>"; };
 		EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxUtils.swift; sourceTree = "<group>"; };
 		EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntaxToCode.swift; sourceTree = "<group>"; };
-		EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLSyntaxTest.swift; sourceTree = "<group>"; };
 		EC6826CD2DE61F8500BD7BB6 /* OpenAIRetryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRetryRequest.swift; sourceTree = "<group>"; };
 		EC6826CF2DE61FB100BD7BB6 /* UploadToSupabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadToSupabase.swift; sourceTree = "<group>"; };
 		EC6859082DB06F78004BF315 /* GraphCalculatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCalculatable.swift; sourceTree = "<group>"; };
@@ -1838,6 +1835,7 @@
 		EC6EDC3327FF943700843E62 /* SidebarVisibilityState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityState.swift; sourceTree = "<group>"; };
 		EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollViewCodeExamples.swift; sourceTree = "<group>"; };
 		EC7062B42E14C02E0017A9F0 /* RotationModifierCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotationModifierCodeExamples.swift; sourceTree = "<group>"; };
+		EC7062B62E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToSyntaxToActionsTests.swift; sourceTree = "<group>"; };
 		EC71FF1B2D13C469002C0BA3 /* StitchUIScrollHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUIScrollHelpers.swift; sourceTree = "<group>"; };
 		EC731CB82A37F05000241CB2 /* PatchDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchDescription.swift; sourceTree = "<group>"; };
 		EC733DBF2639CB2100DD4EC1 /* Interactions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interactions.swift; sourceTree = "<group>"; };
@@ -4979,8 +4977,7 @@
 		EC66D02D2E064E0800355ED8 /* SwiftUIParsingTests */ = {
 			isa = PBXGroup;
 			children = (
-				EC66D0402E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift */,
-				EC66D04B2E07EF0000355ED8 /* VPLSyntaxTest.swift */,
+				EC7062B62E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift */,
 			);
 			path = SwiftUIParsingTests;
 			sourceTree = "<group>";
@@ -6680,8 +6677,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5E5FFBB274C978800C5FE92 /* nodeUIGroupingTests.swift in Sources */,
-				EC66D04C2E07EF0000355ED8 /* VPLSyntaxTest.swift in Sources */,
 				B55185722826FE4100D81717 /* StitchFileTests.swift in Sources */,
+				EC7062B72E15B53B0017A9F0 /* CodeToSyntaxToActionsTests.swift in Sources */,
 				ECFEFF9E26BDE18A00CF042E /* miscTests.swift in Sources */,
 				EC06A48E2A046521009C9A4A /* JsonPerfTestUtils.swift in Sources */,
 				B57575F92A187E0600CDB0BA /* previewLayerTests.swift in Sources */,
@@ -6708,7 +6705,6 @@
 				ECCC04C02A3268A20099D021 /* nodeTypeTests.swift in Sources */,
 				EC28CCA6287E3DBA00987792 /* mathTests.swift in Sources */,
 				B5F9EB9B28D3848A00112799 /* FileManagerTests.swift in Sources */,
-				EC66D0412E07209500355ED8 /* ViewNodeToSwiftUICodeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

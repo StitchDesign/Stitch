@@ -15,11 +15,7 @@ struct MappingExamples { }
 #if DEV_DEBUG
 struct ExampleView: View {
     var body: some View {
-    
-        ScrollView([.vertical]) {
-            
-        }
-        
+        Color.yellow
     } // var body: some View
 }
 #endif
@@ -29,17 +25,39 @@ struct MappingCodeExample: Sendable {
     let code: String
 }
 
+let colorAsValue = MappingCodeExample(
+    title: "color as value",
+    code:
+"""
+Rectangle()
+    .fill(Color("yellow") as! String)
+"""
+)
+
+let colorAsView = MappingCodeExample(
+    title: "color as view",
+    code:
+"""
+Color.yellow
+"""
+)
+
+
+
 extension MappingExamples {
     
     // TODO: break into separate pieces
     static let codeExamples: [MappingCodeExample] = [
         
+        //        colorAsValue,
+        //        colorAsView,
+        
         // ScrollView
-        scrollViewVStack,
-        scrollViewHStack,
-        scrollViewNotTopLevel,
-        scrollViewWithAllAxes,
-        scrollViewWithoutExplicitAxes,
+//        scrollViewVStack,
+//        scrollViewHStack,
+//        scrollViewNotTopLevel,
+//        scrollViewWithAllAxes,
+//        scrollViewWithoutExplicitAxes,
         
         MappingCodeExample(
             title: "VStack",
@@ -126,87 +144,87 @@ extension MappingExamples {
             }
             """
         ),
-        
-        MappingCodeExample(
-            title: "Nested with scale",
-            code: """
-            ZStack {
-                Rectangle().fill(Color.blue)
-                VStack {
-                    Rectangle().fill(Color.green)
-                    Rectangle().fill(Color.red)
-                }
-            }.scaleEffect(4)
-            """
-        ),
-        
-        MappingCodeExample(
-            title: "var body",
-            code: """
-            struct ContentView: View {
-                var body: some View {
-                    ZStack {
-                        Image(systemName: "globe")
-                            .foregroundColor(Color.red)
-                        Text("Hello, world!")
-                    }
-                }
-            }
-            """
-        ),
-        
-        MappingCodeExample(
-            title: "var body + method",
-            code: """
-            struct ContentView: View {
-                var body: some View {
-                    ZStack {
-                        Image(systemName: "globe")
-                            .foregroundColor(Color.red)
-                        Text("Hello, world!")
-                    }
-                }
-            }
-            """
-        ),
-        
-        MappingCodeExample(
-            title: "File, views",
-            code: """
-            import SwiftUI
 
-            struct ContentView: View {
-                
-                @State var myState: String = ""
-                
-                var myComputedVar: Bool {
-                    true
-                }
-                
-                func myMethod() -> Int {
-                    1
-                }
-                
-                var body: some View {
-                    ZStack {
-                        Image(systemName: "globe")
-                            .foregroundColor(Color.red)
-                        Text("Hello, world!")
-                    }
-                }
-
-                var myView: some View {
-                    Rectangle()
-                }
-            }
-            """
-        ),
+//        MappingCodeExample(
+//            title: "Nested with scale",
+//            code: """
+//            ZStack {
+//                Rectangle().fill(Color.blue)
+//                VStack {
+//                    Rectangle().fill(Color.green)
+//                    Rectangle().fill(Color.red)
+//                }
+//            }.scaleEffect(4)
+//            """
+//        ),
+        
+//        MappingCodeExample(
+//            title: "var body",
+//            code: """
+//            struct ContentView: View {
+//                var body: some View {
+//                    ZStack {
+//                        Image(systemName: "globe")
+//                            .foregroundColor(Color.red)
+//                        Text("Hello, world!")
+//                    }
+//                }
+//            }
+//            """
+//        ),
+        
+//        MappingCodeExample(
+//            title: "var body + method",
+//            code: """
+//            struct ContentView: View {
+//                var body: some View {
+//                    ZStack {
+//                        Image(systemName: "globe")
+//                            .foregroundColor(Color.red)
+//                        Text("Hello, world!")
+//                    }
+//                }
+//            }
+//            """
+//        ),
+//        
+//        MappingCodeExample(
+//            title: "File, views",
+//            code: """
+//            import SwiftUI
+//
+//            struct ContentView: View {
+//                
+//                @State var myState: String = ""
+//                
+//                var myComputedVar: Bool {
+//                    true
+//                }
+//                
+//                func myMethod() -> Int {
+//                    1
+//                }
+//                
+//                var body: some View {
+//                    ZStack {
+//                        Image(systemName: "globe")
+//                            .foregroundColor(Color.red)
+//                        Text("Hello, world!")
+//                    }
+//                }
+//
+//                var myView: some View {
+//                    Rectangle()
+//                }
+//            }
+//            """
+//        ),
         
         // Rotation modifier
         rotationEffectBasic,
-        rotationEffectAnchor,
-        rotationEffectRadians,
+//        rotationEffectAnchor,
+//        rotationEffectRadians,
         rotation3DEffectBasic,
-        rotation3DEffectPerspective
+//        rotation3DEffectPerspective
     ]
 }
