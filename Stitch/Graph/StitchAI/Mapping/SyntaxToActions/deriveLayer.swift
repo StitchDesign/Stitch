@@ -390,9 +390,12 @@ extension SyntaxViewName {
         
         var customValues = customValues
         
-        if let degreesArgument = modifier.arguments[safe: 0],
+        if let angleArgument = modifier.arguments[safe: 0],
            let axesArgument = modifier.arguments[safe: 1],
-           case .angle(let degrees) = degreesArgument.value,
+           
+            // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
+            case .angle(let degreesOrRadians) = angleArgument.value,
+           
            case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
            let axisX = toNumber(axisX.value),
            let axisY = toNumber(axisY.value),
@@ -403,7 +406,7 @@ extension SyntaxViewName {
             let fn = { (port: CurrentStep.LayerInputPort) in
                 let portValue = try port
                     .getDefaultValue(layerType: layerType)
-                    .parseInputEdit(fieldValue: .string(.init(degrees.value)),
+                    .parseInputEdit(fieldValue: .string(.init(degreesOrRadians.value)),
                                     fieldIndex: 0)
                 customValues.append(
                     try .init(id: id, port: port, value: portValue)
