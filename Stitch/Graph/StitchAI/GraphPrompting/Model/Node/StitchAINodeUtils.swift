@@ -14,7 +14,7 @@ extension CurrentStep.NodeKind {
         // Filter out the scroll interaction node
         let allDescriptions = CurrentStep.Patch.allAiDescriptions + CurrentStep.Layer.allAiDescriptions
         return allDescriptions.filter { description in
-            !description.nodeKind.contains("scrollInteraction")
+            !description.nodeKind.contains("legacyScrollInteraction")
         }
     }
 }
@@ -28,6 +28,16 @@ extension CurrentStep.Patch {
 extension CurrentStep.Layer {
     var patchOrLayer: CurrentStep.PatchOrLayer {
         .layer(self)
+    }
+    
+    var isGroup: Bool {
+        switch self {
+        case .group, .realityView:
+            return true
+            
+        default:
+            return false
+        }
     }
 }
 

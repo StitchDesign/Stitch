@@ -14,6 +14,7 @@ enum SwiftUISyntaxError: Error {
     case unsupportedLayer(SyntaxViewName)
     case unsupportedLayerInput(CurrentStep.LayerInputPort)
     case incorrectParsing(message: String)
+    case groupLayerDecodingFailed
 }
 
 extension CurrentStep.LayerInputPort {

@@ -10,10 +10,12 @@ extension StitchAIManager {
     func aiCodeGenSystemPromptGenerator(graph: GraphState) throws -> String {
         let patchDescriptions = CurrentStep.Patch.allAiDescriptions
             .filter { description in
-                !description.nodeKind.contains("scrollInteraction")
+                !description.nodeKind.contains("legacyScrollInteraction")
             }
         
         let layerDescriptions = CurrentStep.Layer.allAiDescriptions
+        
+        let nodePortDescriptions = try NodeSection.getAllAIDescriptions(graph: graph)
         
         return """
 # SwiftUI Code Creator
@@ -245,7 +247,7 @@ The schema below presents the list of inputs and outputs supported for each nati
 For layers, if the desired behavior is natively supported through a layer’s input, the patch system must prefer setting that input over simulating the behavior with patch nodes.
 
 Each patch and layer supports the following inputs and outputs:
-\(try NodeSection.getAllAIDescriptions(graph: graph).encodeToPrintableString())
+\(try nodePortDescriptions.encodeToPrintableString())
 
 
 ## Our app has specific requirements and opinions about SwiftUI views

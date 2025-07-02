@@ -48,21 +48,14 @@ extension SyntaxView {
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
     static func build(from actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
-        // The very first `.layer` action produced by `deriveStitchActions()` is the root.
-        guard let rootLayer = actions.layers.first else {
-            log("SyntaxView.build: No VPLLayer creation found – cannot rebuild view tree.")
-            return nil
-        }
-
-        return try node(from: rootLayer, in: actions)
+        try node(from: actions)
     }
 
     // MARK: - Private helpers
 
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
-    private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerNode,
-                             in actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
+    private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
 
         // TODO: provide layer group orientation
         guard let layer = layerData.node_name.value.layer,
@@ -73,7 +66,7 @@ extension SyntaxView {
         }
         
         // Gather all `layerInputSet` concepts that belong to this layer.
-        let customInputEvents = actions.custom_layer_input_values
+        let customInputEvents = layerData.custom_layer_input_values
 
         // Convert those sets into very naïve constructor‑arguments *or* modifiers.
         // For now we treat everything as a modifier unless the corresponding
@@ -106,7 +99,7 @@ extension SyntaxView {
 
         // Recurse into child layers.
         let childNodes: [Self]? = try layerData.children?
-            .compactMap { try node(from: $0, in: actions) }
+            .compactMap { try node(from: $0) }
 
         // Build the actual SyntaxView node.
         return Self(

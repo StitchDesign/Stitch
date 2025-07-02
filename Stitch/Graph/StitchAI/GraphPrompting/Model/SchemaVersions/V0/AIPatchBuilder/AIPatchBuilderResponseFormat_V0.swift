@@ -43,7 +43,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         
         let Layer_Nodes = OpenAISchema(
             type: .array,
-            required: ["node_id", "node_name"],
+            required: ["node_id", "node_name", "custom_layer_input_values"],
             description: "A nested list of layer nodes to be created in the graph.",
             items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.LayerNodeSchema()])
         )
@@ -66,21 +66,7 @@ enum AIPatchBuilderResponseFormat_V0 {
             required: ["layer_id", "input_port_type"])
     }
     
-    // MARK: not used in structured outputs, just the system prompt inputs
-    struct LayerDataSchema: Encodable {
-        let layers = OpenAISchemaRef(ref: "Layer_Nodes")
-        
-        let custom_layer_input_values = OpenAISchema(
-            type: .array,
-            required: ["layer_input_coordinate", "value", "value_type"],
-            items: OpenAIGeneric(types: [
-                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
-            ])
-        )
-    }
-    
     struct GraphBuilderSchema: Encodable {
-        
         let javascript_patches = OpenAISchema(
             type: .array,
             required: ["node_id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"],
@@ -118,11 +104,19 @@ enum AIPatchBuilderResponseFormat_V0 {
         )
     }
     
+    // MARK: not used for outputs, just inputs.
     struct LayerNodeSchema: Encodable {
         let node_id = OpenAISchema(type: .string)
         let suggested_title = OpenAISchema(type: .string)
         let node_name = OpenAISchemaRef(ref: "NodeName")
         let children = OpenAISchemaRef(ref: "Layer_Nodes")
+        let custom_layer_input_values = OpenAISchema(
+            type: .array,
+            required: ["layer_input_coordinate", "value", "value_type"],
+            items: OpenAIGeneric(types: [
+                AIPatchBuilderResponseFormat_V0.CustomLayerInputValueSchema()
+            ])
+        )
     }
 
     struct JsPatchNodeSchema: Encodable {
@@ -181,7 +175,7 @@ enum AIPatchBuilderResponseFormat_V0 {
 // Actual types
 extension AIPatchBuilderResponseFormat_V0 {
     struct GraphData: Codable {
-        let layer_data: LayerData
+        let layer_data: [LayerData]
         let patch_data: PatchData
     }
     
@@ -194,17 +188,13 @@ extension AIPatchBuilderResponseFormat_V0 {
         // All connections are captured by patch data regardless of patch or layer
         let layer_connections: [LayerConnection]
     }
-    
-    struct LayerData: Codable {
-        var layers: [AIPatchBuilderResponseFormat_V0.LayerNode]
-        var custom_layer_input_values: [CustomLayerInputValue]
-    }
-    
-    struct LayerNode {
+
+    struct LayerData {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
-        var children: [LayerNode]?
+        var children: [LayerData]?
+        var custom_layer_input_values: [CustomLayerInputValue] = []
     }
     
     struct JsPatchNode: Codable {
@@ -330,18 +320,20 @@ extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
     }
 }
 
-extension AIPatchBuilderResponseFormat_V0.LayerNode: Codable {
+extension AIPatchBuilderResponseFormat_V0.LayerData: Codable {
     enum CodingKeys: String, CodingKey {
         case node_id
         case suggested_title
         case node_name
         case children
+        case custom_layer_input_values
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(node_id, forKey: .node_id)
         try container.encode(node_name, forKey: .node_name)
+        try container.encode(custom_layer_input_values, forKey: .custom_layer_input_values)
         
         try container.encodeIfPresent(suggested_title, forKey: .suggested_title)
         
@@ -431,5 +423,29 @@ extension Step_V0.PortValue {
                                                     valueTypeKey: CodingKeys) throws {
         try container.encode(portValue.anyCodable, forKey: valueKey)
         try container.encode(portValue.nodeType, forKey: valueTypeKey)
+    }
+}
+
+extension Array where Element == CurrentAIPatchBuilderResponseFormat.LayerData {
+    var allNestedCustomInputValues: [AIPatchBuilderResponseFormat_V0.CustomLayerInputValue] {
+        self.flatMap {
+            $0.custom_layer_input_values +
+            ($0.children?.allNestedCustomInputValues ?? [])
+        }
+    }
+}
+
+extension AIPatchBuilderResponseFormat_V0.LayerData {
+    func createSidebarLayerData(idMap: [UUID : UUID]) throws -> SidebarLayerData {
+        guard let newId = idMap.get(self.node_id.value) else {
+            throw AIPatchBuilderRequestError.nodeIdNotFound
+        }
+        
+        let children = try self.children?.map {
+            try $0.createSidebarLayerData(idMap: idMap)
+        }
+        
+        return SidebarLayerData(id: newId,
+                                children: children)
     }
 }
