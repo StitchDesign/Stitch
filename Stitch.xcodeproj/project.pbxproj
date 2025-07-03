@@ -968,6 +968,7 @@
 		ECC558A7294A9B340025BB42 /* ScrollInteractionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC558A6294A9B340025BB42 /* ScrollInteractionUtils.swift */; };
 		ECC558A9294A9B3A0025BB42 /* DragInteractionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC558A8294A9B3A0025BB42 /* DragInteractionUtils.swift */; };
 		ECC6992D2E16E38D00D8D509 /* VarBodyParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC6992C2E16E38D00D8D509 /* VarBodyParser.swift */; };
+		ECC699302E16EBB000D8D509 /* VarBodyParserDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC6992F2E16EBB000D8D509 /* VarBodyParserDemoView.swift */; };
 		ECC6F00928BFBBC600535493 /* LayerNamesDropDownChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */; };
 		ECC734742E0DE95A00AC266C /* CodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734732E0DE95A00AC266C /* CodeExamples.swift */; };
 		ECC734762E0DE9AE00AC266C /* ActionExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC734752E0DE9AE00AC266C /* ActionExamples.swift */; };
@@ -2089,6 +2090,7 @@
 		ECC558A6294A9B340025BB42 /* ScrollInteractionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollInteractionUtils.swift; sourceTree = "<group>"; };
 		ECC558A8294A9B3A0025BB42 /* DragInteractionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragInteractionUtils.swift; sourceTree = "<group>"; };
 		ECC6992C2E16E38D00D8D509 /* VarBodyParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VarBodyParser.swift; sourceTree = "<group>"; };
+		ECC6992F2E16EBB000D8D509 /* VarBodyParserDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VarBodyParserDemoView.swift; sourceTree = "<group>"; };
 		ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNamesDropDownChoiceView.swift; sourceTree = "<group>"; };
 		ECC734732E0DE95A00AC266C /* CodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeExamples.swift; sourceTree = "<group>"; };
 		ECC734752E0DE9AE00AC266C /* ActionExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionExamples.swift; sourceTree = "<group>"; };
@@ -5254,7 +5256,7 @@
 			isa = PBXGroup;
 			children = (
 				EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */,
-				ECC6992C2E16E38D00D8D509 /* VarBodyParser.swift */,
+				ECC6992E2E16EBA000D8D509 /* VarBodyParser */,
 			);
 			path = CodeToSyntax;
 			sourceTree = "<group>";
@@ -5360,6 +5362,15 @@
 				ECB238C62E0A111800D55A25 /* SyntaxToCode */,
 			);
 			path = Mapping;
+			sourceTree = "<group>";
+		};
+		ECC6992E2E16EBA000D8D509 /* VarBodyParser */ = {
+			isa = PBXGroup;
+			children = (
+				ECC6992C2E16E38D00D8D509 /* VarBodyParser.swift */,
+				ECC6992F2E16EBB000D8D509 /* VarBodyParserDemoView.swift */,
+			);
+			path = VarBodyParser;
 			sourceTree = "<group>";
 		};
 		ECC734722E0DE92F00AC266C /* Examples */ = {
@@ -6440,6 +6451,7 @@
 				ECB9A86D2AEB4944006E65EE /* LightnessSliderView.swift in Sources */,
 				EC631402265C418D00BD45B2 /* LoopSelectNode.swift in Sources */,
 				B52A3E632B7F337400B4F1DA /* GraphCopyable.swift in Sources */,
+				ECC699302E16EBB000D8D509 /* VarBodyParserDemoView.swift in Sources */,
 				EC16587F2B6AFA8D00FE4AE6 /* EdgeEditingActions.swift in Sources */,
 				20308FA725AD1721008CE3BE /* ContentView.swift in Sources */,
 				B58E97D72DF0B87B007913E3 /* AIEditJsNodeRequestBody_V0.swift in Sources */,
