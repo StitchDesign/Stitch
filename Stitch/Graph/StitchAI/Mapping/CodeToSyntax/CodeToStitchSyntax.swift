@@ -41,6 +41,14 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     private var viewStack: [SyntaxView] = []
     private var idCounter = 0
     
+    // Context tracking for proper child vs argument parsing
+    private enum ParsingContext {
+        case root
+        case closure(parentView: SyntaxViewName)
+        case arguments
+    }
+    private var contextStack: [ParsingContext] = [.root]
+    
     // Debug logging for tracing the parsing process
     private func log(_ message: String) {
         print("[SwiftUIParser] \(message)")
@@ -69,6 +77,25 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
               member.base != nil      // nil ⇒ helper call, not a modifier
         else { return nil }
         return member.declName.baseName.text
+    }
+    
+    /// Check if this function call is within the arguments of a modifier
+    /// This helps distinguish between legitimate child views and modifier arguments
+    private func isWithinModifierArguments(_ node: FunctionCallExprSyntax) -> Bool {
+        // Walk up the parent chain to see if we're inside a modifier's argument list
+        var currentNode: Syntax? = node.parent
+        
+        while let parent = currentNode {
+            // If we find a FunctionCallExprSyntax that is a modifier, and we're in its arguments
+            if let functionCall = parent.as(FunctionCallExprSyntax.self),
+               modifierNameIfViewModifier(functionCall) != nil {
+                // We're inside a modifier's argument list
+                return true
+            }
+            currentNode = parent.parent
+        }
+        
+        return false
     }
     
     /// Propagate a mutation at `index` upward through `viewStack`
@@ -150,7 +177,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             
             log("Created new ViewNode for \(viewName) with \(viewNode.constructorArguments.count) arguments")
             
-            // Set as root or add as child to current node
+            // Set as root or add as child to current node (context-aware)
             if viewStack.isEmpty {
                 log("Setting as root ViewNode: \(viewName)")
                 viewStack.append(viewNode)
@@ -158,19 +185,47 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 rootViewNode = viewNode
                 log("Current node index set to: \(String(describing: currentNodeIndex))")
             } else {
-                // Add as child to the current view node
-                if let currentNode = currentViewNode {
-                    log("Adding \(viewName) as child to \(currentNode.name.rawValue)")
-                    var updatedCurrentNode = currentNode
-                    updatedCurrentNode.children.append(viewNode)
-                    updateCurrentViewNode(updatedCurrentNode)
+                // Check if this view initialization should be treated as a child
+                // Only apply context-aware logic for top-level view statements that could be children
+                let currentContext = contextStack.last ?? .root
+                log("Current parsing context: \(currentContext)")
+                
+                switch currentContext {
+                case .closure(let parentViewName):
+                    // We're inside a closure of a container view - this IS a legitimate child
+                    if let currentNode = currentViewNode {
+                        log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
+                        var updatedCurrentNode = currentNode
+                        updatedCurrentNode.children.append(viewNode)
+                        updateCurrentViewNode(updatedCurrentNode)
+                        
+                        // Push the new node onto the stack and update current node index
+                        viewStack.append(viewNode)
+                        currentNodeIndex = viewStack.count - 1
+                        log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
+                    } else {
+                        log("⚠️ Error: No current node to add child to")
+                    }
                     
-                    // Push the new node onto the stack and update current node index
+                    // Add to stack so modifiers can be attached
                     viewStack.append(viewNode)
                     currentNodeIndex = viewStack.count - 1
-                    log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
-                } else {
-                    log("⚠️ Error: No current node to add child to")
+                    
+                case .arguments, .root:
+                    // We're parsing function arguments - this might be a modifier argument
+                    // Check if this is actually being used as a modifier argument
+                    if isWithinModifierArguments(node) {
+                        log("Found view \(viewName) in modifier argument context - allowing normal processing")
+                        // For modifier arguments, we still need to process the view normally
+                        // but we don't add it as a child to any parent view
+                        // Just add it to the stack temporarily so it can be processed
+                        viewStack.append(viewNode)
+                        currentNodeIndex = viewStack.count - 1
+                    } else {
+                        log("⚠️ Found view \(viewName) in argument context - skipping child addition")
+                        log("This view should be handled as an argument, not as a child")
+                        // Don't add to viewStack - this prevents it from being treated as a child
+                    }
                 }
             }
             
@@ -257,9 +312,28 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Handle closure expressions (for container views like VStack, HStack, ZStack)
     override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
-        // Remember parent view before entering the closure
-        // The statements inside will be children of the current view
+        log("Entering closure expression")
+        
+        // Check if we're inside a container view that can have children
+        if let currentView = currentViewNode, currentView.name.canHaveChildren {
+            log("Entering closure for container view: \(currentView.name.rawValue)")
+            contextStack.append(.closure(parentView: currentView.name))
+        } else {
+            log("Entering closure in non-container context (likely function arguments)")
+            contextStack.append(.arguments)
+        }
+        
         return .visitChildren
+    }
+    
+    override func visitPost(_ node: ClosureExprSyntax) {
+        log("Exiting closure expression")
+        
+        // Pop the context we pushed when entering the closure
+        if contextStack.count > 1 {
+            let poppedContext = contextStack.removeLast()
+            log("Popped context: \(poppedContext)")
+        }
     }
     
     // MARK: - Modifier Handling
@@ -389,10 +463,12 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     override func visitPost(_ node: FunctionCallExprSyntax) {
         log("Visiting post for function call: \(node.description)")
         
-        // Handle view initializations
+        // Handle view initializations (constructor calls like `Rectangle()`, `Text("hello")`)
         if let identExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
             let viewName = identExpr.baseName.text
-            log("Post-visiting view initialization: \(viewName)")
+            log("Found view initialization: \(viewName)")
+            log("Current context stack: \(contextStack)")
+            log("Node parent type: \(type(of: node.parent))")
             
             // If this view call is the *base* of a MemberAccessExpr (e.g. Rectangle() in
             // Rectangle().frame(...)), we **keep** it on the stack so that the upcoming
