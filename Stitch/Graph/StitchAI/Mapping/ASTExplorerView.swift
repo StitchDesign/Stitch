@@ -221,15 +221,16 @@ struct ASTExplorerView: View {
             return
         }
         firstSyntax = syntax
+        
+        silentlyCaughtErrors += codeParserResult.caughtErrors
 
         do {
             // Syntax → Actions
             var idMap = [UUID: UUID]()
             let stitchActionsResult = try syntax.deriveStitchActions(idMap: &idMap)
-            let allErrors = stitchActionsResult.caughtErrors + codeParserResult.caughtErrors
             
             stitchActions = stitchActionsResult.actions
-            silentlyCaughtErrors = allErrors
+            silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
             // Actions → Syntax
             rebuiltSyntax = try SyntaxView.build(from: stitchActions)
