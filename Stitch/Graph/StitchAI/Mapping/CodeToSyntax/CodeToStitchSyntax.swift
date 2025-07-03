@@ -207,10 +207,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                         log("⚠️ Error: No current node to add child to")
                     }
                     
-                    // Add to stack so modifiers can be attached
-                    viewStack.append(viewNode)
-                    currentNodeIndex = viewStack.count - 1
-                    
                 case .arguments, .root:
                     // We're parsing function arguments - this might be a modifier argument
                     // Check if this is actually being used as a modifier argument
