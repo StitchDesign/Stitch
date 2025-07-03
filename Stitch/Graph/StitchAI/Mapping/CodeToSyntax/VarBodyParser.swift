@@ -17,30 +17,34 @@ import SwiftParser
 /// This relies on **SwiftSyntax/SwiftParser**, so it respects Swift grammar:
 /// occurrences of “var body” inside comments, strings, or nested types are ignored.
 public enum VarBodyParser {
-    /// Parses `source` and returns the text slice that corresponds to the
-    /// `var body: some View` declaration (including its braces and original
-    /// indentation). Returns `nil` if no matching declaration is found.
+    /// Parses `source` and returns *only* the source between the braces of
+    /// `var body: some View { … }`, preserving every character exactly as
+    /// written (indentation, comments, blank lines).
+    /// - Returns: The interior text, or `nil` if no matching declaration exists.
     public static func extract(from source: String) throws -> String? {
+        // Parse the source.
         let tree   = Parser.parse(source: source)
         let finder = BodyFinder(viewMode: .sourceAccurate)
         finder.walk(tree)
-        
-        guard let decl = finder.result else { return nil }
-        
-        // Remove blank lines (and trailing spaces) *before* `var body`
-        // and *after* the closing `}` while keeping the interior
-        // indentation untouched.
-        var text = decl.description
-        
-        // Trim leading newline / carriage‑return only
-        while let first = text.first, first == "\n" || first == "\r" {
-            text.removeFirst()
+        guard
+            let decl     = finder.result,
+            let binding  = decl.bindings.first,
+            let accessor = binding.accessorBlock
+        else { return nil }
+
+        // Slice the original string using absolute UTF‑8 offsets so that we
+        // keep trivia (whitespace/comments) exactly as typed.
+        let startOffset = accessor.leftBrace.endPosition.utf8Offset
+        let endOffset   = accessor.rightBrace.position.utf8Offset
+
+        guard endOffset >= startOffset, endOffset <= source.utf8.count else {
+            return nil
         }
-        // Trim trailing whitespace & newlines
-        while let last = text.last, last.isWhitespace || last.isNewline {
-            text.removeLast()
-        }
-        return text
+
+        // Convert offsets to String.Index and return the substring.
+        let startIndex = String.Index(utf16Offset: startOffset, in: source)
+        let endIndex   = String.Index(utf16Offset: endOffset, in: source)
+        return String(source[startIndex..<endIndex])
     }
     
     // MARK: - Private
@@ -91,8 +95,8 @@ struct VarBodyParserDemoView: View {
     // MARK: – UI state
     @State var codes: [String] = examples.map(\.code)
     
-    @State var extracted: [String] = examples.map { code in
-        (try? VarBodyParser.extract(from: code.code)) ?? "—"
+    @State var extracted: [String] = examples.map { example in
+        (try? VarBodyParser.extract(from: example.code)) ?? "—"
     }
     @State var selectedTab = 0
     
