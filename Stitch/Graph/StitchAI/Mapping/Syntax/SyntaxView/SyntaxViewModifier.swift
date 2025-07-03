@@ -126,113 +126,38 @@ extension SyntaxViewModifierArgumentLabel {
 /// (No such list or enum is otherwise already exposed by SwiftUI for us programmatically.)
 /// `rawValue` is **always** the textual name of the modifier as it appears in
 /// source (e.g. `"fill"`, `"frame"`). Any unknown name is stored using `.custom`.
-enum SyntaxViewModifierName: Codable, Hashable, Equatable, Sendable {
-    case fill
-    case frame
-    case padding
-    case foregroundColor
-    case opacity
-    case cornerRadius
-    case blur
-    case scaleEffect
-    case hueRotation
-    case rotation3DEffect
-    case rotationEffect
-    case zIndex
-    case blendMode
-    case brightness
-    case colorInvert
-    case saturation
-    case disabled
-    case background
-    case font
-    case multilineTextAlignment
-    case underline
+enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable {
+    case fill = "fill"
+    case frame = "frame"
+    case padding = "padding"
+    case foregroundColor = "foregroundColor"
+    case opacity = "opacity"
+    case cornerRadius = "cornerRadius"
+    case blur = "blur"
+    case scaleEffect = "scaleEffect"
+    case hueRotation = "hueRotation"
+    case rotation3DEffect = "rotation3DEffect"
+    case rotationEffect = "rotationEffect"
+    case zIndex = "zIndex"
+    case blendMode = "blendMode"
+    case brightness = "brightness"
+    case colorInvert = "colorInvert"
+    case saturation = "saturation"
+    case disabled = "disabled"
+    case background = "background"
+    case font = "font"
+    case multilineTextAlignment = "multilineTextAlignment"
+    case underline = "underline"
     
     // TODO: support after v1
-//    case keyboardType
+//    case keyboardType = "keyboardType"
     
-    case disableAutocorrection
-    case contrast
-    case clipped
-    case position
-    case offset
+    case disableAutocorrection = "disableAutocorrection"
+    case contrast = "contrast"
+    case clipped = "clipped"
+    case position = "position"
+    case offset = "offset"
+    case id = "id"
+    
     // …add more as needed …
-
-    // TODO: JULY 1: REMOVE THIS CASE, SO WE CAN HAVE CASE-ITERABLE VIEW-MODIFIER-NAMES? EFFECTIVELY THIS IS JUST A
-    /// Any modifier name not yet mapped to a first-class case.
-    case custom(String)
-}
-
-// MARK: - RawRepresentable conformance
-extension SyntaxViewModifierName: RawRepresentable {
-    init(rawValue: String) {
-        switch rawValue {
-        case "fill":              self = .fill
-        case "frame":             self = .frame
-        case "padding":           self = .padding
-        case "foregroundColor":   self = .foregroundColor
-        case "opacity":           self = .opacity
-        case "cornerRadius":      self = .cornerRadius
-        case "blur":              self = .blur
-        case "scaleEffect":       self = .scaleEffect
-        case "hueRotation":       self = .hueRotation
-        case "rotationEffect":    self = .rotationEffect
-        case "rotation3DEffect":  self = .rotation3DEffect
-        case "zIndex":            self = .zIndex
-        case "blendMode":         self = .blendMode
-        case "brightness":        self = .brightness
-        case "colorInvert":       self = .colorInvert
-        case "saturation":        self = .saturation
-        case "disabled":          self = .disabled
-        case "background":        self = .background
-        case "font":              self = .font
-        case "multilineTextAlignment":
-                                   self = .multilineTextAlignment
-        case "underline":         self = .underline
-//        case "keyboardType":      self = .keyboardType
-        case "disableAutocorrection":
-                                   self = .disableAutocorrection
-        case "contrast":          self = .contrast
-        case "clipped":           self = .clipped
-        case "position":          self = .position
-        case "offset":            self = .offset
-        default:                  self = .custom(rawValue)
-        }
-    }
-
-    var rawValue: String {
-        switch self {
-        case .fill:              return "fill"
-        case .frame:             return "frame"
-        case .padding:           return "padding"
-        case .foregroundColor:   return "foregroundColor"
-        case .opacity:           return "opacity"
-        case .cornerRadius:      return "cornerRadius"
-        case .blur:              return "blur"
-        case .scaleEffect:       return "scaleEffect"
-        case .hueRotation:       return "hueRotation"
-        case .rotation3DEffect:  return "rotation3DEffect"
-        case .rotationEffect:    return "rotationEffect"
-        case .zIndex:            return "zIndex"
-        case .blendMode:         return "blendMode"
-        case .brightness:        return "brightness"
-        case .colorInvert:       return "colorInvert"
-        case .saturation:        return "saturation"
-        case .disabled:          return "disabled"
-        case .background:        return "background"
-        case .font:              return "font"
-        case .multilineTextAlignment:
-                                    return "multilineTextAlignment"
-        case .underline:         return "underline"
-//        case .keyboardType:      return "keyboardType"
-        case .disableAutocorrection:
-                                    return "disableAutocorrection"
-        case .contrast:          return "contrast"
-        case .clipped:           return "clipped"
-        case .position:          return "position"
-        case .offset:            return "offset"
-        case .custom(let name):  return name
-        }
-    }
 }

@@ -25,6 +25,8 @@ Your SwiftUI code must decouple view from logic as much as possible. Code must b
 Code components **not** allowed in our view are:
 * **Top-level view arguments.** Our view must be able to be invoked without any arguments.
 * **Top-level constants other than layer IDs.** Do not create constants defined at the view level. Instead, use `@State` variables and update them from `updateLayerInputs` function. Define values directly in view if no constant needs to be made.
+## Rules for `var body`
+If a layer ID is statically declared in the view, you **must** assign a `.id(LAYER_ID)` view modifier to that view using the statically defined layer ID.
 ## Updating View State with `updateLayerInputs`
 The view must have a `updateLayerInputs()` function, representing the only function allowed to update state variables. This is effectively the runtime of the backend service. It is called on every display update **by outside callers**, which can be as frequent as 120 FPS. This frequency enables interactive views despite strong  decoupling of logic from the view.
 Logic should be decoupled from `updateLayerInputs` whenever possible for the purpose of creating "patch" functions, described next.

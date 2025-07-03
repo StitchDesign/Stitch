@@ -37,11 +37,9 @@ extension SwiftUIViewVisitor {
         // Create a visitor that will extract the view structure
         let visitor = SwiftUIViewVisitor(viewMode: .sourceAccurate)
         visitor.walk(sourceFile)
-        
-        let errors = visitor.unknownViewNames.map(SwiftUISyntaxError.unsupportedSyntaxName)
-        
+                
         return .init(rootView: visitor.rootViewNode,
-                     caughtErrors: errors)
+                     caughtErrors: visitor.caughtErrors)
     }
 }
 
@@ -60,9 +58,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
     private var contextStack: [ParsingContext] = [.root]
     
-    // Tracks unknown views
-    var unknownViewNames: [String] = []
-
+    // Tracks decoding errors
+    var caughtErrors: [SwiftUISyntaxError] = []
+    
     // Debug logging for tracing the parsing process
     private func log(_ message: String) {
 #if DEV_DEBUG
@@ -178,7 +176,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 log("No view discovered for: \(viewName)")
                 
                 // Tracks for later silent failures
-                self.unknownViewNames.append(viewName)
+                self.caughtErrors.append(.unsupportedSyntaxViewName(viewName))
                 
                 return .skipChildren
             }
@@ -186,9 +184,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             log("Found view initialization: \(viewName)")
             
             // Parse args, catching arguments we don't yet support
-            let argResults = parseArgumentsForConstructor(from: node)
-            let args = argResults.compactMap(\.value)
-            let errors = argResults.compactMap(\.error)
+            let args = parseArgumentsForConstructor(from: node)
             
             // Create a new ViewNode for this view
             let viewNode = SyntaxView(
@@ -197,8 +193,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 constructorArguments: args,
                 modifiers: [],
                 children: [],
-                id: UUID(),
-                errors: errors
+                id: UUID()
+//                errors: self.caughtErrors
             )
             
             log("Created new ViewNode for \(viewName) with \(viewNode.constructorArguments.count) arguments")
@@ -263,41 +259,49 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Parse arguments from function call
-    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [Result<SyntaxViewConstructorArgument, SwiftUISyntaxError>] {
+    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [SyntaxViewConstructorArgument] {
         
-        let arguments = node.arguments.map { (argument) -> Result<SyntaxViewConstructorArgument, SwiftUISyntaxError> in
+        let arguments = node.arguments.compactMap { argument -> SyntaxViewConstructorArgument? in
             
             guard let label = SyntaxConstructorArgumentLabel.from(argument.label?.text) else {
                 // If we cannot
                 log("could not create constructor argument label for argument.label: \(String(describing: argument.label))")
-                return .failure(SwiftUISyntaxError.unsupportedSyntaxArgument(argument.label?.text))
+                self.caughtErrors.append(.unsupportedSyntaxArgument(argument.label?.text))
+                return nil
             }
             
             let expr = argument.expression
 
             // Support either a single value or an array literal
-            let syntaxKind = SyntaxArgumentKind.fromExpression(expr)
             let collectedValues: [SyntaxViewConstructorArgumentValue]
             if let arrayExpr = expr.as(ArrayExprSyntax.self) {
-                collectedValues = arrayExpr.elements.map { element in
-                    SyntaxViewConstructorArgumentValue(
+                collectedValues = arrayExpr.elements.compactMap { element in
+                    guard let syntaxKind = SyntaxArgumentKind.fromExpression(element.expression) else {
+                        self.caughtErrors.append(.unsupportedSyntaxArgumentKind(element.expression))
+                        return nil
+                    }
+                    
+                    return SyntaxViewConstructorArgumentValue(
                         value: element.expression.trimmedDescription,
-                        syntaxKind: SyntaxArgumentKind.fromExpression(element.expression)
+                        syntaxKind: syntaxKind
                     )
                 }
             } else {
+                guard let syntaxKind = SyntaxArgumentKind.fromExpression(expr) else {
+                    print("parseArgumentsForConstructor error: unable to get arg kind for \(expr)")
+                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
+                    return nil
+                }
+                
                 collectedValues = [SyntaxViewConstructorArgumentValue(
                     value: expr.trimmedDescription,
                     syntaxKind: syntaxKind
                 )]
             }
 
-            return .success(
-                SyntaxViewConstructorArgument(
+            return SyntaxViewConstructorArgument(
                     label: label,
                     values: collectedValues)
-            )
-            
         }
         
         dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
@@ -313,13 +317,20 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
             guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
                 log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
+                self.caughtErrors.append(.unsupportedSyntaxViewModifierArgumentName(argument.label?.text ?? "no argument"))
                 return nil
             }
             
             let expression = argument.expression
+            guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
+                print("parseArgumentsForModifier error: unsupported arg kind from: \(expression)")
+                self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression))
+                return nil
+            }
+            
             let data = SyntaxViewModifierArgumentData(
                 value: expression.trimmedDescription,
-                syntaxKind: .fromExpression(expression)
+                syntaxKind: syntaxKind
             )
             return SyntaxViewModifierArgument(
                 label: label,
@@ -379,15 +390,19 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 // Extract the inner argument passed to .degrees/_radians
                 if let innerExpr = call.arguments.first?.expression {
                     let valueString = innerExpr.trimmedDescription
-                    let valueKind   = SyntaxArgumentKind.fromExpression(innerExpr)
-
-                    switch fnName {
-                    case "degrees":
-                        angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
-                    case "radians":
-                        angleArgument = .radians(.init(value: valueString, syntaxKind: valueKind))
-                    default:
-                        break
+                    
+                    if let valueKind = SyntaxArgumentKind.fromExpression(innerExpr) {
+                        switch fnName {
+                        case "degrees":
+                            angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
+                        case "radians":
+                            angleArgument = .radians(.init(value: valueString, syntaxKind: valueKind))
+                        default:
+                            break
+                        }
+                    } else {
+                        print("handleRotation3DEffect error: unable get to node kind for \(innerExpr)")
+                        self.caughtErrors.append(.unsupportedSyntaxArgumentKind(innerExpr))
                     }
                 }
             }
@@ -395,8 +410,13 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             // Fallback: treat any other direct expression as degrees, preserving literal/variable/expr kind.
             if angleArgument == nil {
                 let valueString = expr.trimmedDescription
-                let valueKind   = SyntaxArgumentKind.fromExpression(expr)
-                angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
+                
+                if let valueKind = SyntaxArgumentKind.fromExpression(expr) {
+                    angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
+                } else {
+                    print("handleRotation3DEffect error: unable get to node kind in fallback for \(expr)")
+                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
+                }
             }
 
             // Append the constructed angle argument
@@ -422,7 +442,12 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             for element in tupleExpr.elements {
                 let expr = element.expression
                 let value = expr.trimmedDescription
-                let kind = SyntaxArgumentKind.fromExpression(expr)
+                
+                guard let kind = SyntaxArgumentKind.fromExpression(expr) else {
+                    print("handleRotation3DEffect error: unable get to node kind in axis param logic \(expr)")
+                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
+                    continue
+                }
                 
                 if element.label?.text == "x" {
                     xValue = value
@@ -455,26 +480,27 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
     
     /// Handles standard modifiers with generic argument parsing
-    private func handleStandardModifier(node: FunctionCallExprSyntax, name: String) {
+    private func handleStandardModifier(node: FunctionCallExprSyntax,
+                                        modifierName: SyntaxViewModifierName) {
         let modifierArguments = parseArgumentsForModifier(from: node)
         
         var finalArgs = modifierArguments
         if finalArgs.isEmpty {
             // For modifiers with no arguments
             finalArgs = [
-                SyntaxViewModifierArgument(
-                    label: .noLabel,
-                    value: .simple(SyntaxViewModifierArgumentData(
-                        value: "",
-                        syntaxKind: .literal(.unknown)
-                    ))
-                )
+//                SyntaxViewModifierArgument(
+//                    label: .noLabel,
+//                    value: .simple(SyntaxViewModifierArgumentData(
+//                        value: "",
+//                        syntaxKind: .literal(.unknown)
+//                    ))
+//                )
             ]
         }
         
         let modifier = SyntaxViewModifier(
-            name: SyntaxViewModifierName(rawValue: name),
-            arguments: finalArgs
+            name: modifierName,
+            arguments: []
         )
         addModifier(modifier)
     }
@@ -543,21 +569,25 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         else if let modifierName = modifierNameIfViewModifier(node) {
             dbg("visitPost → handling view modifier '\(modifierName)'")
             
-            let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName)
-            if (syntaxViewModifierName == .rotationEffect
-                || syntaxViewModifierName == .rotation3DEffect) {
-                handleRotation3DEffect(node: node, name: syntaxViewModifierName)
-            } else {
-                handleStandardModifier(node: node, name: modifierName)
-            }
-
-            // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
-            // we are at the end of the modifier chain; pop the base view.
-            if node.parent?.as(MemberAccessExprSyntax.self) == nil {
-                if let popped = viewStack.popLast() {
-                    dbg("visitPost → popped view \(popped.name.rawValue) after completing modifier chain")
+            if let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName) {
+                if (syntaxViewModifierName == .rotationEffect
+                    || syntaxViewModifierName == .rotation3DEffect) {
+                    handleRotation3DEffect(node: node, name: syntaxViewModifierName)
+                } else {
+                    handleStandardModifier(node: node, modifierName: syntaxViewModifierName)
                 }
-                currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
+                
+                // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
+                // we are at the end of the modifier chain; pop the base view.
+                if node.parent?.as(MemberAccessExprSyntax.self) == nil {
+                    if let popped = viewStack.popLast() {
+                        dbg("visitPost → popped view \(popped.name.rawValue) after completing modifier chain")
+                    }
+                    currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
+                }
+            } else {
+                print("visitPost error: unable to parse view modifier name: \(modifierName)")
+                self.caughtErrors.append(.unsupportedSyntaxViewModifierName(modifierName))
             }
         }
     }

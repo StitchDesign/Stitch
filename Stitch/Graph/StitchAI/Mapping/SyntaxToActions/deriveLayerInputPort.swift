@@ -62,6 +62,14 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
     
     // Special case: .rotation3DEffect modifier corresponds to *three* different layer inputs; .rotation also requires special parsing of its `.degrees(x)` arguments
     case rotationScenario
+    
+    // Tracks some layer ID assigned to a view
+    case layerId
+}
+
+enum LayerInputViewModification {
+    case layerInputValues([CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue])
+    case layerIdAssignment(String)
 }
 
 extension SyntaxViewModifierName {
@@ -167,10 +175,10 @@ extension SyntaxViewModifierName {
 //        case (.keyboardType, _): return .simple(.keyboardType)
         case (.disableAutocorrection, _):
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.clipped, _): return .simple(.clipped) // return .isClipped
-            
-        case (.custom(_), _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case (.clipped, _):
+            return .simple(.clipped) // return .isClipped
+        case (.id, _):
+            return .layerId
         }
     }
 }

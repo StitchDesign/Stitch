@@ -6,16 +6,23 @@
 //
 
 import Foundation
+import SwiftSyntax
 
 enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
     case unsupportedViewModifier(SyntaxViewModifierName)
+    
+    // Decoding from string
+    case unsupportedSyntaxArgumentKind(ExprSyntax)
     case unsupportedSyntaxArgument(String?)
-    case unsupportedSyntaxName(String)
+    case unsupportedSyntaxViewName(String)
+    case unsupportedSyntaxViewModifierName(String)
+    case unsupportedSyntaxViewModifierArgumentName(String)
+    
     case unsupportedLayer(SyntaxViewName)
     case unsupportedSyntaxFromLayerInput(CurrentStep.LayerInputPort)
-    case unsupportedSyntaxViewName(CurrentStep.Layer)
+    case unsupportedSyntaxViewLayer(CurrentStep.Layer)
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed
     case layerDecodingFailed

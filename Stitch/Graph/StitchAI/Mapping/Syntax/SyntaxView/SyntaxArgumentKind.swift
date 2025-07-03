@@ -43,7 +43,7 @@ enum SyntaxArgumentKind: Equatable, Hashable, Codable, Sendable {
 }
 
 extension SyntaxArgumentKind {
-    static func fromExpression(_ expression: ExprSyntax) -> Self {
+    static func fromExpression(_ expression: ExprSyntax) -> Self? {
         
         // Determine argument type clearly:
         let kind: SyntaxArgumentKind // = .literal(.unknown)
@@ -105,9 +105,8 @@ extension SyntaxArgumentKind {
             kind = .expression(.closure)
         }
         
-        // unknown ? crash here?
         else {
-            kind = .literal(.unknown)
+            return nil
         }
         
         return kind
@@ -128,7 +127,6 @@ enum SyntaxArgumentLiteralKind: String, Equatable, Hashable, Codable {
     case colorLiteral     = "ColorLiteral"          // `#colorLiteral(...)`
     case imageLiteral     = "ImageLiteral"          // `#imageLiteral(...)`
     case fileLiteral      = "FileLiteral"           // `#fileLiteral(...)`
-    case unknown          = "UnknownLiteral"
 }
 
 /// Possible syntactic shapes for a variable reference.
@@ -146,5 +144,4 @@ enum SyntaxArgumentExpressionKind: String, Equatable, Hashable, Codable {
     case ternary          = "TernaryConditional"    // `cond ? x : y`
     case tuple            = "TupleExpr"             // `(x, y)`
     case closure          = "Closure"               // `{ ... }`
-    case unknown          = "UnknownExpr"
 }
