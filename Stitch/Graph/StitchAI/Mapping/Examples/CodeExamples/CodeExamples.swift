@@ -30,6 +30,9 @@ extension MappingExamples {
     // TODO: break into separate pieces
     static let codeExamples: [MappingCodeExample] = [
         
+        ViewModifierCodeExamples.colorInitInFillModifier,
+        ViewModifierCodeExamples.paddingNoArgsModifier,
+        
         // Color
         ColorCodeExamples.colorAsValue,
         ColorCodeExamples.colorAsView,

@@ -486,6 +486,7 @@
 		EC1E7A6B287CCC8A00144D05 /* NodeKindUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1E7A6A287CCC8A00144D05 /* NodeKindUtils.swift */; };
 		EC1E7A6D287CFA9600144D05 /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1E7A6C287CFA9600144D05 /* StringUtils.swift */; };
 		EC1E7A6F287D228D00144D05 /* BoolCheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */; };
+		EC1FF4632E171BD500B0D8FC /* ViewModifierCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1FF4622E171BD500B0D8FC /* ViewModifierCodeExamples.swift */; };
 		EC211A482698A6F10068A0F0 /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC211A472698A6F10068A0F0 /* JSONUtils.swift */; };
 		EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = EC211A4A2698A8B70068A0F0 /* SwiftyJSON */; };
 		EC211E222DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC211E212DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift */; };
@@ -1628,6 +1629,7 @@
 		EC1E7A6A287CCC8A00144D05 /* NodeKindUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeKindUtils.swift; sourceTree = "<group>"; };
 		EC1E7A6C287CFA9600144D05 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
 		EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolCheckboxView.swift; sourceTree = "<group>"; };
+		EC1FF4622E171BD500B0D8FC /* ViewModifierCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifierCodeExamples.swift; sourceTree = "<group>"; };
 		EC211A472698A6F10068A0F0 /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
 		EC211E212DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemInputChangeHandleView.swift; sourceTree = "<group>"; };
 		EC2256282D407E9500BB7292 /* SpecialPickerFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialPickerFieldValueView.swift; sourceTree = "<group>"; };
@@ -5018,6 +5020,7 @@
 				EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */,
 				EC7062C22E15E78C0017A9F0 /* VarBodyCodeExamples.swift */,
 				EC7062C42E15E8120017A9F0 /* MultiparameterViewModifierCodeExamples.swift */,
+				EC1FF4622E171BD500B0D8FC /* ViewModifierCodeExamples.swift */,
 				EC7062BC2E15E61F0017A9F0 /* ColorCodeExamples.swift */,
 				EC7062BE2E15E6310017A9F0 /* StackCodeExamples.swift */,
 				EC7062C02E15E6930017A9F0 /* ConstructorCodeExamples.swift */,
@@ -6423,6 +6426,7 @@
 				8B2A221926A3B5BE002D08BA /* FeatureFlags.swift in Sources */,
 				EC0B03522DF202070045E894 /* StitchAIRequestBodyFormattable_V0.swift in Sources */,
 				B57127172DFFD87D00C5C4C7 /* ProjectTab.swift in Sources */,
+				EC1FF4632E171BD500B0D8FC /* ViewModifierCodeExamples.swift in Sources */,
 				EC53F3BC287E25EE0021095B /* ArcTan2Node.swift in Sources */,
 				ECEF8D0F2BFE9BE5004FABCD /* LayerGroupInteractableViewModifier.swift in Sources */,
 				B5136F5D2DED6330007F12D0 /* StitchAINodeType_V0.swift in Sources */,
