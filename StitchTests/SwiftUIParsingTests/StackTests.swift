@@ -9,6 +9,7 @@ import XCTest
 @testable import Stitch
 import SwiftUICore
 
+
 final class StackTests: XCTestCase {
 
     func testVStackWithRectangle() throws {
@@ -119,10 +120,10 @@ final class StackTests: XCTestCase {
         }
         
         // 5. Check that there are custom layer input values for the fill color
-        let fillValues = layerData.custom_layer_input_values.filter { value in
+        let fillValues = rectangleLayer.custom_layer_input_values.filter { value in
             value.layer_input_coordinate.input_port_type.value == .color
         }
-        
+                        
         XCTAssertEqual(fillValues.count, 1, "Expected exactly one fill color value")
         XCTAssertNotEqual(fillValues.count, 0, "Should have at least one fill color")
         XCTAssertNotEqual(fillValues.count, 2, "Should not have multiple fill colors")

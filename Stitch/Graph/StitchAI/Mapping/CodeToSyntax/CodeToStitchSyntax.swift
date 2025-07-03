@@ -60,7 +60,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     
     // Tracks unknown views
     var unknownViewNames: [String] = []
-    
+
     // Debug logging for tracing the parsing process
     private func log(_ message: String) {
         print("[SwiftUIParser] \(message)")
