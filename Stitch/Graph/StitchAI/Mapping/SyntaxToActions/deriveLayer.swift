@@ -16,7 +16,7 @@ extension SyntaxViewName {
                          args: [SyntaxViewConstructorArgument],
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
-
+        
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var (layerType, layerData) = try self
             .deriveLayerAndCustomValuesFromName(id: id,
@@ -34,7 +34,7 @@ extension SyntaxViewName {
             id: id,
             layerType: layerType,
             modifiers: modifiers)
-
+        
         layerData.custom_layer_input_values += customInputValues
         layerData.custom_layer_input_values += customModifierValues
         
@@ -49,17 +49,17 @@ extension SyntaxViewName {
         
         var layerType: CurrentStep.Layer
         var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
-
+        
         switch self {
         case .rectangle:         layerType = .rectangle
             
-        // Note: Swift Circle is a little bit different
+            // Note: Swift Circle is a little bit different
         case .circle, .ellipse:  layerType = .oval
-        
-        // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return
+            
+            // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return
         case .text: layerType = .text
             
-        // SwiftUI TextField view has different arg-constructors, but those do not change the Layer we return
+            // SwiftUI TextField view has different arg-constructors, but those do not change the Layer we return
         case .textField: layerType = .textField
             
         case .image:
@@ -86,100 +86,37 @@ extension SyntaxViewName {
             // TODO: JUNE 24: ought to return `(Layer.textField, LayerInputPort.keyboardType, UIKeyboardType.password)` ? ... so a SwiftUI View can correspond to more than just a Layer ?
             layerType = .textField
             
+            // TODO: JUNE 24: current Step_V0 doesn't support keyboard ?
+            //            customValues.append(
+            //                .init(id: id,
+            //                      input: .keyboardType,
+            //                      value: .keyboardType(.password))
+            //            )
+            
         case .scrollView:
             let layerData = try Self
                 .createScrollGroupLayer(args: args,
                                         childrenLayers: childrenLayers)
             return (.group, layerData)
             
-        case .capsule:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .path:
-            throw SwiftUISyntaxError.unsupportedLayer(self) // Canvas sketch ?
-        case .color:
-            throw SwiftUISyntaxError.unsupportedLayer(self) // both Layer.hitArea AND Layer.colorFill
-        case .label:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .asyncImage:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .symbolEffect:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .group:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .spacer:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .divider:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .geometryReader:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .alignmentGuide:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .list:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .table:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .outlineGroup:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .forEach:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .navigationStack:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .navigationSplit:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .navigationLink:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .tabView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .form:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .section:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .button:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .toggle:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .slider:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .stepper:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .picker:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .datePicker:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .gauge:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .progressView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .link:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .timelineView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .anyView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .preview:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .timelineSchedule:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-
-        // TODO: JUNE 26: handle incoming edges as well
-        // Views that create a set-input as well
+            // MARK: CONTAINER VIEWS
             
-        case .hStack:
+        case .hStack, .lazyHStack:
             layerType = .group
             customValues.append(
                 .init(id: id,
                       input: .orientation,
                       value: .orientation(.horizontal))
             )
-
-        case .vStack:
+            
+        case .vStack, .lazyVStack:
             layerType = .group
             customValues.append(
                 .init(id: id,
                       input: .orientation,
                       value: .orientation(.vertical))
             )
-
+            
         case .zStack:
             layerType = .group
             customValues.append(
@@ -187,7 +124,70 @@ extension SyntaxViewName {
                       input: .orientation,
                       value: .orientation(.none))
             )
-
+            
+            // TODO: JULY 3: technically, we don't support `LazyHGrid` and `Grid`?
+        case .lazyVGrid, .lazyHGrid, .grid:
+            layerType = .group
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.grid))
+            )
+            
+            
+        case .toggle:
+            layerType = .switchLayer
+            
+        case .progressView:
+            layerType = .progressIndicator
+            
+            // MARK: views / layers we likely want to support ?
+        case .spacer:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .divider:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+            
+        case .color:
+            throw SwiftUISyntaxError.unsupportedLayer(self) // both Layer.hitArea AND Layer.colorFill
+            
+            // MARK: views we may never support? Either because inferred or some other dynamic
+            
+            
+        case .capsule,
+                .path,
+                .label,
+                .asyncImage,
+                .symbolEffect,
+                .geometryReader,
+                .alignmentGuide,
+                .list,
+                .table,
+                .outlineGroup,
+            
+            // Never really supported? Instead just inferred.
+                .forEach,
+            
+            // Just specifies that modifiers on the SwiftUI Group are meant to be applied to every view inside ?
+                .group,
+                .navigationStack,
+                .navigationSplit,
+                .navigationLink,
+                .tabView,
+                .form,
+                .section,
+                .button,
+                .slider,
+                .stepper,
+                .picker,
+                .datePicker,
+                .gauge,
+                .link,
+                .timelineView,
+                .anyView,
+                .preview,
+                .timelineSchedule:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+            
         case .roundedRectangle:
             layerType = .rectangle
             if let arg = args.first(where: { $0.label == .cornerRadius }),
@@ -199,10 +199,6 @@ extension SyntaxViewName {
                           value: .number(radius))
                 )
             }
-
-        // TODO: handle these? `lazyVStack` is a LayerGroup with grid orientation
-        case .lazyVStack, .lazyHStack, .lazyVGrid, .lazyHGrid, .grid:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
         }
         
         // Final bare layer (children added later)
@@ -222,56 +218,56 @@ extension SyntaxViewName {
         id: UUID,
         layerType: CurrentStep.Layer,
         args: [SyntaxViewConstructorArgument]) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
-        // ── Generic constructor‑argument handling (literals & edges) ─────────
-        for arg in args {
-
-            // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
-            // Skip the specialised RoundedRectangle .cornerRadius
-            if self == .roundedRectangle && arg.label == .cornerRadius { continue }
-
-            guard let port = arg.deriveLayerInputPort(layerType),
-                  let portValue = arg.derivePortValue(layerType) else { continue }
-
-            // Process each value in the argument
-            for value in arg.values {
-                switch value.syntaxKind {
-                case .literal:
-                    customValues.append(
-                        .init(id: id,
-                              input: port,
-                              value: portValue)
-                    )
-                case .variable, .expression:
-                    // Skip variables for edges, using AI instead
-                    continue
-//                    extras.append(.createEdge(VPLCreateEdge(name: port)))
+            
+            var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+            
+            // ── Generic constructor‑argument handling (literals & edges) ─────────
+            for arg in args {
+                
+                // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
+                // Skip the specialised RoundedRectangle .cornerRadius
+                if self == .roundedRectangle && arg.label == .cornerRadius { continue }
+                
+                guard let port = arg.deriveLayerInputPort(layerType),
+                      let portValue = arg.derivePortValue(layerType) else { continue }
+                
+                // Process each value in the argument
+                for value in arg.values {
+                    switch value.syntaxKind {
+                    case .literal:
+                        customValues.append(
+                            .init(id: id,
+                                  input: port,
+                                  value: portValue)
+                        )
+                    case .variable, .expression:
+                        // Skip variables for edges, using AI instead
+                        continue
+                        //                    extras.append(.createEdge(VPLCreateEdge(name: port)))
+                    }
                 }
-            }
-        } // for arg in args
-        
-        return customValues
-    }
+            } // for arg in args
+            
+            return customValues
+        }
     
     static func deriveCustomValuesFromViewModifiers(
         id: UUID,
         layerType: CurrentStep.Layer,
         modifiers: [SyntaxViewModifier]) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
-        for modifier in modifiers {
-            customValues = try Self.deriveCustomValuesFromViewModifier(
-                id: id,
-                layerType: layerType,
-                modifier: modifier,
-                customValues: customValues)
+            
+            var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+            
+            for modifier in modifiers {
+                customValues = try Self.deriveCustomValuesFromViewModifier(
+                    id: id,
+                    layerType: layerType,
+                    modifier: modifier,
+                    customValues: customValues)
+            }
+            
+            return customValues
         }
-        
-        return customValues
-    }
     
     private static func deriveCustomValuesFromViewModifier(
         id: UUID,
@@ -357,7 +353,7 @@ extension SyntaxViewName {
             
         } // for (idx, arg) in ...
         
-
+        
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
         customValues.append(try .init(id: id,port: port, value: portValue))
         
