@@ -10,7 +10,7 @@ import XCTest
 import SwiftUICore
 
 
-final class CodeToSyntaxToActionsTests: XCTestCase {
+final class ModifierTests: XCTestCase {
     
     func testRectangleWithPositionToLayerData() throws {
         // Given
