@@ -310,11 +310,14 @@ extension SyntaxViewName {
             return .layerInputValues(newValues)
             
         case .layerId:
-            guard let idString = modifier.arguments.first?.value.simpleValue else {
+            guard let rawValue = modifier.arguments.first?.value.simpleValue else {
                 throw SwiftUISyntaxError.unsupportedLayerIdParsing(modifier.arguments)
             }
-            
-            return .layerIdAssignment(idString)
+            // Remove escape characters from any quoted substrings
+            let unescaped = rawValue.replacingOccurrences(of: "\\\"", with: "\"")
+            // Trim any surrounding quotes
+            let cleanString = unescaped.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+            return .layerIdAssignment(cleanString)
         }
     }
     

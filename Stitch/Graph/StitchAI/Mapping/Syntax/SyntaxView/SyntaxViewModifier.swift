@@ -169,7 +169,9 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable {
     case clipped = "clipped"
     case position = "position"
     case offset = "offset"
-    case id = "id"
+    
+    // Custom event defined by code gen to create an ID for each layer
+    case layerId = "layerId"
     
     // …add more as needed …
 }

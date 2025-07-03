@@ -45,7 +45,7 @@ Your result must be a valid SwiftUI view. All views must be declared in the sing
 Your SwiftUI code must decouple view from logic as much as possible. Code must be broken into the following components:
 * **`var body`:** a single body variable is allowed for creating SwiftUI views
 * **@State variables:** must be used for any dynamic logic needed to update a view.
-* **Static constants for layer IDs:** the only permissible constant allowed in the view, used for connecting behavior between view-events and logic in `updateLayerInputs`. The ID must be a declared string in the form of some UUID. 
+* **No constants or variables allowed for layer IDs:** you must declare the string ID each time without usage of variables. These IDs are used for connecting behavior between view-events and logic in `updateLayerInputs`. The ID must be a declared string in the form of some UUID.
 * **`updateLayerInputs()` function:** the only caller allowed to update state variables in the view directly. Called on every frame update.
 * **All other view functions:** must be static and represent the behavior of a patch node, detailed later.
 
@@ -54,7 +54,7 @@ Code components **not** allowed in our view are:
 * **Top-level constants other than layer IDs.** Do not create constants defined at the view level. Instead, use `@State` variables and update them from `updateLayerInputs` function. Define values directly in view if no constant needs to be made.
 
 ## Rules for `var body`
-If a layer ID is statically declared in the view, you **must** assign a `.id(LAYER_ID)` view modifier to that view using the statically defined layer ID.
+Each declared view inside the `var body` **must** assign a `layerId` view modifier, like: `.layerId("17A9A565-20FF-4686-85C7-2794CF548369")`. This is a view modifier that's defined elsewhere and is used for mapping IDs to specific view objects. **You are NOT allowed to use constants or variables as the value payload**.
 
 ## Updating View State with `updateLayerInputs`
 The view must have a `updateLayerInputs()` function, representing the only function allowed to update state variables. This is effectively the runtime of the backend service. It is called on every display update **by outside callers**, which can be as frequent as 120 FPS. This frequency enables interactive views despite strong  decoupling of logic from the view.
