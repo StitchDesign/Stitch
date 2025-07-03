@@ -106,7 +106,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         while childIndex > 0 {
             let parentIndex = childIndex - 1
             var parent = viewStack[parentIndex]
-            let child   = viewStack[childIndex]
+            let child = viewStack[childIndex]
             
             if let match = parent.children.firstIndex(where: { $0.id == child.id }) {
                 parent.children[match] = child
@@ -165,14 +165,20 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             
             log("Found view initialization: \(viewName)")
             
+            // Parse args, catching arguments we don't yet support
+            let argResults = parseArgumentsForConstructor(from: node)
+            let args = argResults.compactMap(\.value)
+            let errors = argResults.compactMap(\.error)
+            
             // Create a new ViewNode for this view
             let viewNode = SyntaxView(
                 name: nameType,
                 // This is creat
-                constructorArguments: parseArgumentsForConstructor(from: node),
+                constructorArguments: args,
                 modifiers: [],
                 children: [],
-                id: UUID()
+                id: UUID(),
+                errors: errors
             )
             
             log("Created new ViewNode for \(viewName) with \(viewNode.constructorArguments.count) arguments")
@@ -237,16 +243,15 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Parse arguments from function call
-    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [SyntaxViewConstructorArgument] {
+    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [Result<SyntaxViewConstructorArgument, SwiftUISyntaxError>] {
         
-        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewConstructorArgument? in
+        let arguments = node.arguments.map { (argument) -> Result<SyntaxViewConstructorArgument, SwiftUISyntaxError> in
             
             guard let label = SyntaxConstructorArgumentLabel.from(argument.label?.text) else {
                 // If we cannot
                 log("could not create constructor argument label for argument.label: \(String(describing: argument.label))")
-                return nil
+                return .failure(SwiftUISyntaxError.unsupportedSyntaxArgument(argument.label?.text))
             }
-            
             
             let expr = argument.expression
 
@@ -267,9 +272,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 )]
             }
 
-            return SyntaxViewConstructorArgument(
-                label: label,
-                values: collectedValues
+            return .success(
+                SyntaxViewConstructorArgument(
+                    label: label,
+                    values: collectedValues)
             )
             
         }

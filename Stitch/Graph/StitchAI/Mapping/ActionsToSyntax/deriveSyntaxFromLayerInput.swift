@@ -7,10 +7,11 @@
 
 import Foundation
 
-enum SwiftUISyntaxError: Error {
+enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
     case unsupportedViewModifier(SyntaxViewModifierName)
+    case unsupportedSyntaxArgument(String?)
     case unsupportedLayer(SyntaxViewName)
     case unsupportedSyntaxFromLayerInput(CurrentStep.LayerInputPort)
     case unsupportedSyntaxViewName(CurrentStep.Layer)

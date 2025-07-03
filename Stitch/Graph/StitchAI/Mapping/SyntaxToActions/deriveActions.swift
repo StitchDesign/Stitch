@@ -26,6 +26,7 @@ extension SyntaxView {
     func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
         let childResults = try self.children.deriveStitchActions()
+        let errorsForConstructorArgs = self.errors
 
         // Map this node
         do {
@@ -47,10 +48,10 @@ extension SyntaxView {
             }
     
             return .init(actions: [layerData],
-                         caughtErrors: childResults.caughtErrors)
+                         caughtErrors: childResults.caughtErrors + errorsForConstructorArgs)
         } catch let error as SwiftUISyntaxError {
             switch error {
-            case .unsupportedLayer, .unsupportedViewModifier:
+            case .unsupportedLayer, .unsupportedViewModifier, .unsupportedSyntaxArgument:
                 log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                 // Silent error for unsupported layers
                 var resultForSilentFailure = childResults
