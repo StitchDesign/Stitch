@@ -86,100 +86,37 @@ extension SyntaxViewName {
             // TODO: JUNE 24: ought to return `(Layer.textField, LayerInputPort.keyboardType, UIKeyboardType.password)` ? ... so a SwiftUI View can correspond to more than just a Layer ?
             layerType = .textField
             
+            // TODO: JUNE 24: current Step_V0 doesn't support keyboard ?
+//            customValues.append(
+//                .init(id: id,
+//                      input: .keyboardType,
+//                      value: .keyboardType(.password))
+//            )
+            
         case .scrollView:
             let layerData = try Self
                 .createScrollGroupLayer(args: args,
                                         childrenLayers: childrenLayers)
             return (.group, layerData)
             
-        case .capsule:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .path:
-            throw SwiftUISyntaxError.unsupportedLayer(self) // Canvas sketch ?
-        case .color:
-            throw SwiftUISyntaxError.unsupportedLayer(self) // both Layer.hitArea AND Layer.colorFill
-        case .label:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .asyncImage:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .symbolEffect:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .group:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .spacer:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .divider:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .geometryReader:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .alignmentGuide:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .list:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .table:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .outlineGroup:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .forEach:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .navigationStack:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .navigationSplit:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .navigationLink:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .tabView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .form:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .section:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .button:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .toggle:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .slider:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .stepper:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .picker:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .datePicker:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .gauge:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .progressView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .link:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .timelineView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .anyView:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .preview:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        case .timelineSchedule:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-
-        // TODO: JUNE 26: handle incoming edges as well
-        // Views that create a set-input as well
+            // MARK: CONTAINER VIEWS
             
-        case .hStack:
+        case .hStack, .lazyHStack:
             layerType = .group
             customValues.append(
                 .init(id: id,
                       input: .orientation,
                       value: .orientation(.horizontal))
             )
-
-        case .vStack:
+            
+        case .vStack, .lazyVStack:
             layerType = .group
             customValues.append(
                 .init(id: id,
                       input: .orientation,
                       value: .orientation(.vertical))
             )
-
+            
         case .zStack:
             layerType = .group
             customValues.append(
@@ -187,7 +124,70 @@ extension SyntaxViewName {
                       input: .orientation,
                       value: .orientation(.none))
             )
+            
+            // TODO: JULY 3: technically, we don't support `LazyHGrid` and `Grid`?
+        case .lazyVGrid, .lazyHGrid, .grid:
+            layerType = .group
+            customValues.append(
+                .init(id: id,
+                      input: .orientation,
+                      value: .orientation(.grid))
+            )
+            
+            
+        case .toggle:
+            layerType = .switchLayer
+            
+        case .progressView:
+            layerType = .progressIndicator
+            
+            // MARK: views / layers we likely want to support ?
+        case .spacer:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        case .divider:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
 
+        case .color:
+            throw SwiftUISyntaxError.unsupportedLayer(self) // both Layer.hitArea AND Layer.colorFill
+        
+        // MARK: views we may never support? Either because inferred or some other dynamic
+            
+            
+        case .capsule,
+                .path,
+                .label,
+                .asyncImage,
+                .symbolEffect,
+                .geometryReader,
+                .alignmentGuide,
+                .list,
+                .table,
+                .outlineGroup,
+            
+            // Never really supported? Instead just inferred.
+                .forEach,
+            
+            // Just specifies that modifiers on the SwiftUI Group are meant to be applied to every view inside ?
+                .group,
+                .navigationStack,
+                .navigationSplit,
+                .navigationLink,
+                .tabView,
+                .form,
+                .section,
+                .button,
+                .slider,
+                .stepper,
+                .picker,
+                .datePicker,
+                .gauge,
+                .link,
+                .timelineView,
+                .anyView,
+                .preview,
+                .timelineSchedule:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
+        
         case .roundedRectangle:
             layerType = .rectangle
             if let arg = args.first(where: { $0.label == .cornerRadius }),
@@ -200,11 +200,6 @@ extension SyntaxViewName {
                 )
             }
 
-        // TODO: handle these? `lazyVStack` is a LayerGroup with grid orientation
-        case .lazyVStack, .lazyHStack, .lazyVGrid, .lazyHGrid, .grid:
-            throw SwiftUISyntaxError.unsupportedLayer(self)
-        }
-        
         // Final bare layer (children added later)
         var layerNode = CurrentAIPatchBuilderResponseFormat
             .LayerData(node_id: .init(value: id),
