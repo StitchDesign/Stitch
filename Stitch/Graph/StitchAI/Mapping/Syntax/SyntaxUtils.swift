@@ -25,14 +25,26 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
 
 /// Nicely formats a `SyntaxViewModifierArgumentType` so that we don't dump the
 /// full struct/enum hierarchy when printing.
+/// Formats the `(value, syntaxKind)` pair in a compact way
+private func describe(_ data: SyntaxViewModifierArgumentData) -> String {
+    "\(data.value), \(describe(data.syntaxKind))"
+}
+
 private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     switch argType {
     case .simple(let data):
-        return "simple(\(data.value))"
-    case .angle(let data):
-        return "degrees(\(data.value))"
+        return "simple(\(describe(data)))"
+        
+    case .angle(let angle):
+        switch angle {
+        case .degrees(let data):
+            return "degrees(\(describe(data)))"
+        case .radians(let data):
+            return "radians(\(describe(data)))"
+        }
+        
     case .axis(let x, let y, let z):
-        return "axis(x: \(x.value), y: \(y.value), z: \(z.value))"
+        return "axis(x: \(describe(x)), y: \(describe(y)), z: \(describe(z)))"
     }
 }
 
