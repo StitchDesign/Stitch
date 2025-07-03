@@ -47,15 +47,15 @@ extension CurrentStep.Layer {
         case .canvasSketch:
             return .canvas
         case .realityView:
-            throw SwiftUISyntaxError.unsupportedSyntaxViewName(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self)
         case .shape:
-            throw SwiftUISyntaxError.unsupportedSyntaxViewName(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self)
         case .colorFill:
             return .color
         case .hitArea:
             return .color
         case .progressIndicator:
-            throw SwiftUISyntaxError.unsupportedSyntaxViewName(self)
+            throw SwiftUISyntaxError.unsupportedSyntaxViewLayer(self)
         case .switchLayer:
             return .toggle
         case .videoStreaming:

@@ -6,20 +6,51 @@
 //
 
 import Foundation
+import SwiftSyntax
 
 enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
     case unsupportedViewModifier(SyntaxViewModifierName)
+    
+    // Decoding from string
+    case unsupportedSyntaxArgumentKind(ExprSyntax)
     case unsupportedSyntaxArgument(String?)
-    case unsupportedSyntaxName(String)
+    case unsupportedSyntaxViewName(String)
+    case unsupportedSyntaxViewModifierName(String)
+    case unsupportedSyntaxViewModifierArgumentName(String)
+    
     case unsupportedLayer(SyntaxViewName)
     case unsupportedSyntaxFromLayerInput(CurrentStep.LayerInputPort)
-    case unsupportedSyntaxViewName(CurrentStep.Layer)
+    case unsupportedSyntaxViewLayer(CurrentStep.Layer)
+    
+    case unsupportedLayerIdParsing([SyntaxViewModifierArgument])
+    case layerUUIDDecodingFailed(String)
+    
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed
     case layerDecodingFailed
     case unexpectedPatchFound(CurrentStep.PatchOrLayer)
+}
+
+extension SwiftUISyntaxError {
+    /// Errors that should allow request to continue.
+    var shouldFailSilently: Bool {
+        switch self {
+        case .unsupportedSyntaxArgumentKind,
+                .unsupportedSyntaxArgument,
+                .unsupportedSyntaxViewName,
+                .unsupportedSyntaxViewModifierName,
+                .unsupportedSyntaxViewModifierArgumentName,
+                .unsupportedLayer,
+                .unsupportedSyntaxFromLayerInput,
+                .unsupportedSyntaxViewLayer:
+            return true
+            
+        default:
+            return false
+        }
+    }
 }
 
 extension CurrentStep.LayerInputPort {

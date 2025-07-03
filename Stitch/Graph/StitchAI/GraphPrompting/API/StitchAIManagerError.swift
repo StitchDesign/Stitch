@@ -156,6 +156,7 @@ enum StitchAIManagerError: Error {
     case nodeTypeNotSupported(String)
     case responseDecodingFailure(String)
     case portValueDescriptionNotSupported(String)
+    case firstChoiceNotDecoded
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -168,9 +169,11 @@ extension StitchAIManagerError: CustomStringConvertible {
         case .nodeTypeNotSupported(let nodeType):
             return "No node type found for: \(nodeType)"
         case .responseDecodingFailure(let errorMessage):
-            return "OpenAI respopnse decoding failed with the following error: \(errorMessage)"
+            return "OpenAI response decoding failed with the following error: \(errorMessage)"
         case .portValueDescriptionNotSupported(let nodeKindString):
             return "PortValue descriptions aren't supported for node kind: \(nodeKindString) due to PorValue version mismatch between the AI schema and SSK."
+        case .firstChoiceNotDecoded:
+            return "OpenAI response couldn't decode first choice in API call."
         }
     }
 }

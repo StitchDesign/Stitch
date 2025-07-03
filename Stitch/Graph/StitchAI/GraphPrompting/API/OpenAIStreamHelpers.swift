@@ -169,13 +169,13 @@ extension StitchAIManager {
         switch result {
         case .success(let success):
             let jsonResponse = String(data: success.0, encoding: .utf8)
-            print("Successful AI response:\n\(jsonResponse)")
+            print("Successful AI response:\n\(jsonResponse ?? "none")")
             do {
                 let response = try JSONDecoder().decode(OpenAIResponse.self, from: success.0)
                 
                 guard let firstChoice = response.choices.first else {
                     fatalErrorIfDebug()
-                    return .failure(StitchAIManagerError.responseDecodingFailure("No choice found."))
+                    return .failure(StitchAIManagerError.firstChoiceNotDecoded)
                 }
                 
                 let initialDecodedResult = try AIRequest.parseOpenAIResponse(content: firstChoice.message.content)
@@ -185,7 +185,7 @@ extension StitchAIManager {
                 return .success((result, success.1))
             } catch {
                 print(error)
-                return .failure(StitchAIManagerError.responseDecodingFailure(error.localizedDescription))
+                return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))
             }
         case .failure(let failure):
             print("makeNonStreamedRequest failure: \(failure)")

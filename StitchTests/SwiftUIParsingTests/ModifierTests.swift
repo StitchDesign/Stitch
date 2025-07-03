@@ -20,6 +20,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
+
        let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
@@ -193,6 +194,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
+
        let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
@@ -227,6 +229,7 @@ final class ModifierTests: XCTestCase {
         }
         
         // When - Convert to LayerData
+
         let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
@@ -318,6 +321,7 @@ final class ModifierTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Rectangle should have no children")
         
         // When - Convert to LayerData
+
         let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
@@ -376,6 +380,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
+
        let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
@@ -412,7 +417,7 @@ final class ModifierTests: XCTestCase {
         
         // When - Convert to LayerData
         let layerData = syntaxView.getFirstSyntaxAction()
-        
+
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Rectangle)
         let rectangleLayer = layerData

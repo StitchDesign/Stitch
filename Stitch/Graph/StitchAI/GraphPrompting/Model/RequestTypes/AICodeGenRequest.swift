@@ -77,6 +77,8 @@ struct AICodeGenRequest: StitchAIRequestable {
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
                 let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode)
+                var allDiscoveredErrors = codeParserResult.caughtErrors
+
                 guard let viewNode = codeParserResult.rootView else {
                     return .failure(self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
                                                       document: document))
@@ -85,7 +87,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                 do {
                     let actionsResult = try viewNode.deriveStitchActions()
                     let layerDataList = actionsResult.actions
-                    let allDiscoveredErrors = actionsResult.caughtErrors + codeParserResult.caughtErrors
+                    allDiscoveredErrors += actionsResult.caughtErrors
                     
                     let patchBuilderRequest = try AIPatchBuilderRequest(
                         prompt: userPrompt,

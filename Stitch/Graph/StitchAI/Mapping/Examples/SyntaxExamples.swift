@@ -143,15 +143,7 @@ extension MappingExamples {
             ),
             SyntaxViewModifier(
                 name: .padding,
-                arguments: [
-                    SyntaxViewModifierArgument(
-                        label: .noLabel,
-                        value: .simple(SyntaxViewModifierArgumentData(
-                            value: "",
-                            syntaxKind: .literal(.unknown)
-                        ))
-                    )
-                ]
+                arguments: []
             )
         ],
         children: [],
