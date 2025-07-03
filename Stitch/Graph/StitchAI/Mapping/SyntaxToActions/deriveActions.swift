@@ -14,8 +14,8 @@ struct SwiftSyntaxActionsResult {
 }
 
 extension Array where Element == SyntaxView {
-    func deriveStitchActions(idMap: inout [UUID : UUID]) throws -> SwiftSyntaxActionsResult {
-        let allResults = try self.map { try $0.deriveStitchActions(idMap: &idMap) }
+    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+        let allResults = try self.map { try $0.deriveStitchActions() }
         
         return .init(actions: allResults.flatMap { $0.actions },
                      caughtErrors: allResults.flatMap { $0.caughtErrors })
@@ -23,9 +23,9 @@ extension Array where Element == SyntaxView {
 }
 
 extension SyntaxView {
-    func deriveStitchActions(idMap: inout [UUID : UUID]) throws -> SwiftSyntaxActionsResult {
+    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        let childResults = try self.children.deriveStitchActions(idMap: &idMap)
+        let childResults = try self.children.deriveStitchActions()
 
         // Map this node
         do {
@@ -33,8 +33,7 @@ extension SyntaxView {
                 id: self.id,
                 args: self.constructorArguments,
                 modifiers: self.modifiers,
-                childrenLayers: childResults.actions,
-                idMap: &idMap)
+                childrenLayers: childResults.actions)
             
             guard let layer = layerData.node_name.value.layer else {
                 fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")

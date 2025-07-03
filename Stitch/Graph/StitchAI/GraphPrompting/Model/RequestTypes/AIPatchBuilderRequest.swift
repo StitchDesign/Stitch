@@ -141,12 +141,11 @@ extension StitchDocumentViewModel {
 
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
-    func applyAIGraph(to document: StitchDocumentViewModel,
-                      idMap: [UUID : UUID]) throws {
+    func applyAIGraph(to document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
-        var idMap = idMap
+        var idMap = [UUID: UUID]()
         
         // new js patches
         for newPatch in self.patch_data.javascript_patches {

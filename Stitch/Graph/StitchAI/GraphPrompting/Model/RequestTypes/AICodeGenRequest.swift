@@ -85,10 +85,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                 }
                 
                 do {
-                    // IDs we remap to guarantee uniquness
-                    var idMap = [UUID : UUID]()
-                    
-                    let actionsResult = try viewNode.deriveStitchActions(idMap: &idMap)
+                    let actionsResult = try viewNode.deriveStitchActions()
                     let layerDataList = actionsResult.actions
                     allDiscoveredErrors += actionsResult.caughtErrors
                     
@@ -112,8 +109,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                                 let graphData = CurrentAIPatchBuilderResponseFormat
                                     .GraphData(layer_data_list: layerDataList,
                                                patch_data: patchBuildResult)
-                                try graphData.applyAIGraph(to: document,
-                                                           idMap: idMap)
+                                try graphData.applyAIGraph(to: document)
                                 
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                                 // Display parsing warnings

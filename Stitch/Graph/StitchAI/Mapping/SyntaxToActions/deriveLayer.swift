@@ -15,8 +15,7 @@ extension SyntaxViewName {
     func deriveLayerData(id: UUID,
                          args: [SyntaxViewConstructorArgument],
                          modifiers: [SyntaxViewModifier],
-                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData],
-                         idMap: inout [UUID : UUID]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
+                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
 
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var (layerType, layerData) = try self
@@ -48,14 +47,8 @@ extension SyntaxViewName {
                     throw SwiftUISyntaxError.layerUUIDDecodingFailed(string)
                 }
                 
-                // Create new ID to ensure uniqueness
-                let newId = UUID()
-                
-                // Update mapping so later logic can use this new ID if read from port values
-                idMap.updateValue(newId, forKey: uuidValue)
-                
                 // Update ID to that assigned from view
-                layerData.node_id = .init(value: newId)
+                layerData.node_id = .init(value: uuidValue)
             }
         }
         
