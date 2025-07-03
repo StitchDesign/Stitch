@@ -28,6 +28,11 @@ struct VarBodyCodeExamples {
         title: "var body + method",
         code: """
         struct ContentView: View {
+        
+            func myMethod() -> Bool {
+                true
+            }
+        
             var body: some View {
                 ZStack {
                     Image(systemName: "globe")
