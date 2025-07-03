@@ -190,7 +190,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
 
     struct LayerData {
-        let node_id: StitchAIUUID_V0.StitchAIUUID
+        var node_id: StitchAIUUID_V0.StitchAIUUID
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?

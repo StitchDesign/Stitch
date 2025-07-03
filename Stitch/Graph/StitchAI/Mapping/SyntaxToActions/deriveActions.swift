@@ -14,8 +14,8 @@ struct SwiftSyntaxActionsResult {
 }
 
 extension Array where Element == SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
-        let allResults = try self.map { try $0.deriveStitchActions() }
+    func deriveStitchActions(idMap: inout [UUID : UUID]) throws -> SwiftSyntaxActionsResult {
+        let allResults = try self.map { try $0.deriveStitchActions(idMap: &idMap) }
         
         return .init(actions: allResults.flatMap { $0.actions },
                      caughtErrors: allResults.flatMap { $0.caughtErrors })
@@ -23,10 +23,9 @@ extension Array where Element == SyntaxView {
 }
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+    func deriveStitchActions(idMap: inout [UUID : UUID]) throws -> SwiftSyntaxActionsResult {
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        let childResults = try self.children.deriveStitchActions()
-        let errorsForConstructorArgs = self.errors
+        let childResults = try self.children.deriveStitchActions(idMap: &idMap)
 
         // Map this node
         do {
@@ -34,7 +33,8 @@ extension SyntaxView {
                 id: self.id,
                 args: self.constructorArguments,
                 modifiers: self.modifiers,
-                childrenLayers: childResults.actions)
+                childrenLayers: childResults.actions,
+                idMap: &idMap)
             
             guard let layer = layerData.node_name.value.layer else {
                 fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
@@ -48,17 +48,15 @@ extension SyntaxView {
             }
     
             return .init(actions: [layerData],
-                         caughtErrors: childResults.caughtErrors + errorsForConstructorArgs)
+                         caughtErrors: childResults.caughtErrors)
         } catch let error as SwiftUISyntaxError {
-            switch error {
-            case .unsupportedLayer, .unsupportedViewModifier, .unsupportedSyntaxArgument, .unsupportedSyntaxName:
+            if error.shouldFailSilently {
                 log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                 // Silent error for unsupported layers
                 var resultForSilentFailure = childResults
                 resultForSilentFailure.caughtErrors.append(error)
                 return resultForSilentFailure
-                
-            default:
+            } else {
                 throw error
             }
         }

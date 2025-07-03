@@ -63,7 +63,19 @@ enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Codable {
     case axis(x: SyntaxViewModifierArgumentData,
               y: SyntaxViewModifierArgumentData,
               z: SyntaxViewModifierArgumentData)
+}
+
+extension SyntaxViewModifierArgumentType {
+    var simpleValue: String? {
+        switch self {
+        case .simple(let data):
+            return data.value
+            
+        default:
+            return nil
+        }
     }
+}
 
 // TODO: JULY 2: the argument .rotation3DEffect(_ angle: Angle) could be either Angle.degrees or Angle.radians, but Stitch's rotation layer inputs always uses degrees
 // https://developer.apple.com/documentation/swiftui/view/rotation3deffect(_:axis:anchor:)

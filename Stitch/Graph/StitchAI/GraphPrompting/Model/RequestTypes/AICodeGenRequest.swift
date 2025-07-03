@@ -77,15 +77,20 @@ struct AICodeGenRequest: StitchAIRequestable {
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
                 let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode)
+                var allDiscoveredErrors = codeParserResult.caughtErrors
+
                 guard let viewNode = codeParserResult.rootView else {
                     return .failure(self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
                                                       document: document))
                 }
                 
                 do {
-                    let actionsResult = try viewNode.deriveStitchActions()
+                    // IDs we remap to guarantee uniquness
+                    var idMap = [UUID : UUID]()
+                    
+                    let actionsResult = try viewNode.deriveStitchActions(idMap: &idMap)
                     let layerDataList = actionsResult.actions
-                    let allDiscoveredErrors = actionsResult.caughtErrors + codeParserResult.caughtErrors
+                    allDiscoveredErrors += actionsResult.caughtErrors
                     
                     let patchBuilderRequest = try AIPatchBuilderRequest(
                         prompt: userPrompt,
@@ -107,7 +112,8 @@ struct AICodeGenRequest: StitchAIRequestable {
                                 let graphData = CurrentAIPatchBuilderResponseFormat
                                     .GraphData(layer_data_list: layerDataList,
                                                patch_data: patchBuildResult)
-                                try graphData.applyAIGraph(to: document)
+                                try graphData.applyAIGraph(to: document,
+                                                           idMap: idMap)
                                 
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                                 // Display parsing warnings

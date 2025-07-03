@@ -224,7 +224,8 @@ struct ASTExplorerView: View {
 
         do {
             // Syntax → Actions
-            let stitchActionsResult = try syntax.deriveStitchActions()
+            var idMap = [UUID: UUID]()
+            let stitchActionsResult = try syntax.deriveStitchActions(idMap: &idMap)
             let allErrors = stitchActionsResult.caughtErrors + codeParserResult.caughtErrors
             
             stitchActions = stitchActionsResult.actions
