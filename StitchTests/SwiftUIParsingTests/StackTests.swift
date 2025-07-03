@@ -20,11 +20,7 @@ final class StackTests: XCTestCase {
         }
         """
         
-        // When
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(vstackExample).rootView else {
-            XCTFail("Failed to parse VStack example")
-            return
-        }
+        let syntaxView = getSyntaxView(vstackExample)
         
         // Then - Verify the root VStack
         XCTAssertEqual(syntaxView.name, .vStack)
@@ -71,11 +67,7 @@ final class StackTests: XCTestCase {
         }
         """
         
-        // When
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(vstackExample).rootView else {
-            XCTFail("Failed to parse VStack example")
-            return
-        }
+        let syntaxView = getSyntaxView(vstackExample)
         
         let layerData = syntaxView.getFirstSyntaxAction()
         
