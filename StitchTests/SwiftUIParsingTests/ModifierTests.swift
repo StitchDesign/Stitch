@@ -69,11 +69,8 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
-        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple layers")
         
-        let rectangleLayer = layerData.layers[0]
+        let rectangleLayer = layerData
         
         // 2. Check that the layer is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {
@@ -176,9 +173,7 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        
-        let rectangleLayer = layerData.layers[0]
+        let rectangleLayer = layerData
         
         // 2. Check that the layer is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {
@@ -270,11 +265,7 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
-        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple layers")
-        
-        let rectangleLayer = layerData.layers[0]
+        let rectangleLayer = layerData
         
         // 2. Check that the layer is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {
@@ -379,10 +370,7 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Rectangle)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
-        
-        let rectangleLayer = layerData.layers[0]
+        let rectangleLayer = layerData
         
         // 2. Check that the layer is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {
@@ -478,9 +466,7 @@ final class CodeToSyntaxToActionsTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Rectangle)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        
-        let rectangleLayer = layerData.layers[0]
+        let rectangleLayer = layerData
         
         // 2. Check that the layer is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {

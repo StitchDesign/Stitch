@@ -88,11 +88,7 @@ final class StackTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the VStack)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one root layer")
-        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
-        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple root layers")
-        
-        let vstackLayer = layerData.layers[0]
+        let vstackLayer = layerData
         
         // 2. Check that the VStack is a group with vertical orientation
         if case let .layer(layerType) = vstackLayer.node_name.value {
