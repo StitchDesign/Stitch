@@ -20,10 +20,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse Rectangle with position example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a Rectangle
@@ -59,7 +56,7 @@ final class ModifierTests: XCTestCase {
         }
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
@@ -117,10 +114,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse Rectangle with offset example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a Rectangle
@@ -152,7 +146,7 @@ final class ModifierTests: XCTestCase {
         }
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
@@ -199,10 +193,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse Rectangle with frame example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a Rectangle
@@ -236,7 +227,7 @@ final class ModifierTests: XCTestCase {
         }
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
@@ -294,10 +285,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse Rectangle with rotation effect example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a Rectangle
@@ -330,7 +318,7 @@ final class ModifierTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Rectangle should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Rectangle)
@@ -388,10 +376,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse Rectangle with 3D rotation effect example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a Rectangle
@@ -426,7 +411,7 @@ final class ModifierTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Rectangle should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Rectangle)

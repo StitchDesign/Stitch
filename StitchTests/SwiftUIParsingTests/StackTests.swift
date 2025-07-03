@@ -77,7 +77,7 @@ final class StackTests: XCTestCase {
             return
         }
         
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the VStack)

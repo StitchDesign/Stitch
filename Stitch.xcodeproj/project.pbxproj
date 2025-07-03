@@ -487,6 +487,7 @@
 		EC1E7A6D287CFA9600144D05 /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1E7A6C287CFA9600144D05 /* StringUtils.swift */; };
 		EC1E7A6F287D228D00144D05 /* BoolCheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */; };
 		EC1FF4632E171BD500B0D8FC /* ViewModifierCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1FF4622E171BD500B0D8FC /* ViewModifierCodeExamples.swift */; };
+		EC1FF4742E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1FF4732E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift */; };
 		EC211A482698A6F10068A0F0 /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC211A472698A6F10068A0F0 /* JSONUtils.swift */; };
 		EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = EC211A4A2698A8B70068A0F0 /* SwiftyJSON */; };
 		EC211E222DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC211E212DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift */; };
@@ -1630,6 +1631,7 @@
 		EC1E7A6C287CFA9600144D05 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
 		EC1E7A6E287D228C00144D05 /* BoolCheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolCheckboxView.swift; sourceTree = "<group>"; };
 		EC1FF4622E171BD500B0D8FC /* ViewModifierCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifierCodeExamples.swift; sourceTree = "<group>"; };
+		EC1FF4732E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUICodeParsingTestUtils.swift; sourceTree = "<group>"; };
 		EC211A472698A6F10068A0F0 /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
 		EC211E212DB9E86E00BCB953 /* CanvasItemInputChangeHandleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemInputChangeHandleView.swift; sourceTree = "<group>"; };
 		EC2256282D407E9500BB7292 /* SpecialPickerFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialPickerFieldValueView.swift; sourceTree = "<group>"; };
@@ -4998,6 +5000,7 @@
 			isa = PBXGroup;
 			children = (
 				EC7062B62E15B53B0017A9F0 /* ModifierTests.swift */,
+				EC1FF4732E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift */,
 				EC7062B82E15E47D0017A9F0 /* StackTests.swift */,
 				EC7062BA2E15E5350017A9F0 /* ConstructorTests.swift */,
 			);
@@ -6743,6 +6746,7 @@
 				ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */,
 				E42C0D052D47F87A00AA2BB1 /* openAIRequestTests.swift in Sources */,
 				EC7062B92E15E47D0017A9F0 /* StackTests.swift in Sources */,
+				EC1FF4742E1740FA00B0D8FC /* SwiftUICodeParsingTestUtils.swift in Sources */,
 				EC6DF0AB29FA050F0052545E /* jsonPerfTests.swift in Sources */,
 				ECBFDB0B2DB98B4500C1D6D5 /* GraphTests.swift in Sources */,
 				EC7062BB2E15E5350017A9F0 /* ConstructorTests.swift in Sources */,

@@ -19,10 +19,7 @@ final class ConstructorTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse RoundedRectangle example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a RoundedRectangle
@@ -46,7 +43,7 @@ final class ConstructorTests: XCTestCase {
         XCTAssertEqual(value.syntaxKind, .literal(.integer), "Corner radius should be an integer literal")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the RoundedRectangle)
@@ -109,10 +106,7 @@ final class ConstructorTests: XCTestCase {
         let code = #"Text("salut")"#
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse Text example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a Text
@@ -138,7 +132,7 @@ final class ConstructorTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Text should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Text)
@@ -190,10 +184,7 @@ final class ConstructorTests: XCTestCase {
         let code = #"Image(systemName: "star.fill")"#
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
-            XCTFail("Failed to parse Image with SF Symbol example")
-            return
-        }
+       let syntaxView = getSyntaxView(code)
         
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is an Image
@@ -219,7 +210,7 @@ final class ConstructorTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Image should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions().actions.first!
+        let layerData = syntaxView.getFirstSyntaxAction()
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the SF Symbol)
