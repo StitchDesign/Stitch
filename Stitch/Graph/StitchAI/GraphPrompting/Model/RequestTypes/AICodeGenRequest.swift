@@ -112,10 +112,11 @@ struct AICodeGenRequest: StitchAIRequestable {
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                                 // Display parsing warnings
                                 if !allDiscoveredErrors.isEmpty {
-                                    document.storeDelegate?.alertState.stitchFileError = .unknownError("""
-                                        Stitch AI successfully completed with the following parsing warnings:
-                                        \(allDiscoveredErrors.map { "\n\($0)" })
-                                        """)
+                                    let caughtErrorsString = allDiscoveredErrors.reduce(into: "") { stringBuilder, error in
+                                        stringBuilder += "\n\(error)"
+                                    }
+                                    
+                                    document.storeDelegate?.alertState.stitchFileError = .unknownError("Warnings for the following unknown concepts:\(caughtErrorsString)")
                                 }
 #endif
                                 
