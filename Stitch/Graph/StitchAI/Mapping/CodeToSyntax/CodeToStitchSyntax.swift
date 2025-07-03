@@ -28,9 +28,11 @@ extension SwiftUIViewVisitor {
         // but add our own post-processing for modifiers
         let sourceFile = Parser.parse(source: swiftUICode)
         
+#if DEV_DEBUG
         print("\n==== DEBUG: SOURCE FILE STRUCTURE ====\n")
         dump(sourceFile)
         print("\n==== END DEBUG DUMP ====\n")
+#endif
         
         // Create a visitor that will extract the view structure
         let visitor = SwiftUIViewVisitor(viewMode: .sourceAccurate)
@@ -63,7 +65,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 
     // Debug logging for tracing the parsing process
     private func log(_ message: String) {
+#if DEV_DEBUG
         print("[SwiftUIParser] \(message)")
+#endif
     }
     
     private func dbg(_ message: String) {
