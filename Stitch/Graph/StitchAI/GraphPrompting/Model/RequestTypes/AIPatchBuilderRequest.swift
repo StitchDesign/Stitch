@@ -145,7 +145,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
-        var idMap = [UUID : UUID]()
+        var idMap = [UUID: UUID]()
         
         // new js patches
         for newPatch in self.patch_data.javascript_patches {

@@ -106,7 +106,7 @@ The source code’s top-level function, `updateLayerInputs(…)`, calls other me
 `LayerConnection` uses the following schema:
 ```
 struct LayerConnection {
-    let src_patch_port: PatchNodeCoordinate   // source patch node's output port
+    let src_port: PatchNodeCoordinate   // source patch node's output port
     let dest_port: LayerPortCoordinate          // destination node's input port
 }
 struct LayerPortCoordinate {
