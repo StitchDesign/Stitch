@@ -19,7 +19,7 @@ final class ConstructorTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse RoundedRectangle example")
             return
         }
@@ -27,37 +27,26 @@ final class ConstructorTests: XCTestCase {
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is a RoundedRectangle
         XCTAssertEqual(syntaxView.name, .roundedRectangle, "Root view should be a RoundedRectangle")
-        XCTAssertNotEqual(syntaxView.name, .rectangle, "RoundedRectangle should not be a plain Rectangle")
         XCTAssertEqual(syntaxView.modifiers.count, 0, "RoundedRectangle should have no modifiers")
-        XCTAssertNotEqual(syntaxView.modifiers.count, 1, "RoundedRectangle should not have any modifiers")
         XCTAssertEqual(syntaxView.children.count, 0, "RoundedRectangle should have no children")
         
         // 2. Verify the constructor arguments
         XCTAssertEqual(syntaxView.constructorArguments.count, 1, "RoundedRectangle should have one constructor argument (cornerRadius)")
-        XCTAssertNotEqual(syntaxView.constructorArguments.count, 0, "RoundedRectangle should have constructor arguments")
-        XCTAssertNotEqual(syntaxView.constructorArguments.count, 2, "RoundedRectangle should not have multiple constructor arguments")
         
         // 3. Check the cornerRadius argument
         let cornerRadiusArg = syntaxView.constructorArguments[0]
         XCTAssertEqual(cornerRadiusArg.label, .cornerRadius, "Constructor argument should be 'cornerRadius'")
-        XCTAssertNotEqual(cornerRadiusArg.label, .systemName, "Constructor argument should not be 'systemName'")
         
         // 4. Verify the corner radius value is 25 with correct syntax kind
         XCTAssertEqual(cornerRadiusArg.values.count, 1, "cornerRadius should have one value")
-        XCTAssertNotEqual(cornerRadiusArg.values.count, 0, "cornerRadius should not be empty")
-        XCTAssertNotEqual(cornerRadiusArg.values.count, 2, "cornerRadius should not have multiple values")
         
         let value = cornerRadiusArg.values[0]
         XCTAssertEqual(value.value, "25", "Corner radius value should be '25'")
-        XCTAssertNotEqual(value.value, "24", "Corner radius value should not be '24'")
-        XCTAssertNotEqual(value.value, "26", "Corner radius value should not be '26'")
         
         XCTAssertEqual(value.syntaxKind, .literal(.integer), "Corner radius should be an integer literal")
-        XCTAssertNotEqual(value.syntaxKind, .literal(.float), "Corner radius should not be a floating point")
-        XCTAssertNotEqual(value.syntaxKind, .literal(.string), "Corner radius should not be a string")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the RoundedRectangle)
@@ -83,16 +72,12 @@ final class ConstructorTests: XCTestCase {
         }
         
         XCTAssertEqual(cornerRadiusInputs.count, 1, "Expected exactly one corner radius input")
-        XCTAssertNotEqual(cornerRadiusInputs.count, 0, "Should have at least one corner radius input")
-        XCTAssertNotEqual(cornerRadiusInputs.count, 2, "Should not have multiple corner radius inputs")
         
         let cornerRadiusInput = cornerRadiusInputs[0]
         
         // 5. Verify the corner radius value is 25
         if case let .number(value) = cornerRadiusInput.value {
             XCTAssertEqual(value, 25, "Expected corner radius to be 25")
-            XCTAssertNotEqual(value, 24, "Corner radius should not be 24")
-            XCTAssertNotEqual(value, 26, "Corner radius should not be 26")
             
             // Check type is exactly Double
             XCTAssertTrue(type(of: value) == Double.self, "Corner radius should be a Double")
@@ -124,7 +109,7 @@ final class ConstructorTests: XCTestCase {
         let code = #"Text("salut")"#
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse Text example")
             return
         }
@@ -136,8 +121,6 @@ final class ConstructorTests: XCTestCase {
         
         // 2. Verify the constructor argument (the string literal)
         XCTAssertEqual(syntaxView.constructorArguments.count, 1, "Text should have one constructor argument")
-        XCTAssertNotEqual(syntaxView.constructorArguments.count, 0, "Text should have a string argument")
-        XCTAssertNotEqual(syntaxView.constructorArguments.count, 2, "Text should have only one argument")
         
         let constructorArg = syntaxView.constructorArguments[0]
         XCTAssertEqual(constructorArg.label, .noLabel, "String argument should have no label")
@@ -155,7 +138,7 @@ final class ConstructorTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Text should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Text)
@@ -164,7 +147,6 @@ final class ConstructorTests: XCTestCase {
         // 2. Check that the layer is a text layer
         if case let .layer(layerType) = textLayer.node_name.value {
             XCTAssertEqual(layerType, .text, "Layer type should be text")
-            XCTAssertNotEqual(layerType, .rectangle, "Layer should not be a rectangle")
         } else {
             XCTFail("Expected root layer to be a text layer")
         }
@@ -176,8 +158,6 @@ final class ConstructorTests: XCTestCase {
         
         // 4. Verify we have exactly one text value
         XCTAssertEqual(textValues.count, 1, "Should have exactly one text value")
-        XCTAssertNotEqual(textValues.count, 0, "Should have a text value")
-        XCTAssertNotEqual(textValues.count, 2, "Should not have multiple text values")
         
         let textValue = textValues.first!
         
@@ -210,7 +190,7 @@ final class ConstructorTests: XCTestCase {
         let code = #"Image(systemName: "star.fill")"#
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse Image with SF Symbol example")
             return
         }
@@ -218,7 +198,6 @@ final class ConstructorTests: XCTestCase {
         // Then - Verify the SyntaxView structure
         // 1. Check the root view is an Image
         XCTAssertEqual(syntaxView.name, .image, "Root view should be an Image view")
-        XCTAssertNotEqual(syntaxView.name, .text, "Should be an Image view, not a Text view")
         
         // 2. Verify the constructor argument with systemName label
         XCTAssertEqual(syntaxView.constructorArguments.count, 1, "Image should have one constructor argument")
@@ -240,7 +219,7 @@ final class ConstructorTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Image should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the SF Symbol)

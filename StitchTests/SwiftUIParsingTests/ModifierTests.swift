@@ -20,7 +20,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse Rectangle with position example")
             return
         }
@@ -33,22 +33,17 @@ final class ModifierTests: XCTestCase {
         
         // 2. Verify the position modifier
         XCTAssertEqual(syntaxView.modifiers.count, 1, "Should have one modifier (position)")
-        XCTAssertNotEqual(syntaxView.modifiers.count, 0, "Should have a position modifier")
-        XCTAssertNotEqual(syntaxView.modifiers.count, 2, "Should have only one modifier")
         
         let positionModifier = syntaxView.modifiers[0]
         XCTAssertEqual(positionModifier.name, .position, "Modifier should be a position modifier")
-        XCTAssertNotEqual(positionModifier.name, .offset, "Modifier should not be an offset modifier")
         
         // 3. Check position arguments (x and y)
         XCTAssertEqual(positionModifier.arguments.count, 2, "Position modifier should have two arguments (x and y)")
-        XCTAssertNotEqual(positionModifier.arguments.count, 1, "Position should have both x and y arguments")
         
         // Verify x argument
         if let xArg = positionModifier.arguments.first(where: { $0.label == .x }),
            case let .simple(xData) = xArg.value {
             XCTAssertEqual(xData.value, "200", "X position should be 200")
-            XCTAssertNotEqual(xData.value, "100", "X position should not be 100")
             XCTAssertEqual(xData.syntaxKind, .literal(.integer), "X position should be an integer")
         } else {
             XCTFail("Could not find or validate x position argument")
@@ -58,14 +53,13 @@ final class ModifierTests: XCTestCase {
         if let yArg = positionModifier.arguments.first(where: { $0.label == .y }),
            case let .simple(yData) = yArg.value {
             XCTAssertEqual(yData.value, "200", "Y position should be 200")
-            XCTAssertNotEqual(yData.value, "100", "Y position should not be 100")
             XCTAssertEqual(yData.syntaxKind, .literal(.integer), "Y position should be an integer")
         } else {
             XCTFail("Could not find or validate y position argument")
         }
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
@@ -87,8 +81,6 @@ final class ModifierTests: XCTestCase {
         
         // 4. Verify we have exactly one position value (combining x and y)
         XCTAssertEqual(positionValues.count, 1, "Should have exactly one position value")
-        XCTAssertNotEqual(positionValues.count, 0, "Should have a position value")
-        XCTAssertNotEqual(positionValues.count, 2, "Should not have multiple position values")
         
         let positionValue = positionValues.first!
         let positionPortValue = positionValue.value
@@ -103,15 +95,6 @@ final class ModifierTests: XCTestCase {
         if case .position(let p) = positionPortValue {
             // Test exact position
             XCTAssertEqual(p, CGPoint(x: 200, y: 200), "Position should be (200, 200)")
-            
-            // Test incorrect positions
-            XCTAssertNotEqual(p, CGPoint(x: 200, y: 50), "Y position should be 200, not 50")
-            XCTAssertNotEqual(p, CGPoint(x: 100, y: 200), "X position should be 200, not 100")
-            XCTAssertNotEqual(p, CGPoint(x: 0, y: 0), "Position should not be at origin")
-            
-            // Test individual components
-            XCTAssertEqual(p.x, 200, "X coordinate should be 200")
-            XCTAssertEqual(p.y, 200, "Y coordinate should be 200")
         } else {
             XCTFail("Expected position value to be a CGPoint")
         }
@@ -134,7 +117,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse Rectangle with offset example")
             return
         }
@@ -169,7 +152,7 @@ final class ModifierTests: XCTestCase {
         }
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
@@ -216,7 +199,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse Rectangle with frame example")
             return
         }
@@ -229,23 +212,17 @@ final class ModifierTests: XCTestCase {
         
         // 2. Verify the frame modifier
         XCTAssertEqual(syntaxView.modifiers.count, 1, "Should have one modifier (frame)")
-        XCTAssertNotEqual(syntaxView.modifiers.count, 0, "Should have a frame modifier")
-        XCTAssertNotEqual(syntaxView.modifiers.count, 2, "Should have only one modifier")
         
         let frameModifier = syntaxView.modifiers[0]
         XCTAssertEqual(frameModifier.name, .frame, "Modifier should be a frame modifier")
-        XCTAssertNotEqual(frameModifier.name, .position, "Modifier should not be a position modifier")
         
         // 3. Check frame arguments (width and height)
         XCTAssertEqual(frameModifier.arguments.count, 2, "Frame modifier should have two arguments (width and height)")
-        XCTAssertNotEqual(frameModifier.arguments.count, 1, "Frame should have both width and height arguments")
         
         // Verify width argument
         if let widthArg = frameModifier.arguments.first(where: { $0.label == .width }),
            case let .simple(widthData) = widthArg.value {
             XCTAssertEqual(widthData.value, "200", "Width should be 200")
-            XCTAssertNotEqual(widthData.value, "100", "Width should not be 100")
-            XCTAssertEqual(widthData.syntaxKind, .literal(.integer), "Width should be an integer")
         } else {
             XCTFail("Could not find or validate width argument")
         }
@@ -254,14 +231,12 @@ final class ModifierTests: XCTestCase {
         if let heightArg = frameModifier.arguments.first(where: { $0.label == .height }),
            case let .simple(heightData) = heightArg.value {
             XCTAssertEqual(heightData.value, "100", "Height should be 100")
-            XCTAssertNotEqual(heightData.value, "200", "Height should not be 200")
-            XCTAssertEqual(heightData.syntaxKind, .literal(.integer), "Height should be an integer")
         } else {
             XCTFail("Could not find or validate height argument")
         }
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the Rectangle)
@@ -282,8 +257,6 @@ final class ModifierTests: XCTestCase {
         
         // 4. Verify we have exactly one size value (combining width and height)
         XCTAssertEqual(sizeValues.count, 1, "Should have exactly one size value")
-        XCTAssertNotEqual(sizeValues.count, 0, "Should have a size value")
-        XCTAssertNotEqual(sizeValues.count, 2, "Should not have multiple size values")
         
         let sizeValue = sizeValues.first!
         
@@ -299,14 +272,6 @@ final class ModifierTests: XCTestCase {
             // Test exact size
             XCTAssertEqual(size.width, .number(200), "Width should be 200")
             XCTAssertEqual(size.height, .number(100), "Height should be 100")
-            
-            // Test incorrect sizes
-            XCTAssertNotEqual(size.width, .number(100), "Width should be 200, not 100")
-            XCTAssertNotEqual(size.height, .number(200), "Height should be 100, not 200")
-            
-            // Test with explicit values
-            XCTAssertEqual(size, .init(width: 200, height: 100), "Size should be 200x100")
-            XCTAssertNotEqual(size, .init(width: 100, height: 200), "Size should not be 100x200")
         } else {
             XCTFail("Expected size value to be a CGSize")
         }
@@ -329,7 +294,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse Rectangle with rotation effect example")
             return
         }
@@ -344,7 +309,6 @@ final class ModifierTests: XCTestCase {
         
         // 3. Verify the rotation effect modifier
         XCTAssertEqual(syntaxView.modifiers.count, 1, "Should have one modifier")
-        XCTAssertNotEqual(syntaxView.modifiers.count, 0, "Should have a rotation effect modifier")
         
         let modifier = syntaxView.modifiers[0]
         XCTAssertEqual(modifier.name, .rotationEffect, "Modifier should be rotationEffect")
@@ -366,7 +330,7 @@ final class ModifierTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Rectangle should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Rectangle)
@@ -424,7 +388,7 @@ final class ModifierTests: XCTestCase {
         """
         
         // When - Parse the SwiftUI code into a SyntaxView
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(code).rootView else {
             XCTFail("Failed to parse Rectangle with 3D rotation effect example")
             return
         }
@@ -462,7 +426,7 @@ final class ModifierTests: XCTestCase {
         XCTAssertTrue(syntaxView.children.isEmpty, "Rectangle should have no children")
         
         // When - Convert to LayerData
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Rectangle)

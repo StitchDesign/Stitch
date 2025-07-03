@@ -21,7 +21,7 @@ final class StackTests: XCTestCase {
         """
         
         // When
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(vstackExample) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(vstackExample).rootView else {
             XCTFail("Failed to parse VStack example")
             return
         }
@@ -32,8 +32,6 @@ final class StackTests: XCTestCase {
         XCTAssertTrue(syntaxView.constructorArguments.isEmpty, "VStack should have no constructor arguments")
         XCTAssertTrue(syntaxView.modifiers.isEmpty, "VStack should have no modifiers")
         XCTAssertEqual(syntaxView.children.count, 1, "VStack should have exactly one child")
-        XCTAssertNotEqual(syntaxView.children.count, 0, "VStack should have children")
-        XCTAssertNotEqual(syntaxView.children.count, 2, "VStack should have only one child in this test")
         
         // Verify the Rectangle child
         let rectangle = syntaxView.children[0]
@@ -44,15 +42,11 @@ final class StackTests: XCTestCase {
         
         // Verify the fill modifier on Rectangle
         XCTAssertEqual(rectangle.modifiers.count, 1, "Rectangle should have one modifier")
-        XCTAssertNotEqual(rectangle.modifiers.count, 0, "Rectangle should have a fill modifier")
-        XCTAssertNotEqual(rectangle.modifiers.count, 2, "Rectangle should have only one modifier")
         
         let fillModifier = rectangle.modifiers[0]
         XCTAssertEqual(fillModifier.name, .fill, "Modifier should be a fill modifier")
-        XCTAssertNotEqual(fillModifier.name, .frame, "Modifier should not be a frame modifier")
         
         XCTAssertEqual(fillModifier.arguments.count, 1, "Fill modifier should have one argument")
-        XCTAssertNotEqual(fillModifier.arguments.count, 0, "Fill modifier should have arguments")
         
         let argument = fillModifier.arguments[0]
         XCTAssertEqual(argument.label, .noLabel, "Fill argument should have no label")
@@ -60,8 +54,6 @@ final class StackTests: XCTestCase {
         // Verify the argument value is Color.blue
         if case let .simple(data) = argument.value {
             XCTAssertEqual(data.value, "Color.blue", "Color should be blue")
-            XCTAssertNotEqual(data.value, "Color.red", "Color should not be red")
-            XCTAssertNotEqual(data.value, "blue", "Color should be fully qualified")
             
             // Check the syntax kind
             XCTAssertEqual(data.syntaxKind, .literal(.unknown), "Color syntax kind should be unknown literal")
@@ -80,12 +72,12 @@ final class StackTests: XCTestCase {
         """
         
         // When
-        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(vstackExample) else {
+        guard let syntaxView = SwiftUIViewVisitor.parseSwiftUICode(vstackExample).rootView else {
             XCTFail("Failed to parse VStack example")
             return
         }
         
-        let layerData = try syntaxView.deriveStitchActions()
+        let layerData = try syntaxView.deriveStitchActions().actions.first!
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the VStack)
@@ -94,7 +86,6 @@ final class StackTests: XCTestCase {
         // 2. Check that the VStack is a group with vertical orientation
         if case let .layer(layerType) = vstackLayer.node_name.value {
             XCTAssertEqual(layerType, .group, "VStack should be a group layer")
-            XCTAssertNotEqual(layerType, .rectangle, "VStack should not be a rectangle")
         } else {
             XCTFail("Expected VStack to be a group layer")
         }
@@ -106,15 +97,12 @@ final class StackTests: XCTestCase {
         }
         
         XCTAssertEqual(children.count, 1, "VStack should have exactly one child")
-        XCTAssertNotEqual(children.count, 0, "VStack should have children")
         
         let rectangleLayer = children[0]
         
         // 4. Check that the child is a rectangle
         if case let .layer(layerType) = rectangleLayer.node_name.value {
             XCTAssertEqual(layerType, .rectangle, "Child should be a rectangle")
-            XCTAssertNotEqual(layerType, .oval, "Child should not be a oval")
-            XCTAssertNotEqual(layerType, .group, "Child should not be a group")
         } else {
             XCTFail("Expected child to be a rectangle layer")
         }
@@ -125,8 +113,6 @@ final class StackTests: XCTestCase {
         }
                         
         XCTAssertEqual(fillValues.count, 1, "Expected exactly one fill color value")
-        XCTAssertNotEqual(fillValues.count, 0, "Should have at least one fill color")
-        XCTAssertNotEqual(fillValues.count, 2, "Should not have multiple fill colors")
         
         if let fillValue = fillValues.first {
             // The node ID should match the rectangle layer's ID
