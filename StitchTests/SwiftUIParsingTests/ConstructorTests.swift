@@ -61,11 +61,7 @@ final class ConstructorTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one root layer (the RoundedRectangle)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
-        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple layers")
-        
-        let roundedRectLayer = layerData.layers[0]
+        let roundedRectLayer = layerData
         
         // 2. Check that it's a rectangle layer (RoundedRectangle maps to .rectangle with cornerRadius input)
         if case let .layer(layerType) = roundedRectLayer.node_name.value {
@@ -163,11 +159,7 @@ final class ConstructorTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the Text)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
-        XCTAssertNotEqual(layerData.layers.count, 2, "Should not have multiple layers")
-        
-        let textLayer = layerData.layers[0]
+        let textLayer = layerData
         
         // 2. Check that the layer is a text layer
         if case let .layer(layerType) = textLayer.node_name.value {
@@ -252,10 +244,7 @@ final class ConstructorTests: XCTestCase {
         
         // Then - Verify the structure of the LayerData
         // 1. Check that we have exactly one layer (the SF Symbol)
-        XCTAssertEqual(layerData.layers.count, 1, "Should have exactly one layer")
-        XCTAssertNotEqual(layerData.layers.count, 0, "Should have at least one layer")
-        
-        let symbolLayer = layerData.layers[0]
+        let symbolLayer = layerData
         
         // 2. Check that the layer is an SF Symbol layer
         if case let .layer(layerType) = symbolLayer.node_name.value {

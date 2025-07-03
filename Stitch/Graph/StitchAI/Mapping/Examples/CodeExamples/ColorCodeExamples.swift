@@ -14,7 +14,7 @@ struct ColorCodeExamples {
         code:
     """
     Rectangle()
-        .fill(Color("yellow") as! String)
+        .fill(Color("yellow" as! String))
     """
     )
 

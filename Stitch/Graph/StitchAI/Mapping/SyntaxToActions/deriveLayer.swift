@@ -98,7 +98,6 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self) // Canvas sketch ?
         case .color:
             throw SwiftUISyntaxError.unsupportedLayer(self) // both Layer.hitArea AND Layer.colorFill
-            
         case .label:
             throw SwiftUISyntaxError.unsupportedLayer(self)
         case .asyncImage:

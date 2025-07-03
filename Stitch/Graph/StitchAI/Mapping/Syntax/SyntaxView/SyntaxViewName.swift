@@ -98,6 +98,42 @@ extension SyntaxViewName {
                                    childrenLayers: [])) != nil
     }
     
+    /// Returns true if this view type can have child views via closures
+    /// (e.g., VStack { ... }, HStack { ... })
+    var canHaveChildren: Bool {
+        switch self {
+        // Stack containers
+        case .vStack, .hStack, .zStack:
+            return true
+        case .lazyVStack, .lazyHStack, .lazyVGrid, .lazyHGrid:
+            return true
+        
+        // Layout containers
+        case .grid, .group:
+            return true
+        
+        // Scrollable containers
+        case .scrollView, .list:
+            return true
+        
+        // Navigation containers
+        case .navigationStack, .navigationSplit, .tabView:
+            return true
+        
+        // Form containers
+        case .form, .section:
+            return true
+        
+        // Special containers
+        case .forEach, .geometryReader:
+            return true
+        
+        // All other views cannot have children via closures
+        default:
+            return false
+        }
+    }
+    
 //    static let disabledViews: [Self] = Self.allCases.filter {
 //        $0.deriveLayer() == nil
 //    }
