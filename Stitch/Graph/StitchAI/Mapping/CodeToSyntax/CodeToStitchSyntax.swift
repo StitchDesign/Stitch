@@ -500,7 +500,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         let modifier = SyntaxViewModifier(
             name: modifierName,
-            arguments: []
+            arguments: finalArgs
         )
         addModifier(modifier)
     }
