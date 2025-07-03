@@ -487,15 +487,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         var finalArgs = modifierArguments
         if finalArgs.isEmpty {
             // For modifiers with no arguments
-            finalArgs = [
-//                SyntaxViewModifierArgument(
-//                    label: .noLabel,
-//                    value: .simple(SyntaxViewModifierArgumentData(
-//                        value: "",
-//                        syntaxKind: .literal(.unknown)
-//                    ))
-//                )
-            ]
+            finalArgs = []
         }
         
         let modifier = SyntaxViewModifier(
