@@ -221,7 +221,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct LayerInputCoordinate: Codable {
-        let layer_id: StitchAIUUID_V0.StitchAIUUID
+        var layer_id: StitchAIUUID_V0.StitchAIUUID
         let input_port_type: AILayerInputPort
     }
 
@@ -236,7 +236,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct CustomLayerInputValue: Codable {
-        let layer_input_coordinate: LayerInputCoordinate
+        var layer_input_coordinate: LayerInputCoordinate
         let value: Step_V0.PortValue
     }
     

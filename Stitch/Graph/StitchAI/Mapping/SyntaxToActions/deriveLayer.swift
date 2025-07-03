@@ -52,6 +52,14 @@ extension SyntaxViewName {
             }
         }
         
+        // Re-map all node IDs after processing layerIdAssignment
+        layerData.custom_layer_input_values = layerData.custom_layer_input_values
+            .map { customInputValue in
+                var customInputValue = customInputValue
+                customInputValue.layer_input_coordinate.layer_id = layerData.node_id
+                return customInputValue
+            }
+        
         return layerData
     }
     
