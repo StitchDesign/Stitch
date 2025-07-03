@@ -66,9 +66,7 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
 
 extension SyntaxViewModifierName {
     
-    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> DerivedLayerInputPortsResult? {
-        
-                
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> DerivedLayerInputPortsResult {
         switch (self, layer) {
             // Universal modifiers (same for every layer)
         case (.scaleEffect, _):
@@ -154,18 +152,25 @@ extension SyntaxViewModifierName {
             //        case (.backgroundColor, _):
             //            return .simple(.color)
                         
-        case (.disabled, _): return nil
-        case (.background, _): return nil
-        case (.font, _): return nil
-        case (.multilineTextAlignment, _): return nil
-        case (.underline, _): return nil
+        case (.disabled, _):
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case (.background, _):
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case (.font, _):
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case (.multilineTextAlignment, _):
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case (.underline, _):
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
             
             // TODO: support after v1 schema
 //        case (.keyboardType, _): return .simple(.keyboardType)
-        case (.disableAutocorrection, _): return nil
+        case (.disableAutocorrection, _):
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case (.clipped, _): return .simple(.clipped) // return .isClipped
             
-        case (.custom(_), _): return nil
+        case (.custom(_), _):
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
         }
     }
 }

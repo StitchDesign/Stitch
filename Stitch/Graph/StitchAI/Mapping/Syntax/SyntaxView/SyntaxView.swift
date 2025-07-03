@@ -25,4 +25,7 @@ struct SyntaxView: Equatable, Hashable, Sendable {
     var children: [SyntaxView]
     
     var id: UUID  // Unique identifier for the node
+    
+    // Catches errors
+    var errors: [SwiftUISyntaxError] = []
 }

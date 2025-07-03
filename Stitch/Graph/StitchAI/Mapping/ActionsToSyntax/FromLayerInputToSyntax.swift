@@ -47,23 +47,21 @@ extension SyntaxView {
     ///
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
-    static func build(from actions: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
-        try node(from: actions)
+    static func build(from actions: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> [Self] {
+        try actions.map(Self.node(from:))
     }
 
     // MARK: - Private helpers
 
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
-    private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self? {
-
-        // TODO: provide layer group orientation
-        guard let layer = layerData.node_name.value.layer,
-              let migratedLayer = try? layer.convert(to: Layer.self),
-              let viewName = migratedLayer.deriveSyntaxViewName() else {
-            log("Stitch layer has no SwiftUI view equivalent yet?: \(layerData)")
-            return nil
+    private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self {
+        guard let layer = layerData.node_name.value.layer else {
+            throw SwiftUISyntaxError.unexpectedPatchFound(layerData.node_name.value)
         }
+        
+        // TODO: provide layer group orientation
+        let viewName = try layer.deriveSyntaxViewName()
         
         // Gather all `layerInputSet` concepts that belong to this layer.
         let customInputEvents = layerData.custom_layer_input_values

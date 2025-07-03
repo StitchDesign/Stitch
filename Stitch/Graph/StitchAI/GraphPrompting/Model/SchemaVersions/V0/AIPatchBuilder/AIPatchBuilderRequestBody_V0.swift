@@ -21,7 +21,7 @@ enum AIPatchBuilderRequestBody_V0 {
         
         init(userPrompt: String,
              swiftUiSourceCode: String,
-             layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws {
+             layerDataList: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws {
             let responseFormat = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
             let structuredOutputs = responseFormat.json_schema.schema
             guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
@@ -36,7 +36,7 @@ enum AIPatchBuilderRequestBody_V0 {
             let inputs = AIPatchBuilderRequestInputs(
                 user_prompt: userPrompt,
                 swiftui_source_code: swiftUiSourceCode,
-                layer_data: layerData)
+                layer_data_list: layerDataList)
             let userInputsString = try inputs.encodeToPrintableString()
             
             self.messages = [
@@ -51,7 +51,7 @@ enum AIPatchBuilderRequestBody_V0 {
     struct AIPatchBuilderRequestInputs: Encodable {
         let user_prompt: String
         let swiftui_source_code: String
-        let layer_data: CurrentAIPatchBuilderResponseFormat.LayerData
+        let layer_data_list: [CurrentAIPatchBuilderResponseFormat.LayerData]
         
 //        enum CodingKeys: String, CodingKey {
 //            case user_prompt
