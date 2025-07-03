@@ -76,7 +76,8 @@ struct AICodeGenRequest: StitchAIRequestable {
             case .success(let swiftUISourceCode):
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
-                guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
+                let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode)
+                guard let viewNode = codeParserResult.rootView else {
                     return .failure(self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
                                                       document: document))
                 }
@@ -84,6 +85,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                 do {
                     let actionsResult = try viewNode.deriveStitchActions()
                     let layerDataList = actionsResult.actions
+                    let allDiscoveredErrors = actionsResult.caughtErrors + codeParserResult.caughtErrors
                     
                     let patchBuilderRequest = try AIPatchBuilderRequest(
                         prompt: userPrompt,
@@ -106,6 +108,17 @@ struct AICodeGenRequest: StitchAIRequestable {
                                     .GraphData(layer_data_list: layerDataList,
                                                patch_data: patchBuildResult)
                                 try graphData.applyAIGraph(to: document)
+                                
+#if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
+                                // Display parsing warnings
+                                if !allDiscoveredErrors.isEmpty {
+                                    document.storeDelegate?.alertState.stitchFileError = .unknownError("""
+                                        Stitch AI successfully completed with the following parsing warnings:
+                                        \(allDiscoveredErrors.map { "\n\($0)" })
+                                        """)
+                                }
+#endif
+                                
                             } catch {
                                 log("Error applying AI graph: \(error.localizedDescription)")
                                 document.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")

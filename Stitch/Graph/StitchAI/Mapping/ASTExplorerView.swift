@@ -214,8 +214,10 @@ struct ASTExplorerView: View {
         errorString = nil
         silentlyCaughtErrors = []
 
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
+        
         // Parse code → Syntax
-        guard let syntax = SwiftUIViewVisitor.parseSwiftUICode(currentCode) else {
+        guard let syntax = codeParserResult.rootView else {
             return
         }
         firstSyntax = syntax
@@ -223,8 +225,10 @@ struct ASTExplorerView: View {
         do {
             // Syntax → Actions
             let stitchActionsResult = try syntax.deriveStitchActions()
+            let allErrors = stitchActionsResult.caughtErrors + codeParserResult.caughtErrors
+            
             stitchActions = stitchActionsResult.actions
-            silentlyCaughtErrors = stitchActionsResult.caughtErrors
+            silentlyCaughtErrors = allErrors
             
             // Actions → Syntax
             rebuiltSyntax = try SyntaxView.build(from: stitchActions)

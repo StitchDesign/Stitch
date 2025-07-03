@@ -14,9 +14,14 @@ import SwiftSyntaxBuilder
 
 // MARK: - SwiftUI Code to ViewNode
 
+struct SwiftUIViewParserResult {
+    let rootView: SyntaxView?
+    let caughtErrors: [SwiftUISyntaxError]
+}
+
 extension SwiftUIViewVisitor {
     /// Parses SwiftUI code into a ViewNode structure
-    static func parseSwiftUICode(_ swiftUICode: String) -> SyntaxView? {
+    static func parseSwiftUICode(_ swiftUICode: String) -> SwiftUIViewParserResult {
         print("\n==== PARSING CODE ====\n\(swiftUICode)\n=====================\n")
         
         // Fall back to the original visitor-based approach for now
@@ -30,7 +35,11 @@ extension SwiftUIViewVisitor {
         // Create a visitor that will extract the view structure
         let visitor = SwiftUIViewVisitor(viewMode: .sourceAccurate)
         visitor.walk(sourceFile)
-        return visitor.rootViewNode
+        
+        let errors = visitor.unknownViewNames.map(SwiftUISyntaxError.unsupportedSyntaxName)
+        
+        return .init(rootView: visitor.rootViewNode,
+                     caughtErrors: errors)
     }
 }
 
@@ -48,6 +57,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         case arguments
     }
     private var contextStack: [ParsingContext] = [.root]
+    
+    // Tracks unknown views
+    var unknownViewNames: [String] = []
     
     // Debug logging for tracing the parsing process
     private func log(_ message: String) {
@@ -160,6 +172,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             guard let nameType = SyntaxViewName.from(viewName) else {
 //                fatalErrorIfDebug("No view discovered for: \(viewName)")
                 log("No view discovered for: \(viewName)")
+                
+                // Tracks for later silent failures
+                self.unknownViewNames.append(viewName)
+                
                 return .skipChildren
             }
             
@@ -543,37 +559,37 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
 }
 
-// Example usage function to test the parsing
-func testSwiftUIToViewNode(swiftUICode: String) {
-    if let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode) {
-        print("\n==== PARSED VIEWNODE RESULT ====\n")
-        print("Name: \(viewNode.name.rawValue)")
-        print("Arguments: \(viewNode.constructorArguments)")
-        print("Modifiers (\(viewNode.modifiers.count)):")
-        for (index, modifier) in viewNode.modifiers.enumerated() {
-            print("  [\(index)] \(modifier.name.rawValue))")
-            if !modifier.arguments.isEmpty {
-                print("    Arguments:")
-                for arg in modifier.arguments {
-                    print("      \(arg.label): \(arg.value)")
-                }
-            }
-        }
-        print("Children: \(viewNode.children.count)")
-        print("============================\n")
-    } else {
-        print("Failed to parse SwiftUI code")
-    }
-}
-
-// Run a simple test with a Text view that has modifiers
-func runModifierParsingTest() {
-    print("\n==== TESTING MODIFIER PARSING ====\n")
-    
-    let testCode = "Text(\"Hello\").foregroundColor(.blue).padding()"
-    print("Test code: \(testCode)")
-    
-    testSwiftUIToViewNode(swiftUICode: testCode)
-    
-    print("\n==== TEST COMPLETE ====\n")
-}
+//// Example usage function to test the parsing
+//func testSwiftUIToViewNode(swiftUICode: String) {
+//    if let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode) {
+//        print("\n==== PARSED VIEWNODE RESULT ====\n")
+//        print("Name: \(viewNode.name.rawValue)")
+//        print("Arguments: \(viewNode.constructorArguments)")
+//        print("Modifiers (\(viewNode.modifiers.count)):")
+//        for (index, modifier) in viewNode.modifiers.enumerated() {
+//            print("  [\(index)] \(modifier.name.rawValue))")
+//            if !modifier.arguments.isEmpty {
+//                print("    Arguments:")
+//                for arg in modifier.arguments {
+//                    print("      \(arg.label): \(arg.value)")
+//                }
+//            }
+//        }
+//        print("Children: \(viewNode.children.count)")
+//        print("============================\n")
+//    } else {
+//        print("Failed to parse SwiftUI code")
+//    }
+//}
+//
+//// Run a simple test with a Text view that has modifiers
+//func runModifierParsingTest() {
+//    print("\n==== TESTING MODIFIER PARSING ====\n")
+//    
+//    let testCode = "Text(\"Hello\").foregroundColor(.blue).padding()"
+//    print("Test code: \(testCode)")
+//    
+//    testSwiftUIToViewNode(swiftUICode: testCode)
+//    
+//    print("\n==== TEST COMPLETE ====\n")
+//}
