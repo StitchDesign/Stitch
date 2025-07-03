@@ -16,7 +16,7 @@ extension SyntaxViewName {
                          args: [SyntaxViewConstructorArgument],
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
-
+        
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var (layerType, layerData) = try self
             .deriveLayerAndCustomValuesFromName(id: id,
@@ -34,7 +34,7 @@ extension SyntaxViewName {
             id: id,
             layerType: layerType,
             modifiers: modifiers)
-
+        
         layerData.custom_layer_input_values += customInputValues
         layerData.custom_layer_input_values += customModifierValues
         
@@ -49,17 +49,17 @@ extension SyntaxViewName {
         
         var layerType: CurrentStep.Layer
         var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
-
+        
         switch self {
         case .rectangle:         layerType = .rectangle
             
-        // Note: Swift Circle is a little bit different
+            // Note: Swift Circle is a little bit different
         case .circle, .ellipse:  layerType = .oval
-        
-        // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return
+            
+            // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return
         case .text: layerType = .text
             
-        // SwiftUI TextField view has different arg-constructors, but those do not change the Layer we return
+            // SwiftUI TextField view has different arg-constructors, but those do not change the Layer we return
         case .textField: layerType = .textField
             
         case .image:
@@ -87,11 +87,11 @@ extension SyntaxViewName {
             layerType = .textField
             
             // TODO: JUNE 24: current Step_V0 doesn't support keyboard ?
-//            customValues.append(
-//                .init(id: id,
-//                      input: .keyboardType,
-//                      value: .keyboardType(.password))
-//            )
+            //            customValues.append(
+            //                .init(id: id,
+            //                      input: .keyboardType,
+            //                      value: .keyboardType(.password))
+            //            )
             
         case .scrollView:
             let layerData = try Self
@@ -146,11 +146,11 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self)
         case .divider:
             throw SwiftUISyntaxError.unsupportedLayer(self)
-
+            
         case .color:
             throw SwiftUISyntaxError.unsupportedLayer(self) // both Layer.hitArea AND Layer.colorFill
-        
-        // MARK: views we may never support? Either because inferred or some other dynamic
+            
+            // MARK: views we may never support? Either because inferred or some other dynamic
             
             
         case .capsule,
@@ -187,7 +187,7 @@ extension SyntaxViewName {
                 .preview,
                 .timelineSchedule:
             throw SwiftUISyntaxError.unsupportedLayer(self)
-        
+            
         case .roundedRectangle:
             layerType = .rectangle
             if let arg = args.first(where: { $0.label == .cornerRadius }),
@@ -199,7 +199,8 @@ extension SyntaxViewName {
                           value: .number(radius))
                 )
             }
-
+        }
+        
         // Final bare layer (children added later)
         var layerNode = CurrentAIPatchBuilderResponseFormat
             .LayerData(node_id: .init(value: id),
@@ -217,56 +218,56 @@ extension SyntaxViewName {
         id: UUID,
         layerType: CurrentStep.Layer,
         args: [SyntaxViewConstructorArgument]) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
-        // ── Generic constructor‑argument handling (literals & edges) ─────────
-        for arg in args {
-
-            // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
-            // Skip the specialised RoundedRectangle .cornerRadius
-            if self == .roundedRectangle && arg.label == .cornerRadius { continue }
-
-            guard let port = arg.deriveLayerInputPort(layerType),
-                  let portValue = arg.derivePortValue(layerType) else { continue }
-
-            // Process each value in the argument
-            for value in arg.values {
-                switch value.syntaxKind {
-                case .literal:
-                    customValues.append(
-                        .init(id: id,
-                              input: port,
-                              value: portValue)
-                    )
-                case .variable, .expression:
-                    // Skip variables for edges, using AI instead
-                    continue
-//                    extras.append(.createEdge(VPLCreateEdge(name: port)))
+            
+            var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+            
+            // ── Generic constructor‑argument handling (literals & edges) ─────────
+            for arg in args {
+                
+                // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
+                // Skip the specialised RoundedRectangle .cornerRadius
+                if self == .roundedRectangle && arg.label == .cornerRadius { continue }
+                
+                guard let port = arg.deriveLayerInputPort(layerType),
+                      let portValue = arg.derivePortValue(layerType) else { continue }
+                
+                // Process each value in the argument
+                for value in arg.values {
+                    switch value.syntaxKind {
+                    case .literal:
+                        customValues.append(
+                            .init(id: id,
+                                  input: port,
+                                  value: portValue)
+                        )
+                    case .variable, .expression:
+                        // Skip variables for edges, using AI instead
+                        continue
+                        //                    extras.append(.createEdge(VPLCreateEdge(name: port)))
+                    }
                 }
-            }
-        } // for arg in args
-        
-        return customValues
-    }
+            } // for arg in args
+            
+            return customValues
+        }
     
     static func deriveCustomValuesFromViewModifiers(
         id: UUID,
         layerType: CurrentStep.Layer,
         modifiers: [SyntaxViewModifier]) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
-        for modifier in modifiers {
-            customValues = try Self.deriveCustomValuesFromViewModifier(
-                id: id,
-                layerType: layerType,
-                modifier: modifier,
-                customValues: customValues)
+            
+            var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+            
+            for modifier in modifiers {
+                customValues = try Self.deriveCustomValuesFromViewModifier(
+                    id: id,
+                    layerType: layerType,
+                    modifier: modifier,
+                    customValues: customValues)
+            }
+            
+            return customValues
         }
-        
-        return customValues
-    }
     
     private static func deriveCustomValuesFromViewModifier(
         id: UUID,
@@ -352,7 +353,7 @@ extension SyntaxViewName {
             
         } // for (idx, arg) in ...
         
-
+        
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
         customValues.append(try .init(id: id,port: port, value: portValue))
         
