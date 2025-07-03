@@ -92,10 +92,14 @@ extension SyntaxViewName {
     }
     
     var isSupported: Bool {
-        (try? self.deriveLayerData(id: .init(),
-                                   args: [],
-                                   modifiers: [],
-                                   childrenLayers: [])) != nil
+        // unused
+        var map = [UUID : UUID]()
+        
+        return (try? self.deriveLayerData(id: .init(),
+                                          args: [],
+                                          modifiers: [],
+                                          childrenLayers: [],
+                                          idMap: &map)) != nil
     }
     
     /// Returns true if this view type can have child views via closures
