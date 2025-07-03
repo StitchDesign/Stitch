@@ -7,9 +7,9 @@
 
 import Foundation
 
-extension Layer {
+extension CurrentStep.Layer {
     
-    func deriveSyntaxViewName(layerGroupOrientiation: StitchOrientation? = nil) -> SyntaxViewName? {
+    func deriveSyntaxViewName(layerGroupOrientiation: StitchOrientation? = nil) throws -> SyntaxViewName {
         
         switch self {
         
@@ -47,15 +47,15 @@ extension Layer {
         case .canvasSketch:
             return .canvas
         case .realityView:
-            return nil
+            throw SwiftUISyntaxError.unsupportedSyntaxViewName(self)
         case .shape:
-            return nil
+            throw SwiftUISyntaxError.unsupportedSyntaxViewName(self)
         case .colorFill:
             return .color
         case .hitArea:
             return .color
         case .progressIndicator:
-            return nil
+            throw SwiftUISyntaxError.unsupportedSyntaxViewName(self)
         case .switchLayer:
             return .toggle
         case .videoStreaming:

@@ -8,26 +8,60 @@
 import Foundation
 import SwiftUI
 
+struct SwiftSyntaxActionsResult {
+    let actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
+    var caughtErrors: [SwiftUISyntaxError]
+}
+
+extension Array where Element == SyntaxView {
+    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+        let allResults = try self.map { try $0.deriveStitchActions() }
+        
+        return .init(actions: allResults.flatMap { $0.actions },
+                     caughtErrors: allResults.flatMap { $0.caughtErrors })
+    }
+}
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
-        var childLayers: [CurrentAIPatchBuilderResponseFormat.LayerData] = []
-        
+    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        for child in self.children {
-            // depth-first
-            let childConcepts = try child.deriveStitchActions()
-            childLayers.append(childConcepts)
-        }
+        let childResults = try self.children.deriveStitchActions()
+        let errorsForConstructorArgs = self.errors
 
         // Map this node
-        let layerData = try self.name.deriveLayerData(
-            id: self.id,
-            args: self.constructorArguments,
-            modifiers: self.modifiers,
-            childrenLayers: childLayers)
-        
-        return layerData
+        do {
+            var layerData = try self.name.deriveLayerData(
+                id: self.id,
+                args: self.constructorArguments,
+                modifiers: self.modifiers,
+                childrenLayers: childResults.actions)
+            
+            guard let layer = layerData.node_name.value.layer else {
+                fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
+                throw SwiftUISyntaxError.layerDecodingFailed
+            }
+            
+            if !layer.isGroup {
+                // Make sure non-grouped layer has no children
+                assertInDebug(childResults.actions.isEmpty)
+                layerData.children = nil
+            }
+    
+            return .init(actions: [layerData],
+                         caughtErrors: childResults.caughtErrors + errorsForConstructorArgs)
+        } catch let error as SwiftUISyntaxError {
+            switch error {
+            case .unsupportedLayer, .unsupportedViewModifier, .unsupportedSyntaxArgument, .unsupportedSyntaxName:
+                log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
+                // Silent error for unsupported layers
+                var resultForSilentFailure = childResults
+                resultForSilentFailure.caughtErrors.append(error)
+                return resultForSilentFailure
+                
+            default:
+                throw error
+            }
+        }
     }
 }
 

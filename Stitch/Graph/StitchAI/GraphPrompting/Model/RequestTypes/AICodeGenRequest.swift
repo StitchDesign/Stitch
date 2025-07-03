@@ -76,18 +76,21 @@ struct AICodeGenRequest: StitchAIRequestable {
             case .success(let swiftUISourceCode):
                 print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
-                guard let viewNode = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode) else {
+                let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode)
+                guard let viewNode = codeParserResult.rootView else {
                     return .failure(self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
                                                       document: document))
                 }
                 
                 do {
-                    let layerData = try viewNode.deriveStitchActions()
+                    let actionsResult = try viewNode.deriveStitchActions()
+                    let layerDataList = actionsResult.actions
+                    let allDiscoveredErrors = actionsResult.caughtErrors + codeParserResult.caughtErrors
                     
                     let patchBuilderRequest = try AIPatchBuilderRequest(
                         prompt: userPrompt,
                         swiftUISourceCode: swiftUISourceCode,
-                        layerData: layerData)
+                        layerDataList: layerDataList)
                     
                     let patchBuilderResult = await patchBuilderRequest
                         .request(document: document,
@@ -102,9 +105,21 @@ struct AICodeGenRequest: StitchAIRequestable {
                             
                             do {
                                 let graphData = CurrentAIPatchBuilderResponseFormat
-                                    .GraphData(layer_data: [layerData],
+                                    .GraphData(layer_data_list: layerDataList,
                                                patch_data: patchBuildResult)
                                 try graphData.applyAIGraph(to: document)
+                                
+#if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
+                                // Display parsing warnings
+                                if !allDiscoveredErrors.isEmpty {
+                                    let caughtErrorsString = allDiscoveredErrors.reduce(into: "") { stringBuilder, error in
+                                        stringBuilder += "\n\(error)"
+                                    }
+                                    
+                                    document.storeDelegate?.alertState.stitchFileError = .unknownError("Warnings for the following unknown concepts:\(caughtErrorsString)")
+                                }
+#endif
+                                
                             } catch {
                                 log("Error applying AI graph: \(error.localizedDescription)")
                                 document.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")

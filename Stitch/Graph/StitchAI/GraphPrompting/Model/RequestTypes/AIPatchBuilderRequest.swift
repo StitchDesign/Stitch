@@ -21,7 +21,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     @MainActor
     init(prompt: String,
          swiftUISourceCode: String,
-         layerData: CurrentAIPatchBuilderResponseFormat.LayerData,
+         layerDataList: [CurrentAIPatchBuilderResponseFormat.LayerData],
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -33,7 +33,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         // Construct http payload
         self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
                                                   swiftUiSourceCode: swiftUISourceCode,
-                                                  layerData: layerData)
+                                                  layerDataList: layerDataList)
     }
     
     @MainActor
@@ -177,14 +177,14 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // create nested layer nodes in graph
-        for newLayer in self.layer_data {
+        for newLayer in self.layer_data_list {
             // Recursive caller
             try document.createLayerNodeFromAI(newLayer: newLayer,
                                                idMap: &idMap)
         }
         
         // Create nested sidebar layer data AFTER idMap gets updated from above layer logic
-        let newSidebarData = try self.layer_data.map { try $0.createSidebarLayerData(idMap: idMap) }
+        let newSidebarData = try self.layer_data_list.map { try $0.createSidebarLayerData(idMap: idMap) }
         
         // Update sidebar view model data with new layer data in beginning
         let oldSidebarList = graph.layersSidebarViewModel.createdOrderedEncodedData()
@@ -205,7 +205,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         // new constants for layers
-        for newInputValueSetting in self.layer_data.allNestedCustomInputValues {
+        for newInputValueSetting in self.layer_data_list.allNestedCustomInputValues {
             let inputCoordinate = try NodeIOCoordinate(
                 from: newInputValueSetting.layer_input_coordinate,
                 idMap: idMap)
