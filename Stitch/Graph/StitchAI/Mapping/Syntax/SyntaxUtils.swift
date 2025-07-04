@@ -45,6 +45,10 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
         
     case .axis(let x, let y, let z):
         return "axis(x: \(describe(x)), y: \(describe(y)), z: \(describe(z)))"
+    
+    case .complex(let type):
+        // TODO: better label for describe
+        return type.typeName
     }
 }
 

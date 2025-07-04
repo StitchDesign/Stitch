@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftParser
 
 
-struct SyntaxViewModifier: Equatable, Hashable, Sendable, Codable {
+struct SyntaxViewModifier: Equatable, Hashable, Sendable {
 
     // representation of a SwiftUI view modifier name
     let name: SyntaxViewModifierName
@@ -33,11 +33,16 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable, Codable {
  )
  ```
  */
-struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable, Codable {
+struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable {
     let label: SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
 }
 
+struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
+    let typeName: String
+    
+    let arguments: LabeledExprListSyntax
+}
 
 /*
  A single given parameter (i.e. a single label)
@@ -51,10 +56,12 @@ struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable, Codable {
     )
  ```
  */
-enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Codable {
+enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     // e.g. .opacity(5.0)
     case simple(SyntaxViewModifierArgumentData)
+    
+    case complex(SyntaxViewModifierComplexType)
     
     // e.g. .rotationEffect(.degrees(90), axis: ...)
     case angle(SyntaxViewModifierArgumentAngle)

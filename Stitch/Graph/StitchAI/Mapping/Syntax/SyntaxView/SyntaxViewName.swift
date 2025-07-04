@@ -7,6 +7,35 @@
 import Foundation
 import SwiftUI
 
+enum SyntaxNameType {
+    case view(SyntaxViewName)
+    case value(SyntaxValueName)
+}
+
+extension SyntaxNameType {
+    static func from(_ identifier: String) -> Self? {
+        // Checks views first (arbitrarily)
+        if let view = SyntaxViewName(rawValue: identifier) {
+            return .view(view)
+        }
+        
+        if let value = SyntaxValueName(rawValue: identifier) {
+            return .value(value)
+        }
+        
+        return nil
+    }
+    
+    var isView: Bool {
+        switch self {
+        case .view:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 /// A growing catalogue of SwiftUI view types we recognise.
 /// Use `ViewKind(from:)` to convert a textual identifier into a typed case;
 /// use `.string` to go the other way.  Anything unknown is stored in `.custom`.
@@ -77,6 +106,11 @@ enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendabl
     case anyView = "AnyView"
     case preview = "Preview"
     case timelineSchedule = "TimelineSchedule"
+}
+
+// Supported custom value types
+enum SyntaxValueName: String, Hashable, CaseIterable {
+    case portValueDescription = "PortValueDescription"
 }
 
 // MARK: - String ↔︎ enum helpers
