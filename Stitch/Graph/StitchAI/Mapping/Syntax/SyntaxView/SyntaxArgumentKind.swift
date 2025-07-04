@@ -67,6 +67,8 @@ extension SyntaxArgumentKind {
             kind = .literal(.tuple)
         } else if expression.is(RegexLiteralExprSyntax.self) {
             kind = .literal(.regex)
+        } else if expression.is(MemberAccessExprSyntax.self) {
+            kind = .literal(.memberAccess)
         }
         
         //            else if expression.is(ColorLiteralExprSyntax.self) {
@@ -87,9 +89,10 @@ extension SyntaxArgumentKind {
             } else {
                 kind = .variable(.identifier)
             }
+        }
             
         // Expressions
-        } else if expression.is(InfixOperatorExprSyntax.self) {
+        else if expression.is(InfixOperatorExprSyntax.self) {
             kind = .expression(.infixOperator)
         } else if expression.is(PrefixOperatorExprSyntax.self) {
             kind = .expression(.prefixOperator)
@@ -127,6 +130,7 @@ enum SyntaxArgumentLiteralKind: String, Equatable, Hashable, Codable {
     case colorLiteral     = "ColorLiteral"          // `#colorLiteral(...)`
     case imageLiteral     = "ImageLiteral"          // `#imageLiteral(...)`
     case fileLiteral      = "FileLiteral"           // `#fileLiteral(...)`
+    case memberAccess     = "MemberAccess"          // `Color.blue` or `.blue`
 }
 
 /// Possible syntactic shapes for a variable reference.
