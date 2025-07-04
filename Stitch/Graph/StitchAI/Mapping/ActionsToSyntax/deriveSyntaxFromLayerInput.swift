@@ -20,6 +20,7 @@ enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case unsupportedSyntaxViewName(String)
     case unsupportedSyntaxViewModifierName(String)
     case unsupportedSyntaxViewModifierArgumentName(String)
+    case unsupportedComplexValueType(String)
     
     case unsupportedLayer(SyntaxViewName)
     case unsupportedSyntaxFromLayerInput(CurrentStep.LayerInputPort)
@@ -46,7 +47,8 @@ extension SwiftUISyntaxError {
                 .unsupportedSyntaxViewModifierArgumentName,
                 .unsupportedLayer,
                 .unsupportedSyntaxFromLayerInput,
-                .unsupportedSyntaxViewLayer:
+                .unsupportedSyntaxViewLayer,
+                .unsupportedComplexValueType:
             return true
             
         default:

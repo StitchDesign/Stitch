@@ -351,15 +351,19 @@ extension SyntaxViewName {
                 
                 // Handles types like PortValueDescription
             case .complex(let complexType):
-                // Handles PortValueDescription
-                if complexType.typeName == "PortValueDescription" {
+                let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
+                switch complexTypeName {
+                case .none:
+                    throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
+                    
+                case .portValueDescription:
                     guard let valueArg = complexType.arguments.first(where: { $0.label?.text == "value" }),
                           let valueTypeArg = complexType.arguments.first(where: { $0.label?.text == "value_type" }) else {
                         throw SwiftUISyntaxError.portValueDataDecodingFailure
                     }
                     let valueStr = valueArg.expression.trimmedDescription
                     let valueTypeStr = valueTypeArg.expression.trimmedDescription
-                    
+    
                     // TODO: come back here!
                 }
                 
