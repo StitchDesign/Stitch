@@ -20,6 +20,14 @@ struct FatalErrorIfDebugView: View {
     }
 }
 
+func logToServerIfRelease(_ message: String) {
+    #if RELEASE
+    log(message, .logToServer)
+    #else
+    log(message)
+    #endif
+}
+
 func fatalErrorIfDebug(_ message: String = "") {
 #if DEBUG || DEV_DEBUG || STITCH_AI_TESTING
     fatalError(message)

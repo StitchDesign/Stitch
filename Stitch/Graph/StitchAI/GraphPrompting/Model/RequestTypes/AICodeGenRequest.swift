@@ -74,12 +74,21 @@ struct AICodeGenRequest: StitchAIRequestable {
                                                aiManager: aiManager)
             switch result {
             case .success(let swiftUISourceCode):
-                print("SUCCESS Code Gen:\n\(swiftUISourceCode)")
+                logToServerIfRelease("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
-                let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUISourceCode)
+                guard let parsedVarBody = VarBodyParser.extract(from: swiftUISourceCode) else {
+                    logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
+                    return .failure(self.displayError(failure: SwiftUISyntaxError.couldNotParseVarBody,
+                                                      document: document))
+                }
+                
+                logToServerIfRelease("SUCCESS parsedVarBody:\n\(parsedVarBody)")
+                
+                let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)
                 var allDiscoveredErrors = codeParserResult.caughtErrors
 
                 guard let viewNode = codeParserResult.rootView else {
+                    logToServerIfRelease("SwiftUISyntaxError.viewNodeNotFound.localizedDescription: \(SwiftUISyntaxError.viewNodeNotFound.localizedDescription)")
                     return .failure(self.displayError(failure: SwiftUISyntaxError.viewNodeNotFound,
                                                       document: document))
                 }
@@ -100,7 +109,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                     
                     switch patchBuilderResult {
                     case .success(let patchBuildResult):
-                        print("SUCCESS Patch Builder:\n\(patchBuildResult)")
+                        logToServerIfRelease("SUCCESS Patch Builder:\n\(patchBuildResult)")
                         
                         DispatchQueue.main.async { [weak document] in
                             guard let document = document else { return }
@@ -123,7 +132,7 @@ struct AICodeGenRequest: StitchAIRequestable {
 #endif
                                 
                             } catch {
-                                log("Error applying AI graph: \(error.localizedDescription)")
+                                logToServerIfRelease("Error applying AI graph: \(error.localizedDescription)")
                                 document.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")
                             }
                             
@@ -134,7 +143,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                         return .success(patchBuildResult)
                         
                     case .failure(let failure):
-                        log("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)", .logToServer)
+                        logToServerIfRelease("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)")
                         return .failure(Self.displayError(failure: failure,
                                                           document: document))
                     }
@@ -144,7 +153,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                 }
                 
             case .failure(let failure):
-                log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
+                logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
                 return .failure(Self.displayError(failure: failure,
                                                   document: document))
             }

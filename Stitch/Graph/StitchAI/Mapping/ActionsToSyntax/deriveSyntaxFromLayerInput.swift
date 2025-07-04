@@ -11,6 +11,7 @@ import SwiftSyntax
 enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
+    case couldNotParseVarBody
     case unsupportedViewModifier(SyntaxViewModifierName)
     
     // Decoding from string
