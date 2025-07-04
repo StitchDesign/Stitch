@@ -16,12 +16,13 @@ import SwiftParser
 ///
 /// This relies on **SwiftSyntax/SwiftParser**, so it respects Swift grammar:
 /// occurrences of “var body” inside comments, strings, or nested types are ignored.
-public enum VarBodyParser {
+enum VarBodyParser {
+    
     /// Parses `source` and returns *only* the source between the braces of
     /// `var body: some View { … }`, preserving every character exactly as
     /// written (indentation, comments, blank lines).
     /// - Returns: The interior text, or `nil` if no matching declaration exists.
-    public static func extract(from source: String) throws -> String? {
+    static func extract(from source: String) -> String? {
         // Parse the source.
         let tree   = Parser.parse(source: source)
         let finder = BodyFinder(viewMode: .sourceAccurate)
@@ -46,13 +47,13 @@ public enum VarBodyParser {
         let endIndex   = String.Index(utf16Offset: endOffset, in: source)
         return String(source[startIndex..<endIndex])
     }
-    
-    // MARK: - Private
-    
+        
     /// Visits each `VariableDeclSyntax` until it finds the first declaration that:
     ///   * is named “body”
     ///   * has a single binding
     ///   * has a type annotation exactly equal to `some View`
+    
+    // Note: is a class because it implements SwiftSyntax's SyntaxVisitor
     private final class BodyFinder: SyntaxVisitor {
         var result: VariableDeclSyntax?
         
