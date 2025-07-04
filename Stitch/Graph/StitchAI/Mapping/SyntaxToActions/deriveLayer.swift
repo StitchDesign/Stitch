@@ -221,6 +221,9 @@ extension SyntaxViewName {
                           value: .number(radius))
                 )
             }
+            
+        default:
+            throw SwiftUISyntaxError.unsupportedLayer(self)
         }
         
         // Final bare layer (children added later)

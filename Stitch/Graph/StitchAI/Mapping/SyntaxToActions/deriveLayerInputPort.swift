@@ -179,6 +179,8 @@ extension SyntaxViewModifierName {
             return .simple(.clipped) // return .isClipped
         case (.layerId, _):
             return .layerId
+        default:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
         }
     }
 }

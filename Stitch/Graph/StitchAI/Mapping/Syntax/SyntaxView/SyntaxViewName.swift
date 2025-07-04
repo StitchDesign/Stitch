@@ -36,78 +36,6 @@ extension SyntaxNameType {
     }
 }
 
-/// A growing catalogue of SwiftUI view types we recognise.
-/// Use `ViewKind(from:)` to convert a textual identifier into a typed case;
-/// use `.string` to go the other way.  Anything unknown is stored in `.custom`.
-enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendable {
-    case rectangle = "Rectangle"
-    case roundedRectangle = "RoundedRectangle"
-    case circle = "Circle"
-    case ellipse = "Ellipse"
-    case capsule = "Capsule"
-    case path = "Path"
-    case color = "Color"
-    case linearGradient = "LinearGradient"
-    case radialGradient = "RadialGradient"
-    case angularGradient = "AngularGradient"
-    case material = "Material"
-    case canvas = "Canvas"
-
-    case text = "Text"
-    case textField = "TextField"
-    case secureField = "SecureField"
-    case label = "Label"
-    case image = "Image"
-    case asyncImage = "AsyncImage"
-    case symbolEffect = "SymbolEffect"
-
-    case group = "Group"
-    case vStack = "VStack"
-    case hStack = "HStack"
-    case zStack = "ZStack"
-    case lazyVStack = "LazyVStack"
-    case lazyHStack = "LazyHStack"
-    case lazyVGrid = "LazyVGrid"
-    case lazyHGrid = "LazyHGrid"
-    case grid = "Grid"
-    case spacer = "Spacer"
-    case divider = "Divider"
-    case geometryReader = "GeometryReader"
-    case alignmentGuide = "AlignmentGuide"
-
-    case scrollView = "ScrollView"
-    case list = "List"
-    case table = "Table"
-    case outlineGroup = "OutlineGroup"
-    case forEach = "ForEach"
-
-    case navigationStack = "NavigationStack"
-    case navigationSplit = "NavigationSplitView"
-    case navigationLink = "NavigationLink"
-    case tabView = "TabView"
-    case form = "Form"
-    case section = "Section"
-
-    case button = "Button"
-    case toggle = "Toggle"
-    case slider = "Slider"
-    case stepper = "Stepper"
-    case picker = "Picker"
-    case datePicker = "DatePicker"
-    case gauge = "Gauge"
-    case progressView = "ProgressView"
-    case link = "Link"
-
-    case videoPlayer = "VideoPlayer"
-    case map = "Map"
-    case model3D = "Model3D"
-    case timelineView = "TimelineView"
-
-    case anyView = "AnyView"
-    case preview = "Preview"
-    case timelineSchedule = "TimelineSchedule"
-}
-
 // Supported custom value types
 enum SyntaxValueName: String, Hashable, CaseIterable {
     case portValueDescription = "PortValueDescription"
@@ -132,6 +60,7 @@ extension SyntaxViewName {
                                    childrenLayers: [])) != nil
     }
     
+    // TODO: phase this out by using proper closure-checking
     /// Returns true if this view type can have child views via closures
     /// (e.g., VStack { ... }, HStack { ... })
     var canHaveChildren: Bool {
@@ -173,3 +102,89 @@ extension SyntaxViewName {
 //    }
 }
 
+
+/// A growing catalogue of SwiftUI view types we recognise.
+/// Use `ViewKind(from:)` to convert a textual identifier into a typed case;
+/// use `.string` to go the other way.  Anything unknown is stored in `.custom`.
+enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendable {
+    case anyView = "AnyView"
+    case angularGradient = "AngularGradient"
+    case asyncImage = "AsyncImage"
+    case button = "Button"
+    case capsule = "Capsule"
+    case canvas = "Canvas"
+    case chart = "Chart"
+    case circle = "Circle"
+    case color = "Color"
+    case colorPicker = "ColorPicker"
+    case contentUnavailableView = "ContentUnavailableView"
+    case controlGroup = "ControlGroup"
+    case datePicker = "DatePicker"
+    case divider = "Divider"
+    case disclosureGroup = "DisclosureGroup"
+    case ellipse = "Ellipse"
+    case emptyView = "EmptyView"
+    case forEach = "ForEach"
+    case form = "Form"
+    case gauge = "Gauge"
+    case geometryReader = "GeometryReader"
+    case grid = "Grid"
+    case gridRow = "GridRow"
+    case group = "Group"
+    case groupBox = "GroupBox"
+    case labeledContent = "LabeledContent"
+    case label = "Label"
+    case lazyHGrid = "LazyHGrid"
+    case lazyHStack = "LazyHStack"
+    case lazyVGrid = "LazyVGrid"
+    case lazyVStack = "LazyVStack"
+    case link = "Link"
+    case map = "Map"
+    case material = "Material"
+    case menu = "Menu"
+    case model3D = "Model3D"
+    case navigationLink = "NavigationLink"
+    case navigationStack = "NavigationStack"
+    case navigationSplit = "NavigationSplitView"
+    case navigationView = "NavigationView"
+    case outlineGroup = "OutlineGroup"
+    case path = "Path"
+    case preview = "Preview"
+    case progressView = "ProgressView"
+    case radialGradient = "RadialGradient"
+    case realityView = "RealityView"
+    case rectangle = "Rectangle"
+    case roundedRectangle = "RoundedRectangle"
+    case sceneView = "SceneView"
+    case scrollView = "ScrollView"
+    case scrollViewReader = "ScrollViewReader"
+    case section = "Section"
+    case shareLink = "ShareLink"
+    case slider = "Slider"
+    case snapshotView = "SnapshotView"
+    case spacer = "Spacer"
+    case spriteView = "SpriteView"
+    case stepper = "Stepper"
+    case symbolEffect = "SymbolEffect"
+    case tabView = "TabView"
+    case text = "Text"
+    case textEditor = "TextEditor"
+    case textField = "TextField"
+    case timelineSchedule = "TimelineSchedule"
+    case timelineView = "TimelineView"
+    case toggle = "Toggle"
+    case tokenField = "TokenField"
+    case toolBar = "ToolBar"
+    case videoPlayer = "VideoPlayer"
+    case viewThatFits = "ViewThatFits"
+    case vStack = "VStack"
+    case hStack = "HStack"
+    case zStack = "ZStack"
+    case list = "List"
+    case image = "Image"
+    case linearGradient = "LinearGradient"
+    case secureField = "SecureField"
+    case alignmentGuide = "AlignmentGuide"
+    case table = "Table"
+    case picker = "Picker"
+}
