@@ -87,10 +87,28 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     /// `.degrees(90)` or `.black` – have `base == nil`, so they are
     /// filtered out.
     private func modifierNameIfViewModifier(_ node: FunctionCallExprSyntax) -> String? {
-        guard let member = node.calledExpression.as(MemberAccessExprSyntax.self),
-              member.base != nil      // nil ⇒ helper call, not a modifier
-        else { return nil }
-        return member.declName.baseName.text
+        guard
+            // Must look like `.something`  (i.e. a MemberAccessExpr)
+            let member = node.calledExpression.as(MemberAccessExprSyntax.self),
+            let base   = member.base            // no base ⇒ e.g. `.degrees(90)` helper
+        else {
+            return nil
+        }
+        
+        /// Walks the `base` chain and returns `true` iff we eventually hit a
+        /// `FunctionCallExprSyntax` (e.g. `Rectangle()` or `Color.red`), meaning
+        /// the member access is **chained onto a view instance**.  Static helper
+        /// calls such as `Double.random(in:)` terminate in an `IdentifierExpr`
+        /// (“Double”) and therefore return `false`.
+        func isChainedToView(_ syntax: SyntaxProtocol) -> Bool {
+            if syntax.is(FunctionCallExprSyntax.self) { return true }
+            if let m = syntax.as(MemberAccessExprSyntax.self), let inner = m.base {
+                return isChainedToView(inner)
+            }
+            return false
+        }
+
+        return isChainedToView(base) ? member.declName.baseName.text : nil
     }
     
     /// Check if this function call is within the arguments of a modifier
