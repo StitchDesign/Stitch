@@ -54,30 +54,6 @@ Code components **not** allowed in our view are:
 * **Top-level constants other than layer IDs.** Do not create constants defined at the view level. Instead, use `@State` variables and update them from `updateLayerInputs` function. Define values directly in view if no constant needs to be made.
 
 ## Rules for `var body`
-A few requirements for logic handled in the view:
-
-### Permitted Value Type Declarations in the View
-**You are only permitted to use `PortValueDescription` for any declared value.** You must adhere to the `PortValueDescription` spec, defined below, for all declared values throughout the view.
-
-Assume that for every view and view modifier that exists, Stitch contains an exact replica definition of that view or view modifier, but made to process `PortValueDescription`. For example:
-
-```swift
-Text("hello world")
-    .color(Color.white)
-```
-
-Would become:
-
-```swift
-Text(PortValueDescription(value: "hello world", valueType: "string"))
-    .color(PortValueDescription(value: "#FFFFFF", valueType: "color"))
-```
-
-This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `PortValueDescription` object.
-
-The only exception to this rule is `layerId`, which may declare its string directly.
-
-### `.layerId` View Modifier Requirement
 Each declared view inside the `var body` **must** assign a `layerId` view modifier, like: `.layerId("17A9A565-20FF-4686-85C7-2794CF548369")`. This is a view modifier that's defined elsewhere and is used for mapping IDs to specific view objects. **You are NOT allowed to use constants or variables as the value payload**.
 
 ## Updating View State with `updateLayerInputs`
