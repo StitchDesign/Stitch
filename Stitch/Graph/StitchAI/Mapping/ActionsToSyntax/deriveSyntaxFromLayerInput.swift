@@ -32,6 +32,7 @@ enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case groupLayerDecodingFailed
     case layerDecodingFailed
     case unexpectedPatchFound(CurrentStep.PatchOrLayer)
+    case portValueDataDecodingFailure
 }
 
 extension SwiftUISyntaxError {

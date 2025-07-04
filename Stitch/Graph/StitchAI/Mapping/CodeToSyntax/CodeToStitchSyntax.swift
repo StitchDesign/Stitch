@@ -353,10 +353,22 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 return nil
             }
             
+            // Handles compelx types, like PortValueDescription
+            if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
+                let complexType = SyntaxViewModifierComplexType(
+                    typeName: funcExpr.calledExpression.trimmedDescription,
+                    arguments: funcExpr.arguments)
+                
+                return SyntaxViewModifierArgument(
+                    label: label,
+                    value: .complex(complexType))
+            }
+            
             let data = SyntaxViewModifierArgumentData(
                 value: expression.trimmedDescription,
                 syntaxKind: syntaxKind
             )
+            
             return SyntaxViewModifierArgument(
                 label: label,
                 value: .simple(data)

@@ -349,8 +349,21 @@ extension SyntaxViewName {
                 fatalErrorIfDebug("Only intended for rotation3DEffect case")
                 throw SwiftUISyntaxError.incorrectParsing(message: ".degrees and .axis are only for the rotation layer-inputs derivation")
                 
-            case .simple(let data):
+                // Handles types like PortValueDescription
+            case .complex(let complexType):
+                // Handles PortValueDescription
+                if complexType.typeName == "PortValueDescription" {
+                    guard let valueArg = complexType.arguments.first(where: { $0.label?.text == "value" }),
+                          let valueTypeArg = complexType.arguments.first(where: { $0.label?.text == "value_type" }) else {
+                        throw SwiftUISyntaxError.portValueDataDecodingFailure
+                    }
+                    let valueStr = valueArg.expression.trimmedDescription
+                    let valueTypeStr = valueTypeArg.expression.trimmedDescription
+                    
+                    // TODO: come back here!
+                }
                 
+            case .simple(let data):
                 // Tricky color case, for Color.systemName etc.
                 if let color = Color.fromSystemName(data.value) {
                     let input = PortValue.string(.init(color.asHexDisplay))
@@ -361,7 +374,7 @@ extension SyntaxViewName {
                         fatalErrorIfDebug("Should not have failed to coerce color ")
                     }
                 }
-                
+
                 // Simple, non-color case
                 else {
                     portValue = portValue.parseInputEdit(
