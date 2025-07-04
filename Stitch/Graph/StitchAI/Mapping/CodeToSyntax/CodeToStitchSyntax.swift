@@ -269,7 +269,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 
             case .value:
                 // No view here, just continue
-                return .visitChildren
+                return .skipChildren
             }
             
         } else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
