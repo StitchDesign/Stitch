@@ -58,15 +58,13 @@ final class StackTests: XCTestCase {
         XCTAssertEqual(argument.label, .noLabel, "Fill argument should have no label")
         
         // Verify the argument value is Color.blue
-        // TODO: come back here after exploring decoding
         if case let .simple(data) = argument.value {
             XCTAssertEqual(data.value, "Color.blue", "Color should be blue")
             XCTAssertNotEqual(data.value, "Color.red", "Color should not be red")
             XCTAssertNotEqual(data.value, "blue", "Color should be fully qualified")
             
             // Check the syntax kind
-//            XCTAssertEqual(data.syntaxKind, .literal(.unknown), "Color syntax kind should be unknown literal")
-//            XCTAssertNotEqual(data.syntaxKind, .literal(.integer), "Color should not be an integer")
+            XCTAssertEqual(data.syntaxKind, .literal(.memberAccess), "Color syntax kind should be memberAccess literal")
         } else {
             XCTFail("Expected simple argument value")
         }
