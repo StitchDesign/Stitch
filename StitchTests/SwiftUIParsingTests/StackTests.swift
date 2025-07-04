@@ -44,21 +44,20 @@ final class StackTests: XCTestCase {
         // XCTAssertEqual(fillModifier.arguments.count, 1, "Fill modifier should have one argument")
         
         // TODO: JULY 3: come back here once regression solved
-//        let argument = fillModifier.arguments[0]
-//        XCTAssertEqual(argument.label, .noLabel, "Fill argument should have no label")
-//        
-//        // Verify the argument value is Color.blue
-//        // TODO: come back here after exploring decoding
-//        if case let .simple(data) = argument.value {
-//            XCTAssertEqual(data.value, "Color.blue", "Color should be blue")
-//            
-//            // Check the syntax kind
-////            XCTAssertEqual(data.syntaxKind, .literal(.unknown), "Color syntax kind should be unknown literal")
-////            XCTAssertNotEqual(data.syntaxKind, .literal(.integer), "Color should not be an integer")
-//        } else {
-//            XCTFail("Expected simple argument value")
-//        }
-        
+        let argument = fillModifier.arguments[0]
+
+        // Verify the argument value is Color.blue
+        if case let .simple(data) = argument.value {
+            XCTAssertEqual(data.value, "Color.blue", "Color should be blue")
+            XCTAssertNotEqual(data.value, "Color.red", "Color should not be red")
+            XCTAssertNotEqual(data.value, "blue", "Color should be fully qualified")
+            
+            // Check the syntax kind
+            XCTAssertEqual(data.syntaxKind, .literal(.memberAccess), "Color syntax kind should be memberAccess literal")
+        } else {
+            XCTFail("Expected simple argument value")
+        }
+
     }
     
     func testVStackWithRectangleToLayerData() throws {
@@ -127,27 +126,27 @@ final class StackTests: XCTestCase {
             let blue: Color = ColorConversionUtils.hexToColor(Color.blue.asHexDisplay)!
             let red: Color = ColorConversionUtils.hexToColor(Color.red.asHexDisplay)!
             
-//            // Test positive case
-//            XCTAssertEqual(
-//                fillValue.value,
-//                .color(blue),
-//                "Fill color should be blue"
-//            )
-//            
-//            // Test negative cases
-//            XCTAssertNotEqual(
-//                fillValue.value,
-//                .color(red),
-//                "Fill color should not be red"
-//            )
-//            
-//            // Test with explicit .color case
-//            if case let .color(fillColor) = fillValue.value {
-//                XCTAssertEqual(fillColor, blue, "Fill color should be blue")
-//                XCTAssertNotEqual(fillColor, red, "Fill color should not be red")
-//            } else {
-//                XCTFail("Expected a color value")
-//            }
+            // Test positive case
+            XCTAssertEqual(
+                fillValue.value,
+                .color(blue),
+                "Fill color should be blue"
+            )
+            
+            // Test negative cases
+            XCTAssertNotEqual(
+                fillValue.value,
+                .color(red),
+                "Fill color should not be red"
+            )
+            
+            // Test with explicit .color case
+            if case let .color(fillColor) = fillValue.value {
+                XCTAssertEqual(fillColor, blue, "Fill color should be blue")
+                XCTAssertNotEqual(fillColor, red, "Fill color should not be red")
+            } else {
+                XCTFail("Expected a color value")
+            }
         }
     }
 }
