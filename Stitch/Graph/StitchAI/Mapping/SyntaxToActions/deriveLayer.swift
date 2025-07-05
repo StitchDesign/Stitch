@@ -336,9 +336,11 @@ extension SyntaxViewName {
         
         let migratedPort = try port.convert(to: LayerInputPort.self)
         let migratedLayerType = try layerType.convert(to: Layer.self)
+        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
         
         // Start with default value for that port
-        var portValue: PortValue = migratedPort.getDefaultValue(for: migratedLayerType)
+        var portValue: CurrentStep.PortValue = try migratedPortValue
+            .convert(to: CurrentStep.PortValue.self)
         
         // Process each argument based on its type
         
@@ -360,23 +362,18 @@ extension SyntaxViewName {
                     throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
                     
                 case .portValueDescription:
-                    guard let valueArg = complexType.arguments.first(where: { $0.label?.text == "value" }),
-                          let valueTypeArg = complexType.arguments.first(where: { $0.label?.text == "value_type" }) else {
-                        throw SwiftUISyntaxError.portValueDataDecodingFailure
-                    }
-                    let valueStr = valueArg.expression.trimmedDescription
-                    let valueTypeStr = valueTypeArg.expression.trimmedDescription
-    
-                    // TODO: come back here!
+                    let dict = complexType.arguments.valuesDict
+                    let data = try JSONEncoder().encode(dict)
+                    portValue = try JSONDecoder().decode(StitchAIPortValue.self, from: data).value
                 }
                 
             case .simple(let data):
                 // Tricky color case, for Color.systemName etc.
                 if let color = Color.fromSystemName(data.value) {
                     let input = PortValue.string(.init(color.asHexDisplay))
-                    let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
+                    let coerced = [input].coerce(to: migratedPortValue, currentGraphTime: .zero)
                     if let coercedToColor = coerced.first {
-                        portValue = coercedToColor
+                        portValue = try coercedToColor.convert(to: CurrentStep.PortValue.self)
                     } else {
                         fatalErrorIfDebug("Should not have failed to coerce color ")
                     }
@@ -384,9 +381,10 @@ extension SyntaxViewName {
 
                 // Simple, non-color case
                 else {
-                    portValue = portValue.parseInputEdit(
+                    portValue = try migratedPortValue.parseInputEdit(
                         fieldValue: .string(.init(data.value)),
                         fieldIndex: idx)
+                    .convert(to: CurrentStep.PortValue.self)
                 }
             }
             
@@ -394,7 +392,9 @@ extension SyntaxViewName {
         
         
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
-        customValues.append(try .init(id: id,port: port, value: portValue))
+        customValues.append(.init(layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                                input_port_type: .init(value: port)),
+                                  value: portValue))
         
         return customValues
     }

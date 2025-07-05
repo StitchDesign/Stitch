@@ -300,3 +300,19 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable {
     case zIndex = "zIndex"
     // …add more as needed …
 }
+
+extension LabeledExprListSyntax {
+    var valuesDict: [String : String] {
+        self.reduce(into: .init()) { result, expr in
+            guard let label = expr.label else {
+                return
+            }
+            
+            let trimmedDesc = expr.expression.trimmedDescription
+        
+            let removedQuotes = trimmedDesc.dropFirst().dropLast()
+            
+            result.updateValue(String(removedQuotes), forKey: label.text)
+        }
+    }
+}
