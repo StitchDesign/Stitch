@@ -37,8 +37,8 @@ Text("hello world")
 ```
 Would become:
 ```swift
-Text(PortValueDescription(value: "hello world", valueType: "string"))
-    .color(PortValueDescription(value: "#FFFFFF", valueType: "color"))
+Text(PortValueDescription(value: "hello world", value_type: "string"))
+    .color(PortValueDescription(value: "#FFFFFF", value_type: "color"))
 ```
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `PortValueDescription` object.
 The only exception to this rule is `layerId`, which may declare its string directly.
