@@ -231,14 +231,14 @@ struct ASTExplorerView: View {
             stitchActions = stitchActionsResult.actions
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
-            // Actions → Syntax
-            rebuiltSyntax = try SyntaxView.build(from: stitchActions)
-            
-            // Syntax → Code
-            regeneratedCode = rebuiltSyntax.reduce(into: "") { result, node in
-                let codeString = swiftUICode(from: node)
-                result += "\n\(codeString)"
-            }
+//            // Actions → Syntax
+//            rebuiltSyntax = try SyntaxView.build(from: stitchActions)
+//            
+//            // Syntax → Code
+//            regeneratedCode = rebuiltSyntax.reduce(into: "") { result, node in
+//                let codeString = swiftUICode(from: node)
+//                result += "\n\(codeString)"
+//            }
         } catch {
             errorString = "\(error)"
         }

@@ -24,7 +24,7 @@ extension SyntaxViewName {
                                                 childrenLayers: childrenLayers)
         
         // Handle constructor-arguments
-        let customInputValues = self.deriveCustomValuesFromConstructorArguments(
+        let customInputValues = try self.deriveCustomValuesFromConstructorArguments(
             id: id,
             layerType: layerType,
             args: args)
@@ -283,6 +283,10 @@ extension SyntaxViewName {
     private static func deriveCustomValuesFromViewModifier(id: UUID,
                                                            layerType: CurrentStep.Layer,
                                                            modifier: SyntaxViewModifier) throws -> LayerInputViewModification {
+        
+        
+        // TODO: derivation result needs to be used for inferring the value type to decode from some view modifier
+        
         let derivationResult = try modifier.name.deriveLayerInputPort(layerType)
         
         switch derivationResult {
@@ -296,6 +300,9 @@ extension SyntaxViewName {
             return .layerInputValues(newValues)
             
         case .rotationScenario:
+            // TODO: see how we can make this into other scenarios
+            fatalError()
+            
             // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
             let newValues = try Self.deriveCustomValuesFromRotationLayerInputTranslation(
                 id: id,
@@ -316,20 +323,33 @@ extension SyntaxViewName {
         }
     }
     
+    // TODO: need to infer the value based on the view modifier, not the port (probably)
+    
     static func deriveCustomValues(from arguments: [SyntaxViewArgumentData],
                                    id: UUID,
                                    port: CurrentStep.LayerInputPort, // simple because we have a single layer
                                    layerType: CurrentStep.Layer
     ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        // TODO: catch scenarios with multiple arguments here
+        if arguments.count > 1 {
+            fatalError()
+        }
+        
+        guard let argument = arguments.first else {
+            return []
+        }
         
         var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
         
-        let migratedPort = try port.convert(to: LayerInputPort.self)
-        let migratedLayerType = try layerType.convert(to: Layer.self)
-        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
+//        let migratedPort = try port.convert(to: LayerInputPort.self)
+//        let migratedLayerType = try layerType.convert(to: Layer.self)
+//        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
         
         // Decode PortValue from full arguments data
-        let portValue: CurrentStep.PortValue = try arguments.decode(Stitch)
+        // TODO: also learning here
+        guard let portValue = try Self.derivePortValueValue(from: argument) else {
+            return []
+        }
         
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
         customValues.append(.init(layer_input_coordinate: .init(layer_id: .init(value: id),
