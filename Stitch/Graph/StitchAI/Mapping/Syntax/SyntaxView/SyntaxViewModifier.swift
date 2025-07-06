@@ -350,8 +350,8 @@ extension Array where Element == SyntaxViewArgumentData {
             
             switch arg.value {
             case .simple(let value):
-//                let value = try simpleData.createEncoding()
-                result.updateValue(AnyEncodable(value.value), forKey: label)
+                let value = try value.createEncoding()
+                result.updateValue(AnyEncodable(value), forKey: label)
                 
             case .complex(let complexData):
                 // Get encoding data recursively

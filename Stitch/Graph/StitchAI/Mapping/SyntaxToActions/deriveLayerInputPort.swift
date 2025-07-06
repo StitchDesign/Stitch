@@ -11,48 +11,47 @@ import UIKit
 
 extension SyntaxViewConstructorArgument {
     
-    func derivePortValue(_ layer: CurrentStep.Layer) -> CurrentStep.PortValue? {
-        fatalError()
-//        let label: SyntaxConstructorArgumentLabel = self.label
-//        guard let firstValue = self.values.first?.value else { return nil }
-//        
-//        switch (label, layer) {
-//        
-//        case (.systemName, _):
-//            return .string(.init(firstValue))
-//        
-//        case (.cornerRadius, _):
-//            return .number(toNumber(firstValue) ?? .zero)
-//            
-//        case (_, let text) where text == .text || text == .textField:
-//            return .string(.init(firstValue))
-//            
-//        case (.noLabel, _):
-//            // e.g. `Rectangle()`, `Ellipse`,
-//            // i.e. there's no constructor argument at all
-//            return nil
-//        }
-    }
+//    func derivePortValue(_ layer: CurrentStep.Layer) -> CurrentStep.PortValue? {
+//        fatalError()
+////        let label: SyntaxConstructorArgumentLabel = self.label
+////        guard let firstValue = self.values.first?.value else { return nil }
+////        
+////        switch (label, layer) {
+////        
+////        case (.systemName, _):
+////            return .string(.init(firstValue))
+////        
+////        case (.cornerRadius, _):
+////            return .number(toNumber(firstValue) ?? .zero)
+////            
+////        case (_, let text) where text == .text || text == .textField:
+////            return .string(.init(firstValue))
+////            
+////        case (.noLabel, _):
+////            // e.g. `Rectangle()`, `Ellipse`,
+////            // i.e. there's no constructor argument at all
+////            return nil
+////        }
+//    }
     
-    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
-        fatalError()
-//        switch self.label {
-//            
-//        case .systemName:
-//            return .sfSymbol
-//            
-//        case .cornerRadius:
-//            return .cornerRadius
-//            
-//        // TODO: JUNE 24: *many* SwiftUI ...
-//        case .noLabel:
-//            switch layer {
-//            case .text, .textField:
-//                return .text
-//            default:
-//                return nil
-//            }
-//        }
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> CurrentStep.LayerInputPort {
+        switch SyntaxConstructorArgumentLabel(rawValue: self.label ?? "") {
+            
+        case .systemName:
+            return .sfSymbol
+            
+        case .cornerRadius:
+            return .cornerRadius
+            
+            // TODO: JUNE 24: *many* SwiftUI ...
+        case .none:
+            switch layer {
+            case .text, .textField:
+                return .text
+            default:
+                throw SwiftUISyntaxError.unsupportedConstructorArgument(self)
+            }
+        }
     }
 }
 
