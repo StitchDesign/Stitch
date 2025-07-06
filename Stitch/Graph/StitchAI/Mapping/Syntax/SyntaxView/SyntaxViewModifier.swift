@@ -350,7 +350,11 @@ extension Array where Element == SyntaxViewArgumentData {
             
             switch arg.value {
             case .simple(let value):
-                let value = try value.createEncoding()
+                let value = value.value
+                    .replacingOccurrences(of: "“", with: "\"")
+                    .replacingOccurrences(of: "”", with: "\"")
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+//                    .createEncoding()
                 result.updateValue(AnyEncodable(value), forKey: label)
                 
             case .complex(let complexData):

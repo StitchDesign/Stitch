@@ -173,7 +173,10 @@ extension SyntaxViewSimpleData {
                 
             case .string:
                 // Strip surrounding quotes
-                let text = raw.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                let text = raw
+                    .replacingOccurrences(of: "“", with: "\"")
+                    .replacingOccurrences(of: "”", with: "\"")
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
                 return text
                 
             case .boolean:
@@ -199,7 +202,15 @@ extension SyntaxViewSimpleData {
             }
             
         default:
-            throw SwiftUISyntaxError.syntaxValueDecodingFailed(syntaxKind)
+            // Try running it back with string type
+            let stringData = SyntaxViewSimpleData(value: self.value,
+                                                  syntaxKind: .literal(.string))
+            do {
+                return try stringData.createEncoding()
+            } catch {
+                print(error)
+                throw SwiftUISyntaxError.syntaxValueDecodingFailed(syntaxKind)
+            }
         }
     }
 }
