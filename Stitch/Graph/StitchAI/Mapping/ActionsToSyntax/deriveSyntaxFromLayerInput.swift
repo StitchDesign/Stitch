@@ -26,7 +26,7 @@ enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case unsupportedSyntaxFromLayerInput(CurrentStep.LayerInputPort)
     case unsupportedSyntaxViewLayer(CurrentStep.Layer)
     
-    case unsupportedLayerIdParsing([SyntaxViewModifierArgument])
+    case unsupportedLayerIdParsing([SyntaxViewArgumentData])
     case layerUUIDDecodingFailed(String)
     
     case incorrectParsing(message: String)
@@ -41,7 +41,7 @@ enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case invalidFloatLiteral(String)
     case invalidBooleanLiteral(String)
     case invalidJSONLiteral(String)
-    case unsupportedSimpleLiteralDecoding(SyntaxViewModifierArgumentData)
+    case unsupportedSimpleLiteralDecoding(SyntaxViewSimpleData)
     case syntaxValueDecodingFailed(SyntaxArgumentKind)
 }
 

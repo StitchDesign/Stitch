@@ -150,7 +150,7 @@ enum SyntaxArgumentExpressionKind: String, Equatable, Hashable, Codable {
     case closure          = "Closure"               // `{ ... }`
 }
 
-extension SyntaxViewModifierArgumentData {
+extension SyntaxViewSimpleData {
     /// Used for eventual PortValue decoding. Only nil when a `nil` type is returned.
     func createEncoding() throws -> any Encodable {
         switch syntaxKind {

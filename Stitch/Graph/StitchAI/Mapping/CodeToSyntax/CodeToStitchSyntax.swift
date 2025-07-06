@@ -202,7 +202,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             log("Found view initialization: \(viewName)")
             
             // Parse args, catching arguments we don't yet support
-            let args = parseArgumentsForConstructor(from: node)
+            let args = self.parseArguments(from: node)
             
             switch nameType {
             case .view(let syntaxViewName):
@@ -284,64 +284,61 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Parse arguments from function call
-    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [SyntaxViewArgumentData] {
-        
-        fatalError()
-//
-//        let arguments = node.arguments.compactMap { argument -> SyntaxViewConstructorArgument? in
+//    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [SyntaxViewArgumentData] {
+//        let arguments = node.arguments.compactMap { argument -> SyntaxViewArgumentData? in
 //            
-//            guard let label = SyntaxConstructorArgumentLabel.from(argument.label?.text) else {
-//                // If we cannot
-//                log("could not create constructor argument label for argument.label: \(String(describing: argument.label))")
-//                self.caughtErrors.append(.unsupportedSyntaxArgument(argument.label?.text))
-//                return nil
-//            }
-//            
-//            let expr = argument.expression
-//
-//            // Support either a single value or an array literal
-//            let collectedValues: [SyntaxViewConstructorArgumentValue]
-//            if let arrayExpr = expr.as(ArrayExprSyntax.self) {
-//                collectedValues = arrayExpr.elements.compactMap { element in
-//                    guard let syntaxKind = SyntaxArgumentKind.fromExpression(element.expression) else {
-//                        self.caughtErrors.append(.unsupportedSyntaxArgumentKind(element.expression))
-//                        return nil
-//                    }
-//                    
-//                    return SyntaxViewConstructorArgumentValue(
-//                        value: element.expression.trimmedDescription,
-//                        syntaxKind: syntaxKind
-//                    )
-//                }
-//            } else {
-//                guard let syntaxKind = SyntaxArgumentKind.fromExpression(expr) else {
-//                    print("parseArgumentsForConstructor error: unable to get arg kind for \(expr)")
-//                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
-//                    return nil
-//                }
-//                
-//                collectedValues = [SyntaxViewConstructorArgumentValue(
-//                    value: expr.trimmedDescription,
-//                    syntaxKind: syntaxKind
-//                )]
-//            }
-//
-//            return SyntaxViewConstructorArgument(
-//                    label: label,
-//                    values: collectedValues)
-//        }
-//        
-//        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
-//        
-//        return arguments
-    }
+////            guard let label = SyntaxConstructorArgumentLabel.from(argument.label) else {
+////                // If we cannot
+////                log("could not create constructor argument label for argument.label: \(String(describing: argument.label))")
+////                self.caughtErrors.append(.unsupportedSyntaxArgument(argument.label?.text))
+////                return nil
+////            }
+////            
+////            let expr = argument.expression
+////
+////            // Support either a single value or an array literal
+////            let collectedValues: [SyntaxViewConstructorArgumentValue]
+////            if let arrayExpr = expr.as(ArrayExprSyntax.self) {
+////                collectedValues = arrayExpr.elements.compactMap { element in
+////                    guard let syntaxKind = SyntaxArgumentKind.fromExpression(element.expression) else {
+////                        self.caughtErrors.append(.unsupportedSyntaxArgumentKind(element.expression))
+////                        return nil
+////                    }
+////                    
+////                    return SyntaxViewConstructorArgumentValue(
+////                        value: element.expression.trimmedDescription,
+////                        syntaxKind: syntaxKind
+////                    )
+////                }
+////            } else {
+////                guard let syntaxKind = SyntaxArgumentKind.fromExpression(expr) else {
+////                    print("parseArgumentsForConstructor error: unable to get arg kind for \(expr)")
+////                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
+////                    return nil
+////                }
+////                
+////                collectedValues = [SyntaxViewConstructorArgumentValue(
+////                    value: expr.trimmedDescription,
+////                    syntaxKind: syntaxKind
+////                )]
+////            }
+////
+////            return SyntaxViewConstructorArgument(
+////                    label: label,
+////                    values: collectedValues)
+////        }
+////        
+////        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+////        
+////        return arguments
+//    }
     
     // TODO: JULY 2: needed clearer entry-points for when we're parsing a view-modifier
     // Parse arguments from function call
-    private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
+    func parseArguments(from node: FunctionCallExprSyntax) -> [SyntaxViewArgumentData] {
         
         // Default handling for other modifiers
-        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
+        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewArgumentData? in
             self.parseArgument(argument)
         }
         
@@ -350,7 +347,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return arguments
     }
     
-    private func parseArgument(_ argument: LabeledExprSyntax) -> SyntaxViewModifierArgument? {
+    private func parseArgument(_ argument: LabeledExprSyntax) -> SyntaxViewArgumentData? {
 //        guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
 //            log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
 //            self.caughtErrors.append(.unsupportedSyntaxViewModifierArgumentName(argument.label?.text ?? "no argument"))
@@ -377,18 +374,17 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 typeName: funcExpr.calledExpression.trimmedDescription,
                 arguments: complexTypeArgs)
             
-            return SyntaxViewModifierArgument(
+            return SyntaxViewArgumentData(
                 label: label,
                 value: .complex(complexType))
         }
         
-        let data = SyntaxViewModifierArgumentData(
-            label: label,
+        let data = SyntaxViewSimpleData(
             value: expression.trimmedDescription,
             syntaxKind: syntaxKind
         )
         
-        return SyntaxViewModifierArgument(
+        return SyntaxViewArgumentData(
             label: label,
             value: .simple(data)
         )
@@ -537,7 +533,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     /// Handles standard modifiers with generic argument parsing
     private func handleStandardModifier(node: FunctionCallExprSyntax,
                                         modifierName: SyntaxViewModifierName) {
-        let modifierArguments = parseArgumentsForModifier(from: node)
+        let modifierArguments = self.parseArguments(from: node)
         
         var finalArgs = modifierArguments
         if finalArgs.isEmpty {

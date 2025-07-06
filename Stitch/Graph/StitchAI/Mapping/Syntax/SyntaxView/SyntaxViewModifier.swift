@@ -16,7 +16,7 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable {
     let name: SyntaxViewModifierName
     
     // representation of argument(s) to SwiftUI view modifer
-    var arguments: [SyntaxViewModifierArgument]
+    var arguments: [SyntaxViewArgumentData]
 }
 
 
@@ -33,9 +33,14 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable {
  )
  ```
  */
-struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable {
+struct SyntaxViewArgumentData: Equatable, Hashable, Sendable {
     let label: String? //SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
+}
+
+struct SyntaxViewSimpleData: Hashable, Sendable {
+    let value: String
+    let syntaxKind: SyntaxArgumentKind
 }
 
 //struct SyntaxViewModifierComplexArgument: Hashable, Sendable {
@@ -46,7 +51,7 @@ struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable {
 struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
     let typeName: String
     
-    let arguments: [SyntaxViewModifierArgument]
+    let arguments: [SyntaxViewArgumentData]
 }
 
 /*
@@ -61,10 +66,10 @@ struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
     )
  ```
  */
-enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
+indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     // e.g. .opacity(5.0)
-    case simple(SyntaxViewModifierArgumentData)
+    case simple(SyntaxViewSimpleData)
     
     case complex(SyntaxViewModifierComplexType)
     
@@ -98,12 +103,15 @@ enum SyntaxViewModifierArgumentAngle: Equatable, Hashable, Sendable {
     case radians(SyntaxViewModifierArgumentData)
     
     var value: String {
-        switch self {
-        case .degrees(let x):
-            return x.value
-        case .radians(let x):
-            return x.value
-        }
+        // TODO: come back here
+        fatalError()
+        
+//        switch self {
+//        case .degrees(let x):
+//            return x.value
+//        case .radians(let x):
+//            return x.value
+//        }
     }
 }
 
@@ -324,7 +332,7 @@ struct AnyEncodable: Encodable {
     }
 }
 
-extension Array where Element == SyntaxViewModifierArgument {
+extension Array where Element == SyntaxViewArgumentData {
     func decode<DecodingType>(_ asType: DecodingType.Type) throws -> DecodingType where DecodingType: Decodable {
         let dict = try self.createValuesDict()
         let data = try JSONEncoder().encode(dict)
@@ -341,9 +349,9 @@ extension Array where Element == SyntaxViewModifierArgument {
             }
             
             switch arg.value {
-            case .simple(let simpleData):
-                let value = try simpleData.createEncoding()
-                result.updateValue(AnyEncodable(value), forKey: label)
+            case .simple(let value):
+//                let value = try simpleData.createEncoding()
+                result.updateValue(AnyEncodable(value.value), forKey: label)
                 
             case .complex(let complexData):
                 // Get encoding data recursively

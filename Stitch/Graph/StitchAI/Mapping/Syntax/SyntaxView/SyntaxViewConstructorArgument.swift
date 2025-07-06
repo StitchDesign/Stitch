@@ -29,11 +29,11 @@ typealias SyntaxViewConstructorArgument = SyntaxViewArgumentData
 //    // should these
 //}
 
-struct SyntaxViewArgumentData: Equatable, Hashable, Sendable {
-    let label: String?
-    let value: String
-    let syntaxKind: SyntaxArgumentKind
-}
+//struct SyntaxViewArgumentData: Equatable, Hashable, Sendable {
+//    let label: String?
+//    let value: String
+//    let syntaxKind: SyntaxArgumentKind
+//}
 
 // TODO: a way to represent the type of the SwiftUI View constructor arg ?
 // Note: this can only really properly be resolved into a LayerInputPort with the help of the known layer

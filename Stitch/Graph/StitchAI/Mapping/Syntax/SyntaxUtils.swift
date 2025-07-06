@@ -27,13 +27,13 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
 /// full struct/enum hierarchy when printing.
 /// Formats the `(value, syntaxKind)` pair in a compact way
 private func describe(_ data: SyntaxViewModifierArgumentData) -> String {
-    "\(data.value), \(describe(data.syntaxKind))"
+    "\(data.value))" //, \(describe(data.syntaxKind))"
 }
 
 private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     switch argType {
     case .simple(let data):
-        return "simple(\(describe(data)))"
+        return "simple(\(data))"
         
     case .angle(let angle):
         switch angle {
