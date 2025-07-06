@@ -149,3 +149,57 @@ enum SyntaxArgumentExpressionKind: String, Equatable, Hashable, Codable {
     case tuple            = "TupleExpr"             // `(x, y)`
     case closure          = "Closure"               // `{ ... }`
 }
+
+extension SyntaxViewModifierArgumentData {
+    /// Used for eventual PortValue decoding. Only nil when a `nil` type is returned.
+    func createEncoding() throws -> any Encodable {
+        switch syntaxKind {
+        case .literal(let literalKind):
+            // raw literal text (including quotes for strings)
+            let raw = self.value
+            
+            switch literalKind {
+            case .integer:
+                guard let intValue = Int(raw) else {
+                    throw SwiftUISyntaxError.invalidIntegerLiteral(raw)
+                }
+                return intValue
+                
+            case .float:
+                guard let doubleValue = Double(raw) else {
+                    throw SwiftUISyntaxError.invalidFloatLiteral(raw)
+                }
+                return doubleValue
+                
+            case .string:
+                // Strip surrounding quotes
+                let text = raw.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                return text
+                
+            case .boolean:
+                guard let boolValue = Bool(raw) else {
+                    throw SwiftUISyntaxError.invalidBooleanLiteral(raw)
+                }
+                return boolValue
+                
+            case .array, .dictionary:
+                let data = Data(raw.utf8)
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                guard let enc = json as? any Encodable else {
+                    throw SwiftUISyntaxError.invalidJSONLiteral(raw)
+                }
+                return enc
+
+//            case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess:
+//                // For now treat these as raw strings
+//                let text = raw.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                
+            case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple, .nilLiteral:
+                throw SwiftUISyntaxError.unsupportedSimpleLiteralDecoding(self)
+            }
+            
+        default:
+            throw SwiftUISyntaxError.syntaxValueDecodingFailed(syntaxKind)
+        }
+    }
+}

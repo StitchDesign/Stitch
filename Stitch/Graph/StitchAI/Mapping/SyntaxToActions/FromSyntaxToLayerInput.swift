@@ -25,7 +25,7 @@ a couple things you want to know:
 // Whether a given LayerInput corresponds to a ViewNode constructor-arg, a ViewNode modifier, or something much more complicated (e.g. pinning);
 enum FromSyntaxToLayerInput {
     // Simple conversions like `LayerInputPort.text -> Text(<textValue>)`
-    case constructorArgument(SyntaxConstructorArgumentLabel)
+    case constructorArgument(SyntaxViewArgumentData)
     
     // Simple conversions like `LayerInputPort.scale -> .scaleEffect`
     case modifier(SyntaxViewModifierName)

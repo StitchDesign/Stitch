@@ -39,6 +39,7 @@ extension SyntaxNameType {
 // Supported custom value types
 enum SyntaxValueName: String, Hashable, CaseIterable {
     case portValueDescription = "PortValueDescription"
+    case cgPoint = "CGPoint"
 }
 
 // MARK: - String ↔︎ enum helpers

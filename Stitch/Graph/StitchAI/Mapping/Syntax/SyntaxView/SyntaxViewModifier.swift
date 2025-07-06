@@ -34,14 +34,19 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable {
  ```
  */
 struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable {
-    let label: SyntaxViewModifierArgumentLabel
+    let label: String? //SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
 }
+
+//struct SyntaxViewModifierComplexArgument: Hashable, Sendable {
+//    let label: String
+//    let value: SyntaxViewModifierArgumentType
+//}
 
 struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
     let typeName: String
     
-    let arguments: LabeledExprListSyntax
+    let arguments: [SyntaxViewModifierArgument]
 }
 
 /*
@@ -63,6 +68,7 @@ enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     case complex(SyntaxViewModifierComplexType)
     
+    // TODO: consider removing other types
     // e.g. .rotationEffect(.degrees(90), axis: ...)
     case angle(SyntaxViewModifierArgumentAngle)
     
@@ -87,7 +93,7 @@ extension SyntaxViewModifierArgumentType {
 // TODO: JULY 2: the argument .rotation3DEffect(_ angle: Angle) could be either Angle.degrees or Angle.radians, but Stitch's rotation layer inputs always uses degrees
 // https://developer.apple.com/documentation/swiftui/view/rotation3deffect(_:axis:anchor:)
 // https://developer.apple.com/documentation/swiftui/angle
-enum SyntaxViewModifierArgumentAngle: Equatable, Hashable, Sendable, Codable {
+enum SyntaxViewModifierArgumentAngle: Equatable, Hashable, Sendable {
     case degrees(SyntaxViewModifierArgumentData) //
     case radians(SyntaxViewModifierArgumentData)
     
@@ -101,40 +107,44 @@ enum SyntaxViewModifierArgumentAngle: Equatable, Hashable, Sendable, Codable {
     }
 }
 
-struct SyntaxViewModifierArgumentData: Equatable, Hashable, Sendable, Codable {
-    let value: String
-    
-    // literal vs declared var vs expression
-    let syntaxKind: SyntaxArgumentKind
-}
+// TODO: remove type aliases
+typealias SyntaxViewModifierArgumentData = SyntaxViewArgumentData
+typealias SyntaxViewConstructorArgumentValue = SyntaxViewArgumentData
+
+//struct SyntaxViewModifierArgumentData: Equatable, Hashable, Sendable, Codable {
+//    let value: String
+//    
+//    // literal vs declared var vs expression
+//    let syntaxKind: SyntaxArgumentKind
+//}
 
 
-enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable, Sendable, Codable {
-    case noLabel = "", // e.g. `.fill(Color.red)`, `.foregroundColor(Color.green)`
-         
-         // e.g. `.frame(width:height:alignment:)`
-         width = "width",
-         height = "height",
-         alignment = "alignment",
-         
-         // e.g. position(x:y:)
-         x = "x",
-         y = "y",
-    
-         // e.g. .rotation3DEffect(..., axis: ...)
-         axis = "axis"
-}
+//enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable, Sendable, Codable {
+//    case noLabel = "", // e.g. `.fill(Color.red)`, `.foregroundColor(Color.green)`
+//         
+//         // e.g. `.frame(width:height:alignment:)`
+//         width = "width",
+//         height = "height",
+//         alignment = "alignment",
+//         
+//         // e.g. position(x:y:)
+//         x = "x",
+//         y = "y",
+//    
+//         // e.g. .rotation3DEffect(..., axis: ...)
+//         axis = "axis"
+//}
 
-extension SyntaxViewModifierArgumentLabel {
-    static func from(_ string: String?) -> SyntaxViewModifierArgumentLabel? {
-        switch string {
-        case .none:
-            return .noLabel
-        case .some(let x):
-            return Self(rawValue: x)
-        }
-    }
-}
+//extension SyntaxViewModifierArgumentLabel {
+//    static func from(_ string: String?) -> SyntaxViewModifierArgumentLabel? {
+//        switch string {
+//        case .none:
+//            return .noLabel
+//        case .some(let x):
+//            return Self(rawValue: x)
+//        }
+//    }
+//}
 
 
 // MARK: representation of
@@ -301,18 +311,49 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable {
     // …add more as needed …
 }
 
-extension LabeledExprListSyntax {
-    var valuesDict: [String : String] {
-        self.reduce(into: .init()) { result, expr in
-            guard let label = expr.label else {
-                return
+/// Type-erased Encodable wrapper for heterogeneous values
+struct AnyEncodable: Encodable {
+    private let _encode: (Encoder) throws -> Void
+
+    init<T: Encodable>(_ value: T) {
+        self._encode = value.encode(to:)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        try _encode(encoder)
+    }
+}
+
+extension Array where Element == SyntaxViewModifierArgument {
+    func decode<DecodingType>(_ asType: DecodingType.Type) throws -> DecodingType where DecodingType: Decodable {
+        let dict = try self.createValuesDict()
+        let data = try JSONEncoder().encode(dict)
+        
+        let decodedType = try JSONDecoder().decode(asType.self, from: data)
+        return decodedType
+    }
+    
+    func createValuesDict() throws -> [String : AnyEncodable] {
+        try self.reduce(into: .init()) { result, arg in
+            guard let label = arg.label else {
+                // Should expect labels for complex types
+                throw SwiftUISyntaxError.noLabelFoundForComplexType
             }
             
-            let trimmedDesc = expr.expression.trimmedDescription
-        
-            let removedQuotes = trimmedDesc.dropFirst().dropLast()
-            
-            result.updateValue(String(removedQuotes), forKey: label.text)
+            switch arg.value {
+            case .simple(let simpleData):
+                let value = try simpleData.createEncoding()
+                result.updateValue(AnyEncodable(value), forKey: label)
+                
+            case .complex(let complexData):
+                // Get encoding data recursively
+                let data = try complexData.arguments.createValuesDict()
+                result.updateValue(AnyEncodable(data), forKey: label)
+                
+            default:
+                // TODO: make sure other types are accounted for
+                fatalError()
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ struct SyntaxView: Equatable, Hashable, Sendable {
     
     // arguments to the View's construct,
     // e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
-    var constructorArguments: [SyntaxViewConstructorArgument]
+    var constructorArguments: [SyntaxViewArgumentData]
     
     // representation of SwiftUI view modifiers, including name and arguments
     // e.g. `.padding()`, `.opacity(0.5)`, `.frame(width: 100, height: 200)`

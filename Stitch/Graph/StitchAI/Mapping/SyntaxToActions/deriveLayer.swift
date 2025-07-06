@@ -13,7 +13,7 @@ extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
     func deriveLayerData(id: UUID,
-                         args: [SyntaxViewConstructorArgument],
+                         args: [SyntaxViewArgumentData],
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
 
@@ -65,7 +65,7 @@ extension SyntaxViewName {
     
     func deriveLayerAndCustomValuesFromName(
         id: UUID,
-        args: [SyntaxViewConstructorArgument],
+        args: [SyntaxViewArgumentData],
         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]
     ) throws -> (CurrentStep.Layer, CurrentAIPatchBuilderResponseFormat.LayerData) {
         
@@ -85,10 +85,14 @@ extension SyntaxViewName {
         case .textField: layerType = .textField
             
         case .image:
-            switch args.first?.label {
-            case .systemName: layerType = .sfSymbol
-            default: layerType = .image
-            }
+            // TODO: come back here
+            fatalError()
+            
+            
+//            switch args.first?.label {
+//            case .systemName: layerType = .sfSymbol
+//            default: layerType = .image
+//            }
             
         case .map: layerType = .map
             
@@ -211,16 +215,19 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self)
             
         case .roundedRectangle:
-            layerType = .rectangle
-            if let arg = args.first(where: { $0.label == .cornerRadius }),
-               let firstValue = arg.values.first,
-               let radius = Double(firstValue.value) {
-                customValues.append(
-                    .init(id: id,
-                          input: .cornerRadius,
-                          value: .number(radius))
-                )
-            }
+            // TODO: come back here
+            fatalError()
+            
+//            layerType = .rectangle
+//            if let arg = args.first(where: { $0.label == .cornerRadius }),
+//               let firstValue = arg.values.first,
+//               let radius = Double(firstValue.value) {
+//                customValues.append(
+//                    .init(id: id,
+//                          input: .cornerRadius,
+//                          value: .number(radius))
+//                )
+//            }
             
         default:
             throw SwiftUISyntaxError.unsupportedLayer(self)
@@ -242,38 +249,39 @@ extension SyntaxViewName {
     func deriveCustomValuesFromConstructorArguments(
         id: UUID,
         layerType: CurrentStep.Layer,
-        args: [SyntaxViewConstructorArgument]) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        args: [SyntaxViewArgumentData]) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+            fatalError()
             
-            var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-            
-            // ── Generic constructor‑argument handling (literals & edges) ─────────
-            for arg in args {
-                
-                // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
-                // Skip the specialised RoundedRectangle .cornerRadius
-                if self == .roundedRectangle && arg.label == .cornerRadius { continue }
-                
-                guard let port = arg.deriveLayerInputPort(layerType),
-                      let portValue = arg.derivePortValue(layerType) else { continue }
-                
-                // Process each value in the argument
-                for value in arg.values {
-                    switch value.syntaxKind {
-                    case .literal:
-                        customValues.append(
-                            .init(id: id,
-                                  input: port,
-                                  value: portValue)
-                        )
-                    case .variable, .expression:
-                        // Skip variables for edges, using AI instead
-                        continue
-                        //                    extras.append(.createEdge(VPLCreateEdge(name: port)))
-                    }
-                }
-            } // for arg in args
-            
-            return customValues
+//            var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+//            
+//            // ── Generic constructor‑argument handling (literals & edges) ─────────
+//            for arg in args {
+//                
+//                // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
+//                // Skip the specialised RoundedRectangle .cornerRadius
+//                if self == .roundedRectangle && arg.label == .cornerRadius { continue }
+//                
+//                guard let port = arg.deriveLayerInputPort(layerType),
+//                      let portValue = arg.derivePortValue(layerType) else { continue }
+//                
+//                // Process each value in the argument
+//                for value in arg.values {
+//                    switch value.syntaxKind {
+//                    case .literal:
+//                        customValues.append(
+//                            .init(id: id,
+//                                  input: port,
+//                                  value: portValue)
+//                        )
+//                    case .variable, .expression:
+//                        // Skip variables for edges, using AI instead
+//                        continue
+//                        //                    extras.append(.createEdge(VPLCreateEdge(name: port)))
+//                    }
+//                }
+//            } // for arg in args
+//            
+//            return customValues
         }
     
     static func deriveCustomValuesFromViewModifiers(
@@ -362,30 +370,39 @@ extension SyntaxViewName {
                     throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
                     
                 case .portValueDescription:
-                    let dict = complexType.arguments.valuesDict
-                    let data = try JSONEncoder().encode(dict)
-                    portValue = try JSONDecoder().decode(StitchAIPortValue.self, from: data).value
+                    do {
+                        let aiPortValue = try complexType.arguments.decode(StitchAIPortValue.self)
+                        portValue = aiPortValue.value
+                    } catch {
+                        print("PortValue decoding error: \(error)")
+                        throw error
+                    }
+                
+                case .cgPoint:
+                    fatalError()
                 }
                 
             case .simple(let data):
-                // Tricky color case, for Color.systemName etc.
-                if let color = Color.fromSystemName(data.value) {
-                    let input = PortValue.string(.init(color.asHexDisplay))
-                    let coerced = [input].coerce(to: migratedPortValue, currentGraphTime: .zero)
-                    if let coercedToColor = coerced.first {
-                        portValue = try coercedToColor.convert(to: CurrentStep.PortValue.self)
-                    } else {
-                        fatalErrorIfDebug("Should not have failed to coerce color ")
-                    }
-                }
-
-                // Simple, non-color case
-                else {
-                    portValue = try migratedPortValue.parseInputEdit(
-                        fieldValue: .string(.init(data.value)),
-                        fieldIndex: idx)
-                    .convert(to: CurrentStep.PortValue.self)
-                }
+                // TODO: come back here
+                fatalError()
+//                // Tricky color case, for Color.systemName etc.
+//                if let color = Color.fromSystemName(data.value) {
+//                    let input = PortValue.string(.init(color.asHexDisplay))
+//                    let coerced = [input].coerce(to: migratedPortValue, currentGraphTime: .zero)
+//                    if let coercedToColor = coerced.first {
+//                        portValue = try coercedToColor.convert(to: CurrentStep.PortValue.self)
+//                    } else {
+//                        fatalErrorIfDebug("Should not have failed to coerce color ")
+//                    }
+//                }
+//
+//                // Simple, non-color case
+//                else {
+//                    portValue = try migratedPortValue.parseInputEdit(
+//                        fieldValue: .string(.init(data.value)),
+//                        fieldIndex: idx)
+//                    .convert(to: CurrentStep.PortValue.self)
+//                }
             }
             
         } // for (idx, arg) in ...
@@ -403,70 +420,70 @@ extension SyntaxViewName {
         id: UUID,
         layerType: CurrentStep.Layer,
         modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
-        
-        guard let angleArgument = modifier.arguments[safe: 0],
-              // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
-              case .angle(let degreesOrRadians) = angleArgument.value else {
-            
-            //#if !DEV_DEBUG
-            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
-            //#endif
-        }
-        
-        
-        // degrees = *how much* we're rotating the given rotation layer input
-        // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
-        let fn = { (port: CurrentStep.LayerInputPort) in
-            let portValue = try port
-                .getDefaultValue(layerType: layerType)
-                .parseInputEdit(fieldValue: .string(.init(degreesOrRadians.value)),
-                                fieldIndex: 0)
-            
-            customValues.append(try .init(id: id, port: port, value: portValue))
-        }
-        
-        // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
-        if let axesArgument = modifier.arguments[safe: 1],
-           
-            // Note: `axisX` could be a number-literal, which we can test as >0 here -- or it could be a variable, which we cannot test.
-           // We only want to provide `degrees` (e.g. `60` or `x`) if the axis is greater than 1; otherwise we end up with unwanted
-            
-            // Ah! Hold on -- if we have an incoming edge (i.e. a variable), then we won't have to create a custom_value; we would create an `incoming_edge` case instead;
-            // this incoming edge will then determine whether we apply the degrees or not --
-            // ... right, what is the proper way to think about incoming edges here?
-            // at the
-            
-            // what about expressions too, which have no incoming edges (i.e variables), e.g.  1+1 ?
-            // actually -- anything that's not a literal is considered an incoming edge
-            
-            
-            case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
-           
-            // TODO: JULY 2: what if we have e.g. `axes: (x: myVar, y: 0, z: 0)` instead of just literal? ... in that case, the `x: myVar` would be an incoming_edge, not a custom_value ?
-           let axisX = toNumber(axisX.value),
-           let axisY = toNumber(axisY.value),
-           let axisZ = toNumber(axisZ.value) {
-            
-            if axisX > 0 {
-                try fn(.rotationX)
-            }
-            if axisY > 0 {
-                try fn(.rotationY)
-            }
-            if axisZ > 0 {
-                try fn(.rotationZ)
-            }
-        }
-        
-        // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
-        else {
-            try fn(.rotationZ)
-        }
-        
-        return customValues
+        fatalError()
+//        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+//        
+//        
+//        guard let angleArgument = modifier.arguments[safe: 0],
+//              // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
+//              case .angle(let degreesOrRadians) = angleArgument.value else {
+//            
+//            //#if !DEV_DEBUG
+//            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
+//            //#endif
+//        }
+//        
+//        
+//        // degrees = *how much* we're rotating the given rotation layer input
+//        // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
+//        let fn = { (port: CurrentStep.LayerInputPort) in
+//            let portValue = try port
+//                .getDefaultValue(layerType: layerType)
+//                .parseInputEdit(fieldValue: .string(.init(degreesOrRadians.value)),
+//                                fieldIndex: 0)
+//            
+//            customValues.append(try .init(id: id, port: port, value: portValue))
+//        }
+//        
+//        // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
+//        if let axesArgument = modifier.arguments[safe: 1],
+//           
+//            // Note: `axisX` could be a number-literal, which we can test as >0 here -- or it could be a variable, which we cannot test.
+//           // We only want to provide `degrees` (e.g. `60` or `x`) if the axis is greater than 1; otherwise we end up with unwanted
+//            
+//            // Ah! Hold on -- if we have an incoming edge (i.e. a variable), then we won't have to create a custom_value; we would create an `incoming_edge` case instead;
+//            // this incoming edge will then determine whether we apply the degrees or not --
+//            // ... right, what is the proper way to think about incoming edges here?
+//            // at the
+//            
+//            // what about expressions too, which have no incoming edges (i.e variables), e.g.  1+1 ?
+//            // actually -- anything that's not a literal is considered an incoming edge
+//            
+//            
+//            case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
+//           
+//            // TODO: JULY 2: what if we have e.g. `axes: (x: myVar, y: 0, z: 0)` instead of just literal? ... in that case, the `x: myVar` would be an incoming_edge, not a custom_value ?
+//           let axisX = toNumber(axisX.value),
+//           let axisY = toNumber(axisY.value),
+//           let axisZ = toNumber(axisZ.value) {
+//            
+//            if axisX > 0 {
+//                try fn(.rotationX)
+//            }
+//            if axisY > 0 {
+//                try fn(.rotationY)
+//            }
+//            if axisZ > 0 {
+//                try fn(.rotationZ)
+//            }
+//        }
+//        
+//        // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
+//        else {
+//            try fn(.rotationZ)
+//        }
+//        
+//        return customValues
     }
 }
 

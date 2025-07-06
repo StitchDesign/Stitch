@@ -56,57 +56,59 @@ extension SyntaxView {
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
     private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self {
-        guard let layer = layerData.node_name.value.layer else {
-            throw SwiftUISyntaxError.unexpectedPatchFound(layerData.node_name.value)
-        }
-        
-        // TODO: provide layer group orientation
-        let viewName = try layer.deriveSyntaxViewName()
-        
-        // Gather all `layerInputSet` concepts that belong to this layer.
-        let customInputEvents = layerData.custom_layer_input_values
-
-        // Convert those sets into very naïve constructor‑arguments *or* modifiers.
-        // For now we treat everything as a modifier unless the corresponding
-        // `LayerInputPort` is marked `.isConstructorArg` for the given layer.
-        var constructorArgs: [SyntaxViewConstructorArgument] = []
-        var modifiers: [SyntaxViewModifier] = []
-
-        for inputData in customInputEvents {
-//            if let viewModifierName = inputSet.input.toSwiftUIViewModifierName
-            let syntaxScenario: FromLayerInputToSyntax = try inputData.layer_input_coordinate.input_port_type.value
-                .toSwiftUISyntax(
-                // TODO: JUNE 24: handle proper PortValue here
-//                port: .value(PortValue.string(.init(inputSet.value))),
-                valueOrEdge: .value(inputData.value),
-                layer: layer)
-            
-            switch syntaxScenario {
-            
-            case .constructorArgument(let constructorArgument):
-                constructorArgs.append(constructorArgument)
-                
-            case .modifier(let viewModifier):
-                modifiers.append(viewModifier)
-                
-            case .function:
-                log("unsupported or function syntaxScenario for \(inputData)")
-                continue
-            }
-        }
-
-        // Recurse into child layers.
-        let childNodes: [Self]? = try layerData.children?
-            .compactMap { try node(from: $0) }
-
-        // Build the actual SyntaxView node.
-        return Self(
-            name: viewName,
-            constructorArguments: constructorArgs,
-            modifiers: modifiers,
-            children: childNodes ?? [],
-            id: layerData.node_id.value
-        )
+        fatalError()
+//
+//        guard let layer = layerData.node_name.value.layer else {
+//            throw SwiftUISyntaxError.unexpectedPatchFound(layerData.node_name.value)
+//        }
+//        
+//        // TODO: provide layer group orientation
+//        let viewName = try layer.deriveSyntaxViewName()
+//        
+//        // Gather all `layerInputSet` concepts that belong to this layer.
+//        let customInputEvents = layerData.custom_layer_input_values
+//
+//        // Convert those sets into very naïve constructor‑arguments *or* modifiers.
+//        // For now we treat everything as a modifier unless the corresponding
+//        // `LayerInputPort` is marked `.isConstructorArg` for the given layer.
+//        var constructorArgs: [SyntaxViewConstructorArgument] = []
+//        var modifiers: [SyntaxViewModifier] = []
+//
+//        for inputData in customInputEvents {
+////            if let viewModifierName = inputSet.input.toSwiftUIViewModifierName
+//            let syntaxScenario: FromLayerInputToSyntax = try inputData.layer_input_coordinate.input_port_type.value
+//                .toSwiftUISyntax(
+//                // TODO: JUNE 24: handle proper PortValue here
+////                port: .value(PortValue.string(.init(inputSet.value))),
+//                valueOrEdge: .value(inputData.value),
+//                layer: layer)
+//            
+//            switch syntaxScenario {
+//            
+//            case .constructorArgument(let constructorArgument):
+//                constructorArgs.append(constructorArgument)
+//                
+//            case .modifier(let viewModifier):
+//                modifiers.append(viewModifier)
+//                
+//            case .function:
+//                log("unsupported or function syntaxScenario for \(inputData)")
+//                continue
+//            }
+//        }
+//
+//        // Recurse into child layers.
+//        let childNodes: [Self]? = try layerData.children?
+//            .compactMap { try node(from: $0) }
+//
+//        // Build the actual SyntaxView node.
+//        return Self(
+//            name: viewName,
+//            constructorArguments: constructorArgs,
+//            modifiers: modifiers,
+//            children: childNodes ?? [],
+//            id: layerData.node_id.value
+//        )
     }
 }
 
