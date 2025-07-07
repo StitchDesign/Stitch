@@ -444,26 +444,19 @@ extension SyntaxViewName {
             
             
         case .simple(let data):
-            switch data.syntaxKind {
-            case .literal(let literalKind):
-                let valueType = try literalKind.getValueType()
-                let valueEncoding = try data.createEncoding()
-                
-                // Create encodable dictionary
-                let aiPortValueEncoding = [
-                    "value": AnyEncodable(valueEncoding),
-                    "value_type": AnyEncodable(valueType.asLLMStepNodeType)
-                ]
-                
-                // Decode dictionary, getting a PortValue
-                let data = try JSONEncoder().encode(aiPortValueEncoding)
-                let aiPortValue = try JSONDecoder().decode(StitchAIPortValue.self, from: data)
-                return [aiPortValue.value]
-                
-            case .variable, .expression:
-                // No support for edges or anything that could be an edge
-                return []
-            }
+            let valueType = try data.syntaxKind.getValueType()
+            let valueEncoding = try data.createEncoding()
+            
+            // Create encodable dictionary
+            let aiPortValueEncoding = [
+                "value": AnyEncodable(valueEncoding),
+                "value_type": AnyEncodable(valueType.asLLMStepNodeType)
+            ]
+            
+            // Decode dictionary, getting a PortValue
+            let data = try JSONEncoder().encode(aiPortValueEncoding)
+            let aiPortValue = try JSONDecoder().decode(StitchAIPortValue.self, from: data)
+            return [aiPortValue.value]
         }
     }
     

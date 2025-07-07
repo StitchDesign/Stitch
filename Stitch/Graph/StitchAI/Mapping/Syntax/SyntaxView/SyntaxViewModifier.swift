@@ -40,7 +40,7 @@ struct SyntaxViewArgumentData: Equatable, Hashable, Sendable {
 
 struct SyntaxViewSimpleData: Hashable, Sendable {
     let value: String
-    let syntaxKind: SyntaxArgumentKind
+    let syntaxKind: SyntaxArgumentLiteralKind
 }
 
 struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
@@ -317,13 +317,11 @@ extension Array where Element == SyntaxViewArgumentData {
             }
             
             switch arg.value {
-            case .simple(let value):
-                let value = value.value
-                    .replacingOccurrences(of: "“", with: "\"")
-                    .replacingOccurrences(of: "”", with: "\"")
-                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-//                    .createEncoding()
-                result.updateValue(AnyEncodable(value), forKey: label)
+            case .simple(let data):
+                // Casts to correct type
+                let encodedValue = try data.createEncoding()
+                
+                result.updateValue(AnyEncodable(encodedValue), forKey: label)
                 
             case .complex(let complexData):
                 // Get encoding data recursively
