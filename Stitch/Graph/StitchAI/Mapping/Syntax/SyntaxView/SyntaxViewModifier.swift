@@ -97,6 +97,16 @@ extension SyntaxViewModifierArgumentType {
             return nil
         }
     }
+    
+    var complexValue: SyntaxViewModifierComplexType? {
+        switch self {
+        case .complex(let data):
+            return data
+            
+        default:
+            return nil
+        }
+    }
 }
 
 

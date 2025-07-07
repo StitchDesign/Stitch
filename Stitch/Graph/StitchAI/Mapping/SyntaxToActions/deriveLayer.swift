@@ -469,9 +469,9 @@ extension SyntaxViewName {
                                                                     modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
         var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
         
-        guard let angleArgument = modifier.arguments[safe: 0] else {
-//              // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
-//              case .angle(let degreesOrRadians) = angleArgument.value else {
+        guard let angleArgument = modifier.arguments[safe: 0],
+              // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
+              angleArgument.value.complexValue?.typeName.contains(".degrees") ?? false else {
             
             //#if !DEV_DEBUG
             throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly.")
