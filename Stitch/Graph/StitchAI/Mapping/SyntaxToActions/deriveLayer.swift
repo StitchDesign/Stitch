@@ -530,31 +530,6 @@ extension CurrentStep.LayerInputPort {
     }
 }
 
-//extension CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue {
-    
-//    init(id: UUID,
-//         port: CurrentStep.LayerInputPort,
-//         value: CurrentStep.PortValue) throws {
-//        
-//        // "Downgrade" PortValue back to supported type for the AI
-//#if DEV_DEBUG
-//        let downgradedValue = try! value.convert(to: CurrentStep.PortValue.self)
-//#else
-//        let downgradedValue = try value.convert(to: CurrentStep.PortValue.self)
-//#endif
-//        
-//        self.init(id: id,
-//                  input: port,
-//                  value: downgradedValue)
-//    }
-//}
-
-//extension Array where Element == SyntaxViewArgumentData {
-//    func deriveCustomValues() {
-//        
-//    }
-//}
-
 extension SyntaxArgumentLiteralKind {
     func getValueType() throws -> NodeType {
         switch self {
