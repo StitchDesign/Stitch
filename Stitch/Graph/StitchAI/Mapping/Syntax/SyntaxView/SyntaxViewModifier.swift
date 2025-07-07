@@ -130,7 +130,7 @@ extension MemberAccessExprSyntax {
 /// (No such list or enum is otherwise already exposed by SwiftUI for us programmatically.)
 /// `rawValue` is **always** the textual name of the modifier as it appears in
 /// source (e.g. `"fill"`, `"frame"`). Any unknown name is stored using `.custom`.
-enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable {
+enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, CaseIterable {
     case accentColor = "accentColor"
     case accessibilityAction = "accessibilityAction"
     case accessibilityAddTraits = "accessibilityAddTraits"
@@ -162,6 +162,7 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable {
     case buttonStyle = "buttonStyle"
     case clipped = "clipped"
     case clipShape = "clipShape"
+    case color = "color"
     case colorInvert = "colorInvert"
     case colorMultiply = "colorMultiply"
     case compositingGroup = "compositingGroup"
