@@ -381,8 +381,10 @@ extension SyntaxViewName {
     }
 
     static func derivePortValueValues(from argument: SyntaxViewModifierArgumentType) throws -> [CurrentStep.PortValue] {
+        
         switch argument {
-            // Handles types like PortValueDescription
+        
+        // Handles types like PortValueDescription
         case .complex(let complexType):
             let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
             switch complexTypeName {
@@ -418,6 +420,18 @@ extension SyntaxViewName {
         case .array(let arrayArgs):
             // Recursively determine PortValue of each arg
             return try arrayArgs.flatMap(Self.derivePortValueValues(from:))
+            
+            
+            // need to return PortValue, but need to know which is the relevant type
+            // e.g. Color is base name
+            // examples: `Color.yellow`, `VerticalAlignment.center`, `EdgeInsets.horizontal`
+            // examples 2: `.yellow`, `.center`, `.horizontal`
+            // ^^ so need context, e.g. the view modifier, e.g. `.fill` and `.foregroundColor` both take color
+            
+        case .memberAccess(let memberAccess):
+            
+            return
+            
             
         case .simple(let data):
             switch data.syntaxKind {
@@ -531,6 +545,7 @@ extension CurrentStep.LayerInputPort {
 }
 
 extension SyntaxArgumentLiteralKind {
+    // Note: intended for simple syntaxKind
     func getValueType() throws -> NodeType {
         switch self {
         case .integer, .float:

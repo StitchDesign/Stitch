@@ -71,9 +71,13 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     case tuple([SyntaxViewArgumentData])
     
     case array([SyntaxViewModifierArgumentType])
+    
+//    case memberAccess(base: String, property: String)
+    case memberAccess(MemberAccessExprSyntax)
 }
 
 extension SyntaxViewModifierArgumentType {
+    // For recursion
     var allNestedSimpleValues: [String] {
         switch self {
         case .simple(let syntaxViewSimpleData):
@@ -85,6 +89,9 @@ extension SyntaxViewModifierArgumentType {
             return array.flatMap(\.value.allNestedSimpleValues)
         case .array(let array):
             return array.flatMap(\.allNestedSimpleValues)
+//        case .memberAccess(let x, let y):
+        case .memberAccess(let memberExpr):
+            return [memberExpr.declName.baseName.text]
         }
     }
     
@@ -92,7 +99,9 @@ extension SyntaxViewModifierArgumentType {
         switch self {
         case .simple(let data):
             return data.value
-            
+        case .memberAccess(let memberExpr):
+            // TODO: maybe?: PortValueDescription expects hex string, not `Color.yellow` ?
+            return memberExpr.declName.baseName.text
         default:
             return nil
         }
