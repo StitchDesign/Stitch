@@ -36,7 +36,8 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
         return "simple(\(data))"
         
     case .memberAccess(let data):
-        return "memberAccess(\(data.declName.baseName))"
+        // return "memberAccess(\(data.declName.baseName))"
+        return "memberAccess(\(data.base + "." + data.property))"
         
     case .tuple(let args):
         return "tuple(\(args.map(describe(_:)).joined(separator: ", ")))"

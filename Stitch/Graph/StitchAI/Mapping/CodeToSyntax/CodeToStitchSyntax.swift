@@ -341,9 +341,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         else if let memberAccessExpr = expression.as(MemberAccessExprSyntax.self) {
-//            let base = memberAccessExpr.baseName
-//            let propertyName = memberAccessExpr
-            return .memberAccess(memberAccessExpr)
+//            return .memberAccess(memberAccessExpr)
+            return .memberAccess(.init(base: memberAccessExpr.declName.baseName.text,
+                                       property: memberAccessExpr.declName.baseName.text))
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {

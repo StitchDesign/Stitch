@@ -85,14 +85,10 @@ extension SyntaxViewName {
         case .textField: layerType = .textField
             
         case .image:
-            // TODO: come back here
-            fatalError()
-            
-            
-//            switch args.first?.label {
-//            case .systemName: layerType = .sfSymbol
-//            default: layerType = .image
-//            }
+            switch args.first?.label {
+            case "systemName": layerType = .sfSymbol
+            default: layerType = .image
+            }
             
         case .map: layerType = .map
             
@@ -441,11 +437,14 @@ extension SyntaxViewName {
                 // View constructor support needed
                 throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                 
+                // will this handle `ScrollView(.horizontal)`, `VStack(spacing: 20)`, etc. well 
+                
             case .viewModifier(let port):
                 switch port {
                 case .color:
                     // Tricky color case, for Color.systemName etc.
-                    let colorStr = memberAccess.valueText
+//                    let colorStr = memberAccess.valueText
+                    let colorStr = memberAccess.property
                     guard let color = Color.fromSystemName(colorStr) else {
                         throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                     }
