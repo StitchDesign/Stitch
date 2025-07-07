@@ -347,7 +347,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return arguments
     }
     
-    private func parseArgument(_ argument: LabeledExprSyntax) -> SyntaxViewArgumentData? {
+    func parseArgument(_ argument: LabeledExprSyntax) -> SyntaxViewArgumentData? {
 //        guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
 //            log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
 //            self.caughtErrors.append(.unsupportedSyntaxViewModifierArgumentName(argument.label?.text ?? "no argument"))
@@ -362,6 +362,16 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return nil
         }
         
+        let value = self.parseArgumentType(from: expression,
+                                           syntaxKind: syntaxKind)
+        
+        return .init(label: label,
+                     value: value)
+    }
+    
+    /// Handles conditional logic for determining a type of syntax argument.
+    func parseArgumentType(from expression: SwiftSyntax.ExprSyntax,
+                           syntaxKind: SyntaxArgumentKind) -> SyntaxViewModifierArgumentType {
         // Handles compelx types, like PortValueDescription
         if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
             // Recursively create argument data
@@ -374,20 +384,22 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 typeName: funcExpr.calledExpression.trimmedDescription,
                 arguments: complexTypeArgs)
             
-            return SyntaxViewArgumentData(
-                label: label,
-                value: .complex(complexType))
+            return .complex(complexType)
         }
         
+        // Recursively handle arguments in tuple case
+        else if let tupleExpr = expression.as(TupleExprSyntax.self) {
+            let tupleArgs = tupleExpr.elements.compactMap(self.parseArgument(_:))
+            return .tuple(tupleArgs)
+        }
+        
+        // Simple case
         let data = SyntaxViewSimpleData(
             value: expression.trimmedDescription,
             syntaxKind: syntaxKind
         )
         
-        return SyntaxViewArgumentData(
-            label: label,
-            value: .simple(data)
-        )
+        return .simple(data)
     }
     
     // Handle closure expressions (for container views like VStack, HStack, ZStack)
@@ -480,7 +492,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 //                )
 //            }
 //        }
-//        
+//
+        
+        
 //        // Handle axis parameter
 //        if let axisArg = node.arguments.first(where: { $0.label?.text == "axis" }),
 //           let tupleExpr = axisArg.expression.as(TupleExprSyntax.self) {
@@ -535,15 +549,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                                         modifierName: SyntaxViewModifierName) {
         let modifierArguments = self.parseArguments(from: node)
         
-        var finalArgs = modifierArguments
-        if finalArgs.isEmpty {
-            // For modifiers with no arguments
-            finalArgs = []
-        }
-        
         let modifier = SyntaxViewModifier(
             name: modifierName,
-            arguments: finalArgs
+            arguments: modifierArguments
         )
         addModifier(modifier)
     }
@@ -615,12 +623,12 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             dbg("visitPost → handling view modifier '\(modifierName)'")
             
             if let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName) {
-                if (syntaxViewModifierName == .rotationEffect
-                    || syntaxViewModifierName == .rotation3DEffect) {
-                    handleRotation3DEffect(node: node, name: syntaxViewModifierName)
-                } else {
+//                if (syntaxViewModifierName == .rotationEffect
+//                    || syntaxViewModifierName == .rotation3DEffect) {
+//                    handleRotation3DEffect(node: node, name: syntaxViewModifierName)
+//                } else {
                     handleStandardModifier(node: node, modifierName: syntaxViewModifierName)
-                }
+//                }
                 
                 // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
                 // we are at the end of the modifier chain; pop the base view.

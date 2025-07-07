@@ -73,14 +73,16 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     case complex(SyntaxViewModifierComplexType)
     
-    // TODO: consider removing other types
-    // e.g. .rotationEffect(.degrees(90), axis: ...)
-    case angle(SyntaxViewModifierArgumentAngle)
+    case tuple([SyntaxViewArgumentData])
     
-    // e.g. .rotationEffect(..., axis: (x: 1, y: 0, z: 0))
-    case axis(x: SyntaxViewModifierArgumentData,
-              y: SyntaxViewModifierArgumentData,
-              z: SyntaxViewModifierArgumentData)
+//    // TODO: consider removing other types
+//    // e.g. .rotationEffect(.degrees(90), axis: ...)
+//    case angle(SyntaxViewModifierArgumentAngle)
+//    
+//    // e.g. .rotationEffect(..., axis: (x: 1, y: 0, z: 0))
+//    case axis(x: SyntaxViewModifierArgumentData,
+//              y: SyntaxViewModifierArgumentData,
+//              z: SyntaxViewModifierArgumentData)
 }
 
 extension SyntaxViewModifierArgumentType {

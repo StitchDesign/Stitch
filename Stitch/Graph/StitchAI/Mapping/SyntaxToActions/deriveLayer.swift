@@ -256,13 +256,14 @@ extension SyntaxViewName {
             for arg in args {
                 let port = try arg.deriveLayerInputPort(layerType)
                     
-                if let value = try SyntaxViewName.derivePortValueValue(from: arg) {
-                    customValues.append(.init(
-                        layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                      input_port_type: .init(value: port)),
-                        value: value))
-                }
+                let values = try SyntaxViewName.derivePortValueValues(from: arg)
                 
+                customValues += values.map { value in
+                        .init(
+                            layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                          input_port_type: .init(value: port)),
+                            value: value)
+                }
             } // for arg in args
             
             return customValues
@@ -355,12 +356,12 @@ extension SyntaxViewName {
                                         port: CurrentStep.LayerInputPort,
                                         layerType: CurrentStep.Layer) throws -> CurrentStep.PortValue? {
         // Convert every argument into a PortValue, later logic determines if we need to pack info
-        let portValuesFromArgs = try arguments.compactMap(Self.derivePortValueValue(from:))
+        let portValuesFromArgs = try arguments.flatMap(Self.derivePortValueValues(from:))
         
         if arguments.count == 1,
            let argument = arguments.first {
             // Decode PortValue from full arguments data
-            return try Self.derivePortValueValue(from: argument)
+            return try Self.derivePortValueValues(from: argument).first
         }
         
         // Packing case
@@ -378,24 +379,26 @@ extension SyntaxViewName {
         }
     }
 
-    static func derivePortValueValue(from argument: SyntaxViewArgumentData) throws -> CurrentStep.PortValue? {
-        switch argument.value {
-            
-        case .angle, .axis:
-            fatalErrorIfDebug("Only intended for rotation3DEffect case")
-            throw SwiftUISyntaxError.incorrectParsing(message: ".degrees and .axis are only for the rotation layer-inputs derivation")
-            
+    static func derivePortValueValues(from argument: SyntaxViewArgumentData) throws -> [CurrentStep.PortValue] {
+        switch argument.value {            
             // Handles types like PortValueDescription
         case .complex(let complexType):
             let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
             switch complexTypeName {
             case .none:
-                throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
+                // Default scenario looks for first arg and extracts PortValue data
+                guard complexType.arguments.count == 1,
+                      let firstArg = complexType.arguments.first else {
+                    throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
+                }
+                
+                // Search for simple value recursively
+                return try Self.derivePortValueValues(from: firstArg)
                 
             case .portValueDescription:
                 do {
                     let aiPortValue = try complexType.arguments.decode(StitchAIPortValue.self)
-                    return aiPortValue.value
+                    return [aiPortValue.value]
                 } catch {
                     print("PortValue decoding error: \(error)")
                     throw error
@@ -404,6 +407,10 @@ extension SyntaxViewName {
             case .cgPoint:
                 fatalError()
             }
+            
+        case .tuple(let tupleArgs):
+            // Recursively determine PortValue of each arg
+            return try tupleArgs.flatMap(Self.derivePortValueValues(from:))
             
         case .simple(let data):
             switch data.syntaxKind {
@@ -420,11 +427,11 @@ extension SyntaxViewName {
                 // Decode dictionary, getting a PortValue
                 let data = try JSONEncoder().encode(aiPortValueEncoding)
                 let aiPortValue = try JSONDecoder().decode(StitchAIPortValue.self, from: data)
-                return aiPortValue.value
+                return [aiPortValue.value]
                 
             case .variable, .expression:
                 // No support for edges or anything that could be an edge
-                return nil
+                return []
             }
             
             
@@ -450,74 +457,53 @@ extension SyntaxViewName {
         }
     }
     
-    static func deriveCustomValuesFromRotationLayerInputTranslation(
-        id: UUID,
-        layerType: CurrentStep.Layer,
-        modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        fatalError()
-//        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-//        
-//        
-//        guard let angleArgument = modifier.arguments[safe: 0],
+    static func deriveCustomValuesFromRotationLayerInputTranslation(id: UUID,
+                                                                    layerType: CurrentStep.Layer,
+                                                                    modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+        
+        guard let angleArgument = modifier.arguments[safe: 0] else {
 //              // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
 //              case .angle(let degreesOrRadians) = angleArgument.value else {
-//            
-//            //#if !DEV_DEBUG
-//            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
-//            //#endif
-//        }
-//        
-//        
-//        // degrees = *how much* we're rotating the given rotation layer input
-//        // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
-//        let fn = { (port: CurrentStep.LayerInputPort) in
-//            let portValue = try port
-//                .getDefaultValue(layerType: layerType)
-//                .parseInputEdit(fieldValue: .string(.init(degreesOrRadians.value)),
-//                                fieldIndex: 0)
-//            
-//            customValues.append(try .init(id: id, port: port, value: portValue))
-//        }
-//        
-//        // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
-//        if let axesArgument = modifier.arguments[safe: 1],
-//           
-//            // Note: `axisX` could be a number-literal, which we can test as >0 here -- or it could be a variable, which we cannot test.
-//           // We only want to provide `degrees` (e.g. `60` or `x`) if the axis is greater than 1; otherwise we end up with unwanted
-//            
-//            // Ah! Hold on -- if we have an incoming edge (i.e. a variable), then we won't have to create a custom_value; we would create an `incoming_edge` case instead;
-//            // this incoming edge will then determine whether we apply the degrees or not --
-//            // ... right, what is the proper way to think about incoming edges here?
-//            // at the
-//            
-//            // what about expressions too, which have no incoming edges (i.e variables), e.g.  1+1 ?
-//            // actually -- anything that's not a literal is considered an incoming edge
-//            
-//            
-//            case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
-//           
-//            // TODO: JULY 2: what if we have e.g. `axes: (x: myVar, y: 0, z: 0)` instead of just literal? ... in that case, the `x: myVar` would be an incoming_edge, not a custom_value ?
-//           let axisX = toNumber(axisX.value),
-//           let axisY = toNumber(axisY.value),
-//           let axisZ = toNumber(axisZ.value) {
-//            
-//            if axisX > 0 {
-//                try fn(.rotationX)
-//            }
-//            if axisY > 0 {
-//                try fn(.rotationY)
-//            }
-//            if axisZ > 0 {
-//                try fn(.rotationZ)
-//            }
-//        }
-//        
-//        // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
-//        else {
-//            try fn(.rotationZ)
-//        }
-//        
-//        return customValues
+            
+            //#if !DEV_DEBUG
+            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly.")
+            //#endif
+        }
+        
+        // degrees = *how much* we're rotating the given rotation layer input
+        // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
+        let fn = { (port: CurrentStep.LayerInputPort, portValue: CurrentStep.PortValue) in
+            customValues.append(.init(id: id, input: port, value: portValue))
+        }
+        
+        // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
+        if let axisArgument = modifier.arguments[safe: 1],
+           axisArgument.label == "axis" {
+            let axisPortValues = try Self.derivePortValueValues(from: axisArgument)
+            guard let xAxis = axisPortValues[safe: 0],
+                  let yAxis = axisPortValues[safe: 1],
+                  let zAxis = axisPortValues[safe: 2] else {
+                throw SwiftUISyntaxError.incorrectParsing(message: "Unable to decode axis arguments for rotation input.")
+            }
+            
+            fn(.rotationX, xAxis)
+            fn(.rotationY, yAxis)
+            fn(.rotationZ, zAxis)
+        }
+        
+        // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
+        else {
+            let portValues = try Self.derivePortValueValues(from: angleArgument)
+            assertInDebug(portValues.count == 1)
+            guard let angleArgumentValue = portValues.first else {
+                throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse PortValue from angle data.")
+            }
+            
+            fn(.rotationZ, angleArgumentValue)
+        }
+        
+        return customValues
     }
 }
 
@@ -537,24 +523,24 @@ extension CurrentStep.LayerInputPort {
     }
 }
 
-extension CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue {
+//extension CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue {
     
-    init(id: UUID,
-         port: CurrentStep.LayerInputPort,
-         value: PortValue) throws {
-        
-        // "Downgrade" PortValue back to supported type for the AI
-#if DEV_DEBUG
-        let downgradedValue = try! value.convert(to: CurrentStep.PortValue.self)
-#else
-        let downgradedValue = try value.convert(to: CurrentStep.PortValue.self)
-#endif
-        
-        self.init(id: id,
-                  input: port,
-                  value: downgradedValue)
-    }
-}
+//    init(id: UUID,
+//         port: CurrentStep.LayerInputPort,
+//         value: CurrentStep.PortValue) throws {
+//        
+//        // "Downgrade" PortValue back to supported type for the AI
+//#if DEV_DEBUG
+//        let downgradedValue = try! value.convert(to: CurrentStep.PortValue.self)
+//#else
+//        let downgradedValue = try value.convert(to: CurrentStep.PortValue.self)
+//#endif
+//        
+//        self.init(id: id,
+//                  input: port,
+//                  value: downgradedValue)
+//    }
+//}
 
 //extension Array where Element == SyntaxViewArgumentData {
 //    func deriveCustomValues() {
