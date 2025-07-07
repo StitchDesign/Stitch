@@ -218,7 +218,24 @@ extension SyntaxViewName {
             
         case .roundedRectangle:
             // TODO: come back here
-            fatalError()
+//            fatalError()
+            
+            layerType = .rectangle
+            
+            // Seems like the constructor are is detected elsewhere ?
+            // At least that's what happened for `Image(systemName:)`
+            
+            
+//            if let arg = args.first(where: { $0.label == "cornerRadius" }),
+//               
+//               let firstValue = arg.values.first,
+//               let radius = Double(firstValue.value) {
+//                customValues.append(
+//                    .init(id: id,
+//                          input: .cornerRadius,
+//                          value: .number(radius))
+//                )
+//            }
             
 //            layerType = .rectangle
 //            if let arg = args.first(where: { $0.label == .cornerRadius }),
