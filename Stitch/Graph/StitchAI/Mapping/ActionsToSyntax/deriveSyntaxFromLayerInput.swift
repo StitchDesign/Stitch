@@ -21,7 +21,7 @@ enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case unsupportedSyntaxViewModifierName(String)
     case unsupportedSyntaxViewModifierArgumentName(String)
     case unsupportedComplexValueType(String)
-    case unsupportedPortValueTypeDecoding(SyntaxArgumentLiteralKind)
+    case unsupportedPortValueTypeDecoding(SyntaxViewModifierArgumentType)
     
     case unsupportedLayer(SyntaxViewName)
 //    case unsupportedConstructorArgument(SyntaxViewArgumentData)

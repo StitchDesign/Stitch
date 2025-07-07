@@ -100,8 +100,7 @@ extension SyntaxViewModifierArgumentType {
         case .simple(let data):
             return data.value
         case .memberAccess(let memberExpr):
-            // TODO: maybe?: PortValueDescription expects hex string, not `Color.yellow` ?
-            return memberExpr.declName.baseName.text
+            return memberExpr.valueText
         default:
             return nil
         }
@@ -115,6 +114,12 @@ extension SyntaxViewModifierArgumentType {
         default:
             return nil
         }
+    }
+}
+
+extension MemberAccessExprSyntax {
+    var valueText: String {
+        self.declName.baseName.text
     }
 }
 
