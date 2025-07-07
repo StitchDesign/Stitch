@@ -340,6 +340,12 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return .array(arrayArgs)
         }
         
+        else if let memberAccessExpr = expression.as(MemberAccessExprSyntax.self) {
+//            let base = memberAccessExpr.baseName
+//            let propertyName = memberAccessExpr
+            return .memberAccess(memberAccessExpr)
+        }
+        
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
             self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression))
             return nil
