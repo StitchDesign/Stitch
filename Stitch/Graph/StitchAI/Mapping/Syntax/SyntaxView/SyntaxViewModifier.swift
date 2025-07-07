@@ -75,6 +75,8 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     case tuple([SyntaxViewArgumentData])
     
+    case array([SyntaxViewModifierArgumentType])
+    
 //    // TODO: consider removing other types
 //    // e.g. .rotationEffect(.degrees(90), axis: ...)
 //    case angle(SyntaxViewModifierArgumentAngle)
@@ -86,6 +88,20 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
 }
 
 extension SyntaxViewModifierArgumentType {
+    var allNestedSimpleValues: [String] {
+        switch self {
+        case .simple(let syntaxViewSimpleData):
+            return [syntaxViewSimpleData.value]
+        case .complex(let syntaxViewModifierComplexType):
+            return syntaxViewModifierComplexType.arguments
+                .flatMap(\.value.allNestedSimpleValues)
+        case .tuple(let array):
+            return array.flatMap(\.value.allNestedSimpleValues)
+        case .array(let array):
+            return array.flatMap(\.allNestedSimpleValues)
+        }
+    }
+    
     var simpleValue: String? {
         switch self {
         case .simple(let data):

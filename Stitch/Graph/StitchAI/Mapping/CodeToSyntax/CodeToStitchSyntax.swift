@@ -356,22 +356,17 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         let label = argument.label?.text
         
         let expression = argument.expression
-        guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
-            print("parseArgumentsForModifier error: unsupported arg kind from: \(expression)")
-            self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression))
+        
+        guard let value = self.parseArgumentType(from: expression) else {
             return nil
         }
-        
-        let value = self.parseArgumentType(from: expression,
-                                           syntaxKind: syntaxKind)
         
         return .init(label: label,
                      value: value)
     }
     
     /// Handles conditional logic for determining a type of syntax argument.
-    func parseArgumentType(from expression: SwiftSyntax.ExprSyntax,
-                           syntaxKind: SyntaxArgumentKind) -> SyntaxViewModifierArgumentType {
+    func parseArgumentType(from expression: SwiftSyntax.ExprSyntax) -> SyntaxViewModifierArgumentType? {
         // Handles compelx types, like PortValueDescription
         if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
             // Recursively create argument data
@@ -391,6 +386,19 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         else if let tupleExpr = expression.as(TupleExprSyntax.self) {
             let tupleArgs = tupleExpr.elements.compactMap(self.parseArgument(_:))
             return .tuple(tupleArgs)
+        }
+        
+        // Recursively handle arguments in array case
+        else if let arrayExpr = expression.as(ArrayExprSyntax.self) {
+            let arrayArgs = arrayExpr.elements.compactMap {
+                self.parseArgumentType(from: $0.expression)
+            }
+            return .array(arrayArgs)
+        }
+        
+        guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
+            self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression))
+            return nil
         }
         
         // Simple case

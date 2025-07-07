@@ -256,7 +256,7 @@ extension SyntaxViewName {
             for arg in args {
                 let port = try arg.deriveLayerInputPort(layerType)
                     
-                let values = try SyntaxViewName.derivePortValueValues(from: arg)
+                let values = try SyntaxViewName.derivePortValueValues(from: arg.value)
                 
                 customValues += values.map { value in
                         .init(
@@ -353,12 +353,14 @@ extension SyntaxViewName {
                                         port: CurrentStep.LayerInputPort,
                                         layerType: CurrentStep.Layer) throws -> CurrentStep.PortValue? {
         // Convert every argument into a PortValue, later logic determines if we need to pack info
-        let portValuesFromArgs = try arguments.flatMap(Self.derivePortValueValues(from:))
+        let portValuesFromArgs = try arguments.flatMap {
+            try Self.derivePortValueValues(from: $0.value)
+        }
         
         if arguments.count == 1,
            let argument = arguments.first {
             // Decode PortValue from full arguments data
-            return try Self.derivePortValueValues(from: argument).first
+            return try Self.derivePortValueValues(from: argument.value).first
         }
         
         // Packing case
@@ -376,8 +378,8 @@ extension SyntaxViewName {
         }
     }
 
-    static func derivePortValueValues(from argument: SyntaxViewArgumentData) throws -> [CurrentStep.PortValue] {
-        switch argument.value {            
+    static func derivePortValueValues(from argument: SyntaxViewModifierArgumentType) throws -> [CurrentStep.PortValue] {
+        switch argument {
             // Handles types like PortValueDescription
         case .complex(let complexType):
             let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
@@ -390,7 +392,7 @@ extension SyntaxViewName {
                 }
                 
                 // Search for simple value recursively
-                return try Self.derivePortValueValues(from: firstArg)
+                return try Self.derivePortValueValues(from: firstArg.value)
                 
             case .portValueDescription:
                 do {
@@ -407,7 +409,13 @@ extension SyntaxViewName {
             
         case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
-            return try tupleArgs.flatMap(Self.derivePortValueValues(from:))
+            return try tupleArgs.flatMap {
+                try Self.derivePortValueValues(from: $0.value)
+            }
+            
+        case .array(let arrayArgs):
+            // Recursively determine PortValue of each arg
+            return try arrayArgs.flatMap(Self.derivePortValueValues(from:))
             
         case .simple(let data):
             switch data.syntaxKind {
@@ -477,7 +485,7 @@ extension SyntaxViewName {
         // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
         if let axisArgument = modifier.arguments[safe: 1],
            axisArgument.label == "axis" {
-            let axisPortValues = try Self.derivePortValueValues(from: axisArgument)
+            let axisPortValues = try Self.derivePortValueValues(from: axisArgument.value)
             guard let xAxis = axisPortValues[safe: 0],
                   let yAxis = axisPortValues[safe: 1],
                   let zAxis = axisPortValues[safe: 2] else {
@@ -491,7 +499,7 @@ extension SyntaxViewName {
         
         // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
         else {
-            let portValues = try Self.derivePortValueValues(from: angleArgument)
+            let portValues = try Self.derivePortValueValues(from: angleArgument.value)
             assertInDebug(portValues.count == 1)
             guard let angleArgumentValue = portValues.first else {
                 throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse PortValue from angle data.")

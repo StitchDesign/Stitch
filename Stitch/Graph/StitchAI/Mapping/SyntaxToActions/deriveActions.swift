@@ -139,49 +139,32 @@ extension SyntaxViewName {
     
     /// Detects the scroll axis from the ScrollView's constructor arguments
     private static func detectScrollAxis(args: [SyntaxViewConstructorArgument]) -> ScrollAxis {
-        fatalError()
-//        
-//        // First check for array expressions that explicitly list both axes
-//        for arg in args {
-//            guard let firstValue = arg.values.first else { continue }
-//            
-//            // Check for array containing both axes
-//            if firstValue.value == "[.horizontal, .vertical]" || 
-//               firstValue.value == "[.vertical, .horizontal]" ||
-//               firstValue.value == "[Axis.horizontal, Axis.vertical]" ||
-//               firstValue.value == "[Axis.vertical, Axis.horizontal]" {
-//                return .both
-//            }
-//        }
-//        
-//        // Then check for individual axis specifications
-//        var hasVertical = false
-//        var hasHorizontal = false
-//        
-//        for arg in args {
-//            for value in arg.values {
-//                // Check for vertical axis
-//                if [".vertical", "[.vertical]", "Axis.vertical"].contains(value.value) {
-//                    hasVertical = true
-//                }
-//                
-//                // Check for horizontal axis
-//                if [".horizontal", "[.horizontal]", "Axis.horizontal"].contains(value.value) {
-//                    hasHorizontal = true
-//                }
-//            }
-//        }
-//        
-//        // Determine the result based on which axes were found
-//        if hasVertical && hasHorizontal {
-//            return .both
-//        } else if hasVertical {
-//            return .vertical
-//        } else if hasHorizontal {
-//            return .horizontal
-//        }
-//        
-//        return .horizontal
+        
+        let horizontalLabel = ".horizontal"
+        let verticalLabel = ".vertical"
+        let bothAxes = Set([horizontalLabel, verticalLabel])
+        let axesData = Set(args.flatMap(\.value.allNestedSimpleValues))
+        
+        let isBoth = axesData.intersection(bothAxes).count == 2
+        
+        if isBoth {
+            return .both
+        }
+        
+        // Then check for individual axis specifications
+        let hasVertical = axesData.contains(verticalLabel)
+        let hasHorizontal = axesData.contains(horizontalLabel)
+        
+        // Determine the result based on which axes were found
+        if hasVertical && hasHorizontal {
+            return .both
+        } else if hasVertical {
+            return .vertical
+        } else if hasHorizontal {
+            return .horizontal
+        }
+        
+        return .horizontal
     }
     
     /// Represents the possible scroll axes for a ScrollView

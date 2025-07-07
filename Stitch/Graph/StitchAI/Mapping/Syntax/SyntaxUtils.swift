@@ -48,6 +48,9 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
         
     case .tuple(let args):
         return "tuple(\(args.map(describe(_:)).joined(separator: ", ")))"
+        
+    case .array(let args):
+        return "array(\(args.map(describe(_:)).joined(separator: ", ")))"
     
     case .complex(let type):
         // TODO: better label for describe
