@@ -151,7 +151,9 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case allowsTightening = "allowsTightening"
     case animation = "animation"
     case aspectRatio = "aspectRatio"
+    
     case background = "background"
+    case backgroundColor = "backgroundColor"
     case badge = "badge"
     case baselineOffset = "baselineOffset"
     case blendMode = "blendMode"
@@ -160,6 +162,7 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case border = "border"
     case brightness = "brightness"
     case buttonStyle = "buttonStyle"
+    
     case clipped = "clipped"
     case clipShape = "clipShape"
     case color = "color"
@@ -172,13 +175,16 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case controlSize = "controlSize"
     case cornerRadius = "cornerRadius"
     case contextMenu = "contextMenu"
+    
     case disableAutocorrection = "disableAutocorrection"
     case disabled = "disabled"
     case drawingGroup = "drawingGroup"
     case dynamicTypeSize = "dynamicTypeSize"
+    
     case environment = "environment"
     case environmentObject = "environmentObject"
     case exclusiveGesture = "exclusiveGesture"
+   
     case fill = "fill"
     case fixedSize = "fixedSize"
     case focusable = "focusable"
@@ -189,16 +195,21 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case foregroundColor = "foregroundColor"
     case foregroundStyle = "foregroundStyle"
     case frame = "frame"
+    
     case gesture = "gesture"
+    
     case help = "help"
     case highPriorityGesture = "highPriorityGesture"
     case hoverEffect = "hoverEffect"
     case hueRotation = "hueRotation"
+    
     case id = "id"
     case ignoresSafeArea = "ignoresSafeArea"
     case interactiveDismissDisabled = "interactiveDismissDisabled"
     case italic = "italic"
+    
     case kerning = "kerning"
+    
     case layerId = "layerId"
     case layoutPriority = "layoutPriority"
     case lineLimit = "lineLimit"
@@ -211,6 +222,7 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case listSectionSeparatorTint = "listSectionSeparatorTint"
     case listSectionSeparatorVisibility = "listSectionSeparatorVisibility"
     case listStyle = "listStyle"
+    
     case mask = "mask"
     case matchedGeometryEffect = "matchedGeometryEffect"
     case menuStyle = "menuStyle"
@@ -218,6 +230,7 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case monospaced = "monospaced"
     case monospacedDigit = "monospacedDigit"
     case multilineTextAlignment = "multilineTextAlignment"
+    
     case navigationBarBackButtonHidden = "navigationBarBackButtonHidden"
     case navigationBarHidden = "navigationBarHidden"
     case navigationBarItems = "navigationBarItems"
@@ -225,6 +238,7 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case navigationBarTitleDisplayMode = "navigationBarTitleDisplayMode"
     case navigationDestination = "navigationDestination"
     case navigationTitle = "navigationTitle"
+    
     case offset = "offset"
     case onAppear = "onAppear"
     case onChange = "onChange"
@@ -237,6 +251,7 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case onTapGesture = "onTapGesture"
     case opacity = "opacity"
     case overlay = "overlay"
+  
     case padding = "padding"
     case position = "position"
     case preferredColorScheme = "preferredColorScheme"
@@ -244,10 +259,12 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case presentationDetents = "presentationDetents"
     case progressViewStyle = "progressViewStyle"
     case projectionEffect = "projectionEffect"
+    
     case redacted = "redacted"
     case refreshable = "refreshable"
     case rotation3DEffect = "rotation3DEffect"
     case rotationEffect = "rotationEffect"
+    
     case safeAreaInset = "safeAreaInset"
     case saturation = "saturation"
     case scaleEffect = "scaleEffect"
@@ -267,6 +284,7 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case swipeActions = "swipeActions"
     case symbolEffect = "symbolEffect"
     case symbolRenderingMode = "symbolRenderingMode"
+    
     case tableStyle = "tableStyle"
     case task = "task"
     case textCase = "textCase"
@@ -281,8 +299,10 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case transformEffect = "transformEffect"
     case transition = "transition"
     case truncationMode = "truncationMode"
+    
     case underline = "underline"
     case uppercaseSmallCaps = "uppercaseSmallCaps"
+    
     case zIndex = "zIndex"
     // …add more as needed …
 }

@@ -135,9 +135,9 @@ extension SyntaxViewModifierName {
         case (.foregroundColor, _):
             return .simple(.color)
 
-            //        case (.backgroundColor, _):
-            //            return .simple(.color)
-                        
+        case (.backgroundColor, _):
+            return .simple(.color)
+            
         case (.disabled, _):
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case (.background, _):
