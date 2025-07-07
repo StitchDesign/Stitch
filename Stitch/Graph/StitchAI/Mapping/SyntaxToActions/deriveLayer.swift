@@ -86,13 +86,15 @@ extension SyntaxViewName {
             
         case .image:
             // TODO: come back here
-            fatalError()
+//            fatalError()
             
-            
-//            switch args.first?.label {
-//            case .systemName: layerType = .sfSymbol
-//            default: layerType = .image
-//            }
+            switch args.first?.label {
+//            case .systemName:
+            case "systemName":
+                layerType = .sfSymbol
+            default:
+                layerType = .image
+            }
             
         case .map: layerType = .map
             
