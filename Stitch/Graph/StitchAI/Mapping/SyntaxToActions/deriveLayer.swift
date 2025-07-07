@@ -85,14 +85,12 @@ extension SyntaxViewName {
         case .textField: layerType = .textField
             
         case .image:
-            // TODO: come back here
-            fatalError()
-            
-            
-//            switch args.first?.label {
+            switch args.first?.label {
+            // Note: previously was switch on proper enum
 //            case .systemName: layerType = .sfSymbol
-//            default: layerType = .image
-//            }
+            case "systemName": layerType = .sfSymbol
+            default: layerType = .image
+            }
             
         case .map: layerType = .map
             
@@ -215,10 +213,9 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self)
             
         case .roundedRectangle:
-            // TODO: come back here
-            fatalError()
+            layerType = .rectangle
             
-//            layerType = .rectangle
+            // Note: we no longer need to create the custom_value here? It's handled elsewhere?
 //            if let arg = args.first(where: { $0.label == .cornerRadius }),
 //               let firstValue = arg.values.first,
 //               let radius = Double(firstValue.value) {
