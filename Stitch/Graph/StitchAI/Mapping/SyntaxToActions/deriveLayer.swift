@@ -272,7 +272,7 @@ extension SyntaxViewName {
         id: UUID,
         layerType: CurrentStep.Layer,
         modifiers: [SyntaxViewModifier]) throws -> [LayerInputViewModification] {
-            try modifiers.map { modifier in
+            try modifiers.compactMap { modifier in
                 try Self.deriveCustomValuesFromViewModifier(
                     id: id,
                     layerType: layerType,
@@ -282,7 +282,7 @@ extension SyntaxViewName {
     
     private static func deriveCustomValuesFromViewModifier(id: UUID,
                                                            layerType: CurrentStep.Layer,
-                                                           modifier: SyntaxViewModifier) throws -> LayerInputViewModification {
+                                                           modifier: SyntaxViewModifier) throws -> LayerInputViewModification? {
         
         
         // TODO: derivation result needs to be used for inferring the value type to decode from some view modifier
@@ -291,13 +291,16 @@ extension SyntaxViewName {
         
         switch derivationResult {
         case .simple(let port):
-            let newValues = try Self.deriveCustomValues(
+            guard let newValue = try Self.deriveCustomValue(
                 from: modifier.arguments,
                 id: id,
                 port: port,
-                layerType: layerType)
+                layerType: layerType) else {
+                // Valid nil scenarios for edges, variables etc
+                return nil
+            }
             
-            return .layerInputValues(newValues)
+            return .layerInputValues([newValue])
             
         case .rotationScenario:
             // TODO: see how we can make this into other scenarios
@@ -325,38 +328,54 @@ extension SyntaxViewName {
     
     // TODO: need to infer the value based on the view modifier, not the port (probably)
     
-    static func deriveCustomValues(from arguments: [SyntaxViewArgumentData],
-                                   id: UUID,
-                                   port: CurrentStep.LayerInputPort, // simple because we have a single layer
-                                   layerType: CurrentStep.Layer
-    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        // TODO: catch scenarios with multiple arguments here
-        if arguments.count > 1 {
-            fatalError()
-        }
+    static func deriveCustomValue(from arguments: [SyntaxViewArgumentData],
+                                  id: UUID,
+                                  port: CurrentStep.LayerInputPort, // simple because we have a single layer
+                                  layerType: CurrentStep.Layer
+    ) throws -> CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue? {
+        //        let migratedPort = try port.convert(to: LayerInputPort.self)
+        //        let migratedLayerType = try layerType.convert(to: Layer.self)
+        //        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
         
-        guard let argument = arguments.first else {
-            return []
-        }
+        //
         
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
-//        let migratedPort = try port.convert(to: LayerInputPort.self)
-//        let migratedLayerType = try layerType.convert(to: Layer.self)
-//        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
-        
-        // Decode PortValue from full arguments data
-        // TODO: also learning here
-        guard let portValue = try Self.derivePortValueValue(from: argument) else {
-            return []
+        guard let portValue = try Self.derivePortValue(from: arguments,
+                                                       port: port,
+                                                       layerType: layerType) else {
+            return nil
         }
         
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
-        customValues.append(.init(layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                                input_port_type: .init(value: port)),
-                                  value: portValue))
+        return .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                   input_port_type: .init(value: port)),
+                     value: portValue)
+    }
+    
+    private static func derivePortValue(from arguments: [SyntaxViewArgumentData],
+                                        port: CurrentStep.LayerInputPort,
+                                        layerType: CurrentStep.Layer) throws -> CurrentStep.PortValue? {
+        // Convert every argument into a PortValue, later logic determines if we need to pack info
+        let portValuesFromArgs = try arguments.compactMap(Self.derivePortValueValue(from:))
         
-        return customValues
+        if arguments.count == 1,
+           let argument = arguments.first {
+            // Decode PortValue from full arguments data
+            return try Self.derivePortValueValue(from: argument)
+        }
+        
+        // Packing case
+        else {
+            let valueType = try port.getDefaultValue(layerType: layerType).nodeType
+            
+            let migratedValues = try portValuesFromArgs.map {
+                try PortValueVersion.migrate(entity: $0,
+                                             version: ._V31)
+            }
+            
+            let packedValue = migratedValues.pack(type: valueType)
+            let aiPackedValue = try packedValue.convert(to: CurrentStep.PortValue.self)
+            return aiPackedValue
+        }
     }
 
     static func derivePortValueValue(from argument: SyntaxViewArgumentData) throws -> CurrentStep.PortValue? {
@@ -395,7 +414,7 @@ extension SyntaxViewName {
                 // Create encodable dictionary
                 let aiPortValueEncoding = [
                     "value": AnyEncodable(valueEncoding),
-                    "value_type": AnyEncodable(valueType)
+                    "value_type": AnyEncodable(valueType.asLLMStepNodeType)
                 ]
                 
                 // Decode dictionary, getting a PortValue

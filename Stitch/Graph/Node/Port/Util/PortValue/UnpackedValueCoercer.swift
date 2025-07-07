@@ -31,37 +31,49 @@ extension PortValues {
         
         switch type {
         case .size:
+#if !DEV_DEBUG
             assertInDebug(count == 2)
+#endif
             return .size(.init(width: self[safe: 0]?.getLayerDimension ?? .number(.zero),
                                height: self[safe: 1]?.getLayerDimension ?? .number(.zero)))
             
         case .position:
+#if !DEV_DEBUG
             assertInDebug(count == 2)
+#endif
             return .position(.init(x: self[safe: 0]?.getNumber ?? .zero,
                                    y: self[safe: 1]?.getNumber ?? .zero))
             
         case .point3D:
+#if !DEV_DEBUG
             assertInDebug(count == 3)
+#endif
             return .point3D(.init(x: self[safe: 0]?.getNumber ?? .zero,
                                   y: self[safe: 1]?.getNumber ?? .zero,
                                   z: self[safe: 2]?.getNumber ?? .zero))
             
         case .point4D:
+#if !DEV_DEBUG
             assertInDebug(count == 4)
+#endif
             return .point4D(.init(x: self[safe: 0]?.getNumber ?? .zero,
                                   y: self[safe: 1]?.getNumber ?? .zero,
                                   z: self[safe: 2]?.getNumber ?? .zero,
                                   w: self[safe: 3]?.getNumber ?? .zero))
             
         case .padding:
+#if !DEV_DEBUG
             assertInDebug(count == 4)
+#endif
             return PortValue.padding(.init(top: self[safe: 0]?.getNumber ?? .zero,
                                            right: self[safe: 1]?.getNumber ?? .zero,
                                            bottom: self[safe: 2]?.getNumber ?? .zero,
                                            left: self[safe: 3]?.getNumber ?? .zero))
             
         case .transform:
+#if !DEV_DEBUG
             assertInDebug(count == 9)
+#endif
             return PortValue.transform(.init(positionX: self[safe: 0]?.getNumber ?? .zero,
                                              positionY: self[safe: 1]?.getNumber ?? .zero,
                                              positionZ: self[safe: 2]?.getNumber ?? .zero,

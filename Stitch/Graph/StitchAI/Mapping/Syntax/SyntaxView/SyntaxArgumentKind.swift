@@ -155,8 +155,11 @@ extension SyntaxViewSimpleData {
     func createEncoding() throws -> any Encodable {
         switch syntaxKind {
         case .literal(let literalKind):
-            // raw literal text (including quotes for strings)
+            // raw literal text (removing quotes for strings)
             let raw = self.value
+                .replacingOccurrences(of: "“", with: "\"")
+                .replacingOccurrences(of: "”", with: "\"")
+                .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
             
             switch literalKind {
             case .integer:
@@ -174,9 +177,6 @@ extension SyntaxViewSimpleData {
             case .string:
                 // Strip surrounding quotes
                 let text = raw
-                    .replacingOccurrences(of: "“", with: "\"")
-                    .replacingOccurrences(of: "”", with: "\"")
-                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
                 return text
                 
             case .boolean:
