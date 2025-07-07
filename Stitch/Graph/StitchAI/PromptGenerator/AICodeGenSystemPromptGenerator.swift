@@ -209,6 +209,12 @@ The full list of unsupported views includes:
 \(SyntaxViewName.unsupportedViews.map(\.rawValue))
 ```
 
+### Allowed View Modifiers
+You are ONLY permitted to use these view modifiers. Do not attempt to use view modifiers not included in the list below:
+```
+\(SyntaxViewModifierName.allCases.map(\.rawValue))
+```
+
 ### Other Disallowed Behavior
 In most scenarios, you should not need to replicate functionality that would involve usage of class objects or usage of libraries other than SwiftUI. Native patch nodes largely handle these scenarios for you. Each listed scenario must use native patch nodes.
 * Camera sessions: "cameraFeed || Patch"

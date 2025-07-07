@@ -85,14 +85,11 @@ extension SyntaxViewName {
         case .textField: layerType = .textField
             
         case .image:
-            // TODO: come back here
-            fatalError()
-            
-            
-//            switch args.first?.label {
-//            case .systemName: layerType = .sfSymbol
-//            default: layerType = .image
-//            }
+            if args.first?.label == SyntaxConstructorArgumentLabel.systemName.rawValue {
+                layerType = .sfSymbol
+            } else {
+                layerType = .image
+            }
             
         case .map: layerType = .map
             
@@ -216,19 +213,8 @@ extension SyntaxViewName {
             
         case .roundedRectangle:
             // TODO: come back here
-            fatalError()
-            
-//            layerType = .rectangle
-//            if let arg = args.first(where: { $0.label == .cornerRadius }),
-//               let firstValue = arg.values.first,
-//               let radius = Double(firstValue.value) {
-//                customValues.append(
-//                    .init(id: id,
-//                          input: .cornerRadius,
-//                          value: .number(radius))
-//                )
-//            }
-            
+            layerType = .rectangle
+
         default:
             throw SwiftUISyntaxError.unsupportedLayer(self)
         }
