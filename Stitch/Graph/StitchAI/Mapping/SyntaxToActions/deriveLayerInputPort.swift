@@ -34,7 +34,7 @@ extension SyntaxViewConstructorArgument {
 ////        }
 //    }
     
-    func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> CurrentStep.LayerInputPort {
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
         switch SyntaxConstructorArgumentLabel(rawValue: self.label ?? "") {
             
         case .systemName:
@@ -49,7 +49,8 @@ extension SyntaxViewConstructorArgument {
             case .text, .textField:
                 return .text
             default:
-                throw SwiftUISyntaxError.unsupportedConstructorArgument(self)
+//                throw SwiftUISyntaxError.unsupportedConstructorArgument(self)
+                return nil
             }
         }
     }

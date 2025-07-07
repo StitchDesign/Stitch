@@ -254,7 +254,9 @@ extension SyntaxViewName {
             
             // ── Generic constructor‑argument handling (literals & edges) ─────────
             for arg in args {
-                let port = try arg.deriveLayerInputPort(layerType)
+                guard let port = arg.deriveLayerInputPort(layerType) else {
+                    continue
+                }
                     
                 let values = try SyntaxViewName.derivePortValueValues(from: arg.value)
                 
