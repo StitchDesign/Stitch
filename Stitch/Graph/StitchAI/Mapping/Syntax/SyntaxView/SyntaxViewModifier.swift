@@ -72,7 +72,6 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     case array([SyntaxViewModifierArgumentType])
     
-//    case memberAccess(base: String, property: String)
     case memberAccess(MemberAccessExprSyntax)
 }
 
@@ -89,7 +88,6 @@ extension SyntaxViewModifierArgumentType {
             return array.flatMap(\.value.allNestedSimpleValues)
         case .array(let array):
             return array.flatMap(\.allNestedSimpleValues)
-//        case .memberAccess(let x, let y):
         case .memberAccess(let memberExpr):
             return [memberExpr.declName.baseName.text]
         }
