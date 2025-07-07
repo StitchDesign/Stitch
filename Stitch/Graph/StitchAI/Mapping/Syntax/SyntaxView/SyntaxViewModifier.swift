@@ -16,7 +16,7 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable {
     let name: SyntaxViewModifierName
     
     // representation of argument(s) to SwiftUI view modifer
-    var arguments: [SyntaxViewModifierArgument]
+    var arguments: [SyntaxViewArgumentData]
 }
 
 
@@ -33,15 +33,20 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable {
  )
  ```
  */
-struct SyntaxViewModifierArgument: Equatable, Hashable, Sendable {
-    let label: SyntaxViewModifierArgumentLabel
+struct SyntaxViewArgumentData: Equatable, Hashable, Sendable {
+    let label: String? //SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
+}
+
+struct SyntaxViewSimpleData: Hashable, Sendable {
+    let value: String
+    let syntaxKind: SyntaxArgumentKind
 }
 
 struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
     let typeName: String
     
-    let arguments: LabeledExprListSyntax
+    let arguments: [SyntaxViewArgumentData]
 }
 
 /*
@@ -56,23 +61,33 @@ struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
     )
  ```
  */
-enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
+indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     // e.g. .opacity(5.0)
-    case simple(SyntaxViewModifierArgumentData)
+    case simple(SyntaxViewSimpleData)
     
     case complex(SyntaxViewModifierComplexType)
     
-    // e.g. .rotationEffect(.degrees(90), axis: ...)
-    case angle(SyntaxViewModifierArgumentAngle)
+    case tuple([SyntaxViewArgumentData])
     
-    // e.g. .rotationEffect(..., axis: (x: 1, y: 0, z: 0))
-    case axis(x: SyntaxViewModifierArgumentData,
-              y: SyntaxViewModifierArgumentData,
-              z: SyntaxViewModifierArgumentData)
+    case array([SyntaxViewModifierArgumentType])
 }
 
 extension SyntaxViewModifierArgumentType {
+    var allNestedSimpleValues: [String] {
+        switch self {
+        case .simple(let syntaxViewSimpleData):
+            return [syntaxViewSimpleData.value]
+        case .complex(let syntaxViewModifierComplexType):
+            return syntaxViewModifierComplexType.arguments
+                .flatMap(\.value.allNestedSimpleValues)
+        case .tuple(let array):
+            return array.flatMap(\.value.allNestedSimpleValues)
+        case .array(let array):
+            return array.flatMap(\.allNestedSimpleValues)
+        }
+    }
+    
     var simpleValue: String? {
         switch self {
         case .simple(let data):
@@ -82,56 +97,14 @@ extension SyntaxViewModifierArgumentType {
             return nil
         }
     }
-}
-
-// TODO: JULY 2: the argument .rotation3DEffect(_ angle: Angle) could be either Angle.degrees or Angle.radians, but Stitch's rotation layer inputs always uses degrees
-// https://developer.apple.com/documentation/swiftui/view/rotation3deffect(_:axis:anchor:)
-// https://developer.apple.com/documentation/swiftui/angle
-enum SyntaxViewModifierArgumentAngle: Equatable, Hashable, Sendable, Codable {
-    case degrees(SyntaxViewModifierArgumentData) //
-    case radians(SyntaxViewModifierArgumentData)
     
-    var value: String {
+    var complexValue: SyntaxViewModifierComplexType? {
         switch self {
-        case .degrees(let x):
-            return x.value
-        case .radians(let x):
-            return x.value
-        }
-    }
-}
-
-struct SyntaxViewModifierArgumentData: Equatable, Hashable, Sendable, Codable {
-    let value: String
-    
-    // literal vs declared var vs expression
-    let syntaxKind: SyntaxArgumentKind
-}
-
-
-enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable, Sendable, Codable {
-    case noLabel = "", // e.g. `.fill(Color.red)`, `.foregroundColor(Color.green)`
-         
-         // e.g. `.frame(width:height:alignment:)`
-         width = "width",
-         height = "height",
-         alignment = "alignment",
-         
-         // e.g. position(x:y:)
-         x = "x",
-         y = "y",
-    
-         // e.g. .rotation3DEffect(..., axis: ...)
-         axis = "axis"
-}
-
-extension SyntaxViewModifierArgumentLabel {
-    static func from(_ string: String?) -> SyntaxViewModifierArgumentLabel? {
-        switch string {
-        case .none:
-            return .noLabel
-        case .some(let x):
-            return Self(rawValue: x)
+        case .complex(let data):
+            return data
+            
+        default:
+            return nil
         }
     }
 }
@@ -299,4 +272,55 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable {
     case uppercaseSmallCaps = "uppercaseSmallCaps"
     case zIndex = "zIndex"
     // …add more as needed …
+}
+
+/// Type-erased Encodable wrapper for heterogeneous values
+struct AnyEncodable: Encodable {
+    private let _encode: (Encoder) throws -> Void
+
+    init<T: Encodable>(_ value: T) {
+        self._encode = value.encode(to:)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        try _encode(encoder)
+    }
+}
+
+extension Array where Element == SyntaxViewArgumentData {
+    func decode<DecodingType>(_ asType: DecodingType.Type) throws -> DecodingType where DecodingType: Decodable {
+        let dict = try self.createValuesDict()
+        let data = try JSONEncoder().encode(dict)
+        
+        let decodedType = try JSONDecoder().decode(asType.self, from: data)
+        return decodedType
+    }
+    
+    func createValuesDict() throws -> [String : AnyEncodable] {
+        try self.reduce(into: .init()) { result, arg in
+            guard let label = arg.label else {
+                // Should expect labels for complex types
+                throw SwiftUISyntaxError.noLabelFoundForComplexType
+            }
+            
+            switch arg.value {
+            case .simple(let value):
+                let value = value.value
+                    .replacingOccurrences(of: "“", with: "\"")
+                    .replacingOccurrences(of: "”", with: "\"")
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+//                    .createEncoding()
+                result.updateValue(AnyEncodable(value), forKey: label)
+                
+            case .complex(let complexData):
+                // Get encoding data recursively
+                let data = try complexData.arguments.createValuesDict()
+                result.updateValue(AnyEncodable(data), forKey: label)
+                
+            default:
+                // TODO: make sure other types are accounted for
+                fatalError()
+            }
+        }
+    }
 }

@@ -13,7 +13,7 @@ extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
     func deriveLayerData(id: UUID,
-                         args: [SyntaxViewConstructorArgument],
+                         args: [SyntaxViewArgumentData],
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
 
@@ -24,7 +24,7 @@ extension SyntaxViewName {
                                                 childrenLayers: childrenLayers)
         
         // Handle constructor-arguments
-        let customInputValues = self.deriveCustomValuesFromConstructorArguments(
+        let customInputValues = try self.deriveCustomValuesFromConstructorArguments(
             id: id,
             layerType: layerType,
             args: args)
@@ -65,7 +65,7 @@ extension SyntaxViewName {
     
     func deriveLayerAndCustomValuesFromName(
         id: UUID,
-        args: [SyntaxViewConstructorArgument],
+        args: [SyntaxViewArgumentData],
         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]
     ) throws -> (CurrentStep.Layer, CurrentAIPatchBuilderResponseFormat.LayerData) {
         
@@ -85,10 +85,14 @@ extension SyntaxViewName {
         case .textField: layerType = .textField
             
         case .image:
-            switch args.first?.label {
-            case .systemName: layerType = .sfSymbol
-            default: layerType = .image
-            }
+            // TODO: come back here
+            fatalError()
+            
+            
+//            switch args.first?.label {
+//            case .systemName: layerType = .sfSymbol
+//            default: layerType = .image
+//            }
             
         case .map: layerType = .map
             
@@ -211,16 +215,19 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self)
             
         case .roundedRectangle:
-            layerType = .rectangle
-            if let arg = args.first(where: { $0.label == .cornerRadius }),
-               let firstValue = arg.values.first,
-               let radius = Double(firstValue.value) {
-                customValues.append(
-                    .init(id: id,
-                          input: .cornerRadius,
-                          value: .number(radius))
-                )
-            }
+            // TODO: come back here
+            fatalError()
+            
+//            layerType = .rectangle
+//            if let arg = args.first(where: { $0.label == .cornerRadius }),
+//               let firstValue = arg.values.first,
+//               let radius = Double(firstValue.value) {
+//                customValues.append(
+//                    .init(id: id,
+//                          input: .cornerRadius,
+//                          value: .number(radius))
+//                )
+//            }
             
         default:
             throw SwiftUISyntaxError.unsupportedLayer(self)
@@ -242,34 +249,22 @@ extension SyntaxViewName {
     func deriveCustomValuesFromConstructorArguments(
         id: UUID,
         layerType: CurrentStep.Layer,
-        args: [SyntaxViewConstructorArgument]) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-            
+        args: [SyntaxViewArgumentData]) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
             var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
             
             // ── Generic constructor‑argument handling (literals & edges) ─────────
             for arg in args {
+                guard let port = arg.deriveLayerInputPort(layerType) else {
+                    continue
+                }
+                    
+                let values = try SyntaxViewName.derivePortValueValues(from: arg.value)
                 
-                // TODO: why are we skipping these ? Because we already handled them when handling SwiftUI RoundedRectangle ? ... Can we have a smarter, more programmatic skipping logic here? Or just allow ourselves to create the redundant action, which as an Equatable/Hashable in a set can be ignored ?
-                // Skip the specialised RoundedRectangle .cornerRadius
-                if self == .roundedRectangle && arg.label == .cornerRadius { continue }
-                
-                guard let port = arg.deriveLayerInputPort(layerType),
-                      let portValue = arg.derivePortValue(layerType) else { continue }
-                
-                // Process each value in the argument
-                for value in arg.values {
-                    switch value.syntaxKind {
-                    case .literal:
-                        customValues.append(
-                            .init(id: id,
-                                  input: port,
-                                  value: portValue)
-                        )
-                    case .variable, .expression:
-                        // Skip variables for edges, using AI instead
-                        continue
-                        //                    extras.append(.createEdge(VPLCreateEdge(name: port)))
-                    }
+                customValues += values.map { value in
+                        .init(
+                            layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                          input_port_type: .init(value: port)),
+                            value: value)
                 }
             } // for arg in args
             
@@ -280,7 +275,7 @@ extension SyntaxViewName {
         id: UUID,
         layerType: CurrentStep.Layer,
         modifiers: [SyntaxViewModifier]) throws -> [LayerInputViewModification] {
-            try modifiers.map { modifier in
+            try modifiers.compactMap { modifier in
                 try Self.deriveCustomValuesFromViewModifier(
                     id: id,
                     layerType: layerType,
@@ -288,21 +283,27 @@ extension SyntaxViewName {
             }
     }
     
-    private static func deriveCustomValuesFromViewModifier(
-        id: UUID,
-        layerType: CurrentStep.Layer,
-        modifier: SyntaxViewModifier) throws -> LayerInputViewModification {
+    private static func deriveCustomValuesFromViewModifier(id: UUID,
+                                                           layerType: CurrentStep.Layer,
+                                                           modifier: SyntaxViewModifier) throws -> LayerInputViewModification? {
+        
+        
+        // TODO: derivation result needs to be used for inferring the value type to decode from some view modifier
+        
         let derivationResult = try modifier.name.deriveLayerInputPort(layerType)
         
         switch derivationResult {
         case .simple(let port):
-            let newValues = try Self.deriveCustomValuesFromSimpleLayerInputTranslation(
+            guard let newValue = try Self.deriveCustomValue(
+                from: modifier.arguments,
                 id: id,
                 port: port,
-                layerType: layerType,
-                modifier: modifier)
+                layerType: layerType) else {
+                // Valid nil scenarios for edges, variables etc
+                return nil
+            }
             
-            return .layerInputValues(newValues)
+            return .layerInputValues([newValue])
             
         case .rotationScenario:
             // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
@@ -325,145 +326,188 @@ extension SyntaxViewName {
         }
     }
     
-    static func deriveCustomValuesFromSimpleLayerInputTranslation(
-        id: UUID,
-        port: CurrentStep.LayerInputPort, // simple because we have a single layer
-        layerType: CurrentStep.Layer,
-        modifier: SyntaxViewModifier
-    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
-        let migratedPort = try port.convert(to: LayerInputPort.self)
-        let migratedLayerType = try layerType.convert(to: Layer.self)
-        
-        // Start with default value for that port
-        var portValue: PortValue = migratedPort.getDefaultValue(for: migratedLayerType)
-        
-        // Process each argument based on its type
-        
-        // index for modifier-arguments might not always be correct ?
-        
-        for (idx, arg) in modifier.arguments.enumerated() {
-            
-            switch arg.value {
-                
-            case .angle, .axis:
-                fatalErrorIfDebug("Only intended for rotation3DEffect case")
-                throw SwiftUISyntaxError.incorrectParsing(message: ".degrees and .axis are only for the rotation layer-inputs derivation")
-                
-                // Handles types like PortValueDescription
-            case .complex(let complexType):
-                let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
-                switch complexTypeName {
-                case .none:
-                    throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
-                    
-                case .portValueDescription:
-                    guard let valueArg = complexType.arguments.first(where: { $0.label?.text == "value" }),
-                          let valueTypeArg = complexType.arguments.first(where: { $0.label?.text == "value_type" }) else {
-                        throw SwiftUISyntaxError.portValueDataDecodingFailure
-                    }
-                    let valueStr = valueArg.expression.trimmedDescription
-                    let valueTypeStr = valueTypeArg.expression.trimmedDescription
+    // TODO: need to infer the value based on the view modifier, not the port (probably)
     
-                    // TODO: come back here!
-                }
-                
-            case .simple(let data):
-                // Tricky color case, for Color.systemName etc.
-                if let color = Color.fromSystemName(data.value) {
-                    let input = PortValue.string(.init(color.asHexDisplay))
-                    let coerced = [input].coerce(to: portValue, currentGraphTime: .zero)
-                    if let coercedToColor = coerced.first {
-                        portValue = coercedToColor
-                    } else {
-                        fatalErrorIfDebug("Should not have failed to coerce color ")
-                    }
-                }
-
-                // Simple, non-color case
-                else {
-                    portValue = portValue.parseInputEdit(
-                        fieldValue: .string(.init(data.value)),
-                        fieldIndex: idx)
-                }
-            }
-            
-        } // for (idx, arg) in ...
+    static func deriveCustomValue(from arguments: [SyntaxViewArgumentData],
+                                  id: UUID,
+                                  port: CurrentStep.LayerInputPort, // simple because we have a single layer
+                                  layerType: CurrentStep.Layer
+    ) throws -> CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue? {
+        //        let migratedPort = try port.convert(to: LayerInputPort.self)
+        //        let migratedLayerType = try layerType.convert(to: Layer.self)
+        //        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
         
+        //
+        
+        guard let portValue = try Self.derivePortValue(from: arguments,
+                                                       port: port,
+                                                       layerType: layerType) else {
+            return nil
+        }
         
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
-        customValues.append(try .init(id: id,port: port, value: portValue))
-        
-        return customValues
+        return .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                   input_port_type: .init(value: port)),
+                     value: portValue)
     }
     
-    static func deriveCustomValuesFromRotationLayerInputTranslation(
-        id: UUID,
-        layerType: CurrentStep.Layer,
-        modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+    private static func derivePortValue(from arguments: [SyntaxViewArgumentData],
+                                        port: CurrentStep.LayerInputPort,
+                                        layerType: CurrentStep.Layer) throws -> CurrentStep.PortValue? {
+        // Convert every argument into a PortValue, later logic determines if we need to pack info
+        let portValuesFromArgs = try arguments.flatMap {
+            try Self.derivePortValueValues(from: $0.value)
+        }
         
+        if arguments.count == 1,
+           let argument = arguments.first {
+            // Decode PortValue from full arguments data
+            return try Self.derivePortValueValues(from: argument.value).first
+        }
+        
+        // Packing case
+        else {
+            let valueType = try port.getDefaultValue(layerType: layerType).nodeType
+            
+            let migratedValues = try portValuesFromArgs.map {
+                try PortValueVersion.migrate(entity: $0,
+                                             version: ._V31)
+            }
+            
+            let packedValue = migratedValues.pack(type: valueType)
+            let aiPackedValue = try packedValue.convert(to: CurrentStep.PortValue.self)
+            return aiPackedValue
+        }
+    }
+
+    static func derivePortValueValues(from argument: SyntaxViewModifierArgumentType) throws -> [CurrentStep.PortValue] {
+        switch argument {
+            // Handles types like PortValueDescription
+        case .complex(let complexType):
+            let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
+            switch complexTypeName {
+            case .none:
+                // Default scenario looks for first arg and extracts PortValue data
+                guard complexType.arguments.count == 1,
+                      let firstArg = complexType.arguments.first else {
+                    throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
+                }
+                
+                // Search for simple value recursively
+                return try Self.derivePortValueValues(from: firstArg.value)
+                
+            case .portValueDescription:
+                do {
+                    let aiPortValue = try complexType.arguments.decode(StitchAIPortValue.self)
+                    return [aiPortValue.value]
+                } catch {
+                    print("PortValue decoding error: \(error)")
+                    throw error
+                }
+            
+            case .cgPoint:
+                fatalError()
+            }
+            
+        case .tuple(let tupleArgs):
+            // Recursively determine PortValue of each arg
+            return try tupleArgs.flatMap {
+                try Self.derivePortValueValues(from: $0.value)
+            }
+            
+        case .array(let arrayArgs):
+            // Recursively determine PortValue of each arg
+            return try arrayArgs.flatMap(Self.derivePortValueValues(from:))
+            
+        case .simple(let data):
+            switch data.syntaxKind {
+            case .literal(let literalKind):
+                let valueType = try literalKind.getValueType()
+                let valueEncoding = try data.createEncoding()
+                
+                // Create encodable dictionary
+                let aiPortValueEncoding = [
+                    "value": AnyEncodable(valueEncoding),
+                    "value_type": AnyEncodable(valueType.asLLMStepNodeType)
+                ]
+                
+                // Decode dictionary, getting a PortValue
+                let data = try JSONEncoder().encode(aiPortValueEncoding)
+                let aiPortValue = try JSONDecoder().decode(StitchAIPortValue.self, from: data)
+                return [aiPortValue.value]
+                
+            case .variable, .expression:
+                // No support for edges or anything that could be an edge
+                return []
+            }
+            
+            
+            // TODO: Get to the color case stuff
+//                // Tricky color case, for Color.systemName etc.
+//                if let color = Color.fromSystemName(data.value) {
+//                    let input = PortValue.string(.init(color.asHexDisplay))
+//                    let coerced = [input].coerce(to: migratedPortValue, currentGraphTime: .zero)
+//                    if let coercedToColor = coerced.first {
+//                        portValue = try coercedToColor.convert(to: CurrentStep.PortValue.self)
+//                    } else {
+//                        fatalErrorIfDebug("Should not have failed to coerce color ")
+//                    }
+//                }
+//
+//                // Simple, non-color case
+//                else {
+//                    portValue = try migratedPortValue.parseInputEdit(
+//                        fieldValue: .string(.init(data.value)),
+//                        fieldIndex: idx)
+//                    .convert(to: CurrentStep.PortValue.self)
+//                }
+        }
+    }
+    
+    static func deriveCustomValuesFromRotationLayerInputTranslation(id: UUID,
+                                                                    layerType: CurrentStep.Layer,
+                                                                    modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
         var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-        
         
         guard let angleArgument = modifier.arguments[safe: 0],
               // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
-              case .angle(let degreesOrRadians) = angleArgument.value else {
+              angleArgument.value.complexValue?.typeName.contains(".degrees") ?? false else {
             
             //#if !DEV_DEBUG
-            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly")
+            throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse rotation layer inputs correctly.")
             //#endif
         }
         
-        
         // degrees = *how much* we're rotating the given rotation layer input
         // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
-        let fn = { (port: CurrentStep.LayerInputPort) in
-            let portValue = try port
-                .getDefaultValue(layerType: layerType)
-                .parseInputEdit(fieldValue: .string(.init(degreesOrRadians.value)),
-                                fieldIndex: 0)
-            
-            customValues.append(try .init(id: id, port: port, value: portValue))
+        let fn = { (port: CurrentStep.LayerInputPort, portValue: CurrentStep.PortValue) in
+            customValues.append(.init(id: id, input: port, value: portValue))
         }
         
         // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
-        if let axesArgument = modifier.arguments[safe: 1],
-           
-            // Note: `axisX` could be a number-literal, which we can test as >0 here -- or it could be a variable, which we cannot test.
-           // We only want to provide `degrees` (e.g. `60` or `x`) if the axis is greater than 1; otherwise we end up with unwanted
-            
-            // Ah! Hold on -- if we have an incoming edge (i.e. a variable), then we won't have to create a custom_value; we would create an `incoming_edge` case instead;
-            // this incoming edge will then determine whether we apply the degrees or not --
-            // ... right, what is the proper way to think about incoming edges here?
-            // at the
-            
-            // what about expressions too, which have no incoming edges (i.e variables), e.g.  1+1 ?
-            // actually -- anything that's not a literal is considered an incoming edge
-            
-            
-            case .axis(let axisX, let axisY, let axisZ) = axesArgument.value,
-           
-            // TODO: JULY 2: what if we have e.g. `axes: (x: myVar, y: 0, z: 0)` instead of just literal? ... in that case, the `x: myVar` would be an incoming_edge, not a custom_value ?
-           let axisX = toNumber(axisX.value),
-           let axisY = toNumber(axisY.value),
-           let axisZ = toNumber(axisZ.value) {
-            
-            if axisX > 0 {
-                try fn(.rotationX)
+        if let axisArgument = modifier.arguments[safe: 1],
+           axisArgument.label == "axis" {
+            let axisPortValues = try Self.derivePortValueValues(from: axisArgument.value)
+            guard let xAxis = axisPortValues[safe: 0],
+                  let yAxis = axisPortValues[safe: 1],
+                  let zAxis = axisPortValues[safe: 2] else {
+                throw SwiftUISyntaxError.incorrectParsing(message: "Unable to decode axis arguments for rotation input.")
             }
-            if axisY > 0 {
-                try fn(.rotationY)
-            }
-            if axisZ > 0 {
-                try fn(.rotationZ)
-            }
+            
+            fn(.rotationX, xAxis)
+            fn(.rotationY, yAxis)
+            fn(.rotationZ, zAxis)
         }
         
         // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
         else {
-            try fn(.rotationZ)
+            let portValues = try Self.derivePortValueValues(from: angleArgument.value)
+            assertInDebug(portValues.count == 1)
+            guard let angleArgumentValue = portValues.first else {
+                throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse PortValue from angle data.")
+            }
+            
+            fn(.rotationZ, angleArgumentValue)
         }
         
         return customValues
@@ -486,21 +530,19 @@ extension CurrentStep.LayerInputPort {
     }
 }
 
-extension CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue {
-    
-    init(id: UUID,
-         port: CurrentStep.LayerInputPort,
-         value: PortValue) throws {
-        
-        // "Downgrade" PortValue back to supported type for the AI
-#if DEV_DEBUG
-        let downgradedValue = try! value.convert(to: CurrentStep.PortValue.self)
-#else
-        let downgradedValue = try value.convert(to: CurrentStep.PortValue.self)
-#endif
-        
-        self.init(id: id,
-                  input: port,
-                  value: downgradedValue)
+extension SyntaxArgumentLiteralKind {
+    func getValueType() throws -> NodeType {
+        switch self {
+        case .integer, .float:
+            return .number
+        case .string:
+            return .string
+        case .boolean:
+            return .bool
+        case .nilLiteral:
+            return .none
+        case .array, .dictionary, .tuple, .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess:
+            throw SwiftUISyntaxError.couldNotParseVarBody
+        }
     }
 }

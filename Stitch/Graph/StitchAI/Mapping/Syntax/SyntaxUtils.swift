@@ -26,25 +26,20 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
 /// Nicely formats a `SyntaxViewModifierArgumentType` so that we don't dump the
 /// full struct/enum hierarchy when printing.
 /// Formats the `(value, syntaxKind)` pair in a compact way
-private func describe(_ data: SyntaxViewModifierArgumentData) -> String {
-    "\(data.value), \(describe(data.syntaxKind))"
+private func describe(_ data: SyntaxViewArgumentData) -> String {
+    "\(data.value))" //, \(describe(data.syntaxKind))"
 }
 
 private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     switch argType {
     case .simple(let data):
-        return "simple(\(describe(data)))"
+        return "simple(\(data))"
         
-    case .angle(let angle):
-        switch angle {
-        case .degrees(let data):
-            return "degrees(\(describe(data)))"
-        case .radians(let data):
-            return "radians(\(describe(data)))"
-        }
+    case .tuple(let args):
+        return "tuple(\(args.map(describe(_:)).joined(separator: ", ")))"
         
-    case .axis(let x, let y, let z):
-        return "axis(x: \(describe(x)), y: \(describe(y)), z: \(describe(z)))"
+    case .array(let args):
+        return "array(\(args.map(describe(_:)).joined(separator: ", ")))"
     
     case .complex(let type):
         // TODO: better label for describe
@@ -61,8 +56,8 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     result += "\n\(indent)    constructorArguments: ["
     if !node.constructorArguments.isEmpty {
         for (i, arg) in node.constructorArguments.enumerated() {
-            let label = "\(arg.label)"
-            let valuesDesc = arg.values.map { "(\($0.value), \(describe($0.syntaxKind)))" }.joined(separator: ", ")
+            let label = "\(arg.label ?? "none")"
+            let valuesDesc = arg.value //values.map { "(\($0.value), \(describe($0.syntaxKind)))" }.joined(separator: ", ")
             result += "\n\(indent)        (label: \(label), values: [\(valuesDesc)])"
             if i < node.constructorArguments.count - 1 {
                 result += ","
@@ -84,7 +79,7 @@ func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
             result += "\n\(indent)            arguments: ["
             if !modifier.arguments.isEmpty {
                 for (j, arg) in modifier.arguments.enumerated() {
-                    let labelDesc = arg.label == .noLabel ? "" : "\"\(arg.label.rawValue)\""
+                    let labelDesc = arg.label == nil ? "" : "\"\(arg.label!)\""
                     let valueDesc = describe(arg.value)
                     result += "\n\(indent)                (label: \(labelDesc), value: \(valueDesc))"
                     if j < modifier.arguments.count - 1 {

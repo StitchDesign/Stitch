@@ -26,8 +26,8 @@ func swiftUICode(from node: SyntaxView, indentation: String = "") -> String {
         // Add each argument
         let args = node.constructorArguments.enumerated().map { index, arg -> String in
             // If there's a label, include it followed by a colon
-            let label = arg.label.rawValue.isEmpty ? "" : "\(arg.label.rawValue): "
-            let values = arg.values.map { $0.value }.joined(separator: ", ")
+            let label = arg.label == nil ? "" : "\(arg.label!): "
+            let values = arg.value //.map { $0.value }.joined(separator: ", ")
             return "\(label)\(values)"
         }.joined(separator: ", ")
         
@@ -51,7 +51,7 @@ func swiftUICode(from node: SyntaxView, indentation: String = "") -> String {
             code += "("
             
             let args = modifier.arguments.enumerated().map { index, arg -> String in
-                let label = arg.label.rawValue.isEmpty ? "" : "\(arg.label): "
+                let label = arg.label == nil ? "" : "\(arg.label!): "
                 return "\(label)\(arg.value)"
             }.joined(separator: ", ")
             

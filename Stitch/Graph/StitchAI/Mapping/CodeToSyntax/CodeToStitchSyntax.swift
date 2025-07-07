@@ -202,7 +202,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             log("Found view initialization: \(viewName)")
             
             // Parse args, catching arguments we don't yet support
-            let args = parseArgumentsForConstructor(from: node)
+            let args = self.parseArguments(from: node)
             
             switch nameType {
             case .view(let syntaxViewName):
@@ -284,49 +284,11 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
 
     // Parse arguments from function call
-    private func parseArgumentsForConstructor(from node: FunctionCallExprSyntax) -> [SyntaxViewConstructorArgument] {
+    func parseArguments(from node: FunctionCallExprSyntax) -> [SyntaxViewArgumentData] {
         
-        let arguments = node.arguments.compactMap { argument -> SyntaxViewConstructorArgument? in
-            
-            guard let label = SyntaxConstructorArgumentLabel.from(argument.label?.text) else {
-                // If we cannot
-                log("could not create constructor argument label for argument.label: \(String(describing: argument.label))")
-                self.caughtErrors.append(.unsupportedSyntaxArgument(argument.label?.text))
-                return nil
-            }
-            
-            let expr = argument.expression
-
-            // Support either a single value or an array literal
-            let collectedValues: [SyntaxViewConstructorArgumentValue]
-            if let arrayExpr = expr.as(ArrayExprSyntax.self) {
-                collectedValues = arrayExpr.elements.compactMap { element in
-                    guard let syntaxKind = SyntaxArgumentKind.fromExpression(element.expression) else {
-                        self.caughtErrors.append(.unsupportedSyntaxArgumentKind(element.expression))
-                        return nil
-                    }
-                    
-                    return SyntaxViewConstructorArgumentValue(
-                        value: element.expression.trimmedDescription,
-                        syntaxKind: syntaxKind
-                    )
-                }
-            } else {
-                guard let syntaxKind = SyntaxArgumentKind.fromExpression(expr) else {
-                    print("parseArgumentsForConstructor error: unable to get arg kind for \(expr)")
-                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
-                    return nil
-                }
-                
-                collectedValues = [SyntaxViewConstructorArgumentValue(
-                    value: expr.trimmedDescription,
-                    syntaxKind: syntaxKind
-                )]
-            }
-
-            return SyntaxViewConstructorArgument(
-                    label: label,
-                    values: collectedValues)
+        // Default handling for other modifiers
+        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewArgumentData? in
+            self.parseArgument(argument)
         }
         
         dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
@@ -334,50 +296,62 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return arguments
     }
     
-    // TODO: JULY 2: needed clearer entry-points for when we're parsing a view-modifier
-    // Parse arguments from function call
-    private func parseArgumentsForModifier(from node: FunctionCallExprSyntax) -> [SyntaxViewModifierArgument] {
+    func parseArgument(_ argument: LabeledExprSyntax) -> SyntaxViewArgumentData? {
+        let label = argument.label?.text
         
-        // Default handling for other modifiers
-        let arguments = node.arguments.compactMap { (argument) -> SyntaxViewModifierArgument? in
-            guard let label = SyntaxViewModifierArgumentLabel.from(argument.label?.text) else {
-                log("could not create view modifier argument label for argument.label: \(String(describing: argument.label))")
-                self.caughtErrors.append(.unsupportedSyntaxViewModifierArgumentName(argument.label?.text ?? "no argument"))
-                return nil
-            }
-            
-            let expression = argument.expression
-            guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
-                print("parseArgumentsForModifier error: unsupported arg kind from: \(expression)")
-                self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression))
-                return nil
-            }
-            
-            // Handles compelx types, like PortValueDescription
-            if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
-                let complexType = SyntaxViewModifierComplexType(
-                    typeName: funcExpr.calledExpression.trimmedDescription,
-                    arguments: funcExpr.arguments)
-                
-                return SyntaxViewModifierArgument(
-                    label: label,
-                    value: .complex(complexType))
-            }
-            
-            let data = SyntaxViewModifierArgumentData(
-                value: expression.trimmedDescription,
-                syntaxKind: syntaxKind
-            )
-            
-            return SyntaxViewModifierArgument(
-                label: label,
-                value: .simple(data)
-            )
+        let expression = argument.expression
+        
+        guard let value = self.parseArgumentType(from: expression) else {
+            return nil
         }
         
-        dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+        return .init(label: label,
+                     value: value)
+    }
+    
+    /// Handles conditional logic for determining a type of syntax argument.
+    func parseArgumentType(from expression: SwiftSyntax.ExprSyntax) -> SyntaxViewModifierArgumentType? {
+        // Handles compelx types, like PortValueDescription
+        if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
+            // Recursively create argument data
+            let complexTypeArgs = funcExpr.arguments
+                .compactMap { expr in
+                    self.parseArgument(expr)
+                }
+            
+            let complexType = SyntaxViewModifierComplexType(
+                typeName: funcExpr.calledExpression.trimmedDescription,
+                arguments: complexTypeArgs)
+            
+            return .complex(complexType)
+        }
         
-        return arguments
+        // Recursively handle arguments in tuple case
+        else if let tupleExpr = expression.as(TupleExprSyntax.self) {
+            let tupleArgs = tupleExpr.elements.compactMap(self.parseArgument(_:))
+            return .tuple(tupleArgs)
+        }
+        
+        // Recursively handle arguments in array case
+        else if let arrayExpr = expression.as(ArrayExprSyntax.self) {
+            let arrayArgs = arrayExpr.elements.compactMap {
+                self.parseArgumentType(from: $0.expression)
+            }
+            return .array(arrayArgs)
+        }
+        
+        guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
+            self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression))
+            return nil
+        }
+        
+        // Simple case
+        let data = SyntaxViewSimpleData(
+            value: expression.trimmedDescription,
+            syntaxKind: syntaxKind
+        )
+        
+        return .simple(data)
     }
     
     // Handle closure expressions (for container views like VStack, HStack, ZStack)
@@ -407,129 +381,16 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
     }
     
     // MARK: - Modifier Handling
-    
-    /// Handles the rotation3DEffect modifier specially due to its complex argument structure
-    private func handleRotation3DEffect(node: FunctionCallExprSyntax, name: SyntaxViewModifierName) {
-        var arguments: [SyntaxViewModifierArgument] = []
-        
-        // Handle angle parameter (first argument: expected .degrees(...) or .radians(...))
-        if let firstArg = node.arguments.first {
-            let expr: ExprSyntax = firstArg.expression
 
-            var angleArgument: SyntaxViewModifierArgumentAngle?
-
-            // If the expression is a function call (e.g. .degrees(60) or .radians(x))
-            if let call = expr.as(FunctionCallExprSyntax.self),
-               let member = call.calledExpression.as(MemberAccessExprSyntax.self) {
-
-                let fnName = member.declName.baseName.text   // "degrees" or "radians"
-
-                // Extract the inner argument passed to .degrees/_radians
-                if let innerExpr = call.arguments.first?.expression {
-                    let valueString = innerExpr.trimmedDescription
-                    
-                    if let valueKind = SyntaxArgumentKind.fromExpression(innerExpr) {
-                        switch fnName {
-                        case "degrees":
-                            angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
-                        case "radians":
-                            angleArgument = .radians(.init(value: valueString, syntaxKind: valueKind))
-                        default:
-                            break
-                        }
-                    } else {
-                        print("handleRotation3DEffect error: unable get to node kind for \(innerExpr)")
-                        self.caughtErrors.append(.unsupportedSyntaxArgumentKind(innerExpr))
-                    }
-                }
-            }
-
-            // Fallback: treat any other direct expression as degrees, preserving literal/variable/expr kind.
-            if angleArgument == nil {
-                let valueString = expr.trimmedDescription
-                
-                if let valueKind = SyntaxArgumentKind.fromExpression(expr) {
-                    angleArgument = .degrees(.init(value: valueString, syntaxKind: valueKind))
-                } else {
-                    print("handleRotation3DEffect error: unable get to node kind in fallback for \(expr)")
-                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
-                }
-            }
-
-            // Append the constructed angle argument
-            if let angleArgument = angleArgument {
-                arguments.append(
-                    SyntaxViewModifierArgument(
-                        label: .noLabel,
-                        value: .angle(angleArgument)
-                    )
-                )
-            }
-        }
-        
-        // Handle axis parameter
-        if let axisArg = node.arguments.first(where: { $0.label?.text == "axis" }),
-           let tupleExpr = axisArg.expression.as(TupleExprSyntax.self) {
-            
-            var xValue = "0", yValue = "0", zValue = "0"
-            var xKind = SyntaxArgumentKind.literal(.float)
-            var yKind = SyntaxArgumentKind.literal(.float)
-            var zKind = SyntaxArgumentKind.literal(.float)
-            
-            for element in tupleExpr.elements {
-                let expr = element.expression
-                let value = expr.trimmedDescription
-                
-                guard let kind = SyntaxArgumentKind.fromExpression(expr) else {
-                    print("handleRotation3DEffect error: unable get to node kind in axis param logic \(expr)")
-                    self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expr))
-                    continue
-                }
-                
-                if element.label?.text == "x" {
-                    xValue = value
-                    xKind = kind
-                } else if element.label?.text == "y" {
-                    yValue = value
-                    yKind = kind
-                } else if element.label?.text == "z" {
-                    zValue = value
-                    zKind = kind
-                }
-            }
-            
-            let xData = SyntaxViewModifierArgumentData(value: xValue, syntaxKind: xKind)
-            let yData = SyntaxViewModifierArgumentData(value: yValue, syntaxKind: yKind)
-            let zData = SyntaxViewModifierArgumentData(value: zValue, syntaxKind: zKind)
-            
-            arguments.append(SyntaxViewModifierArgument(
-                label: .axis,
-                value: .axis(x: xData, y: yData, z: zData)
-            ))
-        }
-        
-        // Create and add the modifier
-        let modifier = SyntaxViewModifier(
-            name: name,
-            arguments: arguments
-        )
-        addModifier(modifier)
-    }
     
     /// Handles standard modifiers with generic argument parsing
     private func handleStandardModifier(node: FunctionCallExprSyntax,
                                         modifierName: SyntaxViewModifierName) {
-        let modifierArguments = parseArgumentsForModifier(from: node)
-        
-        var finalArgs = modifierArguments
-        if finalArgs.isEmpty {
-            // For modifiers with no arguments
-            finalArgs = []
-        }
+        let modifierArguments = self.parseArguments(from: node)
         
         let modifier = SyntaxViewModifier(
             name: modifierName,
-            arguments: finalArgs
+            arguments: modifierArguments
         )
         addModifier(modifier)
     }
@@ -601,12 +462,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             dbg("visitPost → handling view modifier '\(modifierName)'")
             
             if let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName) {
-                if (syntaxViewModifierName == .rotationEffect
-                    || syntaxViewModifierName == .rotation3DEffect) {
-                    handleRotation3DEffect(node: node, name: syntaxViewModifierName)
-                } else {
                     handleStandardModifier(node: node, modifierName: syntaxViewModifierName)
-                }
                 
                 // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
                 // we are at the end of the modifier chain; pop the base view.

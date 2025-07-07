@@ -149,3 +149,64 @@ enum SyntaxArgumentExpressionKind: String, Equatable, Hashable, Codable {
     case tuple            = "TupleExpr"             // `(x, y)`
     case closure          = "Closure"               // `{ ... }`
 }
+
+extension SyntaxViewSimpleData {
+    /// Used for eventual PortValue decoding. Only nil when a `nil` type is returned.
+    func createEncoding() throws -> any Encodable {
+        switch syntaxKind {
+        case .literal(let literalKind):
+            // raw literal text (removing quotes for strings)
+            let raw = self.value
+                .replacingOccurrences(of: "“", with: "\"")
+                .replacingOccurrences(of: "”", with: "\"")
+                .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+            
+            switch literalKind {
+            case .integer:
+                guard let intValue = Int(raw) else {
+                    throw SwiftUISyntaxError.invalidIntegerLiteral(raw)
+                }
+                return intValue
+                
+            case .float:
+                guard let doubleValue = Double(raw) else {
+                    throw SwiftUISyntaxError.invalidFloatLiteral(raw)
+                }
+                return doubleValue
+                
+            case .string:
+                // Strip surrounding quotes
+                let text = raw
+                return text
+                
+            case .boolean:
+                guard let boolValue = Bool(raw) else {
+                    throw SwiftUISyntaxError.invalidBooleanLiteral(raw)
+                }
+                return boolValue
+                
+            case .array, .dictionary:
+                let data = Data(raw.utf8)
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                guard let enc = json as? any Encodable else {
+                    throw SwiftUISyntaxError.invalidJSONLiteral(raw)
+                }
+                return enc
+                
+            case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple, .nilLiteral:
+                throw SwiftUISyntaxError.unsupportedSimpleLiteralDecoding(self)
+            }
+            
+        default:
+            // Try running it back with string type
+            let stringData = SyntaxViewSimpleData(value: self.value,
+                                                  syntaxKind: .literal(.string))
+            do {
+                return try stringData.createEncoding()
+            } catch {
+                print(error)
+                throw SwiftUISyntaxError.syntaxValueDecodingFailed(syntaxKind)
+            }
+        }
+    }
+}

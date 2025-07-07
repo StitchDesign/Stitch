@@ -681,7 +681,6 @@
 		EC65AC332DC1A3500046E59C /* InputFieldValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */; };
 		EC65AC352DC1AB580046E59C /* OutputFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65AC342DC1AB580046E59C /* OutputFieldView.swift */; };
 		EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */; };
-		EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */; };
 		EC66D03D2E07123F00355ED8 /* CodeToStitchSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */; };
 		EC66D0452E0728FB00355ED8 /* SyntaxUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */; };
 		EC66D0472E072A5300355ED8 /* StitchSyntaxToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */; };
@@ -1821,7 +1820,6 @@
 		EC65AC322DC1A3500046E59C /* InputFieldValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldValueView.swift; sourceTree = "<group>"; };
 		EC65AC342DC1AB580046E59C /* OutputFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFieldView.swift; sourceTree = "<group>"; };
 		EC65B25528653CAA00BC8FBF /* FileDropModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropModifier.swift; sourceTree = "<group>"; };
-		EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestrictedSwiftUIScopeJSON.swift; sourceTree = "<group>"; };
 		EC66D03C2E07123F00355ED8 /* CodeToStitchSyntax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeToStitchSyntax.swift; sourceTree = "<group>"; };
 		EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxUtils.swift; sourceTree = "<group>"; };
 		EC66D0462E072A5300355ED8 /* StitchSyntaxToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSyntaxToCode.swift; sourceTree = "<group>"; };
@@ -5357,7 +5355,6 @@
 		ECC08E162E0489BF0058C2FE /* Mapping */ = {
 			isa = PBXGroup;
 			children = (
-				EC66D0322E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift */,
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
 				ECC734722E0DE92F00AC266C /* Examples */,
 				ECB238D02E0B8BA100D55A25 /* Actions */,
@@ -6521,7 +6518,6 @@
 				ECE35EE427CEE7E100CB8F5C /* FieldCoercers.swift in Sources */,
 				EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */,
 				ECE585802DB6EF2200749ED3 /* OutputPortUIViewModel.swift in Sources */,
-				EC66D0332E06648E00355ED8 /* RestrictedSwiftUIScopeJSON.swift in Sources */,
 				B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */,
 				ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */,
 				205E6DDE25AFCB23001C5C27 /* GraphState.swift in Sources */,
