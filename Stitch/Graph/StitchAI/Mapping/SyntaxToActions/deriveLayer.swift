@@ -85,14 +85,13 @@ extension SyntaxViewName {
         case .textField: layerType = .textField
             
         case .image:
-            // TODO: come back here
-            fatalError()
-            
-            
-//            switch args.first?.label {
-//            case .systemName: layerType = .sfSymbol
-//            default: layerType = .image
-//            }
+            switch args.first?.label {
+            // NOTE: previously was case of enum `ConstructorArgumentLabel`
+            case "systemName":
+                layerType = .sfSymbol
+            default:
+                layerType = .image
+            }
             
         case .map: layerType = .map
             
@@ -111,13 +110,7 @@ extension SyntaxViewName {
         case .secureField:
             // TODO: JUNE 24: ought to return `(Layer.textField, LayerInputPort.keyboardType, UIKeyboardType.password)` ? ... so a SwiftUI View can correspond to more than just a Layer ?
             layerType = .textField
-            
-            // TODO: JUNE 24: current Step_V0 doesn't support keyboard ?
-            //            customValues.append(
-            //                .init(id: id,
-            //                      input: .keyboardType,
-            //                      value: .keyboardType(.password))
-            //            )
+       
             
         case .scrollView:
             let layerData = try Self
@@ -215,19 +208,9 @@ extension SyntaxViewName {
             throw SwiftUISyntaxError.unsupportedLayer(self)
             
         case .roundedRectangle:
-            // TODO: come back here
-            fatalError()
+            // Note: previously here we also made the custom_value for corner_radius, but that logic seems to be handled downstream somewhere else
+            layerType = .rectangle
             
-//            layerType = .rectangle
-//            if let arg = args.first(where: { $0.label == .cornerRadius }),
-//               let firstValue = arg.values.first,
-//               let radius = Double(firstValue.value) {
-//                customValues.append(
-//                    .init(id: id,
-//                          input: .cornerRadius,
-//                          value: .number(radius))
-//                )
-//            }
             
         default:
             throw SwiftUISyntaxError.unsupportedLayer(self)
