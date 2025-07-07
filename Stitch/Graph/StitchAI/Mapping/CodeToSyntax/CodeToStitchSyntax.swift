@@ -94,7 +94,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         else {
             return nil
         }
-        
         /// Walks the `base` chain and returns `true` iff we eventually hit a
         /// `FunctionCallExprSyntax` (e.g. `Rectangle()` or `Color.red`), meaning
         /// the member access is **chained onto a view instance**.  Static helper
@@ -518,11 +517,11 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 //// Run a simple test with a Text view that has modifiers
 //func runModifierParsingTest() {
 //    print("\n==== TESTING MODIFIER PARSING ====\n")
-//    
+//
 //    let testCode = "Text(\"Hello\").foregroundColor(.blue).padding()"
 //    print("Test code: \(testCode)")
-//    
+//
 //    testSwiftUIToViewNode(swiftUICode: testCode)
-//    
+//
 //    print("\n==== TEST COMPLETE ====\n")
 //}
