@@ -43,11 +43,6 @@ struct SyntaxViewSimpleData: Hashable, Sendable {
     let syntaxKind: SyntaxArgumentKind
 }
 
-//struct SyntaxViewModifierComplexArgument: Hashable, Sendable {
-//    let label: String
-//    let value: SyntaxViewModifierArgumentType
-//}
-
 struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
     let typeName: String
     
@@ -76,15 +71,6 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     case tuple([SyntaxViewArgumentData])
     
     case array([SyntaxViewModifierArgumentType])
-    
-//    // TODO: consider removing other types
-//    // e.g. .rotationEffect(.degrees(90), axis: ...)
-//    case angle(SyntaxViewModifierArgumentAngle)
-//    
-//    // e.g. .rotationEffect(..., axis: (x: 1, y: 0, z: 0))
-//    case axis(x: SyntaxViewModifierArgumentData,
-//              y: SyntaxViewModifierArgumentData,
-//              z: SyntaxViewModifierArgumentData)
 }
 
 extension SyntaxViewModifierArgumentType {
@@ -112,65 +98,6 @@ extension SyntaxViewModifierArgumentType {
         }
     }
 }
-
-// TODO: JULY 2: the argument .rotation3DEffect(_ angle: Angle) could be either Angle.degrees or Angle.radians, but Stitch's rotation layer inputs always uses degrees
-// https://developer.apple.com/documentation/swiftui/view/rotation3deffect(_:axis:anchor:)
-// https://developer.apple.com/documentation/swiftui/angle
-enum SyntaxViewModifierArgumentAngle: Equatable, Hashable, Sendable {
-    case degrees(SyntaxViewModifierArgumentData) //
-    case radians(SyntaxViewModifierArgumentData)
-    
-    var value: String {
-        // TODO: come back here
-        fatalError()
-        
-//        switch self {
-//        case .degrees(let x):
-//            return x.value
-//        case .radians(let x):
-//            return x.value
-//        }
-    }
-}
-
-// TODO: remove type aliases
-typealias SyntaxViewModifierArgumentData = SyntaxViewArgumentData
-typealias SyntaxViewConstructorArgumentValue = SyntaxViewArgumentData
-
-//struct SyntaxViewModifierArgumentData: Equatable, Hashable, Sendable, Codable {
-//    let value: String
-//    
-//    // literal vs declared var vs expression
-//    let syntaxKind: SyntaxArgumentKind
-//}
-
-
-//enum SyntaxViewModifierArgumentLabel: String, Equatable, Hashable, Sendable, Codable {
-//    case noLabel = "", // e.g. `.fill(Color.red)`, `.foregroundColor(Color.green)`
-//         
-//         // e.g. `.frame(width:height:alignment:)`
-//         width = "width",
-//         height = "height",
-//         alignment = "alignment",
-//         
-//         // e.g. position(x:y:)
-//         x = "x",
-//         y = "y",
-//    
-//         // e.g. .rotation3DEffect(..., axis: ...)
-//         axis = "axis"
-//}
-
-//extension SyntaxViewModifierArgumentLabel {
-//    static func from(_ string: String?) -> SyntaxViewModifierArgumentLabel? {
-//        switch string {
-//        case .none:
-//            return .noLabel
-//        case .some(let x):
-//            return Self(rawValue: x)
-//        }
-//    }
-//}
 
 
 // MARK: representation of

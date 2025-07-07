@@ -26,7 +26,7 @@ private func describe(_ kind: SyntaxArgumentKind) -> String {
 /// Nicely formats a `SyntaxViewModifierArgumentType` so that we don't dump the
 /// full struct/enum hierarchy when printing.
 /// Formats the `(value, syntaxKind)` pair in a compact way
-private func describe(_ data: SyntaxViewModifierArgumentData) -> String {
+private func describe(_ data: SyntaxViewArgumentData) -> String {
     "\(data.value))" //, \(describe(data.syntaxKind))"
 }
 

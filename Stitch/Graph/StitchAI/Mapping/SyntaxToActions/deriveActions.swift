@@ -64,8 +64,7 @@ extension SyntaxView {
 
 extension SyntaxViewName {
     /// Handles ScrollView-specific logic including axis detection and scroll behavior
-    static func createScrollGroupLayer(args: [SyntaxViewConstructorArgument],
-//                                       childrenAST: [SyntaxView],
+    static func createScrollGroupLayer(args: [SyntaxViewArgumentData],
                                        childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
         // Check the scroll axis from constructor arguments
         let scrollAxis = Self.detectScrollAxis(args: args)
@@ -138,7 +137,7 @@ extension SyntaxViewName {
     // Note: this was written very verbosely, but acceptably
     
     /// Detects the scroll axis from the ScrollView's constructor arguments
-    private static func detectScrollAxis(args: [SyntaxViewConstructorArgument]) -> ScrollAxis {
+    private static func detectScrollAxis(args: [SyntaxViewArgumentData]) -> ScrollAxis {
         
         let horizontalLabel = ".horizontal"
         let verticalLabel = ".vertical"

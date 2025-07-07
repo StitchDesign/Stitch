@@ -17,7 +17,7 @@ enum FromLayerInputToSyntax {
     // e.g. `Text(<textValue>) -> LayerInputPort.text`
     // e.g. `Image(systemName:) -> LayerInputPort.sfSymbol`
     // e.g. `Image(uiImage:) -> LayerInputPort.media`
-    case constructorArgument(SyntaxViewConstructorArgument)
+    case constructorArgument(SyntaxViewArgumentData)
     
     // Simple conversion where a SwiftUI view modifier corresponds to a single LayerInputPort
     // e.g. `.scaleEffect -> LayerInputPort.scale`
