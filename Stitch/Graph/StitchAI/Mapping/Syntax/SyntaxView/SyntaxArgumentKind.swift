@@ -192,10 +192,6 @@ extension SyntaxViewSimpleData {
                     throw SwiftUISyntaxError.invalidJSONLiteral(raw)
                 }
                 return enc
-
-//            case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess:
-//                // For now treat these as raw strings
-//                let text = raw.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
                 
             case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple, .nilLiteral:
                 throw SwiftUISyntaxError.unsupportedSimpleLiteralDecoding(self)

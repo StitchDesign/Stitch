@@ -70,7 +70,7 @@ extension SwiftUISyntaxError {
 
 extension CurrentStep.LayerInputPort {
     
-    // MARK: 7/5 update: commenting out as we should be able to create PortValueDescription payloads into SwiftUI, which is how code-gen works
+    // MARK: 7/5 update: commenting out temporarily
 //    func toSwiftUISyntax(valueOrEdge: StitchValueOrEdge, // loops? should pass in `value` ?
 //                         layer: CurrentStep.Layer) throws -> FromLayerInputToSyntax {
 //        

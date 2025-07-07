@@ -56,6 +56,7 @@ extension SyntaxView {
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
     private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self {
+        // TODO: will come back here
         fatalError()
 //
 //        guard let layer = layerData.node_name.value.layer else {

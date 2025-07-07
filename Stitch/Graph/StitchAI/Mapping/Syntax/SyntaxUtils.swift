@@ -35,17 +35,6 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     case .simple(let data):
         return "simple(\(data))"
         
-//    case .angle(let angle):
-//        switch angle {
-//        case .degrees(let data):
-//            return "degrees(\(describe(data)))"
-//        case .radians(let data):
-//            return "radians(\(describe(data)))"
-//        }
-//        
-//    case .axis(let x, let y, let z):
-//        return "axis(x: \(describe(x)), y: \(describe(y)), z: \(describe(z)))"
-        
     case .tuple(let args):
         return "tuple(\(args.map(describe(_:)).joined(separator: ", ")))"
         
