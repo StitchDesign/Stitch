@@ -351,13 +351,19 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return nil
         }
         
-        // Simple case
-        let data = SyntaxViewSimpleData(
-            value: expression.trimmedDescription,
-            syntaxKind: syntaxKind
-        )
-        
-        return .simple(data)
+        switch syntaxKind {
+        case .literal(let syntaxArgumentLiteralKind):
+            // Simple case
+            let data = SyntaxViewSimpleData(
+                value: expression.trimmedDescription,
+                syntaxKind: syntaxArgumentLiteralKind
+            )
+            return .simple(data)
+            
+        default:
+            // No support for variables or expressions here
+            return nil
+        }
     }
     
     // Handle closure expressions (for container views like VStack, HStack, ZStack)
