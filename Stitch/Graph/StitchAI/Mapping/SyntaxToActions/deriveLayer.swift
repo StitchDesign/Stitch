@@ -304,9 +304,6 @@ extension SyntaxViewName {
             return .layerInputValues([newValue])
             
         case .rotationScenario:
-            // TODO: see how we can make this into other scenarios
-            fatalError()
-            
             // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
             let newValues = try Self.deriveCustomValuesFromRotationLayerInputTranslation(
                 id: id,
