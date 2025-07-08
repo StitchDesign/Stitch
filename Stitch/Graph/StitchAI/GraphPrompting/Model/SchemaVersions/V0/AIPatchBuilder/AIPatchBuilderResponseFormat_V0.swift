@@ -132,7 +132,9 @@ enum AIPatchBuilderResponseFormat_V0 {
     struct NativePatchNodeSchema: Encodable {
         let node_id = OpenAISchema(type: .string)
         let node_name = OpenAISchemaRef(ref: "NodeName")
-        let value_type = OpenAISchemaRef(ref: "ValueType")
+        let value_type = OpenAIGeneric(types: [OpenAISchema(type: .null)],
+                                       refs: [OpenAISchemaRef(ref: "ValueType")],
+                                       description: "An optional value type for a patch node.")
     }
     
     struct PatchConnectionSchema: Encodable {
