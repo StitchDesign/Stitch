@@ -39,7 +39,7 @@ extension SyntaxNameType {
 // Supported custom value types
 enum SyntaxValueName: String, Hashable, CaseIterable {
     case portValueDescription = "PortValueDescription"
-    case cgPoint = "CGPoint"
+    case binding = "Binding"
 }
 
 // MARK: - String ↔︎ enum helpers
@@ -49,7 +49,11 @@ extension SyntaxViewName {
     static func from(_ identifier: String) -> Self? {
         SyntaxViewName(rawValue: identifier)
     }
-        
+
+    static let supportedViews: [Self] = Self.allCases.filter {
+        $0.isSupported
+    }
+    
     static let unsupportedViews: [Self] = Self.allCases.filter {
         !$0.isSupported
     }

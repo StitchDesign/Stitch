@@ -53,11 +53,31 @@ enum LayerInputViewModification {
 extension SyntaxViewModifierName {
     
     func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> DerivedLayerInputPortsResult {
-        switch (self, layer) {
+        // Handle edge cases
+        switch layer {
+        case .text, .textField:
+            switch self {
+            case .foregroundColor:
+                throw SwiftUISyntaxError.unsupportedViewModifierForLayer(self, layer)
+                
+            default:
+                break
+            }
+            
+        default:
+            break
+        }
+        
+        // Default behavior
+        return try self.deriveLayerInputPort()
+    }
+
+    func deriveLayerInputPort() throws -> DerivedLayerInputPortsResult {
+        switch self {
             // Universal modifiers (same for every layer)
-        case (.scaleEffect, _):
+        case .scaleEffect:
             return .simple(.scale)
-        case (.opacity, _):
+        case .opacity:
             return .simple(.opacity)
         
         /*
@@ -69,95 +89,92 @@ extension SyntaxViewModifierName {
          - SwiftUI .offset modifier becomes Stitch LayerInputPort.offsetInGroup if view's parent is e.g. VStack, else becomes Stitch LayerInputPort.position
          
          */
-        case (.position, _):
+        case .position:
             return .simple(.position)
 
-        case (.offset, _):
+        case .offset:
             // TODO: if view's parent is VStack/HStack, return .simple(.offsetInGroup) instead ?
             return .simple(.position)
         
         // Rotation is a more complicated scenario which we handle with special logic
-        case (.rotationEffect, _),
-            (.rotation3DEffect, _):
+        case .rotationEffect,
+            .rotation3DEffect:
             // .rotationEffect is always a z-axis rotation, i.e. .rotationZ
             // .rotation3DEffect is .rotationX or .rotationY or .rotationZ
             return .rotationScenario
                     
-        case (.blur, _):
+        case .blur:
             return .simple(.blurRadius)
-        case (.blendMode, _):
+        case .blendMode:
             return .simple(.blendMode)
-        case (.brightness, _):
+        case .brightness:
             return .simple(.brightness)
-        case (.colorInvert, _):
+        case .colorInvert:
             return .simple(.colorInvert)
-        case (.contrast, _):
+        case .contrast:
             return .simple(.contrast)
-        case (.hueRotation, _):
+        case .hueRotation:
             return .simple(.hueRotation)
-        case (.saturation, _):
+        case .saturation:
             return .simple(.saturation)
         
-        case (.fill, _): // fill is always color
+        case .fill: // fill is always color
             return .simple(.color)
             
             //    case (.font, .text):
             //        return .simple(.font)
             
-            //    case (.fontWeight, _):
+            //    case .fontWeight:
             //        //            return .simple(.fontWeight)
             //        return nil
             
-            //    case (.lineSpacing, _):
+            //    case .lineSpacing:
             //        return nil // return .simple(.lineSpacing)
             
-        case (.cornerRadius, _):
+        case .cornerRadius:
             return .simple(.cornerRadius)
             
-            //    case (.shadow, _):
+            //    case .shadow:
             //        // Shadow would need to be broken down into multiple inputs:
             //        // .shadowColor, .shadowRadius, .shadowOffset, .shadowOpacity
             //        return .simple(.shadowRadius)
             
         // TODO: JUNE 23: .frame modifier is actually several different LayerInputPort cases: .size, .minSize, .maxSize
-        case (.frame, _):
+        case .frame:
             return .simple(.size)
             
-        case (.padding, _):
+        case .padding:
             return .simple(.padding) // vs .layerPadding ?!
             
-        case (.zIndex, _):
+        case .zIndex:
             return .simple(.zIndex)
         
-        case (.foregroundColor, let kind) where kind != .text && kind != .textField:
+        case .foregroundColor:
             return .simple(.color)
 
-        case (.foregroundColor, _):
-            return .simple(.color)
-
-        case (.backgroundColor, _):
+        case .backgroundColor:
             return .simple(.color)
             
-        case (.disabled, _):
+        case .disabled:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.background, _):
+        case .background:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.font, _):
+        case .font:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.multilineTextAlignment, _):
+        case .multilineTextAlignment:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.underline, _):
+        case .underline:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
             
             // TODO: support after v1 schema
-//        case (.keyboardType, _): return .simple(.keyboardType)
-        case (.disableAutocorrection, _):
+//        case .keyboardType: return .simple(.keyboardType)
+        case .disableAutocorrection:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.clipped, _):
+        case .clipped:
             return .simple(.clipped) // return .isClipped
-        case (.layerId, _):
+        case .layerId:
             return .layerId
-        case (.color, _):
+        case .color:
             return .simple(.color)
         default:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
