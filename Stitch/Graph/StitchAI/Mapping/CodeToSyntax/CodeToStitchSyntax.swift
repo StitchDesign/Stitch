@@ -341,9 +341,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         else if let memberAccessExpr = expression.as(MemberAccessExprSyntax.self) {
-//            let base = memberAccessExpr.baseName
-//            let propertyName = memberAccessExpr
-            return .memberAccess(memberAccessExpr)
+            return .memberAccess(SyntaxViewMemberAccess(
+                base: memberAccessExpr.base?.trimmedDescription,
+                property: memberAccessExpr.declName.baseName.trimmedDescription))
+            
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {

@@ -67,7 +67,7 @@ extension SyntaxViewName {
     static func createScrollGroupLayer(args: [SyntaxViewArgumentData],
                                        childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
         // Check the scroll axis from constructor arguments
-        let scrollAxis = Self.detectScrollAxis(args: args)
+        // let scrollAxis = Self.detectScrollAxis(args: args)
       
         var groupLayer: CurrentAIPatchBuilderResponseFormat.LayerData  
         let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroup ?? false
@@ -93,43 +93,43 @@ extension SyntaxViewName {
         // Enable the appropriate scroll direction(s) based on the detected axis
         let nodeID = groupLayer.node_id.value
         
-        switch scrollAxis {
-        case .vertical:
-            // Enable vertical scrolling only
-            groupLayer.custom_layer_input_values += [
-                .init(id: nodeID,
-                      input: .scrollYEnabled,
-                      value: .bool(true)),
-                .init(id: nodeID,
-                      input: .orientation,
-                      value: .orientation(.vertical))
-            ]
-            
-        case .horizontal:
-            // Enable horizontal scrolling only
-            groupLayer.custom_layer_input_values += [
-                .init(id: nodeID,
-                      input: .scrollXEnabled,
-                      value: .bool(true)),
-                .init(id: nodeID,
-                      input: .orientation,
-                      value: .orientation(.horizontal))
-            ]
-            
-        case .both:
-            // Enable both horizontal and vertical scrolling
-            groupLayer.custom_layer_input_values.append(contentsOf: [
-                .init(id: nodeID, input: .scrollXEnabled, value: .bool(true)),
-                .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
-            ])
-            
-        case .none:
-            // No scrolling enabled--make values false in case we change default values later
-            groupLayer.custom_layer_input_values.append(contentsOf: [
-                .init(id: nodeID, input: .scrollXEnabled, value: .bool(false)),
-                .init(id: nodeID, input: .scrollYEnabled, value: .bool(false))
-            ])
-        }
+//        switch scrollAxis {
+//        case .vertical:
+//            // Enable vertical scrolling only
+//            groupLayer.custom_layer_input_values += [
+//                .init(id: nodeID,
+//                      input: .scrollYEnabled,
+//                      value: .bool(true)),
+//                .init(id: nodeID,
+//                      input: .orientation,
+//                      value: .orientation(.vertical))
+//            ]
+//            
+//        case .horizontal:
+//            // Enable horizontal scrolling only
+//            groupLayer.custom_layer_input_values += [
+//                .init(id: nodeID,
+//                      input: .scrollXEnabled,
+//                      value: .bool(true)),
+//                .init(id: nodeID,
+//                      input: .orientation,
+//                      value: .orientation(.horizontal))
+//            ]
+//            
+//        case .both:
+//            // Enable both horizontal and vertical scrolling
+//            groupLayer.custom_layer_input_values.append(contentsOf: [
+//                .init(id: nodeID, input: .scrollXEnabled, value: .bool(true)),
+//                .init(id: nodeID, input: .scrollYEnabled, value: .bool(true))
+//            ])
+//            
+//        case .none:
+//            // No scrolling enabled--make values false in case we change default values later
+//            groupLayer.custom_layer_input_values.append(contentsOf: [
+//                .init(id: nodeID, input: .scrollXEnabled, value: .bool(false)),
+//                .init(id: nodeID, input: .scrollYEnabled, value: .bool(false))
+//            ])
+//        }
         
         return groupLayer
     }
@@ -139,8 +139,8 @@ extension SyntaxViewName {
     /// Detects the scroll axis from the ScrollView's constructor arguments
     private static func detectScrollAxis(args: [SyntaxViewArgumentData]) -> ScrollAxis {
         
-        let horizontalLabel = ".horizontal"
-        let verticalLabel = ".vertical"
+        let horizontalLabel = "horizontal"
+        let verticalLabel = "vertical"
         let bothAxes = Set([horizontalLabel, verticalLabel])
         let axesData = Set(args.flatMap(\.value.allNestedSimpleValues))
         
@@ -161,9 +161,11 @@ extension SyntaxViewName {
             return .vertical
         } else if hasHorizontal {
             return .horizontal
+        } else {
+            // fatalErrorIfDebug() // can happen when typing
+            log("COULD NOT FIND SCROLL AXIS")
+            return .vertical
         }
-        
-        return .horizontal
     }
     
     /// Represents the possible scroll axes for a ScrollView
