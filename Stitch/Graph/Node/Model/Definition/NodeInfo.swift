@@ -46,7 +46,7 @@ extension NodeInfo {
                             outputs: PatchOrLayer.patch(patch).rowDefinitionsOldOrNewStyle(for: node.userVisibleType).outputs,
                             //                            supportedTypes: supportedTypes,
                             nodeDescription: patch.nodeDescription ?? "",
-                            supportsNewInputs: patch.inputCountChanged.isDefined)
+                            supportsNewInputs: patch.canChangeInputCounts)
         }
 
         let layerNodeInfo = Layer.allCases.map { layer in

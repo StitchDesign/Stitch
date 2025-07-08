@@ -210,7 +210,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             }
             
             // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
-            let supportsNewInputs = patchNode.patch.canAddInputs
+            let supportsNewInputs = patchNode.patch.canChangeInputCounts
             if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {
                 let missingRowCount = maxModifiedInputIndex - patchNode.inputsObservers.count
 
@@ -220,7 +220,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                     }
                     
                     for _ in (0..<missingRowCount) {
-                        newNode.addInputObserver(graph: document.graph)
+                        newNode.addInputObserver(graph: document.graph,
+                                                 document: document)
                     }
                 }
             }

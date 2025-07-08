@@ -68,7 +68,7 @@ struct NodesOnlyView: View {
                              isSelected: graph.selection.selectedCanvasItems.contains(canvasNode.id),
                              atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                              activeGroupId: document.groupNodeFocused,
-                             canAddInput: node.canAddInputs,
+                             canAddInput: node.canChangeInputCounts,
                              canRemoveInput: node.canRemoveInputs,
                              boundsReaderDisabled: false,
                              updateMenuActiveSelectionBounds: false)
