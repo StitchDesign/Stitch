@@ -213,7 +213,7 @@ extension GraphState {
                                encoder: (any DocumentEncodable)?,
                                document: StitchDocumentViewModel) where T: StitchComponentable {
         
-        self.insertNewComponent(component: copiedComponentResult.component,
+        self.insertNewComponent(graphEntity: copiedComponentResult.component.graphEntity,
                                 encoder: encoder,
                                 copiedFiles: copiedComponentResult.copiedSubdirectoryFiles,
                                 isCopyPaste: isCopyPaste,
@@ -326,20 +326,20 @@ extension GraphState {
     
     // Can we use this all the time now?
     @MainActor
-    func insertNewComponent<T>(component: T,
-                               encoder: (any DocumentEncodable)?,
-                               copiedFiles: StitchDocumentDirectory,
-                               
-                               // If copy-paste, use destination project's offset, etc.
-                               isCopyPaste: Bool,
-                               
-                               // Option + Dragging a layer in the sidebar
-                               originalOptionDraggedLayer: SidebarListItemId? = nil,
-                               
-                               originGraphOutputValuesMap: OriginGraphOutputValueMap,
-                               
-                               // Destination document, just like `self` is destination graph
-                               document: StitchDocumentViewModel) where T: StitchComponentable {
+    func insertNewComponent(graphEntity: GraphEntity,
+                            encoder: (any DocumentEncodable)?,
+                            copiedFiles: StitchDocumentDirectory,
+                            
+                            // If copy-paste, use destination project's offset, etc.
+                            isCopyPaste: Bool,
+                            
+                            // Option + Dragging a layer in the sidebar
+                            originalOptionDraggedLayer: SidebarListItemId? = nil,
+                            
+                            originGraphOutputValuesMap: OriginGraphOutputValueMap,
+                            
+                            // Destination document, just like `self` is destination graph
+                            document: StitchDocumentViewModel) {
         
         // MARK: Copy files first, since copied nodes may depend on these files
         if let encoder = encoder {
@@ -349,7 +349,7 @@ extension GraphState {
         // MARK: update the to-be-inserted node entities and sidebar layer data
         let (destinationGraphEntity, newNodes, nodeIdMap) = Self.insertNodesAndSidebarLayersIntoDestinationGraph(
             destinationGraph: self.createSchema(),
-            graphToInsert: component.graphEntity,
+            graphToInsert: graphEntity,
             focusedGroupNode: document.groupNodeFocused?.groupNodeId,
             destinationGraphInfo: isCopyPaste ? document.copyPasteGraphDestinationInfo : nil,
             originGraphOutputValuesMap: originGraphOutputValuesMap,

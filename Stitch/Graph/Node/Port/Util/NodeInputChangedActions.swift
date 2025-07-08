@@ -9,26 +9,23 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct InputAddedAction: GraphEventWithResponse {
+struct InputAddedAction: StitchDocumentEvent {
 
     let nodeId: NodeId
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         log("InputAddedAction handle called")
-
-        if let node = state.getNode(nodeId),
-           let inputChanger = node.kind.getPatch?.inputCountChanged {
-
-            // (node: node, added?: true)
-            inputChanger(node, true)
-
-            state.scheduleForNextGraphStep(.init([nodeId]))
-            
-            return .persistenceResponse
-        } else {
-            log("InputAddedAction: default")
-            return .noChange
+        let graph = state.visibleGraph
+        
+        guard let node = graph.getNode(self.nodeId) else {
+            return
         }
+
+        node.addInputObserver(graph: graph,
+                              document: state)
+        
+        graph.scheduleForNextGraphStep(.init([nodeId]))
+        state.encodeProjectInBackground()
     }
 }
 
@@ -39,7 +36,6 @@ struct InputRemovedAction: GraphEventWithResponse {
         log("InputRemovedAction handle called")
 
         if let node = state.getNode(nodeId),
-           let inputChanger = node.kind.getPatch?.inputCountChanged,
            // It's always the last input that is removed.
            let lastObserver = node.getAllInputsObservers().last {
 
@@ -47,7 +43,7 @@ struct InputRemovedAction: GraphEventWithResponse {
             lastObserver.upstreamOutputCoordinate = nil
 
             // Remove the input from the node itself.
-            inputChanger(node, false)
+            node.removeInputObserver()
             
             state.scheduleForNextGraphStep(.init([nodeId]))
             

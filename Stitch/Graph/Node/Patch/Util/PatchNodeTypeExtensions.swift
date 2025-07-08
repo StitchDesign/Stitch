@@ -32,20 +32,15 @@ extension UserVisibleType {
 extension NodeViewModel {
     /// Certain patch nodes can have varying input counts (i.e. "add" node).
     @MainActor
-    var canInputCountsChange: Bool {
-        self.kind.getPatch?.inputCountChanged.isDefined ?? false
-    }
-    
-    @MainActor
-    var canAddInputs: Bool {
-        self.kind.getPatch?.inputCountChanged.isDefined ?? false
+    var canChangeInputCounts: Bool {
+        self.kind.getPatch?.canChangeInputCounts ?? false
     }
     
     @MainActor
     var canRemoveInputs: Bool {
         if let patch = self.kind.getPatch,
         let minimumInputs = patch.minimumInputs {
-            return patch.inputCountChanged.isDefined && (self.inputsRowCount > minimumInputs)
+            return patch.canChangeInputCounts && (self.inputsRowCount > minimumInputs)
         }
         
         // Always false for LayerNodes and GroupNodes
@@ -54,6 +49,10 @@ extension NodeViewModel {
 }
 
 extension Patch {
+    @MainActor
+    var canChangeInputCounts: Bool {
+        self.minimumInputs.isDefined
+    }
     
     // nil when patch node cannot add/remove inputs
     var minimumInputs: Int? {
@@ -79,15 +78,6 @@ extension Patch {
             // ie noop
             return nil
         }
-    }
-    
-    @MainActor
-    var inputCountChanged: InputsChangedHandler? {
-        guard let minimumInputCount = self.minimumInputs else {
-            return nil
-        }
-        
-        return minimumInputsChangedHandler(minimumInputs: minimumInputCount)
     }
 
     var availableNodeTypes: Set<UserVisibleType> {
@@ -135,19 +125,4 @@ extension Patch {
         }
     }
 
-}
-
-// Every input
-// (node, added?, minimum?) -> node
-typealias InputsChangedHandler = (NodeViewModel, Bool) -> ()
-
-@MainActor
-func minimumInputsChangedHandler(minimumInputs: Int) -> InputsChangedHandler {
-    { (node: NodeViewModel, added: Bool) in
-        if added {
-            node.inputAdded()
-        } else {
-            node.inputRemoved(minimumInputs: minimumInputs)
-        }
-    }
 }

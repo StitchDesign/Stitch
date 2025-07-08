@@ -643,19 +643,14 @@ extension NodeViewModel {
     // don't worry about making the input a loop or not --
     // the extension will happen at eval-time
     @MainActor
-    func inputAdded() {
-        guard let patchNode = self.patchNode else {
+    func addInputObserver(graph: GraphState,
+                          document: StitchDocumentViewModel) {
+        guard let patchNode = self.patchNode,
+              patchNode.patch.canChangeInputCounts else {
             fatalErrorIfDebug()
             return
         }
-        
-        
-        guard let graph = self.graphDelegate,
-              let document = graph.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
+
         // assumes new input has no label, etc.
         log("inputAdded called")
         let allInputsObservers = self.getAllInputsObservers()
@@ -703,8 +698,9 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func inputRemoved(minimumInputs: Int) {
-        guard let patchNode = self.patchNode else {
+    func removeInputObserver() {
+        guard let patchNode = self.patchNode,
+              let minimumInputs = patchNode.patch.minimumInputs else {
             fatalErrorIfDebug()
             return
         }

@@ -75,7 +75,7 @@ struct SelectedGraphItemsPasted: StitchDocumentEvent {
 
             let graph = state.visibleGraph
             
-            graph.insertNewComponent(component: newComponent,
+            graph.insertNewComponent(graphEntity: newComponent.graphEntity,
                                      encoder: graph.documentEncoderDelegate,
                                      copiedFiles: importedFiles,
                                      isCopyPaste: true,

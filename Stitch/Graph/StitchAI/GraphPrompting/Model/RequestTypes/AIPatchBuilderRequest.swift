@@ -142,10 +142,38 @@ extension StitchDocumentViewModel {
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
+        let graphEntity = try self.createAIGraph()
+        document.visibleGraph
+            .insertNewComponent(graphEntity: graphEntity,
+                                encoder: document.documentEncoder,
+                                copiedFiles: .init(importedMediaUrls: [],
+                                                   componentDirs: []),
+                                isCopyPaste: false,
+                                originGraphOutputValuesMap: .init(),
+                                document: document)
+        
+        document.encodeProjectInBackground()
+    }
+    
+    @MainActor
+    func createAIGraph() throws -> GraphEntity {
+        let document = StitchDocumentViewModel.createEmpty()
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
         var idMap = [UUID: UUID]()
+        
+        // Tracks all patch input coordinates we either make connections or custom vaues for, used for determining if extra rows need to be created
+        let allModifiedPatchIds = self.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.patch_data.patch_connections.map(\.dest_port)
+        let allModifiedPatchIdsSet = Set(allModifiedPatchIds)
+        assertInDebug(allModifiedPatchIdsSet.count == allModifiedPatchIds.count)
+        
+        let maxModifiedPortIndex: [UUID : Int] = allModifiedPatchIdsSet.reduce(into: .init()) { result, patchInputId in
+            let nodeId = patchInputId.node_id.value
+            let existingMaxCount = result.get(nodeId) ?? -1
+            result.updateValue(max(patchInputId.port_index + 1, existingMaxCount),
+                               forKey: nodeId)
+        }
         
         // new js patches
         for newPatch in self.patch_data.javascript_patches {
@@ -168,12 +196,35 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new native patches
         for newPatch in self.patch_data.native_patches {
+            let oldId = newPatch.node_id.value
             let newId = UUID()
-            idMap.updateValue(newId, forKey: newPatch.node_id.value)
+            idMap.updateValue(newId, forKey: oldId)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
-            let _ = document.nodeInserted(choice: migratedNodeName,
-                                          nodeId: newId)
+            let newNode = document.nodeInserted(choice: migratedNodeName,
+                                                nodeId: newId)
+            
+            guard let patchNode = newNode.patchNodeViewModel else {
+                fatalErrorIfDebug()
+                continue
+            }
+            
+            // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
+            let supportsNewInputs = patchNode.patch.canChangeInputCounts
+            if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {
+                let missingRowCount = maxModifiedInputIndex - patchNode.inputsObservers.count
+
+                if missingRowCount > 0 {
+                    guard supportsNewInputs else {
+                        throw SwiftUISyntaxError.unexpectedPatchInputRowCount(patchNode.patch)
+                    }
+                    
+                    for _ in (0..<missingRowCount) {
+                        newNode.addInputObserver(graph: document.graph,
+                                                 document: document)
+                    }
+                }
+            }
         }
         
         // create nested layer nodes in graph
@@ -244,8 +295,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             guard let fromNodeLocation = document.visibleGraph.getNode(outputPort.nodeId)?.nonLayerCanvasItem?.position,
                   let destinationNode = document.visibleGraph.getNode(inputPort.nodeId),
                   let layerInput = inputPort.keyPath?.layerInput else {
-                fatalErrorIfDebug()
-                return
+                throw SwiftUISyntaxError.layerEdgeDataFailure(newLayerEdge)
             }
 
             // create canvas node
@@ -261,7 +311,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             let _ = document.visibleGraph.edgeAdded(edge: edge)
         }
         
-        document.encodeProjectInBackground()
+        let graphEntity = document.graph.createSchema()
+        return graphEntity
     }
 }
 
