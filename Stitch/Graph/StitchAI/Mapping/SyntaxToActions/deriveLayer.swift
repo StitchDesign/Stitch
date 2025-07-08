@@ -235,23 +235,42 @@ extension SyntaxViewName {
     func deriveCustomValuesFromConstructorArguments(
         id: UUID,
         layerType: CurrentStep.Layer,
-        args: [SyntaxViewArgumentData]) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        args: [SyntaxViewArgumentData]
+    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+            
             var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
             
             // ── Generic constructor‑argument handling (literals & edges) ─────────
+            
+            // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: args: \(args)")
+            
             for arg in args {
-                guard let port = arg.deriveLayerInputPort(layerType) else {
-                    continue
-                }
-                    
-                let values = try SyntaxViewName.derivePortValues(from: arg.value,
-                                                                 context: .viewConstructor(self))
                 
-                customValues += values.map { value in
-                        .init(
-                            layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                          input_port_type: .init(value: port)),
-                            value: value)
+                // An argument might be an array like `[.horizontal, .vertical]`
+                // but simply passing the array-argument-type to `derivePortValues` will
+                // TODO: should `derivePortValues(from:)` accept a *flat* argumentType, and it is the responsibility of the caller to flatten the nested argumentType first ? Can argumentType *really* be nested ?
+                for argFlatType in arg.value.allArgumentTypesFlattened {
+                    guard let port = SyntaxViewArgumentData.deriveLayerInputPort(
+                        layerType,
+                        label: arg.label, // the overall label for the entire argument
+                        argFlatType: argFlatType,
+                    ) else {
+                        continue
+                    }
+                    
+                    // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: port: \(port)")
+                    
+                    let values = try SyntaxViewName.derivePortValues(
+                        from: argFlatType.toSyntaxViewModifierArgumentType,
+                        context: .viewConstructor(self, port))
+                    
+                    // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
+                    
+                    customValues += values.map { value in
+                            .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                                input_port_type: .init(value: port)),
+                                  value: value)
+                    }
                 }
             } // for arg in args
             
@@ -310,6 +329,9 @@ extension SyntaxViewName {
             // Trim any surrounding quotes
             let cleanString = unescaped.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
             return .layerIdAssignment(cleanString)
+            
+//        case .textDecoration, .aspectRatio, .textFont:
+//            throws SwiftUISyntaxError.unsupportedViewModifier(<#T##SyntaxViewModifierName#>)
         }
     }
     
@@ -347,11 +369,13 @@ extension SyntaxViewName {
                                       context: .viewModifier(port))
         }
         
+        // TODO: MAYBE NOT QUITE CORRECT?, SINCE E.G. CERTAIN CONSTRUCTOR ARGUMENTS CAN BE e.g. `ScrollView([.horizontal, .vertical])`
         if arguments.count == 1,
            let argument = arguments.first {
             // Decode PortValue from full arguments data
-            return try Self.derivePortValues(from: argument.value,
-                                             context: .viewModifier(port)).first
+            let derivedPortValues = try Self.derivePortValues(from: argument.value,
+                                                              context: .viewModifier(port))
+            return derivedPortValues.first
         }
         
         // Packing case
@@ -410,7 +434,12 @@ extension SyntaxViewName {
             
         case .array(let arrayArgs):
             // Recursively determine PortValue of each arg
-            return try arrayArgs.flatMap { try Self.derivePortValues(from: $0, context: context) }
+            log("SyntaxViewName: derivePortValue: had array: arrayArgs: \(arrayArgs)")
+            return try arrayArgs.flatMap {
+                log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
+                log("SyntaxViewName: derivePortValue: had array: context: \(context)")
+                return try Self.derivePortValues(from: $0, context: context)
+            }
             
         case .memberAccess(let memberAccess):
             // need to return PortValue, but need to know which is the relevant type
@@ -423,16 +452,39 @@ extension SyntaxViewName {
                 // Edge case behavior needs context
                 fatalErrorIfDebug()
                 throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                                
+            case .viewConstructor(let viewName, let port):
+
+                switch viewName {
+
+                case .scrollView:
+                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
+                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
+                    // https://developer.apple.com/documentation/swiftui/scrollview
+                    // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
+                    switch port {
+                    case .scrollYEnabled:
+                        return [.bool(memberAccess.property == "vertical")]
+                    case .scrollXEnabled:
+                        return [.bool(memberAccess.property == "horizontal")]
+                    default:
+                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                    }
+                    
+                default:
+                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                }
                 
-            case .viewConstructor:
-                // View constructor support needed
-                throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                let string = memberAccess.valueText
+//                
+//                // View constructor support needed
+//                throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                 
             case .viewModifier(let port):
                 switch port {
                 case .color:
                     // Tricky color case, for Color.systemName etc.
-                    let colorStr = memberAccess.valueText
+                    let colorStr = memberAccess.property
                     guard let color = Color.fromSystemName(colorStr) else {
                         throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                     }
@@ -548,6 +600,6 @@ extension SyntaxArgumentLiteralKind {
 }
 
 enum SyntaxArgumentConstructorContext {
-    case viewConstructor(SyntaxViewName)
+    case viewConstructor(SyntaxViewName, CurrentStep.LayerInputPort)
     case viewModifier(CurrentStep.LayerInputPort)
 }

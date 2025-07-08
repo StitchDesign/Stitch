@@ -72,8 +72,52 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
     
     case array([SyntaxViewModifierArgumentType])
     
-    case memberAccess(MemberAccessExprSyntax)
+    case memberAccess(SyntaxViewMemberAccess)
 }
+
+// Non-recursive sub-enum of `SyntaxViewModifierArgumentType` for when we are working in contexts where we have already flattened the nested argument-types like `tuple` and `array`
+enum SyntaxViewModifierArgumentFlatType: Equatable, Hashable, Sendable {
+    case simple(SyntaxViewSimpleData)
+    case complex(SyntaxViewModifierComplexType)
+    case memberAccess(SyntaxViewMemberAccess)
+    
+    var toSyntaxViewModifierArgumentType: SyntaxViewModifierArgumentType {
+        switch self {
+        case .simple(let x):
+            return .simple(x)
+        case .memberAccess(let x):
+            return .memberAccess(x)
+        case .complex(let x):
+            return .complex(x)
+        }
+    }
+}
+
+
+extension SyntaxViewModifierArgumentType {
+    var toSyntaxViewModifierArgumentFlatType: [SyntaxViewModifierArgumentFlatType] {
+        switch self {
+        case .simple(let x):
+            return [.simple(x)]
+        case .memberAccess(let x):
+            return [.memberAccess(x)]
+        case .complex(let x):
+            return [.complex(x)]
+        case .tuple(let xs):
+            return xs.flatMap(\.value.toSyntaxViewModifierArgumentFlatType)
+        case .array(let xs):
+            return xs.flatMap(\.toSyntaxViewModifierArgumentFlatType)
+        }
+    }
+}
+
+// Note: easier to debug: looks better in debugger and print statements than `MemberAccessExprSyntax`, which contains other data and types we don't need
+// for e.g. "Color.yellow" or ".yellow"
+struct SyntaxViewMemberAccess: Equatable, Hashable, Sendable {
+    let base: String? // e.g. "Color" in "Color.yellow"; or nil in ".yellow"
+    let property: String // e.g. "yellow" in "Color.yellow" or ".yellow"
+}
+
 
 extension SyntaxViewModifierArgumentType {
     // For recursion
@@ -89,8 +133,14 @@ extension SyntaxViewModifierArgumentType {
         case .array(let array):
             return array.flatMap(\.allNestedSimpleValues)
         case .memberAccess(let memberExpr):
-            return [memberExpr.declName.baseName.text]
+            return [memberExpr.property]
         }
+    }
+
+    // For cases where we need more than just the `string`;
+    // see `SyntaxViewModifierArgumentFlatType` for more details
+    var allArgumentTypesFlattened: [SyntaxViewModifierArgumentFlatType] {
+        self.toSyntaxViewModifierArgumentFlatType
     }
     
     var simpleValue: String? {
@@ -98,7 +148,7 @@ extension SyntaxViewModifierArgumentType {
         case .simple(let data):
             return data.value
         case .memberAccess(let memberExpr):
-            return memberExpr.valueText
+            return memberExpr.property
         default:
             return nil
         }

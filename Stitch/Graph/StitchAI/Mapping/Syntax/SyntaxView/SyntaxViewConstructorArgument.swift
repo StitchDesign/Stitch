@@ -30,4 +30,6 @@ enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
     case systemName = "systemName"
     
     case cornerRadius = "cornerRadius"
+    
+    case spacing = "spacing"
 }
