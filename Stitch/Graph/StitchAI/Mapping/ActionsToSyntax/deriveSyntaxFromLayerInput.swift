@@ -13,6 +13,7 @@ enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case viewNodeNotFound
     case couldNotParseVarBody
     case unsupportedViewModifier(SyntaxViewModifierName)
+    case unsupportedViewModifierForLayer(SyntaxViewModifierName, CurrentStep.Layer)
     
     // Decoding from string
     case unsupportedSyntaxArgumentKind(ExprSyntax)
@@ -59,7 +60,9 @@ extension SwiftUISyntaxError {
                 .unsupportedLayer,
                 .unsupportedSyntaxFromLayerInput,
                 .unsupportedSyntaxViewLayer,
-                .unsupportedComplexValueType:
+                .unsupportedComplexValueType,
+                .unsupportedViewModifier,
+                .unsupportedViewModifierForLayer:
             return true
             
         default:

@@ -397,8 +397,9 @@ extension SyntaxViewName {
                     throw error
                 }
             
-            case .cgPoint:
-                fatalError()
+            case .binding:
+                // Do nothing for bindings
+                return []
             }
             
         case .tuple(let tupleArgs):
