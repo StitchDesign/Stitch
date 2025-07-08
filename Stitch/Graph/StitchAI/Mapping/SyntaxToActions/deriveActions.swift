@@ -24,16 +24,23 @@ extension Array where Element == SyntaxView {
 
 extension SyntaxView {
     func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+        // Tracks all silent errors
+        var silentErrors = [SwiftUISyntaxError]()
+        
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
         let childResults = try self.children.deriveStitchActions()
+        silentErrors += childResults.caughtErrors
 
         // Map this node
         do {
-            var layerData = try self.name.deriveLayerData(
+            let layerDataResult = try self.name.deriveLayerData(
                 id: self.id,
                 args: self.constructorArguments,
                 modifiers: self.modifiers,
                 childrenLayers: childResults.actions)
+            
+            silentErrors += layerDataResult.silentErrors
+            var layerData = layerDataResult.layerData
             
             guard let layer = layerData.node_name.value.layer else {
                 fatalErrorIfDebug("deriveStitchActions error: no layer found for \(layerData.node_name.value)")
@@ -47,17 +54,19 @@ extension SyntaxView {
             }
     
             return .init(actions: [layerData],
-                         caughtErrors: childResults.caughtErrors)
+                         caughtErrors: silentErrors)
         } catch let error as SwiftUISyntaxError {
             if error.shouldFailSilently {
                 log("deriveStitchActions: silent failure for unsupported layer concept: \(error)")
                 // Silent error for unsupported layers
-                var resultForSilentFailure = childResults
-                resultForSilentFailure.caughtErrors.append(error)
-                return resultForSilentFailure
+                silentErrors.append(error)
+                return .init(actions: childResults.actions,
+                             caughtErrors: silentErrors)
             } else {
                 throw error
             }
+        } catch {
+            throw error
         }
     }
 }
