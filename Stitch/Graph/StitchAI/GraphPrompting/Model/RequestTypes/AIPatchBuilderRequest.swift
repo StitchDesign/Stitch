@@ -142,6 +142,22 @@ extension StitchDocumentViewModel {
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
+        let graphEntity = try self.createAIGraph()
+        document.visibleGraph
+            .insertNewComponent(graphEntity: graphEntity,
+                                encoder: document.documentEncoder,
+                                copiedFiles: .init(importedMediaUrls: [],
+                                                   componentDirs: []),
+                                isCopyPaste: false,
+                                originGraphOutputValuesMap: .init(),
+                                document: document)
+        
+        document.encodeProjectInBackground()
+    }
+    
+    @MainActor
+    func createAIGraph() throws -> GraphEntity {
+        let document = StitchDocumentViewModel.createEmpty()
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
@@ -244,8 +260,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             guard let fromNodeLocation = document.visibleGraph.getNode(outputPort.nodeId)?.nonLayerCanvasItem?.position,
                   let destinationNode = document.visibleGraph.getNode(inputPort.nodeId),
                   let layerInput = inputPort.keyPath?.layerInput else {
-                fatalErrorIfDebug()
-                return
+                throw SwiftUISyntaxError.layerEdgeDataFailure(newLayerEdge)
             }
 
             // create canvas node
@@ -261,7 +276,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             let _ = document.visibleGraph.edgeAdded(edge: edge)
         }
         
-        document.encodeProjectInBackground()
+        let graphEntity = document.graph.createSchema()
+        return graphEntity
     }
 }
 

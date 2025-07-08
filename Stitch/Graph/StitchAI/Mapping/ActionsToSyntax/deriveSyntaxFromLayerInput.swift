@@ -8,7 +8,7 @@
 import Foundation
 import SwiftSyntax
 
-enum SwiftUISyntaxError: Error, Hashable, Sendable {
+enum SwiftUISyntaxError: Error, Sendable {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
     case couldNotParseVarBody
@@ -37,6 +37,7 @@ enum SwiftUISyntaxError: Error, Hashable, Sendable {
     case layerDecodingFailed
     case unexpectedPatchFound(CurrentStep.PatchOrLayer)
     case portValueDataDecodingFailure
+    case layerEdgeDataFailure(AIPatchBuilderResponseFormat_V0.LayerConnection)
     
     // Value decoding
     case noLabelFoundForComplexType
