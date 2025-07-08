@@ -98,7 +98,7 @@ struct PatchConnection {
 }
 
 struct NodeIndexedCoordinate {
-    let id: UUID
+    let node_id: UUID
     let portIndex: Int
 }
 ```

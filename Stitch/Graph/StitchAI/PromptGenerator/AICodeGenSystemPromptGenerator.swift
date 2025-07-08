@@ -17,6 +17,10 @@ extension StitchAIManager {
         
         let nodePortDescriptions = try NodeSection.getAllAIDescriptions(graph: graph)
         
+        let supportedViewModifiers = SyntaxViewModifierName.allCases
+            .filter { (try? $0.deriveLayerInputPort()) != nil }
+            .map(\.rawValue)
+        
         return """
 # SwiftUI Code Creator
 
@@ -183,23 +187,14 @@ Sometimes, a specific layer is looped, meaning one of the layers inputs receives
 ### Special Considerations for Native Nodes
 * For the `"rgbColor || Patch"` node, RGB values are processed on a decimal between 0 and 1 instead of 0 - 255.
 
-## View Modifiers
-Specific rules and allowances of view modifers in SwiftUI views are listed here.
+## SwiftUI View Behavior
 
-### Responding to View Events
-View modifiers responding to events such as `simultaneousGesture`, `onAppear` etc. cannot modify the view directly. Events must trigger functionality in global state, where native Stitch nodes will process data from those events.
+### Allowed Views
+The listed views below are the only permitted views inside a `var body`:
 
-For each view modifier that's created, simply invoke `STITCH_VIEW_EVENTS[event_name]` where `event_name` is a string of the event name.
-
-Responding to these events is possible using native Stitch patch functions, which can be invoked in `updateLayerInputs`. The following view modifier events map to these native Stitch patch nodes:
-
-* `onAppear`: "onPrototypeStart || Patch" 
-* `simultaneousGesture`: captured either by "dragInteraction || Patch" or "pressInteraction || Patch"
-
-### Disallowed View Modifiers
-Stitch doesn't support usage of the following view modifiers:
-* `gesture`: only `simultaneousGesture` is allowed.
-* `animation`: instead use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
+```
+\(SyntaxViewName.supportedViews.map(\.rawValue))
+```
 
 ### Disallowed Views
 * `GeometryReader`: use the "deviceInfo || Patch" native patch funciton for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
@@ -209,13 +204,42 @@ The full list of unsupported views includes:
 \(SyntaxViewName.unsupportedViews.map(\.rawValue))
 ```
 
+### ScrollView Considerations
+
+A ScrollView in our app always contains a single immediate child view, which is either an `HStack`, `VStack`, `ZStack` or `LazyVGrid`.
+
+A ScrollView in our app always has its `axes` parameter explicitly filled in.
+If "y scroll is enabled", then we include the `.vertical` axis.
+If "x scroll is enabled", then we include the `.horizontal` axis.
+We can allow `[.vertical]` or `[.horizontal]` or both (i.e. `[.horizontal, .vertical]`.
+If neither y scroll nor x scroll are enabled, then we do not use a ScrollView at all.
+
+For examples of scroll views in Stitch, observe "Examples of `ScrollView` in Stitch" in the Data Glossary below.
+
+## Supported View Modifiers
+Specific rules and allowances of view modifers in SwiftUI views are listed here.
+
+### Responding to View Events
+View modifiers responding to events such as `simultaneousGesture`, `onAppear` etc. cannot modify the view directly. Events must trigger functionality in global state, where native Stitch nodes will process data from those events.
+
+For each view modifier that's created, simply invoke `STITCH_VIEW_EVENTS[event_name]` where `event_name` is a string of the event name.
+
+Responding to these events is possible using native Stitch patch functions, which can be invoked in `updateLayerInputs`. The following view modifier events map to these native Stitch patch nodes:
+
+* `simultaneousGesture`: captured either by "dragInteraction || Patch" or "pressInteraction || Patch"
+
 ### Allowed View Modifiers
 You are ONLY permitted to use these view modifiers. Do not attempt to use view modifiers not included in the list below:
 ```
-\(SyntaxViewModifierName.allCases.map(\.rawValue))
+\(supportedViewModifiers)
 ```
 
-### Other Disallowed Behavior
+### Disallowed View Modifiers
+Stitch doesn't support usage of the following view modifiers:
+* `gesture`: only `simultaneousGesture` is allowed.
+* `animation`: instead use native animation patch nodes like "classicAnimation || Patch" or "springAnimation || Patch"
+
+## Other Disallowed Behavior
 In most scenarios, you should not need to replicate functionality that would involve usage of class objects or usage of libraries other than SwiftUI. Native patch nodes largely handle these scenarios for you. Each listed scenario must use native patch nodes.
 * Camera sessions: "cameraFeed || Patch"
 * Core ML image classification: "imageClassification || Patch"
@@ -280,21 +304,11 @@ The schema below presents the list of inputs and outputs supported for each nati
 For layers, if the desired behavior is natively supported through a layer’s input, the patch system must prefer setting that input over simulating the behavior with patch nodes.
 
 Each patch and layer supports the following inputs and outputs:
+```
 \(try nodePortDescriptions.encodeToPrintableString())
+```
 
-
-## Our app has specific requirements and opinions about SwiftUI views
-
-### ScrollView
-
-A ScrollView in our app always contains a single immediate child view, which is either an `HStack`, `VStack`, `ZStack` or `LazyVGrid`.
-
-A ScrollView in our app always has its `axes` parameter explicitly filled in.
-If "y scroll is enabled", then we include the `.vertical` axis.
-If "x scroll is enabled", then we include the `.horizontal` axis.
-We can allow `[.vertical]` or `[.horizontal]` or both (i.e. `[.horizontal, .vertical]`.
-If neither y scroll nor x scroll are enabled, then we do not use a ScrollView at all.
-
+## Examples of `ScrollView` in Stitch
 
 Examples of valid ScrollViews in our app:
 

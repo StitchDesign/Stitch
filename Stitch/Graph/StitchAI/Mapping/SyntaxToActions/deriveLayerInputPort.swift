@@ -88,6 +88,14 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
     
     // Tracks some layer ID assigned to a view
     case layerId
+    
+    // e.g. `.underline()` or `.strikethrough()` modifiers
+    case textDecoration
+    
+    // SwiftUI.aspectRatio becomes a couple different cases? fitStyle for image, width/height axis too ?
+    case aspectRatio
+    
+    case textFont
 }
 
 enum LayerInputViewModification {
@@ -98,11 +106,31 @@ enum LayerInputViewModification {
 extension SyntaxViewModifierName {
     
     func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> DerivedLayerInputPortsResult {
-        switch (self, layer) {
+        // Handle edge cases
+        switch layer {
+        case .text, .textField:
+            switch self {
+            case .foregroundColor:
+                throw SwiftUISyntaxError.unsupportedViewModifierForLayer(self, layer)
+                
+            default:
+                break
+            }
+            
+        default:
+            break
+        }
+        
+        // Default behavior
+        return try self.deriveLayerInputPort()
+    }
+
+    func deriveLayerInputPort() throws -> DerivedLayerInputPortsResult {
+        switch self {
             // Universal modifiers (same for every layer)
-        case (.scaleEffect, _):
+        case .scaleEffect:
             return .simple(.scale)
-        case (.opacity, _):
+        case .opacity:
             return .simple(.opacity)
         
         /*
@@ -114,369 +142,334 @@ extension SyntaxViewModifierName {
          - SwiftUI .offset modifier becomes Stitch LayerInputPort.offsetInGroup if view's parent is e.g. VStack, else becomes Stitch LayerInputPort.position
          
          */
-        case (.position, _):
+        case .position:
             return .simple(.position)
 
-        case (.offset, _):
+        case .offset:
             // TODO: if view's parent is VStack/HStack, return .simple(.offsetInGroup) instead ?
             return .simple(.position)
         
         // Rotation is a more complicated scenario which we handle with special logic
-        case (.rotationEffect, _),
-            (.rotation3DEffect, _):
+        case .rotationEffect,
+            .rotation3DEffect:
             // .rotationEffect is always a z-axis rotation, i.e. .rotationZ
             // .rotation3DEffect is .rotationX or .rotationY or .rotationZ
             return .rotationScenario
                     
-        case (.blur, _):
+        case .blur:
             return .simple(.blurRadius)
-        case (.blendMode, _):
+        case .blendMode:
             return .simple(.blendMode)
-        case (.brightness, _):
+        case .brightness:
             return .simple(.brightness)
-        case (.colorInvert, _):
+        case .colorInvert:
             return .simple(.colorInvert)
-        case (.contrast, _):
+        case .contrast:
             return .simple(.contrast)
-        case (.hueRotation, _):
+        case .hueRotation:
             return .simple(.hueRotation)
-        case (.saturation, _):
+        case .saturation:
             return .simple(.saturation)
         
-        case (.fill, _): // fill is always color
+        case .fill: // fill is always color
             return .simple(.color)
             
             //    case (.font, .text):
             //        return .simple(.font)
             
-            //    case (.fontWeight, _):
+            //    case .fontWeight:
             //        //            return .simple(.fontWeight)
             //        return nil
             
-            //    case (.lineSpacing, _):
+            //    case .lineSpacing:
             //        return nil // return .simple(.lineSpacing)
             
-        case (.cornerRadius, _):
+        case .cornerRadius:
             return .simple(.cornerRadius)
             
-            //    case (.shadow, _):
+            //    case .shadow:
             //        // Shadow would need to be broken down into multiple inputs:
             //        // .shadowColor, .shadowRadius, .shadowOffset, .shadowOpacity
             //        return .simple(.shadowRadius)
             
         // TODO: JUNE 23: .frame modifier is actually several different LayerInputPort cases: .size, .minSize, .maxSize
-        case (.frame, _):
+        case .frame:
             return .simple(.size)
             
-        case (.padding, _):
+        case .padding:
             return .simple(.padding) // vs .layerPadding ?!
             
-        case (.zIndex, _):
+        case .zIndex:
             return .simple(.zIndex)
         
-        case (.foregroundColor, let kind) where kind != .text && kind != .textField:
+        case .foregroundColor, .backgroundColor, .tint, .accentColor:
             return .simple(.color)
 
-        case (.foregroundColor, _):
-            return .simple(.color)
-
-        case (.backgroundColor, _):
-            return .simple(.color)
-            
-        case (.disabled, _):
+        case .disabled:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.background, _):
+        case .background:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.font, _):
+        case .font:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.multilineTextAlignment, _):
+        case .multilineTextAlignment:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        
             
             // TODO: support after v1 schema
-//        case (.keyboardType, _): return .simple(.keyboardType)
-        case (.disableAutocorrection, _):
+//        case .keyboardType: return .simple(.keyboardType)
+        case .disableAutocorrection:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.clipped, _):
+        case .clipped:
             return .simple(.clipped) // return .isClipped
-        case (.layerId, _):
+        case .layerId:
             return .layerId
-        case (.color, _):
+        case .color:
             return .simple(.color)
         
-            // REBASE HERE FOR IMPORTANT INFO
-            
             // `.underline()` -> `LayerInputPort.TextDecoration + TextDecoration.underline`
-            
-        case (.underline, _),
-            (.strikethrough, _):
+        case .underline, .strikethrough:
             // TODO: text decoration can be strikethrough or underline
-            return .simple(.textDecoration)
+            return .textDecoration
             
-//        default:
+        case .aspectRatio:
 //            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accentColor, _):
+            return .aspectRatio
+        
+            // TODO: this is a text case
+        case .bold,
+                .fontDesign,
+                .fontWeight,
+                .monospacedDigit,
+                .monospaced:
+            return .textFont
+            
+            // MARK: Could be implemented someday?
+        case .textCase,
+                .textContentType,
+                .textFieldStyle,
+                .textInputAutocapitalization,
+                .textSelection:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityAction, _):
+            
+            
+            // text / text field
+        case .lineLimit:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityAddTraits, _):
+        case .lineSpacing:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityAdjustableAction, _):
+        case .truncationMode:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityElement, _):
+        case .uppercaseSmallCaps:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityFocused, _):
+            
+            // MARK: accessibility
+        case .accessibilityAction,
+                .accessibilityAddTraits,
+                .accessibilityAdjustableAction,
+                .accessibilityElement,
+                .accessibilityFocused,
+                .accessibilityHidden,
+                .accessibilityHint,
+                .accessibilityIdentifier,
+                .accessibilityInputLabels,
+                .accessibilityLabel,
+                .accessibilityRemoveTraits,
+                .accessibilityRepresentation,
+                .accessibilityScrollAction,
+                .accessibilityShowsLargeContentViewer,
+                .accessibilitySortPriority:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityHidden, _):
+            
+            // Scroll
+            case .scrollClipDisabled:
+                throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            case .scrollDisabled:
+                throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            case .scrollDismissesKeyboard:
+                throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            case .scrollIndicators:
+                throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            case .scrollTargetBehavior:
+                throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            
+            // Lists
+        case .listRowBackground,
+                .listRowInsets,
+                .listRowSeparator,
+                .listRowSeparatorTint,
+                .listSectionSeparator,
+                .listSectionSeparatorTint,
+                .listSectionSeparatorVisibility,
+                .listStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityHint, _):
+            
+            
+        case .allowsHitTesting:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityIdentifier, _):
+        case .allowsTightening:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityInputLabels, _):
+        case .animation:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityLabel, _):
+        case .badge:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityRemoveTraits, _):
+        case .baselineOffset:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityRepresentation, _):
+        case .border:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityScrollAction, _):
+        case .buttonStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilityShowsLargeContentViewer, _):
+        case .clipShape:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.accessibilitySortPriority, _):
+        case .colorMultiply:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.allowsHitTesting, _):
+        case .compositingGroup:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.allowsTightening, _):
+        case .containerRelativeFrame:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.animation, _):
+        case .contentShape:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.aspectRatio, _):
+        case .controlSize:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.badge, _):
+        case .contextMenu:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.baselineOffset, _):
+        case .drawingGroup:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.bold, _):
+        case .dynamicTypeSize:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.border, _):
+        case .environment:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.buttonStyle, _):
+        case .environmentObject:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.clipShape, _):
+        case .exclusiveGesture:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.colorMultiply, _):
+        case .fixedSize:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.compositingGroup, _):
+        case .focusable:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.containerRelativeFrame, _):
+        case .focused:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.contentShape, _):
+        case .foregroundStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.controlSize, _):
+        case .gesture:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.contextMenu, _):
+        case .help:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.drawingGroup, _):
+        case .highPriorityGesture:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.dynamicTypeSize, _):
+        case .hoverEffect:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.environment, _):
+        case .id:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.environmentObject, _):
+        case .ignoresSafeArea:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.exclusiveGesture, _):
+        case .interactiveDismissDisabled:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.fixedSize, _):
+        case .italic:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.focusable, _):
+        case .kerning:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.focused, _):
+        case .layoutPriority:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+
+        
+        case .mask:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         
-        case (.fontDesign, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.fontWeight, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            
-        case (.foregroundStyle, _):
+        case .matchedGeometryEffect:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         
-        case (.gesture, _):
+        case .menuStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            
-        case (.help, _):
+        case .minimumScaleFactor:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .navigationBarBackButtonHidden:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .navigationBarHidden:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .navigationBarItems:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .navigationBarTitle:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .navigationBarTitleDisplayMode:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .navigationDestination:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .navigationTitle:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onAppear:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onChange:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onDisappear:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onDrag:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onDrop:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onHover:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onLongPressGesture:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onSubmit:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .onTapGesture:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .overlay:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .preferredColorScheme:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .presentationCornerRadius:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .presentationDetents:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .progressViewStyle:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .projectionEffect:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .redacted:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .refreshable:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .safeAreaInset:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .searchable:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .sensoryFeedback:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .shadow:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .simultaneousGesture:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .sliderStyle:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .smallCaps:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .submitLabel:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .swipeActions:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .symbolEffect:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .symbolRenderingMode:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .tableStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         
-        case (.highPriorityGesture, _):
+        // Probably never will be implemented?
+        case .task:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            
-        case (.hoverEffect, _):
+    
+
+        case .toggleStyle:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        
-        case (.id, _):
+        case .toolbar:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            
-        case (.ignoresSafeArea, _):
+        case .tracking:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.interactiveDismissDisabled, _):
+        case .transformEffect:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        
-        case (.italic, _):
+        case .transition:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            
-        case (.kerning, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.layoutPriority, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.lineLimit, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.lineSpacing, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listRowBackground, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listRowInsets, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listRowSeparator, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listRowSeparatorTint, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listSectionSeparator, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listSectionSeparatorTint, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listSectionSeparatorVisibility, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.listStyle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.mask, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.matchedGeometryEffect, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.menuStyle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.minimumScaleFactor, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.monospaced, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.monospacedDigit, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.navigationBarBackButtonHidden, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.navigationBarHidden, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.navigationBarItems, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.navigationBarTitle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.navigationBarTitleDisplayMode, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.navigationDestination, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.navigationTitle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onAppear, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onChange, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onDisappear, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onDrag, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onDrop, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onHover, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onLongPressGesture, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onSubmit, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.onTapGesture, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.overlay, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.preferredColorScheme, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.presentationCornerRadius, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.presentationDetents, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.progressViewStyle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.projectionEffect, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.redacted, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.refreshable, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.safeAreaInset, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.scrollClipDisabled, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.scrollDisabled, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.scrollDismissesKeyboard, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.scrollIndicators, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.scrollTargetBehavior, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.searchable, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.sensoryFeedback, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.shadow, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.simultaneousGesture, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.sliderStyle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.smallCaps, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-                    
-        case (.submitLabel, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.swipeActions, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.symbolEffect, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.symbolRenderingMode, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.tableStyle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.task, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.textCase, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.textContentType, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.textFieldStyle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        
-        case (.textInputAutocapitalization, _):
-            
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            
-        case (.textSelection, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.tint, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.toggleStyle, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.toolbar, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.tracking, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.transformEffect, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.transition, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.truncationMode, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case (.uppercaseSmallCaps, _):
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+
         }
     }
 }
