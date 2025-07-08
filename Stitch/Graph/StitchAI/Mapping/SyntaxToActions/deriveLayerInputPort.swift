@@ -15,9 +15,12 @@ extension SyntaxViewArgumentData {
     // A single argument can correspond to multiple layer inputs,
     // e.g. `ScrollView([.horizontal, .vertical]) corresponds to ScrollXEnabled, ScrollYEnabled
 //    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> [CurrentStep.LayerInputPort]? {
-    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> CurrentStep.LayerInputPort? {
+    static func deriveLayerInputPort(_ layer: CurrentStep.Layer,
+                                     label: String? = nil,
+                                     argType: SyntaxViewModifierArgumentType? = nil) -> CurrentStep.LayerInputPort? {
         
-        switch SyntaxConstructorArgumentLabel(rawValue: self.label ?? "") {
+//        switch SyntaxConstructorArgumentLabel(rawValue: self.label ?? "") {
+        switch SyntaxConstructorArgumentLabel(rawValue: label ?? "") {
             
         case .systemName:
             return .sfSymbol
@@ -45,27 +48,47 @@ extension SyntaxViewArgumentData {
                 // `ScrollView([.horizontal, .vertical])`
                 // `ScrollView([.horizontal])`
                 // `ScrollView(.horizontal)`
-
-                if case let .array(array) = self.value {
-                    log("SyntaxViewArgumentData: deriveLayerInputPort: had array: \(array)")
-                    return array.compactMap {
-                        if case let .memberAccess(member) = $0,
-                           let port = member.deriveLayerInputPort() {
-                            return port
-                        } else {
-                            return nil
-                        }
+                
+                
+                
+                // SHOULD NOT BE CALLED WITH AN ARRAY -- ONLY A TUPLE OR MEMBER-ACCESS OR LITERAL ?
+                
+//                if case let .array(array) = self.value {
+//                    log("SyntaxViewArgumentData: deriveLayerInputPort: had array: \(array)")
+//                    return array.compactMap {
+//                        if case let .memberAccess(member) = $0,
+//                           let port = member.deriveLayerInputPort() {
+//                            return port
+//                        } else {
+//                            return nil
+//                        }
+//                    }
+////                    return [.scrollXEnabled, .scrollYEnabled]
+//                    
+//                }
+//
+                switch argType {
+                case .memberAccess(let x):
+                    if let port = x.property.parseAsScrollAxis() {
+                        return port
                     }
-//                    return [.scrollXEnabled, .scrollYEnabled]
-                    
+                default:
+                    return nil
                 }
                 
+//                if let argValueString = argValueString,
+//                   let port = argValueString.parseAsScrollAxis() {
+//                    return port
+//                }
                 
-                else if case let .memberAccess(member) = self.value,
-                        let port = member.deriveLayerInputPort() {
-                    log("SyntaxViewArgumentData: deriveLayerInputPort: had port: \(port)")
-                    return [port]
-                }
+////
+////                else
+//                if case let .memberAccess(member) = self.value,
+//                        let port = member.deriveLayerInputPort() {
+//                    log("SyntaxViewArgumentData: deriveLayerInputPort: had port: \(port)")
+//                    return port
+//                }
+                
                 //
                 //                    if member.property == "horizontal" {
 //                                        log("SyntaxViewArgumentData: deriveLayerInputPort: had horizontal")
@@ -89,19 +112,16 @@ extension SyntaxViewArgumentData {
     }
 }
 
-extension SyntaxViewMemberAccess {
+extension String {
     // A member-access might correspond to a single layer-input-port
-    func deriveLayerInputPort() -> CurrentStep.LayerInputPort? {
-        switch self.property {
-//        case "horizontal":
+    func parseAsScrollAxis() -> CurrentStep.LayerInputPort? {
+        switch self {
         case Axis.horizontal.description:
-            // TODO: better way to handle this other than magic string matching?
             return .scrollXEnabled
         case Axis.vertical.description:
             return .scrollYEnabled
         default:
             return nil
-        
         }
     }
 }
