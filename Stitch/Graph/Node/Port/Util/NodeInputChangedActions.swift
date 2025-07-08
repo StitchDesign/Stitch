@@ -29,21 +29,6 @@ struct InputAddedAction: StitchDocumentEvent {
     }
 }
 
-//extension NodeViewModel {
-//    @MainActor
-//    func addInputObserver(graph: GraphState) {
-//        self.inputadd
-//
-//        guard let inputChanger = self.kind.getPatch?.inputCountChanged else {
-//            fatalErrorIfDebug()
-//            return
-//        }
-//            
-//        // (node: node, added?: true)
-//        inputChanger(self, true)
-//    }
-//}
-
 struct InputRemovedAction: GraphEventWithResponse {
     let nodeId: NodeId
 

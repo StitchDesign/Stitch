@@ -79,22 +79,6 @@ extension Patch {
             return nil
         }
     }
-    
-//    @MainActor
-//    func inputCountChanged(graph: GraphState,
-//                           document: StitchDocumentViewModel,
-//                           node: NodeViewModel,
-//                           isAdded: Bool) {
-//        guard let minimumInputCount = self.minimumInputs else {
-//            return nil
-//        }
-//        
-//        if added {
-//            node.inputAdded()
-//        } else {
-//            node.inputRemoved(minimumInputs: minimumInputs)
-//        }
-//    }
 
     var availableNodeTypes: Set<UserVisibleType> {
         switch self {
@@ -142,7 +126,3 @@ extension Patch {
     }
 
 }
-
-// Every input
-// (node, added?, minimum?) -> node
-//typealias InputsChangedHandler = (GraphState, StitchDocumentViewModel, NodeViewModel, Bool) -> ()
