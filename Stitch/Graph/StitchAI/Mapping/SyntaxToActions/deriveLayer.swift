@@ -363,6 +363,10 @@ extension SyntaxViewName {
     private static func derivePortValue(from arguments: [SyntaxViewArgumentData],
                                         port: CurrentStep.LayerInputPort,
                                         layerType: CurrentStep.Layer) throws -> CurrentStep.PortValue? {
+        guard !arguments.isEmpty else {
+            return nil
+        }
+        
         // Convert every argument into a PortValue, later logic determines if we need to pack info
         let portValuesFromArgs = try arguments.flatMap {
             try Self.derivePortValues(from: $0.value,
