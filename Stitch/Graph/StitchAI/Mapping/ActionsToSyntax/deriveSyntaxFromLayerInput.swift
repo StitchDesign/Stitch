@@ -16,7 +16,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedViewModifierForLayer(SyntaxViewModifierName, CurrentStep.Layer)
     
     // Decoding from string
-    case unsupportedSyntaxArgumentKind(ExprSyntax)
+    case unsupportedSyntaxArgumentKind(String)
     case unsupportedSyntaxArgument(String?)
     case unsupportedSyntaxViewName(String)
     case unsupportedSyntaxViewModifierName(String)

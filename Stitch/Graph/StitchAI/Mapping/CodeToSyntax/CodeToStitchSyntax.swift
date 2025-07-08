@@ -348,7 +348,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
-            self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression))
+            self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression.trimmedDescription))
             return nil
         }
         
