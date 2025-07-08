@@ -11,101 +11,52 @@ import SwiftUI
 
 
 extension SyntaxViewArgumentData {
-    
-    // A single argument can correspond to multiple layer inputs,
-    // e.g. `ScrollView([.horizontal, .vertical]) corresponds to ScrollXEnabled, ScrollYEnabled
-//    func deriveLayerInputPort(_ layer: CurrentStep.Layer) -> [CurrentStep.LayerInputPort]? {
     static func deriveLayerInputPort(_ layer: CurrentStep.Layer,
-                                     label: String? = nil,
-                                     argType: SyntaxViewModifierArgumentType? = nil) -> CurrentStep.LayerInputPort? {
+                                     label: String?,
+                                     argFlatType: SyntaxViewModifierArgumentFlatType?) -> CurrentStep.LayerInputPort? {
         
-//        switch SyntaxConstructorArgumentLabel(rawValue: self.label ?? "") {
         switch SyntaxConstructorArgumentLabel(rawValue: label ?? "") {
             
         case .systemName:
+            // `Image(systemName:)`
             return .sfSymbol
             
         case .cornerRadius:
+            // `RoundedRectangle(cornerRadius:)`
             return .cornerRadius
             
-        // e.g. `VStack(spacing:)` or `HStack(spacing:)`
         case .spacing:
+            // e.g. `VStack(spacing:)` or `HStack(spacing:)`
             return .spacing
             
-            // TODO: JUNE 24: *many* SwiftUI ...
-        case .none: // i.e. no label, so e.g. `Text("love")`
+            
+        // i.e. no label, so e.g. `Text("love")`
+        case .none:
+        
             switch layer {
+                
             case .text, .textField:
                 return .text
-            
-            
-            // TODO: a group could be a VStack or HStack, which accepts `spacing:` etc.; or a could be a scroll
-            
+                        
             case .group:
-                // NOTE:
-                // A layer group
-                // Many different forms supported:
-                // `ScrollView([.horizontal, .vertical])`
-                // `ScrollView([.horizontal])`
-                // `ScrollView(.horizontal)`
-                
-                
-                
-                // SHOULD NOT BE CALLED WITH AN ARRAY -- ONLY A TUPLE OR MEMBER-ACCESS OR LITERAL ?
-                
-//                if case let .array(array) = self.value {
-//                    log("SyntaxViewArgumentData: deriveLayerInputPort: had array: \(array)")
-//                    return array.compactMap {
-//                        if case let .memberAccess(member) = $0,
-//                           let port = member.deriveLayerInputPort() {
-//                            return port
-//                        } else {
-//                            return nil
-//                        }
-//                    }
-////                    return [.scrollXEnabled, .scrollYEnabled]
-//                    
-//                }
-//
-                switch argType {
-                case .memberAccess(let x):
-                    if let port = x.property.parseAsScrollAxis() {
-                        return port
-                    }
-                default:
+                /*
+                 Note: Many different forms supported:
+                 
+                 `ScrollView([.horizontal, .vertical])`
+                 `ScrollView([.horizontal])`
+                 `ScrollView(.horizontal)`
+                 
+                 ... but we only ever look at a single member-access at a time.
+                 */
+                if case .memberAccess(let x) = argFlatType,
+                   let scrollEnabledPort = x.property.parseAsScrollAxis() {
+                    return scrollEnabledPort
+                } else {
                     return nil
                 }
                 
-//                if let argValueString = argValueString,
-//                   let port = argValueString.parseAsScrollAxis() {
-//                    return port
-//                }
-                
-////
-////                else
-//                if case let .memberAccess(member) = self.value,
-//                        let port = member.deriveLayerInputPort() {
-//                    log("SyntaxViewArgumentData: deriveLayerInputPort: had port: \(port)")
-//                    return port
-//                }
-                
-                //
-                //                    if member.property == "horizontal" {
-//                                        log("SyntaxViewArgumentData: deriveLayerInputPort: had horizontal")
-                //                        return [.scrollXEnabled]
-                //                    } else if member.property == "vertical" {
-                //                        log("SyntaxViewArgumentData: deriveLayerInputPort: had vertical")
-                //                        return [.scrollYEnabled]
-                //                    }
-                
-//                }
-                
-                log("SyntaxViewArgumentData: deriveLayerInputPort: returning nil")
-                return nil
-                
-                
             default:
-//                throw SwiftUISyntaxError.unsupportedConstructorArgument(self)
+                // throw SwiftUISyntaxError.unsupportedConstructorArgument(self)
                 return nil
             }
         }

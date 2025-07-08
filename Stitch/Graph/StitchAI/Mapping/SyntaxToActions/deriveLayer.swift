@@ -235,132 +235,43 @@ extension SyntaxViewName {
     func deriveCustomValuesFromConstructorArguments(
         id: UUID,
         layerType: CurrentStep.Layer,
-        args: [SyntaxViewArgumentData]) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        args: [SyntaxViewArgumentData]
+    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
             
             var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
             
             // ── Generic constructor‑argument handling (literals & edges) ─────────
-            log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: args: \(args)")
+            
+            // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: args: \(args)")
             
             for arg in args {
                 
                 // An argument might be an array like `[.horizontal, .vertical]`
-                // but passing the array-arguement to `derivePortValues` will
-                for flatArgType in arg.value.allArgumentTypesFlattened {
+                // but simply passing the array-argument-type to `derivePortValues` will
+                // TODO: should `derivePortValues(from:)` accept a *flat* argumentType, and it is the responsibility of the caller to flatten the nested argumentType first ? Can argumentType *really* be nested ?
+                for argFlatType in arg.value.allArgumentTypesFlattened {
                     guard let port = SyntaxViewArgumentData.deriveLayerInputPort(
                         layerType,
                         label: arg.label, // the overall label for the entire argument
-                        argType: flatArgType.toSyntaxViewModifierArgumentType,
+                        argFlatType: argFlatType,
                     ) else {
                         continue
                     }
                     
+                    // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: port: \(port)")
                     
-                    log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: port: \(port)")
                     let values = try SyntaxViewName.derivePortValues(
-                        
-                        // arg.value is always an array, so we iterate over everything again;
-                        // it would be fine to iterate over the array ONCE,
-                        // but we're effectively doing NESTED ARRAYS once we say "for every x in xs, do f(x, xs)"
-                        
-                        // the whole idea that you can map a constructor-arg's array to a *single* layer-input-port is incorrect...
-                        
-//                        from: arg.value,
-                        
-                        // .simple is meant for a literal that we can parse as a NodeType
-                        // .member is really what we want -- but how to distinguish between
-//                        from: .simple(simpleData),
-                        from: flatArgType.toSyntaxViewModifierArgumentType,
-                        
-                        // you could instead pass .simple ?
-                        // but that
-//                        from: SyntaxViewModifierArgumentType.simple(SyntaxViewS),
-                        
+                        from: argFlatType.toSyntaxViewModifierArgumentType,
                         context: .viewConstructor(self, port))
-                    log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
+                    
+                    // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
+                    
                     customValues += values.map { value in
-                            .init(
-                                layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                              input_port_type: .init(value: port)),
-                                value: value)
+                            .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                                input_port_type: .init(value: port)),
+                                  value: value)
                     }
-                    
                 }
-                
-//                for simpleData in arg.value.allNestedSimpleData {
-//                    
-//                    guard let port = SyntaxViewArgumentData.deriveLayerInputPort(
-//                        layerType,
-//                        label: arg.label, // the overall label for the entire argument
-//                        argValueString: simpleData.value, // argValueString
-//                    ) else {
-//                        continue
-//                    }
-//                    
-//        
-////                    
-////                    log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: port: \(port)")
-////                    let values = try SyntaxViewName.derivePortValues(
-////                        
-////                        // arg.value is always an array, so we iterate over everything again;
-////                        // it would be fine to iterate over the array ONCE,
-////                        // but we're effectively doing NESTED ARRAYS once we say "for every x in xs, do f(x, xs)"
-////                        
-////                        // the whole idea that you can map a constructor-arg's array to a *single* layer-input-port is incorrect...
-////                        
-//////                        from: arg.value,
-////                        
-////                        // .simple is meant for a literal that we can parse as a NodeType
-////                        // .member is really what we want -- but how to distinguish between
-//////                        from: .simple(simpleData),
-////                        from:
-////                        
-////                        // you could instead pass .simple ?
-////                        // but that
-//////                        from: SyntaxViewModifierArgumentType.simple(SyntaxViewS),
-////                        
-////                        context: .viewConstructor(self, port))
-////                    log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
-////                    customValues += values.map { value in
-////                            .init(
-////                                layer_input_coordinate: .init(layer_id: .init(value: id),
-////                                                              input_port_type: .init(value: port)),
-////                                value: value)
-////                    }
-//                    
-//                }
-//                                
-                
-                
-                
-                
-//                for port in ports {
-//                    log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: on port: \(port)")
-//                    
-//                    // if the arg is an array, this will return an array of values as well;
-//                    // but if the arg is an array, you actually need to iterate through the members of the array and return 1 port per item in the array, rather than several ports per item in the array
-//                    let values = try SyntaxViewName.derivePortValues(
-//                        from: arg.value,
-//                        context: .viewConstructor(self, port))
-//                    log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
-//                    
-//                    customValues += values.map { value in
-//                            .init(
-//                                layer_input_coordinate: .init(layer_id: .init(value: id),
-//                                                              input_port_type: .init(value: port)),
-//                                value: value)
-//                    }
-//                }
-                    
-//                let values = try SyntaxViewName.derivePortValues(from: arg.value,
-//                                                                 context: .viewConstructor(self))
-                
-//                customValues += values.map { value in
-//                        .init(
-//                            layer_input_coordinate: .init(layer_id: .init(value: id),
-//                                                          input_port_type: .init(value: port)),
-//                            value: value)
-//                }
             } // for arg in args
             
             return customValues
