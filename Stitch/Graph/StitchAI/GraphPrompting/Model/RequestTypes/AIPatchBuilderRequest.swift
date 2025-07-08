@@ -209,6 +209,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 continue
             }
             
+            patchNode.userVisibleType = try newPatch.value_type?.migrate()
+            
             // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
             let supportsNewInputs = patchNode.patch.canChangeInputCounts
             if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {

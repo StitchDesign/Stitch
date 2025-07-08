@@ -132,6 +132,7 @@ enum AIPatchBuilderResponseFormat_V0 {
     struct NativePatchNodeSchema: Encodable {
         let node_id = OpenAISchema(type: .string)
         let node_name = OpenAISchemaRef(ref: "NodeName")
+        let value_type = OpenAISchemaRef(ref: "ValueType")
     }
     
     struct PatchConnectionSchema: Encodable {
@@ -208,6 +209,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     struct NativePatchNode: Codable {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         let node_name: StitchAIPatchOrLayer
+        let value_type: StitchAIPortValue_V0.NodeType?
     }
     
     struct PatchConnection: Codable {
