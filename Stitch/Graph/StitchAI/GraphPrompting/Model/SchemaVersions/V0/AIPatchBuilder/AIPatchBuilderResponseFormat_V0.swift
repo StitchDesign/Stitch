@@ -225,7 +225,7 @@ extension AIPatchBuilderResponseFormat_V0 {
         let input_port_type: AILayerInputPort
     }
 
-    struct NodeIndexedCoordinate: Codable {
+    struct NodeIndexedCoordinate: Codable, Hashable {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         let port_index: Int
     }

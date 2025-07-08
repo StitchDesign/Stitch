@@ -38,7 +38,7 @@ extension NodeViewModel {
     
     @MainActor
     var canAddInputs: Bool {
-        self.kind.getPatch?.inputCountChanged.isDefined ?? false
+        self.kind.getPatch?.canAddInputs ?? false
     }
     
     @MainActor
@@ -54,6 +54,10 @@ extension NodeViewModel {
 }
 
 extension Patch {
+    @MainActor
+    var canAddInputs: Bool {
+        self.inputCountChanged.isDefined
+    }
     
     // nil when patch node cannot add/remove inputs
     var minimumInputs: Int? {

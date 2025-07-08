@@ -15,20 +15,28 @@ struct InputAddedAction: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
         log("InputAddedAction handle called")
-
-        if let node = state.getNode(nodeId),
-           let inputChanger = node.kind.getPatch?.inputCountChanged {
-
-            // (node: node, added?: true)
-            inputChanger(node, true)
-
-            state.scheduleForNextGraphStep(.init([nodeId]))
-            
-            return .persistenceResponse
-        } else {
-            log("InputAddedAction: default")
+        
+        guard let node = state.getNode(self.nodeId) else {
             return .noChange
         }
+
+        node.addInputObserver(graph: state)
+        
+        state.scheduleForNextGraphStep(.init([nodeId]))
+        return .persistenceResponse
+    }
+}
+
+extension NodeViewModel {
+    @MainActor
+    func addInputObserver(graph: GraphState) {
+        guard let inputChanger = self.kind.getPatch?.inputCountChanged else {
+            fatalErrorIfDebug()
+            return
+        }
+            
+        // (node: node, added?: true)
+        inputChanger(self, true)
     }
 }
 
