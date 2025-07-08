@@ -10,7 +10,8 @@ extension StitchAIManager {
     static func aiPatchBuilderSystemPromptGenerator(graph: GraphState) throws -> String {
         let patchDescriptions = CurrentStep.Patch.allAiDescriptions
             .filter { description in
-                !description.nodeKind.contains("scrollInteraction")
+                !description.nodeKind.contains("scrollInteraction") &&
+                !description.nodeKind.contains("legacyScrollInteraction")
             }
         
         let layerDescriptions = CurrentStep.Layer.allAiDescriptions

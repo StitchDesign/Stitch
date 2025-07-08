@@ -221,7 +221,7 @@ Here's an example payload for each `PortValue` by its type:
     },
     {
       "example" : {
-        "id" : "4CF7E71E-7AF1-4996-A47D-C331E72D8181",
+        "id" : "7360033A-3505-4CAC-9E30-FE74EDC1D636",
         "value" : {
         }
       },
@@ -514,10 +514,6 @@ Each function should mimic logic composed in patch nodes in Stitch (or Origami S
     "node_kind" : "pressInteraction || Patch"
   },
   {
-    "description" : "Adds scroll interaction to a specified layer.",
-    "node_kind" : "legacyScrollInteraction || Patch"
-  },
-  {
     "description" : "A node that will fire a pulse at a defined interval.",
     "node_kind" : "repeatingPulse || Patch"
   },
@@ -644,7 +640,8 @@ Each function should mimic logic composed in patch nodes in Stitch (or Origami S
     "description" : "Divides one number by another.",
     "node_kind" : "divide || Patch",
     "types" : [
-      "3dPoint",      "color",
+      "3dPoint",
+      "color",
       "number",
       "position",
       "size"
@@ -1765,8 +1762,7 @@ Each function should mimic logic composed in patch nodes in Stitch (or Origami S
       "json",
       "layer",
       "layerDimension",
-      "layerStroke",
-      "media",
+      "layerStroke",      "media",
       "networkRequestType",
       "number",
       "orientation",
@@ -1926,8 +1922,7 @@ Each function should mimic logic composed in patch nodes in Stitch (or Origami S
     "node_kind" : "lineToPack || Patch"
   },
   {
-    "description" : "Packs Point, CurveTo and CurveFrom position inputs into a CurveTo ShapeCommand.",
-    "node_kind" : "curveToPack || Patch"
+    "description" : "Packs Point, CurveTo and CurveFrom position inputs into a CurveTo ShapeCommand.",    "node_kind" : "curveToPack || Patch"
   },
   {
     "description" : "Unpack packs CurveTo ShapeCommand into a Point, CurveTo and CurveFrom position outputs.",
@@ -2081,21 +2076,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "value || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Flip",
             "value" : 0,
             "valueType" : "pulse"
@@ -2117,33 +2097,6 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "On/Off",
             "value" : false,
             "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Randomize",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Start Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End Value",
-            "value" : 50,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "random || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
           }
         ]
       },
@@ -2515,7 +2468,8 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "label" : "Scroll Offset",
-            "value" : {              "x" : 0,
+            "value" : {
+              "x" : 0,
               "y" : 0
             },
             "valueType" : "position"
@@ -2525,34 +2479,40 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Increase",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Decrease",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Jump",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Jump to Number",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Maximum Count",
             "value" : 0,
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "counter || Patch",
+        "nodeKind" : "value || Patch",
         "outputs" : [
           {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Randomize",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Start Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End Value",
+            "value" : 50,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "random || Patch",
+        "outputs" : [
+          {
+            "label" : "Value",
             "value" : 0,
             "valueType" : "number"
           }
@@ -2824,99 +2784,48 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "media"
           }
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Increase",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Decrease",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Jump",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Jump to Number",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Maximum Count",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "counter || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
       }
     ]
   },
   {
     "header" : "Math Operation Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "max || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "absoluteValue || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "subtract || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "mod || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "length || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
       {
         "inputs" : [
           {
@@ -2939,6 +2848,61 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Places",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rounded Up",
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "round || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "squareRoot || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "length || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
             "valueType" : "number"
           }
         ]
@@ -2969,84 +2933,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "multiply || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "add || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Places",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rounded Up",
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "round || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "squareRoot || Patch",
-        "outputs" : [
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "divide || Patch",
+        "nodeKind" : "subtract || Patch",
         "outputs" : [
           {
             "value" : 0,
@@ -3084,7 +2971,117 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
+        "nodeKind" : "mod || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "add || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "divide || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
         "nodeKind" : "power || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "multiply || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "max || Patch",
+        "outputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "absoluteValue || Patch",
         "outputs" : [
           {
             "value" : 1,
@@ -3111,21 +3108,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "not || Patch",
-        "outputs" : [
-          {
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "value" : 0,
             "valueType" : "number"
           },
@@ -3134,7 +3116,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "lessThanOrEqual || Patch",
+        "nodeKind" : "lessThan || Patch",
         "outputs" : [
           {
             "value" : true,
@@ -3226,6 +3208,25 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 200,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "lessThanOrEqual || Patch",
+        "outputs" : [
+          {
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "value" : false,
             "valueType" : "bool"
           },
@@ -3238,6 +3239,21 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : false,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "not || Patch",
+        "outputs" : [
+          {
+            "value" : true,
             "valueType" : "bool"
           }
         ]
@@ -3260,31 +3276,189 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "bool"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 200,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "lessThan || Patch",
-        "outputs" : [
-          {
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ]
       }
     ]
   },
   {
     "header" : "Animation Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "1st Control Point X",
+            "value" : 0.17000000000000001,
+            "valueType" : "number"
+          },
+          {
+            "label" : "1st Control Point Y",
+            "value" : 0.17000000000000001,
+            "valueType" : "number"
+          },
+          {
+            "label" : "2nd Control Point X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "2nd Control Point Y",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "cubicBezierCurve || Patch",
+        "outputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "2D Progress",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Duration",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Curve",
+            "value" : "linear",
+            "valueType" : "animationCurve"
+          }
+        ],
+        "nodeKind" : "classicAnimation || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0.5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Start",
+            "value" : 50,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End",
+            "value" : 100,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "transition || Patch",
+        "outputs" : [
+          {
+            "value" : 75,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Settling Duration",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Damping Ratio",
+            "value" : 0.5,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "settlingDurationAndDampingRatioConverter || Patch",
+        "outputs" : [
+          {
+            "label" : "Stiffness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Damping",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Bounciness",
+            "value" : 5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Speed",
+            "value" : 10,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "popAnimation || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Duration",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Bounce",
+            "value" : 0.5,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "durationAndBounceConverter || Patch",
+        "outputs" : [
+          {
+            "label" : "Stiffness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Damping",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
       {
         "inputs" : [
           {
@@ -3311,6 +3485,28 @@ Each patch and layer supports the following inputs and outputs:
         "nodeKind" : "springAnimation || Patch",
         "outputs" : [
           {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Curve",
+            "value" : "linear",
+            "valueType" : "animationCurve"
+          }
+        ],
+        "nodeKind" : "curve || Patch",
+        "outputs" : [
+          {
+            "label" : "Progress",
             "value" : 0,
             "valueType" : "number"
           }
@@ -3356,86 +3552,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Duration",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Bounce",
-            "value" : 0.5,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "durationAndBounceConverter || Patch",
-        "outputs" : [
-          {
-            "label" : "Stiffness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Damping",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Duration",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Curve",
-            "value" : "linear",
-            "valueType" : "animationCurve"
-          }
-        ],
-        "nodeKind" : "classicAnimation || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Response",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Damping Ratio",
-            "value" : 0.5,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "responseAndDampingRatioConverter || Patch",
-        "outputs" : [
-          {
-            "label" : "Stiffness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Damping",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Bounciness",
             "value" : 5,
             "valueType" : "number"
@@ -3458,53 +3574,6 @@ Each patch and layer supports the following inputs and outputs:
             "value" : 0,
             "valueType" : "number"
           }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Bounciness",
-            "value" : 5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Speed",
-            "value" : 10,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "popAnimation || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Curve",
-            "value" : "linear",
-            "valueType" : "animationCurve"
-          }
-        ],
-        "nodeKind" : "curve || Patch",
-        "outputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"          }
         ]
       },
       {
@@ -3559,77 +3628,7 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "1st Control Point X",
-            "value" : 0.17000000000000001,
-            "valueType" : "number"
-          },
-          {
-            "label" : "1st Control Point Y",
-            "value" : 0.17000000000000001,
-            "valueType" : "number"
-          },
-          {
-            "label" : "2nd Control Point X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "2nd Control Point Y",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "cubicBezierCurve || Patch",
-        "outputs" : [
-          {
-            "label" : "Progress",            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "2D Progress",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0.5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Start",
-            "value" : 50,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End",
-            "value" : 100,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "transition || Patch",
-        "outputs" : [
-          {
-            "value" : 75,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Settling Duration",
+            "label" : "Response",
             "value" : 1,
             "valueType" : "number"
           },
@@ -3639,7 +3638,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "settlingDurationAndDampingRatioConverter || Patch",
+        "nodeKind" : "responseAndDampingRatioConverter || Patch",
         "outputs" : [
           {
             "label" : "Stiffness",
@@ -3699,6 +3698,18 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Restart",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "restartPrototype || Patch",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "Frequency",
             "value" : 3,
             "valueType" : "number"
@@ -3711,24 +3722,277 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "pulse"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Restart",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "restartPrototype || Patch",
-        "outputs" : [
-        ]
       }
     ]
   },
   {
     "header" : "Shape Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "label" : "Color",
+            "value" : "#A389EDFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Rotation X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Pivot",
+            "value" : {
+              "x" : 0.5,
+              "y" : 0.5
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Masks",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Offset",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "oval || Layer",
+        "outputs" : [
+        ]
+      },
       {
         "inputs" : [
           {
@@ -4002,271 +4266,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Color",
-            "value" : "#A389EDFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Rotation X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Pivot",
-            "value" : {
-              "x" : 0.5,
-              "y" : 0.5
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Masks",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Offset",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",
-            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "oval || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Shape",
             "value" : null,
             "valueType" : "shape"
@@ -4411,8 +4410,7 @@ Each patch and layer supports the following inputs and outputs:
             "value" : "none",
             "valueType" : "layerStroke"
           },
-          {
-            "label" : "Stroke Width",
+          {            "label" : "Stroke Width",
             "value" : 4,
             "valueType" : "number"
           },
@@ -4550,13 +4548,23 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Text",
             "value" : "",
             "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "textLength || Patch",
-        "outputs" : [
+          },
           {
+            "label" : "Position",
             "value" : 0,
             "valueType" : "number"
+          },
+          {
+            "label" : "Length",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "trimText || Patch",
+        "outputs" : [
+          {
+            "value" : "",
+            "valueType" : "string"
           }
         ]
       },
@@ -4899,117 +4907,13 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Text",
             "value" : "",
             "valueType" : "string"
-          },
-          {
-            "label" : "Token",
-            "value" : "",
-            "valueType" : "string"
           }
         ],
-        "nodeKind" : "splitText || Patch",
+        "nodeKind" : "textLength || Patch",
         "outputs" : [
           {
-            "value" : "",
-            "valueType" : "string"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Time",
             "value" : 0,
             "valueType" : "number"
-          },
-          {
-            "label" : "Format",
-            "value" : "medium",
-            "valueType" : "dateAndTimeFormat"
-          },
-          {
-            "label" : "Custom Format",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "dateAndTimeFormatter || Patch",
-        "outputs" : [
-          {
-            "value" : "Jan 1, 1970 at 12:00:00 AM",
-            "valueType" : "string"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Text",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Suffix",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "textEndsWith || Patch",
-        "outputs" : [
-          {
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Text",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Prefix",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "textStartsWith || Patch",
-        "outputs" : [
-          {
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Text",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Find",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Replace",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Case Sensitive",
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "textReplace || Patch",
-        "outputs" : [
-          {
-            "value" : "",
-            "valueType" : "string"
           }
         ]
       },
@@ -5027,32 +4931,6 @@ Each patch and layer supports the following inputs and outputs:
           }
         ],
         "nodeKind" : "textTransform || Patch",
-        "outputs" : [
-          {
-            "value" : "",
-            "valueType" : "string"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Text",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Position",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Length",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "trimText || Patch",
         "outputs" : [
           {
             "value" : "",
@@ -5229,7 +5107,8 @@ Each patch and layer supports the following inputs and outputs:
           },
           {
             "label" : "Text",
-            "value" : "Text",            "valueType" : "string"
+            "value" : "Text",
+            "valueType" : "string"
           },
           {
             "label" : "Text Font",
@@ -5356,12 +5235,895 @@ Each patch and layer supports the following inputs and outputs:
         "nodeKind" : "text || Layer",
         "outputs" : [
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Text",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Prefix",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "textStartsWith || Patch",
+        "outputs" : [
+          {
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Text",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Token",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "splitText || Patch",
+        "outputs" : [
+          {
+            "value" : "",
+            "valueType" : "string"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Text",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Suffix",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "textEndsWith || Patch",
+        "outputs" : [
+          {
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Text",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Find",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Replace",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Case Sensitive",
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "textReplace || Patch",
+        "outputs" : [
+          {
+            "value" : "",
+            "valueType" : "string"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Time",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Format",
+            "value" : "medium",
+            "valueType" : "dateAndTimeFormat"
+          },
+          {
+            "label" : "Custom Format",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "dateAndTimeFormatter || Patch",
+        "outputs" : [
+          {
+            "value" : "Jan 1, 1970 at 12:00:00 AM",
+            "valueType" : "string"
+          }
+        ]
       }
     ]
   },
   {
     "header" : "Media Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "label" : "Enable",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Video URL",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Volume",
+            "value" : 0.5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Rotation X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "400.0",
+              "width" : "300.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "videoStreaming || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          }
+        ],
+        "nodeKind" : "imageImport || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Jump Time",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Jump",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Playing",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Looped",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Play Rate",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "soundImport || Patch",
+        "outputs" : [
+          {
+            "label" : "Sound",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Peak Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Playback",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Duration",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Volume Spectrum",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Enabled",
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "microphone || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Peak Volume",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Image",
+            "value" : null,
+            "valueType" : "media"
+          }
+        ],
+        "nodeKind" : "qrCodeDetection || Patch",
+        "outputs" : [
+          {
+            "label" : "QR Code Detected",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Message",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Locations",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Bounding Box",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          }
+        ],
+        "nodeKind" : "imageToBase64 || Patch",
+        "outputs" : [
+          {
+            "value" : "",
+            "valueType" : "string"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Image",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Rotation X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Rotation Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "200.0",
+              "width" : "393.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Fit Style",
+            "value" : "fill",
+            "valueType" : "fit"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Clipped",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Masks",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Offset",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "image || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Scrubbable",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scrub Time",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Playing",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Looped",
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "videoImport || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Peak Volume",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Playback",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Duration",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "base64ToImage || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Sound",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Volume",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "speaker || Patch",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Enable",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Camera",
+            "value" : "front",
+            "valueType" : "cameraDirection"
+          },
+          {
+            "label" : "Orientation",
+            "value" : "Portrait",
+            "valueType" : "cameraOrientation"
+          }
+        ],
+        "nodeKind" : "cameraFeed || Patch",
+        "outputs" : [
+          {
+            "label" : "Stream",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ]
+      },
       {
         "inputs" : [
           {
@@ -5577,786 +6339,6 @@ Each patch and layer supports the following inputs and outputs:
           }
         ],
         "nodeKind" : "video || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Media",
-            "value" : null,
-            "valueType" : "media"
-          }
-        ],
-        "nodeKind" : "grayscale || Patch",
-        "outputs" : [
-          {
-            "label" : "Grayscale",
-            "value" : null,
-            "valueType" : "media"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Enable",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Camera",
-            "value" : "front",
-            "valueType" : "cameraDirection"
-          },
-          {
-            "label" : "Orientation",
-            "value" : "Portrait",
-            "valueType" : "cameraOrientation"
-          }
-        ],
-        "nodeKind" : "cameraFeed || Patch",
-        "outputs" : [
-          {
-            "label" : "Stream",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          }
-        ],
-        "nodeKind" : "imageImport || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Scrubbable",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scrub Time",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Playing",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Looped",
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "videoImport || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Peak Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Playback",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Duration",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Enabled",
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "microphone || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Peak Volume",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Jump Time",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Jump",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Playing",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Looped",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Play Rate",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "soundImport || Patch",
-        "outputs" : [
-          {
-            "label" : "Sound",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Peak Volume",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Playback",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Duration",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Volume Spectrum",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          }
-        ],
-        "nodeKind" : "imageToBase64 || Patch",
-        "outputs" : [
-          {
-            "value" : "",
-            "valueType" : "string"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Image",
-            "value" : null,
-            "valueType" : "media"
-          }
-        ],
-        "nodeKind" : "qrCodeDetection || Patch",
-        "outputs" : [
-          {
-            "label" : "QR Code Detected",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Message",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Locations",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Bounding Box",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Sound",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Volume",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "speaker || Patch",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Enable",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Video URL",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Volume",
-            "value" : 0.5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Rotation X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "400.0",
-              "width" : "300.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",
-            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "videoStreaming || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "base64ToImage || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Image",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Rotation X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Rotation Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "200.0",
-              "width" : "393.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Fit Style",
-            "value" : "fill",
-            "valueType" : "fit"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Clipped",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Masks",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Offset",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "image || Layer",
         "outputs" : [
         ]
       },
@@ -6627,6 +6609,23 @@ Each patch and layer supports the following inputs and outputs:
         "nodeKind" : "map || Layer",
         "outputs" : [
         ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Media",
+            "value" : null,
+            "valueType" : "media"
+          }
+        ],
+        "nodeKind" : "grayscale || Patch",
+        "outputs" : [
+          {
+            "label" : "Grayscale",
+            "value" : null,
+            "valueType" : "media"
+          }
+        ]
       }
     ]
   },
@@ -6637,9 +6636,169 @@ Each patch and layer supports the following inputs and outputs:
         "inputs" : [
           {
             "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "positionUnpack || Patch",
+        "outputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },      {
+        "inputs" : [
+          {
+            "label" : "From Parent",
+            "value" : null,
+            "valueType" : "layer"
+          },
+          {
+            "label" : "From Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Point",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "To Parent",
+            "value" : null,
+            "valueType" : "layer"
+          },
+          {
+            "label" : "To Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          }
+        ],
+        "nodeKind" : "convertPosition || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "positionPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Z",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "W",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "point4DPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "w" : 0,
+              "x" : 0,
+              "y" : 0,
+              "z" : 0
+            },
+            "valueType" : "4dPoint"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "x" : 0,
+              "y" : 0,
+              "z" : 0
+            },
+            "valueType" : "3dPoint"
+          }
+        ],
+        "nodeKind" : "point3DUnpack || Patch",
+        "outputs" : [
+          {
+            "label" : "X",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Y",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Z",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
               "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
+              "positionY" : 0,              "positionZ" : 0,
               "rotationX" : 0,
               "rotationY" : 0,
               "rotationZ" : 0,
@@ -6702,84 +6861,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : {
-              "x" : 0,
-              "y" : 0,
-              "z" : 0
-            },
-            "valueType" : "3dPoint"
-          }
-        ],
-        "nodeKind" : "point3DUnpack || Patch",
-        "outputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Z",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "From Parent",
-            "value" : null,
-            "valueType" : "layer"
-          },
-          {
-            "label" : "From Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Point",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "To Parent",
-            "value" : null,
-            "valueType" : "layer"
-          },
-          {
-            "label" : "To Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          }
-        ],
-        "nodeKind" : "convertPosition || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "X",
             "value" : 0,
             "valueType" : "number"
@@ -6804,42 +6885,6 @@ Each patch and layer supports the following inputs and outputs:
               "z" : 0
             },
             "valueType" : "3dPoint"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Z",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "W",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "point4DPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "w" : 0,
-              "x" : 0,
-              "y" : 0,
-              "z" : 0
-            },
-            "valueType" : "4dPoint"
           }
         ]
       },
@@ -6944,157 +6989,12 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "transform"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "positionPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "positionUnpack || Patch",
-        "outputs" : [
-          {
-            "label" : "X",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Y",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
       }
     ]
   },
   {
     "header" : "Interaction Nodes",
     "nodes" : [
-      {
-        "inputs" : [
-          {
-            "label" : "Layer",
-            "value" : null,
-            "valueType" : "layer"
-          },
-          {
-            "label" : "Enabled",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Momentum",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Start",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Reset",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Clip",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Min",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Max",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "dragInteraction || Patch",
-        "outputs" : [
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Velocity",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Translation",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Key",
-            "value" : "a",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "keyboard || Patch",
-        "outputs" : [
-          {
-            "label" : "Down",
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ]
-      },
       {
         "inputs" : [
         ],
@@ -7280,6 +7180,103 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "bool"
           },
           {
+            "label" : "Momentum",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Start",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Reset",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Clip",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Min",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Max",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "dragInteraction || Patch",
+        "outputs" : [
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Velocity",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Translation",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Key",
+            "value" : "a",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "keyboard || Patch",
+        "outputs" : [
+          {
+            "label" : "Down",
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Layer",
+            "value" : null,
+            "valueType" : "layer"
+          },
+          {
+            "label" : "Enabled",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
             "label" : "Delay",
             "value" : 0.29999999999999999,
             "valueType" : "number"
@@ -7336,6 +7333,32 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Key",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "jsonObject || Patch",
+        "outputs" : [
+          {
+            "label" : "Object",
+            "value" : {
+              "id" : "4E90A69D-B2F6-4A7A-84ED-5209246D9B10",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "URL",
             "value" : "",
             "valueType" : "string"
@@ -7343,7 +7366,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "URL Parameters",
             "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
               "value" : {
               }
             },
@@ -7352,7 +7375,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Body",
             "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
               "value" : {
               }
             },
@@ -7361,7 +7384,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Headers",
             "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
               "value" : {
               }
             },
@@ -7398,7 +7421,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Error",
             "value" : {
-              "id" : "AFA5223F-0914-4355-A7B4-8051517A0EB1",
+              "id" : "387DF2C9-3458-48B2-97E2-37B8FC3408CB",
               "value" : {
               }
             },
@@ -7407,7 +7430,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Headers",
             "value" : {
-              "id" : "64C0A2FD-E194-4912-9DBD-239FE3D5E279",
+              "id" : "D685D14D-CF16-47EC-9B8D-7E7DFDCF2296",
               "value" : {
               }
             },
@@ -7431,33 +7454,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Array",
             "value" : {
-              "id" : "914E4618-C3A3-429A-B3F6-9928DCDCC698",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Key",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "jsonObject || Patch",
-        "outputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "FB63C417-7571-49CB-AE28-C6B24461A2A7",
+              "id" : "B15C7DDD-1D0F-4CAF-8BA7-6F88B2D499E4",
               "value" : {
               }
             },
@@ -7473,29 +7470,23 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Input",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Include",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loopFilter || Patch",
+        "outputs" : [
+          {
             "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loopReverse || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Count",
-            "value" : 3,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loop || Patch",
-        "outputs" : [
+            "value" : "",
+            "valueType" : "string"
+          },
           {
             "label" : "Index",
             "value" : 0,
@@ -7507,33 +7498,29 @@ Each patch and layer supports the following inputs and outputs:
         "inputs" : [
           {
             "label" : "Loop",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Index",
             "value" : 0,
             "valueType" : "number"
+          },
+          {
+            "label" : "Remove",
+            "value" : 0,
+            "valueType" : "pulse"
           }
         ],
-        "nodeKind" : "loopToArray || Patch",
+        "nodeKind" : "loopRemove || Patch",
         "outputs" : [
-          {
-            "value" : {
-              "id" : "C391CF8A-D000-4FBE-80EB-2ACA65377813",
-              "value" : [
-                0
-              ]            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
           {
             "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loopSum || Patch",
-        "outputs" : [
+            "value" : "",
+            "valueType" : "string"
+          },
           {
+            "label" : "Index",
             "value" : 0,
             "valueType" : "number"
           }
@@ -7559,6 +7546,119 @@ Each patch and layer supports the following inputs and outputs:
         "inputs" : [
           {
             "label" : "Loop",
+            "value" : "#FF453AFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Value",
+            "value" : "#BF5AF2FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Insert",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "loopInsert || Patch",
+        "outputs" : [
+          {
+            "label" : "Loop",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loopToArray || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "id" : "6CB68B5C-2859-4BAF-A248-23EFA9C67ED3",
+              "value" : [
+                0
+              ]
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shuffle",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "loopShuffle || Patch",
+        "outputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Count",
+            "value" : 3,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loop || Patch",
+        "outputs" : [
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "loopOptionSwitch || Patch",
+        "outputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
             "value" : 0,
             "valueType" : "number"
           }
@@ -7567,6 +7667,22 @@ Each patch and layer supports the following inputs and outputs:
         "outputs" : [
           {
             "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loopReverse || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
             "valueType" : "number"
           }
         ]
@@ -7611,9 +7727,47 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loopDedupe || Patch",
+        "outputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Loop",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "loopSum || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "Array",
             "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
               "value" : {
               }
             },
@@ -7630,59 +7784,11 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Items",
             "value" : {
-              "id" : "6D7DEA6C-5226-4669-A2CF-805980A17EDA",
+              "id" : "E1A29E69-A391-4E19-8B8F-810B1491F12F",
               "value" : [
               ]
             },
             "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Remove",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "loopRemove || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "loopOptionSwitch || Patch",
-        "outputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
           }
         ]
       },
@@ -7705,114 +7811,6 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Loop",
             "value" : "",
             "valueType" : "string"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shuffle",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "loopShuffle || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Input",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Include",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loopFilter || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : "#FF3B30FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Value",
-            "value" : "#AF52DEFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Insert",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "loopInsert || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "loopDedupe || Patch",
-        "outputs" : [
-          {
-            "label" : "Loop",
-            "value" : 0,
-            "valueType" : "number"
           },
           {
             "label" : "Index",
@@ -7890,6 +7888,79 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "velocity || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hysteresis",
+            "value" : 0.40000000000000002,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Reset",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "smoothValue || Patch",
+        "outputs" : [
+          {
+            "label" : "Progress",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : "#000000FF",
+            "valueType" : "color"
+          }
+        ],
+        "nodeKind" : "colorToRgb || Patch",
+        "outputs" : [
+          {
+            "label" : "Red",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Green",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blue",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Alpha",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "Start",
             "value" : 0,
             "valueType" : "pulse"
@@ -7917,21 +7988,163 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Loop",
-            "value" : false,
-            "valueType" : "bool"
+            "label" : "Hex",
+            "value" : "#000000FF",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "hexColor || Patch",
+        "outputs" : [
+          {
+            "label" : "Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : null,
+            "valueType" : "media"
           },
           {
-            "label" : "Grouping",
+            "label" : "Start",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "End",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "sampleRange || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "media"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Play",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Style",
+            "value" : "Heavy",
+            "valueType" : "hapticStyle"
+          }
+        ],
+        "nodeKind" : "hapticFeedback || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "value" : 0,
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "any || Patch",
+        "nodeKind" : "onPrototypeStart || Patch",
         "outputs" : [
           {
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Sample",
             "value" : false,
             "valueType" : "bool"
+          },
+          {
+            "label" : "Reset",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "sampleAndHold || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Delay",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Style",
+            "value" : "Always",
+            "valueType" : "delayStyle"
+          }
+        ],
+        "nodeKind" : "delay || Patch",
+        "outputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Red",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Green",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blue",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Alpha",
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "rgbColor || Patch",
+        "outputs" : [
+          {
+            "value" : "#000000FF",
+            "valueType" : "color"
           }
         ]
       },
@@ -8066,41 +8279,16 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "onPrototypeStart || Patch",
+        "nodeKind" : "time || Patch",
         "outputs" : [
           {
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : "#000000FF",
-            "valueType" : "color"
-          }
-        ],
-        "nodeKind" : "colorToHsl || Patch",
-        "outputs" : [
-          {
-            "label" : "Hue",
+            "label" : "Time",
             "value" : 0,
             "valueType" : "number"
           },
           {
-            "label" : "Saturation",
+            "label" : "Frame",
             "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Lightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Alpha",
-            "value" : 1,
             "valueType" : "number"
           }
         ]
@@ -8108,43 +8296,21 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Hex",
-            "value" : "#000000FF",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "hexColor || Patch",
-        "outputs" : [
-          {
-            "label" : "Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Sample",
+            "label" : "Loop",
             "value" : false,
             "valueType" : "bool"
           },
           {
-            "label" : "Reset",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "sampleAndHold || Patch",
-        "outputs" : [
-          {
+            "label" : "Grouping",
             "value" : 0,
             "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "any || Patch",
+        "outputs" : [
+          {
+            "value" : false,
+            "valueType" : "bool"
           }
         ]
       },
@@ -8182,119 +8348,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "time || Patch",
-        "outputs" : [
-          {
-            "label" : "Time",
-            "value" : 0.006944499909877777,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Frame",
-            "value" : 2,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Play",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Style",
-            "value" : "Heavy",
-            "valueType" : "hapticStyle"
-          }
-        ],
-        "nodeKind" : "hapticFeedback || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : "#000000FF",
-            "valueType" : "color"
-          }
-        ],
-        "nodeKind" : "colorToRgb || Patch",
-        "outputs" : [
-          {
-            "label" : "Red",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Green",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blue",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Alpha",
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "delay1 || Patch",
-        "outputs" : [
-          {
-            "value" : 0,            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Start",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "End",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "sampleRange || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "media"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Color",
             "value" : "#000000FF",
             "valueType" : "color"
@@ -8310,66 +8363,13 @@ Each patch and layer supports the following inputs and outputs:
         ]
       },
       {
-        "inputs" : [          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Delay",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Style",
-            "value" : "Always",
-            "valueType" : "delayStyle"
-          }
-        ],
-        "nodeKind" : "delay || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hysteresis",
-            "value" : 0.40000000000000002,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Reset",
-            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "smoothValue || Patch",
-        "outputs" : [
-          {
-            "label" : "Progress",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
         "inputs" : [
           {
             "value" : 0,
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "velocity || Patch",
+        "nodeKind" : "delay1 || Patch",
         "outputs" : [
           {
             "value" : 0,
@@ -8380,17 +8380,24 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Red",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          }
+        ],
+        "nodeKind" : "colorToHsl || Patch",
+        "outputs" : [
+          {
+            "label" : "Hue",
             "value" : 0,
             "valueType" : "number"
           },
           {
-            "label" : "Green",
+            "label" : "Saturation",
             "value" : 0,
             "valueType" : "number"
           },
           {
-            "label" : "Blue",
+            "label" : "Lightness",
             "value" : 0,
             "valueType" : "number"
           },
@@ -8398,13 +8405,6 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Alpha",
             "value" : 1,
             "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "rgbColor || Patch",
-        "outputs" : [
-          {
-            "value" : "#000000FF",
-            "valueType" : "color"
           }
         ]
       }
@@ -8481,7 +8481,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "size"
           }
         ],
-        "nodeKind" : "sizeUnpack || Patch",
+        "nodeKind" : "unpack || Patch",
         "outputs" : [
           {
             "label" : "W",
@@ -8492,6 +8492,80 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "H",
             "value" : 0,
             "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "W",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "H",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "pack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Point",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "moveToPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "point" : {
+                "x" : 0,
+                "y" : 0
+              },
+              "type" : "moveTo"
+            },
+            "valueType" : "shapeCommand"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Point",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "lineToPack || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "point" : {
+                "x" : 0,
+                "y" : 0
+              },
+              "type" : "moveTo"
+            },
+            "valueType" : "shapeCommand"
           }
         ]
       },
@@ -8557,7 +8631,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "number"
           }
         ],
-        "nodeKind" : "pack || Patch",
+        "nodeKind" : "sizePack || Patch",
         "outputs" : [
           {
             "value" : {
@@ -8571,31 +8645,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "Point",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "moveToPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "point" : {
-                "x" : 0,
-                "y" : 0
-              },
-              "type" : "moveTo"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "value" : {
               "height" : "0.0",
               "width" : "0.0"
@@ -8603,7 +8652,7 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "size"
           }
         ],
-        "nodeKind" : "unpack || Patch",
+        "nodeKind" : "sizeUnpack || Patch",
         "outputs" : [
           {
             "label" : "W",
@@ -8614,6 +8663,29 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "H",
             "value" : 0,
             "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "type" : "closePath"
+            },
+            "valueType" : "shapeCommand"
+          }
+        ],
+        "nodeKind" : "closePath || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "point" : {
+                "x" : 0,
+                "y" : 0
+              },
+              "type" : "moveTo"
+            },
+            "valueType" : "shapeCommand"
           }
         ]
       },
@@ -8657,84 +8729,463 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "shapeCommand"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Point",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "lineToPack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "point" : {
-                "x" : 0,
-                "y" : 0
-              },
-              "type" : "moveTo"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "type" : "closePath"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ],
-        "nodeKind" : "closePath || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "point" : {
-                "x" : 0,
-                "y" : 0
-              },
-              "type" : "moveTo"
-            },
-            "valueType" : "shapeCommand"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "W",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "H",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "sizePack || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ]
       }
     ]
   },
   {
     "header" : "AR and 3D Nodes",
     "nodes" : [
+      {
+        "inputs" : [
+          {
+            "label" : "Anchor Entity",
+            "value" : null,
+            "valueType" : "anchorEntity"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "3D Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          },
+          {
+            "label" : "Translation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scale",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Rotation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Corner Radius",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Metallic",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Size 3D",
+            "value" : {
+              "x" : 100,
+              "y" : 100,
+              "z" : 100
+            },
+            "valueType" : "3dPoint"
+          },
+          {            "label" : "Color",
+            "value" : "#A389EDFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "box || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "3D Model",
+            "value" : null,
+            "valueType" : "media"
+          },
+          {
+            "label" : "Anchor Entity",
+            "value" : null,
+            "valueType" : "anchorEntity"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "3D Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          },
+          {
+            "label" : "Animating",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Translation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Scale",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Rotation",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "3dModel || Layer",
+        "outputs" : [
+        ]
+      },
       {
         "inputs" : [
           {
@@ -8769,6 +9220,33 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Transform",
             "value" : null,
             "valueType" : "media"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Transform",
+            "value" : {
+              "positionX" : 0,
+              "positionY" : 0,
+              "positionZ" : 0,
+              "rotationX" : 0,
+              "rotationY" : 0,
+              "rotationZ" : 0,
+              "scaleX" : 1,
+              "scaleY" : 1,
+              "scaleZ" : 1
+            },
+            "valueType" : "transform"
+          }
+        ],
+        "nodeKind" : "arAnchor || Patch",
+        "outputs" : [
+          {
+            "label" : "AR Anchor",
+            "value" : null,
+            "valueType" : "anchorEntity"
           }
         ]
       },
@@ -9228,484 +9706,6 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
-            "label" : "3D Model",
-            "value" : null,
-            "valueType" : "media"
-          },
-          {
-            "label" : "Anchor Entity",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "3D Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          },
-          {
-            "label" : "Animating",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Translation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scale",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Rotation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "3dModel || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          }
-        ],
-        "nodeKind" : "arAnchor || Patch",
-        "outputs" : [
-          {
-            "label" : "AR Anchor",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Anchor Entity",
-            "value" : null,
-            "valueType" : "anchorEntity"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "3D Transform",
-            "value" : {
-              "positionX" : 0,
-              "positionY" : 0,
-              "positionZ" : 0,
-              "rotationX" : 0,
-              "rotationY" : 0,
-              "rotationZ" : 0,
-              "scaleX" : 1,
-              "scaleY" : 1,
-              "scaleZ" : 1
-            },
-            "valueType" : "transform"
-          },
-          {
-            "label" : "Translation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Scale",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Rotation",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Corner Radius",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Metallic",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Size 3D",
-            "value" : {
-              "x" : 100,
-              "y" : 100,
-              "z" : 100
-            },
-            "valueType" : "3dPoint"
-          },
-          {
-            "label" : "Color",
-            "value" : "#A389EDFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "box || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
             "label" : "Camera Direction",
             "value" : "back",
             "valueType" : "cameraDirection"
@@ -10144,8 +10144,8 @@ Each patch and layer supports the following inputs and outputs:
               "bottom" : 0,
               "left" : 0,
               "right" : 0,
-              "top" : 0            },
-            "valueType" : "padding"
+              "top" : 0
+            },            "valueType" : "padding"
           },
           {
             "label" : "Layer Margin",
@@ -10263,216 +10263,6 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "bool"
           },
           {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Start Anchor",
-            "value" : {
-              "x" : 0.5,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "End Anchor",
-            "value" : {
-              "x" : 0.5,
-              "y" : 1
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Start Color",
-            "value" : "#FFCC00FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "End Color",
-            "value" : "#007AFFFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "linearGradient || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Enable",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
             "label" : "Size",
             "value" : {
               "height" : "100.0",
@@ -10498,224 +10288,12 @@ Each patch and layer supports the following inputs and outputs:
           },
           {
             "label" : "Start Color",
-            "value" : "#FFCC00FF",
+            "value" : "#FFD60AFF",
             "valueType" : "color"
           },
           {
             "label" : "End Color",
-            "value" : "#007AFFFF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Start Anchor",
-            "value" : {
-              "x" : 0.5,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Start Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End Radius",
-            "value" : 100,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Width Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Height Axis",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Content Mode",
-            "value" : "Fit",
-            "valueType" : "contentMode"
-          },
-          {
-            "label" : "Sizing",
-            "value" : "Auto",
-            "valueType" : "sizingScenario"
-          },
-          {
-            "label" : "Min Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Max Size",
-            "value" : {
-              "height" : "auto",
-              "width" : "auto"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "radialGradient || Layer",
-        "outputs" : [
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Enable",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "100.0",
-              "width" : "100.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Start Color",
-            "value" : "#FFCC00FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "End Color",
-            "value" : "#007AFFFF",
+            "value" : "#0A84FFFF",
             "valueType" : "color"
           },
           {
@@ -10886,6 +10464,427 @@ Each patch and layer supports the following inputs and outputs:
           }
         ],
         "nodeKind" : "angularGradient || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Enable",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Start Anchor",
+            "value" : {
+              "x" : 0.5,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "End Anchor",
+            "value" : {
+              "x" : 0.5,
+              "y" : 1
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Start Color",
+            "value" : "#FFD60AFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "End Color",
+            "value" : "#0A84FFFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "linearGradient || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Enable",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "100.0",
+              "width" : "100.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Start Color",
+            "value" : "#FFD60AFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "End Color",
+            "value" : "#0A84FFFF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Start Anchor",
+            "value" : {
+              "x" : 0.5,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Start Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End Radius",
+            "value" : 100,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Width Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Height Axis",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Content Mode",
+            "value" : "Fit",
+            "valueType" : "contentMode"
+          },
+          {
+            "label" : "Sizing",
+            "value" : "Auto",
+            "valueType" : "sizingScenario"
+          },
+          {
+            "label" : "Min Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Max Size",
+            "value" : {
+              "height" : "auto",
+              "width" : "auto"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "radialGradient || Layer",
         "outputs" : [
         ]
       }
@@ -11344,8 +11343,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Width Axis",
             "value" : 1,
-            "valueType" : "number"
-          },
+            "valueType" : "number"          },
           {
             "label" : "Height Axis",
             "value" : 1,
@@ -11455,65 +11453,6 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "position"
           },
           {
-            "label" : "Size",
-            "value" : {
-              "height" : "20.0",
-              "width" : "20.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "ovalShape || Patch",
-        "outputs" : [
-          {
-            "label" : "Shape",
-            "value" : {
-              "_baseFrame" : [
-                [
-                  0,
-                  0
-                ],
-                [
-                  20,
-                  20
-                ]
-              ],
-              "_east" : 10,
-              "_north" : -10,
-              "_south" : 10,
-              "_west" : -10,
-              "shapes" : [
-                {
-                  "oval" : {
-                    "_0" : [
-                      [
-                        0,
-                        0
-                      ],
-                      [
-                        20,
-                        20
-                      ]
-                    ]
-                  }
-                }
-              ]
-            },
-            "valueType" : "shape"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
             "label" : "Radius",
             "value" : 10,
             "valueType" : "number"
@@ -11522,7 +11461,8 @@ Each patch and layer supports the following inputs and outputs:
         "nodeKind" : "circleShape || Patch",
         "outputs" : [
           {
-            "label" : "Shape",            "value" : {
+            "label" : "Shape",
+            "value" : {
               "_baseFrame" : [
                 [
                   0,
@@ -11555,142 +11495,6 @@ Each patch and layer supports the following inputs and outputs:
               ]
             },
             "valueType" : "shape"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : null,
-            "valueType" : "shape"
-          },
-          {
-            "value" : null,
-            "valueType" : "shape"
-          }
-        ],        "nodeKind" : "union || Patch",
-        "outputs" : [
-          {
-            "value" : null,
-            "valueType" : "shape"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "First Point",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Second Point",
-            "value" : {
-              "x" : 0,
-              "y" : -100
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Third Point",
-            "value" : {
-              "x" : 100,
-              "y" : 0
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "triangleShape || Patch",
-        "outputs" : [
-          {
-            "label" : "Shape",
-            "value" : {
-              "_baseFrame" : [
-                [
-                  0,
-                  0
-                ],
-                [
-                  100,
-                  100
-                ]
-              ],
-              "_east" : 100,
-              "_north" : -100,
-              "_south" : 0,
-              "_west" : 0,
-              "shapes" : [
-                {
-                  "triangle" : {
-                    "_0" : {
-                      "p1" : [
-                        0,
-                        0
-                      ],
-                      "p2" : [
-                        0,
-                        -100
-                      ],
-                      "p3" : [
-                        100,
-                        0
-                      ]
-                    }
-                  }
-                }
-              ]
-            },
-            "valueType" : "shape"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "JSON",
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Coordinate Space",
-            "value" : {
-              "x" : 1,
-              "y" : 1
-            },
-            "valueType" : "position"
-          }
-        ],
-        "nodeKind" : "jsonToShape || Patch",
-        "outputs" : [
-          {
-            "label" : "Shape",
-            "value" : null,
-            "valueType" : "shape"
-          },
-          {
-            "label" : "Error",
-            "value" : {
-              "id" : "B55413D4-1C82-418A-8CF9-5897A0F9D1B1",
-              "value" : {
-                "Error" : "instructionsMalformed"
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Size",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
           }
         ]
       },
@@ -11835,9 +11639,204 @@ Each patch and layer supports the following inputs and outputs:
                 "x" : 0,
                 "y" : 0
               },
-              "type" : "moveTo"
-            },
+              "type" : "moveTo"            },
             "valueType" : "shapeCommand"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "JSON",
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Coordinate Space",
+            "value" : {
+              "x" : 1,
+              "y" : 1
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "jsonToShape || Patch",
+        "outputs" : [
+          {
+            "label" : "Shape",
+            "value" : null,
+            "valueType" : "shape"
+          },
+          {
+            "label" : "Error",
+            "value" : {
+              "id" : "E7F643DC-3F8C-4022-BACA-41F1FEDD2522",
+              "value" : {
+                "Error" : "instructionsMalformed"
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "First Point",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Second Point",
+            "value" : {
+              "x" : 0,
+              "y" : -100
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Third Point",
+            "value" : {
+              "x" : 100,
+              "y" : 0
+            },
+            "valueType" : "position"
+          }
+        ],
+        "nodeKind" : "triangleShape || Patch",
+        "outputs" : [
+          {
+            "label" : "Shape",
+            "value" : {
+              "_baseFrame" : [
+                [
+                  0,
+                  0
+                ],
+                [
+                  100,
+                  100
+                ]
+              ],
+              "_east" : 100,
+              "_north" : -100,
+              "_south" : 0,
+              "_west" : 0,
+              "shapes" : [
+                {
+                  "triangle" : {
+                    "_0" : {
+                      "p1" : [
+                        0,
+                        0
+                      ],
+                      "p2" : [
+                        0,
+                        -100
+                      ],
+                      "p3" : [
+                        100,
+                        0
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "valueType" : "shape"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Size",
+            "value" : {
+              "height" : "20.0",
+              "width" : "20.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "ovalShape || Patch",
+        "outputs" : [
+          {
+            "label" : "Shape",
+            "value" : {
+              "_baseFrame" : [
+                [
+                  0,
+                  0
+                ],
+                [
+                  20,
+                  20
+                ]
+              ],
+              "_east" : 10,
+              "_north" : -10,
+              "_south" : 10,
+              "_west" : -10,
+              "shapes" : [
+                {
+                  "oval" : {
+                    "_0" : [
+                      [
+                        0,
+                        0
+                      ],
+                      [
+                        20,
+                        20
+                      ]
+                    ]
+                  }
+                }
+              ]
+            },
+            "valueType" : "shape"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : null,
+            "valueType" : "shape"
+          },
+          {
+            "value" : null,
+            "valueType" : "shape"
+          }
+        ],
+        "nodeKind" : "union || Patch",
+        "outputs" : [
+          {
+            "value" : null,
+            "valueType" : "shape"
           }
         ]
       },
@@ -11945,7 +11944,8 @@ Each patch and layer supports the following inputs and outputs:
         "inputs" : [
           {
             "value" : 0,
-            "valueType" : "number"          }
+            "valueType" : "number"
+          }
         ],
         "nodeKind" : "wirelessReceiver || Patch",
         "outputs" : [
@@ -11980,6 +11980,348 @@ Each patch and layer supports the following inputs and outputs:
         ],
         "nodeKind" : "progress || Patch",
         "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 1,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "optionPicker || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "End",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "reverseProgress || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Set to 0",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Set to 1",
+            "value" : 0,
+            "valueType" : "pulse"
+          },
+          {
+            "label" : "Set to 2",
+            "value" : 0,
+            "valueType" : "pulse"
+          }
+        ],
+        "nodeKind" : "optionSwitch || Patch",
+        "outputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Option",
+            "value" : "a",
+            "valueType" : "string"
+          },
+          {
+            "value" : "a",
+            "valueType" : "string"
+          },
+          {
+            "value" : "b",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "optionEquals || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Equals",
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ]      },
+      {
+        "inputs" : [
+          {
+            "label" : "Animating",
+            "value" : true,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Style",
+            "value" : "Circular",
+            "valueType" : "progressStyle"
+          },
+          {
+            "label" : "Progress",
+            "value" : 0.5,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Position",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Opacity",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Scale",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Anchoring",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Z Index",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Shadow Opacity",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Radius",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Shadow Offset",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "position"
+          },
+          {
+            "label" : "Blur",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Blend Mode",
+            "value" : "Normal",
+            "valueType" : "blendMode"
+          },
+          {
+            "label" : "Brightness",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Color Invert",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Contrast",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Hue Rotation",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Saturation",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Position",
+            "value" : "none",
+            "valueType" : "layerStroke"
+          },
+          {
+            "label" : "Stroke Width",
+            "value" : 4,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Color",
+            "value" : "#000000FF",
+            "valueType" : "color"
+          },
+          {
+            "label" : "Stroke Start",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke End",
+            "value" : 1,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Stroke Line Cap",
+            "value" : "Round",
+            "valueType" : "strokeLineCap"
+          },
+          {
+            "label" : "Stroke Line Join",
+            "value" : "Round",
+            "valueType" : "strokeLineJoin"
+          },
+          {
+            "label" : "Pinned",
+            "value" : false,
+            "valueType" : "bool"
+          },
+          {
+            "label" : "Pin To",
+            "value" : {
+              "root" : {
+              }
+            },
+            "valueType" : "pinToId"
+          },
+          {
+            "label" : "Pin Anchor",
+            "value" : {
+              "x" : 0,
+              "y" : 0
+            },
+            "valueType" : "anchor"
+          },
+          {
+            "label" : "Pin Offset",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          },
+          {
+            "label" : "Layer Padding",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Layer Margin",
+            "value" : {
+              "bottom" : 0,
+              "left" : 0,
+              "right" : 0,
+              "top" : 0
+            },
+            "valueType" : "padding"
+          },
+          {
+            "label" : "Offset in Group",
+            "value" : {
+              "height" : "0.0",
+              "width" : "0.0"
+            },
+            "valueType" : "size"
+          }
+        ],
+        "nodeKind" : "progressIndicator || Layer",
+        "outputs" : [
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Option",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Default",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "optionSender || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
+          {
+            "value" : 0,
+            "valueType" : "number"
+          },
           {
             "value" : 0,
             "valueType" : "number"
@@ -12193,347 +12535,6 @@ Each patch and layer supports the following inputs and outputs:
             "valueType" : "bool"
           }
         ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Set to 0",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Set to 1",
-            "value" : 0,
-            "valueType" : "pulse"
-          },
-          {
-            "label" : "Set to 2",            "value" : 0,
-            "valueType" : "pulse"
-          }
-        ],
-        "nodeKind" : "optionSwitch || Patch",
-        "outputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Default",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "optionSender || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {        "inputs" : [
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "End",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "reverseProgress || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Option",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "value" : 1,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "optionPicker || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Option",
-            "value" : "a",
-            "valueType" : "string"
-          },
-          {
-            "value" : "a",
-            "valueType" : "string"
-          },
-          {
-            "value" : "b",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "optionEquals || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Equals",
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Animating",
-            "value" : true,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Style",
-            "value" : "Circular",
-            "valueType" : "progressStyle"
-          },
-          {
-            "label" : "Progress",
-            "value" : 0.5,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Position",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Opacity",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Scale",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Anchoring",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Z Index",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Shadow Opacity",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Radius",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Shadow Offset",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "position"
-          },
-          {
-            "label" : "Blur",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Blend Mode",
-            "value" : "Normal",
-            "valueType" : "blendMode"
-          },
-          {
-            "label" : "Brightness",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Color Invert",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Contrast",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Hue Rotation",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Saturation",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Position",
-            "value" : "none",
-            "valueType" : "layerStroke"
-          },
-          {
-            "label" : "Stroke Width",
-            "value" : 4,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Color",
-            "value" : "#000000FF",
-            "valueType" : "color"
-          },
-          {
-            "label" : "Stroke Start",
-            "value" : 0,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke End",
-            "value" : 1,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Stroke Line Cap",
-            "value" : "Round",
-            "valueType" : "strokeLineCap"
-          },
-          {
-            "label" : "Stroke Line Join",
-            "value" : "Round",
-            "valueType" : "strokeLineJoin"
-          },
-          {
-            "label" : "Pinned",
-            "value" : false,
-            "valueType" : "bool"
-          },
-          {
-            "label" : "Pin To",
-            "value" : {
-              "root" : {
-              }
-            },
-            "valueType" : "pinToId"
-          },
-          {
-            "label" : "Pin Anchor",
-            "value" : {
-              "x" : 0,
-              "y" : 0
-            },
-            "valueType" : "anchor"
-          },
-          {
-            "label" : "Pin Offset",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          },
-          {
-            "label" : "Layer Padding",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Layer Margin",
-            "value" : {
-              "bottom" : 0,
-              "left" : 0,
-              "right" : 0,
-              "top" : 0
-            },
-            "valueType" : "padding"
-          },
-          {
-            "label" : "Offset in Group",
-            "value" : {
-              "height" : "0.0",
-              "width" : "0.0"
-            },
-            "valueType" : "size"
-          }
-        ],
-        "nodeKind" : "progressIndicator || Layer",
-        "outputs" : [
-        ]
       }
     ]
   },
@@ -12576,27 +12577,6 @@ Each patch and layer supports the following inputs and outputs:
               "z" : 0
             },
             "valueType" : "3dPoint"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "deviceTime || Patch",
-        "outputs" : [
-          {
-            "label" : "Seconds",
-            "value" : 1751477181,
-            "valueType" : "number"
-          },
-          {
-            "label" : "Milliseconds",
-            "value" : 0.41009187698364258,
-            "valueType" : "number"
           }
         ]
       },
@@ -12652,6 +12632,27 @@ Each patch and layer supports the following inputs and outputs:
       {
         "inputs" : [
           {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "deviceTime || Patch",
+        "outputs" : [
+          {
+            "label" : "Seconds",
+            "value" : 1751958012,
+            "valueType" : "number"
+          },
+          {
+            "label" : "Milliseconds",
+            "value" : 0.18051815032958984,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
             "label" : "Override",
             "value" : "",
             "valueType" : "string"
@@ -12686,235 +12687,7 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Array",
             "value" : {
-              "id" : "04D0A42C-4C5E-4115-9AC3-35ABE8CB95AA",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Index",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "valueAtIndex || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : {
-              "id" : "BB3FE6FC-BC90-42C7-998A-77180FC6DDAE",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Key",
-            "value" : "",
-            "valueType" : "string"
-          },
-          {
-            "label" : "Value",
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ],
-        "nodeKind" : "setValueForKey || Patch",
-        "outputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "8DFC7372-D083-44F6-93F5-3026E753FB30",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Ascending",
-            "value" : true,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "arraySort || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "id" : "DDA608BC-2E4F-4534-A2C9-3932CF7D797B",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ],
-        "nodeKind" : "getKeys || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "id" : "B654D899-8773-45AA-80F5-78B7FB4BC8CF",
-              "value" : [
-              ]
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "BA22359E-C0D7-4BF5-8B27-4CBC0F00B7C9",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Path",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "valueAtPath || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : {
-              "id" : "30215EEC-EBBA-49C7-9BC3-735578573E96",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ],
-        "nodeKind" : "arrayJoin || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "id" : "6C07F5C1-A539-4446-AB4E-B414A3696675",
-              "value" : [
-              ]
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Array",
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ],
-        "nodeKind" : "arrayCount || Patch",
-        "outputs" : [
-          {
-            "value" : 0,
-            "valueType" : "number"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Object",
-            "value" : {
-              "id" : "9F1537FD-817E-4250-83D1-830EA393D565",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Key",
-            "value" : "",
-            "valueType" : "string"
-          }
-        ],
-        "nodeKind" : "valueForKey || Patch",
-        "outputs" : [
-          {
-            "label" : "Value",
-            "value" : {
-              "id" : "76C25AF5-EDBD-401A-878F-493C2790F912",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Array",
-            "value" : {
-              "id" : "6D7DEA6C-5226-4669-A2CF-805980A17EDA",
+              "id" : "E1A29E69-A391-4E19-8B8F-810B1491F12F",
               "value" : [
               ]
             },
@@ -12936,7 +12709,120 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Subarray",
             "value" : {
-              "id" : "CEAB2163-A9B9-409C-B6D7-8472F81793F5",
+              "id" : "945669F7-D87A-447C-8A7E-BB7B0DBF1F31",
+              "value" : [
+              ]
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ],
+        "nodeKind" : "arrayJoin || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "id" : "5F3D8E13-33B0-49F7-86B1-D82A76972415",
+              "value" : [
+              ]
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Ascending",
+            "value" : true,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "arraySort || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "id" : "725D2C61-5EBA-4251-880D-B39F657115F1",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Object",
+            "value" : {
+              "id" : "ADEE22E7-F1FA-411E-AFAE-A418CE4E218B",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Path",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "valueAtPath || Patch",
+        "outputs" : [
+          {
+            "label" : "Value",
+            "value" : {
+              "id" : "5FFBEC21-4EC2-4E57-8AF7-FDB854EF1FBE",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Object",
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ],
+        "nodeKind" : "getKeys || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "id" : "7E3DC954-722C-40A0-BEB0-E885A8D48AA8",
               "value" : [
               ]
             },
@@ -12949,7 +12835,184 @@ Each patch and layer supports the following inputs and outputs:
           {
             "label" : "Array",
             "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
+              "id" : "5216DC8E-D02F-490F-9F4D-47095CB9FDE3",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Index",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "valueAtIndex || Patch",
+        "outputs" : [
+          {
+            "label" : "Value",
+            "value" : {
+              "id" : "4E204FD5-5016-4707-B579-7E4794EAF3BD",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Object",
+            "value" : {
+              "id" : "3160D427-F1A5-4E5B-A125-E2A7B4A14BE8",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Key",
+            "value" : "",
+            "valueType" : "string"
+          }
+        ],
+        "nodeKind" : "valueForKey || Patch",
+        "outputs" : [
+          {
+            "label" : "Value",
+            "value" : {
+              "id" : "CD4A5818-1D0E-4312-8A09-1CF00F95857A",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Object",
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Key",
+            "value" : "",
+            "valueType" : "string"
+          },
+          {
+            "label" : "Value",
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ],
+        "nodeKind" : "setValueForKey || Patch",
+        "outputs" : [
+          {
+            "label" : "Object",
+            "value" : {
+              "id" : "4A8521C8-B104-4849-A359-2F9932114178",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Array",
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ],
+        "nodeKind" : "arrayCount || Patch",
+        "outputs" : [
+          {
+            "value" : 0,
+            "valueType" : "number"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Array",
+            "value" : {
+              "id" : "EDB20751-22E7-49BB-8D7D-CD4065EE5734",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Item",
+            "value" : {
+              "id" : "FA7A1A7B-8F7C-4654-9746-A41624D43E80",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          },
+          {
+            "label" : "Append",
+            "value" : false,
+            "valueType" : "bool"
+          }
+        ],
+        "nodeKind" : "arrayAppend || Patch",
+        "outputs" : [
+          {
+            "label" : "Array",
+            "value" : {
+              "id" : "69748E43-EB7D-4148-B357-40C8147305A5",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ],
+        "nodeKind" : "arrayReverse || Patch",
+        "outputs" : [
+          {
+            "value" : {
+              "id" : "FBC77589-668B-487E-BD3D-1AD80E486681",
+              "value" : {
+              }
+            },
+            "valueType" : "json"
+          }
+        ]
+      },
+      {
+        "inputs" : [
+          {
+            "label" : "Array",
+            "value" : {
+              "id" : "48E0048A-A4A7-41FD-A120-0049FA4E4CA4",
               "value" : {
               }
             },
@@ -12972,68 +13035,6 @@ Each patch and layer supports the following inputs and outputs:
             "label" : "Contains",
             "value" : false,
             "valueType" : "bool"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "label" : "Array",
-            "value" : {
-              "id" : "714516D5-3991-4770-9D66-1658449CC973",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Item",
-            "value" : {
-              "id" : "DD08B5CC-18F0-48C0-AFDF-B3000AC2B5C9",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          },
-          {
-            "label" : "Append",
-            "value" : false,
-            "valueType" : "bool"
-          }
-        ],
-        "nodeKind" : "arrayAppend || Patch",
-        "outputs" : [
-          {
-            "label" : "Array",
-            "value" : {
-              "id" : "632820EB-107A-49CD-8B03-4032DFCC0FB0",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ]
-      },
-      {
-        "inputs" : [
-          {
-            "value" : {
-              "id" : "9A2CE1B0-A91B-4EC6-8CFA-29022B84F0C2",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
-          }
-        ],
-        "nodeKind" : "arrayReverse || Patch",
-        "outputs" : [
-          {
-            "value" : {
-              "id" : "101E4412-7C22-4021-9F0C-8D1267D79095",
-              "value" : {
-              }
-            },
-            "valueType" : "json"
           }
         ]
       }
