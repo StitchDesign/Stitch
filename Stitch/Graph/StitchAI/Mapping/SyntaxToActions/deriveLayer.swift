@@ -9,13 +9,19 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
+struct LayerDerivationResult {
+    let layerData: CurrentAIPatchBuilderResponseFormat.LayerData
+    let silentErrors: [SwiftUISyntaxError]
+}
+
 extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
     func deriveLayerData(id: UUID,
                          args: [SyntaxViewArgumentData],
                          modifiers: [SyntaxViewModifier],
-                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
+                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
+        var silentErrors = [SwiftUISyntaxError]()
 
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var (layerType, layerData) = try self
@@ -24,16 +30,34 @@ extension SyntaxViewName {
                                                 childrenLayers: childrenLayers)
         
         // Handle constructor-arguments
-        let customInputValues = try self.deriveCustomValuesFromConstructorArguments(
-            id: id,
-            layerType: layerType,
-            args: args)
+        let customInputValues = try args.flatMap { arg in
+            do {
+                return try self
+                    .deriveCustomValuesFromConstructorArgument(id: id,
+                                                               layerType: layerType,
+                                                               arg: arg)
+            } catch let error as SwiftUISyntaxError {
+                silentErrors.append(error)
+                return []
+            } catch {
+                throw error
+            }
+        }
         
         // Handle modifiers
-        let customModifierEvents = try Self.deriveCustomValuesFromViewModifiers(
-            id: id,
-            layerType: layerType,
-            modifiers: modifiers)
+        let customModifierEvents = try modifiers.compactMap { modifier in
+            do {
+                return try Self.deriveCustomValuesFromViewModifier(
+                    id: id,
+                    layerType: layerType,
+                    modifier: modifier)
+            } catch let error as SwiftUISyntaxError {
+                silentErrors.append(error)
+                return nil
+            } catch {
+                throw error
+            }
+        }
         
         layerData.custom_layer_input_values += customInputValues
         
@@ -60,7 +84,8 @@ extension SyntaxViewName {
                 return customInputValue
             }
         
-        return layerData
+        return .init(layerData: layerData,
+                     silentErrors: silentErrors)
     }
     
     func deriveLayerAndCustomValuesFromName(
@@ -232,61 +257,33 @@ extension SyntaxViewName {
         return (layerType, layerNode)
     }
     
-    func deriveCustomValuesFromConstructorArguments(
-        id: UUID,
-        layerType: CurrentStep.Layer,
-        args: [SyntaxViewArgumentData]
+    func deriveCustomValuesFromConstructorArgument(id: UUID,
+                                                   layerType: CurrentStep.Layer,
+                                                   arg: SyntaxViewArgumentData
     ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-            
-            var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
-            
-            // ── Generic constructor‑argument handling (literals & edges) ─────────
-            
-            // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: args: \(args)")
-            
-            for arg in args {
-                
-                // An argument might be an array like `[.horizontal, .vertical]`
-                // but simply passing the array-argument-type to `derivePortValues` will
-                // TODO: should `derivePortValues(from:)` accept a *flat* argumentType, and it is the responsibility of the caller to flatten the nested argumentType first ? Can argumentType *really* be nested ?
-                for argFlatType in arg.value.allArgumentTypesFlattened {
-                    guard let port = SyntaxViewArgumentData.deriveLayerInputPort(
-                        layerType,
-                        label: arg.label, // the overall label for the entire argument
-                        argFlatType: argFlatType,
-                    ) else {
-                        continue
-                    }
-                    
-                    // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: port: \(port)")
-                    
-                    let values = try SyntaxViewName.derivePortValues(
-                        from: argFlatType.toSyntaxViewModifierArgumentType,
-                        context: .viewConstructor(self, port))
-                    
-                    // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
-                    
-                    customValues += values.map { value in
-                            .init(layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                                input_port_type: .init(value: port)),
-                                  value: value)
-                    }
-                }
-            } // for arg in args
-            
-            return customValues
-        }
-    
-    static func deriveCustomValuesFromViewModifiers(
-        id: UUID,
-        layerType: CurrentStep.Layer,
-        modifiers: [SyntaxViewModifier]) throws -> [LayerInputViewModification] {
-            try modifiers.compactMap { modifier in
-                try Self.deriveCustomValuesFromViewModifier(
-                    id: id,
-                    layerType: layerType,
-                    modifier: modifier)
+        try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
+            guard let port = SyntaxViewArgumentData.deriveLayerInputPort(
+                layerType,
+                label: arg.label, // the overall label for the entire argument
+                argFlatType: argFlatType,
+            ) else {
+                return []
             }
+            
+            // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: port: \(port)")
+            
+            let values = try SyntaxViewName.derivePortValues(
+                from: argFlatType.toSyntaxViewModifierArgumentType,
+                context: .viewConstructor(self, port))
+            
+            // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
+            
+            return values.map { value in
+                    .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                        input_port_type: .init(value: port)),
+                          value: value)
+            }
+        }
     }
     
     private static func deriveCustomValuesFromViewModifier(id: UUID,
