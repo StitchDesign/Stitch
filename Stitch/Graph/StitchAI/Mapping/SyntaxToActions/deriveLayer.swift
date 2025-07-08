@@ -329,6 +329,9 @@ extension SyntaxViewName {
             // Trim any surrounding quotes
             let cleanString = unescaped.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
             return .layerIdAssignment(cleanString)
+            
+//        case .textDecoration, .aspectRatio, .textFont:
+//            throws SwiftUISyntaxError.unsupportedViewModifier(<#T##SyntaxViewModifierName#>)
         }
     }
     

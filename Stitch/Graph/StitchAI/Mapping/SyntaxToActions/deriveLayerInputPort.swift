@@ -89,13 +89,13 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
     // Tracks some layer ID assigned to a view
     case layerId
     
-    // e.g. `.underline()` or `.strikethrough()` modifiers
-    case textDecoration
-    
-    // SwiftUI.aspectRatio becomes a couple different cases? fitStyle for image, width/height axis too ?
-    case aspectRatio
-    
-    case textFont
+//    // e.g. `.underline()` or `.strikethrough()` modifiers
+//    case textDecoration
+//    
+//    // SwiftUI.aspectRatio becomes a couple different cases? fitStyle for image, width/height axis too ?
+//    case aspectRatio
+//    
+//    case textFont
 }
 
 enum LayerInputViewModification {
@@ -228,11 +228,12 @@ extension SyntaxViewModifierName {
             // `.underline()` -> `LayerInputPort.TextDecoration + TextDecoration.underline`
         case .underline, .strikethrough:
             // TODO: text decoration can be strikethrough or underline
-            return .textDecoration
+//            return .textDecoration
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
             
         case .aspectRatio:
-//            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-            return .aspectRatio
+//            return .aspectRatio
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
         
             // TODO: this is a text case
         case .bold,
@@ -240,7 +241,8 @@ extension SyntaxViewModifierName {
                 .fontWeight,
                 .monospacedDigit,
                 .monospaced:
-            return .textFont
+//            return .textFont
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
             
             // MARK: Could be implemented someday?
         case .textCase,
