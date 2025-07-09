@@ -23,7 +23,6 @@ enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
      */
 //    case noLabel = ""
     
-    // case verbatim = "verbatim"
     
     // SwiftUI Image
     // https://developer.apple.com/documentation/swiftui/image#Creating-an-image
@@ -32,4 +31,6 @@ enum SyntaxConstructorArgumentLabel: String, Equatable, Hashable {
     case cornerRadius = "cornerRadius"
     
     case spacing = "spacing"
+    
+    case aligment = "alignment"
 }
