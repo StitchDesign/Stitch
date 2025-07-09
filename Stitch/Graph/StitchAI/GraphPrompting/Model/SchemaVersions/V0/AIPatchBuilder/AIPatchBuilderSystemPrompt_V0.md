@@ -108,7 +108,7 @@ struct PatchConnection {
 }
 struct NodeIndexedCoordinate {
     let node_id: UUID
-    let portIndex: Int
+    let port_index: Int
 }
 ```
 ### Extracting Layer Connections
