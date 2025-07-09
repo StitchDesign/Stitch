@@ -347,6 +347,24 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             
         }
         
+        else if let dictExpr = expression.as(DictionaryExprSyntax.self) {
+            // Break down children
+            let dictChildren = dictExpr.content.children(viewMode: .sourceAccurate)
+            let recursedChildren = dictChildren.compactMap { dictElem -> SyntaxViewArgumentData? in
+                guard let dictElem = dictElem.as(DictionaryElementSyntax.self),
+                      // get value data recursively
+                      let value = self.parseArgumentType(from: dictElem.value) else {
+                    return nil
+                }
+                
+                let label = dictElem.key.trimmedDescription
+                return SyntaxViewArgumentData(label: label, value: value)
+            }
+            
+            // Testing tuple type for now, should be the same stuff
+            return .tuple(recursedChildren)
+        }
+        
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
             self.caughtErrors.append(.unsupportedSyntaxArgumentKind(expression.trimmedDescription))
             return nil
