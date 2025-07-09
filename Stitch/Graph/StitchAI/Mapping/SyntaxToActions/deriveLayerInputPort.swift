@@ -219,7 +219,8 @@ extension SyntaxViewModifierName {
         case .disableAutocorrection:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .clipped:
-            return .simple(.clipped) // return .isClipped
+            return .simple(.isClipped)
+//             return .simple(.clipped) // return .isClipped
         case .layerId:
             return .layerId
         case .color:
