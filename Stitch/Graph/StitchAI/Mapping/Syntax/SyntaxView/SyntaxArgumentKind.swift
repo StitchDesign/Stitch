@@ -150,14 +150,20 @@ enum SyntaxArgumentExpressionKind: String, Equatable, Hashable, Codable {
     case closure          = "Closure"               // `{ ... }`
 }
 
+extension String {
+    func stripQuotes() -> String {
+        self
+            .replacingOccurrences(of: "“", with: "\"")
+            .replacingOccurrences(of: "”", with: "\"")
+            .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+    }
+}
+
 extension SyntaxViewSimpleData {
     /// Used for eventual PortValue decoding. Only nil when a `nil` type is returned.
     func createEncoding() throws -> any Encodable {
         // raw literal text (removing quotes for strings)
-        let raw = self.value
-            .replacingOccurrences(of: "“", with: "\"")
-            .replacingOccurrences(of: "”", with: "\"")
-            .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+        let raw = self.value.stripQuotes()
         
         switch self.syntaxKind {
         case .integer:

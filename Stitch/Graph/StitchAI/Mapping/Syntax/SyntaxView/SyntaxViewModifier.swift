@@ -381,27 +381,39 @@ extension Array where Element == SyntaxViewArgumentData {
     
     func createValuesDict() throws -> [String : AnyEncodable] {
         try self.reduce(into: .init()) { result, arg in
-            guard let label = arg.label else {
+            guard let label = arg.label?.stripQuotes() else {
                 // Should expect labels for complex types
                 throw SwiftUISyntaxError.noLabelFoundForComplexType
             }
             
-            switch arg.value {
-            case .simple(let data):
-                // Casts to correct type
-                let encodedValue = try data.createEncoding()
-                
-                result.updateValue(AnyEncodable(encodedValue), forKey: label)
-                
-            case .complex(let complexData):
-                // Get encoding data recursively
-                let data = try complexData.arguments.createValuesDict()
-                result.updateValue(AnyEncodable(data), forKey: label)
-                
-            default:
-                // TODO: make sure other types are accounted for
-                fatalError()
-            }
+            let encodedValue = try arg.value.createEncoding()
+            result.updateValue(encodedValue, forKey: label)
+        }
+    }
+}
+
+extension SyntaxViewModifierArgumentType {
+    func createEncoding() throws -> AnyEncodable {
+        switch self {
+        case .simple(let data):
+            // Casts to correct type
+            let encodedValue = try data.createEncoding()
+            return AnyEncodable(encodedValue)
+            
+        case .complex(let complexData):
+            // Get encoding data recursively
+            let data = try complexData.arguments.createValuesDict()
+            return AnyEncodable(data)
+            
+        case .tuple(let elements):
+            return AnyEncodable(try elements.createValuesDict())
+            
+        case .array(let elements):
+            let encodedElements = try elements.map { try $0.createEncoding() }
+            return AnyEncodable(encodedElements)
+        
+        case .memberAccess(let memberData):
+            return AnyEncodable(memberData.property)
         }
     }
 }

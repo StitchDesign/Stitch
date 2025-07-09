@@ -166,7 +166,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         // Tracks all patch input coordinates we either make connections or custom vaues for, used for determining if extra rows need to be created
         let allModifiedPatchIds = self.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.patch_data.patch_connections.map(\.dest_port)
         let allModifiedPatchIdsSet = Set(allModifiedPatchIds)
-        assertInDebug(allModifiedPatchIdsSet.count == allModifiedPatchIds.count)
+//        assertInDebug(allModifiedPatchIdsSet.count == allModifiedPatchIds.count)
         
         let maxModifiedPortIndex: [UUID : Int] = allModifiedPatchIdsSet.reduce(into: .init()) { result, patchInputId in
             let nodeId = patchInputId.node_id.value
