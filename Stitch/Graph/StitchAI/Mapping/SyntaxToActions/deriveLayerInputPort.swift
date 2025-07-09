@@ -105,7 +105,7 @@ enum LayerInputViewModification {
 
 extension SyntaxViewModifierName {
     
-    func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> DerivedLayerInputPortsResult {
+    func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> DerivedLayerInputPortsResult? {
         // Handle edge cases
         switch layer {
         case .text, .textField:
@@ -125,7 +125,7 @@ extension SyntaxViewModifierName {
         return try self.deriveLayerInputPort()
     }
 
-    func deriveLayerInputPort() throws -> DerivedLayerInputPortsResult {
+    func deriveLayerInputPort() throws -> DerivedLayerInputPortsResult? {
         switch self {
             // Universal modifiers (same for every layer)
         case .scaleEffect:
@@ -204,6 +204,10 @@ extension SyntaxViewModifierName {
         
         case .foregroundColor, .backgroundColor, .tint, .accentColor:
             return .simple(.color)
+            
+        case .onAppear:
+            // We ignore this
+            return nil
 
         case .disabled:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
@@ -397,8 +401,6 @@ extension SyntaxViewModifierName {
         case .navigationDestination:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .navigationTitle:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
-        case .onAppear:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .onChange:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
