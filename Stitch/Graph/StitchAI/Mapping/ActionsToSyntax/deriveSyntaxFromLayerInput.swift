@@ -12,7 +12,12 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unexpectedEdgeDataFound
     case viewNodeNotFound
     case couldNotParseVarBody
+    
     case unsupportedViewModifier(SyntaxViewModifierName)
+    
+    // e.g. `.cornerRadius()`, when that view modifier *requires* an explicit number argument
+    case unsupportedViewModifierCall(SyntaxViewModifierName)
+    
     case unsupportedViewModifierForLayer(SyntaxViewModifierName, CurrentStep.Layer)
     
     // Decoding from string

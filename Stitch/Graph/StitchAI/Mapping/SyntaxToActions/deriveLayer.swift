@@ -14,6 +14,355 @@ struct LayerDerivationResult {
     let silentErrors: [SwiftUISyntaxError]
 }
 
+extension SyntaxViewModifierName {
+    // May or may not correspond to SwiftUI view modifier's own default argument,
+    // e.g. `.clipped`'s default argument is for antialiasing, not whether the view is clipped or not (which is what Stitch's clipped layer-input is about).
+    func deriveDefaultPortValueForArgumentlessViewModifier(
+//        layer: CurrentStep.Layer,
+//        layerInput: CurrentLayerInputPort
+    ) throws -> CurrentStep.PortValue? {
+        
+        // defaultValue
+        
+        // Start from the default (i.e. false or disabled) value, and modifiy that?
+        // Ensure you don't mix up the types?
+//        let defaultPortValue = layerInput.getDefaultValueForPatchNodeInput(<#T##Int#>, <#T##NodeInputDefinitions#>, patch: <#T##Patch#>)
+        
+        switch self {
+            
+        case .padding:
+            return .padding(.init(top: 16, right: 16, bottom: 16, left: 16))
+            
+        case .clipped:
+            return .bool(true)
+            
+        case .fill:
+            return .color(.gray)
+            
+        case .tint:
+            return .color(.blue)
+                        
+        case .color:
+            return .color(.gray)
+        
+        case .position:
+            return .position(.zero)
+            
+        case .zIndex:
+            return .number(.zero)
+            
+        case .opacity:
+            return .number(1)
+            
+        case .offset:
+            return .position(.zero)
+            
+        case .frame:
+            // technically this is deprecated
+            return .size(.init(width: .auto, height: .auto))
+            
+        case .underline:
+            return .textDecoration(.underline)
+            
+        case .strikethrough:
+            return .textDecoration(.strikethrough)
+            
+        case .blendMode:
+            return .blendMode(.normal)
+            
+        case .colorInvert:
+            return .bool(true)
+            
+        case .scrollDisabled:
+            // TODO: come back here; .scrollDisabled out to set scroll-enabled x and y BOTH false ?
+            fatalErrorIfDebug()
+            return .bool(false)
+            
+        case .cornerRadius, .blur, .rotationEffect, .rotation3DEffect:
+            // MUST have arg for cornerRadius
+            throw SwiftUISyntaxError.unsupportedViewModifierCall(self)
+                        
+        default:
+            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            
+//            
+//        case .accentColor:
+//            <#code#>
+//        case .accessibilityAction:
+//            <#code#>
+//        case .accessibilityAddTraits:
+//            <#code#>
+//        case .accessibilityAdjustableAction:
+//            <#code#>
+//        case .accessibilityElement:
+//            <#code#>
+//        case .accessibilityFocused:
+//            <#code#>
+//        case .accessibilityHidden:
+//            <#code#>
+//        case .accessibilityHint:
+//            <#code#>
+//        case .accessibilityIdentifier:
+//            <#code#>
+//        case .accessibilityInputLabels:
+//            <#code#>
+//        case .accessibilityLabel:
+//            <#code#>
+//        case .accessibilityRemoveTraits:
+//            <#code#>
+//        case .accessibilityRepresentation:
+//            <#code#>
+//        case .accessibilityScrollAction:
+//            <#code#>
+//        case .accessibilityShowsLargeContentViewer:
+//            <#code#>
+//        case .accessibilitySortPriority:
+//            <#code#>
+//        case .allowsHitTesting:
+//            <#code#>
+//        case .allowsTightening:
+//            <#code#>
+//        case .animation:
+//            <#code#>
+//        case .aspectRatio:
+//            <#code#>
+//        case .background:
+//            <#code#>
+//        case .backgroundColor:
+//            <#code#>
+//        case .badge:
+//            <#code#>
+//        case .baselineOffset:
+//            <#code#>
+//        case .bold:
+//            <#code#>
+//        case .border:
+//            <#code#>
+//        case .brightness:
+//            <#code#>
+//        case .buttonStyle:
+//            <#code#>
+//        case .clipShape:
+//            <#code#>
+//        case .colorMultiply:
+//            <#code#>
+//        case .compositingGroup:
+//            <#code#>
+//        case .containerRelativeFrame:
+//            <#code#>
+//        case .contentShape:
+//            <#code#>
+//        case .contrast:
+//            <#code#>
+//        case .controlSize:
+//            <#code#>
+//        case .contextMenu:
+//            <#code#>
+//        case .disableAutocorrection:
+//            <#code#>
+//        case .disabled:
+//            <#code#>
+//        case .drawingGroup:
+//            <#code#>
+//        case .dynamicTypeSize:
+//            <#code#>
+//        case .environment:
+//            <#code#>
+//        case .environmentObject:
+//            <#code#>
+//        case .exclusiveGesture:
+//            <#code#>
+//        case .fixedSize:
+//            <#code#>
+//        case .focusable:
+//            <#code#>
+//        case .focused:
+//            <#code#>
+//        case .font:
+//            <#code#>
+//        case .fontDesign:
+//            <#code#>
+//        case .fontWeight:
+//            <#code#>
+//        case .foregroundColor:
+//            <#code#>
+//        case .foregroundStyle:
+//            <#code#>
+//        case .gesture:
+//            <#code#>
+//        case .help:
+//            <#code#>
+//        case .highPriorityGesture:
+//            <#code#>
+//        case .hoverEffect:
+//            <#code#>
+//        case .hueRotation:
+//            <#code#>
+//        case .id:
+//            <#code#>
+//        case .ignoresSafeArea:
+//            <#code#>
+//        case .interactiveDismissDisabled:
+//            <#code#>
+//        case .italic:
+//            <#code#>
+//        case .kerning:
+//            <#code#>
+//        case .layerId:
+//            <#code#>
+//        case .layoutPriority:
+//            <#code#>
+//        case .lineLimit:
+//            <#code#>
+//        case .lineSpacing:
+//            <#code#>
+//        case .listRowBackground:
+//            <#code#>
+//        case .listRowInsets:
+//            <#code#>
+//        case .listRowSeparator:
+//            <#code#>
+//        case .listRowSeparatorTint:
+//            <#code#>
+//        case .listSectionSeparator:
+//            <#code#>
+//        case .listSectionSeparatorTint:
+//            <#code#>
+//        case .listSectionSeparatorVisibility:
+//            <#code#>
+//        case .listStyle:
+//            <#code#>
+//        case .mask:
+//            <#code#>
+//        case .matchedGeometryEffect:
+//            <#code#>
+//        case .menuStyle:
+//            <#code#>
+//        case .minimumScaleFactor:
+//            <#code#>
+//        case .monospaced:
+//            <#code#>
+//        case .monospacedDigit:
+//            <#code#>
+//        case .multilineTextAlignment:
+//            <#code#>
+//        case .navigationBarBackButtonHidden:
+//            <#code#>
+//        case .navigationBarHidden:
+//            <#code#>
+//        case .navigationBarItems:
+//            <#code#>
+//        case .navigationBarTitle:
+//            <#code#>
+//        case .navigationBarTitleDisplayMode:
+//            <#code#>
+//        case .navigationDestination:
+//            <#code#>
+//        case .navigationTitle:
+//            <#code#>
+//        case .onAppear:
+//            <#code#>
+//        case .onChange:
+//            <#code#>
+//        case .onDisappear:
+//            <#code#>
+//        case .onDrag:
+//            <#code#>
+//        case .onDrop:
+//            <#code#>
+//        case .onHover:
+//            <#code#>
+//        case .onLongPressGesture:
+//            <#code#>
+//        case .onSubmit:
+//            <#code#>
+//        case .onTapGesture:
+//            <#code#>
+//        case .overlay:
+//            <#code#>
+//        case .preferredColorScheme:
+//            <#code#>
+//        case .presentationCornerRadius:
+//            <#code#>
+//        case .presentationDetents:
+//            <#code#>
+//        case .progressViewStyle:
+//            <#code#>
+//        case .projectionEffect:
+//            <#code#>
+//        case .redacted:
+//            <#code#>
+//        case .refreshable:
+//            <#code#>
+//        case .safeAreaInset:
+//            <#code#>
+//        case .saturation:
+//            <#code#>
+//        case .scaleEffect:
+//            <#code#>
+//        case .scrollClipDisabled:
+//            <#code#>
+//        case .scrollDisabled:
+//            <#code#>
+//        case .scrollDismissesKeyboard:
+//            <#code#>
+//        case .scrollIndicators:
+//            <#code#>
+//        case .scrollTargetBehavior:
+//            <#code#>
+//        case .searchable:
+//            <#code#>
+//        case .sensoryFeedback:
+//            <#code#>
+//        case .shadow:
+//            <#code#>
+//        case .simultaneousGesture:
+//            <#code#>
+//        case .sliderStyle:
+//            <#code#>
+//        case .smallCaps:
+//            <#code#>
+//        case .submitLabel:
+//            <#code#>
+//        case .swipeActions:
+//            <#code#>
+//        case .symbolEffect:
+//            <#code#>
+//        case .symbolRenderingMode:
+//            <#code#>
+//        case .tableStyle:
+//            <#code#>
+//        case .task:
+//            <#code#>
+//        case .textCase:
+//            <#code#>
+//        case .textContentType:
+//            <#code#>
+//        case .textFieldStyle:
+//            <#code#>
+//        case .textInputAutocapitalization:
+//            <#code#>
+//        case .textSelection:
+//            <#code#>
+//        case .toolbar:
+//            <#code#>
+//        case .tracking:
+//            <#code#>
+//        case .transformEffect:
+//            <#code#>
+//        case .transition:
+//            <#code#>
+//        case .truncationMode:
+//            <#code#>
+//        case .underline:
+//            <#code#>
+//        case .uppercaseSmallCaps:
+//            <#code#>
+        }
+        
+    }
+}
+
 extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
@@ -299,6 +648,7 @@ extension SyntaxViewName {
         case .simple(let port):
             guard let newValue = try Self.deriveCustomValue(
                 from: modifier.arguments,
+                modifierName: modifier.name,
                 id: id,
                 port: port,
                 layerType: layerType) else {
@@ -334,10 +684,12 @@ extension SyntaxViewName {
     
     // TODO: need to infer the value based on the view modifier, not the port (probably)
     
-    static func deriveCustomValue(from arguments: [SyntaxViewArgumentData],
-                                  id: UUID,
-                                  port: CurrentStep.LayerInputPort, // simple because we have a single layer
-                                  layerType: CurrentStep.Layer
+    static func deriveCustomValue(
+        from arguments: [SyntaxViewArgumentData],
+        modifierName: SyntaxViewModifierName,
+        id: UUID,
+        port: CurrentStep.LayerInputPort, // simple because we have a single layer
+        layerType: CurrentStep.Layer
     ) throws -> CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue? {
         //        let migratedPort = try port.convert(to: LayerInputPort.self)
         //        let migratedLayerType = try layerType.convert(to: Layer.self)
@@ -345,9 +697,11 @@ extension SyntaxViewName {
         
         //
         
-        guard let portValue = try Self.derivePortValue(from: arguments,
-                                                       port: port,
-                                                       layerType: layerType) else {
+        guard let portValue = try Self.derivePortValue(
+            from: arguments,
+            modifierName: modifierName,
+            port: port,
+            layerType: layerType) else {
             return nil
         }
         
@@ -356,12 +710,17 @@ extension SyntaxViewName {
                                                    input_port_type: .init(value: port)),
                      value: portValue)
     }
-    
-    private static func derivePortValue(from arguments: [SyntaxViewArgumentData],
-                                        port: CurrentStep.LayerInputPort,
-                                        layerType: CurrentStep.Layer) throws -> CurrentStep.PortValue? {
+        
+    private static func derivePortValue(
+        from arguments: [SyntaxViewArgumentData],
+        modifierName: SyntaxViewModifierName,
+        port: CurrentStep.LayerInputPort,
+        layerType: CurrentStep.Layer
+    ) throws -> CurrentStep.PortValue? {
+        // Note: some modifiers can have no arguments, e.g. `.padding()`, `.clipped()`
+        // In such a case, we return a default value for that SwiftUI view modifier.
         guard !arguments.isEmpty else {
-            return nil
+            return try modifierName.deriveDefaultPortValueForArgumentlessViewModifier()
         }
         
         // Convert every argument into a PortValue, later logic determines if we need to pack info
