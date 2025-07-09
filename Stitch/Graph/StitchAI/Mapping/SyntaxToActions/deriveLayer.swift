@@ -645,6 +645,9 @@ extension SyntaxViewName {
         let derivationResult = try modifier.name.deriveLayerInputPort(layerType)
         
         switch derivationResult {
+        case .none:
+            return nil
+            
         case .simple(let port):
             guard let newValue = try Self.deriveCustomValue(
                 from: modifier.arguments,

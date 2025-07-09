@@ -185,7 +185,7 @@ Sometimes, a specific layer is looped, meaning one of the layers inputs receives
 * **Node name label:** `pressInteraction || patch`
 
 ### Special Considerations for Native Nodes
-* For the `"rgbColor || Patch"` node, RGB values are processed on a decimal between 0 and 1 instead of 0 - 255.
+* For the `"rgbColor || Patch"` node, RGB values are processed on a decimal between 0 and 1 instead of 0 - 255. **Make sure any custom values for this node use input values between 0 and 1, rather than 0 to 255.**
 
 ## SwiftUI View Behavior
 
@@ -203,8 +203,6 @@ The full list of unsupported views includes:
 ```
 \(SyntaxViewName.unsupportedViews.map(\.rawValue))
 ```
-
-
 
 ### ScrollView Considerations
 
