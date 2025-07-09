@@ -74,6 +74,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                                                aiManager: aiManager)
             switch result {
             case .success(let swiftUISourceCode):
+                logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
                 logToServerIfRelease("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 
                 guard let parsedVarBody = VarBodyParser.extract(from: swiftUISourceCode) else {
