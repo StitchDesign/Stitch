@@ -179,7 +179,8 @@ These native patch nodes support the following events from the Stitch app, and c
 ### Stitch Event Invocation
 * "restartPrototype || Patch": triggers a prototype restart when its pulse input is invoked.
 # Data Glossary
-## `PortValue` Example PayloadsHere's an example payload for each `PortValue` by its type:
+## `PortValue` Example Payloads
+Example payloads for each `PortValue` by its type are provided below. Strictly adhere to the schemas in these examples.
 ```
 {
   "valueTypes" : [
