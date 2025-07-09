@@ -198,7 +198,11 @@ Where `node_kind` is the label used to reference the type of node. For example, 
 ```js
 let native_drag_interaction_patch_function = NATIVE_STITCH_PATCH_FUNCTIONS["dragInteraction || Patch"]
 ```
-You can view the list of inputs and outputs supported by each node by reference the node name's input and output definitions below in "Inputs and Outputs Definitions for Patches and Layers". Support for native patch functions are listed below:
+You can view the list of inputs and outputs supported by each node by reference the node name's input and output definitions below in "Inputs and Outputs Definitions for Patches and Layers".
+
+**Use native patch nodes whenever possible. Avoid custom patch functions as best as possible.** Stitch prefers invocation of native nodes. Custom patch functions should be be created for niche behavior not covered by native patch nodes.
+
+Support for native patch functions are listed below:
 
 ### Gesture Patch Nodes
 Gesture patch nodes track specific events to some specified layer. The input value for a selected layer is specified as a `"Layer"` value type, with its underlying ID matching the layer ID of some layer.
@@ -216,6 +220,14 @@ Sometimes, a specific layer is looped, meaning one of the layers inputs receives
 
 ### Special Considerations for Native Nodes
 * For the `"rgbColor || Patch"` node, RGB values are processed on a decimal between 0 and 1 instead of 0 - 255. **Make sure any custom values for this node use input values between 0 and 1, rather than 0 to 255.**
+
+## Syntax Rules for `updateLayerInputs`
+
+As mentioned previously, `updateLayerInputs` invokes all native and custom patches. It's final step is to update @State variables needed for populating views.
+
+**Avoid logic in `updateLayerInputs` that does anything other than making calls to native or custom patch functions, or populate view state**. Logic that doesn't meet this criteria should be replaced with invocations to native patch nodes, or worst case scenario, to newly-defined custom patch functions.
+
+For examples of proper invocation and prioritization of native patch nodes, consult "Examples of Prioritizing Native Patches Over Custom Patches".
 
 ## SwiftUI View Behavior
 
@@ -492,6 +504,75 @@ ForEach([Color.blue, Color.yellow, Color.green]) { color in
 Becomes:
 - a LoopBuilder with its first input as Color.blue, its second input as Color.yellow, and its third input as Color.green
 - the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.color` input.
+
+## Examples of Prioritizing Native Patches Over Custom Patches
+
+As mentioned previously, `updateLayerInputs` is only allowed to invoke patch functions and update view state. Ideally, `updateLayerInputs` solves problems using native patches only. Here's an example of where this done properly given a user prompt of "scrollview of 100 rectangles with randomly generated colors":
+
+```swift
+func updateLayerInputs() {
+    let loopOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]([
+        [PortValueDescription(value: 100, value_type: "number")]
+    ])
+    let indices = loopOutputs[0]
+    let randomROutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+        indices,
+        [PortValueDescription(value: 0, value_type: "number")],
+        [PortValueDescription(value: 1, value_type: "number")]
+    ])
+    let rList = randomROutputs[0]
+    let randomGOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+        indices,
+        [PortValueDescription(value: 0, value_type: "number")],
+        [PortValueDescription(value: 1, value_type: "number")]
+    ])
+    let gList = randomGOutputs[0]
+    let randomBOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+        indices,
+        [PortValueDescription(value: 0, value_type: "number")],
+        [PortValueDescription(value: 1, value_type: "number")]
+    ])
+    let bList = randomBOutputs[0]
+    let rgbOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([
+        rList,
+        gList,
+        bList,
+        [PortValueDescription(value: 1, value_type: "number")]
+    ])
+    let colorList = rgbOutputs[0]
+    let colorValues = colorList.map { $0.value }
+    rectColors = PortValueDescription(value: colorValues, value_type: "color")
+}
+```
+
+Where `rectColors` is a `@State` variable.
+
+Conversely, here's an improper example using the same prompt:
+
+```swift
+func updateLayerInputs() {
+    let output = Self.randomColors([])
+    let list = output[0].map { $0.value }
+    self.colors = PortValueDescription(value: list, value_type: "color")
+}
+
+static func randomColors(_ inputs: [[PortValueDescription]]) -> [[PortValueDescription]] {
+    var result: [PortValueDescription] = []
+    for _ in 0..<100 {
+        let r = Double.random(in: 0...1)
+        let g = Double.random(in: 0...1)
+        let b = Double.random(in: 0...1)
+        let red = Int(r * 255)
+        let green = Int(g * 255)
+        let blue = Int(b * 255)
+        let hex = String(format: "#%02X%02X%02XFF", red, green, blue)
+        result.append(PortValueDescription(value: hex, value_type: "color"))
+    }
+    return [result]
+}
+```
+
+This example is bad because this custom patch function uses redundant logic from native patch nodes. The first example correctly used Random and RGB Color patch nodes, all while supporting a loop of 100 rectangles.
 
 # Final Thoughts
 **The entire return payload must be Swift source code, emitted as a string.**
