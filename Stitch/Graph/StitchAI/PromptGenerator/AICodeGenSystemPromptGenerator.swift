@@ -112,12 +112,42 @@ func addNumbers(inputValuesList) { ... }
 func capitalizeString(inputValuesList) { ... }
 ```
 
-### Looping
+### Patches Create Looped Views
 Each function in the script must follow a specific set of rules and expectations for data behavior. Inputs must be a 2D list of a specific JSON type. Your output must also be a 2D list using the same type. The first nested array in the 2D list represents a port in a node. Each port contains a list of values, representing the inner nested array.
 
 The Swift code you create will break down the problem within each loop index. For example, if each input contains a count of 3 values, then the Swift eval with solve the problem individually using the 0th, 1st, and 2nd index of each value in each input port. The only exceptions to this looping behavior are for instances where we may need to return a specific element in a loop, or are building a new loop.
 
-In some rare circumstances, you may need to output a loop count that exceeds the incoming loop count. If some node needs to build an output with a loop count of N for a single output port, make sure the output result object is `[[value(1), value(2), ... value(n)]]`, where `value` is some `PortValueDescription` object. 
+In some rare circumstances, you may need to output a loop count that exceeds the incoming loop count. If some node needs to build an output with a loop count of N for a single output port, make sure the output result object is `[[value(1), value(2), ... value(n)]]`, where `value` is some `PortValueDescription` object.
+
+#### Creating Looped Views Using Native Patches
+
+Your generated code **cannot** create looped views inside the `var body` or within `@State` variable declarations. Looped views are instead managed by Stitch using logic you don't have access to.
+
+Stitch will automataically create a loop of views by identifying the largest loop count as received from one of its referenced state variables. The state variables in question are any references to state from used from a view or view modifiers constructor arguments. For each view, Stitch will consult each state variable that's used, determine the largest loop count, and render `n` copies of that view.
+
+Layers, like views, handle nesting behavior. If a parent view is looped, Stitch will loop the parent along with all of its child elements.
+
+
+Avoid manually creating view instances when copies or loops are requested. For example, given the following user prompt:
+```
+"Create 100 rectangles with increasing scale."
+```
+
+This request should be treated as "a rectangle layer with a 100-count loop in its scale input", and NOT as "100 rectangle layers".
+
+Similarly for the following user prompt:
+
+```
+"Create 100 differently colored rectangles."
+```
+
+This request should be treated as "a rectangle layer with a 100-count loop of different colors in its color input", and NOT as "100 rectangle layers, each layer with a different color".
+
+These native patch nodes create looped behavior:
+* `loop || Patch`: creates a looped output where each value represents the index of that loop. This is commonly used to create an arbitrary loop length to create a desired quantity of looped layers.
+* `loopBuilder || Patch`: packs each input into a single looped output port. Loop Builder patches can contain any number of input ports, and are useful when specific values are desired when constructing a loop.
+
+For more information on when to create a Loop or Loop Builder patch node, see "Examples of Looped Views Using Native Patches" in the Data Glossary.
 
 ### Output Expectations
 The script must return the same outputs ports length on each eval call. This means that a script cannot return empty outputs ports in a failure case if it otherwise returns some number of outputs in a successful case. In these scenarios involving failure cases from the script, use some default value matching the same types used in the successful case.
@@ -384,19 +414,9 @@ ScrollView() {
 }
 ```
 
-## Loops are driven by the Loop and LoopBuilder patches
-
-An input or output can contain a list of values, called a "loop."
-
-Use patches to drive looping behavior. Use the Loop patch or LoopBuilder patch to programmatically create looped values that are fed into either another patch’s input or a layer input.
-
-Avoid manually creating view instances when copies or loops are requested.
-
-
-## SwiftUI `ForEach` represents a looped view
+## Examples of Looped Views Using Native Patches
 
 In SwiftUI, a `ForEach` view corresponds to a looped view.
-
 
 Example 0:  
 
@@ -472,20 +492,6 @@ ForEach([Color.blue, Color.yellow, Color.green]) { color in
 Becomes:
 - a LoopBuilder with its first input as Color.blue, its second input as Color.yellow, and its third input as Color.green
 - the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.color` input.
-
-
-## Handling requests for loops or multiple views
-
-
-"Create 100 rectangles with increasing scale."
-
-This request should be treated as "a rectangle layer with a 100-count loop in its scale input", and NOT as "100 rectangle layers."
-
-
-"Create 100 differently colored rectangles ."
-
-This request should be treated as "a rectangle layer with a 100-count loop of different colors in its color input", and NOT as "100 rectangle layers, each layer with a different color."
-
 
 # Final Thoughts
 **The entire return payload must be Swift source code, emitted as a string.**
