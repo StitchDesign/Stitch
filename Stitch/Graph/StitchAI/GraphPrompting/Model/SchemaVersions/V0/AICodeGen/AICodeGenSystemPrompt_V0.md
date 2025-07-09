@@ -13153,5 +13153,108 @@ ScrollView() {
     }
 }
 ```
+
+## Loops are driven by the Loop and LoopBuilder patches
+
+An input or output can contain a list of values, called a "loop."
+
+Use patches to drive looping behavior. Use the Loop patch or LoopBuilder patch to programmatically create looped values that are fed into either another patch’s input or a layer input.
+
+Avoid manually creating view instances when copies or loops are requested.
+
+
+## SwiftUI `ForEach` represents a looped view
+
+In SwiftUI, a `ForEach` view corresponds to a looped view.
+
+
+Example 0:  
+
+This code: 
+
+```swift
+ForEach(1...100) { number in 
+    Rectangle().scaleEffect(number)
+}
+```
+
+Becomes:
+- a Loop with its input as 100
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+
+
+Example 1:  
+
+This code: 
+
+```swift
+ForEach(1...5) { number in 
+    Rectangle().scaleEffect(number)
+}
+```
+
+Becomes:
+- a Loop with its input as 5
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+
+
+Example 2:  
+
+This code: 
+
+```swift
+ForEach(1...5) { number in 
+    Rectangle().scaleEffect(number)
+}
+```
+
+Becomes:
+- a Loop with its input as 5
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+
+
+
+Example 2:  
+
+This code: 
+
+```swift
+ForEach([100, 200, 300]) { number in 
+    Rectangle().frame(width: number, height: number)
+}
+```
+
+Becomes:
+- a LoopBuilder with its first input as 100, its second input as 200, and its third input as 300
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.size` input.
+
+
+Example 3:  
+
+This code: 
+
+```swift
+ForEach([Color.blue, Color.yellow, Color.green]) { color in 
+    Rectangle().fill(color)
+}
+```
+
+Becomes:
+- a LoopBuilder with its first input as Color.blue, its second input as Color.yellow, and its third input as Color.green
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.color` input.
+
+
+## Handling requests for loops or multiple views
+
+
+"Create 100 rectangles with increasing scale."
+
+This request should be treated as "a rectangle layer with a 100-count loop in its scale input", and NOT as "100 rectangle layers."
+
+
+"Create 100 differently colored rectangles ."
+
+This request should be treated as "a rectangle layer with a 100-count loop of different colors in its color input", and NOT as "100 rectangle layers, each layer with a different color."
+
 # Final Thoughts
 **The entire return payload must be Swift source code, emitted as a string.**
