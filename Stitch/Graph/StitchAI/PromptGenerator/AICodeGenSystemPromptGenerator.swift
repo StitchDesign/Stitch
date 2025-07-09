@@ -275,7 +275,8 @@ These native patch nodes support the following events from the Stitch app, and c
 # Data Glossary
 
 ## `PortValue` Example Payloads
-Here's an example payload for each `PortValue` by its type:
+
+Example payloads for each `PortValue` by its type are provided below. Strictly adhere to the schemas in these examples.
 
 ```
 \(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
