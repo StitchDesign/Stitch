@@ -84,7 +84,21 @@ For example each time `NATIVE_STITCH_PATCH_FUNCTIONS["dragInteraction || Patch"]
     node_id: "D3F3C5B0-1C2B-4F5B-8F3B-2C5B1C2B4F5B",
     node_name: "dragInteraction || Patch"
 }
-``` 
+```
+
+#### Creating Looped Layers Using Native Patches
+Although we expect most native patches to be invoked inside `updateLayerInputs`, you might need to create additional loop-handling patch nodes to create desired looped views. This is because looped views are handled programmatically in Stitch outside of the view.
+
+Additional loop behavior needs to be created if the SwiftUI code contains any of the following:
+* A `ForEach` view.
+* Logic in `@State` that creates looped values.
+* Any logic in view modifiers that assigns looped values to state.
+
+These native patch nodes create looped behavior:
+* `loop || Patch`: creates a looped output where each value represents the index of that loop. This is commonly used to create an arbitrary loop length to create a desired quantity of looped layers.
+* `loopBuilder || Patch`: packs each input into a single looped output port. Loop Builder patches can contain any number of input ports, and are useful when specific values are desired when constructing a loop.
+
+For more information on when to create a Loop or Loop Builder patch node, see "Examples of Looped Views Using Native Patches" in the Data Glossary.
 
 ### Extracting Patch Connections
 A “connection” is an edge between a node’s output port and another node’s input port. Connections must be inferred based on calls between functions: if function A depends on results from function B, then we say there’s an edge between A and B where B’s outputs connect to A’s inputs.
@@ -100,7 +114,7 @@ struct PatchConnection {
 
 struct NodeIndexedCoordinate {
     let node_id: UUID
-    let portIndex: Int
+    let port_index: Int
 }
 ```
 
@@ -179,6 +193,85 @@ For layers, if the desired behavior is natively supported through a layer’s in
 
 Each patch and layer supports the following inputs and outputs:
 \(try NodeSection.getAllAIDescriptions(graph: graph).encodeToPrintableString())
+
+## Examples of Looped Views Using Native Patches
+
+In SwiftUI, a `ForEach` view corresponds to a looped view.
+
+Example 0:  
+
+This code: 
+
+```swift
+ForEach(1...100) { number in 
+    Rectangle().scaleEffect(number)
+}
+```
+
+Becomes:
+- a Loop with its input as 100
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+
+
+Example 1:  
+
+This code: 
+
+```swift
+ForEach(1...5) { number in 
+    Rectangle().scaleEffect(number)
+}
+```
+
+Becomes:
+- a Loop with its input as 5
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+
+
+Example 2:  
+
+This code: 
+
+```swift
+ForEach(1...5) { number in 
+    Rectangle().scaleEffect(number)
+}
+```
+
+Becomes:
+- a Loop with its input as 5
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.scale` input.
+
+
+
+Example 2:  
+
+This code: 
+
+```swift
+ForEach([100, 200, 300]) { number in 
+    Rectangle().frame(width: number, height: number)
+}
+```
+
+Becomes:
+- a LoopBuilder with its first input as 100, its second input as 200, and its third input as 300
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.size` input.
+
+
+Example 3:  
+
+This code: 
+
+```swift
+ForEach([Color.blue, Color.yellow, Color.green]) { color in 
+    Rectangle().fill(color)
+}
+```
+
+Becomes:
+- a LoopBuilder with its first input as Color.blue, its second input as Color.yellow, and its third input as Color.green
+- the LoopBuilder’s output is connected to the Rectangle layer’s `LayerInputPort.color` input.
 """
     }
 }
