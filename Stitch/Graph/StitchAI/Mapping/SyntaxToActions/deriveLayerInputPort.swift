@@ -13,7 +13,8 @@ import SwiftUI
 extension SyntaxViewArgumentData {
     static func deriveLayerInputPort(_ layer: CurrentStep.Layer,
                                      label: String?,
-                                     argFlatType: SyntaxViewModifierArgumentFlatType?) -> CurrentStep.LayerInputPort? {
+                                     argFlatType: SyntaxViewModifierArgumentFlatType?) throws -> CurrentStep.LayerInputPort? {
+        
         
         switch SyntaxConstructorArgumentLabel(rawValue: label ?? "") {
             
@@ -28,6 +29,16 @@ extension SyntaxViewArgumentData {
         case .spacing:
             // e.g. `VStack(spacing:)` or `HStack(spacing:)`
             return .spacing
+            
+        case .aligment:
+            switch layer {
+            case .group:
+                // e.g. `VStack(spacing:)` or `HStack(spacing:)`
+                return .layerGroupAlignment
+            default:
+                throw SwiftUISyntaxError.unsupportedConstructorArgument(layer, label, argFlatType)
+            }
+            
             
             
         // i.e. no label, so e.g. `Text("love")`
@@ -56,8 +67,7 @@ extension SyntaxViewArgumentData {
                 }
                 
             default:
-                // throw SwiftUISyntaxError.unsupportedConstructorArgument(self)
-                return nil
+                throw SwiftUISyntaxError.unsupportedConstructorArgument(layer, label, argFlatType)
             }
         }
     }

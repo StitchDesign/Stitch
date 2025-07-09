@@ -12,36 +12,12 @@ import StitchSchemaKit
  DATA
  ------------------------------------------ */
 
-// Don't need this because don't need the string label ?
-//enum TraditionalAnchoring: String, Codable, Equatable, Hashable {
-//    case topLeft = "Top Left",
-//         topCenter,
-//         topRight,
-//         centerLeft,
-//         centerCenter,
-//         centerRight,
-//         bottomLeft,
-//         bottomCenter,
-//         bottomRight
-//}
-
 // TODO: if you have e.g. (0.25, 0.75), what (0 vs 0.5 vs 1) anchor point does that become?
 // Round up? Round down?
 
 
 // "how a view anchors itself within the parent"
 extension Anchoring { // : PortValueEnum {
-//    static var portValueTypeGetter: PortValueTypeGetter<Self> {
-//        PortValue.anchoring
-//    }
-    
-//    static let top: Double = 0
-//    static let middle: Double = Self.center
-//    static let bottom: Double = 1
-//    
-//    static let left: Double = 0
-//    static let center: Double = 0.5
-//    static let right: Double = 1
     
     // The traditional
     static let topLeft: Self = .init(x: Self.left, y: Self.top)
@@ -68,7 +44,6 @@ extension Anchoring { // : PortValueEnum {
     ]
     
     static let defaultAnchoring: Anchoring = .topLeft
-//    static let defaultPivot: Anchoring = .centerLeft
     static let defaultPivot: Anchoring = .centerCenter
 
     var toPivot: UnitPoint {
@@ -121,12 +96,40 @@ extension Anchoring { // : PortValueEnum {
             return .topLeading
         }
     }
-    
+        
     // TODO: how is this used? Do you want "Top Left" or is "(0, 0)" fine?
     var display: String {
         "\(self.y), \(self.x)"
     }
+    
+    // TODO: should not have to care about versions
+    static func fromAlignmentString(_ alignment: String) -> Self? {
+        switch alignment {
+        case "topLeading":
+            return .topLeft
+        case "leading":
+            return .centerLeft
+        case "bottomLeading":
+            return .bottomLeft
+        case "topTrailing":
+            return .topRight
+        case "trailing":
+            return .centerRight
+        case "bottomTrailing":
+            return .bottomRight
+        case "top":
+            return .topCenter
+        case "center":
+            return .centerCenter
+        case "bottom":
+            return .bottomCenter
+        default:
+            return nil
+        }
+    }
+
 }
+
 
 // Does this need to change for pinning?
 func adjustPosition(size: CGSize, // child's size

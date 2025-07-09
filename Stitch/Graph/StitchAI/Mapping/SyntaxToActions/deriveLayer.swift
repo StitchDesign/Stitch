@@ -610,8 +610,9 @@ extension SyntaxViewName {
                                                    layerType: CurrentStep.Layer,
                                                    arg: SyntaxViewArgumentData
     ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+        
         try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
-            guard let port = SyntaxViewArgumentData.deriveLayerInputPort(
+            guard let port = try SyntaxViewArgumentData.deriveLayerInputPort(
                 layerType,
                 label: arg.label, // the overall label for the entire argument
                 argFlatType: argFlatType,
@@ -830,6 +831,28 @@ extension SyntaxViewName {
                         return [.bool(memberAccess.property == "vertical")]
                     case .scrollXEnabled:
                         return [.bool(memberAccess.property == "horizontal")]
+                    default:
+                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                    }
+                    
+                case .vStack, .hStack, .lazyVStack, .lazyHStack:
+                    switch port {
+                    case .layerGroupAlignment:
+                        if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
+//                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
+                           let migrated = try? anchoring.convert(to: Anchoring.PreviousCodable.self) {
+                            return [.anchoring(migrated)]
+                        } else {
+                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                        }
+                    
+                    case .spacing:
+                        if let n = toNumberBasic(memberAccess.property) {
+                            return [.spacing(.number(n))]
+                        } else {
+                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                        }
+                        
                     default:
                         throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                     }

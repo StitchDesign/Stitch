@@ -12,7 +12,7 @@ struct StackCodeExamples {
     static let vstack = MappingCodeExample(
         title: "VStack",
         code: """
-        VStack {
+        VStack(alignment: .center, spacing: 8) {
             Rectangle().fill(Color.blue)
         }
         """
