@@ -20,21 +20,28 @@ enum ValueOrEdge: Equatable, Hashable {
     case edge(input: LayerInputPort, from: Int)
 }
 
+struct CustomValue: Equatable, Hashable {
+    let input: LayerInputPort
+    let value: PortValue
+    
+    init(_ input: LayerInputPort,  _ value: PortValue) {
+        self.input = input
+        self.value = value
+    }
+}
 
 protocol FromSwiftUIViewToStitch {
     associatedtype T
     
     // Really, should be: (Layer, NonEmptyArray<ManualValueOrIncomingEdge>)
     // i.e. "this view and constructor overload created this layer and these layer input values/connections"
-    var toStitch: (Layer, (LayerInputPort, PortValue))? { get }
+    var toStitch: (Layer, [CustomValue])? { get }
     
     static func from(_ node: FunctionCallExprSyntax) -> T?
 }
 
 
-
-
-enum ViewConstructor {
+enum ViewConstructor: Equatable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
@@ -44,23 +51,7 @@ enum ViewConstructor {
 }
     
 
-extension AttributedString {
-    /// Returns only the textual content (attributes are discarded).
-    var plainText: String { self.description }   // `.description` flattens to String
-}
-
-extension LocalizedStringKey {
-    /// Best‑effort: resolves through the app’s main bundle; falls back to the key itself.
-    var resolved: String {
-        let keyString = String(describing: self)   // mirrors what the dev wrote
-        return NSLocalizedString(keyString,
-                                 bundle: .main,
-                                 value: keyString,
-                                 comment: "")
-    }
-}
-
-enum TextViewConstructor: FromSwiftUIViewToStitch {
+enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Text("Hello")`
     case string(_ content: String)
 
@@ -74,21 +65,33 @@ enum TextViewConstructor: FromSwiftUIViewToStitch {
     case attributed(_ content: AttributedString)
 
     
-    var toStitch: (Layer, (LayerInputPort, PortValue))? {
+    var toStitch: (Layer, [CustomValue])? {
          switch self {
              
          case .string(let s),
               .verbatim(let s):      // treat verbatim the same
-             return (.text,
-                     (.text, .string(.init(s))))
+             return (
+                .text,
+                [
+                    .init(.text, .string(.init(s)))
+                ]
+             )
 
          case .localized(let key):
-             return (.text,
-                     (.text, .string(.init(key.resolved))))
+             return (
+                .text,
+                [
+                    .init(.text, .string(.init(key.resolved)))
+                ]
+             )
 
          case .attributed(let attr):
-             return (.text,
-                     (.text, .string(.init(attr.plainText))))
+             return (
+                .text,
+                [
+                    .init(.text, .string(.init(attr.plainText)))
+                ]
+             )
          }
      }
     
@@ -113,9 +116,9 @@ enum TextViewConstructor: FromSwiftUIViewToStitch {
         if args.count == 1,
            args.first!.label == nil,
            let call = args.first!.expression.as(FunctionCallExprSyntax.self),
-           let id = call.calledExpression.as(IdentifierExprSyntax.self)?.identifier.text,
+           let id = call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
            id == "LocalizedStringKey",
-           let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
+           let lit = call.arguments.first?.expression.as(StringLiteralExprSyntax.self) {
             return .localized(LocalizedStringKey(lit.decoded()))
         }
 
@@ -123,9 +126,9 @@ enum TextViewConstructor: FromSwiftUIViewToStitch {
         if args.count == 1,
            args.first!.label == nil,
            let call = args.first!.expression.as(FunctionCallExprSyntax.self),
-           let id = call.calledExpression.as(IdentifierExprSyntax.self)?.identifier.text,
+           let id = call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
            id == "AttributedString",
-           let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
+           let lit = call.arguments.first?.expression.as(StringLiteralExprSyntax.self) {
             return .attributed(AttributedString(lit.decoded()))
         }
 
@@ -134,7 +137,7 @@ enum TextViewConstructor: FromSwiftUIViewToStitch {
 }
 
 
-enum ImageViewConstructor: FromSwiftUIViewToStitch {
+enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Image("assetName", bundle: nil)`
     case asset(_ name: String, bundle: Bundle? = nil)
 
@@ -151,43 +154,35 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     /// `Image(uiImage:)`
     case uiImage(_ image: UIImage)
   
-    var toStitch: (Layer, (LayerInputPort, PortValue))? {
+    var toStitch: (Layer, [CustomValue])? {
         switch self {
 
-        // MARK: ‑ plain asset names  ───────────────────────────────────
         //  Image("logo")  |  Image("photo", bundle: …)
         case .asset(let name, _),
-             .decorative(let name, _):    // treat decorative same for now
+             .decorative(let name, _):
             return (
                 .image,
-                (
-                    .image,
-                    .string(.init(name))
-                )
+                [
+                    .init(.image, .string(.init(name)))
+                ]
             )
 
-        // MARK: ‑ SF Symbols  ──────────────────────────────────────────
         //  Image(systemName: "gear")
         case .sfSymbol(let name):
             return (
                 .image,
-                (
-                    .sfSymbol,
-                    .string(.init(name))
-                )
+                [
+                    .init(.sfSymbol, .string(.init(name)))
+                ]
             )
 
-        // MARK: ‑ platform image payloads  ─────────────────────────────
-        //  Image(uiImage: UIImage)
-        case .uiImage(_ /* img */):
-            // Stitch currently stores raw image payloads on the .image port;
-            // we pass `.none` as a placeholder – real media is handled elsewhere.
+        //  Image(uiImage: …)  – placeholder async media
+        case .uiImage(_):
             return (
                 .image,
-                (
-                    .image,
-                    .asyncMedia(nil)
-                )
+                [
+                    .init(.image, .asyncMedia(nil))
+                ]
             )
         }
     }
@@ -245,15 +240,14 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
 //      • init(spacing:…, content:)                  (alignment defaults)
 //      • init(content:)                             (both defaults)
 //
-enum HStackViewConstructor: FromSwiftUIViewToStitch {
+enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case alignmentSpacing(alignment: VerticalAlignment, spacing: CGFloat?)
     case alignment(alignment: VerticalAlignment)                  // spacing == nil
     case spacing(CGFloat?)
     case none                                                     // both defaulted
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? {
-        // All HStacks are represented as a horizontal group in Stitch.
-        return (.group, (.orientation, .orientation(.horizontal)))
+    var toStitch: (Layer, [CustomValue])? {
+        (.group, [ .init(.orientation, .orientation(.horizontal)) ])
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> HStackViewConstructor? {
@@ -288,15 +282,14 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
     }
 }
 
-enum VStackViewConstructor: FromSwiftUIViewToStitch {
+enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case alignmentSpacing(alignment: HorizontalAlignment, spacing: CGFloat?)
     case alignment(alignment: HorizontalAlignment)
     case spacing(CGFloat?)
     case none
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? {
-        // VStacks map to a vertical group.
-        return (.group, (.orientation, .orientation(.vertical)))
+    var toStitch: (Layer, [CustomValue])? {
+        (.group, [ .init(.orientation, .orientation(.vertical)) ])
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> VStackViewConstructor? {
@@ -332,22 +325,21 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
 }
 
 // ── Helper: random-access a TupleExprElementListSyntax by Int index ────────────
-private extension TupleExprElementListSyntax {
-    subscript(safe index: Int) -> TupleExprElementSyntax? {
+private extension LabeledExprListSyntax {
+    subscript(safe index: Int) -> LabeledExprSyntax? {
         guard index >= 0 && index < count else { return nil }
         return self[self.index(startIndex, offsetBy: index)]
     }
 }
 
-enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
+enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case alignmentSpacing(alignment: VerticalAlignment, spacing: CGFloat?)
     case alignment(alignment: VerticalAlignment)
     case spacing(CGFloat?)
     case none
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? {
-        // Treat LazyHStack the same as HStack.
-        return (.group, (.orientation, .orientation(.horizontal)))
+    var toStitch: (Layer, [CustomValue])? {
+        (.group, [ .init(.orientation, .orientation(.horizontal)) ])
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyHStackViewConstructor? {
@@ -356,21 +348,20 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
             case .alignmentSpacing(let a, let s): return .alignmentSpacing(alignment: a, spacing: s)
             case .alignment(let a):               return .alignment(alignment: a)
             case .spacing(let s):                 return .spacing(s)
-            case .none:                           return .none
+            case .none:                           return Optional.none
             }
         }
     }
 }
 
-enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
+enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case alignmentSpacing(alignment: HorizontalAlignment, spacing: CGFloat?)
     case alignment(alignment: HorizontalAlignment)
     case spacing(CGFloat?)
     case none
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? {
-        // Treat LazyVStack the same as VStack.
-        return (.group, (.orientation, .orientation(.vertical)))
+    var toStitch: (Layer, [CustomValue])? {
+        (.group, [ .init(.orientation, .orientation(.vertical)) ])
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyVStackViewConstructor? {
@@ -379,7 +370,7 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
             case .alignmentSpacing(let a, let s): return .alignmentSpacing(alignment: a, spacing: s)
             case .alignment(let a):               return .alignment(alignment: a)
             case .spacing(let s):                 return .spacing(s)
-            case .none:                           return .none
+            case .none:                           return nil
             }
         }
     }
@@ -428,6 +419,7 @@ private extension LabeledExprSyntax {
 }
 
 
+
 // MARK: - Proof‑of‑Concept Visitor ----------------------------------------
 //
 //  This visitor is *stand-alone* and confined to this file so you can
@@ -459,8 +451,8 @@ final class POCConstructorVisitor: SyntaxVisitor {
     // We only care about function calls.
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
 
-        guard let calleeIdent = node.calledExpression.as(IdentifierExprSyntax.self)?
-                                  .identifier.text
+        guard let calleeIdent = node.calledExpression.as(DeclReferenceExprSyntax.self)?
+            .baseName.text
         else { return .skipChildren }
         
         print("POCVisitor: visiting \(calleeIdent) – args: \(node.arguments.count)")
@@ -468,13 +460,13 @@ final class POCConstructorVisitor: SyntaxVisitor {
         switch calleeIdent {
 
         case "Text":
-            if let ctor = classifyText(node) {
+            if let ctor = TextViewConstructor.from(node) {
                 calls.append(.init(kind: .text(ctor), node: node))
                 print("POCVisitor: recorded call – total so far = \(calls.count)")
             }
 
         case "Image":
-            if let ctor = classifyImage(node) {
+            if let ctor = ImageViewConstructor.from(node) {
                 calls.append(.init(kind: .image(ctor), node: node))
                 print("POCVisitor: recorded call – total so far = \(calls.count)")
             }
@@ -503,16 +495,6 @@ final class POCConstructorVisitor: SyntaxVisitor {
             break
         }
         return .visitChildren
-    }
-
-    // MARK: POC helpers -------------------------------------------------
-
-    private func classifyText(_ node: FunctionCallExprSyntax) -> TextViewConstructor? {
-        TextViewConstructor.from(node)
-    }
-
-    private func classifyImage(_ node: FunctionCallExprSyntax) -> ImageViewConstructor? {
-        ImageViewConstructor.from(node)
     }
 }
 
@@ -551,24 +533,23 @@ struct ConstructorDemoView: View {
         Image("photo", bundle: .main)
         Image(decorative: "decor", bundle: nil)
 
-        HStack { Text("A") }
-        HStack(alignment: .top) { Text("A") }
-        HStack(spacing: 20) { Text("A") }
-        HStack(alignment: .bottom, spacing: 10) { Text("A") }
+        HStack
+        HStack(alignment: .top)
+        HStack(spacing: 20)
+        HStack(alignment: .bottom, spacing: 10)
 
-        VStack { Text("B") }
-        VStack(alignment: .leading) { Text("B") }
-        VStack(spacing: 12) { Text("B") }
-        VStack(alignment: .trailing, spacing: 6) { Text("B") }
+        VStack // { Text("B") }
+        VStack(alignment: .leading) // { Text("B") }
+        VStack(spacing: 12) // { Text("B") }
+        VStack(alignment: .trailing, spacing: 6) // { Text("B") }
 
-        LazyHStack { Text("C") }
-        LazyHStack(alignment: .top) { Text("C") }
-        LazyHStack(spacing: 8) { Text("C") }
+        LazyHStack // { Text("C") }
+        LazyHStack(alignment: .top) // { Text("C") }
+        LazyHStack(spacing: 8) // { Text("C") }
 
-        LazyVStack { Text("D") }
-        // LazyVStack { ... }
-        LazyVStack(alignment: .leading) { Text("D") }
-        LazyVStack(spacing: 4) { Text("D") }
+        LazyVStack // { Text("D") }
+        LazyVStack(alignment: .leading) // { Text("D") }
+        LazyVStack(spacing: 4) // { Text("D") }
     }
     """
 
@@ -591,42 +572,25 @@ struct ConstructorDemoView: View {
             let overload: String
             let stitch: String
 
+            let (prefix, ctor): (String, any FromSwiftUIViewToStitch)
+
             switch call.kind {
-            case .text(let ctor):
-                overload = "Text.\(ctor)"
-                if let (layer, (port, value)) = ctor.toStitch {
-                    stitch = "Layer: \(layer), Input: \(port), Value: \(value.display)"
-                } else { stitch = "—" }
+            case .text(let c):        (prefix, ctor) = ("Text", c)
+            case .image(let c):       (prefix, ctor) = ("Image", c)
+            case .hStack(let c):      (prefix, ctor) = ("HStack", c)
+            case .vStack(let c):      (prefix, ctor) = ("VStack", c)
+            case .lazyHStack(let c):  (prefix, ctor) = ("LazyHStack", c)
+            case .lazyVStack(let c):  (prefix, ctor) = ("LazyVStack", c)
+            }
 
-            case .image(let ctor):
-                overload = "Image.\(ctor)"
-                if let (layer, (port, value)) = ctor.toStitch {
-                    stitch = "Layer: \(layer), Input: \(port), Value: \(value.display)"
-                } else { stitch = "—" }
-                
-            case .hStack(let ctor):
-                overload = "HStack.\(ctor)"
-                stitch = ctor.toStitch
-                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
-                    ?? "—"
-
-            case .vStack(let ctor):
-                overload = "VStack.\(ctor)"
-                stitch = ctor.toStitch
-                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
-                    ?? "—"
-
-            case .lazyHStack(let ctor):
-                overload = "LazyHStack.\(ctor)"
-                stitch = ctor.toStitch
-                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
-                    ?? "—"
-
-            case .lazyVStack(let ctor):
-                overload = "LazyVStack.\(ctor)"
-                stitch = ctor.toStitch
-                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
-                    ?? "—"
+            overload = "\(prefix).\(ctor)"
+            if let (layer, values) = ctor.toStitch {
+                let detail = values
+                    .map { "\($0.input)=\($0.value.display)" }
+                    .joined(separator: ", ")
+                stitch = "Layer: \(layer)  { \(detail) }"
+            } else {
+                stitch = "—"
             }
 
             return DemoRow(code: code, overload: overload, stitch: stitch)
@@ -640,6 +604,7 @@ struct ConstructorDemoView: View {
                 .padding(.bottom, 4)
 
             List(rows) { row in
+                logInView("ConstructorDemoView: row: \(row)")
                 HStack(alignment: .top, spacing: 8) {
                     Text(row.code)
                         .monospaced()

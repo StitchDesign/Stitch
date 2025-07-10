@@ -1026,6 +1026,7 @@
 		ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */; };
 		ECDAD6472DFBFCE700CE346F /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = ECDAD6462DFBFCE700CE346F /* StitchSchemaKit */; };
 		ECDAFFF52E1F739A00AF71E9 /* SyntaxViewConstructors.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDAFFF42E1F739A00AF71E9 /* SyntaxViewConstructors.swift */; };
+		ECDAFFF72E200F4400AF71E9 /* SyntaxViewConstructorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDAFFF62E200F4400AF71E9 /* SyntaxViewConstructorUtils.swift */; };
 		ECDBD8AB27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */; };
 		ECDBD8AD27A1D2E300F8DC91 /* GraphBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */; };
 		ECDC622026583B0C00F67ED8 /* GrayscaleNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */; };
@@ -2147,6 +2148,7 @@
 		ECD936572B714EFA008969E3 /* AnimatableStraightLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableStraightLine.swift; sourceTree = "<group>"; };
 		ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPortAddedToCanvas.swift; sourceTree = "<group>"; };
 		ECDAFFF42E1F739A00AF71E9 /* SyntaxViewConstructors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewConstructors.swift; sourceTree = "<group>"; };
+		ECDAFFF62E200F4400AF71E9 /* SyntaxViewConstructorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewConstructorUtils.swift; sourceTree = "<group>"; };
 		ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenGestureRecognizerView.swift; sourceTree = "<group>"; };
 		ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBaseView.swift; sourceTree = "<group>"; };
 		ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscaleNode.swift; sourceTree = "<group>"; };
@@ -5234,6 +5236,7 @@
 			children = (
 				EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */,
 				ECDAFFF42E1F739A00AF71E9 /* SyntaxViewConstructors.swift */,
+				ECDAFFF62E200F4400AF71E9 /* SyntaxViewConstructorUtils.swift */,
 				ECB238D72E0B8C7600D55A25 /* SyntaxView */,
 			);
 			path = Syntax;
@@ -6543,6 +6546,7 @@
 				EC1213D528873BF10012234C /* AnimationEvaluationHelpers.swift in Sources */,
 				ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */,
 				EC6914E02DE8CF1600AFF58F /* AITrainingExampleFromExistingGraph.swift in Sources */,
+				ECDAFFF72E200F4400AF71E9 /* SyntaxViewConstructorUtils.swift in Sources */,
 				EC9AB1372BD4299500F22730 /* PreviewWindowDeviceUtils.swift in Sources */,
 				B56FFB362C18F06900623CC7 /* BouncyConverter.swift in Sources */,
 				EC844A6C2B5F259C00C79B0B /* StitchFontDropdown.swift in Sources */,
