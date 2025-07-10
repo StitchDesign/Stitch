@@ -35,7 +35,7 @@ extension StitchAISchemaNodeType: Encodable {
         
         let defaultValue = self.type.defaultPortValue.anyCodable
         
-        try container.encode(self.type.display, forKey: .type)
+        try container.encode(self.type.asLLMStepNodeType, forKey: .type)
         try container.encode(defaultValue, forKey: .example)
     }
 }

@@ -154,9 +154,11 @@ struct OpenAISchemaRef: Encodable {
 struct OpenAIGeneric: Encodable, Sendable {
     var types: [any Encodable & Sendable] = []
     var refs: [OpenAISchemaRef] = []
+    var description: String?
     
     enum CodingKeys: String, CodingKey {
         case anyOf
+        case description
     }
     
     func encode(to encoder: Encoder) throws {
@@ -165,6 +167,9 @@ struct OpenAIGeneric: Encodable, Sendable {
         
         if isGeneric {
             var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encodeIfPresent(self.description,
+                                          forKey: .description)
+            
             var unkeyedContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
             
             // Add types to array
@@ -201,4 +206,5 @@ enum OpenAISchemaType: String, Encodable {
     case integer
     case boolean
     case array
+    case null
 }
