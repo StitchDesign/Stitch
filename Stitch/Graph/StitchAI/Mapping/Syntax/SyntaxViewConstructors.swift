@@ -309,13 +309,11 @@ struct ConstructorDemoView: View {
     
     static let sampleSource = """
     VStack {
-        // ── TEXT examples ─────────────────────────────
         Text("Hello")
         Text(verbatim: "Raw verbatim value")
         Text(LocalizedStringKey("greeting_key"))
         Text(AttributedString("Fancy attributed"))
 
-        // ── IMAGE examples ────────────────────────────
         Image(systemName: "gear")
         Image("logo")
         Image("photo", bundle: .main)
@@ -323,26 +321,66 @@ struct ConstructorDemoView: View {
     }
     """
 
-    let parsedLines: [String] = {
+    // One row of the demo table
+    struct DemoRow: Identifiable {
+        let id = UUID()
+        let code: String
+        let overload: String
+        let stitch: String
+    }
+
+    private var rows: [DemoRow] {
         let tree = Parser.parse(source: Self.sampleSource)
         let visitor = POCConstructorVisitor(viewMode: .fixedUp)
         visitor.walk(tree)
-        let lines = visitor.calls.map { call in
+
+        return visitor.calls.map { call in
+            let code = call.node.description.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let overload: String
+            let stitch: String
+
             switch call.kind {
-            case .text(let ctor):  return "Text  →  \(ctor)"
-            case .image(let ctor): return "Image →  \(ctor)"
+            case .text(let ctor):
+                overload = "Text.\(ctor)"
+                if let (layer, (port, value)) = ctor.toStitch {
+                    stitch = "Layer: \(layer), Input: \(port), Value: \(value.display)"
+                } else { stitch = "—" }
+
+            case .image(let ctor):
+                overload = "Image.\(ctor)"
+                if let (layer, (port, value)) = ctor.toStitch {
+                    stitch = "Layer: \(layer), Input: \(port), Value: \(value.display)"
+                } else { stitch = "—" }
             }
+
+            return DemoRow(code: code, overload: overload, stitch: stitch)
         }
-        print("ConstructorDemoView: parsedLines =", lines)
-        return lines
-    }()
+    }
 
     var body: some View {
-        Text("parsed lines below...")
-        List(parsedLines, id: \.self) { line in
-            Text(line)
-                .monospaced()
+        VStack(alignment: .leading) {
+            Text("SwiftUI → Overload → Stitch mapping")
+                .font(.headline)
+                .padding(.bottom, 4)
+
+            List(rows) { row in
+                HStack(alignment: .top, spacing: 8) {
+                    Text(row.code)
+                        .monospaced()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(row.overload)
+                        .monospaced()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(row.stitch)
+                        .monospaced()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
         }
+        .padding()
         .border(.red, width: 4)
     }
 }
