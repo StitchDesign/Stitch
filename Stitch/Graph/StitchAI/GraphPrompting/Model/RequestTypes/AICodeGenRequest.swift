@@ -95,9 +95,13 @@ struct AICodeGenRequest: StitchAIRequestable {
                 }
                 
                 do {
-                    let actionsResult = try viewNode.deriveStitchActions()
+                    // Reset ID mapping
+                    // Singleton invocation solves issue of decoder inits having inaccessble callers
+                    StitchAINodeMapper.shared.reset()
                     
-                    print("Derived Stitch layer data:\n\(actionsResult)")
+                    let actionsResult = try viewNode.deriveStitchActions(idMap: &StitchAINodeMapper.shared.map)
+                    
+                    print("Derived Stitch layer data:\n\(try actionsResult.encodeToPrintableString())")
                     
                     let layerDataList = actionsResult.actions
                     allDiscoveredErrors += actionsResult.caughtErrors
@@ -176,4 +180,15 @@ struct AICodeGenRequest: StitchAIRequestable {
         document.storeDelegate?.alertState.stitchFileError = .unknownError("\(failure)")
         return failure
     }
+}
+
+
+/// Singleton instance that tracks created node IDs from Stitch AI code gen.
+/// A singleton is used to solve the issue of making mapped IDs accessible for decoder functions that aren't called directly from Stitch. Since we are unable to modify the init signature of a decode, the decode logic must get its map information from elsewhere.
+final class StitchAINodeMapper: NSObject {
+    var map = [String : UUID]()
+    
+    @MainActor static let shared = StitchAINodeMapper()
+    
+    func reset() { map = .init() }
 }

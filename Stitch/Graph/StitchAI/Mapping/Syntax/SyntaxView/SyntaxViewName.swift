@@ -59,10 +59,13 @@ extension SyntaxViewName {
     }
     
     var isSupported: Bool {
-        (try? self.deriveLayerData(id: .init(),
-                                   args: [],
-                                   modifiers: [],
-                                   childrenLayers: [])) != nil
+        var fakeMap = [String : UUID]()
+        
+        return (try? self.deriveLayerData(id: .init(),
+                                          args: [],
+                                          modifiers: [],
+                                          childrenLayers: [],
+                                          idMap: &fakeMap)) != nil
     }
     
     // TODO: phase this out by using proper closure-checking

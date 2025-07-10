@@ -369,7 +369,8 @@ extension SyntaxViewName {
     func deriveLayerData(id: UUID,
                          args: [SyntaxViewArgumentData],
                          modifiers: [SyntaxViewModifier],
-                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
+                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData],
+                         idMap: inout [String : UUID]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
 
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
@@ -416,12 +417,12 @@ extension SyntaxViewName {
             case .layerInputValues(let valuesList):
                 layerData.custom_layer_input_values += valuesList
             case .layerIdAssignment(let string):
-                guard let uuidValue = UUID(uuidString: string) else {
-                    throw SwiftUISyntaxError.layerUUIDDecodingFailed(string)
-                }
+                // Map layer IDs, since these sometimes fail UUID decoding
+                let newId = idMap.get(string) ?? UUID()
+                idMap.updateValue(newId, forKey: string)
                 
                 // Update ID to that assigned from view
-                layerData.node_id = .init(value: uuidValue)
+                layerData.node_id = .init(value: newId)
             }
         }
         

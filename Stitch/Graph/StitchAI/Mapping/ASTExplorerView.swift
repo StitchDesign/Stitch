@@ -205,6 +205,8 @@ struct ASTExplorerView: View {
     // MARK: Helpers
     private func transform() {
         let currentCode = codes[selectedTab]
+        
+        var idMap = [String : UUID]()
 
         // Reset all values
         firstSyntax = nil
@@ -226,7 +228,7 @@ struct ASTExplorerView: View {
 
         do {
             // Syntax → Actions
-            let stitchActionsResult = try syntax.deriveStitchActions()
+            let stitchActionsResult = try syntax.deriveStitchActions(idMap: &idMap)
             
             stitchActions = stitchActionsResult.actions
             silentlyCaughtErrors += stitchActionsResult.caughtErrors

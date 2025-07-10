@@ -14,8 +14,25 @@ enum StitchAIUUID_V0: StitchSchemaVersionable {
     typealias PreviousInstance = Self.StitchAIUUID
     // MARK: - end
     
-    struct StitchAIUUID: StitchAIStringConvertable {
+    struct StitchAIUUID {
         var value: UUID
+    }
+}
+
+extension StitchAIUUID_V0.StitchAIUUID: StitchAIStringConvertable {
+    @MainActor
+    init?(_ description: String) {
+        // Singleton is used in case UUID decoding fails
+        
+        guard let uuid = UUID(description) else {
+            // Check and update singleton
+            let newId = StitchAINodeMapper.shared.map.get(description) ?? UUID()
+            StitchAINodeMapper.shared.map.updateValue(newId, forKey: description)
+            self = .init(value: newId)
+            return
+        }
+        
+        self = .init(value: uuid)
     }
 }
 

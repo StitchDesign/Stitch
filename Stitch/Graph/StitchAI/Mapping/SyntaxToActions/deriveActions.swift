@@ -8,14 +8,15 @@
 import Foundation
 import SwiftUI
 
-struct SwiftSyntaxActionsResult {
+// Encodable for print helper
+struct SwiftSyntaxActionsResult: Encodable {
     let actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }
 
 extension Array where Element == SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
-        let allResults = try self.map { try $0.deriveStitchActions() }
+    func deriveStitchActions(idMap: inout [String : UUID]) throws -> SwiftSyntaxActionsResult {
+        let allResults = try self.map { try $0.deriveStitchActions(idMap: &idMap) }
         
         return .init(actions: allResults.flatMap { $0.actions },
                      caughtErrors: allResults.flatMap { $0.caughtErrors })
@@ -23,12 +24,12 @@ extension Array where Element == SyntaxView {
 }
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+    func deriveStitchActions(idMap: inout [String : UUID]) throws -> SwiftSyntaxActionsResult {
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        let childResults = try self.children.deriveStitchActions()
+        let childResults = try self.children.deriveStitchActions(idMap: &idMap)
         silentErrors += childResults.caughtErrors
 
         // Map this node
@@ -37,7 +38,8 @@ extension SyntaxView {
                 id: self.id,
                 args: self.constructorArguments,
                 modifiers: self.modifiers,
-                childrenLayers: childResults.actions)
+                childrenLayers: childResults.actions,
+                idMap: &idMap)
             
             silentErrors += layerDataResult.silentErrors
             var layerData = layerDataResult.layerData

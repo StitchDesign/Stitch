@@ -82,6 +82,13 @@ extension SwiftUISyntaxError {
     }
 }
 
+extension SwiftUISyntaxError: Encodable {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode("\(self)")
+    }
+}
+
 extension CurrentStep.LayerInputPort {
     
     // MARK: 7/5 update: commenting out temporarily
