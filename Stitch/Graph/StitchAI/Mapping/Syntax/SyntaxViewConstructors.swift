@@ -247,7 +247,26 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case none                                                     // both defaulted
 
     var toStitch: (Layer, [CustomValue])? {
-        (.group, [ .init(.orientation, .orientation(.horizontal)) ])
+        // TODO: switch on overload case to grab specified alignment and spacing; provide default value for whatever overload case doesn't have
+        
+        (
+            .group,
+            [
+                .init(
+                    .orientation,
+                    .orientation(.horizontal)
+                ),
+                .init(
+                    .layerGroupAlignment,
+                    // TODO: turning VerticalAlignment into Anchoring
+                    .anchoring(.centerCenter)
+                ),
+                .init(
+                    .spacing,
+                    .spacing(.number(12))
+                )
+            ]
+        )
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> HStackViewConstructor? {
@@ -274,7 +293,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
         // no explicit args (only trailing closure)
         case (0, _, _):
-            return .none
+            return nil
 
         default:
             return nil
@@ -316,7 +335,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
         // no args
         case (0, _, _):
-            return .none
+            return nil
 
         default:
             return nil
