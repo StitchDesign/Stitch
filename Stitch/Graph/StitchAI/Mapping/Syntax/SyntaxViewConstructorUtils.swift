@@ -25,3 +25,27 @@ var resolved: String {
                              comment: "")
 }
 }
+
+// ── Alignment → Anchoring helpers ───────────────────────────────────────
+
+extension VerticalAlignment {
+    var toAnchoring: Anchoring {
+        switch self {
+        case .top:               return .topCenter
+        case .bottom:            return .bottomCenter
+        case .firstTextBaseline: return .topCenter       // best-effort
+        case .lastTextBaseline:  return .bottomCenter    // best-effort
+        default:                 return .centerCenter    // .center
+        }
+    }
+}
+
+extension HorizontalAlignment {
+    var toAnchoring: Anchoring {
+        switch self {
+        case .leading:  return .centerLeft
+        case .trailing: return .centerRight
+        default:        return .centerCenter             // .center
+        }
+    }
+}

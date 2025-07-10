@@ -249,26 +249,35 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case none                                                     // both defaulted
 
     var toStitch: (Layer, [CustomValue])? {
-        // TODO: switch on overload case to grab specified alignment and spacing; provide default value for whatever overload case doesn't have
-        
-        (
-            .group,
-            [
-                .init(
-                    .orientation,
-                    .orientation(.horizontal)
-                ),
-                .init(
-                    .layerGroupAlignment,
-                    // TODO: turning VerticalAlignment into Anchoring
-                    .anchoring(.centerCenter)
-                ),
-                .init(
-                    .spacing,
-                    .spacing(.number(12))
-                )
-            ]
-        )
+        // Every HStack is a horizontal group.  We always emit at least the
+        // orientation value, and optionally alignment + spacing depending
+        // on which overload was used.
+        var values: [CustomValue] = [
+            .init(.orientation, .orientation(.horizontal))
+        ]
+
+        switch self {
+        case .alignmentSpacing(let alignment, let spacing):
+            values.append(.init(.layerGroupAlignment,
+                                .anchoring(alignment.toAnchoring)))
+            if let s = spacing {
+                values.append(.init(.spacing, .spacing(.number(s))))
+            }
+
+        case .alignment(let alignment):
+            values.append(.init(.layerGroupAlignment,
+                                .anchoring(alignment.toAnchoring)))
+
+        case .spacing(let spacing):
+            if let s = spacing {
+                values.append(.init(.spacing, .spacing(.number(s))))
+            }
+
+        case .none:
+            break
+        }
+
+        return (.group, values)
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> HStackViewConstructor? {
@@ -316,13 +325,13 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
         switch self {
         case .alignmentSpacing(let alignment, let spacing):
-            values.append(.init(.layerGroupAlignment, .anchoring(.centerCenter))) // TODO: convert alignment properly
+            values.append(.init(.layerGroupAlignment, .anchoring(alignment.toAnchoring)))
             if let s = spacing {
                 values.append(.init(.spacing, .spacing(.number(s))))
             }
 
         case .alignment(let alignment):
-            values.append(.init(.layerGroupAlignment, .anchoring(.centerCenter))) // TODO: convert alignment properly
+            values.append(.init(.layerGroupAlignment, .anchoring(alignment.toAnchoring)))
 
         case .spacing(let spacing):
             if let s = spacing {
@@ -383,7 +392,17 @@ enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case none
 
     var toStitch: (Layer, [CustomValue])? {
-        (.group, [ .init(.orientation, .orientation(.horizontal)) ])
+        // Treat LazyHStack exactly like HStack.
+        switch self {
+        case .alignmentSpacing(let a, let s):
+            return HStackViewConstructor.alignmentSpacing(alignment: a, spacing: s).toStitch
+        case .alignment(let a):
+            return HStackViewConstructor.alignment(alignment: a).toStitch
+        case .spacing(let s):
+            return HStackViewConstructor.spacing(s).toStitch
+        case .none:
+            return HStackViewConstructor.none.toStitch
+        }
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyHStackViewConstructor? {
@@ -405,7 +424,16 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case none
 
     var toStitch: (Layer, [CustomValue])? {
-        (.group, [ .init(.orientation, .orientation(.vertical)) ])
+        switch self {
+        case .alignmentSpacing(let a, let s):
+            return VStackViewConstructor.alignmentSpacing(alignment: a, spacing: s).toStitch
+        case .alignment(let a):
+            return VStackViewConstructor.alignment(alignment: a).toStitch
+        case .spacing(let s):
+            return VStackViewConstructor.spacing(s).toStitch
+        case .none:
+            return VStackViewConstructor.none.toStitch
+        }
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyVStackViewConstructor? {
