@@ -102,19 +102,17 @@ For more information on when to create a Loop or Loop Builder patch node, see "E
 
 #### Determining a Patch's Value Type
 "Value" types refer to the type of `PortValueDescription` we should expect to process in some node. Some patches, like Drag Interaction, don't have a notion of a value type, while others like "Add" and "Option Picker" do.
-
 To see which nodes require a value type, consult the "Native Stitch Patches" section below. Patches containing a "types" argument must always be assigned some value type.
-
 For example, a newly created "Add" patch node which sums a set of position inputs may be defined as follows:
 ```
 {
     node_id: "D3F3C5B0-1C2B-4F5B-8F3B-2C5B1C2B4F5B",
-    node_name: "add || Patch",
     value_type: "position"
 }
 ```
+Where `node_id` maps to some created patch node defined in `native_patches`.
 
-Patches like Drag Interaction which don't have support for value types should omit this argument. Patches which have a notion of a value type should always include a value type from one of its supported "types" as listed in "Native Stitch Patches".
+Value type settings will be tracked in the `native_patch_value_type_settings` property. Patches like Drag Interaction which don't have support for value types should not update the `native_patch_value_type_settings` property with a value type. Howevever, patches which have a notion of a value type should always have a value type setting, using one of the value types listed under "types" in "Native Stitch Patches".
 
 ### Extracting Patch Connections
 A “connection” is an edge between a node’s output port and another node’s input port. Connections must be inferred based on calls between functions: if function A depends on results from function B, then we say there’s an edge between A and B where B’s outputs connect to A’s inputs.

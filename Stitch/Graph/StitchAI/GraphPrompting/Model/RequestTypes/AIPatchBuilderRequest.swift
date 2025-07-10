@@ -209,7 +209,10 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 continue
             }
             
-            patchNode.userVisibleType = try newPatch.value_type?.migrate()
+            // Set custom value type here
+            if let customValueType = self.patch_data.native_patch_value_type_settings.first(where: { $0.node_id.value == oldId })?.value_type {
+                patchNode.userVisibleType = try customValueType.value.migrate()
+            }
             
             // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
             let supportsNewInputs = patchNode.patch.canChangeInputCounts
