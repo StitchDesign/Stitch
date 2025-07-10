@@ -46,8 +46,6 @@ struct CustomInputValue: Equatable, Hashable {
 protocol FromSwiftUIViewToStitch {
     associatedtype T
     
-    // Really, should be: (Layer, NonEmptyArray<ManualValueOrIncomingEdge>)
-    // i.e. "this view and constructor overload created this layer and these layer input values/connections"
     var toStitch: (Layer, [ValueOrEdge])? { get }
     
     static func from(_ node: FunctionCallExprSyntax) -> T?
@@ -61,16 +59,24 @@ enum ViewConstructor: Equatable {
     case vStack(VStackViewConstructor)
     case lazyHStack(LazyHStackViewConstructor)
     case lazyVStack(LazyVStackViewConstructor)
+    case circle(CircleViewConstructor)
+    case rectangle(RectangleViewConstructor)
+    case roundedRectangle(RoundedRectangleViewConstructor)
+    case scrollView(ScrollViewViewConstructor)
+    case zStack(ZStackViewConstructor)
 }
     
 
 enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Text("Hello")`
     case string(_ content: Parameter<String>)
+    
     /// `Text(_ key: LocalizedStringKey)`
     case localized(_ key: Parameter<LocalizedStringKey>)
+    
     /// `Text(verbatim: "Raw")`
     case verbatim(_ content: Parameter<String>)
+    
     /// `Text(_ attributed: AttributedString)`
     case attributed(_ content: Parameter<AttributedString>)
 
@@ -422,9 +428,211 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     }
 }
 
+// MARK: - ZStack -----------------------------------------------------------
+
+enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// SwiftUI: `init(alignment: Alignment = .center, content:)`
+    case parameters(alignment: Parameter<Alignment> = .literal(.center))
+
+    // Orientation is implicit overlap; we won’t emit orientation value.
+    var toStitch: (Layer, [ValueOrEdge])? {
+        var list: [ValueOrEdge] = []
+
+        guard case let .parameters(alignment) = self else { return nil }
+
+        switch alignment {
+        case .literal(let a) where a != .center:
+            list.append(.value(.init(.layerGroupAlignment,
+                                     .anchoring(a.toAnchoring))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        default:
+            break
+        }
+
+        return (.group, list)
+    }
+
+    static func from(_ node: FunctionCallExprSyntax) -> ZStackViewConstructor? {
+        var alignment: Parameter<Alignment> = .literal(.center)
+
+        for arg in node.arguments {
+            if arg.label?.text == "alignment" {
+                if let alignLit = arg.alignmentLiteral {
+                    alignment = .literal(alignLit)
+                } else {
+                    alignment = .expression(arg.expression)
+                }
+            }
+        }
+
+        return .parameters(alignment: alignment)
+    }
+}
+
+// MARK: - Circle & Rectangle (no‑arg views) -------------------------------
+
+enum CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    case plain                                    // Circle()
+
+    var toStitch: (Layer, [ValueOrEdge])? {
+        (.oval, [])                             // no args, nothing to edge
+    }
+
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        node.arguments.isEmpty ? .plain : nil
+    }
+}
+
+enum RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    case plain                                    // Rectangle()
+
+    var toStitch: (Layer, [ValueOrEdge])? {
+        (.rectangle, [])                          // no args
+    }
+
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        node.arguments.isEmpty ? .plain : nil
+    }
+}
+
+// MARK: - RoundedRectangle -------------------------------------------------
+
+enum RoundedRectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// RoundedRectangle(cornerRadius:style:)
+    case cornerRadius(radius: Parameter<CGFloat>,
+                      style:  Parameter<RoundedCornerStyle> = .literal(.continuous))
+    
+    /// RoundedRectangle(cornerSize:style:)
+    case cornerSize(size: Parameter<CGSize>,
+                    style: Parameter<RoundedCornerStyle> = .literal(.continuous))
+    
+    // MARK: Stitch mapping
+    ///
+    /// • RoundedRectangle(cornerRadius:) → Layer.rectangle + cornerRadius
+    /// • RoundedRectangle(cornerSize:)   → Layer.rectangle + cornerSize
+    ///
+    /// (We ignore the `style` for now; it can be added later.)
+    var toStitch: (Layer, [ValueOrEdge])? {
+        switch self
+        {
+        // ── cornerRadius(radius:style:) ───────────────────────────────
+        case .cornerRadius(let radius, _):
+            switch radius {
+            case .literal(let r):
+                return (
+                    .rectangle,
+                    [ .value(.init(.cornerRadius, .number(r))) ]
+                )
+            case .expression(let expr):
+                return (
+                    .rectangle,
+                    [ .edge(expr) ]
+                )
+            }
+
+        // ── cornerSize(size:style:) ───────────────────────────────────
+        case .cornerSize(let size, _):
+            switch size {
+            case .literal(let s):
+                return (
+                    .rectangle,
+//                    [ .value(.init(.cornerSize, .size(s))) ]
+                    [ .value(.init(.cornerRadius, .number(s.width))) ]
+                )
+            case .expression(let expr):
+                return (
+                    .rectangle,
+                    [ .edge(expr) ]
+                )
+            }
+        }
+    }
+    
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        let args = node.arguments
+        guard let first = args.first else { return nil }
+        
+        if first.label?.text == "cornerRadius" {
+            let style: Parameter<RoundedCornerStyle> = .literal(.continuous)
+            return .cornerRadius(radius: first.asParameterCGFloat(), style: style)
+        }
+        if first.label?.text == "cornerSize" {
+            let style: Parameter<RoundedCornerStyle> = .literal(.continuous)
+            return .cornerSize(size: first.asParameterCGSize(), style: style)
+        }
+        return nil
+    }
+}
+
+// MARK: - ScrollView -------------------------------------------------------
+
+enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// ScrollView(axes:showIndicators:)
+    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
+                    showsIndicators: Parameter<Bool> = .literal(true))
+    
+    // Placeholder – mapping not yet defined
+    var toStitch: (Layer, [ValueOrEdge])? { nil }
+    
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        let args = node.arguments
+        var axes: Parameter<Axis.Set> = .literal(.vertical)
+        var indicators: Parameter<Bool> = .literal(true)
+        
+        for arg in args {
+            switch arg.label?.text {
+            case nil:      // unnamed first parameter can be Axis.Set
+                axes = arg.asParameterAxisSet()
+            case "showsIndicators":
+                indicators = arg.asParameterBool()
+            default:
+                break
+            }
+        }
+        return .parameters(axes: axes, showsIndicators: indicators)
+    }
+}
+
+extension Alignment {
+    var toAnchoring: Anchoring {
+        switch self {
+        case .topLeading:     return .topLeft
+        case .top:            return .topCenter
+        case .topTrailing:    return .topRight
+        case .leading:        return .centerLeft
+        case .center:         return .centerCenter
+        case .trailing:       return .centerRight
+        case .bottomLeading:  return .bottomLeft
+        case .bottom:         return .bottomCenter
+        case .bottomTrailing: return .bottomRight
+        default:              return .centerCenter
+        }
+    }
+}
+
 
 // ── Tiny extraction helpers for alignment / spacing literals ─────────────
 extension LabeledExprSyntax {
+    var alignmentLiteral: Alignment? {
+        if let member = expression.as(MemberAccessExprSyntax.self)?
+                .declName.baseName.text {
+            switch member {
+            case "topLeading":     return .topLeading
+            case "top":            return .top
+            case "topTrailing":    return .topTrailing
+            case "leading":        return .leading
+            case "center":         return .center
+            case "trailing":       return .trailing
+            case "bottomLeading":  return .bottomLeading
+            case "bottom":         return .bottom
+            case "bottomTrailing": return .bottomTrailing
+            default: return nil
+            }
+        }
+        return nil
+    }
+
     var cgFloatValue: CGFloat? {
         if let float = expression.as(FloatLiteralExprSyntax.self) {
             return CGFloat(Double(float.literal.text) ?? 0)
@@ -499,6 +707,43 @@ extension LabeledExprSyntax {
         }
         return .expression(expression)
     }
+
+    func asParameterCGFloat() -> Parameter<CGFloat> {
+        if let lit = cgFloatValue {
+            return .literal(lit)
+        }
+        return .expression(expression)
+    }
+
+    func asParameterCGSize() -> Parameter<CGSize> {
+        if let tuple = expression.as(TupleExprSyntax.self),
+           let wLit = tuple.elements.first?.expression.as(FloatLiteralExprSyntax.self),
+           let hLit = tuple.elements[safe: 1]?.expression.as(FloatLiteralExprSyntax.self),
+           let w = Double(wLit.literal.text),
+           let h = Double(hLit.literal.text) {
+            return .literal(CGSize(width: w, height: h))
+        }
+        return .expression(expression)
+    }
+
+    func asParameterAxisSet() -> Parameter<Axis.Set> {
+        if let ident = expression.as(MemberAccessExprSyntax.self)?
+            .declName.baseName.text {
+            switch ident {
+            case "vertical":   return .literal(.vertical)
+            case "horizontal": return .literal(.horizontal)
+            default: break
+            }
+        }
+        return .expression(expression)
+    }
+
+    func asParameterBool() -> Parameter<Bool> {
+        if let bool = expression.as(BooleanLiteralExprSyntax.self) {
+            return .literal(bool.literal.text == "true")
+        }
+        return .expression(expression)
+    }
 }
 
 private extension Parameter where Value: CustomStringConvertible {
@@ -530,6 +775,11 @@ struct POCViewCall {
         case vStack(VStackViewConstructor)
         case lazyHStack(LazyHStackViewConstructor)
         case lazyVStack(LazyVStackViewConstructor)
+        case circle(CircleViewConstructor)
+        case rectangle(RectangleViewConstructor)
+        case roundedRectangle(RoundedRectangleViewConstructor)
+        case scrollView(ScrollViewViewConstructor)
+        case zStack(ZStackViewConstructor)
     }
     let kind: Kind
     let node: FunctionCallExprSyntax       // handy for debugging / source‑ranges
@@ -583,7 +833,32 @@ final class POCConstructorVisitor: SyntaxVisitor {
             if let ctor = LazyVStackViewConstructor.from(node) {
                 calls.append(.init(kind: .lazyVStack(ctor), node: node))
             }
-            
+
+        case "Circle":
+            if let ctor = CircleViewConstructor.from(node) {
+                calls.append(.init(kind: .circle(ctor), node: node))
+            }
+
+        case "Rectangle":
+            if let ctor = RectangleViewConstructor.from(node) {
+                calls.append(.init(kind: .rectangle(ctor), node: node))
+            }
+
+        case "RoundedRectangle":
+            if let ctor = RoundedRectangleViewConstructor.from(node) {
+                calls.append(.init(kind: .roundedRectangle(ctor), node: node))
+            }
+
+        case "ScrollView":
+            if let ctor = ScrollViewViewConstructor.from(node) {
+                calls.append(.init(kind: .scrollView(ctor), node: node))
+            }
+
+        case "ZStack":
+            if let ctor = ZStackViewConstructor.from(node) {
+                calls.append(.init(kind: .zStack(ctor), node: node))
+            }
+
         default:
             break
         }
@@ -644,6 +919,12 @@ struct ConstructorDemoView: View {
         LazyVStack(spacing: 4)
         LazyVStack(spacing: mySpacingVariable)
         LazyVStack(spacing: 2 + 6)
+        Circle()
+        Rectangle()
+        RoundedRectangle(cornerRadius: 12)
+        ScrollView(.horizontal, showsIndicators: false)
+        ZStack
+        ZStack(alignment: .topLeading)
     """
 
     // One row of the demo table
@@ -668,12 +949,28 @@ struct ConstructorDemoView: View {
             let (prefix, ctor): (String, any FromSwiftUIViewToStitch)
 
             switch call.kind {
-            case .text(let c):        (prefix, ctor) = ("Text", c)
-            case .image(let c):       (prefix, ctor) = ("Image", c)
-            case .hStack(let c):      (prefix, ctor) = ("HStack", c)
-            case .vStack(let c):      (prefix, ctor) = ("VStack", c)
-            case .lazyHStack(let c):  (prefix, ctor) = ("LazyHStack", c)
-            case .lazyVStack(let c):  (prefix, ctor) = ("LazyVStack", c)
+            case .text(let c):
+                (prefix, ctor) = ("Text", c)
+            case .image(let c):
+                (prefix, ctor) = ("Image", c)
+            case .hStack(let c):
+                (prefix, ctor) = ("HStack", c)
+            case .vStack(let c):
+                (prefix, ctor) = ("VStack", c)
+            case .lazyHStack(let c):
+                (prefix, ctor) = ("LazyHStack", c)
+            case .lazyVStack(let c):
+                (prefix, ctor) = ("LazyVStack", c)
+            case .circle(let c):
+                (prefix, ctor) = ("Circle", c)
+            case .rectangle(let c):
+                (prefix, ctor) = ("Rectangle", c)
+            case .roundedRectangle(let c):
+                (prefix, ctor) = ("RoundedRectangle", c)
+            case .scrollView(let c):
+                (prefix, ctor) = ("ScrollView", c)
+            case .zStack(let c):
+                (prefix, ctor) = ("ZStack", c)
             }
 
             overload = "\(prefix).\(ctor)"

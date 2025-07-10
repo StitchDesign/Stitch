@@ -45,7 +45,7 @@ struct StitchApp: App {
     var body: some Scene {
         WindowGroup {
             ConstructorDemoView()
-            // VarBodyParserDemoView()
+//             VarBodyParserDemoView()
             // ASTExplorerView()
         }
     }
