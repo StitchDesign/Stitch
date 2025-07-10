@@ -457,8 +457,8 @@ extension Array where Element == CurrentAIPatchBuilderResponseFormat.LayerData {
 }
 
 extension AIPatchBuilderResponseFormat_V0.LayerData {
-    func createSidebarLayerData(idMap: [UUID : UUID]) throws -> SidebarLayerData {
-        guard let newId = idMap.get(self.node_id.value) else {
+    func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
+        guard let newId = idMap.get(self.node_id.value.description) else {
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         

@@ -126,7 +126,8 @@ struct AICodeGenRequest: StitchAIRequestable {
                                 let graphData = CurrentAIPatchBuilderResponseFormat
                                     .GraphData(layer_data_list: layerDataList,
                                                patch_data: patchBuildResult)
-                                try graphData.applyAIGraph(to: document)
+                                try graphData.applyAIGraph(to: document,
+                                                           idMap: &StitchAINodeMapper.shared.map)
                                 
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                                 // Display parsing warnings
