@@ -240,6 +240,8 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //      • init(spacing:…, content:)                  (alignment defaults)
 //      • init(content:)                             (both defaults)
 //
+
+// what about
 enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case alignmentSpacing(alignment: VerticalAlignment, spacing: CGFloat?)
     case alignment(alignment: VerticalAlignment)                  // spacing == nil
@@ -308,7 +310,30 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case none
 
     var toStitch: (Layer, [CustomValue])? {
-        (.group, [ .init(.orientation, .orientation(.vertical)) ])
+        var values: [CustomValue] = [
+            .init(.orientation, .orientation(.vertical))
+        ]
+
+        switch self {
+        case .alignmentSpacing(let alignment, let spacing):
+            values.append(.init(.layerGroupAlignment, .anchoring(.centerCenter))) // TODO: convert alignment properly
+            if let s = spacing {
+                values.append(.init(.spacing, .spacing(.number(s))))
+            }
+
+        case .alignment(let alignment):
+            values.append(.init(.layerGroupAlignment, .anchoring(.centerCenter))) // TODO: convert alignment properly
+
+        case .spacing(let spacing):
+            if let s = spacing {
+                values.append(.init(.spacing, .spacing(.number(s))))
+            }
+
+        case .none:
+            break
+        }
+
+        return (.group, values)
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> VStackViewConstructor? {
