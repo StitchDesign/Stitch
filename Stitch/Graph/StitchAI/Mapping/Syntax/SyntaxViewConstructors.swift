@@ -365,16 +365,31 @@ private extension LabeledExprSyntax {
         }
         return nil
     }
+
     var vertAlignValue: VerticalAlignment {
-        // crude: assume `.top` / `.center` / `.bottom`
-        if let ident = expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text {
-            return VerticalAlignment(rawValue: ident) ?? .center
+        if let ident = expression.as(MemberAccessExprSyntax.self)?
+            .declName.baseName.text
+        {
+            switch ident {
+            case "top":               return .top
+            case "bottom":            return .bottom
+            case "firstTextBaseline": return .firstTextBaseline
+            case "lastTextBaseline":  return .lastTextBaseline
+            default:                  return .center
+            }
         }
         return .center
     }
+
     var horizAlignValue: HorizontalAlignment {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text {
-            return HorizontalAlignment(rawValue: ident) ?? .center
+        if let ident = expression.as(MemberAccessExprSyntax.self)?
+            .declName.baseName.text
+        {
+            switch ident {
+            case "leading":  return .leading
+            case "trailing": return .trailing
+            default:         return .center
+            }
         }
         return .center
     }
@@ -394,6 +409,10 @@ struct POCViewCall {
     enum Kind {
         case text(TextViewConstructor)
         case image(ImageViewConstructor)
+        case hStack(HStackViewConstructor)
+        case vStack(VStackViewConstructor)
+        case lazyHStack(LazyHStackViewConstructor)
+        case lazyVStack(LazyVStackViewConstructor)
     }
     let kind: Kind
     let node: FunctionCallExprSyntax       // handy for debugging / source‑ranges
@@ -430,6 +449,26 @@ final class POCConstructorVisitor: SyntaxVisitor {
                 print("POCVisitor: recorded call – total so far = \(calls.count)")
             }
 
+        case "HStack":
+            if let ctor = HStackViewConstructor.from(node) {
+                calls.append(.init(kind: .hStack(ctor), node: node))
+            }
+
+        case "VStack":
+            if let ctor = VStackViewConstructor.from(node) {
+                calls.append(.init(kind: .vStack(ctor), node: node))
+            }
+
+        case "LazyHStack":
+            if let ctor = LazyHStackViewConstructor.from(node) {
+                calls.append(.init(kind: .lazyHStack(ctor), node: node))
+            }
+
+        case "LazyVStack":
+            if let ctor = LazyVStackViewConstructor.from(node) {
+                calls.append(.init(kind: .lazyVStack(ctor), node: node))
+            }
+            
         default:
             break
         }
@@ -472,15 +511,39 @@ struct ConstructorDemoView: View {
     
     static let sampleSource = """
     VStack {
+        // ── Text overloads ─────────────────────────
         Text("Hello")
         Text(verbatim: "Raw verbatim value")
         Text(LocalizedStringKey("greeting_key"))
         Text(AttributedString("Fancy attributed"))
 
+        // ── Image overloads ────────────────────────
         Image(systemName: "gear")
         Image("logo")
         Image("photo", bundle: .main)
         Image(decorative: "decor", bundle: nil)
+
+        // ── HStack overloads ───────────────────────
+        HStack { Text("A") }
+        HStack(alignment: .top) { Text("A") }
+        HStack(spacing: 20) { Text("A") }
+        HStack(alignment: .bottom, spacing: 10) { Text("A") }
+
+        // ── VStack overloads ───────────────────────
+        VStack { Text("B") }
+        VStack(alignment: .leading) { Text("B") }
+        VStack(spacing: 12) { Text("B") }
+        VStack(alignment: .trailing, spacing: 6) { Text("B") }
+
+        // ── LazyHStack overloads ───────────────────
+        LazyHStack { Text("C") }
+        LazyHStack(alignment: .top) { Text("C") }
+        LazyHStack(spacing: 8) { Text("C") }
+
+        // ── LazyVStack overloads ───────────────────
+        LazyVStack { Text("D") }
+        LazyVStack(alignment: .leading) { Text("D") }
+        LazyVStack(spacing: 4) { Text("D") }
     }
     """
 
@@ -515,6 +578,30 @@ struct ConstructorDemoView: View {
                 if let (layer, (port, value)) = ctor.toStitch {
                     stitch = "Layer: \(layer), Input: \(port), Value: \(value.display)"
                 } else { stitch = "—" }
+                
+            case .hStack(let ctor):
+                overload = "HStack.\(ctor)"
+                stitch = ctor.toStitch
+                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
+                    ?? "—"
+
+            case .vStack(let ctor):
+                overload = "VStack.\(ctor)"
+                stitch = ctor.toStitch
+                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
+                    ?? "—"
+
+            case .lazyHStack(let ctor):
+                overload = "LazyHStack.\(ctor)"
+                stitch = ctor.toStitch
+                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
+                    ?? "—"
+
+            case .lazyVStack(let ctor):
+                overload = "LazyVStack.\(ctor)"
+                stitch = ctor.toStitch
+                    .map { "Layer: \($0.0), Input: \($0.1.0), Value: \($0.1.1.display)" }
+                    ?? "—"
             }
 
             return DemoRow(code: code, overload: overload, stitch: stitch)
