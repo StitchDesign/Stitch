@@ -28,8 +28,12 @@ enum Parameter<Value: Equatable>: Equatable {
 }
 
 
+enum ValueOrEdge: Equatable {
+    case value(CustomInputValue)
+    case edge(ExprSyntax)
+}
 
-struct CustomValue: Equatable, Hashable {
+struct CustomInputValue: Equatable, Hashable {
     let input: LayerInputPort
     let value: PortValue
     
@@ -44,7 +48,7 @@ protocol FromSwiftUIViewToStitch {
     
     // Really, should be: (Layer, NonEmptyArray<ManualValueOrIncomingEdge>)
     // i.e. "this view and constructor overload created this layer and these layer input values/connections"
-    var toStitch: (Layer, [CustomValue])? { get }
+    var toStitch: (Layer, [ValueOrEdge])? { get }
     
     static func from(_ node: FunctionCallExprSyntax) -> T?
 }
@@ -70,23 +74,38 @@ enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Text(_ attributed: AttributedString)`
     case attributed(_ content: Parameter<AttributedString>)
 
-    var toStitch: (Layer, [CustomValue])? {
+    var toStitch: (Layer, [ValueOrEdge])? {
         switch self {
+
         case .string(let p), .verbatim(let p):
-            if let s = p.literal {
-                return (.text, [ .init(.text, .string(.init(s))) ])
+            switch p {
+            case .literal(let s):
+                return (.text,
+                        [ .value(.init(.text, .string(.init(s)))) ])
+            case .expression(let expr):
+                return (.text,
+                        [ .edge(expr) ])
             }
-            return nil        // expression handled as edge elsewhere
+
         case .localized(let p):
-            if let key = p.literal {
-                return (.text, [ .init(.text, .string(.init(key.resolved))) ])
+            switch p {
+            case .literal(let key):
+                return (.text,
+                        [ .value(.init(.text,
+                                       .string(.init(key.resolved)))) ])
+            case .expression(let expr):
+                return (.text, [ .edge(expr) ])
             }
-            return nil
+
         case .attributed(let p):
-            if let attr = p.literal {
-                return (.text, [ .init(.text, .string(.init(attr.plainText))) ])
+            switch p {
+            case .literal(let attr):
+                return (.text,
+                        [ .value(.init(.text,
+                                       .string(.init(attr.plainText)))) ])
+            case .expression(let expr):
+                return (.text, [ .edge(expr) ])
             }
-            return nil
         }
     }
 
@@ -143,23 +162,36 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Image(uiImage:)`
     case uiImage(image: Parameter<UIImage>)
 
-    var toStitch: (Layer, [CustomValue])? {
+    var toStitch: (Layer, [ValueOrEdge])? {
         switch self {
-        case .asset(let name, _), .decorative(let name, _):
-            if let lit = name.literal {
-                return (.image, [ .init(.image, .string(.init(lit))) ])
+
+        case .asset(let name, _),
+             .decorative(let name, _):
+            switch name {
+            case .literal(let lit):
+                return (.image,
+                        [ .value(.init(.image, .string(.init(lit)))) ])
+            case .expression(let expr):
+                return (.image, [ .edge(expr) ])
             }
-            return nil                                   // expression → edge later
+
         case .sfSymbol(let name):
-            if let lit = name.literal {
-                return (.image, [ .init(.sfSymbol, .string(.init(lit))) ])
+            switch name {
+            case .literal(let lit):
+                return (.image,
+                        [ .value(.init(.sfSymbol, .string(.init(lit)))) ])
+            case .expression(let expr):
+                return (.image, [ .edge(expr) ])
             }
-            return nil
+
         case .uiImage(let image):
-            if let lit = image.literal {
-                return (.image, [ .init(.image, .asyncMedia(nil)) ])
+            switch image {
+            case .literal(let ui):
+                return (.image,
+                        [ .value(.init(.image, .asyncMedia(nil))) ])
+            case .expression(let expr):
+                return (.image, [ .edge(expr) ])
             }
-            return nil
         }
     }
 
@@ -206,37 +238,41 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 // what about
 enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-
     /// SwiftUI actually exposes *one* public initializer:
     /// `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
     /// We model that with a single enum case whose associated values carry whatever the
     /// call site provided—using `.center` and `nil` when the developer omitted them.
-    case parameters(alignment: VerticalAlignment = .center,
-                    spacing: CGFloat? = nil)
+    case parameters(alignment: Parameter<VerticalAlignment> = .literal(.center),
+                    spacing:   Parameter<CGFloat?>          = .literal(nil))
 
     // MARK: Stitch mapping
-    var toStitch: (Layer, [CustomValue])? {
-        // orientation is always horizontal
-        var values: [CustomValue] = [
-            .init(.orientation, .orientation(.horizontal))
+    var toStitch: (Layer, [ValueOrEdge])? {
+        var list: [ValueOrEdge] = [
+            .value(.init(.orientation, .orientation(.horizontal)))
         ]
 
-        switch self {
-        case .parameters(let alignment, let spacing):
+        guard case let .parameters(alignment, spacing) = self else { return nil }
 
-            // Only emit alignment if it differs from default .center
-            if alignment != .center {
-                values.append(.init(.layerGroupAlignment,
-                                    .anchoring(alignment.toAnchoring)))
-            }
-
-            // Only emit spacing if the developer provided one
-            if let s = spacing {
-                values.append(.init(.spacing, .spacing(.number(s))))
-            }
+        // Alignment
+        switch alignment {
+        case .literal(let a) where a != .center:
+            list.append(.value(.init(.layerGroupAlignment,
+                                     .anchoring(a.toAnchoring))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        default: break
         }
 
-        return (.group, values)
+        // Spacing
+        switch spacing {
+        case .literal(let s?) :
+            list.append(.value(.init(.spacing, .spacing(.number(s)))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        default: break
+        }
+
+        return (.group, list)
     }
 
     // MARK: Parse from SwiftSyntax
@@ -244,16 +280,24 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
         let args = node.arguments
 
         // defaults
-        var alignment: VerticalAlignment = .center
-        var spacing: CGFloat? = nil
+        var alignment: Parameter<VerticalAlignment> = .literal(.center)
+        var spacing:   Parameter<CGFloat?>          = .literal(nil)
 
         // iterate through labelled args
         for arg in args {
             switch arg.label?.text {
             case "alignment":
-                alignment = arg.vertAlignValue
+                if let lit = arg.vertAlignLiteral {
+                    alignment = .literal(lit)
+                } else {
+                    alignment = .expression(arg.expression)
+                }
             case "spacing":
-                spacing = arg.cgFloatValue
+                if let num = arg.cgFloatValue {
+                    spacing = .literal(num)
+                } else {
+                    spacing = .expression(arg.expression)
+                }
             default:
                 // ignore other labels (content closure etc.)
                 break
@@ -265,46 +309,59 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-
     /// SwiftUI exposes just one public initializer:
     /// `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
-    case parameters(alignment: HorizontalAlignment = .center,
-                    spacing: CGFloat? = nil)
+    case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
+                    spacing:   Parameter<CGFloat?>            = .literal(nil))
 
     // MARK: Stitch mapping
-    var toStitch: (Layer, [CustomValue])? {
-        var values: [CustomValue] = [
-            .init(.orientation, .orientation(.vertical))
+    var toStitch: (Layer, [ValueOrEdge])? {
+        var list: [ValueOrEdge] = [
+            .value(.init(.orientation, .orientation(.vertical)))
         ]
 
-        switch self {
-        case .parameters(let alignment, let spacing):
+        guard case let .parameters(alignment, spacing) = self else { return nil }
 
-            if alignment != .center {
-                values.append(.init(.layerGroupAlignment,
-                                    .anchoring(alignment.toAnchoring)))
-            }
-
-            if let s = spacing {
-                values.append(.init(.spacing, .spacing(.number(s))))
-            }
+        switch alignment {
+        case .literal(let a) where a != .center:
+            list.append(.value(.init(.layerGroupAlignment,
+                                     .anchoring(a.toAnchoring))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        default: break
         }
 
-        return (.group, values)
+        switch spacing {
+        case .literal(let s?):
+            list.append(.value(.init(.spacing, .spacing(.number(s)))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        default: break
+        }
+
+        return (.group, list)
     }
 
     // MARK: Parse from SwiftSyntax
     static func from(_ node: FunctionCallExprSyntax) -> VStackViewConstructor? {
         let args = node.arguments
-        var alignment: HorizontalAlignment = .center
-        var spacing: CGFloat? = nil
+        var alignment: Parameter<HorizontalAlignment> = .literal(.center)
+        var spacing:   Parameter<CGFloat?>            = .literal(nil)
 
         for arg in args {
             switch arg.label?.text {
             case "alignment":
-                alignment = arg.horizAlignValue
+                if let lit = arg.horizAlignLiteral {
+                    alignment = .literal(lit)
+                } else {
+                    alignment = .expression(arg.expression)
+                }
             case "spacing":
-                spacing = arg.cgFloatValue
+                if let num = arg.cgFloatValue {
+                    spacing = .literal(num)
+                } else {
+                    spacing = .expression(arg.expression)
+                }
             default:
                 break
             }
@@ -323,10 +380,10 @@ extension LabeledExprListSyntax {
 }
 
 enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-    case parameters(alignment: VerticalAlignment = .center,
-                    spacing: CGFloat? = nil)
+    case parameters(alignment: Parameter<VerticalAlignment> = .literal(.center),
+                    spacing:   Parameter<CGFloat?>          = .literal(nil))
 
-    var toStitch: (Layer, [CustomValue])? {
+    var toStitch: (Layer, [ValueOrEdge])? {
         switch self {
         case .parameters(let alignment, let spacing):
             return HStackViewConstructor
@@ -345,10 +402,10 @@ enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-    case parameters(alignment: HorizontalAlignment = .center,
-                    spacing: CGFloat? = nil)
+    case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
+                    spacing:   Parameter<CGFloat?>            = .literal(nil))
 
-    var toStitch: (Layer, [CustomValue])? {
+    var toStitch: (Layer, [ValueOrEdge])? {
         switch self {
         case .parameters(let alignment, let spacing):
             return VStackViewConstructor
@@ -374,6 +431,36 @@ extension LabeledExprSyntax {
         }
         if let int = expression.as(IntegerLiteralExprSyntax.self) {
             return CGFloat(Double(int.literal.text) ?? 0)
+        }
+        return nil
+    }
+
+    // New helper: vertical alignment literal
+    var vertAlignLiteral: VerticalAlignment? {
+        if let ident = expression.as(MemberAccessExprSyntax.self)?
+                .declName.baseName.text {
+            switch ident {
+            case "top": return .top
+            case "bottom": return .bottom
+            case "firstTextBaseline": return .firstTextBaseline
+            case "lastTextBaseline": return .lastTextBaseline
+            case "center": return .center
+            default: return nil
+            }
+        }
+        return nil
+    }
+
+    // New helper: horizontal alignment literal
+    var horizAlignLiteral: HorizontalAlignment? {
+        if let ident = expression.as(MemberAccessExprSyntax.self)?
+                .declName.baseName.text {
+            switch ident {
+            case "leading": return .leading
+            case "trailing": return .trailing
+            case "center": return .center
+            default: return nil
+            }
         }
         return nil
     }
@@ -405,6 +492,7 @@ extension LabeledExprSyntax {
         }
         return .center
     }
+
     func asParameterString() -> Parameter<String> {
         if let lit = expression.as(StringLiteralExprSyntax.self) {
             return .literal(lit.decoded())
@@ -591,7 +679,14 @@ struct ConstructorDemoView: View {
             overload = "\(prefix).\(ctor)"
             if let (layer, values) = ctor.toStitch {
                 let detail = values
-                    .map { "\($0.input)=\($0.value.display)" }
+                    .map { ve -> String in
+                        switch ve {
+                        case .value(let cv):
+                            return "\(cv.input)=\(cv.value.display)"
+                        case .edge(let expr):
+                            return "edge<\(expr.description)>"
+                        }
+                    }
                     .joined(separator: ", ")
                 stitch = "Layer: \(layer)  { \(detail) }"
             } else {
