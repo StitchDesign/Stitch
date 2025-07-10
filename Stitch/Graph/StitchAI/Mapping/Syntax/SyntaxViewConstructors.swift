@@ -14,16 +14,18 @@ import NonEmpty
 
 typealias NEAInputCase = NonEmptyArray<ValueOrEdge>
 
+
 enum ValueOrEdge: Equatable, Hashable {
     case value(input: LayerInputPort, value: PortValue)
     case edge(input: LayerInputPort, from: Int)
 }
 
+
 protocol FromSwiftUIViewToStitch {
     
     // Really, should be: (Layer, NonEmptyArray<ManualValueOrIncomingEdge>)
     // i.e. "this view and constructor overload created this layer and these layer input values/connections"
-    var toStitch: (Layer, LayerInputPortSet)? { get }
+    var toStitch: (Layer, (LayerInputPort, PortValue))? { get }
 }
 
 
@@ -32,6 +34,22 @@ enum ViewConstructor {
     case image(ImageViewConstructor)
 }
     
+
+extension AttributedString {
+    /// Returns only the textual content (attributes are discarded).
+    var plainText: String { self.description }   // `.description` flattens to String
+}
+
+extension LocalizedStringKey {
+    /// Best‑effort: resolves through the app’s main bundle; falls back to the key itself.
+    var resolved: String {
+        let keyString = String(describing: self)   // mirrors what the dev wrote
+        return NSLocalizedString(keyString,
+                                 bundle: .main,
+                                 value: keyString,
+                                 comment: "")
+    }
+}
 
 enum TextViewConstructor: FromSwiftUIViewToStitch {
     /// `Text("Hello")`
@@ -46,9 +64,25 @@ enum TextViewConstructor: FromSwiftUIViewToStitch {
     /// `Text(_ attributed: AttributedString)`
     case attributed(_ content: AttributedString)
 
-    var toStitch: (Layer, LayerInputPortSet)? {
-        nil
-    }
+    
+    var toStitch: (Layer, (LayerInputPort, PortValue))? {
+         switch self {
+             
+         case .string(let s),
+              .verbatim(let s):      // treat verbatim the same
+             return (.text,
+                     (.text, .string(.init(s))))
+
+         case .localized(let key):
+             return (.text,
+                     (.text, .string(.init(key.resolved))))
+
+         case .attributed(let attr):
+             return (.text,
+                     (.text, .string(.init(attr.plainText))))
+         }
+     }
+    
 }
 
 
@@ -62,13 +96,14 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     /// `Image(decorative:name:bundle:)`
     case decorative(_ name: String, bundle: Bundle? = nil)
 
-    /// `Image(initResource:)`
-    case resource(_ resource: ImageResource)
+    // TODO: support this case
+//    /// `Image(initResource:)`
+//    case resource(_ resource: ImageResource)
 
     /// `Image(uiImage:)`
     case uiImage(_ image: UIImage)
   
-    var toStitch: (Layer, LayerInputPortSet)? {
+    var toStitch: (Layer, (LayerInputPort, PortValue))? {
         nil
     }
 }
@@ -147,7 +182,25 @@ final class POCConstructorVisitor: SyntaxVisitor {
             print("classifyText: matched .verbatim \"\(lit.decoded())\"")
             return .verbatim(lit.decoded())
         }
-        // 3. Fallback – not recognised
+        // 3. Text(LocalizedStringKey("key")) or Text(AttributedString("..."))
+        if args.count == 1,
+           args.first!.label == nil,
+           let call = args.first!.expression.as(FunctionCallExprSyntax.self),
+           let id   = call.calledExpression.as(IdentifierExprSyntax.self)?.identifier.text {
+
+            if id == "LocalizedStringKey",
+               let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
+                print("classifyText: matched .localized \"\(lit.decoded())\"")
+                return .localized(LocalizedStringKey(lit.decoded()))
+            }
+
+            if id == "AttributedString",
+               let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
+                print("classifyText: matched .attributed \"\(lit.decoded())\"")
+                return .attributed(AttributedString(lit.decoded()))
+            }
+        }
+        // 4. Fallback – not recognised
         print("classifyText: no match")
         return nil
     }
@@ -161,6 +214,26 @@ final class POCConstructorVisitor: SyntaxVisitor {
            let lit = first.expression.as(StringLiteralExprSyntax.self) {
             print("classifyImage: matched .sfSymbol \"\(lit.decoded())\"")
             return .sfSymbol(lit.decoded())
+        }
+        // Image(decorative: "name", bundle: ...)
+        if let first = args.first,
+           first.label?.text == "decorative",
+           let lit = first.expression.as(StringLiteralExprSyntax.self) {
+            print("classifyImage: matched .decorative \"\(lit.decoded())\"")
+            return .decorative(lit.decoded(), bundle: nil)   // bundle detection skipped for brevity
+        }
+//        // Image(initResource: .init(name: "photo"))
+//        if let first = args.first,
+//           first.label?.text == "initResource" {
+//            print("classifyImage: matched .resource <placeholder>")
+//            return .resource(ImageResource())    // placeholder
+//        }
+        
+        // Image(uiImage: someUIImage)
+        if let first = args.first,
+           first.label?.text == "uiImage" {
+            print("classifyImage: matched .uiImage <placeholder>")
+            return .uiImage(UIImage())           // placeholder
         }
         // Image("asset")
         if let first = args.first,
@@ -199,10 +272,17 @@ struct ConstructorDemoView: View {
     
     static let sampleSource = """
     VStack {
+        // ── TEXT examples ─────────────────────────────
         Text("Hello")
-        Text(verbatim: "Raw")
+        Text(verbatim: "Raw verbatim value")
+        Text(LocalizedStringKey("greeting_key"))
+        Text(AttributedString("Fancy attributed"))
+
+        // ── IMAGE examples ────────────────────────────
         Image(systemName: "gear")
         Image("logo")
+        Image("photo", bundle: .main)
+        Image(decorative: "decor", bundle: nil)
     }
     """
 
