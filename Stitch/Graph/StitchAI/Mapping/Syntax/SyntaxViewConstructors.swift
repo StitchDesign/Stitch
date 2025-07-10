@@ -251,26 +251,39 @@ enum HStackViewConstructor: FromSwiftUIViewToStitch {
     case spacing(CGFloat?)
     case none                                                     // both defaulted
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }   // TODO
+    var toStitch: (Layer, (LayerInputPort, PortValue))? {
+        // All HStacks are represented as a horizontal group in Stitch.
+        return (.group, (.orientation, .orientation(.horizontal)))
+    }
 
     static func from(_ node: FunctionCallExprSyntax) -> HStackViewConstructor? {
         let args = node.arguments
         switch (args.count,
                 args.first?.label?.text,
                 args.dropFirst().first?.label?.text) {
-        case (3, "alignment", "spacing"):
+
+        // alignment + spacing (two labelled args)
+        case (2, "alignment", "spacing"):
             let a = args[safe: 0]?.vertAlignValue ?? .center
             let s = args[safe: 1]?.cgFloatValue
             return .alignmentSpacing(alignment: a, spacing: s)
-        case (2, "alignment", _):
+
+        // alignment only (one labelled arg)
+        case (1, "alignment", _):
             let a = args[safe: 0]?.vertAlignValue ?? .center
             return .alignment(alignment: a)
-        case (2, "spacing", _):
+
+        // spacing only
+        case (1, "spacing", _):
             let s = args[safe: 0]?.cgFloatValue
             return .spacing(s)
-        case (1, nil, _):
+
+        // no explicit args (only trailing closure)
+        case (0, _, _):
             return .none
-        default: return nil
+
+        default:
+            return nil
         }
     }
 }
@@ -281,26 +294,39 @@ enum VStackViewConstructor: FromSwiftUIViewToStitch {
     case spacing(CGFloat?)
     case none
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }
+    var toStitch: (Layer, (LayerInputPort, PortValue))? {
+        // VStacks map to a vertical group.
+        return (.group, (.orientation, .orientation(.vertical)))
+    }
 
     static func from(_ node: FunctionCallExprSyntax) -> VStackViewConstructor? {
         let args = node.arguments
         switch (args.count,
                 args.first?.label?.text,
                 args.dropFirst().first?.label?.text) {
-        case (3, "alignment", "spacing"):
+
+        // alignment + spacing
+        case (2, "alignment", "spacing"):
             let a = args[safe: 0]?.horizAlignValue ?? .center
             let s = args[safe: 1]?.cgFloatValue
             return .alignmentSpacing(alignment: a, spacing: s)
-        case (2, "alignment", _):
+
+        // alignment only
+        case (1, "alignment", _):
             let a = args[safe: 0]?.horizAlignValue ?? .center
             return .alignment(alignment: a)
-        case (2, "spacing", _):
+
+        // spacing only
+        case (1, "spacing", _):
             let s = args[safe: 0]?.cgFloatValue
             return .spacing(s)
-        case (1, nil, _):
+
+        // no args
+        case (0, _, _):
             return .none
-        default: return nil
+
+        default:
+            return nil
         }
     }
 }
@@ -319,7 +345,10 @@ enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
     case spacing(CGFloat?)
     case none
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }
+    var toStitch: (Layer, (LayerInputPort, PortValue))? {
+        // Treat LazyHStack the same as HStack.
+        return (.group, (.orientation, .orientation(.horizontal)))
+    }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyHStackViewConstructor? {
         HStackViewConstructor.from(node).flatMap {
@@ -339,7 +368,10 @@ enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
     case spacing(CGFloat?)
     case none
 
-    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }
+    var toStitch: (Layer, (LayerInputPort, PortValue))? {
+        // Treat LazyVStack the same as VStack.
+        return (.group, (.orientation, .orientation(.vertical)))
+    }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyVStackViewConstructor? {
         VStackViewConstructor.from(node).flatMap {
@@ -435,14 +467,12 @@ final class POCConstructorVisitor: SyntaxVisitor {
 
         switch calleeIdent {
 
-        // -------- TEXT -------------------------------------------------
         case "Text":
             if let ctor = classifyText(node) {
                 calls.append(.init(kind: .text(ctor), node: node))
                 print("POCVisitor: recorded call – total so far = \(calls.count)")
             }
 
-        // -------- IMAGE ------------------------------------------------
         case "Image":
             if let ctor = classifyImage(node) {
                 calls.append(.init(kind: .image(ctor), node: node))
@@ -511,37 +541,32 @@ struct ConstructorDemoView: View {
     
     static let sampleSource = """
     VStack {
-        // ── Text overloads ─────────────────────────
         Text("Hello")
         Text(verbatim: "Raw verbatim value")
         Text(LocalizedStringKey("greeting_key"))
         Text(AttributedString("Fancy attributed"))
 
-        // ── Image overloads ────────────────────────
         Image(systemName: "gear")
         Image("logo")
         Image("photo", bundle: .main)
         Image(decorative: "decor", bundle: nil)
 
-        // ── HStack overloads ───────────────────────
         HStack { Text("A") }
         HStack(alignment: .top) { Text("A") }
         HStack(spacing: 20) { Text("A") }
         HStack(alignment: .bottom, spacing: 10) { Text("A") }
 
-        // ── VStack overloads ───────────────────────
         VStack { Text("B") }
         VStack(alignment: .leading) { Text("B") }
         VStack(spacing: 12) { Text("B") }
         VStack(alignment: .trailing, spacing: 6) { Text("B") }
 
-        // ── LazyHStack overloads ───────────────────
         LazyHStack { Text("C") }
         LazyHStack(alignment: .top) { Text("C") }
         LazyHStack(spacing: 8) { Text("C") }
 
-        // ── LazyVStack overloads ───────────────────
         LazyVStack { Text("D") }
+        // LazyVStack { ... }
         LazyVStack(alignment: .leading) { Text("D") }
         LazyVStack(spacing: 4) { Text("D") }
     }
