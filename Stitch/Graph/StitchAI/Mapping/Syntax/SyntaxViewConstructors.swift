@@ -37,6 +37,10 @@ protocol FromSwiftUIViewToStitch {
 enum ViewConstructor {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
+    case hStack(HStackViewConstructor)
+    case vStack(VStackViewConstructor)
+    case lazyHStack(LazyHStackViewConstructor)
+    case lazyVStack(LazyVStackViewConstructor)
 }
     
 
@@ -90,7 +94,7 @@ enum TextViewConstructor: FromSwiftUIViewToStitch {
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ node: FunctionCallExprSyntax) -> TextViewConstructor? {
-        let args = node.argumentList
+        let args = node.arguments
 
         // 1. Text("Hello")
         if args.count == 1, args.first!.label == nil,
@@ -190,7 +194,7 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ node: FunctionCallExprSyntax) -> ImageViewConstructor? {
-        let args = node.argumentList
+        let args = node.arguments
         guard let first = args.first else { return nil }
 
         // 1. Image(systemName:)
@@ -233,6 +237,150 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
 }
 
 
+// MARK: - Stack‑like container constructors  ──────────────────────────────
+//
+//  Each enum mirrors the three overloads that all four stack types share:
+//      • init(alignment:…, spacing:…, content:)
+//      • init(alignment:…, content:)                (spacing defaults to nil)
+//      • init(spacing:…, content:)                  (alignment defaults)
+//      • init(content:)                             (both defaults)
+//
+enum HStackViewConstructor: FromSwiftUIViewToStitch {
+    case alignmentSpacing(alignment: VerticalAlignment, spacing: CGFloat?)
+    case alignment(alignment: VerticalAlignment)                  // spacing == nil
+    case spacing(CGFloat?)
+    case none                                                     // both defaulted
+
+    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }   // TODO
+
+    static func from(_ node: FunctionCallExprSyntax) -> HStackViewConstructor? {
+        let args = node.arguments
+        switch (args.count,
+                args.first?.label?.text,
+                args.dropFirst().first?.label?.text) {
+        case (3, "alignment", "spacing"):
+            let a = args[safe: 0]?.vertAlignValue ?? .center
+            let s = args[safe: 1]?.cgFloatValue
+            return .alignmentSpacing(alignment: a, spacing: s)
+        case (2, "alignment", _):
+            let a = args[safe: 0]?.vertAlignValue ?? .center
+            return .alignment(alignment: a)
+        case (2, "spacing", _):
+            let s = args[safe: 0]?.cgFloatValue
+            return .spacing(s)
+        case (1, nil, _):
+            return .none
+        default: return nil
+        }
+    }
+}
+
+enum VStackViewConstructor: FromSwiftUIViewToStitch {
+    case alignmentSpacing(alignment: HorizontalAlignment, spacing: CGFloat?)
+    case alignment(alignment: HorizontalAlignment)
+    case spacing(CGFloat?)
+    case none
+
+    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }
+
+    static func from(_ node: FunctionCallExprSyntax) -> VStackViewConstructor? {
+        let args = node.arguments
+        switch (args.count,
+                args.first?.label?.text,
+                args.dropFirst().first?.label?.text) {
+        case (3, "alignment", "spacing"):
+            let a = args[safe: 0]?.horizAlignValue ?? .center
+            let s = args[safe: 1]?.cgFloatValue
+            return .alignmentSpacing(alignment: a, spacing: s)
+        case (2, "alignment", _):
+            let a = args[safe: 0]?.horizAlignValue ?? .center
+            return .alignment(alignment: a)
+        case (2, "spacing", _):
+            let s = args[safe: 0]?.cgFloatValue
+            return .spacing(s)
+        case (1, nil, _):
+            return .none
+        default: return nil
+        }
+    }
+}
+
+// ── Helper: random-access a TupleExprElementListSyntax by Int index ────────────
+private extension TupleExprElementListSyntax {
+    subscript(safe index: Int) -> TupleExprElementSyntax? {
+        guard index >= 0 && index < count else { return nil }
+        return self[self.index(startIndex, offsetBy: index)]
+    }
+}
+
+enum LazyHStackViewConstructor: FromSwiftUIViewToStitch {
+    case alignmentSpacing(alignment: VerticalAlignment, spacing: CGFloat?)
+    case alignment(alignment: VerticalAlignment)
+    case spacing(CGFloat?)
+    case none
+
+    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }
+
+    static func from(_ node: FunctionCallExprSyntax) -> LazyHStackViewConstructor? {
+        HStackViewConstructor.from(node).flatMap {
+            switch $0 {
+            case .alignmentSpacing(let a, let s): return .alignmentSpacing(alignment: a, spacing: s)
+            case .alignment(let a):               return .alignment(alignment: a)
+            case .spacing(let s):                 return .spacing(s)
+            case .none:                           return .none
+            }
+        }
+    }
+}
+
+enum LazyVStackViewConstructor: FromSwiftUIViewToStitch {
+    case alignmentSpacing(alignment: HorizontalAlignment, spacing: CGFloat?)
+    case alignment(alignment: HorizontalAlignment)
+    case spacing(CGFloat?)
+    case none
+
+    var toStitch: (Layer, (LayerInputPort, PortValue))? { nil }
+
+    static func from(_ node: FunctionCallExprSyntax) -> LazyVStackViewConstructor? {
+        VStackViewConstructor.from(node).flatMap {
+            switch $0 {
+            case .alignmentSpacing(let a, let s): return .alignmentSpacing(alignment: a, spacing: s)
+            case .alignment(let a):               return .alignment(alignment: a)
+            case .spacing(let s):                 return .spacing(s)
+            case .none:                           return .none
+            }
+        }
+    }
+}
+
+
+// ── Tiny extraction helpers for alignment / spacing literals ─────────────
+private extension LabeledExprSyntax {
+    var cgFloatValue: CGFloat? {
+        if let float = expression.as(FloatLiteralExprSyntax.self) {
+            return CGFloat(Double(float.literal.text) ?? 0)
+        }
+        if let int = expression.as(IntegerLiteralExprSyntax.self) {
+            return CGFloat(Double(int.literal.text) ?? 0)
+        }
+        return nil
+    }
+    var vertAlignValue: VerticalAlignment {
+        // crude: assume `.top` / `.center` / `.bottom`
+        if let ident = expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text {
+            return VerticalAlignment(rawValue: ident) ?? .center
+        }
+        return .center
+    }
+    var horizAlignValue: HorizontalAlignment {
+        if let ident = expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text {
+            return HorizontalAlignment(rawValue: ident) ?? .center
+        }
+        return .center
+    }
+}
+
+
 // MARK: - Proof‑of‑Concept Visitor ----------------------------------------
 //
 //  This visitor is *stand-alone* and confined to this file so you can
@@ -264,7 +412,7 @@ final class POCConstructorVisitor: SyntaxVisitor {
                                   .identifier.text
         else { return .skipChildren }
         
-        print("POCVisitor: visiting \(calleeIdent) – args: \(node.argumentList.count)")
+        print("POCVisitor: visiting \(calleeIdent) – args: \(node.arguments.count)")
 
         switch calleeIdent {
 
