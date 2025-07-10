@@ -104,7 +104,44 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
     case uiImage(_ image: UIImage)
   
     var toStitch: (Layer, (LayerInputPort, PortValue))? {
-        nil
+        switch self {
+
+        // MARK: ‑ plain asset names  ───────────────────────────────────
+        //  Image("logo")  |  Image("photo", bundle: …)
+        case .asset(let name, _),
+             .decorative(let name, _):    // treat decorative same for now
+            return (
+                .image,
+                (
+                    .image,
+                    .string(.init(name))
+                )
+            )
+
+        // MARK: ‑ SF Symbols  ──────────────────────────────────────────
+        //  Image(systemName: "gear")
+        case .sfSymbol(let name):
+            return (
+                .image,
+                (
+                    .sfSymbol,
+                    .string(.init(name))
+                )
+            )
+
+        // MARK: ‑ platform image payloads  ─────────────────────────────
+        //  Image(uiImage: UIImage)
+        case .uiImage(_ /* img */):
+            // Stitch currently stores raw image payloads on the .image port;
+            // we pass `.none` as a placeholder – real media is handled elsewhere.
+            return (
+                .image,
+                (
+                    .image,
+                    .asyncMedia(nil)
+                )
+            )
+        }
     }
 }
 
