@@ -302,72 +302,57 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-    case alignmentSpacing(alignment: HorizontalAlignment, spacing: CGFloat?)
-    case alignment(alignment: HorizontalAlignment)
-    case spacing(CGFloat?)
-    case none
 
+    /// SwiftUI exposes just one public initializer:
+    /// `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
+    case parameters(alignment: HorizontalAlignment = .center,
+                    spacing: CGFloat? = nil)
+
+    // MARK: Stitch mapping
     var toStitch: (Layer, [CustomValue])? {
         var values: [CustomValue] = [
             .init(.orientation, .orientation(.vertical))
         ]
 
         switch self {
-        case .alignmentSpacing(let alignment, let spacing):
-            values.append(.init(.layerGroupAlignment, .anchoring(alignment.toAnchoring)))
+        case .parameters(let alignment, let spacing):
+
+            if alignment != .center {
+                values.append(.init(.layerGroupAlignment,
+                                    .anchoring(alignment.toAnchoring)))
+            }
+
             if let s = spacing {
                 values.append(.init(.spacing, .spacing(.number(s))))
             }
-
-        case .alignment(let alignment):
-            values.append(.init(.layerGroupAlignment, .anchoring(alignment.toAnchoring)))
-
-        case .spacing(let spacing):
-            if let s = spacing {
-                values.append(.init(.spacing, .spacing(.number(s))))
-            }
-
-        case .none:
-            break
         }
 
         return (.group, values)
     }
 
+    // MARK: Parse from SwiftSyntax
     static func from(_ node: FunctionCallExprSyntax) -> VStackViewConstructor? {
         let args = node.arguments
-        switch (args.count,
-                args.first?.label?.text,
-                args.dropFirst().first?.label?.text) {
+        var alignment: HorizontalAlignment = .center
+        var spacing: CGFloat? = nil
 
-        // alignment + spacing
-        case (2, "alignment", "spacing"):
-            let a = args[safe: 0]?.horizAlignValue ?? .center
-            let s = args[safe: 1]?.cgFloatValue
-            return .alignmentSpacing(alignment: a, spacing: s)
-
-        // alignment only
-        case (1, "alignment", _):
-            let a = args[safe: 0]?.horizAlignValue ?? .center
-            return .alignment(alignment: a)
-
-        // spacing only
-        case (1, "spacing", _):
-            let s = args[safe: 0]?.cgFloatValue
-            return .spacing(s)
-
-        // no args
-        case (0, _, _):
-            return nil
-
-        default:
-            return nil
+        for arg in args {
+            switch arg.label?.text {
+            case "alignment":
+                alignment = arg.horizAlignValue
+            case "spacing":
+                spacing = arg.cgFloatValue
+            default:
+                break
+            }
         }
+
+        return .parameters(alignment: alignment, spacing: spacing)
     }
 }
 
 // ── Helper: random-access a TupleExprElementListSyntax by Int index ────────────
-private extension LabeledExprListSyntax {
+extension LabeledExprListSyntax {
     subscript(safe index: Int) -> LabeledExprSyntax? {
         guard index >= 0 && index < count else { return nil }
         return self[self.index(startIndex, offsetBy: index)]
@@ -397,39 +382,29 @@ enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-    case alignmentSpacing(alignment: HorizontalAlignment, spacing: CGFloat?)
-    case alignment(alignment: HorizontalAlignment)
-    case spacing(CGFloat?)
-    case none
+    case parameters(alignment: HorizontalAlignment = .center,
+                    spacing: CGFloat? = nil)
 
     var toStitch: (Layer, [CustomValue])? {
         switch self {
-        case .alignmentSpacing(let a, let s):
-            return VStackViewConstructor.alignmentSpacing(alignment: a, spacing: s).toStitch
-        case .alignment(let a):
-            return VStackViewConstructor.alignment(alignment: a).toStitch
-        case .spacing(let s):
-            return VStackViewConstructor.spacing(s).toStitch
-        case .none:
-            return VStackViewConstructor.none.toStitch
+        case .parameters(let alignment, let spacing):
+            return VStackViewConstructor
+                .parameters(alignment: alignment, spacing: spacing)
+                .toStitch
         }
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyVStackViewConstructor? {
-        VStackViewConstructor.from(node).flatMap {
-            switch $0 {
-            case .alignmentSpacing(let a, let s): return .alignmentSpacing(alignment: a, spacing: s)
-            case .alignment(let a):               return .alignment(alignment: a)
-            case .spacing(let s):                 return .spacing(s)
-            case .none:                           return nil
-            }
+        guard let base = VStackViewConstructor.from(node) else { return nil }
+        switch base {
+        case .parameters(let a, let s): return .parameters(alignment: a, spacing: s)
         }
     }
 }
 
 
 // ── Tiny extraction helpers for alignment / spacing literals ─────────────
-private extension LabeledExprSyntax {
+extension LabeledExprSyntax {
     var cgFloatValue: CGFloat? {
         if let float = expression.as(FloatLiteralExprSyntax.self) {
             return CGFloat(Double(float.literal.text) ?? 0)
@@ -573,7 +548,6 @@ import SwiftUI
 struct ConstructorDemoView: View {
     
     static let sampleSource = """
-    VStack {
         Text("Hello")
         Text(verbatim: "Raw verbatim value")
         Text(LocalizedStringKey("greeting_key"))
@@ -601,7 +575,6 @@ struct ConstructorDemoView: View {
         LazyVStack // { Text("D") }
         LazyVStack(alignment: .leading) // { Text("D") }
         LazyVStack(spacing: 4) // { Text("D") }
-    }
     """
 
     // One row of the demo table
@@ -660,14 +633,17 @@ struct ConstructorDemoView: View {
                     Text(row.code)
                         .monospaced()
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
 
                     Text(row.overload)
                         .monospaced()
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
 
                     Text(row.stitch)
                         .monospaced()
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
                 }
             }
         }
