@@ -1025,6 +1025,7 @@
 		ECD936582B714EFA008969E3 /* AnimatableStraightLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD936572B714EFA008969E3 /* AnimatableStraightLine.swift */; };
 		ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */; };
 		ECDAD6472DFBFCE700CE346F /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = ECDAD6462DFBFCE700CE346F /* StitchSchemaKit */; };
+		ECDAFFF52E1F739A00AF71E9 /* SyntaxViewConstructors.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDAFFF42E1F739A00AF71E9 /* SyntaxViewConstructors.swift */; };
 		ECDBD8AB27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */; };
 		ECDBD8AD27A1D2E300F8DC91 /* GraphBaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */; };
 		ECDC622026583B0C00F67ED8 /* GrayscaleNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */; };
@@ -2145,6 +2146,7 @@
 		ECD936552B714E9E008969E3 /* AnimatableCurveLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableCurveLine.swift; sourceTree = "<group>"; };
 		ECD936572B714EFA008969E3 /* AnimatableStraightLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableStraightLine.swift; sourceTree = "<group>"; };
 		ECD9F2AE2DD66DA300616C21 /* LayerPortAddedToCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPortAddedToCanvas.swift; sourceTree = "<group>"; };
+		ECDAFFF42E1F739A00AF71E9 /* SyntaxViewConstructors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxViewConstructors.swift; sourceTree = "<group>"; };
 		ECDBD8AA27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenGestureRecognizerView.swift; sourceTree = "<group>"; };
 		ECDBD8AC27A1D2E200F8DC91 /* GraphBaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphBaseView.swift; sourceTree = "<group>"; };
 		ECDC621F26583B0C00F67ED8 /* GrayscaleNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrayscaleNode.swift; sourceTree = "<group>"; };
@@ -5231,6 +5233,7 @@
 			isa = PBXGroup;
 			children = (
 				EC66D0442E0728FB00355ED8 /* SyntaxUtils.swift */,
+				ECDAFFF42E1F739A00AF71E9 /* SyntaxViewConstructors.swift */,
 				ECB238D72E0B8C7600D55A25 /* SyntaxView */,
 			);
 			path = Syntax;
@@ -5919,6 +5922,7 @@
 				ECB238DA2E0B8D2800D55A25 /* SyntaxViewConstructorArgument.swift in Sources */,
 				B56FFB2A2C18B72500623CC7 /* MediaImportUtils.swift in Sources */,
 				ECB373A028136B4E007AC702 /* KeyboardHeightReadable.swift in Sources */,
+				ECDAFFF52E1F739A00AF71E9 /* SyntaxViewConstructors.swift in Sources */,
 				EC1658822B6AFDDA00FE4AE6 /* EdgeEditingModeInputLabel.swift in Sources */,
 				B5D34C902DF5394D007405BF /* AIGraphDescriptionRequest.swift in Sources */,
 				ECC738312BB6360B00A680B5 /* AnchorGridIconView.swift in Sources */,
