@@ -243,72 +243,61 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 // what about
 enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-    case alignmentSpacing(alignment: VerticalAlignment, spacing: CGFloat?)
-    case alignment(alignment: VerticalAlignment)                  // spacing == nil
-    case spacing(CGFloat?)
-    case none                                                     // both defaulted
 
+    /// SwiftUI actually exposes *one* public initializer:
+    /// `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
+    /// We model that with a single enum case whose associated values carry whatever the
+    /// call site provided—using `.center` and `nil` when the developer omitted them.
+    case parameters(alignment: VerticalAlignment = .center,
+                    spacing: CGFloat? = nil)
+
+    // MARK: Stitch mapping
     var toStitch: (Layer, [CustomValue])? {
-        // Every HStack is a horizontal group.  We always emit at least the
-        // orientation value, and optionally alignment + spacing depending
-        // on which overload was used.
+        // orientation is always horizontal
         var values: [CustomValue] = [
             .init(.orientation, .orientation(.horizontal))
         ]
 
         switch self {
-        case .alignmentSpacing(let alignment, let spacing):
-            values.append(.init(.layerGroupAlignment,
-                                .anchoring(alignment.toAnchoring)))
+        case .parameters(let alignment, let spacing):
+
+            // Only emit alignment if it differs from default .center
+            if alignment != .center {
+                values.append(.init(.layerGroupAlignment,
+                                    .anchoring(alignment.toAnchoring)))
+            }
+
+            // Only emit spacing if the developer provided one
             if let s = spacing {
                 values.append(.init(.spacing, .spacing(.number(s))))
             }
-
-        case .alignment(let alignment):
-            values.append(.init(.layerGroupAlignment,
-                                .anchoring(alignment.toAnchoring)))
-
-        case .spacing(let spacing):
-            if let s = spacing {
-                values.append(.init(.spacing, .spacing(.number(s))))
-            }
-
-        case .none:
-            break
         }
 
         return (.group, values)
     }
 
+    // MARK: Parse from SwiftSyntax
     static func from(_ node: FunctionCallExprSyntax) -> HStackViewConstructor? {
         let args = node.arguments
-        switch (args.count,
-                args.first?.label?.text,
-                args.dropFirst().first?.label?.text) {
 
-        // alignment + spacing (two labelled args)
-        case (2, "alignment", "spacing"):
-            let a = args[safe: 0]?.vertAlignValue ?? .center
-            let s = args[safe: 1]?.cgFloatValue
-            return .alignmentSpacing(alignment: a, spacing: s)
+        // defaults
+        var alignment: VerticalAlignment = .center
+        var spacing: CGFloat? = nil
 
-        // alignment only (one labelled arg)
-        case (1, "alignment", _):
-            let a = args[safe: 0]?.vertAlignValue ?? .center
-            return .alignment(alignment: a)
-
-        // spacing only
-        case (1, "spacing", _):
-            let s = args[safe: 0]?.cgFloatValue
-            return .spacing(s)
-
-        // no explicit args (only trailing closure)
-        case (0, _, _):
-            return nil
-
-        default:
-            return nil
+        // iterate through labelled args
+        for arg in args {
+            switch arg.label?.text {
+            case "alignment":
+                alignment = arg.vertAlignValue
+            case "spacing":
+                spacing = arg.cgFloatValue
+            default:
+                // ignore other labels (content closure etc.)
+                break
+            }
         }
+
+        return .parameters(alignment: alignment, spacing: spacing)
     }
 }
 
@@ -386,33 +375,23 @@ private extension LabeledExprListSyntax {
 }
 
 enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-    case alignmentSpacing(alignment: VerticalAlignment, spacing: CGFloat?)
-    case alignment(alignment: VerticalAlignment)
-    case spacing(CGFloat?)
-    case none
+    case parameters(alignment: VerticalAlignment = .center,
+                    spacing: CGFloat? = nil)
 
     var toStitch: (Layer, [CustomValue])? {
-        // Treat LazyHStack exactly like HStack.
         switch self {
-        case .alignmentSpacing(let a, let s):
-            return HStackViewConstructor.alignmentSpacing(alignment: a, spacing: s).toStitch
-        case .alignment(let a):
-            return HStackViewConstructor.alignment(alignment: a).toStitch
-        case .spacing(let s):
-            return HStackViewConstructor.spacing(s).toStitch
-        case .none:
-            return HStackViewConstructor.none.toStitch
+        case .parameters(let alignment, let spacing):
+            return HStackViewConstructor
+                .parameters(alignment: alignment, spacing: spacing)
+                .toStitch
         }
     }
 
     static func from(_ node: FunctionCallExprSyntax) -> LazyHStackViewConstructor? {
-        HStackViewConstructor.from(node).flatMap {
-            switch $0 {
-            case .alignmentSpacing(let a, let s): return .alignmentSpacing(alignment: a, spacing: s)
-            case .alignment(let a):               return .alignment(alignment: a)
-            case .spacing(let s):                 return .spacing(s)
-            case .none:                           return Optional.none
-            }
+        // Re‑use HStack parser then wrap
+        guard let base = HStackViewConstructor.from(node) else { return nil }
+        switch base {
+        case .parameters(let a, let s): return .parameters(alignment: a, spacing: s)
         }
     }
 }
