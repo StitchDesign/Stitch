@@ -64,6 +64,7 @@ enum ViewConstructor: Equatable {
     case roundedRectangle(RoundedRectangleViewConstructor)
     case scrollView(ScrollViewViewConstructor)
     case zStack(ZStackViewConstructor)
+    case textField(TextFieldViewConstructor)
 }
     
 
@@ -430,6 +431,69 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 // MARK: - ZStack -----------------------------------------------------------
 
+// MARK: - TextField --------------------------------------------------------
+
+enum TextFieldViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// Simplified model:
+    /// `TextField(_ titleKey: LocalizedStringKey, text: Binding<String>)`
+    /// or `TextField(_ title: String, text: Binding<String>)`
+    case parameters(title: Parameter<String?> = .literal(nil),
+                    binding: ExprSyntax)          // always an expression edge
+
+    // MARK: Stitch mapping
+    ///
+    /// • `title`  →  .placeholder   (omit if nil)
+    /// • `binding`→  .text          (literal constant → value, otherwise edge)
+    var toStitch: (Layer, [ValueOrEdge])? {
+        guard case let .parameters(title, bindingExpr) = self else { return nil }
+        var list: [ValueOrEdge] = []
+        
+        // ----- title / placeholder ---------------------------------------
+        switch title {
+        case .literal(let str?):
+            list.append(.value(.init(.placeholderText,
+                                     .string(.init(str)))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        default:
+            break    // .literal(nil)  → no placeholder
+        }
+        
+        // ----- binding / text -------------------------------------------
+        if let constLiteral = bindingExpr.stringLiteralFromConstantBinding() {
+            list.append(.value(.init(.text,
+                                     .string(.init(constLiteral)))))
+        } else {
+            list.append(.edge(bindingExpr))
+        }
+        
+        return (.textField, list)
+    }
+
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        let args = node.arguments
+
+        // need at least title + binding
+        guard let first = args[safe: 0],
+              let second = args[safe: 1] else { return nil }
+
+        // First argument can be unlabeled placeholder string/localised key
+        var title: Parameter<String?> = .literal(nil)
+        if first.label == nil,
+           let lit = first.expression.as(StringLiteralExprSyntax.self) {
+            title = .literal(lit.decoded())
+        } else if first.label == nil {
+            title = .expression(first.expression)
+        }
+
+        // Second arg must be `text:` binding
+        guard second.label?.text == "text" else { return nil }
+
+        return .parameters(title: title,
+                           binding: second.expression)
+    }
+}
+
 enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// SwiftUI: `init(alignment: Alignment = .center, content:)`
     case parameters(alignment: Parameter<Alignment> = .literal(.center))
@@ -756,6 +820,25 @@ private extension Parameter where Value: CustomStringConvertible {
     }
 }
 
+private extension ExprSyntax {
+    /// If this expression is `.constant("string")` return the literal string.
+    /// Otherwise return `nil`.
+    func stringLiteralFromConstantBinding() -> String? {
+        guard
+            let call = self.as(FunctionCallExprSyntax.self),
+            let baseName = call.calledExpression.as(MemberAccessExprSyntax.self)?
+                             .declName.baseName.text ?? call.calledExpression
+                             .as(DeclReferenceExprSyntax.self)?
+                             .baseName.text,
+            baseName == "constant",
+            let first = call.arguments.first,
+            let lit   = first.expression.as(StringLiteralExprSyntax.self)
+        else { return nil }
+        
+        return lit.decoded()
+    }
+}
+
 
 
 // MARK: - Proof‑of‑Concept Visitor ----------------------------------------
@@ -780,6 +863,7 @@ struct POCViewCall {
         case roundedRectangle(RoundedRectangleViewConstructor)
         case scrollView(ScrollViewViewConstructor)
         case zStack(ZStackViewConstructor)
+        case textField(TextFieldViewConstructor)
     }
     let kind: Kind
     let node: FunctionCallExprSyntax       // handy for debugging / source‑ranges
@@ -859,6 +943,11 @@ final class POCConstructorVisitor: SyntaxVisitor {
                 calls.append(.init(kind: .zStack(ctor), node: node))
             }
 
+        case "TextField":
+            if let ctor = TextFieldViewConstructor.from(node) {
+                calls.append(.init(kind: .textField(ctor), node: node))
+            }
+
         default:
             break
         }
@@ -925,6 +1014,7 @@ struct ConstructorDemoView: View {
         ScrollView(.horizontal, showsIndicators: false)
         ZStack
         ZStack(alignment: .topLeading)
+        TextField("Email", text: emailBinding)
     """
 
     // One row of the demo table
@@ -971,6 +1061,8 @@ struct ConstructorDemoView: View {
                 (prefix, ctor) = ("ScrollView", c)
             case .zStack(let c):
                 (prefix, ctor) = ("ZStack", c)
+            case .textField(let c):
+                (prefix, ctor) = ("TextField", c)
             }
 
             overload = "\(prefix).\(ctor)"
