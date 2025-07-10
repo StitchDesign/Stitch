@@ -6,19 +6,28 @@
 //
 
 
+
 import Foundation
 import SwiftUI
 import UIKit
 import NonEmpty
 
+// MARK: - Parameter wrapper: literal vs. arbitrary expression ---------
 
-typealias NEAInputCase = NonEmptyArray<ValueOrEdge>
+/// A constructor argument that was either a compile‑time literal (`"logo"`,
+/// `.center`, `12`) or an arbitrary Swift expression (`myGap`, `foo()`, etc.).
+enum Parameter<Value: Equatable>: Equatable {
+    case literal(Value)
+    case expression(ExprSyntax)
 
-
-enum ValueOrEdge: Equatable, Hashable {
-    case value(input: LayerInputPort, value: PortValue)
-    case edge(input: LayerInputPort, from: Int)
+    /// Convenience for pattern‑matching in `toStitch`.
+    var literal: Value? {
+        if case .literal(let v) = self { return v }
+        return nil
+    }
 }
+
+
 
 struct CustomValue: Equatable, Hashable {
     let input: LayerInputPort
@@ -53,48 +62,34 @@ enum ViewConstructor: Equatable {
 
 enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Text("Hello")`
-    case string(_ content: String)
-
+    case string(_ content: Parameter<String>)
     /// `Text(_ key: LocalizedStringKey)`
-    case localized(_ key: LocalizedStringKey)
-
+    case localized(_ key: Parameter<LocalizedStringKey>)
     /// `Text(verbatim: "Raw")`
-    case verbatim(_ content: String)
-
+    case verbatim(_ content: Parameter<String>)
     /// `Text(_ attributed: AttributedString)`
-    case attributed(_ content: AttributedString)
+    case attributed(_ content: Parameter<AttributedString>)
 
-    
     var toStitch: (Layer, [CustomValue])? {
-         switch self {
-             
-         case .string(let s),
-              .verbatim(let s):      // treat verbatim the same
-             return (
-                .text,
-                [
-                    .init(.text, .string(.init(s)))
-                ]
-             )
+        switch self {
+        case .string(let p), .verbatim(let p):
+            if let s = p.literal {
+                return (.text, [ .init(.text, .string(.init(s))) ])
+            }
+            return nil        // expression handled as edge elsewhere
+        case .localized(let p):
+            if let key = p.literal {
+                return (.text, [ .init(.text, .string(.init(key.resolved))) ])
+            }
+            return nil
+        case .attributed(let p):
+            if let attr = p.literal {
+                return (.text, [ .init(.text, .string(.init(attr.plainText))) ])
+            }
+            return nil
+        }
+    }
 
-         case .localized(let key):
-             return (
-                .text,
-                [
-                    .init(.text, .string(.init(key.resolved)))
-                ]
-             )
-
-         case .attributed(let attr):
-             return (
-                .text,
-                [
-                    .init(.text, .string(.init(attr.plainText)))
-                ]
-             )
-         }
-     }
-    
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ node: FunctionCallExprSyntax) -> TextViewConstructor? {
         let args = node.arguments
@@ -102,14 +97,14 @@ enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
         // 1. Text("Hello")
         if args.count == 1, args.first!.label == nil,
            let lit = args.first!.expression.as(StringLiteralExprSyntax.self) {
-            return .string(lit.decoded())
+            return .string(.literal(lit.decoded()))
         }
 
         // 2. Text(verbatim: "Raw")
         if let first = args.first,
            first.label?.text == "verbatim",
            let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            return .verbatim(lit.decoded())
+            return .verbatim(.literal(lit.decoded()))
         }
 
         // 3. Text(LocalizedStringKey("key"))
@@ -119,7 +114,7 @@ enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
            let id = call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
            id == "LocalizedStringKey",
            let lit = call.arguments.first?.expression.as(StringLiteralExprSyntax.self) {
-            return .localized(LocalizedStringKey(lit.decoded()))
+            return .localized(.literal(LocalizedStringKey(lit.decoded())))
         }
 
         // 4. Text(AttributedString("Fancy"))
@@ -129,102 +124,70 @@ enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
            let id = call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
            id == "AttributedString",
            let lit = call.arguments.first?.expression.as(StringLiteralExprSyntax.self) {
-            return .attributed(AttributedString(lit.decoded()))
+            return .attributed(.literal(AttributedString(lit.decoded())))
         }
 
-        return nil
+        // If it's some other expression like Text(title)
+        return .string(.expression(args.first!.expression))
     }
 }
 
 
 enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Image("assetName", bundle: nil)`
-    case asset(_ name: String, bundle: Bundle? = nil)
-
+    case asset(name: Parameter<String>, bundle: Parameter<Bundle?> = .literal(nil))
     /// `Image(systemName: "gear")`
-    case sfSymbol(_ name: String)
-
+    case sfSymbol(name: Parameter<String>)
     /// `Image(decorative:name:bundle:)`
-    case decorative(_ name: String, bundle: Bundle? = nil)
-
-    // TODO: support this case
-//    /// `Image(initResource:)`
-//    case resource(_ resource: ImageResource)
-
+    case decorative(name: Parameter<String>, bundle: Parameter<Bundle?> = .literal(nil))
     /// `Image(uiImage:)`
-    case uiImage(_ image: UIImage)
-  
+    case uiImage(image: Parameter<UIImage>)
+
     var toStitch: (Layer, [CustomValue])? {
         switch self {
-
-        //  Image("logo")  |  Image("photo", bundle: …)
-        case .asset(let name, _),
-             .decorative(let name, _):
-            return (
-                .image,
-                [
-                    .init(.image, .string(.init(name)))
-                ]
-            )
-
-        //  Image(systemName: "gear")
+        case .asset(let name, _), .decorative(let name, _):
+            if let lit = name.literal {
+                return (.image, [ .init(.image, .string(.init(lit))) ])
+            }
+            return nil                                   // expression → edge later
         case .sfSymbol(let name):
-            return (
-                .image,
-                [
-                    .init(.sfSymbol, .string(.init(name)))
-                ]
-            )
-
-        //  Image(uiImage: …)  – placeholder async media
-        case .uiImage(_):
-            return (
-                .image,
-                [
-                    .init(.image, .asyncMedia(nil))
-                ]
-            )
+            if let lit = name.literal {
+                return (.image, [ .init(.sfSymbol, .string(.init(lit))) ])
+            }
+            return nil
+        case .uiImage(let image):
+            if let lit = image.literal {
+                return (.image, [ .init(.image, .asyncMedia(nil)) ])
+            }
+            return nil
         }
     }
-    
+
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ node: FunctionCallExprSyntax) -> ImageViewConstructor? {
         let args = node.arguments
         guard let first = args.first else { return nil }
 
         // 1. Image(systemName:)
-        if first.label?.text == "systemName",
-           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            return .sfSymbol(lit.decoded())
+        if first.label?.text == "systemName" {
+            return .sfSymbol(name: first.asParameterString())
         }
 
         // 2. Image("asset"[, bundle:])
-        if first.label == nil,
-           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            var bundle: Bundle? = nil
-            if args.count > 1,
-               let bArg = args.dropFirst().first,
-               bArg.label?.text == "bundle" {
-                bundle = .main            // simplified
-            }
-            return .asset(lit.decoded(), bundle: bundle)
+        if first.label == nil {
+            let bundle: Parameter<Bundle?> = .literal(nil)
+            return .asset(name: first.asParameterString(), bundle: bundle)
         }
 
         // 3. Image(decorative: "name"[, bundle:])
-        if first.label?.text == "decorative",
-           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            var bundle: Bundle? = nil
-            if args.count > 1,
-               let bArg = args.dropFirst().first,
-               bArg.label?.text == "bundle" {
-                bundle = .main
-            }
-            return .decorative(lit.decoded(), bundle: bundle)
+        if first.label?.text == "decorative" {
+            let bundle: Parameter<Bundle?> = .literal(nil)
+            return .decorative(name: first.asParameterString(), bundle: bundle)
         }
 
         // 4. Image(uiImage:)
         if first.label?.text == "uiImage" {
-            return .uiImage(UIImage())   // placeholder
+            return .uiImage(image: .expression(first.expression))
         }
 
         return nil
@@ -442,6 +405,22 @@ extension LabeledExprSyntax {
         }
         return .center
     }
+    func asParameterString() -> Parameter<String> {
+        if let lit = expression.as(StringLiteralExprSyntax.self) {
+            return .literal(lit.decoded())
+        }
+        return .expression(expression)
+    }
+}
+
+private extension Parameter where Value: CustomStringConvertible {
+    /// Fragment suitable for regenerating Swift source.
+    var swiftFragment: String {
+        switch self {
+        case .literal(let v):    return String(describing: v)
+        case .expression(let e): return e.description
+        }
+    }
 }
 
 
@@ -568,13 +547,15 @@ struct ConstructorDemoView: View {
         VStack(spacing: 12) // { Text("B") }
         VStack(alignment: .trailing, spacing: 6) // { Text("B") }
 
-        LazyHStack // { Text("C") }
-        LazyHStack(alignment: .top) // { Text("C") }
-        LazyHStack(spacing: 8) // { Text("C") }
+        LazyHStack
+        LazyHStack(alignment: .top)
+        LazyHStack(spacing: 8)
 
         LazyVStack // { Text("D") }
-        LazyVStack(alignment: .leading) // { Text("D") }
-        LazyVStack(spacing: 4) // { Text("D") }
+        LazyVStack(alignment: .leading)
+        LazyVStack(spacing: 4)
+        LazyVStack(spacing: mySpacingVariable)
+        LazyVStack(spacing: 2 + 6)
     """
 
     // One row of the demo table
