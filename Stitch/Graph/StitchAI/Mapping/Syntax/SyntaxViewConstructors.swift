@@ -60,11 +60,15 @@ enum ViewConstructor: Equatable {
     case lazyHStack(LazyHStackViewConstructor)
     case lazyVStack(LazyVStackViewConstructor)
     case circle(CircleViewConstructor)
+    case ellipse(EllipseViewConstructor)
     case rectangle(RectangleViewConstructor)
     case roundedRectangle(RoundedRectangleViewConstructor)
     case scrollView(ScrollViewViewConstructor)
     case zStack(ZStackViewConstructor)
     case textField(TextFieldViewConstructor)
+    case angularGradient(AngularGradientViewConstructor)
+    case linearGradient(LinearGradientViewConstructor)
+    case radialGradient(RadialGradientViewConstructor)
 }
     
 
@@ -548,6 +552,18 @@ enum CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     }
 }
 
+enum EllipseViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    case plain                                  // Ellipse()
+
+    var toStitch: (Layer, [ValueOrEdge])? {
+        (.oval, [])                             // same mapping as Circle
+    }
+
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        node.arguments.isEmpty ? .plain : nil
+    }
+}
+
 enum RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case plain                                    // Rectangle()
 
@@ -810,7 +826,7 @@ extension LabeledExprSyntax {
     }
 }
 
-private extension Parameter where Value: CustomStringConvertible {
+extension Parameter where Value: CustomStringConvertible {
     /// Fragment suitable for regenerating Swift source.
     var swiftFragment: String {
         switch self {
@@ -859,11 +875,15 @@ struct POCViewCall {
         case lazyHStack(LazyHStackViewConstructor)
         case lazyVStack(LazyVStackViewConstructor)
         case circle(CircleViewConstructor)
+        case ellipse(EllipseViewConstructor)
         case rectangle(RectangleViewConstructor)
         case roundedRectangle(RoundedRectangleViewConstructor)
         case scrollView(ScrollViewViewConstructor)
         case zStack(ZStackViewConstructor)
         case textField(TextFieldViewConstructor)
+        case angularGradient(AngularGradientViewConstructor)
+        case linearGradient(LinearGradientViewConstructor)
+        case radialGradient(RadialGradientViewConstructor)
     }
     let kind: Kind
     let node: FunctionCallExprSyntax       // handy for debugging / source‑ranges
@@ -923,6 +943,11 @@ final class POCConstructorVisitor: SyntaxVisitor {
                 calls.append(.init(kind: .circle(ctor), node: node))
             }
 
+        case "Ellipse":
+            if let ctor = EllipseViewConstructor.from(node) {
+                calls.append(.init(kind: .ellipse(ctor), node: node))
+            }
+
         case "Rectangle":
             if let ctor = RectangleViewConstructor.from(node) {
                 calls.append(.init(kind: .rectangle(ctor), node: node))
@@ -948,6 +973,19 @@ final class POCConstructorVisitor: SyntaxVisitor {
                 calls.append(.init(kind: .textField(ctor), node: node))
             }
 
+        case "AngularGradient":
+            if let ctor = AngularGradientViewConstructor.from(node) {
+                calls.append(.init(kind: .angularGradient(ctor), node: node))
+            }
+        case "LinearGradient":
+            if let ctor = LinearGradientViewConstructor.from(node) {
+                calls.append(.init(kind: .linearGradient(ctor), node: node))
+            }
+        case "RadialGradient":
+            if let ctor = RadialGradientViewConstructor.from(node) {
+                calls.append(.init(kind: .radialGradient(ctor), node: node))
+            }
+
         default:
             break
         }
@@ -957,7 +995,7 @@ final class POCConstructorVisitor: SyntaxVisitor {
 
 // MARK: - Tiny helpers -----------------------------------------------------
 
-private extension StringLiteralExprSyntax {
+extension StringLiteralExprSyntax {
     /// Returns the runtime value of a simple one‑segment string literal.
     func decoded() -> String {
         guard case .stringSegment(let seg)? = segments.first else { return description }
@@ -1009,12 +1047,23 @@ struct ConstructorDemoView: View {
         LazyVStack(spacing: mySpacingVariable)
         LazyVStack(spacing: 2 + 6)
         Circle()
+        Ellipse()
         Rectangle()
         RoundedRectangle(cornerRadius: 12)
         ScrollView(.horizontal, showsIndicators: false)
         ZStack
         ZStack(alignment: .topLeading)
         TextField("Email", text: emailBinding)
+        AngularGradient(colors: [.red, .blue],
+                        center: .center,
+                        angle: .degrees(0))
+        LinearGradient(colors: [.green, .yellow],
+                       startPoint: .leading,
+                       endPoint: .trailing)
+        RadialGradient(colors: [.purple, .pink],
+                       center: .center,
+                       startRadius: 0,
+                       endRadius: 100)
     """
 
     // One row of the demo table
@@ -1025,7 +1074,7 @@ struct ConstructorDemoView: View {
         let stitch: String
     }
 
-    private var rows: [DemoRow] {
+    var rows: [DemoRow] {
         let tree = Parser.parse(source: Self.sampleSource)
         let visitor = POCConstructorVisitor(viewMode: .fixedUp)
         visitor.walk(tree)
@@ -1053,6 +1102,8 @@ struct ConstructorDemoView: View {
                 (prefix, ctor) = ("LazyVStack", c)
             case .circle(let c):
                 (prefix, ctor) = ("Circle", c)
+            case .ellipse(let c):
+                (prefix, ctor) = ("Ellipse", c)
             case .rectangle(let c):
                 (prefix, ctor) = ("Rectangle", c)
             case .roundedRectangle(let c):
@@ -1063,6 +1114,12 @@ struct ConstructorDemoView: View {
                 (prefix, ctor) = ("ZStack", c)
             case .textField(let c):
                 (prefix, ctor) = ("TextField", c)
+            case .angularGradient(let c):
+                (prefix, ctor) = ("AngularGradient", c)
+            case .linearGradient(let c):
+                (prefix, ctor) = ("LinearGradient", c)
+            case .radialGradient(let c):
+                (prefix, ctor) = ("RadialGradient", c)
             }
 
             overload = "\(prefix).\(ctor)"
@@ -1114,5 +1171,236 @@ struct ConstructorDemoView: View {
         }
         .padding()
         .border(.red, width: 4)
+    }
+}
+
+
+// MARK: - Gradients --------------------------------------------------------
+
+enum AngularGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// AngularGradient(colors:center:startAngle:endAngle:)
+    case parameters(colors: Parameter<[Color]>,
+                    center: Parameter<UnitPoint>,
+                    startAngle: Parameter<CGFloat>,
+                    endAngle:   Parameter<CGFloat>)
+    
+    // MARK: Stitch mapping
+    ///
+    /// SwiftUI                      → Stitch
+    /// ---------------------------------------------------------
+    /// colors[0]                    → .startColor
+    /// colors[1]                    → .endColor
+    /// center                       → .centerAnchor
+    /// startAngle                   → .startAngle
+    /// endAngle                     → .endAngle
+    var toStitch: (Layer, [ValueOrEdge])? {
+        guard case let .parameters(colors, center, startAngle, endAngle) = self else { return nil }
+        var list: [ValueOrEdge] = []
+        
+        // ----- colors ---------------------------------------------------
+        switch colors {
+        case .literal(let arr) where arr.count >= 2:
+            list.append(.value(.init(.startColor, .color(.init(arr[0])))))
+            list.append(.value(.init(.endColor,   .color(.init(arr[1])))))
+        case .expression(let expr):
+            list.append(.edge(expr))        // expression supplies [Color]
+        default:
+            break
+        }
+        
+        // ----- center / centerAnchor -----------------------------------
+        switch center {
+        case .literal(let p):
+            list.append(.value(.init(.centerAnchor, .anchoring(p.toAnchoring))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+        
+        // ----- startAngle ----------------------------------------------
+        switch startAngle {
+        case .literal(let deg):
+            list.append(.value(.init(.startAngle, .number(deg))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+        
+        // ----- endAngle -------------------------------------------------
+        switch endAngle {
+        case .literal(let deg):
+            list.append(.value(.init(.endAngle, .number(deg))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+        
+        return (.angularGradient, list)
+    }
+    
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        let args = node.arguments
+        guard let colorsArg = args[safe: 0],
+              let centerArg = args[safe: 1],
+              let startArg  = args[safe: 2],
+              let endArg    = args[safe: 3] else { return nil }
+
+        // colors
+        let colors: Parameter<[Color]> = colorsArg.colorArrayLiteral
+            .map(Parameter.literal) ?? .expression(colorsArg.expression)
+
+        // center
+        let center: Parameter<UnitPoint> = centerArg.unitPointLiteral
+            .map(Parameter.literal) ?? .expression(centerArg.expression)
+
+        // angles
+        func angleParam(_ a: LabeledExprSyntax) -> Parameter<CGFloat> {
+            if let deg = a.angleDegreesLiteral { return .literal(deg) }
+            if let num = a.cgFloatValue       { return .literal(num) }
+            return .expression(a.expression)
+        }
+
+        return .parameters(colors: colors,
+                           center: center,
+                           startAngle: angleParam(startArg),
+                           endAngle:   angleParam(endArg))
+    }
+}
+
+enum LinearGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// LinearGradient(colors:startPoint:endPoint:)
+    case parameters(colors: Parameter<[Color]>,
+                    startPoint: Parameter<UnitPoint>,
+                    endPoint: Parameter<UnitPoint>)
+
+    // MARK: Stitch mapping
+    ///
+    /// SwiftUI                      → Stitch
+    /// ---------------------------------------------------------
+    /// colors[0]                    → .startColor   (Color)
+    /// colors[1]                    → .endColor     (Color)
+    /// startPoint (UnitPoint)       → .startAnchor  (Anchoring)
+    /// endPoint   (UnitPoint)       → .endAnchor    (Anchoring)
+    ///
+    /// Expression arguments become `.edge(expr)`.
+    var toStitch: (Layer, [ValueOrEdge])? {
+        guard case let .parameters(colors, startPoint, endPoint) = self else { return nil }
+        var list: [ValueOrEdge] = []
+
+        // ---- colors ----------------------------------------------------
+        switch colors {
+        case .literal(let arr) where arr.count >= 2:
+            list.append(.value(.init(.startColor, .color(.init(arr[0])))))
+            list.append(.value(.init(.endColor,   .color(.init(arr[1])))))
+        case .expression(let expr):
+            list.append(.edge(expr))         // upstream produces [Color]
+        default:
+            break
+        }
+
+        // ---- startPoint / startAnchor ---------------------------------
+        switch startPoint {
+        case .literal(let p):
+            list.append(.value(.init(.startAnchor, .anchoring(p.toAnchoring))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+
+        // ---- endPoint / endAnchor -------------------------------------
+        switch endPoint {
+        case .literal(let p):
+            list.append(.value(.init(.endAnchor, .anchoring(p.toAnchoring))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+
+        return (.linearGradient, list)
+    }
+
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        let args = node.arguments
+        guard let colorsArg = args[safe: 0],
+              let startArg  = args[safe: 1],
+              let endArg    = args[safe: 2] else { return nil }
+
+        // colors
+        let colors: Parameter<[Color]> = colorsArg.colorArrayLiteral
+            .map(Parameter.literal) ?? .expression(colorsArg.expression)
+
+        // points
+        let startPt: Parameter<UnitPoint> = startArg.unitPointLiteral
+            .map(Parameter.literal) ?? .expression(startArg.expression)
+        let endPt: Parameter<UnitPoint> = endArg.unitPointLiteral
+            .map(Parameter.literal) ?? .expression(endArg.expression)
+
+        return .parameters(colors: colors, startPoint: startPt, endPoint: endPt)
+    }
+}
+
+enum RadialGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// RadialGradient(colors:center:startRadius:endRadius:)
+    case parameters(colors: Parameter<[Color]>,
+                    center: Parameter<UnitPoint>,
+                    startRadius: Parameter<CGFloat>,
+                    endRadius: Parameter<CGFloat>)
+
+    // MARK: Stitch mapping
+    ///
+    ///  SwiftUI            → Stitch
+    ///  ---------------------------------------------------------
+    ///  center             → .startAnchor          (Anchoring)
+    ///  colors[0]          → .startColor           (Color)
+    ///  colors[1]          → .endColor             (Color)
+    ///  startRadius        → .startRadius          (Number)
+    ///  endRadius          → .endRadius            (Number)
+    ///
+    ///  If any argument is an expression we emit an `.edge(expr)` instead.
+    var toStitch: (Layer, [ValueOrEdge])? {
+        guard case let .parameters(colors, center, startRadius, endRadius) = self else { return nil }
+        var list: [ValueOrEdge] = []
+
+        // -------- colors -------------------------------------------------
+        switch colors {
+        case .literal(let arr) where arr.count >= 2:
+            list.append(.value(.init(.startColor, .color(.init(arr[0])))))
+            list.append(.value(.init(.endColor,   .color(.init(arr[1])))))
+        case .expression(let expr):
+            list.append(.edge(expr))           // upstream node outputs [Color]
+        default:
+            break
+        }
+
+        // -------- center / startAnchor ----------------------------------
+        switch center {
+        case .literal(let pt):
+            list.append(.value(.init(.startAnchor, .anchoring(pt.toAnchoring))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+
+        // -------- startRadius -------------------------------------------
+        switch startRadius {
+        case .literal(let r):
+            list.append(.value(.init(.startRadius, .number(r))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+
+        // -------- endRadius ---------------------------------------------
+        switch endRadius {
+        case .literal(let r):
+            list.append(.value(.init(.endRadius, .number(r))))
+        case .expression(let expr):
+            list.append(.edge(expr))
+        }
+
+        return (.radialGradient, list)
+    }
+
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        let args = node.arguments
+        guard args.count >= 4 else { return nil }
+        let colors: Parameter<[Color]>   = .expression(args[safe: 0]!.expression)
+        let center: Parameter<UnitPoint> = .expression(args[safe: 1]!.expression)
+        let startR: Parameter<CGFloat>   = .expression(args[safe: 2]!.expression)
+        let endR:   Parameter<CGFloat>   = .expression(args[safe: 3]!.expression)
+        return .parameters(colors: colors, center: center, startRadius: startR, endRadius: endR)
     }
 }
