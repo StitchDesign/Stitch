@@ -22,11 +22,16 @@ enum ValueOrEdge: Equatable, Hashable {
 
 
 protocol FromSwiftUIViewToStitch {
+    associatedtype T
     
     // Really, should be: (Layer, NonEmptyArray<ManualValueOrIncomingEdge>)
     // i.e. "this view and constructor overload created this layer and these layer input values/connections"
     var toStitch: (Layer, (LayerInputPort, PortValue))? { get }
+    
+    static func from(_ node: FunctionCallExprSyntax) -> T?
 }
+
+
 
 
 enum ViewConstructor {
@@ -83,6 +88,45 @@ enum TextViewConstructor: FromSwiftUIViewToStitch {
          }
      }
     
+    // Factory that infers the correct overload from a `FunctionCallExprSyntax`
+    static func from(_ node: FunctionCallExprSyntax) -> TextViewConstructor? {
+        let args = node.argumentList
+
+        // 1. Text("Hello")
+        if args.count == 1, args.first!.label == nil,
+           let lit = args.first!.expression.as(StringLiteralExprSyntax.self) {
+            return .string(lit.decoded())
+        }
+
+        // 2. Text(verbatim: "Raw")
+        if let first = args.first,
+           first.label?.text == "verbatim",
+           let lit = first.expression.as(StringLiteralExprSyntax.self) {
+            return .verbatim(lit.decoded())
+        }
+
+        // 3. Text(LocalizedStringKey("key"))
+        if args.count == 1,
+           args.first!.label == nil,
+           let call = args.first!.expression.as(FunctionCallExprSyntax.self),
+           let id = call.calledExpression.as(IdentifierExprSyntax.self)?.identifier.text,
+           id == "LocalizedStringKey",
+           let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
+            return .localized(LocalizedStringKey(lit.decoded()))
+        }
+
+        // 4. Text(AttributedString("Fancy"))
+        if args.count == 1,
+           args.first!.label == nil,
+           let call = args.first!.expression.as(FunctionCallExprSyntax.self),
+           let id = call.calledExpression.as(IdentifierExprSyntax.self)?.identifier.text,
+           id == "AttributedString",
+           let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
+            return .attributed(AttributedString(lit.decoded()))
+        }
+
+        return nil
+    }
 }
 
 
@@ -143,12 +187,55 @@ enum ImageViewConstructor: FromSwiftUIViewToStitch {
             )
         }
     }
+    
+    // Factory that infers the correct overload from a `FunctionCallExprSyntax`
+    static func from(_ node: FunctionCallExprSyntax) -> ImageViewConstructor? {
+        let args = node.argumentList
+        guard let first = args.first else { return nil }
+
+        // 1. Image(systemName:)
+        if first.label?.text == "systemName",
+           let lit = first.expression.as(StringLiteralExprSyntax.self) {
+            return .sfSymbol(lit.decoded())
+        }
+
+        // 2. Image("asset"[, bundle:])
+        if first.label == nil,
+           let lit = first.expression.as(StringLiteralExprSyntax.self) {
+            var bundle: Bundle? = nil
+            if args.count > 1,
+               let bArg = args.dropFirst().first,
+               bArg.label?.text == "bundle" {
+                bundle = .main            // simplified
+            }
+            return .asset(lit.decoded(), bundle: bundle)
+        }
+
+        // 3. Image(decorative: "name"[, bundle:])
+        if first.label?.text == "decorative",
+           let lit = first.expression.as(StringLiteralExprSyntax.self) {
+            var bundle: Bundle? = nil
+            if args.count > 1,
+               let bArg = args.dropFirst().first,
+               bArg.label?.text == "bundle" {
+                bundle = .main
+            }
+            return .decorative(lit.decoded(), bundle: bundle)
+        }
+
+        // 4. Image(uiImage:)
+        if first.label?.text == "uiImage" {
+            return .uiImage(UIImage())   // placeholder
+        }
+
+        return nil
+    }
 }
 
 
 // MARK: - Proof‑of‑Concept Visitor ----------------------------------------
 //
-//  This visitor is *stand‑alone* and confined to this file so you can
+//  This visitor is *stand-alone* and confined to this file so you can
 //  experiment without touching the real parsing pipeline elsewhere.
 //
 import SwiftSyntax
@@ -204,83 +291,11 @@ final class POCConstructorVisitor: SyntaxVisitor {
     // MARK: POC helpers -------------------------------------------------
 
     private func classifyText(_ node: FunctionCallExprSyntax) -> TextViewConstructor? {
-        let args = node.argumentList
-        print("classifyText: inspecting args →", args.map { ($0.label?.text ?? "_") })
-        // 1. Text("Hello")
-        if args.count == 1, args.first!.label == nil,
-           let lit = args.first!.expression.as(StringLiteralExprSyntax.self) {
-            print("classifyText: matched .string \"\(lit.decoded())\"")
-            return .string(lit.decoded())
-        }
-        // 2. Text(verbatim: "Raw")
-        if let first = args.first,
-           first.label?.text == "verbatim",
-           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            print("classifyText: matched .verbatim \"\(lit.decoded())\"")
-            return .verbatim(lit.decoded())
-        }
-        // 3. Text(LocalizedStringKey("key")) or Text(AttributedString("..."))
-        if args.count == 1,
-           args.first!.label == nil,
-           let call = args.first!.expression.as(FunctionCallExprSyntax.self),
-           let id   = call.calledExpression.as(IdentifierExprSyntax.self)?.identifier.text {
-
-            if id == "LocalizedStringKey",
-               let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
-                print("classifyText: matched .localized \"\(lit.decoded())\"")
-                return .localized(LocalizedStringKey(lit.decoded()))
-            }
-
-            if id == "AttributedString",
-               let lit = call.argumentList.first?.expression.as(StringLiteralExprSyntax.self) {
-                print("classifyText: matched .attributed \"\(lit.decoded())\"")
-                return .attributed(AttributedString(lit.decoded()))
-            }
-        }
-        // 4. Fallback – not recognised
-        print("classifyText: no match")
-        return nil
+        TextViewConstructor.from(node)
     }
 
     private func classifyImage(_ node: FunctionCallExprSyntax) -> ImageViewConstructor? {
-        let args = node.argumentList
-        print("classifyImage: inspecting args →", args.map { ($0.label?.text ?? "_") })
-        // Image(systemName: "gear")
-        if let first = args.first,
-           first.label?.text == "systemName",
-           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            print("classifyImage: matched .sfSymbol \"\(lit.decoded())\"")
-            return .sfSymbol(lit.decoded())
-        }
-        // Image(decorative: "name", bundle: ...)
-        if let first = args.first,
-           first.label?.text == "decorative",
-           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            print("classifyImage: matched .decorative \"\(lit.decoded())\"")
-            return .decorative(lit.decoded(), bundle: nil)   // bundle detection skipped for brevity
-        }
-//        // Image(initResource: .init(name: "photo"))
-//        if let first = args.first,
-//           first.label?.text == "initResource" {
-//            print("classifyImage: matched .resource <placeholder>")
-//            return .resource(ImageResource())    // placeholder
-//        }
-        
-        // Image(uiImage: someUIImage)
-        if let first = args.first,
-           first.label?.text == "uiImage" {
-            print("classifyImage: matched .uiImage <placeholder>")
-            return .uiImage(UIImage())           // placeholder
-        }
-        // Image("asset")
-        if let first = args.first,
-           first.label == nil,
-           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-            print("classifyImage: matched .asset \"\(lit.decoded())\"")
-            return .asset(lit.decoded(), bundle: nil)
-        }
-        print("classifyImage: no match")
-        return nil
+        ImageViewConstructor.from(node)
     }
 }
 
