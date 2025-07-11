@@ -212,7 +212,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             // Set custom value type here
             if let customValueType = self.patch_data.native_patch_value_type_settings.first(where: { $0.node_id.value == oldId })?.value_type {
                 guard let oldType = newNode.userVisibleType else {
-                    fatalErrorIfDebug()
+                    // fatalErrorIfDebug()
                     break
                 }
                 
