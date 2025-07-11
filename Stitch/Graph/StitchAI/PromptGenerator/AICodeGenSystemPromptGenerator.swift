@@ -212,6 +212,7 @@ Sometimes, a specific layer is looped, meaning one of the layers inputs receives
 #### Drag Interaction
 * **When to use:** when a view defines a drag gesture.
 * **Node name label:** `dragInteraction || patch`
+* When making a layer "draggable", the position output of a drag interaciton node should be connected to the position input of the associated layer.
 * Special considerations: the "Max" input, if left with an empty position value of {x: 0, y: 0}, will be ignored by the eval and produce typical dragging eval behavior.
 
 #### Press Interaction
