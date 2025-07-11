@@ -38,7 +38,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedSyntaxViewLayer(CurrentStep.Layer)
     
     case unsupportedLayerIdParsing([SyntaxViewArgumentData])
-    case layerUUIDDecodingFailed(String)
+//    case layerUUIDDecodingFailed(String)
     
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed

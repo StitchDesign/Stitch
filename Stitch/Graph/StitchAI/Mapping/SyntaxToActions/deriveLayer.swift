@@ -412,9 +412,9 @@ extension SyntaxViewName {
         // TODO: remove and rely on ScrollViewConstructor instead
         if args.isEmpty && self == .scrollView {
             customInputValuesFromViewConstructor += [
-                .init(layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                    input_port_type: .init(value: .scrollYEnabled)),
-                      value: .bool(true))
+                try .init(id: id,
+                          input: .scrollYEnabled,
+                          value: .bool(true))
             ]
         }
         
@@ -442,12 +442,7 @@ extension SyntaxViewName {
             case .layerInputValues(let valuesList):
                 layerData.custom_layer_input_values += valuesList
             case .layerIdAssignment(let string):
-                guard let uuidValue = UUID(uuidString: string) else {
-                    throw SwiftUISyntaxError.layerUUIDDecodingFailed(string)
-                }
-                
-                // Update ID to that assigned from view
-                layerData.node_id = .init(value: uuidValue)
+                layerData.node_id = string
             }
         }
         
@@ -527,34 +522,34 @@ extension SyntaxViewName {
         case .hStack, .lazyHStack:
             layerType = .group
             customValues.append(
-                .init(id: id,
-                      input: .orientation,
-                      value: .orientation(.horizontal))
+                try .init(id: id,
+                          input: .orientation,
+                          value: .orientation(.horizontal))
             )
             
         case .vStack, .lazyVStack:
             layerType = .group
             customValues.append(
-                .init(id: id,
-                      input: .orientation,
-                      value: .orientation(.vertical))
+                try .init(id: id,
+                          input: .orientation,
+                          value: .orientation(.vertical))
             )
             
         case .zStack:
             layerType = .group
             customValues.append(
-                .init(id: id,
-                      input: .orientation,
-                      value: .orientation(.none))
+                try .init(id: id,
+                          input: .orientation,
+                          value: .orientation(.none))
             )
             
             // TODO: JULY 3: technically, we don't support `LazyHGrid` and `Grid`?
         case .lazyVGrid, .lazyHGrid, .grid:
             layerType = .group
             customValues.append(
-                .init(id: id,
-                      input: .orientation,
-                      value: .orientation(.grid))
+                try .init(id: id,
+                          input: .orientation,
+                          value: .orientation(.grid))
             )
             
             
@@ -621,7 +616,7 @@ extension SyntaxViewName {
         
         // Final bare layer (children added later)
         var layerNode = CurrentAIPatchBuilderResponseFormat
-            .LayerData(node_id: .init(value: id),
+            .LayerData(node_id: id.description,
                        node_name: .init(value: .layer(layerType)),
                        custom_layer_input_values: customValues)
         
@@ -662,9 +657,9 @@ extension SyntaxViewName {
             
             // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
             
-            return values.map { value in
-                    .init(layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                        input_port_type: .init(value: port)),
+            return try values.map { value in
+                try .init(id: id,
+                          input: port,
                           value: value)
             }
         }
@@ -744,9 +739,9 @@ extension SyntaxViewName {
         }
         
         // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
-        return .init(layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                   input_port_type: .init(value: port)),
-                     value: portValue)
+        return try .init(id: id,
+                         input: port,
+                         value: portValue)
     }
         
     private static func derivePortValue(
@@ -950,7 +945,7 @@ extension SyntaxViewName {
         // degrees = *how much* we're rotating the given rotation layer input
         // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
         let fn = { (port: CurrentStep.LayerInputPort, portValue: CurrentStep.PortValue) in
-            customValues.append(.init(id: id, input: port, value: portValue))
+            customValues.append(try .init(id: id, input: port, value: portValue))
         }
         
         // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
@@ -964,9 +959,9 @@ extension SyntaxViewName {
                 throw SwiftUISyntaxError.incorrectParsing(message: "Unable to decode axis arguments for rotation input.")
             }
             
-            fn(.rotationX, xAxis)
-            fn(.rotationY, yAxis)
-            fn(.rotationZ, zAxis)
+            try fn(.rotationX, xAxis)
+            try fn(.rotationY, yAxis)
+            try fn(.rotationZ, zAxis)
         }
         
         // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
@@ -978,7 +973,7 @@ extension SyntaxViewName {
                 throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse PortValue from angle data.")
             }
             
-            fn(.rotationZ, angleArgumentValue)
+            try fn(.rotationZ, angleArgumentValue)
         }
         
         return customValues

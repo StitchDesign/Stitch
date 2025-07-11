@@ -202,7 +202,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
 
     struct LayerData {
-        var node_id: StitchAIUUID_V0.StitchAIUUID
+        var node_id: String
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
@@ -210,7 +210,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct JsPatchNode: Codable {
-        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let node_id: String
         let javascript_source_code: String
         let suggested_title: String
         let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
@@ -218,12 +218,12 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct NativePatchNode: Codable {
-        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let node_id: String
         let node_name: StitchAIPatchOrLayer
     }
     
     struct NativePatchNodeValueTypeSetting: Codable {
-        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let node_id: String
         let value_type: StitchAINodeType
     }
     
@@ -238,23 +238,25 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct LayerInputCoordinate: Codable {
-        var layer_id: StitchAIUUID_V0.StitchAIUUID
+        var layer_id: String
         let input_port_type: AILayerInputPort
     }
 
     struct NodeIndexedCoordinate: Codable, Hashable {
-        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let node_id: String
         let port_index: Int
     }
     
     struct CustomPatchInputValue: Codable {
         let patch_input_coordinate: NodeIndexedCoordinate
-        let value: Step_V0.PortValue
+        let value: Data
+        let value_type: StitchAINodeType
     }
     
     struct CustomLayerInputValue: Codable {
         var layer_input_coordinate: LayerInputCoordinate
-        let value: Step_V0.PortValue
+        let value: Data
+        let value_type: StitchAINodeType
     }
     
     struct AILayerInputPort {
@@ -314,32 +316,32 @@ extension AIPatchBuilderResponseFormat_V0.AILayerInputPort: Codable {
     }
 }
 
-extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
-    enum CodingKeys: String, CodingKey {
-        case patch_input_coordinate
-        case value
-        case value_type
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.patch_input_coordinate = try container
-            .decode(AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate.self,
-                    forKey: .patch_input_coordinate)
-        self.value = try Step_V0.PortValue.decodeFromAI(container: container,
-                                                        valueKey: .value,
-                                                        valueTypeKey: .value_type)
-    }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(patch_input_coordinate, forKey: .patch_input_coordinate)
-        try Step_V0.PortValue.encodeFromAI(container: &container,
-                                           portValue: self.value,
-                                           valueKey: .value,
-                                           valueTypeKey: .value_type)
-    }
-}
+//extension AIPatchBuilderResponseFormat_V0.CustomPatchInputValue {
+//    enum CodingKeys: String, CodingKey {
+//        case patch_input_coordinate
+//        case value
+//        case value_type
+//    }
+//    
+//    init(from decoder: any Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.patch_input_coordinate = try container
+//            .decode(AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate.self,
+//                    forKey: .patch_input_coordinate)
+//        self.value = try Step_V0.PortValue.decodeFromAI(container: container,
+//                                                        valueKey: .value,
+//                                                        valueTypeKey: .value_type)
+//    }
+//    
+//    func encode(to encoder: any Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(patch_input_coordinate, forKey: .patch_input_coordinate)
+//        try Step_V0.PortValue.encodeFromAI(container: &container,
+//                                           portValue: self.value,
+//                                           valueKey: .value,
+//                                           valueTypeKey: .value_type)
+//    }
+//}
 
 extension AIPatchBuilderResponseFormat_V0.LayerData: Codable {
     enum CodingKeys: String, CodingKey {
@@ -364,7 +366,7 @@ extension AIPatchBuilderResponseFormat_V0.LayerData: Codable {
     
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
+        node_id = try container.decode(String.self, forKey: .node_id)
         suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
         node_name = try container.decode(AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
         
@@ -382,59 +384,62 @@ extension AIPatchBuilderResponseFormat_V0.LayerData: Codable {
 extension AIPatchBuilderResponseFormat_V0.CustomLayerInputValue {
     init(id: UUID,
          input: Step_V0.LayerInputPort,
-         value: Step_V0.PortValue) {
+         value: Step_V0.PortValue) throws {
+        let data = try JSONEncoder().encode(value.anyCodable)
+        
         self = .init(layer_input_coordinate: .init(
-            layer_id: .init(value: id),
+            layer_id: .init(id),
             input_port_type: .init(value: input)),
-                     value: value)
+                     value: data,
+                     value_type: .init(value: value.nodeType))
     }
 }
 
-extension AIPatchBuilderResponseFormat_V0.CustomLayerInputValue {
-    enum CodingKeys: String, CodingKey {
-        case layer_input_coordinate
-        case value
-        case value_type
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.layer_input_coordinate = try container
-            .decode(AIPatchBuilderResponseFormat_V0.LayerInputCoordinate.self,
-                    forKey: .layer_input_coordinate)
-        self.value = try Step_V0.PortValue.decodeFromAI(container: container,
-                                                        valueKey: .value,
-                                                        valueTypeKey: .value_type)
-    }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(layer_input_coordinate, forKey: .layer_input_coordinate)
-        try Step_V0.PortValue.encodeFromAI(container: &container,
-                                           portValue: self.value,
-                                           valueKey: .value,
-                                           valueTypeKey: .value_type)
-    }
-}
+//extension AIPatchBuilderResponseFormat_V0.CustomLayerInputValue {
+//    enum CodingKeys: String, CodingKey {
+//        case layer_input_coordinate
+//        case value
+//        case value_type
+//    }
+//    
+//    init(from decoder: any Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.layer_input_coordinate = try container
+//            .decode(AIPatchBuilderResponseFormat_V0.LayerInputCoordinate.self,
+//                    forKey: .layer_input_coordinate)
+//        self.value = try Step_V0.PortValue.decodeFromAI(container: container,
+//                                                        valueKey: .value,
+//                                                        valueTypeKey: .value_type)
+//    }
+//    
+//    func encode(to encoder: any Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(layer_input_coordinate, forKey: .layer_input_coordinate)
+//        try Step_V0.PortValue.encodeFromAI(container: &container,
+//                                           portValue: self.value,
+//                                           valueKey: .value,
+//                                           valueTypeKey: .value_type)
+//    }
+//}
 
 // TODO: move
 extension Step_V0.PortValue {
-    static func decodeFromAI<CodingKeys: CodingKey>(container: KeyedDecodingContainer<CodingKeys>,
-                                                    valueKey: CodingKeys,
-                                                    valueTypeKey: CodingKeys) throws -> Step_V0.PortValue {
-        let nodeTypeString = try container.decode(String.self, forKey: valueTypeKey)
-        
-        guard let nodeType = Step_V0.NodeType(llmString: nodeTypeString) else {
-            throw StitchAIParsingError.nodeTypeParsing(nodeTypeString)
-        }
+    static func decodeFromAI(data: Data,
+                             valueType: Step_V0.NodeType,
+                             idMap: inout [String : UUID]) throws -> Step_V0.PortValue {
+//        let nodeTypeString = try container.decode(String.self, forKey: valueTypeKey)
+//        
+//        guard let nodeType = Step_V0.NodeType(llmString: nodeTypeString) else {
+//            throw StitchAIParsingError.nodeTypeParsing(nodeTypeString)
+//        }
         
         // Parse value given node type
-        let portValueType = nodeType.portValueTypeForStitchAI
+        let portValueType = valueType.portValueTypeForStitchAI
         
-        let decodedValue = try container
-            .decodeIfPresentSitchAI(portValueType, forKey: valueKey)
+        let decodedValue = try JSONDecoder().decode(portValueType.self, from: data)
         
-        let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
+        let value = try valueType.coerceToPortValueForStitchAI(from: decodedValue,
+                                                               idMap: idMap)
         return value
     }
     
@@ -457,8 +462,8 @@ extension Array where Element == CurrentAIPatchBuilderResponseFormat.LayerData {
 }
 
 extension AIPatchBuilderResponseFormat_V0.LayerData {
-    func createSidebarLayerData(idMap: [UUID : UUID]) throws -> SidebarLayerData {
-        guard let newId = idMap.get(self.node_id.value) else {
+    func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
+        guard let newId = idMap.get(self.node_id) else {
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         

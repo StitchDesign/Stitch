@@ -137,7 +137,8 @@ extension StitchAIPortValue_V0.NodeType {
         }
     }
     
-    func coerceToPortValueForStitchAI(from anyValue: Any) throws -> StitchAIPortValue_V0.PortValue {
+    func coerceToPortValueForStitchAI(from anyValue: Any,
+                                      idMap: [String : UUID]) throws -> StitchAIPortValue_V0.PortValue {
         switch self {
         case .int:
             fatalErrorIfDebug()
@@ -237,22 +238,21 @@ extension StitchAIPortValue_V0.NodeType {
             }
             return .cameraDirection(x)
         case .interactionId:
-            guard let x = anyValue as? StitchAIUUID_V0.StitchAIUUID? else {
-                if let xString = anyValue as? String,
-                   // TODO: how did "None" get wrapped with extra quotes?
-                   (xString == "None") {
-//                   (xString == "None" || xString == "\"None\"") {
-                    return .assignedLayer(nil)
-                }
-                
-                throw StitchAIParsingError.typeCasting
+            guard let xString = anyValue as? String else {
+                return .assignedLayer(nil)
             }
             
-            if let x = x {
-                return .assignedLayer(.init(x.value))
+            if (xString == "None") {
+                //                   (xString == "None" || xString == "\"None\"") {
+                return .assignedLayer(nil)
             }
             
-            return .assignedLayer(nil)
+            // Remap ID if from AI result
+            guard let newId = idMap.get(xString) else {
+                fatalErrorIfDebug()
+                return .assignedLayer(nil)
+            }
+            return .assignedLayer(.init(newId))
             
         case .scrollMode:
             guard let x = anyValue as? StitchAIPortValue_V0.PortValueVersion.ScrollMode else {

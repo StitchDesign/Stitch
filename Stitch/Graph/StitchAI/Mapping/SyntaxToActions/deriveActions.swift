@@ -91,7 +91,7 @@ extension SyntaxViewName {
         } else if !hasRootGroupLayer {
             // Add new node as middle-man
             let newGroupNode = CurrentAIPatchBuilderResponseFormat
-                .LayerData(node_id: .init(value: .init()),
+                .LayerData(node_id: UUID().description,
                            node_name: .init(value: .layer(.group)),
                            children: childrenLayers)
             

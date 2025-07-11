@@ -120,9 +120,9 @@ extension StitchAIPortValue_V1.PortValue {
             return x
         case .assignedLayer(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V1.StitchAIUUID?
+                return nil as String?
             }
-            return StitchAIUUID_V1.StitchAIUUID(value: x.id)
+            return x.id.description
         case .scrollMode(let x):
             return x
         case .textAlignment(let x):
@@ -197,9 +197,9 @@ extension StitchAIPortValue_V1.PortValue {
             return x
         case .anchorEntity(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V1.StitchAIUUID?
+                return nil as String?
             }
-            return StitchAIUUID_V1.StitchAIUUID(value: x)
+            return x.description
         case .keyboardType(let x):
             return x
         case .none:
