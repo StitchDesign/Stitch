@@ -23,7 +23,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         let defs = PatchBuilderStructuredOutputsDefinitions()
         let schema = OpenAISchema(type: .object,
                                   properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                  required: ["javascript_patches", "native_patches", "patch_connections", "layer_connections", "custom_patch_input_values"])
+                                  required: ["javascript_patches", "native_patches", "native_patch_value_type_settings", "patch_connections", "layer_connections", "custom_patch_input_values"])
         let strict = true
     }
 
@@ -78,6 +78,12 @@ enum AIPatchBuilderResponseFormat_V0 {
             required: ["node_id", "node_name"],
             items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.NativePatchNodeSchema()])
         )
+        
+        let native_patch_value_type_settings = OpenAISchema(
+            type: .array,
+            required: ["node_id", "value_type"],
+            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.NativePatchNodeValueSettingSchema()])
+            )
         
         let patch_connections = OpenAISchema(
             type: .array,
@@ -134,6 +140,11 @@ enum AIPatchBuilderResponseFormat_V0 {
         let node_name = OpenAISchemaRef(ref: "NodeName")
     }
     
+    struct NativePatchNodeValueSettingSchema: Encodable {
+        let node_id = OpenAISchema(type: .string)
+        let value_type = OpenAISchemaRef(ref: "ValueType")
+    }
+    
     struct PatchConnectionSchema: Encodable {
         let src_port = OpenAISchemaRef(ref: "PatchCoordinate")
         let dest_port = OpenAISchemaRef(ref: "PatchCoordinate")
@@ -182,6 +193,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     struct PatchData: Codable {
         let javascript_patches: [AIPatchBuilderResponseFormat_V0.JsPatchNode]
         let native_patches: [AIPatchBuilderResponseFormat_V0.NativePatchNode]
+        let native_patch_value_type_settings: [AIPatchBuilderResponseFormat_V0.NativePatchNodeValueTypeSetting]
         let patch_connections: [PatchConnection]
         let custom_patch_input_values: [CustomPatchInputValue]
     
@@ -208,6 +220,11 @@ extension AIPatchBuilderResponseFormat_V0 {
     struct NativePatchNode: Codable {
         let node_id: StitchAIUUID_V0.StitchAIUUID
         let node_name: StitchAIPatchOrLayer
+    }
+    
+    struct NativePatchNodeValueTypeSetting: Codable {
+        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let value_type: StitchAINodeType
     }
     
     struct PatchConnection: Codable {
@@ -246,6 +263,10 @@ extension AIPatchBuilderResponseFormat_V0 {
     
     struct StitchAIPatchOrLayer: StitchAIStringConvertable {
         var value: Step_V0.PatchOrLayer
+    }
+    
+    struct StitchAINodeType: StitchAIStringConvertable {
+        var value: Step_V0.NodeType
     }
 }
 
@@ -447,5 +468,23 @@ extension AIPatchBuilderResponseFormat_V0.LayerData {
         
         return SidebarLayerData(id: newId,
                                 children: children)
+    }
+}
+
+extension Step_V0.NodeType: StitchAIValueStringConvertable {
+    public init?(_ description: String) {
+        guard let type = Self.init(llmString: description) else {
+            return nil
+        }
+        
+        self = type
+    }
+    
+    var encodableString: String {
+        self.description
+    }
+    
+    public var description: String {
+        self.asLLMStepNodeType
     }
 }

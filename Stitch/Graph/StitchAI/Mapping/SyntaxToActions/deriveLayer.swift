@@ -378,8 +378,10 @@ extension SyntaxViewName {
                                                 args: args,
                                                 childrenLayers: childrenLayers)
         
+        
+        
         // Handle constructor-arguments
-        let customInputValues = try args.flatMap { arg in
+        var customInputValues = try args.flatMap { arg in
             do {
                 return try self
                     .deriveCustomValuesFromConstructorArgument(id: id,
@@ -392,6 +394,15 @@ extension SyntaxViewName {
                 throw error
             }
         }
+        
+        if args.isEmpty && self == .scrollView {
+            customInputValues += [
+                .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+                                                    input_port_type: .init(value: .scrollYEnabled)),
+                      value: .bool(true))
+            ]
+        }
+        
         
         // Handle modifiers
         let customModifierEvents = try modifiers.compactMap { modifier in
@@ -611,7 +622,15 @@ extension SyntaxViewName {
                                                    arg: SyntaxViewArgumentData
     ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
         
-        try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
+//        if arg.value.allArgumentTypesFlattened.isEmpty && self == .scrollView {
+//            return [
+//                .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+//                                                    input_port_type: .init(value: .scrollYEnabled)),
+//                      value: .bool(true))
+//            ]
+//        }
+        
+        return try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
             guard let port = try SyntaxViewArgumentData.deriveLayerInputPort(
                 layerType,
                 label: arg.label, // the overall label for the entire argument

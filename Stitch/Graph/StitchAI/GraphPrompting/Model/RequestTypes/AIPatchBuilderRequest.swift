@@ -209,6 +209,20 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 continue
             }
             
+            // Set custom value type here
+            if let customValueType = self.patch_data.native_patch_value_type_settings.first(where: { $0.node_id.value == oldId })?.value_type {
+                guard let oldType = newNode.userVisibleType else {
+                    // fatalErrorIfDebug()
+                    break
+                }
+                
+                let newType = try customValueType.value.migrate()
+                let _ = document.graph.changeType(for: newNode,
+                                                  oldType: oldType,
+                                                  newType: newType,
+                                                  activeIndex: document.activeIndex)
+            }
+            
             // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
             let supportsNewInputs = patchNode.patch.canChangeInputCounts
             if let maxModifiedInputIndex = maxModifiedPortIndex.get(oldId) {
