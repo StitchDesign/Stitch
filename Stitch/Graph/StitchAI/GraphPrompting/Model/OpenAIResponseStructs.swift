@@ -120,6 +120,9 @@ extension StitchAIRequestable {
             return result
         } catch let error as StitchAIManagerError {
             throw error
+        } catch let error as DecodingError {
+            // TODO: observed bugs with structured outputs messing up, should introduce retry logic if this is hit
+            throw StitchAIManagerError.contentDataDecodingError(content, error.localizedDescription)
         } catch {
             print("parseOpenAIResponse error: \(error)")
             throw StitchAIManagerError.contentDataDecodingError(content, error.localizedDescription)

@@ -366,11 +366,11 @@ extension SyntaxViewModifierName {
 extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
+    @MainActor
     func deriveLayerData(id: UUID,
                          args: [SyntaxViewArgumentData],
                          modifiers: [SyntaxViewModifier],
-                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData],
-                         idMap: inout [String : UUID]) throws -> LayerDerivationResult {
+                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
 
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
@@ -418,8 +418,8 @@ extension SyntaxViewName {
                 layerData.custom_layer_input_values += valuesList
             case .layerIdAssignment(let string):
                 // Map layer IDs, since these sometimes fail UUID decoding
-                let newId = idMap.get(string) ?? UUID()
-                idMap.updateValue(newId, forKey: string)
+                let newId = StitchAINodeMapper.shared.getId(from: string,
+                                                            needsNewId: true)
                 
                 // Update ID to that assigned from view
                 layerData.node_id = .init(value: newId)
@@ -430,7 +430,7 @@ extension SyntaxViewName {
         layerData.custom_layer_input_values = layerData.custom_layer_input_values
             .map { customInputValue in
                 var customInputValue = customInputValue
-                customInputValue.layer_input_coordinate.layer_id = layerData.node_id
+                customInputValue.layer_input_coordinate.layer_id.value = layerData.node_id.value
                 return customInputValue
             }
         

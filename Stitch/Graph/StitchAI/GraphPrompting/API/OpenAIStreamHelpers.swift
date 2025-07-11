@@ -183,6 +183,11 @@ extension StitchAIManager {
                 
                 
                 return .success((result, success.1))
+            } catch let error as StitchAIStreamingError {
+                // TODO: some streaming errors should be retried due to flaky structured output
+                print(error)
+                return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))
+                
             } catch {
                 print(error)
                 return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))

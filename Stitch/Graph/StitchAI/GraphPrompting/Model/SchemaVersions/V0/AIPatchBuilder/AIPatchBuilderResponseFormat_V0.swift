@@ -202,7 +202,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
 
     struct LayerData {
-        var node_id: StitchAIUUID_V0.StitchAIUUID
+        var node_id: StitchAINewUUID_V0.StitchAINewUUID
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
@@ -210,7 +210,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct JsPatchNode: Codable {
-        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let node_id: StitchAINewUUID_V0.StitchAINewUUID
         let javascript_source_code: String
         let suggested_title: String
         let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
@@ -218,7 +218,7 @@ extension AIPatchBuilderResponseFormat_V0 {
     }
     
     struct NativePatchNode: Codable {
-        let node_id: StitchAIUUID_V0.StitchAIUUID
+        let node_id: StitchAINewUUID_V0.StitchAINewUUID
         let node_name: StitchAIPatchOrLayer
     }
     
@@ -364,7 +364,7 @@ extension AIPatchBuilderResponseFormat_V0.LayerData: Codable {
     
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        node_id = try container.decode(StitchAIUUID_V0.StitchAIUUID.self, forKey: .node_id)
+        node_id = try container.decode(StitchAINewUUID_V0.StitchAINewUUID.self, forKey: .node_id)
         suggested_title = try container.decodeIfPresent(String.self, forKey: .suggested_title)
         node_name = try container.decode(AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer.self, forKey: .node_name)
         
@@ -457,16 +457,12 @@ extension Array where Element == CurrentAIPatchBuilderResponseFormat.LayerData {
 }
 
 extension AIPatchBuilderResponseFormat_V0.LayerData {
-    func createSidebarLayerData(idMap: [String : UUID]) throws -> SidebarLayerData {
-        guard let newId = idMap.get(self.node_id.value.description) else {
-            throw AIPatchBuilderRequestError.nodeIdNotFound
-        }
-        
+    func createSidebarLayerData() throws -> SidebarLayerData {
         let children = try self.children?.map {
-            try $0.createSidebarLayerData(idMap: idMap)
+            try $0.createSidebarLayerData()
         }
         
-        return SidebarLayerData(id: newId,
+        return SidebarLayerData(id: self.node_id.value,
                                 children: children)
     }
 }

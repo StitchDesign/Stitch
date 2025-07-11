@@ -50,22 +50,22 @@ extension SyntaxViewName {
         SyntaxViewName(rawValue: identifier)
     }
 
+    @MainActor
     static let supportedViews: [Self] = Self.allCases.filter {
         $0.isSupported
     }
     
+    @MainActor
     static let unsupportedViews: [Self] = Self.allCases.filter {
         !$0.isSupported
     }
     
+    @MainActor
     var isSupported: Bool {
-        var fakeMap = [String : UUID]()
-        
-        return (try? self.deriveLayerData(id: .init(),
-                                          args: [],
-                                          modifiers: [],
-                                          childrenLayers: [],
-                                          idMap: &fakeMap)) != nil
+        (try? self.deriveLayerData(id: .init(),
+                                   args: [],
+                                   modifiers: [],
+                                   childrenLayers: [])) != nil
     }
     
     // TODO: phase this out by using proper closure-checking

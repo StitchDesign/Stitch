@@ -99,7 +99,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                     // Singleton invocation solves issue of decoder inits having inaccessble callers
                     StitchAINodeMapper.shared.reset()
                     
-                    let actionsResult = try viewNode.deriveStitchActions(idMap: &StitchAINodeMapper.shared.map)
+                    let actionsResult = try viewNode.deriveStitchActions()
                     
                     print("Derived Stitch layer data:\n\(try actionsResult.encodeToPrintableString())")
                     
@@ -117,7 +117,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                     
                     switch patchBuilderResult {
                     case .success(let patchBuildResult):
-                        logToServerIfRelease("SUCCESS Patch Builder:\n\(patchBuildResult)")
+                        logToServerIfRelease("SUCCESS Patch Builder:\n\((try? patchBuildResult.encodeToPrintableString()) ?? "")")
                         
                         DispatchQueue.main.async { [weak document] in
                             guard let document = document else { return }
@@ -126,8 +126,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                                 let graphData = CurrentAIPatchBuilderResponseFormat
                                     .GraphData(layer_data_list: layerDataList,
                                                patch_data: patchBuildResult)
-                                try graphData.applyAIGraph(to: document,
-                                                           idMap: &StitchAINodeMapper.shared.map)
+                                try graphData.applyAIGraph(to: document)
                                 
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                                 // Display parsing warnings
@@ -187,9 +186,35 @@ struct AICodeGenRequest: StitchAIRequestable {
 /// Singleton instance that tracks created node IDs from Stitch AI code gen.
 /// A singleton is used to solve the issue of making mapped IDs accessible for decoder functions that aren't called directly from Stitch. Since we are unable to modify the init signature of a decode, the decode logic must get its map information from elsewhere.
 final class StitchAINodeMapper: NSObject {
-    var map = [String : UUID]()
+    private var map = [String : UUID]()
     
     @MainActor static let shared = StitchAINodeMapper()
-    
+}
+
+extension StitchAINodeMapper {
     func reset() { map = .init() }
+    
+    @MainActor
+    func getId(from id: UUID,
+               needsNewId: Bool) -> UUID {
+        self.getId(from: id.description,
+                   needsNewId: needsNewId)
+    }
+    
+    @MainActor
+    func getId(from idDesc: String,
+               
+               
+               // TODO: get this working
+               needsNewId: Bool) -> UUID {
+        let reusedId = StitchAINodeMapper.shared.map.get(description) ?? UUID(idDesc) ?? UUID()
+        let newId = needsNewId ? UUID() : reusedId
+        
+        StitchAINodeMapper.shared.map.updateValue(newId, forKey: idDesc)
+        
+        // Have newId map to itself in scenarios where we retrieve already mapped IDs
+        StitchAINodeMapper.shared.map.updateValue(newId, forKey: newId.description)
+        
+        return newId
+    }
 }
