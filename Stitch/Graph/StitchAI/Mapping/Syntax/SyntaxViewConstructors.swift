@@ -247,7 +247,7 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //      • init(content:)                             (both defaults)
 //
 
-// what about
+// TODO: could be a `struct`, since
 enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// SwiftUI actually exposes *one* public initializer:
     /// `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
@@ -268,6 +268,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
         switch alignment {
         case .literal(let a) where a != .center:
             list.append(.value(.init(.layerGroupAlignment,
+                                     // TODO: if `a.toAnchoring` fails, return `SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)` ?
                                      .anchoring(a.toAnchoring))))
         case .expression(let expr):
             list.append(.edge(expr))
@@ -319,6 +320,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     }
 }
 
+// TODO: a lot of this logic overlaps with HStackViewConstructor; only difference is `HorizontalAlignment` instead of `VerticalAlignment`
 enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// SwiftUI exposes just one public initializer:
     /// `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
@@ -768,19 +770,6 @@ extension LabeledExprSyntax {
         return .center
     }
 
-    var horizAlignValue: HorizontalAlignment {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text
-        {
-            switch ident {
-            case "leading":  return .leading
-            case "trailing": return .trailing
-            default:         return .center
-            }
-        }
-        return .center
-    }
-
     func asParameterString() -> Parameter<String> {
         if let lit = expression.as(StringLiteralExprSyntax.self) {
             return .literal(lit.decoded())
@@ -909,13 +898,11 @@ final class POCConstructorVisitor: SyntaxVisitor {
         case "Text":
             if let ctor = TextViewConstructor.from(node) {
                 calls.append(.init(kind: .text(ctor), node: node))
-                print("POCVisitor: recorded call – total so far = \(calls.count)")
             }
 
         case "Image":
             if let ctor = ImageViewConstructor.from(node) {
                 calls.append(.init(kind: .image(ctor), node: node))
-                print("POCVisitor: recorded call – total so far = \(calls.count)")
             }
 
         case "HStack":
