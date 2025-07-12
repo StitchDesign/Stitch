@@ -45,7 +45,12 @@ enum StitchAIPortValue_V1: StitchSchemaVersionable {
             // portvalue
             let portValueType = nodeType.portValueTypeForStitchAI
             let decodedValue = try container.decode(portValueType, forKey: .value)
-            let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
+            
+            // this is unused from here
+            var idMap = [String : UUID]()
+            let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue,
+                                                                  idMap: idMap)
+            
             self.value = value
         }
         
@@ -76,7 +81,11 @@ extension StitchAIPortValue_V1.PortValue {
             return nil
         }
         
-        let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
+        // unused here
+        let idMap = [String : UUID]()
+        
+        let value = try type.coerceToPortValueForStitchAI(from: decodedValue,
+                                                          idMap: idMap)
         self = value
     }
     

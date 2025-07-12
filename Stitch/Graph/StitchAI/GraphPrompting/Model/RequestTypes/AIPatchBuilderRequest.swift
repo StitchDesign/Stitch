@@ -100,36 +100,6 @@ extension StitchDocumentViewModel {
                                                        valueType: valueType,
                                                        idMap: &idMap)
         let migratedValue = try value.migrate()
-        
-//        // remap values with UUID
-//        switch migratedValue {
-//        case .assignedLayer(let layerNodeId):
-//            guard let layerNodeId = layerNodeId else {
-//                break
-//            }
-//            
-//            guard let newId = idMap[layerNodeId.asNodeId] else {
-//                fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have layerNodeId \(layerNodeId.asNodeId), idMap: \(idMap)")
-//                throw AIPatchBuilderRequestError.nodeIdNotFound
-//            }
-//            
-//            migratedValue = .assignedLayer(.init(newId))
-//            
-//        case .anchorEntity(let nodeId):
-//            guard let nodeId = nodeId else {
-//                break
-//            }
-//            
-//            guard let newId = idMap[nodeId] else {
-//                fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have nodeId \(nodeId), idMap: \(idMap)")
-//                throw AIPatchBuilderRequestError.nodeIdNotFound
-//            }
-//            
-//            migratedValue = .anchorEntity(.init(newId))
-//
-//        default:
-//            break
-//        }
 
         guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
             log("applyAction: could not apply setInput")

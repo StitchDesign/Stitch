@@ -432,16 +432,7 @@ extension AIPatchBuilderResponseFormat_V0.CustomLayerInputValue {
 extension Step_V0.PortValue {
     static func decodeFromAI(data: (any Codable & Sendable),
                              valueType: Step_V0.NodeType,
-                             idMap: inout [String : UUID]) throws -> Step_V0.PortValue {
-//        let nodeTypeString = try container.decode(String.self, forKey: valueTypeKey)
-//        
-//        guard let nodeType = Step_V0.NodeType(llmString: nodeTypeString) else {
-//            throw StitchAIParsingError.nodeTypeParsing(nodeTypeString)
-//        }
-        
-        // Parse value given node type
-//        let portValueType = valueType.portValueTypeForStitchAI
-        
+                             idMap: inout [String : UUID]) throws -> Step_V0.PortValue {        
         do {
             let value = try valueType.coerceToPortValueForStitchAI(from: data,
                                                                    idMap: idMap)
