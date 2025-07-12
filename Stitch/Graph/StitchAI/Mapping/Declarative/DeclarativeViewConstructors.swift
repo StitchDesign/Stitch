@@ -58,7 +58,7 @@ extension ViewConstructor {
 }
 
 
-// TODO: use a protocol instead ?
+// TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
 enum ViewConstructor: Equatable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
