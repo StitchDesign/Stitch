@@ -92,7 +92,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
                                       valueType: Step_V0.NodeType,
-                                      data: Data,
+                                      data: (any Codable & Sendable),
                                       idMap: inout [String : UUID]) throws {
         let graph = self.visibleGraph
         

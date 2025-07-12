@@ -15,7 +15,7 @@ extension StitchAIPortValue_V0.NodeType {
      - Color as a hex
      - CGPoint as a dictionary/json-object instead of a tuple
      */
-    var portValueTypeForStitchAI: Decodable.Type {
+    var portValueTypeForStitchAI: (Codable & Sendable).Type {
         switch self {
         case .int:
 //            fatalErrorIfDebug()
@@ -55,7 +55,7 @@ extension StitchAIPortValue_V0.NodeType {
         case .cameraDirection:
             return StitchAIPortValue_V0.PortValueVersion.CameraDirection.self
         case .interactionId:
-            return StitchAIUUID_V0.StitchAIUUID?.self
+            return String?.self
         case .scrollMode:
             return StitchAIPortValue_V0.PortValueVersion.ScrollMode.self
         case .textAlignment:
@@ -125,7 +125,7 @@ extension StitchAIPortValue_V0.NodeType {
         case .materialThickness:
             return StitchAIPortValue_V0.PortValueVersion.MaterialThickness.self
         case .anchorEntity:
-            return StitchAIUUID_V0.StitchAIUUID?.self
+            return String?.self
         case .pinToId:
             return StitchAIPortValue_V0.PortValueVersion.PinToId.self
             
@@ -425,13 +425,19 @@ extension StitchAIPortValue_V0.NodeType {
             }
             return .materialThickness(x)
         case .anchorEntity:
-            guard let stitchUUID = anyValue as? StitchAIUUID_V0.StitchAIUUID? else {
-                if let xString = anyValue as? String, xString == "None" {
-                    return .anchorEntity(nil)
-                }
-                throw StitchAIParsingError.typeCasting
+            let xString = anyValue as? String
+            
+            if xString == "None" {
+                return .anchorEntity(nil)
             }
-            return .anchorEntity(stitchUUID?.value)
+            
+            // Remap ID if from AI result
+            guard let newId = idMap.get(xString) else {
+                fatalErrorIfDebug()
+                return .anchorEntity(nil)
+            }
+            
+            return .anchorEntity(newId)
         case .pinToId:
             guard let x = anyValue as? StitchAIPortValue_V0.PortValueVersion.PinToId else {
                 throw StitchAIParsingError.typeCasting
