@@ -821,7 +821,7 @@ private extension ExprSyntax {
 private extension ExprSyntax {
     var colorLiteral: Color? {
         guard let mem = self.as(MemberAccessExprSyntax.self) else { return nil }
-        return Color(mem.declName.baseName.text)
+        return Color.fromSystemName(mem.declName.baseName.text)
     }
     var axisMember: Axis.Set.Element? {
         guard let mem = self.as(MemberAccessExprSyntax.self) else { return nil }
@@ -1224,7 +1224,10 @@ struct ConstructorDemoView: View {
         let stitch: String
     }
 
-    var rows: [DemoRow] {
+    // MARK: - Rows
+    @State private var rows: [DemoRow] = ConstructorDemoView.buildRows()
+    
+    private static func buildRows() -> [DemoRow] {
         let tree = Parser.parse(source: Self.sampleSource)
         let visitor = POCConstructorVisitor(viewMode: .fixedUp)
         visitor.walk(tree)
@@ -1238,53 +1241,35 @@ struct ConstructorDemoView: View {
             let (prefix, ctor): (String, any FromSwiftUIViewToStitch)
 
             switch call.kind {
-            case .text(let c):
-                (prefix, ctor) = ("Text", c)
-            case .image(let c):
-                (prefix, ctor) = ("Image", c)
-            case .hStack(let c):
-                (prefix, ctor) = ("HStack", c)
-            case .vStack(let c):
-                (prefix, ctor) = ("VStack", c)
-            case .lazyHStack(let c):
-                (prefix, ctor) = ("LazyHStack", c)
-            case .lazyVStack(let c):
-                (prefix, ctor) = ("LazyVStack", c)
-            case .circle(let c):
-                (prefix, ctor) = ("Circle", c)
-            case .ellipse(let c):
-                (prefix, ctor) = ("Ellipse", c)
-            case .rectangle(let c):
-                (prefix, ctor) = ("Rectangle", c)
-            case .roundedRectangle(let c):
-                (prefix, ctor) = ("RoundedRectangle", c)
-            case .scrollView(let c):
-                (prefix, ctor) = ("ScrollView", c)
-            case .zStack(let c):
-                (prefix, ctor) = ("ZStack", c)
-            case .textField(let c):
-                (prefix, ctor) = ("TextField", c)
-            case .angularGradient(let c):
-                (prefix, ctor) = ("AngularGradient", c)
-            case .linearGradient(let c):
-                (prefix, ctor) = ("LinearGradient", c)
-            case .radialGradient(let c):
-                (prefix, ctor) = ("RadialGradient", c)
+            case .text(let c):             (prefix, ctor) = ("Text", c)
+            case .image(let c):            (prefix, ctor) = ("Image", c)
+            case .hStack(let c):           (prefix, ctor) = ("HStack", c)
+            case .vStack(let c):           (prefix, ctor) = ("VStack", c)
+            case .lazyHStack(let c):       (prefix, ctor) = ("LazyHStack", c)
+            case .lazyVStack(let c):       (prefix, ctor) = ("LazyVStack", c)
+            case .circle(let c):           (prefix, ctor) = ("Circle", c)
+            case .ellipse(let c):          (prefix, ctor) = ("Ellipse", c)
+            case .rectangle(let c):        (prefix, ctor) = ("Rectangle", c)
+            case .roundedRectangle(let c): (prefix, ctor) = ("RoundedRectangle", c)
+            case .scrollView(let c):       (prefix, ctor) = ("ScrollView", c)
+            case .zStack(let c):           (prefix, ctor) = ("ZStack", c)
+            case .textField(let c):        (prefix, ctor) = ("TextField", c)
+            case .angularGradient(let c):  (prefix, ctor) = ("AngularGradient", c)
+            case .linearGradient(let c):   (prefix, ctor) = ("LinearGradient", c)
+            case .radialGradient(let c):   (prefix, ctor) = ("RadialGradient", c)
             }
 
             overload = "\(prefix).\(ctor)"
             if let (layer, values) = ctor.toStitch {
-                let detail = values
-                    .map { ve -> String in
-                        switch ve {
-                        case .value(let cv):
-                            return "\(cv.input)=\(cv.value.display)"
-                        case .edge(let expr):
-                            return "edge<\(expr.description)>"
-                        }
+                let detail = values.map { ve -> String in
+                    switch ve {
+                    case .value(let cv):
+                        return "\(cv.input)=\(cv.value.display)"
+                    case .edge(let expr):
+                        return "edge<\(expr.description)>"
                     }
-                    .joined(separator: ", ")
-                stitch = "Layer: \(layer)  { \(detail) }"
+                }.joined(separator: ", ")
+                stitch = "Layer: \(String(describing: layer))  { \(detail) }"
             } else {
                 stitch = "—"
             }
@@ -1298,6 +1283,11 @@ struct ConstructorDemoView: View {
             Text("SwiftUI → Overload → Stitch mapping")
                 .font(.headline)
                 .padding(.bottom, 4)
+
+            Button("Run conversions again") {
+                rows = ConstructorDemoView.buildRows()
+            }
+            .padding(.bottom, 4)
 
             List(rows) { row in
                 logInView("ConstructorDemoView: row: \(row)")
