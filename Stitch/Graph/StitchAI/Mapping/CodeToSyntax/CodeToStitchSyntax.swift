@@ -160,6 +160,17 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         viewStack[index] = newNode
         bubbleChangeUp(from: index)
     }
+        
+    // MARK: - Attach strongly-typed constructor
+    /// Adds a `ViewConstructor` to the *current* SyntaxView and keeps the
+    /// root/ancestors in sync.
+    private func attachConstructor(_ ctor: ViewConstructor) {
+        guard let idx = currentNodeIndex, idx < viewStack.count else { return }
+        var node = viewStack[idx]
+        node.constructor = ctor          // ⇐ requires `var constructor: ViewConstructor?` on SyntaxView
+        viewStack[idx] = node
+        bubbleChangeUp(from: idx)
+    }
     
     // Helper to add a modifier to the current view node
     private func addModifier(_ modifier: SyntaxViewModifier) {
@@ -178,6 +189,106 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         bubbleChangeUp(from: index)
         log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
         dbg("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
+    }
+    
+    /// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
+    /// returned, attach it to the *current* SyntaxView.
+    private func tryAttachConstructor(from node: FunctionCallExprSyntax) {
+        
+        guard let name = node.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
+              let viewName = SyntaxViewName(rawValue: name) else {
+            return
+        }
+        
+        switch viewName {
+        case .text:
+            if let ctor = TextViewConstructor.from(node).map(ViewConstructor.text) {
+                attachConstructor(ctor)
+            }
+        case .image:
+            if let ctor = ImageViewConstructor.from(node).map(ViewConstructor.image) {
+                attachConstructor(ctor)
+            }
+        case .hStack:
+            if let ctor = HStackViewConstructor.from(node).map(ViewConstructor.hStack) {
+                attachConstructor(ctor)
+            }
+        case .vStack:
+            if let ctor = VStackViewConstructor.from(node).map(ViewConstructor.vStack) {
+                attachConstructor(ctor)
+            }
+        case .lazyHStack:
+            if let ctor = LazyHStackViewConstructor.from(node).map(ViewConstructor.lazyHStack) {
+                attachConstructor(ctor)
+            }
+        case .lazyVStack:
+            if let ctor = LazyVStackViewConstructor.from(node).map(ViewConstructor.lazyVStack) {
+                attachConstructor(ctor)
+            }
+        case .circle:
+            if let ctor = CircleViewConstructor.from(node).map(ViewConstructor.circle) {
+                attachConstructor(ctor)
+            }
+        case .ellipse:
+            if let ctor = EllipseViewConstructor.from(node).map(ViewConstructor.ellipse) {
+                attachConstructor(ctor)
+            }
+        case .rectangle:
+            if let ctor = RectangleViewConstructor.from(node).map(ViewConstructor.rectangle) {
+                attachConstructor(ctor)
+            }
+        case .roundedRectangle:
+            if let ctor = RoundedRectangleViewConstructor.from(node).map(ViewConstructor.roundedRectangle) {
+                attachConstructor(ctor)
+            }
+        case .scrollView:
+            if let ctor = ScrollViewViewConstructor.from(node).map(ViewConstructor.scrollView) {
+                attachConstructor(ctor)
+            }
+        case .zStack:
+            if let ctor = ZStackViewConstructor.from(node).map(ViewConstructor.zStack) {
+                attachConstructor(ctor)
+            }
+        case .textField:
+            if let ctor = TextFieldViewConstructor.from(node).map(ViewConstructor.textField) {
+                attachConstructor(ctor)
+            }
+        case .angularGradient:
+            if let ctor = AngularGradientViewConstructor.from(node).map(ViewConstructor.angularGradient) {
+                attachConstructor(ctor)
+            }
+        case .linearGradient:
+            if let ctor = LinearGradientViewConstructor.from(node).map(ViewConstructor.linearGradient) {
+                attachConstructor(ctor)
+            }
+        case .radialGradient:
+            if let ctor = RadialGradientViewConstructor.from(node).map(ViewConstructor.radialGradient) {
+                attachConstructor(ctor)
+            }
+        default:
+            break
+        }
+        
+        
+//        if let ctor = TextViewConstructor.from(node).map(ViewConstructor.text)
+//            ?? ImageViewConstructor.from(node).map(ViewConstructor.image)
+//            ?? HStackViewConstructor.from(node).map(ViewConstructor.hStack)
+//            ?? VStackViewConstructor.from(node).map(ViewConstructor.vStack)
+//            ?? LazyHStackViewConstructor.from(node).map(ViewConstructor.lazyHStack)
+//            ?? LazyVStackViewConstructor.from(node).map(ViewConstructor.lazyVStack)
+//            ?? CircleViewConstructor.from(node).map(ViewConstructor.circle)
+//            ?? EllipseViewConstructor.from(node).map(ViewConstructor.ellipse)
+//            ?? RectangleViewConstructor.from(node).map(ViewConstructor.rectangle)
+//            ?? RoundedRectangleViewConstructor.from(node).map(ViewConstructor.roundedRectangle)
+//            ?? ScrollViewViewConstructor.from(node).map(ViewConstructor.scrollView)
+//            ?? ZStackViewConstructor.from(node).map(ViewConstructor.zStack)
+//            ?? TextFieldViewConstructor.from(node).map(ViewConstructor.textField)
+//            ?? AngularGradientViewConstructor.from(node).map(ViewConstructor.angularGradient)
+//            ?? LinearGradientViewConstructor.from(node).map(ViewConstructor.linearGradient)
+//            ?? RadialGradientViewConstructor.from(node).map(ViewConstructor.radialGradient)
+//        {
+//            attachConstructor(ctor)
+//        }
     }
     
     // Visit function call expressions (which represent view initializations and modifiers)
@@ -225,6 +336,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                     viewStack.append(viewNode)
                     currentNodeIndex = 0
                     rootViewNode = viewNode
+                    self.tryAttachConstructor(from: node)
                     log("Current node index set to: \(String(describing: currentNodeIndex))")
                 } else {
                     // Check if this view initialization should be treated as a child
@@ -244,6 +356,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                             // Push the new node onto the stack and update current node index
                             viewStack.append(viewNode)
                             currentNodeIndex = viewStack.count - 1
+                            self.tryAttachConstructor(from: node)
+                                                        
                             log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
                         } else {
                             log("⚠️ Error: No current node to add child to")
@@ -259,6 +373,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                             // Just add it to the stack temporarily so it can be processed
                             viewStack.append(viewNode)
                             currentNodeIndex = viewStack.count - 1
+                            self.tryAttachConstructor(from: node)
                         } else {
                             log("⚠️ Found view \(viewName) in argument context - skipping child addition")
                             log("This view should be handled as an argument, not as a child")
@@ -537,11 +652,11 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 //// Run a simple test with a Text view that has modifiers
 //func runModifierParsingTest() {
 //    print("\n==== TESTING MODIFIER PARSING ====\n")
-//    
+//
 //    let testCode = "Text(\"Hello\").foregroundColor(.blue).padding()"
 //    print("Test code: \(testCode)")
-//    
+//
 //    testSwiftUIToViewNode(swiftUICode: testCode)
-//    
+//
 //    print("\n==== TEST COMPLETE ====\n")
 //}
