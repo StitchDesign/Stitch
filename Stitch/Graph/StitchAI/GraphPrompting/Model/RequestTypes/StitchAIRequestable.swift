@@ -14,7 +14,7 @@ let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
-protocol StitchAIRequestable: Sendable where InitialDecodedResult: Decodable, TokenDecodedResult: Decodable {
+protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, TokenDecodedResult: Decodable {
     associatedtype Body: Encodable
     // Initial payload that's expected from OpenAI response
     associatedtype InitialDecodedResult

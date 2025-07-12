@@ -58,6 +58,14 @@ enum SwiftUISyntaxError: Error, Sendable {
     case syntaxValueDecodingFailed(SyntaxArgumentKind)
 }
 
+extension SwiftUISyntaxError: Encodable {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        let string = "\(self)"
+        try container.encode(string)
+    }
+}
+
 extension SwiftUISyntaxError {
     /// Errors that should allow request to continue.
     var shouldFailSilently: Bool {

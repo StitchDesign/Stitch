@@ -97,7 +97,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                 do {
                     let actionsResult = try viewNode.deriveStitchActions()
                     
-                    print("Derived Stitch layer data:\n\(actionsResult)")
+                    print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
                     
                     let layerDataList = actionsResult.actions
                     allDiscoveredErrors += actionsResult.caughtErrors

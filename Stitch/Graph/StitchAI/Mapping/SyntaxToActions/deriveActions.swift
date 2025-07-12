@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct SwiftSyntaxActionsResult {
+struct SwiftSyntaxActionsResult: Encodable {
     let actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }

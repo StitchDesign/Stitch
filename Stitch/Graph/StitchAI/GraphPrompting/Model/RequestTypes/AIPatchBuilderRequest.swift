@@ -333,6 +333,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         let graphEntity = document.graph.createSchema()
+        
         return graphEntity
     }
 }
