@@ -11,6 +11,9 @@ import Foundation
 import SwiftUI
 import UIKit
 import NonEmpty
+import StitchSchemaKit
+
+
 
 // MARK: - Parameter wrapper: literal vs. arbitrary expression ---------
 
@@ -43,6 +46,7 @@ struct CustomInputValue: Equatable, Hashable {
     }
 }
 
+
 protocol FromSwiftUIViewToStitch {
     associatedtype T
     
@@ -52,6 +56,38 @@ protocol FromSwiftUIViewToStitch {
 }
 
 
+extension ViewConstructor {
+    
+    func getCustomValueEvents(id: UUID) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]? {
+        
+        guard let toStitchResult = self.toStitch else {
+            return nil
+        }
+        
+        let inputs = toStitchResult.1
+        
+        return inputs.compactMap { (valueOrEdge: ValueOrEdge) in
+            switch valueOrEdge {
+            case .edge:
+                return nil
+            case .value(let x):
+                if let downgradedInput = try? x.input.convert(to: CurrentStep.LayerInputPort.self),
+                   let downgradedValue = try? x.value.convert(to: CurrentStep.PortValue.self) {
+                    return CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue.init(
+                        id: id,
+                        input: downgradedInput,
+                        value: downgradedValue)
+                } else {
+                    return nil
+                }
+            }
+        }
+        
+    }
+}
+
+
+// TODO: use a protocol instead ?
 enum ViewConstructor: Equatable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
@@ -69,6 +105,27 @@ enum ViewConstructor: Equatable {
     case angularGradient(AngularGradientViewConstructor)
     case linearGradient(LinearGradientViewConstructor)
     case radialGradient(RadialGradientViewConstructor)
+    
+    var toStitch: (Layer, [ValueOrEdge])? {
+        switch self {
+        case .text(let c):             return c.toStitch
+        case .image(let c):            return c.toStitch
+        case .hStack(let c):           return c.toStitch
+        case .vStack(let c):           return c.toStitch
+        case .lazyHStack(let c):       return c.toStitch
+        case .lazyVStack(let c):       return c.toStitch
+        case .circle(let c):           return c.toStitch
+        case .ellipse(let c):          return c.toStitch
+        case .rectangle(let c):        return c.toStitch
+        case .roundedRectangle(let c): return c.toStitch
+        case .scrollView(let c):       return c.toStitch
+        case .zStack(let c):           return c.toStitch
+        case .textField(let c):        return c.toStitch
+        case .angularGradient(let c):  return c.toStitch
+        case .linearGradient(let c):   return c.toStitch
+        case .radialGradient(let c):   return c.toStitch
+        }
+    }
 }
     
 

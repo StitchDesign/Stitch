@@ -60,6 +60,7 @@ extension SyntaxViewName {
     
     var isSupported: Bool {
         (try? self.deriveLayerData(id: .init(),
+                                   viewConstructor: nil,
                                    args: [],
                                    modifiers: [],
                                    childrenLayers: [])) != nil
