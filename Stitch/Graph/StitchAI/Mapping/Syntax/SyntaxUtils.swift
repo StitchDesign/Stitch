@@ -54,6 +54,12 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
 func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)SyntaxView("
     result += "\n\(indent)    name: \"\(node.name.rawValue)\","
+    // Include constructor (if available)
+    if let ctor = node.constructor {
+        result += "\n\(indent)    constructor: \(ctor),"
+    } else {
+        result += "\n\(indent)    constructor: nil,"
+    }
     
     // Format arguments
     result += "\n\(indent)    constructorArguments: ["

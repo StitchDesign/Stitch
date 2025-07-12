@@ -367,6 +367,7 @@ extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
     func deriveLayerData(id: UUID,
+                         viewConstructor: ViewConstructor?,
                          args: [SyntaxViewArgumentData],
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
@@ -377,26 +378,40 @@ extension SyntaxViewName {
             .deriveLayerAndCustomValuesFromName(id: id,
                                                 args: args,
                                                 childrenLayers: childrenLayers)
-        
-        
+
         
         // Handle constructor-arguments
-        var customInputValues = try args.flatMap { arg in
-            do {
-                return try self
-                    .deriveCustomValuesFromConstructorArgument(id: id,
-                                                               layerType: layerType,
-                                                               arg: arg)
-            } catch let error as SwiftUISyntaxError {
-                silentErrors.append(error)
-                return []
-            } catch {
-                throw error
+        
+        var customInputValuesFromViewConstructor = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+
+        // Try to access the SyntaxView.ViewConstructor, if we have one
+        if let customInputValues = viewConstructor?.getCustomValueEvents(id: id) {
+            customInputValuesFromViewConstructor = customInputValues
+        }
+        
+        // Else fall back to legacy style:
+        else {
+            customInputValuesFromViewConstructor = try args.flatMap { arg in
+                do {
+                    
+                    return try self
+                        .deriveCustomValuesFromConstructorArgument(id: id,
+                                                                   layerType: layerType,
+                                                                   arg: arg)
+                } catch let error as SwiftUISyntaxError {
+                    silentErrors.append(error)
+                    return []
+                } catch {
+                    throw error
+                }
             }
         }
         
+        
+        
+        // TODO: remove and rely on ScrollViewConstructor instead
         if args.isEmpty && self == .scrollView {
-            customInputValues += [
+            customInputValuesFromViewConstructor += [
                 .init(layer_input_coordinate: .init(layer_id: .init(value: id),
                                                     input_port_type: .init(value: .scrollYEnabled)),
                       value: .bool(true))
@@ -405,7 +420,7 @@ extension SyntaxViewName {
         
         
         // Handle modifiers
-        let customModifierEvents = try modifiers.compactMap { modifier in
+        let customInputValuesFromViewModifiers = try modifiers.compactMap { modifier in
             do {
                 return try Self.deriveCustomValuesFromViewModifier(
                     id: id,
@@ -419,10 +434,10 @@ extension SyntaxViewName {
             }
         }
         
-        layerData.custom_layer_input_values += customInputValues
+        layerData.custom_layer_input_values += customInputValuesFromViewConstructor
         
         // Parse view modifier events
-        for modifierEvent in customModifierEvents {
+        for modifierEvent in customInputValuesFromViewModifiers {
             switch modifierEvent {
             case .layerInputValues(let valuesList):
                 layerData.custom_layer_input_values += valuesList

@@ -60,6 +60,7 @@ extension SyntaxViewName {
     
     var isSupported: Bool {
         (try? self.deriveLayerData(id: .init(),
+                                   viewConstructor: nil,
                                    args: [],
                                    modifiers: [],
                                    childrenLayers: [])) != nil
@@ -192,4 +193,5 @@ enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendabl
     case alignmentGuide = "AlignmentGuide"
     case table = "Table"
     case picker = "Picker"
+    case unevenRoundedRectangle = "UnevenRoundedRectangle"
 }
