@@ -802,6 +802,36 @@ extension Alignment {
 }
 
 
+// MARK: Literal‑array helper  (generic)
+// ---------------------------------------------------------------------
+/// If the expression is *exactly* an array literal and every element can
+/// be converted by `itemMapper`, return the mapped array. Otherwise `nil`.
+private extension ExprSyntax {
+    func literalArray<Element>(_ itemMapper: (ExprSyntax) -> Element?) -> [Element]? {
+        guard let arr = self.as(ArrayExprSyntax.self) else { return nil }
+        var out: [Element] = []
+        for elem in arr.elements {
+            guard let mapped = itemMapper(elem.expression) else { return nil }
+            out.append(mapped)
+        }
+        return out
+    }
+}
+/// Maps `.green` → Color.green  (relies on Color.init(_:))
+private extension ExprSyntax {
+    var colorLiteral: Color? {
+        guard let mem = self.as(MemberAccessExprSyntax.self) else { return nil }
+        return Color(mem.declName.baseName.text)
+    }
+    var axisMember: Axis.Set.Element? {
+        guard let mem = self.as(MemberAccessExprSyntax.self) else { return nil }
+        switch mem.declName.baseName.text {
+        case "horizontal": return .horizontal
+        case "vertical":   return .vertical
+        default:           return nil
+        }
+    }
+}
 // MARK: Axis‑Set literal helper  (.horizontal / .vertical / [.horizontal, .vertical])
 private extension ExprSyntax {
     /// If the expression can be evaluated at parse time to a concrete Axis.Set,
@@ -818,17 +848,8 @@ private extension ExprSyntax {
         }
 
         // 2) Array literal: `[.horizontal, .vertical]`
-        if let arr = self.as(ArrayExprSyntax.self) {
-            var set: Axis.Set = []
-            for elem in arr.elements {
-                guard let mem = elem.expression.as(MemberAccessExprSyntax.self) else { return nil }
-                switch mem.declName.baseName.text {
-                case "horizontal": set.insert(.horizontal)
-                case "vertical":   set.insert(.vertical)
-                default:           return nil       // unknown element → bail
-                }
-            }
-            return set
+        if let elems = self.literalArray({ $0.axisMember }) {
+            return Axis.Set(elems)
         }
         return nil
     }
@@ -1372,8 +1393,13 @@ enum AngularGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
               let endArg    = args[safe: 3] else { return nil }
 
         // colors
-        let colors: Parameter<[Color]> = colorsArg.colorArrayLiteral
-            .map(Parameter.literal) ?? .expression(colorsArg.expression)
+        let colors: Parameter<[Color]>
+        if let arr = colorsArg.expression.literalArray({ $0.colorLiteral }),
+           arr.count >= 2 {
+            colors = .literal(arr)
+        } else {
+            colors = .expression(colorsArg.expression)
+        }
 
         // center
         let center: Parameter<UnitPoint> = centerArg.unitPointLiteral
@@ -1450,8 +1476,13 @@ enum LinearGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
               let endArg    = args[safe: 2] else { return nil }
 
         // colors
-        let colors: Parameter<[Color]> = colorsArg.colorArrayLiteral
-            .map(Parameter.literal) ?? .expression(colorsArg.expression)
+        let colors: Parameter<[Color]>
+        if let arr = colorsArg.expression.literalArray({ $0.colorLiteral }),
+           arr.count >= 2 {
+            colors = .literal(arr)
+        } else {
+            colors = .expression(colorsArg.expression)
+        }
 
         // points
         let startPt: Parameter<UnitPoint> = startArg.unitPointLiteral
@@ -1526,10 +1557,32 @@ enum RadialGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
     static func from(_ node: FunctionCallExprSyntax) -> Self? {
         let args = node.arguments
         guard args.count >= 4 else { return nil }
-        let colors: Parameter<[Color]>   = .expression(args[safe: 0]!.expression)
-        let center: Parameter<UnitPoint> = .expression(args[safe: 1]!.expression)
-        let startR: Parameter<CGFloat>   = .expression(args[safe: 2]!.expression)
-        let endR:   Parameter<CGFloat>   = .expression(args[safe: 3]!.expression)
-        return .parameters(colors: colors, center: center, startRadius: startR, endRadius: endR)
+
+        // ----- colors ---------------------------------------------------
+        let colors: Parameter<[Color]>
+        if let arr = args[safe: 0]!.expression.literalArray({ $0.colorLiteral }),
+           arr.count >= 2 {
+            colors = .literal(arr)
+        } else {
+            colors = .expression(args[safe: 0]!.expression)
+        }
+
+        // ----- center (UnitPoint) --------------------------------------
+        let centerArg = args[safe: 1]!
+        let center: Parameter<UnitPoint> = centerArg.unitPointLiteral
+            .map(Parameter.literal) ?? .expression(centerArg.expression)
+
+        // ----- startRadius / endRadius ---------------------------------
+        func radiusParam(_ arg: LabeledExprSyntax) -> Parameter<CGFloat> {
+            if let num = arg.cgFloatValue { return .literal(num) }
+            return .expression(arg.expression)
+        }
+        let startR = radiusParam(args[safe: 2]!)
+        let endR   = radiusParam(args[safe: 3]!)
+
+        return .parameters(colors: colors,
+                           center: center,
+                           startRadius: startR,
+                           endRadius:   endR)
     }
 }
