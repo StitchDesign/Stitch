@@ -50,7 +50,11 @@ struct CustomInputValue: Equatable, Hashable {
 protocol FromSwiftUIViewToStitch {
     associatedtype T
     
-    var toStitch: (Layer, [ValueOrEdge])? { get }
+    // nil if ViewConstructor could not be turned into Stitch concepts
+    var toStitch: (
+        Layer?, // nil e.g. for ScrollView, which contributes custom-values but not own layer
+        [ValueOrEdge]
+    )? { get }
     
     static func from(_ node: FunctionCallExprSyntax) -> T?
 }
@@ -106,7 +110,7 @@ enum ViewConstructor: Equatable {
     case linearGradient(LinearGradientViewConstructor)
     case radialGradient(RadialGradientViewConstructor)
     
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         switch self {
         case .text(let c):             return c.toStitch
         case .image(let c):            return c.toStitch
@@ -142,7 +146,7 @@ enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Text(_ attributed: AttributedString)`
     case attributed(_ content: Parameter<AttributedString>)
 
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         switch self {
 
         case .string(let p), .verbatim(let p):
@@ -230,7 +234,7 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Image(uiImage:)`
     case uiImage(image: Parameter<UIImage>)
 
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         switch self {
 
         case .asset(let name, _),
@@ -314,7 +318,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
                     spacing:   Parameter<CGFloat?>          = .literal(nil))
 
     // MARK: Stitch mapping
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         var list: [ValueOrEdge] = [
             .value(.init(.orientation, .orientation(.horizontal)))
         ]
@@ -385,7 +389,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
                     spacing:   Parameter<CGFloat?>            = .literal(nil))
 
     // MARK: Stitch mapping
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         var list: [ValueOrEdge] = [
             .value(.init(.orientation, .orientation(.vertical)))
         ]
@@ -453,7 +457,7 @@ enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case parameters(alignment: Parameter<VerticalAlignment> = .literal(.center),
                     spacing:   Parameter<CGFloat?>          = .literal(nil))
 
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         switch self {
         case .parameters(let alignment, let spacing):
             return HStackViewConstructor
@@ -475,7 +479,7 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
                     spacing:   Parameter<CGFloat?>            = .literal(nil))
 
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         switch self {
         case .parameters(let alignment, let spacing):
             return VStackViewConstructor
@@ -507,7 +511,7 @@ enum TextFieldViewConstructor: Equatable, FromSwiftUIViewToStitch {
     ///
     /// • `title`  →  .placeholder   (omit if nil)
     /// • `binding`→  .text          (literal constant → value, otherwise edge)
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         guard case let .parameters(title, bindingExpr) = self else { return nil }
         var list: [ValueOrEdge] = []
         
@@ -562,7 +566,7 @@ enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case parameters(alignment: Parameter<Alignment> = .literal(.center))
 
     // Orientation is implicit overlap; we won’t emit orientation value.
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         var list: [ValueOrEdge] = []
 
         guard case let .parameters(alignment) = self else { return nil }
@@ -602,7 +606,7 @@ enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 enum CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case plain                                    // Circle()
 
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         (.oval, [])                             // no args, nothing to edge
     }
 
@@ -614,7 +618,7 @@ enum CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
 enum EllipseViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case plain                                  // Ellipse()
 
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         (.oval, [])                             // same mapping as Circle
     }
 
@@ -626,7 +630,7 @@ enum EllipseViewConstructor: Equatable, FromSwiftUIViewToStitch {
 enum RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case plain                                    // Rectangle()
 
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         (.rectangle, [])                          // no args
     }
 
@@ -652,7 +656,7 @@ enum RoundedRectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// • RoundedRectangle(cornerSize:)   → Layer.rectangle + cornerSize
     ///
     /// (We ignore the `style` for now; it can be added later.)
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         switch self
         {
         // ── cornerRadius(radius:style:) ───────────────────────────────
@@ -711,8 +715,55 @@ enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
                     showsIndicators: Parameter<Bool> = .literal(true))
     
-    // Placeholder – mapping not yet defined
-    var toStitch: (Layer, [ValueOrEdge])? { nil }
+    // MARK: Stitch mapping
+    ///
+    /// • Always returns `(.scroll, …)`
+    /// • `.horizontal`   →  scrollXEnabled = true
+    /// • `.vertical`     →  scrollYEnabled = true   (default if no arg)
+    /// • `[.horizontal, .vertical]` or `.all`
+    ///                    →  both scrollXEnabled & scrollYEnabled = true
+    /// • Any expression  →  single `.edge(expr)` (caller decides)
+    var toStitch: (Layer?, [ValueOrEdge])? {
+        guard case let .parameters(axes, _) = self else { return nil }
+        var list: [ValueOrEdge] = []
+        
+        switch axes {
+        case .literal(let set):
+            // Axis.Set is an OptionSet; test for membership.
+            if set.contains(.horizontal) {
+                list.append(.value(.init(.scrollXEnabled, .bool(true))))
+            }
+            if set.contains(.vertical) {
+                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+            }
+            if set == [.horizontal, .vertical] {
+                // Already handled by the contains checks, nothing extra
+            }
+            // If neither bit is set (shouldn’t happen), default to vertical
+            if list.isEmpty {
+                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+            }
+            
+        case .expression(let expr):
+            // Try to evaluate at compile‑time
+            if let litSet = expr.axisSetLiteral() {
+                if litSet.contains(.horizontal) {
+                    list.append(.value(.init(.scrollXEnabled, .bool(true))))
+                }
+                if litSet.contains(.vertical) || litSet.isEmpty {
+                    list.append(.value(.init(.scrollYEnabled, .bool(true))))
+                }
+            } else {
+                // Unresolved at compile‑time → forward as edge
+                list.append(.edge(expr))
+            }
+        }
+        
+        return (
+            nil, // ScrollView does not technically correspond to a Stitch Layer
+            list
+        )
+    }
     
     static func from(_ node: FunctionCallExprSyntax) -> Self? {
         let args = node.arguments
@@ -750,6 +801,38 @@ extension Alignment {
     }
 }
 
+
+// MARK: Axis‑Set literal helper  (.horizontal / .vertical / [.horizontal, .vertical])
+private extension ExprSyntax {
+    /// If the expression can be evaluated at parse time to a concrete Axis.Set,
+    /// return it; otherwise return `nil`.
+    func axisSetLiteral() -> Axis.Set? {
+        // 1) Single member access: `.horizontal`, `.vertical`, `.all`
+        if let ma = self.as(MemberAccessExprSyntax.self) {
+            switch ma.declName.baseName.text {
+            case "horizontal": return .horizontal
+            case "vertical":   return .vertical
+            case "all":        return [.horizontal, .vertical]
+            default: break
+            }
+        }
+
+        // 2) Array literal: `[.horizontal, .vertical]`
+        if let arr = self.as(ArrayExprSyntax.self) {
+            var set: Axis.Set = []
+            for elem in arr.elements {
+                guard let mem = elem.expression.as(MemberAccessExprSyntax.self) else { return nil }
+                switch mem.declName.baseName.text {
+                case "horizontal": set.insert(.horizontal)
+                case "vertical":   set.insert(.vertical)
+                default:           return nil       // unknown element → bail
+                }
+            }
+            return set
+        }
+        return nil
+    }
+}
 
 // ── Tiny extraction helpers for alignment / spacing literals ─────────────
 extension LabeledExprSyntax {
@@ -1095,6 +1178,8 @@ struct ConstructorDemoView: View {
         Rectangle()
         RoundedRectangle(cornerRadius: 12)
         ScrollView(.horizontal, showsIndicators: false)
+        ScrollView(.vertical)
+        ScrollView([.vertical, .horizontal])
         ZStack
         ZStack(alignment: .topLeading)
         TextField("Email", text: emailBinding)
@@ -1237,7 +1322,7 @@ enum AngularGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// center                       → .centerAnchor
     /// startAngle                   → .startAngle
     /// endAngle                     → .endAngle
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         guard case let .parameters(colors, center, startAngle, endAngle) = self else { return nil }
         var list: [ValueOrEdge] = []
         
@@ -1324,7 +1409,7 @@ enum LinearGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// endPoint   (UnitPoint)       → .endAnchor    (Anchoring)
     ///
     /// Expression arguments become `.edge(expr)`.
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         guard case let .parameters(colors, startPoint, endPoint) = self else { return nil }
         var list: [ValueOrEdge] = []
 
@@ -1396,7 +1481,7 @@ enum RadialGradientViewConstructor: Equatable, FromSwiftUIViewToStitch {
     ///  endRadius          → .endRadius            (Number)
     ///
     ///  If any argument is an expression we emit an `.edge(expr)` instead.
-    var toStitch: (Layer, [ValueOrEdge])? {
+    var toStitch: (Layer?, [ValueOrEdge])? {
         guard case let .parameters(colors, center, startRadius, endRadius) = self else { return nil }
         var list: [ValueOrEdge] = []
 
