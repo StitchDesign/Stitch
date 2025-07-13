@@ -385,7 +385,7 @@ extension SyntaxViewName {
         var customInputValuesFromViewConstructor = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
 
         // Try to access the SyntaxView.ViewConstructor, if we have one
-        if let customInputValues = viewConstructor?.getCustomValueEvents(id: id) {
+        if let customInputValues = try viewConstructor?.getCustomValueEvents(id: id) {
             customInputValuesFromViewConstructor = customInputValues
         }
         

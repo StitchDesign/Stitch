@@ -29,7 +29,7 @@ protocol FromSwiftUIViewToStitch {
 
 extension ViewConstructor {
     
-    func getCustomValueEvents(id: UUID) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]? {
+    func getCustomValueEvents(id: UUID) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]? {
         
         guard let toStitchResult = self.toStitch else {
             return nil
@@ -37,23 +37,19 @@ extension ViewConstructor {
         
         let inputs = toStitchResult.1
         
-        return inputs.compactMap { (valueOrEdge: ValueOrEdge) in
+        return try inputs.compactMap { (valueOrEdge: ValueOrEdge) in
             switch valueOrEdge {
             case .edge:
                 return nil
             case .value(let x):
-                if let downgradedInput = try? x.input.convert(to: CurrentStep.LayerInputPort.self),
-                   let downgradedValue = try? x.value.convert(to: CurrentStep.PortValue.self) {
-                    return CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue.init(
-                        id: id,
-                        input: downgradedInput,
-                        value: downgradedValue)
-                } else {
-                    return nil
-                }
+                let downgradedInput = try x.input.convert(to: CurrentStep.LayerInputPort.self)
+                let downgradedValue = try x.value.convert(to: CurrentStep.PortValue.self)
+                return try CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue.init(
+                    id: id,
+                    input: downgradedInput,
+                    value: downgradedValue)
             }
         }
-        
     }
 }
 
