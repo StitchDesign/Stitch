@@ -407,7 +407,8 @@ extension GraphState {
                 
                 let _ = self.nodeTypeChanged(nodeId: newSplitterNodeId,
                                              newNodeType: nodeType,
-                                             activeIndex: activeIndex)
+                                             activeIndex: activeIndex,
+                                             graphTime: self.graphStepState.graphTime)
             }
             
         } else if splitterType == .output {
@@ -415,7 +416,8 @@ extension GraphState {
                let nodeType = values.first?.toNodeType {
                 let _ = self.nodeTypeChanged(nodeId: newSplitterNodeId,
                                              newNodeType: nodeType,
-                                             activeIndex: activeIndex)
+                                             activeIndex: activeIndex,
+                                             graphTime: self.graphStepState.graphTime)
             }
         }
 

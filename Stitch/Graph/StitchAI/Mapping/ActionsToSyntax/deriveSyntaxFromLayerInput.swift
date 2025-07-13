@@ -38,7 +38,6 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedSyntaxViewLayer(CurrentStep.Layer)
     
     case unsupportedLayerIdParsing([SyntaxViewArgumentData])
-    case layerUUIDDecodingFailed(String)
     
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed
@@ -56,6 +55,14 @@ enum SwiftUISyntaxError: Error, Sendable {
     case invalidJSONLiteral(String)
     case unsupportedSimpleLiteralDecoding(SyntaxViewSimpleData)
     case syntaxValueDecodingFailed(SyntaxArgumentKind)
+}
+
+extension SwiftUISyntaxError: Encodable {
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        let string = "\(self)"
+        try container.encode(string)
+    }
 }
 
 extension SwiftUISyntaxError {

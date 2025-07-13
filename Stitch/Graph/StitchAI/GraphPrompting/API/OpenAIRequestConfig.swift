@@ -17,7 +17,7 @@ struct OpenAIRequestConfig: Equatable, Hashable {
     /// Default configuration with optimized retry settings
     static let `default` = OpenAIRequestConfig(
         maxRetries: 3,
-        timeoutInterval: 180,
+        timeoutInterval: 360,
         retryDelay: 2,
         maxTimeoutErrors: 4
     )

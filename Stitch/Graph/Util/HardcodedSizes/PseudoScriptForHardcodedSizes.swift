@@ -168,7 +168,8 @@ extension StitchDocumentViewModel {
                         for: node,
                         oldType: oldType,
                         newType: nodeType,
-                        activeIndex: .defaultActiveIndex
+                        activeIndex: .defaultActiveIndex,
+                        graphTime: self.graphStepState.graphTime
                     )
                 }
             }

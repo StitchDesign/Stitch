@@ -34,7 +34,7 @@ enum StitchAIPortValue_V0: StitchSchemaVersionable {
         
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-
+            
             // extract type
             let nodeTypeString = try container.decode(String.self, forKey: .type)
             guard let nodeType = NodeType(llmString: nodeTypeString) else {
@@ -44,7 +44,11 @@ enum StitchAIPortValue_V0: StitchSchemaVersionable {
             // portvalue
             let portValueType = nodeType.portValueTypeForStitchAI
             let decodedValue = try container.decode(portValueType, forKey: .value)
-            let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
+            
+            // this is unused from here
+            var idMap = [String : UUID]()
+            let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue,
+                                                                  idMap: idMap)
             self.value = value
         }
         
@@ -75,7 +79,11 @@ extension StitchAIPortValue_V0.PortValue {
             return nil
         }
         
-        let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
+        // unused here
+        let idMap = [String : UUID]()
+        
+        let value = try type.coerceToPortValueForStitchAI(from: decodedValue,
+                                                          idMap: idMap)
         self = value
     }
     
@@ -118,9 +126,9 @@ extension StitchAIPortValue_V0.PortValue {
             return x
         case .assignedLayer(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V0.StitchAIUUID?
+                return nil as String?
             }
-            return StitchAIUUID_V0.StitchAIUUID(value: x.id)
+            return x.id.description
         case .scrollMode(let x):
             return x
         case .textAlignment(let x):
@@ -195,9 +203,9 @@ extension StitchAIPortValue_V0.PortValue {
             return x
         case .anchorEntity(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V0.StitchAIUUID?
+                return nil as String?
             }
-            return StitchAIUUID_V0.StitchAIUUID(value: x)
+            return x.description
         case .none, .int:
             fatalError()
         }

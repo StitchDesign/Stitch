@@ -45,7 +45,12 @@ enum StitchAIPortValue_V1: StitchSchemaVersionable {
             // portvalue
             let portValueType = nodeType.portValueTypeForStitchAI
             let decodedValue = try container.decode(portValueType, forKey: .value)
-            let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue)
+            
+            // this is unused from here
+            var idMap = [String : UUID]()
+            let value = try nodeType.coerceToPortValueForStitchAI(from: decodedValue,
+                                                                  idMap: idMap)
+            
             self.value = value
         }
         
@@ -76,7 +81,11 @@ extension StitchAIPortValue_V1.PortValue {
             return nil
         }
         
-        let value = try type.coerceToPortValueForStitchAI(from: decodedValue)
+        // unused here
+        let idMap = [String : UUID]()
+        
+        let value = try type.coerceToPortValueForStitchAI(from: decodedValue,
+                                                          idMap: idMap)
         self = value
     }
     
@@ -120,9 +129,9 @@ extension StitchAIPortValue_V1.PortValue {
             return x
         case .assignedLayer(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V1.StitchAIUUID?
+                return nil as String?
             }
-            return StitchAIUUID_V1.StitchAIUUID(value: x.id)
+            return x.id.description
         case .scrollMode(let x):
             return x
         case .textAlignment(let x):
@@ -197,9 +206,9 @@ extension StitchAIPortValue_V1.PortValue {
             return x
         case .anchorEntity(let x):
             guard let x = x else {
-                return nil as StitchAIUUID_V1.StitchAIUUID?
+                return nil as String?
             }
-            return StitchAIUUID_V1.StitchAIUUID(value: x)
+            return x.description
         case .keyboardType(let x):
             return x
         case .none:

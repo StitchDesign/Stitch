@@ -290,7 +290,8 @@ extension StepActionChangeValueType: StepActionable {
             // NodeType etc. for this patch was already validated in `[StepTypeAction].areValidLLMSteps`
             let _ = document.visibleGraph.nodeTypeChanged(nodeId: self.nodeId,
                                                           newNodeType: migratedType,
-                                                          activeIndex: document.activeIndex)
+                                                          activeIndex: document.activeIndex,
+                                                          graphTime: document.graphStepState.graphTime)
         } catch {
             return .typeMigrationFailed(self.valueType)
         }

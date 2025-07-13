@@ -116,7 +116,7 @@ extension StitchAIRequestable {
         
         do {
             let result = try decoder.decode(Self.InitialDecodedResult.self, from: contentData)
-            print("MessageStruct: successfully decoded with \(result)")
+            print("MessageStruct: successfully decoded with \(try? result.encodeToPrintableString() ?? "")")
             return result
         } catch let error as StitchAIManagerError {
             throw error

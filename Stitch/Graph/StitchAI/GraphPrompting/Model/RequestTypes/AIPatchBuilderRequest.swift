@@ -63,9 +63,9 @@ extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.
     @MainActor
     func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerData,
-                               idMap: inout [UUID : UUID]) throws {
+                               idMap: inout [String : UUID]) throws {
         let newId = UUID()
-        idMap.updateValue(newId, forKey: newLayer.node_id.value)
+        idMap.updateValue(newId, forKey: newLayer.node_id)
         let graph = self.visibleGraph
         
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
@@ -91,40 +91,15 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
-                                      value: CurrentStep.PortValue,
-                                      idMap: [UUID : UUID]) throws {
+                                      valueType: Step_V0.NodeType,
+                                      data: (any Codable & Sendable),
+                                      idMap: inout [String : UUID]) throws {
         let graph = self.visibleGraph
-        var migratedValue = try value.migrate()
         
-        // remap values with UUID
-        switch migratedValue {
-        case .assignedLayer(let layerNodeId):
-            guard let layerNodeId = layerNodeId else {
-                break
-            }
-            
-            guard let newId = idMap[layerNodeId.asNodeId] else {
-                fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have layerNodeId \(layerNodeId.asNodeId), idMap: \(idMap)")
-                throw AIPatchBuilderRequestError.nodeIdNotFound
-            }
-            
-            migratedValue = .assignedLayer(.init(newId))
-            
-        case .anchorEntity(let nodeId):
-            guard let nodeId = nodeId else {
-                break
-            }
-            
-            guard let newId = idMap[nodeId] else {
-                fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have nodeId \(nodeId), idMap: \(idMap)")
-                throw AIPatchBuilderRequestError.nodeIdNotFound
-            }
-            
-            migratedValue = .anchorEntity(.init(newId))
-
-        default:
-            break
-        }
+        let value = try Step_V0.PortValue.decodeFromAI(data: data,
+                                                       valueType: valueType,
+                                                       idMap: &idMap)
+        let migratedValue = try value.migrate()
 
         guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
             log("applyAction: could not apply setInput")
@@ -142,7 +117,8 @@ extension StitchDocumentViewModel {
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
-        let graphEntity = try self.createAIGraph()
+        let graphEntity = try self.createAIGraph(graphCenter: document.viewPortCenter,
+                                                 highestZIndex: document.visibleGraph.highestZIndex)
         document.visibleGraph
             .insertNewComponent(graphEntity: graphEntity,
                                 encoder: document.documentEncoder,
@@ -156,20 +132,21 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
     }
     
     @MainActor
-    func createAIGraph() throws -> GraphEntity {
+    func createAIGraph(graphCenter: CGPoint,
+                       highestZIndex: Double) throws -> GraphEntity {
         let document = StitchDocumentViewModel.createEmpty()
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
-        var idMap = [UUID: UUID]()
+        var idMap = [String : UUID]()
         
         // Tracks all patch input coordinates we either make connections or custom vaues for, used for determining if extra rows need to be created
         let allModifiedPatchIds = self.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.patch_data.patch_connections.map(\.dest_port)
         let allModifiedPatchIdsSet = Set(allModifiedPatchIds)
 //        assertInDebug(allModifiedPatchIdsSet.count == allModifiedPatchIds.count)
         
-        let maxModifiedPortIndex: [UUID : Int] = allModifiedPatchIdsSet.reduce(into: .init()) { result, patchInputId in
-            let nodeId = patchInputId.node_id.value
+        let maxModifiedPortIndex: [String : Int] = allModifiedPatchIdsSet.reduce(into: .init()) { result, patchInputId in
+            let nodeId = patchInputId.node_id
             let existingMaxCount = result.get(nodeId) ?? -1
             result.updateValue(max(patchInputId.port_index + 1, existingMaxCount),
                                forKey: nodeId)
@@ -178,9 +155,15 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         // new js patches
         for newPatch in self.patch_data.javascript_patches {
             let newId = UUID()
-            idMap.updateValue(newId, forKey: newPatch.node_id.value)
-            let newNode = document.nodeInserted(choice: .patch(.javascript),
-                                                nodeId: newId)
+            idMap.updateValue(newId, forKey: newPatch.node_id)
+            let newNode = graph
+                .createNode(graphTime: .zero,
+                            newNodeId: newId,
+                            highestZIndex: highestZIndex,
+                            choice: .patch(.javascript),
+                            center: graphCenter)
+
+            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
             
             if let patchNode = newNode.patchNode {
                 let jsSettings = try JavaScriptNodeSettings(
@@ -196,13 +179,18 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         
         // new native patches
         for newPatch in self.patch_data.native_patches {
-            let oldId = newPatch.node_id.value
+            let oldId = newPatch.node_id
             let newId = UUID()
             idMap.updateValue(newId, forKey: oldId)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
-            let newNode = document.nodeInserted(choice: migratedNodeName,
-                                                nodeId: newId)
+            let newNode = graph.createNode(graphTime: .zero,
+                                           newNodeId: newId,
+                                           highestZIndex: highestZIndex,
+                                           choice: migratedNodeName,
+                                           center: graphCenter)
+            
+            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
             
             guard let patchNode = newNode.patchNodeViewModel else {
                 fatalErrorIfDebug()
@@ -210,17 +198,14 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             }
             
             // Set custom value type here
-            if let customValueType = self.patch_data.native_patch_value_type_settings.first(where: { $0.node_id.value == oldId })?.value_type {
-                guard let oldType = newNode.userVisibleType else {
-                    // fatalErrorIfDebug()
-                    break
-                }
-                
+            if let customValueType = self.patch_data.native_patch_value_type_settings.first(where: { $0.node_id == oldId })?.value_type,
+               let oldType = newNode.userVisibleType {
                 let newType = try customValueType.value.migrate()
                 let _ = document.graph.changeType(for: newNode,
                                                   oldType: oldType,
                                                   newType: newType,
-                                                  activeIndex: document.activeIndex)
+                                                  activeIndex: document.activeIndex,
+                                                  graphTime: document.graphStepState.graphTime)
             }
             
             // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs
@@ -265,8 +250,9 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 from: newInputValueSetting.patch_input_coordinate,
                 idMap: idMap)
             try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-                                                      value: newInputValueSetting.value,
-                                                      idMap: idMap)
+                                                      valueType: newInputValueSetting.value_type.value,
+                                                      data: newInputValueSetting.value,
+                                                      idMap: &idMap)
         }
         
         // new constants for layers
@@ -275,8 +261,9 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                 from: newInputValueSetting.layer_input_coordinate,
                 idMap: idMap)
             try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-                                                      value: newInputValueSetting.value,
-                                                      idMap: idMap)
+                                                      valueType: newInputValueSetting.value_type.value,
+                                                      data: newInputValueSetting.value,
+                                                      idMap: &idMap)
         }
         
         // new edges to downstream patches
@@ -326,14 +313,15 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         }
         
         let graphEntity = document.graph.createSchema()
+        
         return graphEntity
     }
 }
 
 extension NodeIOCoordinate {
     init(from aiPatchCoordinate: CurrentAIPatchBuilderResponseFormat.NodeIndexedCoordinate,
-         idMap: [UUID : UUID]) throws {
-        guard let newId = idMap.get(aiPatchCoordinate.node_id.value) else {
+         idMap: [String : UUID]) throws {
+        guard let newId = idMap.get(aiPatchCoordinate.node_id) else {
             fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiPatchCoordinate.node_id \(aiPatchCoordinate.node_id), idMap: \(idMap)")
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
@@ -343,8 +331,8 @@ extension NodeIOCoordinate {
     }
     
     init(from aiLayerCoordinate: CurrentAIPatchBuilderResponseFormat.LayerInputCoordinate,
-         idMap: [UUID : UUID]) throws {
-        guard let newId = idMap.get(aiLayerCoordinate.layer_id.value) else {
+         idMap: [String : UUID]) throws {
+        guard let newId = idMap.get(aiLayerCoordinate.layer_id) else {
             fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiLayerCoordinate.layer_id \(aiLayerCoordinate.layer_id), idMap: \(idMap)")
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }

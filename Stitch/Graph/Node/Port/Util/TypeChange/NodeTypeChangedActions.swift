@@ -24,7 +24,8 @@ struct NodeTypeChangedFromCanvasItemMenu: StitchDocumentEvent {
                 
                 let _ = graph.nodeTypeChanged(nodeId: patchNode.id,
                                               newNodeType: newNodeType,
-                                              activeIndex: state.activeIndex)
+                                              activeIndex: state.activeIndex,
+                                              graphTime: state.graphStepState.graphTime)
                 
             }
                
@@ -40,7 +41,8 @@ extension GraphState {
     @MainActor
     func nodeTypeChanged(nodeId: NodeId,
                          newNodeType: UserVisibleType,
-                         activeIndex: ActiveIndex) -> NodeIdSet? {
+                         activeIndex: ActiveIndex,
+                         graphTime: TimeInterval) -> NodeIdSet? {
 
         guard let node = self.getNode(nodeId) else {
             log("NodeTypeChangedAction: no change...")
@@ -57,7 +59,8 @@ extension GraphState {
             for: node,
             oldType: oldType,
             newType: newNodeType,
-            activeIndex: activeIndex)
+            activeIndex: activeIndex,
+            graphTime: graphTime)
 
         // Recalculate the graph from each of the changed nodes' incoming edges
         let ids = changedNodeIds
@@ -74,8 +77,8 @@ extension GraphState {
     func changeType(for node: NodeViewModel,
                     oldType: UserVisibleType,
                     newType: UserVisibleType,
-                    activeIndex: ActiveIndex) -> NodeIdSet {
-        let graphTime = self.graphStepManager.graphTime
+                    activeIndex: ActiveIndex,
+                    graphTime: TimeInterval) -> NodeIdSet {
 
         guard let patchNode = node.patchNode else {
             fatalErrorIfDebug()

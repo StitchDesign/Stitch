@@ -164,7 +164,11 @@ extension JSON {
             return nil
         }
         
-        guard let decodedPortValue = try? nodeType.coerceToPortValueForStitchAI(from: decodedAnyValue) else {
+        // ID map is for AI responses, unused here
+        let idMap = [String : UUID]()
+        
+        guard let decodedPortValue = try? nodeType.coerceToPortValueForStitchAI(from: decodedAnyValue,
+                                                                                idMap: idMap) else {
             // log("coerceToPortValue: could not decode port value for json \(self) as \(nodeType)")
             return nil
         }

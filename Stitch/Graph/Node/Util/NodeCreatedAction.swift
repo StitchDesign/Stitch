@@ -59,7 +59,8 @@ extension StitchDocumentViewModel {
         if patch.availableNodeTypes.contains(selectedInputType) {
             let _ = graph.nodeTypeChanged(nodeId: node.id,
                                           newNodeType: selectedInputType,
-                                          activeIndex: state.activeIndex)
+                                          activeIndex: state.activeIndex,
+                                          graphTime: self.graphStepState.graphTime)
         }
         
         // TODO: use Patch's .graphNode method; right now, however, NodeKind.rowDefinitions properly retrieves row definitions whether new or old style

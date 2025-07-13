@@ -28,7 +28,8 @@ final class nodeTypeTests: XCTestCase {
                 
         let _ = document.graph.nodeTypeChanged(nodeId: node.id,
                                                newNodeType: .size,
-                                               activeIndex: document.activeIndex)
+                                               activeIndex: document.activeIndex,
+                                               graphTime: document.graphStepState.graphTime)
         
         let sizeInputs = node.inputsObservers.allSatisfy { (input: InputNodeRowObserver) in
             input.allLoopedValues.allSatisfy { (value: PortValue) in
