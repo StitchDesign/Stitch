@@ -476,6 +476,7 @@
 		EC1B41B426BCB0910016C2C2 /* NodeCreatedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */; };
 		EC1B41B626BCB1380016C2C2 /* NodeDeletedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B526BCB1380016C2C2 /* NodeDeletedAction.swift */; };
 		EC1B41B826BCB1630016C2C2 /* NodeMovedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B726BCB1630016C2C2 /* NodeMovedAction.swift */; };
+		EC1B73402E233691003AD48C /* DeclarativeViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B733F2E233691003AD48C /* DeclarativeViewModifiers.swift */; };
 		EC1CB6282949190C00FF755D /* CurveNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1CB6272949190C00FF755D /* CurveNode.swift */; };
 		EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1D03BC2CFF86FA0094EE9F /* NativeScrollInteraction.swift */; };
 		EC1D03BF2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1D03BE2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift */; };
@@ -1623,6 +1624,7 @@
 		EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCreatedAction.swift; sourceTree = "<group>"; };
 		EC1B41B526BCB1380016C2C2 /* NodeDeletedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDeletedAction.swift; sourceTree = "<group>"; };
 		EC1B41B726BCB1630016C2C2 /* NodeMovedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMovedAction.swift; sourceTree = "<group>"; };
+		EC1B733F2E233691003AD48C /* DeclarativeViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclarativeViewModifiers.swift; sourceTree = "<group>"; };
 		EC1CB6272949190C00FF755D /* CurveNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveNode.swift; sourceTree = "<group>"; };
 		EC1D03BC2CFF86FA0094EE9F /* NativeScrollInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeScrollInteraction.swift; sourceTree = "<group>"; };
 		EC1D03BE2CFF89E90094EE9F /* NativeScrollInteractionLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeScrollInteractionLayer.swift; sourceTree = "<group>"; };
@@ -5017,6 +5019,7 @@
 			isa = PBXGroup;
 			children = (
 				ECDAFFF42E1F739A00AF71E9 /* DeclarativeViewConstructors.swift */,
+				EC1B733F2E233691003AD48C /* DeclarativeViewModifiers.swift */,
 				EC6A70612E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift */,
 				EC6A70632E22D405009ED3C1 /* Parameter.swift */,
 				ECDAFFF62E200F4400AF71E9 /* DeclarativeUtils.swift */,
@@ -6621,6 +6624,7 @@
 				B5E28AEC2A7988420007C0CB /* ProjectWindowSizeReader.swift in Sources */,
 				EC08D5572898879200FEE846 /* StitchPositionUtils.swift in Sources */,
 				B5D34C8E2DF53925007405BF /* AIGraphCreationRequest.swift in Sources */,
+				EC1B73402E233691003AD48C /* DeclarativeViewModifiers.swift in Sources */,
 				EC4A7211274C260C0026B233 /* WirelessPortView.swift in Sources */,
 				B557806D2CB045DC00907BA8 /* StitchMasterComponent.swift in Sources */,
 				B55500E72C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift in Sources */,

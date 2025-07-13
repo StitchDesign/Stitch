@@ -25,6 +25,9 @@ struct SyntaxView: Equatable {
     // e.g. `.padding()`, `.opacity(0.5)`, `.frame(width: 100, height: 200)`
     var modifiers: [SyntaxViewModifier]
     
+    // New style
+    var stitchModifiers: [StitchViewModifier]
+    
     var children: [SyntaxView]
     
     var id: UUID  // Unique identifier for the node

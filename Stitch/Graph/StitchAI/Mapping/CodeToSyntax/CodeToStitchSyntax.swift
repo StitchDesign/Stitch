@@ -323,6 +323,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                     // This is creat
                     constructorArguments: args,
                     modifiers: [],
+                    stitchModifiers: [],
                     children: [],
                     id: UUID()
                     //                errors: self.caughtErrors
@@ -541,6 +542,27 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         addModifier(modifier)
     }
     
+    /// Try all concrete modifier parsers; if a match is found,
+    /// append it to `currentViewNode.modifiers`.
+    private func tryAttachModifier(from call: FunctionCallExprSyntax) -> Bool {
+        guard var node = currentViewNode else {
+            return false
+        }
+
+        if let mod =
+                ScaleEffectModifier.from(call).map(StitchViewModifier.scaleEffect)
+            ?? OpacityModifier.from(call).map(StitchViewModifier.opacity)
+            ?? FrameModifier.from(call).map(StitchViewModifier.frame)
+            //  • Add PositionModifier / OffsetModifier when ready
+        {
+            node.stitchModifiers.append(mod)
+            updateCurrentViewNode(node)            // bubble up
+            return true
+        }
+        
+        return false
+    }
+    
     // MARK: - SyntaxVisitor Overrides
     
     // When we finish visiting a node, manage the view stack
@@ -574,8 +596,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             // We're exiting a view initialization
             if let lastNode = viewStack.last,
                let nameType = SyntaxNameType.from(viewName),
+               
                // Ensure a view here instead of a value
                nameType.isView {
+                
                 // Before removing the node, make sure we capture any modifiers that were added
                 log("Node being popped: \(lastNode.name.rawValue) with \(lastNode.modifiers.count) modifiers")
                 
@@ -599,6 +623,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             } else {
                 log("View stack empty, nothing to pop")
             }
+            
         }
         
  
@@ -608,7 +633,14 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             dbg("visitPost → handling view modifier '\(modifierName)'")
             
             if let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName) {
+                
+                // First try the new strongly-typed approach
+                let attached = tryAttachModifier(from: node)
+                
+                // If we could not attach through the strong type, then fall back to old approach
+                if !attached {
                     handleStandardModifier(node: node, modifierName: syntaxViewModifierName)
+                }
                 
                 // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
                 // we are at the end of the modifier chain; pop the base view.
@@ -618,6 +650,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                     }
                     currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
                 }
+                
             } else {
                 print("visitPost error: unable to parse view modifier name: \(modifierName)")
                 self.caughtErrors.append(.unsupportedSyntaxViewModifierName(modifierName))
