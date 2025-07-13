@@ -117,7 +117,8 @@ extension StitchDocumentViewModel {
 extension CurrentAIPatchBuilderResponseFormat.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
-        let graphEntity = try self.createAIGraph()
+        let graphEntity = try self.createAIGraph(graphCenter: document.viewPortCenter,
+                                                 highestZIndex: document.visibleGraph.highestZIndex)
         document.visibleGraph
             .insertNewComponent(graphEntity: graphEntity,
                                 encoder: document.documentEncoder,
@@ -131,7 +132,8 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
     }
     
     @MainActor
-    func createAIGraph() throws -> GraphEntity {
+    func createAIGraph(graphCenter: CGPoint,
+                       highestZIndex: Double) throws -> GraphEntity {
         let document = StitchDocumentViewModel.createEmpty()
         let graph = document.visibleGraph
         
@@ -154,8 +156,14 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
         for newPatch in self.patch_data.javascript_patches {
             let newId = UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id)
-            let newNode = document.nodeInserted(choice: .patch(.javascript),
-                                                nodeId: newId)
+            let newNode = graph
+                .createNode(graphTime: .zero,
+                            newNodeId: newId,
+                            highestZIndex: highestZIndex,
+                            choice: .patch(.javascript),
+                            center: graphCenter)
+
+            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
             
             if let patchNode = newNode.patchNode {
                 let jsSettings = try JavaScriptNodeSettings(
@@ -176,8 +184,13 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             idMap.updateValue(newId, forKey: oldId)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
-            let newNode = document.nodeInserted(choice: migratedNodeName,
-                                                nodeId: newId)
+            let newNode = graph.createNode(graphTime: .zero,
+                                           newNodeId: newId,
+                                           highestZIndex: highestZIndex,
+                                           choice: migratedNodeName,
+                                           center: graphCenter)
+            
+            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
             
             guard let patchNode = newNode.patchNodeViewModel else {
                 fatalErrorIfDebug()
@@ -185,17 +198,14 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
             }
             
             // Set custom value type here
-            if let customValueType = self.patch_data.native_patch_value_type_settings.first(where: { $0.node_id == oldId })?.value_type {
-                guard let oldType = newNode.userVisibleType else {
-                    // fatalErrorIfDebug()
-                    break
-                }
-                
+            if let customValueType = self.patch_data.native_patch_value_type_settings.first(where: { $0.node_id == oldId })?.value_type,
+               let oldType = newNode.userVisibleType {
                 let newType = try customValueType.value.migrate()
                 let _ = document.graph.changeType(for: newNode,
                                                   oldType: oldType,
                                                   newType: newType,
-                                                  activeIndex: document.activeIndex)
+                                                  activeIndex: document.activeIndex,
+                                                  graphTime: document.graphStepState.graphTime)
             }
             
             // MARK: BEFORE creating edges/inputs, determine if new patch nodes need extra inputs

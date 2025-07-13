@@ -140,12 +140,15 @@ extension PatchNodeViewModel: SchemaObserver {
             
             if let graph = self.inputsObservers.first?.nodeDelegate?.graphDelegate,
                let node = graph.getNode(self.id) {
+                let document = graph.documentDelegate
+                
                 // Ensures fields correctly update on events like undo which wouldn't otherwise
                 // call the changeType helper
                 let _ = graph.changeType(for: node,
                                          oldType: oldType,
                                          newType: newType,
-                                         activeIndex: graph.documentDelegate?.activeIndex ?? .init(.zero))
+                                         activeIndex: document?.activeIndex ?? .init(.zero),
+                                         graphTime: document?.graphStepState.graphTime ?? .zero)
             }
         }
         
