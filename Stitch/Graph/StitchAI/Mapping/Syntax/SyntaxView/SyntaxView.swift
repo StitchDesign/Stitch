@@ -19,7 +19,7 @@ struct SyntaxView: Equatable {
     
     // arguments to the View's construct,
     // e.g. ("systemName", "star.fill") for Image(systemName: "star.fill")
-    var constructorArguments: [SyntaxViewArgumentData]
+    var constructorArguments: ViewConstructorType?
     
     // representation of SwiftUI view modifiers, including name and arguments
     // e.g. `.padding()`, `.opacity(0.5)`, `.frame(width: 100, height: 200)`
@@ -28,4 +28,9 @@ struct SyntaxView: Equatable {
     var children: [SyntaxView]
     
     var id: UUID  // Unique identifier for the node
+}
+
+enum ViewConstructorType: Equatable, Sendable {
+    case trackedConstructor(ViewConstructor)
+    case other([SyntaxViewArgumentData])
 }

@@ -10,13 +10,13 @@ import SwiftSyntax
 import SwiftParser
 
 
-struct SyntaxViewModifier: Equatable, Hashable, Sendable {
+struct SyntaxViewModifier: Equatable, Sendable {
 
     // representation of a SwiftUI view modifier name
     let name: SyntaxViewModifierName
     
     // representation of argument(s) to SwiftUI view modifer
-    var arguments: [SyntaxViewArgumentData]
+    var arguments: ViewConstructorType
 }
 
 
