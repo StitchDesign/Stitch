@@ -63,6 +63,7 @@ extension SyntaxViewName {
                                    viewConstructor: nil,
                                    args: [],
                                    modifiers: [],
+                                   stitchModifiers: [],
                                    childrenLayers: [])) != nil
     }
     

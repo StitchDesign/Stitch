@@ -370,6 +370,7 @@ extension SyntaxViewName {
                          viewConstructor: ViewConstructor?,
                          args: [SyntaxViewArgumentData],
                          modifiers: [SyntaxViewModifier],
+                         stitchModifiers: [StitchAIViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
 
@@ -408,33 +409,70 @@ extension SyntaxViewName {
         }
         
         
-        
-        // TODO: remove and rely on ScrollViewConstructor instead
-        if args.isEmpty && self == .scrollView {
-            customInputValuesFromViewConstructor += [
-                .init(layer_input_coordinate: .init(layer_id: .init(value: id),
-                                                    input_port_type: .init(value: .scrollYEnabled)),
-                      value: .bool(true))
-            ]
-        }
-        
-        
-        // Handle modifiers
-        let customInputValuesFromViewModifiers = try modifiers.compactMap { modifier in
-            do {
-                return try Self.deriveCustomValuesFromViewModifier(
-                    id: id,
-                    layerType: layerType,
-                    modifier: modifier)
-            } catch let error as SwiftUISyntaxError {
-                silentErrors.append(error)
-                return nil
-            } catch {
-                throw error
-            }
-        }
-        
         layerData.custom_layer_input_values += customInputValuesFromViewConstructor
+        
+        
+//        // TODO: remove and rely on ScrollViewConstructor instead
+//        if args.isEmpty && self == .scrollView {
+//            customInputValuesFromViewConstructor += [
+//                .init(layer_input_coordinate: .init(layer_id: .init(value: id),
+//                                                    input_port_type: .init(value: .scrollYEnabled)),
+//                      value: .bool(true))
+//            ]
+//        }
+        
+        // WHILE TESTING: CAREFUL: CURRENTLY THIS OVERRIDES THE OLD STYLE OF VIEW MODIFIERS; BUT ACTUALLY YOU WANT THEM TO WORK TOGETHER;
+        // TODO: MAKE THESE WORK WELL TOGETHER; JUST MAKE SURE THAT A VIEW MODIFIER HANDLED BY NEW METHOD IS NOT ALSO HANDED BY LEGACY METHOD
+        
+//        var customInputValuesFromViewModifiers = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+        
+//        customInputValuesFromViewModifiers = stitchModifiers.reduce(into: .init()) { partialResult, modifier in
+//            if let events = modifier.getCustomValueEvents(id: id) {
+//                partialResult += events
+//            }
+//        }
+        
+        
+        
+//        var customInputValuesFromViewModifiers = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+        
+        var customInputValuesFromViewModifiers: [LayerInputViewModification] = .init() // [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+                
+//        enum LayerInputViewModification {
+//            case layerInputValues([CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue])
+//            case layerIdAssignment(String)
+//        }
+        
+        for viewModifier in SyntaxViewModifierName.allCases {
+            
+            if let newStyleModifier = stitchModifiers.first (where: { $0.name == viewModifier }),
+               let events = newStyleModifier.getCustomValueEvents(id: id) {
+                // Note: the newStyle is only for actual SwiftUI modifiers, not "llm-reinterpretaton modifiers" like `.layerId`
+                customInputValuesFromViewModifiers += [.layerInputValues(events)]
+            }
+            
+            // legacy
+            else {
+                // Handle modifiers
+                customInputValuesFromViewModifiers += try modifiers.compactMap { modifier in
+                    do {
+                        return try Self.deriveCustomValuesFromViewModifier(
+                            id: id,
+                            layerType: layerType,
+                            modifier: modifier)
+                    } catch let error as SwiftUISyntaxError {
+                        silentErrors.append(error)
+                        return nil
+                    } catch {
+                        throw error
+                    }
+                }
+               
+            }
+            
+        } // for viewModifier in ...
+        
+        log("SyntaxViewName: deriveLayerData: had customInputValuesFromViewModifiers: \(customInputValuesFromViewModifiers)")
         
         // Parse view modifier events
         for modifierEvent in customInputValuesFromViewModifiers {
@@ -445,11 +483,12 @@ extension SyntaxViewName {
                 guard let uuidValue = UUID(uuidString: string) else {
                     throw SwiftUISyntaxError.layerUUIDDecodingFailed(string)
                 }
-                
                 // Update ID to that assigned from view
                 layerData.node_id = .init(value: uuidValue)
             }
         }
+
+
         
         // Re-map all node IDs after processing layerIdAssignment
         layerData.custom_layer_input_values = layerData.custom_layer_input_values

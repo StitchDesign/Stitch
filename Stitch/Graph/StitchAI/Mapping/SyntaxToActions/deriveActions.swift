@@ -38,7 +38,9 @@ extension SyntaxView {
                 viewConstructor: self.constructor,
                 args: self.constructorArguments,
 //                args: [],
-                modifiers: self.modifiers,
+//                modifiers: self.modifiers,
+                modifiers: [],
+                stitchModifiers: self.stitchModifiers,
                 childrenLayers: childResults.actions)
             
             silentErrors += layerDataResult.silentErrors

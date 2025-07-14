@@ -12,7 +12,10 @@ import StitchSchemaKit
 
 
 
-protocol SwiftUIViewModifier {
+// TODO: better name?: `StitchAIViewModifier`
+protocol FromSwiftUIViewModifierToStitch {
+    static var name: SyntaxViewModifierName { get }
+    
     /// `nil` if the modifier can’t be represented (e.g. unsupported exotic overload).
     static func from(_ call: FunctionCallExprSyntax) -> Self?
     
@@ -24,7 +27,7 @@ protocol SwiftUIViewModifier {
 
 // MARK: - Umbrella enum for all parsed modifiers
 // If you add a new concrete modifier enum, register it here.
-enum StitchViewModifier: Equatable {
+enum StitchAIViewModifier: Equatable {
     case scaleEffect(ScaleEffectModifier)
     case opacity(OpacityModifier)
     case frame(FrameModifier)
@@ -42,13 +45,54 @@ enum StitchViewModifier: Equatable {
 //        case .offset(let m):      return m.toStitch
         }
     }
+    
+    var name: SyntaxViewModifierName {
+        switch self {
+        case .scaleEffect: return ScaleEffectModifier.name
+        case .opacity:     return OpacityModifier.name
+        case .frame:       return FrameModifier.name
+//        case .position(let m):    return m.toStitch
+//        case .offset(let m):      return m.toStitch
+        }
+    }
+}
+
+extension StitchAIViewModifier {
+    
+    // TODO: proper conversion here
+    func getCustomValueEvents(id: UUID) -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]? {
+        
+        let inputs = self.toStitch
+        
+        return inputs.compactMap { (valueOrEdge: ValueOrEdge) in
+            switch valueOrEdge {
+            case .edge:
+                return nil
+            case .value(let x):
+                if let downgradedInput = try? x.input.convert(to: CurrentStep.LayerInputPort.self),
+                   let downgradedValue = try? x.value.convert(to: CurrentStep.PortValue.self) {
+                    return CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue.init(
+                        id: id,
+                        input: downgradedInput,
+                        value: downgradedValue)
+                } else {
+                    return nil
+                }
+            }
+        }
+        
+    }
+    
 }
 
 /// Temporary alias so older code that still uses `ViewModifierConstructor`
 /// continues to compile. Remove once all call-sites are migrated.
-typealias ViewModifierConstructor = StitchViewModifier
+typealias ViewModifierConstructor = StitchAIViewModifier
 
-enum ScaleEffectModifier: Equatable, SwiftUIViewModifier {
+enum ScaleEffectModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    /// SyntaxViewModifierName this modifier corresponds to
+    static let name: SyntaxViewModifierName = .scaleEffect
+
     case uniform(Parameter<CGFloat>)
     case nonUniform(Parameter<CGSize>)
     
@@ -83,7 +127,9 @@ enum ScaleEffectModifier: Equatable, SwiftUIViewModifier {
     }
 }
 
-struct OpacityModifier: Equatable, SwiftUIViewModifier {
+struct OpacityModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    static let name: SyntaxViewModifierName = .opacity
+
     let value: Parameter<Double>
     
     static func from(_ call: FunctionCallExprSyntax) -> Self? {
@@ -98,8 +144,10 @@ struct OpacityModifier: Equatable, SwiftUIViewModifier {
 }
 
 
-enum FrameModifier: Equatable, SwiftUIViewModifier {
+enum FrameModifier: Equatable, FromSwiftUIViewModifierToStitch {
     
+    static let name: SyntaxViewModifierName = .frame
+
     case fixed(width:  Parameter<CGFloat?>,
                height: Parameter<CGFloat?>,
                alignment: Parameter<Alignment>)

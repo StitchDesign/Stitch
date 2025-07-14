@@ -137,6 +137,13 @@ extension SyntaxViewModifierName {
 
     func deriveLayerInputPort() throws -> DerivedLayerInputPortsResult? {
         switch self {
+            
+        // TODO: THIS IS A CUSTOM VIEW-MODIFIER JUST FOR REINTERPRETING LLM-CODE ?
+        case .layerId:
+            return .layerId
+                
+            
+            
             // Universal modifiers (same for every layer)
         case .scaleEffect:
             return .simple(.scale)
@@ -235,8 +242,7 @@ extension SyntaxViewModifierName {
         case .clipped:
             return .simple(.isClipped)
 //             return .simple(.clipped) // return .isClipped
-        case .layerId:
-            return .layerId
+                    
         case .color:
             return .simple(.color)
         

@@ -26,7 +26,7 @@ struct SyntaxView: Equatable {
     var modifiers: [SyntaxViewModifier]
     
     // New style
-    var stitchModifiers: [StitchViewModifier]
+    var stitchModifiers: [StitchAIViewModifier]
     
     var children: [SyntaxView]
     

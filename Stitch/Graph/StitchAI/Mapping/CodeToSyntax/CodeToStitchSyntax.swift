@@ -550,9 +550,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
 
         if let mod =
-                ScaleEffectModifier.from(call).map(StitchViewModifier.scaleEffect)
-            ?? OpacityModifier.from(call).map(StitchViewModifier.opacity)
-            ?? FrameModifier.from(call).map(StitchViewModifier.frame)
+                ScaleEffectModifier.from(call).map(StitchAIViewModifier.scaleEffect)
+            ?? OpacityModifier.from(call).map(StitchAIViewModifier.opacity)
+            ?? FrameModifier.from(call).map(StitchAIViewModifier.frame)
             //  • Add PositionModifier / OffsetModifier when ready
         {
             node.stitchModifiers.append(mod)
