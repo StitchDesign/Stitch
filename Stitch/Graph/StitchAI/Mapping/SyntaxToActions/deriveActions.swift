@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct SwiftSyntaxActionsResult: Encodable {
-    let actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
+    var actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }
 
@@ -28,7 +28,17 @@ extension SyntaxView {
         var silentErrors = [SwiftUISyntaxError]()
         
         // Recurse into children first (DFS), we might use this data for nested scenarios like ScrollView
-        let childResults = try self.children.deriveStitchActions()
+        var childResults = try self.children.deriveStitchActions()
+        
+        // Flip the children if we have a ZStack,
+        // since "top" layer in Stitch sidebar corresponds to "bottom" of declared-child in SwiftUI ZStack.
+        if self.name == .zStack {
+            childResults.actions = childResults.actions.reversed()
+            
+            // TODO: do we really need to reverse the errors?
+            childResults.caughtErrors = childResults.caughtErrors.reversed()
+        }
+        
         silentErrors += childResults.caughtErrors
 
         // Map this node
