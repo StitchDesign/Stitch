@@ -77,7 +77,13 @@ extension LayerInputPort {
         case .masks:
             return .bool(false)
         case .color:
-            return .color(initialLayerColor())
+            switch layer {
+            case .text, .textField:
+                return .color(.black)
+            default:
+                return .color(initialLayerColor())
+            }
+            
         case .rotationX:
             return .number(.zero)
         case .rotationY:
