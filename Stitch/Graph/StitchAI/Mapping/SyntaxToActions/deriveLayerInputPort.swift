@@ -121,7 +121,7 @@ extension SyntaxViewModifierName {
         case .text, .textField:
             switch self {
             case .foregroundColor:
-                throw SwiftUISyntaxError.unsupportedViewModifierForLayer(self, layer)
+                return .simple(.color)
                 
             default:
                 break
