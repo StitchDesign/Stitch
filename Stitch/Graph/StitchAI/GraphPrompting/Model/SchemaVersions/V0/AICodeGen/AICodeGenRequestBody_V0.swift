@@ -15,11 +15,27 @@ enum AICodeGenRequestBody_V0 {
         let temperature: Double = 1.0
         let messages: [StructuredOpenAIMessage]
         let stream: Bool = false
+        
+        static let markdownLocation = "AICodeGenSystemPrompt_V0"
 
+        
         init(prompt: String, base64ImageDescription: String?) throws {
             var content: [StructuredOpenAIMessage.Content] = [
                 .text(prompt)
             ]
+            
+            
+            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
+                                                           withExtension: "md") else {
+                       throw StitchAIStreamingError.markdownNotFound
+                   }
+            let systemPrompt = try String(contentsOf: markdownUrl,
+                                          encoding: .utf8)
+
+            var systemPromptContent: [StructuredOpenAIMessage.Content] = [
+                .text(systemPrompt)
+            ]
+            
 
             if let base64 = base64ImageDescription {
                 let imageUrl = "data:image/jpeg;base64,\(base64)"
@@ -27,6 +43,7 @@ enum AICodeGenRequestBody_V0 {
             }
 
             self.messages = [
+                StructuredOpenAIMessage(role: "system", content: systemPromptContent),
                 StructuredOpenAIMessage(role: "user", content: content)
             ]
         }
