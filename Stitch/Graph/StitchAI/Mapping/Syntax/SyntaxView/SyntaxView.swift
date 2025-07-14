@@ -30,7 +30,18 @@ struct SyntaxView: Equatable {
     var id: UUID  // Unique identifier for the node
 }
 
-enum ViewConstructorType: Equatable, Sendable {
+enum ViewConstructorType: Equatable, Sendable, Encodable {
     case trackedConstructor(ViewConstructor)
     case other([SyntaxViewArgumentData])
+}
+
+extension ViewConstructorType {
+    var defaultArgs: [SyntaxViewArgumentData]? {
+        switch self {
+        case .trackedConstructor:
+            return nil
+        case .other(let array):
+            return array
+        }
+    }
 }

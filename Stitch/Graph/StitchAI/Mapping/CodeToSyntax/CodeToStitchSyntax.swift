@@ -290,6 +290,8 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 //        {
 //            attachConstructor(ctor)
 //        }
+        
+        return nil
     }
     
     // Visit function call expressions (which represent view initializations and modifiers)

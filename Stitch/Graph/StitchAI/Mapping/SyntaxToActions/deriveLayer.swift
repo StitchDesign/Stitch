@@ -14,6 +14,11 @@ struct LayerDerivationResult {
     let silentErrors: [SwiftUISyntaxError]
 }
 
+struct LayerInputValuesDerivationResult {
+    let inputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+    let silentErrors: [SwiftUISyntaxError]
+}
+
 extension SyntaxViewModifierName {
     // May or may not correspond to SwiftUI view modifier's own default argument,
     // e.g. `.clipped`'s default argument is for antialiasing, not whether the view is clipped or not (which is what Stitch's clipped layer-input is about).
@@ -367,8 +372,7 @@ extension SyntaxViewName {
     
     /// Leaf-level mapping for **this** node only
     func deriveLayerData(id: UUID,
-                         viewConstructor: ViewConstructor?,
-                         args: [SyntaxViewArgumentData],
+                         args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
@@ -376,52 +380,18 @@ extension SyntaxViewName {
         // ── Base mapping from SyntaxViewName → Layer ────────────────────────
         var (layerType, layerData) = try self
             .deriveLayerAndCustomValuesFromName(id: id,
-                                                args: args,
+                                                args: args?.defaultArgs ?? [],
                                                 childrenLayers: childrenLayers)
-                
-        var customInputValuesFromViewConstructor = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+           
+        if let viewConstructor = args {
+            let customInputValuesFromViewConstructor = try self
+                .deriveInputValuesData(argsType: viewConstructor,
+                                       id: id,
+                                       layerType: layerType)
 
-        // Handle constructor-arguments
-        // Try to access the SyntaxView.ViewConstructor, if we have one
-        if let customInputValues = try viewConstructor?.value
-            .createCustomValueEvents() {
-            customInputValuesFromViewConstructor = try customInputValues.map { astInputValue in
-                try CurrentAIPatchBuilderResponseFormat
-                    .CustomLayerInputValue(id: id,
-                                           input: astInputValue.input,
-                                           value: astInputValue.value)
-            }
+            layerData.custom_layer_input_values += customInputValuesFromViewConstructor.inputValues
+            silentErrors += customInputValuesFromViewConstructor.silentErrors
         }
-        
-        // Else fall back to legacy style:
-        else {
-            customInputValuesFromViewConstructor = try args.flatMap { arg in
-                do {
-                    
-                    return try self
-                        .deriveCustomValuesFromConstructorArgument(id: id,
-                                                                   layerType: layerType,
-                                                                   arg: arg)
-                } catch let error as SwiftUISyntaxError {
-                    silentErrors.append(error)
-                    return []
-                } catch {
-                    throw error
-                }
-            }
-        }
-        
-        
-        
-        // TODO: remove and rely on ScrollViewConstructor instead
-        if args.isEmpty && self == .scrollView {
-            customInputValuesFromViewConstructor += [
-                try .init(id: id,
-                          input: .scrollYEnabled,
-                          value: .bool(true))
-            ]
-        }
-        
         
         // Handle modifiers
         let customInputValuesFromViewModifiers = try modifiers.compactMap { modifier in
@@ -437,8 +407,6 @@ extension SyntaxViewName {
                 throw error
             }
         }
-        
-        layerData.custom_layer_input_values += customInputValuesFromViewConstructor
         
         // Parse view modifier events
         for modifierEvent in customInputValuesFromViewModifiers {
@@ -460,6 +428,57 @@ extension SyntaxViewName {
         
         return .init(layerData: layerData,
                      silentErrors: silentErrors)
+    }
+    
+    func deriveInputValuesData(argsType: ViewConstructorType,
+                               id: UUID,
+                               layerType: CurrentStep.Layer) throws -> LayerInputValuesDerivationResult {
+        var silentErrors = [SwiftUISyntaxError]()
+        
+        switch argsType {
+        case .trackedConstructor(let viewConstructor):
+            // Handle constructor-arguments
+            // Try to access the SyntaxView.ViewConstructor, if we have one
+            let customInputValues = try viewConstructor.value
+                .createCustomValueEvents()
+            
+            let values = try customInputValues.map { astInputValue in
+                try CurrentAIPatchBuilderResponseFormat
+                    .CustomLayerInputValue(id: id,
+                                           input: astInputValue.input,
+                                           value: astInputValue.value)
+            }
+            return .init(inputValues: values,
+                         silentErrors: silentErrors)
+            
+        case .other(let args):
+            // Else fall back to legacy style:
+            var values = try args.flatMap { arg -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
+                do {
+                    return try self
+                        .deriveCustomValuesFromConstructorArgument(id: id,
+                                                                   layerType: layerType,
+                                                                   arg: arg)
+                } catch let error as SwiftUISyntaxError {
+                    silentErrors.append(error)
+                    return []
+                } catch {
+                    throw error
+                }
+            }
+
+            // TODO: remove and rely on ScrollViewConstructor instead
+            if args.isEmpty && self == .scrollView {
+                values += [
+                    try .init(id: id,
+                              input: .scrollYEnabled,
+                              value: .bool(true))
+                ]
+            }
+            
+            return .init(inputValues: values,
+                         silentErrors: silentErrors)
+        }
     }
     
     func deriveLayerAndCustomValuesFromName(
@@ -684,7 +703,7 @@ extension SyntaxViewName {
             
         case .simple(let port):
             guard let newValue = try Self.deriveCustomValue(
-                from: modifier.arguments,
+                from: modifier.arguments.defaultArgs ?? [],
                 modifierName: modifier.name,
                 id: id,
                 port: port,
@@ -705,8 +724,8 @@ extension SyntaxViewName {
             return .layerInputValues(newValues)
             
         case .layerId:
-            guard let rawValue = modifier.arguments.first?.value.simpleValue else {
-                throw SwiftUISyntaxError.unsupportedLayerIdParsing(modifier.arguments)
+            guard let rawValue = modifier.arguments.defaultArgs?.first?.value.simpleValue else {
+                throw SwiftUISyntaxError.unsupportedLayerIdParsing(modifier.arguments.defaultArgs ?? [])
             }
             // Remove escape characters from any quoted substrings
             let unescaped = rawValue.replacingOccurrences(of: "\\\"", with: "\"")
@@ -937,7 +956,7 @@ extension SyntaxViewName {
                                                                     modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
         var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
         
-        guard let angleArgument = modifier.arguments[safe: 0],
+        guard let angleArgument = modifier.arguments.defaultArgs?[safe: 0],
               // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
               angleArgument.value.complexValue?.typeName.contains(".degrees") ?? false else {
             
@@ -953,7 +972,7 @@ extension SyntaxViewName {
         }
         
         // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
-        if let axisArgument = modifier.arguments[safe: 1],
+        if let axisArgument = modifier.arguments.defaultArgs?[safe: 1],
            axisArgument.label == "axis" {
             let axisPortValues = try Self.derivePortValues(from: axisArgument.value,
                                                            context: nil)  // we can ignore context here

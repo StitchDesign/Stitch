@@ -14,7 +14,7 @@ import SwiftParser
 
 
 
-protocol FromSwiftUIViewToStitch {
+protocol FromSwiftUIViewToStitch: Encodable {
     associatedtype T
     
     // nil if ViewConstructor could not be turned into Stitch concepts
@@ -59,7 +59,7 @@ protocol FromSwiftUIViewToStitch {
 
 
 // TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
-enum ViewConstructor: Equatable {
+enum ViewConstructor: Equatable, Encodable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
