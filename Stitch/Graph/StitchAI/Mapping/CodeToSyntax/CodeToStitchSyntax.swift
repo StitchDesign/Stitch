@@ -160,17 +160,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         viewStack[index] = newNode
         bubbleChangeUp(from: index)
     }
-        
-    // MARK: - Attach strongly-typed constructor
-    /// Adds a `ViewConstructor` to the *current* SyntaxView and keeps the
-    /// root/ancestors in sync.
-//    private func attachConstructor(_ ctor: ViewConstructor) {
-//        guard let idx = currentNodeIndex, idx < viewStack.count else { return }
-//        var node = viewStack[idx]
-//        node.constructor = ctor          // ⇐ requires `var constructor: ViewConstructor?` on SyntaxView
-//        viewStack[idx] = node
-//        bubbleChangeUp(from: idx)
-//    }
     
     // Helper to add a modifier to the current view node
     private func addModifier(_ modifier: SyntaxViewModifier) {

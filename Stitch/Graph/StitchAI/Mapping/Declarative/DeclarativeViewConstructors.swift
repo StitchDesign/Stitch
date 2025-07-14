@@ -31,33 +31,6 @@ protocol FromSwiftUIViewToStitch: Encodable {
 }
 
 
-//extension ViewConstructor {
-//    
-//    func getCustomValueEvents(id: UUID) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]? {
-//        
-//        guard let toStitchResult = self.toStitch else {
-//            return nil
-//        }
-//        
-//        let inputs = toStitchResult.1
-//        
-//        return try inputs.compactMap { (valueOrEdge: ValueOrEdge) in
-//            switch valueOrEdge {
-//            case .edge:
-//                return nil
-//            case .value(let x):
-//                let downgradedInput = try x.input.convert(to: CurrentStep.LayerInputPort.self)
-//                let downgradedValue = try x.value.convert(to: CurrentStep.PortValue.self)
-//                return try CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue.init(
-//                    id: id,
-//                    input: downgradedInput,
-//                    value: downgradedValue)
-//            }
-//        }
-//    }
-//}
-
-
 // TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
 enum ViewConstructor: Equatable, Encodable {
     case text(TextViewConstructor)
@@ -224,7 +197,6 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
         // 2. Image("asset"[, bundle:])
         if first.label == nil {
-//            let bundle: Parameter<Bundle?> = .literal(nil)
             return .asset(name: first.value)
         }
 
