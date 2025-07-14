@@ -372,6 +372,8 @@
 		E41685DD28A3FA3000731889 /* Model3DLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */; };
 		E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */; };
 		E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */ = {isa = PBXBuildFile; fileRef = E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */; };
+		E41850A22E25AD9E0006878E /* TEST_IMAGE.png in Resources */ = {isa = PBXBuildFile; fileRef = E41850A12E25AD9E0006878E /* TEST_IMAGE.png */; };
+		E41850A42E25B0BF0006878E /* TEST_IMAGE_2.png in Resources */ = {isa = PBXBuildFile; fileRef = E41850A32E25B0BF0006878E /* TEST_IMAGE_2.png */; };
 		E419F3F72D40337400C169D4 /* EditBeforeSubmitModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */; };
 		E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */; };
 		E42AAE4C2D4844EE002D187D /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = E42AAE4B2D4844EE002D187D /* Sentry */; };
@@ -1519,6 +1521,8 @@
 		E41685DC28A3FA3000731889 /* Model3DLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model3DLayerNode.swift; sourceTree = "<group>"; };
 		E41685E028A3FA5800731889 /* PreviewModel3DLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewModel3DLayer.swift; sourceTree = "<group>"; };
 		E416860328A3FC9600731889 /* Vintage Toy Robot.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = "Vintage Toy Robot.usdz"; sourceTree = "<group>"; };
+		E41850A12E25AD9E0006878E /* TEST_IMAGE.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TEST_IMAGE.png; sourceTree = "<group>"; };
+		E41850A32E25B0BF0006878E /* TEST_IMAGE_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TEST_IMAGE_2.png; sourceTree = "<group>"; };
 		E419F3F62D40337400C169D4 /* EditBeforeSubmitModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBeforeSubmitModalView.swift; sourceTree = "<group>"; };
 		E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearGradientNode.swift; sourceTree = "<group>"; };
 		E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -2363,6 +2367,8 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				E41850A12E25AD9E0006878E /* TEST_IMAGE.png */,
+				E41850A32E25B0BF0006878E /* TEST_IMAGE_2.png */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */,
@@ -5657,8 +5663,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
+				E41850A42E25B0BF0006878E /* TEST_IMAGE_2.png in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				B5849FB82DFBDB5E00D668ED /* VersioningInstructions.md in Resources */,
+				E41850A22E25AD9E0006878E /* TEST_IMAGE.png in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
 				E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,

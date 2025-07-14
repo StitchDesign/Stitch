@@ -184,8 +184,10 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         //#else
         do {
             aiManager.currentTaskTesting = try AICodeGenRequest
-                .getRequestTask(userPrompt: prompt,
-                                document: document)
+                .getRequestTask(
+                    userPrompt: prompt,
+                    document: document
+                )
         } catch {
             log("SubmitUserPromptToOpenAI: had error: \(error.localizedDescription)", .logToServer)
             AICodeGenRequest.displayError(failure: error,

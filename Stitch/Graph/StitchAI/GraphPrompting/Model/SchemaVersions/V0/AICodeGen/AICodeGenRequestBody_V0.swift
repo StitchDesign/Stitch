@@ -18,18 +18,34 @@ enum AICodeGenRequestBody_V0 {
         let messages: [OpenAIMessage]
         let stream: Bool = false
         
-        init(prompt: String) throws {
+//        init(prompt: String) throws {
+        init(prompt: String,
+             base64ImageDescription: String?) throws {
+            log("AICodeGenRequestBody: init: base64ImageDescription.isDefined: \(base64ImageDescription.isDefined)")
+            
             guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
                                                     withExtension: "md") else {
                 throw StitchAIStreamingError.markdownNotFound
             }
             
-            let systemPrompt = try String(contentsOf: markdownUrl,
-                                          encoding: .utf8)
+//            let systemPrompt = try String(contentsOf: markdownUrl,
+//                                          encoding: .utf8)
+            
+            var promptWithImage: [[String: Any]] = [
+                ["type": "input_text", "text": "DESCRIBE THIS IMAGE"]
+            ]
+            
+            if let base64ImageDescription = base64ImageDescription {
+                promptWithImage.append([
+                    "type": "input_image",
+                    "image_url": "data:image/jpeg;base64,\(base64ImageDescription)"
+                ])
+                log("AICodeGenRequestBody: init: added base64 image")
+            }
             
             self.messages = [
                 .init(role: .system,
-                      content: systemPrompt),
+                      content: "Describe this screenshot of my design"),
                 .init(role: .user,
                       content: prompt)
             ]

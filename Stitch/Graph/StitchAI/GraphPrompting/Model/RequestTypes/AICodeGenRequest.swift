@@ -16,7 +16,8 @@ struct AICodeGenRequest: StitchAIRequestable {
     
     @MainActor
     init(prompt: String,
-         config: OpenAIRequestConfig = .default) throws {
+         config: OpenAIRequestConfig = .default,
+         base64ImageDescription: String?) throws {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
@@ -25,7 +26,10 @@ struct AICodeGenRequest: StitchAIRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeGenRequestBody(prompt: prompt)
+        self.body = try AICodeGenRequestBody(
+            prompt: prompt,
+            base64ImageDescription: base64ImageDescription
+        )
     }
     
     @MainActor
@@ -54,13 +58,25 @@ struct AICodeGenRequest: StitchAIRequestable {
     static func getRequestTask(userPrompt: String,
                                document: StitchDocumentViewModel) throws -> Task<Result<AIPatchBuilderRequest.FinalDecodedResult, any Error>,
                                                                                  Never> {
-        let request = try AICodeGenRequest(
-            prompt: userPrompt)
+//        let request = try AICodeGenRequest(
+//            prompt: userPrompt,
+//            base64ImageDescription: nil)
         
-        return Task(priority: .high) { [weak document] in            
+        return Task(priority: .high) { [weak document] in
+            
+            let testImage: UIImage = UIImage(named: "TEST_IMAGE")!
+            let base64TestImage = await convertImageToBase64String(uiImage: testImage)
+            print("getRequestTask: Design Image?: \(base64TestImage.value.isDefined)")
+            
+            let request = try! AICodeGenRequest(
+                prompt: userPrompt,
+                base64ImageDescription: base64TestImage.value)
+            
+            print("getRequestTask: request: \(request)")
+            
             guard let document = document,
                   let aiManager = document.aiManager else {
-                log("AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
+                log("getRequestTask: AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
                 
                 if let document: StitchDocumentViewModel = document {
                     return .failure(self.displayError(failure: StitchAIManagerError.secretsNotFound,
