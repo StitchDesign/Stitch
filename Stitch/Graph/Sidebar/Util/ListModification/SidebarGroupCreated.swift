@@ -83,7 +83,8 @@ extension LayersSidebarViewModel {
 //        let assumedLayerGroupSize: LayerSize = groupFit.size
 //        let assumedLayerGroupSize: LayerSize = .init(width: .auto, height: .auto)
         // Note: layer groups start out with `size = fill` rather than `size = hug` because orientation
-        let assumedLayerGroupSize: LayerSize = .init(width: .fill, height: .fill)
+//        let assumedLayerGroupSize: LayerSize = .init(width: .fill, height: .fill)
+        let assumedLayerGroupSize: LayerSize = LayerInputPort.size.getDefaultValue(for: .group).getSize ?? .DEFAULT_LAYER_GROUP_SIZE
         
         // Update layer group's size input
         newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])

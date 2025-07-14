@@ -62,7 +62,7 @@ extension LayerInputPort {
             case .text:
                 return .size(.init(width: .auto, height: .auto))
             case .group:
-                return .size(.init(width: .hug, height: .hug))
+                return .size(.DEFAULT_LAYER_GROUP_SIZE)
             default:
                 return .size(.LAYER_DEFAULT_SIZE)
             }
