@@ -47,6 +47,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case portValueDataDecodingFailure
     case layerEdgeDataFailure(AIPatchBuilderResponseFormat_V0.LayerConnection)
     case unexpectedPatchInputRowCount(Patch)
+    case portValueNotFound
     
     // Value decoding
     case noLabelFoundForComplexType
@@ -82,7 +83,8 @@ extension SwiftUISyntaxError {
                 .unsupportedViewModifier,
                 .unsupportedViewModifierForLayer,
                 .unexpectedPatchInputRowCount,
-                .unsupportedConstructorForPortValueDecoding:
+                .unsupportedConstructorForPortValueDecoding,
+                .portValueNotFound:
             return true
             
         default:

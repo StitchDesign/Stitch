@@ -378,15 +378,19 @@ extension SyntaxViewName {
             .deriveLayerAndCustomValuesFromName(id: id,
                                                 args: args,
                                                 childrenLayers: childrenLayers)
-
-        
-        // Handle constructor-arguments
-        
+                
         var customInputValuesFromViewConstructor = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
 
+        // Handle constructor-arguments
         // Try to access the SyntaxView.ViewConstructor, if we have one
-        if let customInputValues = try viewConstructor?.getCustomValueEvents(id: id) {
-            customInputValuesFromViewConstructor = customInputValues
+        if let customInputValues = try viewConstructor?.value
+            .createCustomValueEvents() {
+            customInputValuesFromViewConstructor = try customInputValues.map { astInputValue in
+                try CurrentAIPatchBuilderResponseFormat
+                    .CustomLayerInputValue(id: id,
+                                           input: astInputValue.input,
+                                           value: astInputValue.value)
+            }
         }
         
         // Else fall back to legacy style:

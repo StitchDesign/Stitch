@@ -77,11 +77,11 @@ enum ViewConstructor: Equatable {
 //    case linearGradient(LinearGradientViewConstructor)
 //    case radialGradient(RadialGradientViewConstructor)
     
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        switch self {
-//        case .text(let c):             return c.toStitch
-//        case .image(let c):            return c.toStitch
-//        case .hStack(let c):           return c.toStitch
+    var value: any FromSwiftUIViewToStitch {
+        switch self {
+        case .text(let c):             return c
+        case .image(let c):            return c
+        case .hStack(let c):           return c
 //        case .vStack(let c):           return c.toStitch
 //        case .lazyHStack(let c):       return c.toStitch
 //        case .lazyVStack(let c):       return c.toStitch
@@ -95,101 +95,82 @@ enum ViewConstructor: Equatable {
 //        case .angularGradient(let c):  return c.toStitch
 //        case .linearGradient(let c):   return c.toStitch
 //        case .radialGradient(let c):   return c.toStitch
-//        }
-//    }
+        }
+    }
 }
     
 
-enum TextViewConstructor: Equatable { //}, FromSwiftUIViewToStitch {
+enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Text("Hello")`
-    case string //(_ content: SyntaxViewModifierArgumentType)
+    case string(SyntaxViewModifierArgumentType)
     
     /// `Text(_ key: LocalizedStringKey)`
-    case localized //(_ key: SyntaxViewModifierArgumentType)
+    case localized(SyntaxViewModifierArgumentType)
     
     /// `Text(verbatim: "Raw")`
-    case verbatim //(_ content: SyntaxViewModifierArgumentType)
+    case verbatim(SyntaxViewModifierArgumentType)
     
     /// `Text(_ attributed: AttributedString)`
-    case attributed //(_ content: SyntaxViewModifierArgumentType)
+    case attributed(SyntaxViewModifierArgumentType)
+}
 
-    
+extension TextViewConstructor {
     static let layer: CurrentStep.Layer = .text
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        switch self {
-//
-//        case .string(let p), .verbatim(let p):
-//            switch p {
-//            case .literal(let s):
-//                return (.text,
-//                        [ .value(.init(.text, .string(.init(s)))) ])
-//            case .expression(let expr):
-//                return (.text,
-//                        [ .edge(expr) ])
-//            }
-//
-//        case .localized(let p):
-//            switch p {
-//            case .literal(let key):
-//                return (.text,
-//                        [ .value(.init(.text,
-//                                       .string(.init(key.resolved)))) ])
-//            case .expression(let expr):
-//                return (.text, [ .edge(expr) ])
-//            }
-//
-//        case .attributed(let p):
-//            switch p {
-//            case .literal(let attr):
-//                return (.text,
-//                        [ .value(.init(.text,
-//                                       .string(.init(attr.plainText)))) ])
-//            case .expression(let expr):
-//                return (.text, [ .edge(expr) ])
-//            }
-//        }
-//    }
+    
+    var arg: SyntaxViewModifierArgumentType {
+        switch self {
+        case .string(let syntaxViewModifierArgumentType):
+            return syntaxViewModifierArgumentType
+        case .localized(let syntaxViewModifierArgumentType):
+            return syntaxViewModifierArgumentType
+        case .verbatim(let syntaxViewModifierArgumentType):
+            return syntaxViewModifierArgumentType
+        case .attributed(let syntaxViewModifierArgumentType):
+            return syntaxViewModifierArgumentType
+        }
+    }
+
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        let arg = self.arg
+        guard let value = try arg.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        return [.init(input: .text, value: value)]
+    }
 
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
-//    static func from(_ node: FunctionCallExprSyntax) -> TextViewConstructor? {
-//        let args = node.arguments
-//
-//        // 1. Text("Hello")
-//        if args.count == 1, args.first!.label == nil,
-//           let lit = args.first!.expression.as(StringLiteralExprSyntax.self) {
-//            return .string(.literal(lit.decoded()))
-//        }
-//
-//        // 2. Text(verbatim: "Raw")
-//        if let first = args.first,
-//           first.label?.text == "verbatim",
-//           let lit = first.expression.as(StringLiteralExprSyntax.self) {
-//            return .verbatim(.literal(lit.decoded()))
-//        }
-//
-//        // 3. Text(LocalizedStringKey("key"))
-//        if args.count == 1,
-//           args.first!.label == nil,
-//           let call = args.first!.expression.as(FunctionCallExprSyntax.self),
-//           let id = call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
-//           id == "LocalizedStringKey",
-//           let lit = call.arguments.first?.expression.as(StringLiteralExprSyntax.self) {
-//            return .localized(.literal(LocalizedStringKey(lit.decoded())))
-//        }
-//
-//        // 4. Text(AttributedString("Fancy"))
-//        if args.count == 1,
-//           args.first!.label == nil,
-//           let call = args.first!.expression.as(FunctionCallExprSyntax.self),
-//           let id = call.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
-//           id == "AttributedString",
-//           let lit = call.arguments.first?.expression.as(StringLiteralExprSyntax.self) {
-//            return .attributed(.literal(AttributedString(lit.decoded())))
-//        }
-//
-//        // If it's some other expression like Text(title)
-//        return .string(.expression(args.first!.expression))
-//    }
+    static func from(_ args: [SyntaxViewArgumentData]) -> TextViewConstructor? {
+        guard let first = args.first else {
+            return nil
+        }
+        
+        // Text("Hello")
+        if args.count == 1, first.label == nil {
+            // Text(LocalizedStringKey("key"))
+            if let call = first.value.complexValue,
+               let firstStringArg = call.arguments.first {
+                if call.typeName == "LocalizedStringKey" {
+                    return .localized(firstStringArg.value)
+                }
+                
+                // Text(AttributedString("Fancy"))
+                if call.typeName == "AttributedString" {
+                    return .attributed(firstStringArg.value)
+                }
+            }
+
+            return .string(first.value)
+        }
+
+        // Text(verbatim: "Raw")
+        if first.label == "verbatim" {
+            return .verbatim(first.value)
+        }
+
+        // If it's some other expression like Text(title)
+        return .string(first.value)
+    }
 }
 
 
@@ -331,6 +312,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
         return .parameters(alignment: alignment, spacing: spacing)
     }
+    
 }
 
 //// TODO: a lot of this logic overlaps with HStackViewConstructor; only difference is `HorizontalAlignment` instead of `VerticalAlignment`

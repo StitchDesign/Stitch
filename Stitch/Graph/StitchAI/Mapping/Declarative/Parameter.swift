@@ -32,7 +32,7 @@ import SwiftParser
 
 struct ASTCustomInputValue: Equatable, Hashable {
     let input: CurrentStep.LayerInputPort
-    let values: [CurrentStep.PortValue]
+    let value: CurrentStep.PortValue
     
 //    init(_ input: LayerInputPort,  _ value: PortValue) {
 //        self.input = input
