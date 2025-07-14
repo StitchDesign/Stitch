@@ -1018,3 +1018,10 @@ enum SyntaxArgumentConstructorContext {
     case viewConstructor(SyntaxViewName, CurrentStep.LayerInputPort)
     case viewModifier(CurrentStep.LayerInputPort)
 }
+
+extension SyntaxViewModifierArgumentType {
+    func derivePortValues() throws -> [CurrentStep.PortValue] {
+        try SyntaxViewName.derivePortValues(from: self,
+                                            context: nil)
+    }
+}

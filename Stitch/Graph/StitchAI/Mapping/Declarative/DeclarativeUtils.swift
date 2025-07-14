@@ -211,10 +211,11 @@ extension ExprSyntax {
 }
 
 // ── Tiny extraction helpers for alignment / spacing literals ─────────────
-extension LabeledExprSyntax {
+extension SyntaxViewModifierArgumentType {
     var alignmentLiteral: Alignment? {
-        if let member = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text {
+        switch self {
+        case .memberAccess(let member):
+            guard let member = member.base else { return nil }
             switch member {
             case "topLeading":     return .topLeading
             case "top":            return .top
@@ -226,35 +227,43 @@ extension LabeledExprSyntax {
             case "bottom":         return .bottom
             case "bottomTrailing": return .bottomTrailing
             default: return nil
-            }
         }
-        return nil
+        default:
+            return nil
     }
     
     var cgFloatValue: CGFloat? {
-        if let float = expression.as(FloatLiteralExprSyntax.self) {
-            return CGFloat(Double(float.literal.text) ?? 0)
+        switch self {
+        case .simple(let data):
+            switch data.syntaxKind {
+            case .float, .integer:
+                return CGFloat(Double(data.value) ?? 0)
+            default:
+                return nil
+            }
+        default:
+            return nil
         }
-        if let int = expression.as(IntegerLiteralExprSyntax.self) {
-            return CGFloat(Double(int.literal.text) ?? 0)
-        }
-        return nil
     }
     
     // New helper: vertical alignment literal
     var vertAlignLiteral: VerticalAlignment? {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text {
-            switch ident {
-            case "top": return .top
-            case "bottom": return .bottom
-            case "firstTextBaseline": return .firstTextBaseline
-            case "lastTextBaseline": return .lastTextBaseline
-            case "center": return .center
-            default: return nil
+        switch self {
+        case .memberAccess(let syntaxViewMemberAccess):
+            if let ident = syntaxViewMemberAccess.base {
+                switch ident {
+                case "top": return .top
+                case "bottom": return .bottom
+                case "firstTextBaseline": return .firstTextBaseline
+                case "lastTextBaseline": return .lastTextBaseline
+                case "center": return .center
+                default: return nil
+                }
             }
+            
+        default:
+            return nil
         }
-        return nil
     }
     
     // New helper: horizontal alignment literal
@@ -271,34 +280,19 @@ extension LabeledExprSyntax {
         return nil
     }
     
-    var vertAlignValue: VerticalAlignment {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text
-        {
-            switch ident {
-            case "top":               return .top
-            case "bottom":            return .bottom
-            case "firstTextBaseline": return .firstTextBaseline
-            case "lastTextBaseline":  return .lastTextBaseline
-            default:                  return .center
-            }
-        }
-        return .center
-    }
-    
-    func asParameterString() -> Parameter<String> {
-        if let lit = expression.as(StringLiteralExprSyntax.self) {
-            return .literal(lit.decoded())
-        }
-        return .expression(expression)
-    }
-    
-    func asParameterCGFloat() -> Parameter<CGFloat> {
-        if let lit = cgFloatValue {
-            return .literal(lit)
-        }
-        return .expression(expression)
-    }
+//    func asParameterString() -> Parameter<String> {
+//        if let lit = expression.as(StringLiteralExprSyntax.self) {
+//            return .literal(lit.decoded())
+//        }
+//        return .expression(expression)
+//    }
+//    
+//    func asParameterCGFloat() -> Parameter<CGFloat> {
+//        if let lit = cgFloatValue {
+//            return .literal(lit)
+//        }
+//        return .expression(expression)
+//    }
     
     func asParameterCGSize() -> Parameter<CGSize> {
         if let tuple = expression.as(TupleExprSyntax.self),

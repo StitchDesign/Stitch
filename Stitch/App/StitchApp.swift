@@ -41,15 +41,15 @@ struct StitchApp: App {
         FirebaseApp.configure()
     }
 
-//#if DEV_DEBUG
-//    var body: some Scene {
-//        WindowGroup {
+#if DEV_DEBUG
+    var body: some Scene {
+        WindowGroup {
 //            ConstructorDemoView()
-////             VarBodyParserDemoView()
-////             ASTExplorerView()
-//        }
-//    }
-//#else
+//             VarBodyParserDemoView()
+             ASTExplorerView()
+        }
+    }
+#else
     var body: some Scene {
         WindowGroup {
             

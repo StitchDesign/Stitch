@@ -113,7 +113,7 @@ struct AICodeGenRequest: StitchAIRequestable {
                     
                     switch patchBuilderResult {
                     case .success(let patchBuildResult):
-                        logToServerIfRelease("SUCCESS Patch Builder:\n\(patchBuildResult)")
+                        logToServerIfRelease("SUCCESS Patch Builder:\n\((try? patchBuildResult.encodeToPrintableString()) ?? "")")
                         
                         DispatchQueue.main.async { [weak document] in
                             guard let document = document else { return }
