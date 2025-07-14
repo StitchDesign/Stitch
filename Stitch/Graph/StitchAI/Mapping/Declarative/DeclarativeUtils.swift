@@ -302,7 +302,6 @@ extension SyntaxViewMemberAccess {
 //        }
 //        return .expression(expression)
 //    }
-}
 
 //extension Parameter where Value: CustomStringConvertible {
 //    /// Fragment suitable for regenerating Swift source.

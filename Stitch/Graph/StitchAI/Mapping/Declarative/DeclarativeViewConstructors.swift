@@ -192,17 +192,23 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
         case .asset(let arg),
                 .decorative(let arg),
                 .uiImage(let arg):
-            let portValues = try arg.derivePortValues()
+            guard let portValue = try arg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            
             return [
                 .init(input: .image,
-                      values: portValues)
+                      value: portValue)
             ]
             
         case .sfSymbol(let arg):
-            let portValues = try arg.derivePortValues()
+            guard let portValue = try arg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            
             return [
                 .init(input: .sfSymbol,
-                      values: portValues)
+                      value: portValue)
             ]
         }
     }
@@ -259,7 +265,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         var list: [ASTCustomInputValue] = [
-            .init(input: .orientation, values: [.orientation(.horizontal)])
+            .init(input: .orientation, value: .orientation(.horizontal))
         ]
 
         guard case let .parameters(alignmentArg, spacingArg) = self else { return [] }
@@ -268,7 +274,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
         case .none:
             // Default to center align
             list.append(.init(input: .layerGroupAlignment,
-                              values: [.anchoring(.centerCenter)]))
+                              value: .anchoring(.centerCenter)))
             
         case .memberAccess(let memberAccess):
             // Alignment values without PortValueDescription
@@ -276,16 +282,24 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
                 throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.hStack(self))
             }
             list.append(.init(input: .layerGroupAlignment,
-                              values: [.anchoring(vertAlignment.toAnchoring)]))
+                              value: .anchoring(vertAlignment.toAnchoring)))
             
         case .some(let alignmentArg):
+            guard let value = try alignmentArg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            
             list.append(.init(input: .layerGroupAlignment,
-                              values: try alignmentArg.derivePortValues()))
+                              value: value))
         }
         
         if let spacingArg = spacingArg {
+            guard let value = try spacingArg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            
             list.append(.init(input: .spacing,
-                              values: try spacingArg.derivePortValues()))
+                              value: value))
         }
 
         return list
