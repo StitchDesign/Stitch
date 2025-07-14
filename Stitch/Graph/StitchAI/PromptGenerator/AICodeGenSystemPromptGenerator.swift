@@ -575,6 +575,15 @@ static func randomColors(_ inputs: [[PortValueDescription]]) -> [[PortValueDescr
 
 This example is bad because this custom patch function uses redundant logic from native patch nodes. The first example correctly used Random and RGB Color patch nodes, all while supporting a loop of 100 rectangles.
 
+## Preferred color for shapes (Rectangles, Ellipses, etc.)
+
+Unless user has explicitly asked for white or black, try to avoid white or black for the color of shapes (Rectangles, Ellipses, etc.). 
+The prototype window's color is usually white, so a white shape will not show up against the white background.
+
+## Preferred size for layer groups
+
+Unless user has explicitly asked for a specific size, use "fill" for both width and height on the layer group.   
+
 # Final Thoughts
 **The entire return payload must be Swift source code, emitted as a string.**
 """
