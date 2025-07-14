@@ -31,6 +31,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedSyntaxViewModifierArgumentName(String)
     case unsupportedComplexValueType(String)
     case unsupportedPortValueTypeDecoding(SyntaxViewModifierArgumentType)
+    case unsupportedConstructorForPortValueDecoding(ViewConstructor)
     
     case unsupportedLayer(SyntaxViewName)
 //    case unsupportedConstructorArgument(SyntaxViewArgumentData)
@@ -80,7 +81,8 @@ extension SwiftUISyntaxError {
                 .unsupportedComplexValueType,
                 .unsupportedViewModifier,
                 .unsupportedViewModifierForLayer,
-                .unexpectedPatchInputRowCount:
+                .unexpectedPatchInputRowCount,
+                .unsupportedConstructorForPortValueDecoding:
             return true
             
         default:

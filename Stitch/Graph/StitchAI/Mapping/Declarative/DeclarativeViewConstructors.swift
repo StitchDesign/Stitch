@@ -271,64 +271,58 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
     /// We model that with a single enum case whose associated values carry whatever the
     /// call site provided—using `.center` and `nil` when the developer omitted them.
-    case parameters(alignment: SyntaxViewModifierArgumentType,
-                    spacing:   SyntaxViewModifierArgumentType)
+    case parameters(alignment: SyntaxViewModifierArgumentType?,
+                    spacing:   SyntaxViewModifierArgumentType?)
 
     static let layer: CurrentStep.Layer = .group
     
-//    // MARK: Stitch mapping
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        var list: [ValueOrEdge] = [
-//            .value(.init(.orientation, .orientation(.horizontal)))
-//        ]
-//
-//        guard case let .parameters(alignment, spacing) = self else { return nil }
-//
-//        // Alignment
-//        switch alignment {
-//        case .literal(let a) where a != .center:
-//            list.append(.value(.init(.layerGroupAlignment,
-//                                     // TODO: if `a.toAnchoring` fails, return `SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)` ?
-//                                     .anchoring(a.toAnchoring))))
-//        case .expression(let expr):
-//            list.append(.edge(expr))
-//        default: break
-//        }
-//
-//        // Spacing
-//        switch spacing {
-//        case .literal(let s?) :
-//            list.append(.value(.init(.spacing, .spacing(.number(s)))))
-//        case .expression(let expr):
-//            list.append(.edge(expr))
-//        default: break
-//        }
-//
-//        return (.group, list)
-//    }
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        var list: [ASTCustomInputValue] = [
+            .init(input: .orientation, values: [.orientation(.horizontal)])
+        ]
+
+        guard case let .parameters(alignmentArg, spacingArg) = self else { return [] }
+
+        switch alignmentArg {
+        case .none:
+            // Default to center align
+            list.append(.init(input: .layerGroupAlignment,
+                              values: [.anchoring(.centerCenter)]))
+            
+        case .memberAccess(let memberAccess):
+            // Alignment values without PortValueDescription
+            guard let vertAlignment = memberAccess.vertAlignLiteral else {
+                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.hStack(self))
+            }
+            list.append(.init(input: .layerGroupAlignment,
+                              values: [.anchoring(vertAlignment.toAnchoring)]))
+            
+        case .some(let alignmentArg):
+            list.append(.init(input: .layerGroupAlignment,
+                              values: try alignmentArg.derivePortValues()))
+        }
+        
+        if let spacingArg = spacingArg {
+            list.append(.init(input: .spacing,
+                              values: try spacingArg.derivePortValues()))
+        }
+
+        return list
+    }
 
     // MARK: Parse from SwiftSyntax
     static func from(_ args: [SyntaxViewArgumentData]) -> HStackViewConstructor? {
-        // defaults
-        var alignment: Parameter<VerticalAlignment> = .literal(.center)
-        var spacing:   Parameter<CGFloat?>          = .literal(nil)
+        var alignment: SyntaxViewModifierArgumentType?
+        var spacing: SyntaxViewModifierArgumentType?
 
         // iterate through labelled args
         for arg in args {
             switch arg.label {
             case "alignment":
+                alignment = arg.value
                 
-                if let lit = arg.value.vert {
-                    alignment = .literal(lit)
-                } else {
-                    alignment = .expression(arg.expression)
-                }
             case "spacing":
-                if let num = arg.cgFloatValue {
-                    spacing = .literal(num)
-                } else {
-                    spacing = .expression(arg.expression)
-                }
+                spacing = arg.value
             default:
                 // ignore other labels (content closure etc.)
                 break
