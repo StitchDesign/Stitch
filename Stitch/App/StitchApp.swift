@@ -115,6 +115,6 @@ struct StitchApp: App {
         }
         #endif
     }
-//#endif
+#endif
 }
 
