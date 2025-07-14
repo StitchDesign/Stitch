@@ -11,6 +11,10 @@ import StitchSchemaKit
 import SwiftUI
 import RealityKit
 
+extension LayerSize {
+    static let DEFAULT_LAYER_GROUP_SIZE: Self = .init(width: .fill, height: .fill)
+}
+
 // Used for VStack vs HStack on layer groups
 extension StitchOrientation: PortValueEnum {
     static let defaultOrientation = Self.none
