@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct SwiftSyntaxActionsResult: Encodable {
-    var actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
+    var actions: [CurrentAIGraphData.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }
 
@@ -84,11 +84,11 @@ extension SyntaxView {
 extension SyntaxViewName {
     /// Handles ScrollView-specific logic including axis detection and scroll behavior
     static func createScrollGroupLayer(args: [SyntaxViewArgumentData],
-                                       childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
+                                       childrenLayers: [CurrentAIGraphData.LayerData]) throws -> CurrentAIGraphData.LayerData {
         // Check the scroll axis from constructor arguments
         // let scrollAxis = Self.detectScrollAxis(args: args)
       
-        var groupLayer: CurrentAIPatchBuilderResponseFormat.LayerData  
+        var groupLayer: CurrentAIGraphData.LayerData  
         let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroup ?? false
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         
@@ -98,7 +98,7 @@ extension SyntaxViewName {
             groupLayer = _groupData
         } else if !hasRootGroupLayer {
             // Add new node as middle-man
-            let newGroupNode = CurrentAIPatchBuilderResponseFormat
+            let newGroupNode = CurrentAIGraphData
                 .LayerData(node_id: UUID().description,
                            node_name: .init(value: .layer(.group)),
                            children: childrenLayers)

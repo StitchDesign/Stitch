@@ -32,6 +32,7 @@ typealias CurrentStepActionLayerGroupCreated = StepActionLayerGroupCreated_V0
 typealias CurrentAICodeGenRequestBody = AICodeGenRequestBody_V0
 typealias CurrentAIPatchBuilderRequestBody = AIPatchBuilderRequestBody_V0
 typealias CurrentAIPatchBuilderResponseFormat = AIPatchBuilderResponseFormat_V0
+typealias CurrentAIGraphData = AIGraphData_V0
 #else
 typealias CurrentStep = Step_V1
 typealias CurrentStepType = StepType_V1

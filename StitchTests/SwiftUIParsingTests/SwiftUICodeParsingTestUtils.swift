@@ -14,11 +14,11 @@ func getSyntaxView(_ code: String) -> SyntaxView {
 }
 
 extension SyntaxView {
-    func getSyntaxActions() -> [CurrentAIPatchBuilderResponseFormat.LayerData] {
+    func getSyntaxActions() -> [CurrentAIGraphData.LayerData] {
         try! self.deriveStitchActions().actions
     }
     
-    func getFirstSyntaxAction() -> CurrentAIPatchBuilderResponseFormat.LayerData {
+    func getFirstSyntaxAction() -> CurrentAIGraphData.LayerData {
         self.getSyntaxActions().first!
     }
 }

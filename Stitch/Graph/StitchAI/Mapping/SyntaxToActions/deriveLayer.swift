@@ -10,12 +10,12 @@ import StitchSchemaKit
 import SwiftUI
 
 struct LayerDerivationResult {
-    let layerData: CurrentAIPatchBuilderResponseFormat.LayerData
+    let layerData: CurrentAIGraphData.LayerData
     let silentErrors: [SwiftUISyntaxError]
 }
 
 struct LayerInputValuesDerivationResult {
-    let inputValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]
+    let inputValues: [CurrentAIGraphData.CustomLayerInputValue]
     let silentErrors: [SwiftUISyntaxError]
 }
 
@@ -373,9 +373,9 @@ extension SyntaxViewName {
     func deriveLayerData(id: UUID,
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
-                         childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
+                         childrenLayers: [CurrentAIGraphData.LayerData]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
-        var layerData: CurrentAIPatchBuilderResponseFormat.LayerData
+        var layerData: CurrentAIGraphData.LayerData
         let layerType: CurrentStep.Layer
         
         switch args {
@@ -463,7 +463,7 @@ extension SyntaxViewName {
             .createCustomValueEvents()
         
         let values = try customInputValues.map { astInputValue in
-            try CurrentAIPatchBuilderResponseFormat
+            try CurrentAIGraphData
                 .CustomLayerInputValue(id: id,
                                        input: astInputValue.input,
                                        value: astInputValue.value)
@@ -478,7 +478,7 @@ extension SyntaxViewName {
         var silentErrors = [SwiftUISyntaxError]()
         
         // Else fall back to legacy style:
-        var values = try args.flatMap { arg -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
+        var values = try args.flatMap { arg -> [CurrentAIGraphData.CustomLayerInputValue] in
             do {
                 return try self
                     .deriveCustomValuesFromConstructorArgument(id: id,
@@ -508,11 +508,11 @@ extension SyntaxViewName {
     func deriveLayerAndCustomValuesFromName(
         id: UUID,
         args: [SyntaxViewArgumentData],
-        childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]
-    ) throws -> (CurrentStep.Layer, CurrentAIPatchBuilderResponseFormat.LayerData) {
+        childrenLayers: [CurrentAIGraphData.LayerData]
+    ) throws -> (CurrentStep.Layer, CurrentAIGraphData.LayerData) {
         
         var layerType: CurrentStep.Layer
-        var customValues: [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] = []
+        var customValues: [CurrentAIGraphData.CustomLayerInputValue] = []
         
         switch self {
         case .rectangle:         layerType = .rectangle
@@ -662,7 +662,7 @@ extension SyntaxViewName {
         }
         
         // Final bare layer (children added later)
-        var layerNode = CurrentAIPatchBuilderResponseFormat
+        var layerNode = CurrentAIGraphData
             .LayerData(node_id: id.description,
                        node_name: .init(value: .layer(layerType)),
                        custom_layer_input_values: customValues)
@@ -677,7 +677,7 @@ extension SyntaxViewName {
     func deriveCustomValuesFromConstructorArgument(id: UUID,
                                                    layerType: CurrentStep.Layer,
                                                    arg: SyntaxViewArgumentData
-    ) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
+    ) throws -> [CurrentAIGraphData.CustomLayerInputValue] {
         
 //        if arg.value.allArgumentTypesFlattened.isEmpty && self == .scrollView {
 //            return [
@@ -687,7 +687,7 @@ extension SyntaxViewName {
 //            ]
 //        }
         
-        return try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
+        return try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [CurrentAIGraphData.CustomLayerInputValue] in
             guard let port = try SyntaxViewArgumentData.deriveLayerInputPort(
                 layerType,
                 label: arg.label, // the overall label for the entire argument
@@ -770,7 +770,7 @@ extension SyntaxViewName {
         id: UUID,
         port: CurrentStep.LayerInputPort, // simple because we have a single layer
         layerType: CurrentStep.Layer
-    ) throws -> CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue? {
+    ) throws -> CurrentAIGraphData.CustomLayerInputValue? {
         //        let migratedPort = try port.convert(to: LayerInputPort.self)
         //        let migratedLayerType = try layerType.convert(to: Layer.self)
         //        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
@@ -977,8 +977,8 @@ extension SyntaxViewName {
     
     static func deriveCustomValuesFromRotationLayerInputTranslation(id: UUID,
                                                                     layerType: CurrentStep.Layer,
-                                                                    modifier: SyntaxViewModifier) throws -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] {
-        var customValues = [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue]()
+                                                                    modifier: SyntaxViewModifier) throws -> [CurrentAIGraphData.CustomLayerInputValue] {
+        var customValues = [CurrentAIGraphData.CustomLayerInputValue]()
         
         guard let angleArgument = modifier.arguments.defaultArgs?[safe: 0],
               // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
