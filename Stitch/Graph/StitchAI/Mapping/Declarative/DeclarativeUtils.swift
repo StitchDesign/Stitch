@@ -30,7 +30,7 @@ extension LocalizedStringKey {
 // ── Alignment → Anchoring helpers ───────────────────────────────────────
 
 extension VerticalAlignment {
-    var toAnchoring: Anchoring {
+    var toAnchoring: CurrentStitchAIPortValue.PortValueVersion.Anchoring {
         switch self {
         case .top:               return .topCenter
         case .bottom:            return .bottomCenter
@@ -211,10 +211,11 @@ extension ExprSyntax {
 }
 
 // ── Tiny extraction helpers for alignment / spacing literals ─────────────
-extension LabeledExprSyntax {
+extension SyntaxViewModifierArgumentType {
     var alignmentLiteral: Alignment? {
-        if let member = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text {
+        switch self {
+        case .memberAccess(let member):
+            guard let member = member.base else { return nil }
             switch member {
             case "topLeading":     return .topLeading
             case "top":            return .top
@@ -227,135 +228,106 @@ extension LabeledExprSyntax {
             case "bottomTrailing": return .bottomTrailing
             default: return nil
             }
+        default:
+            return nil
         }
-        return nil
     }
     
     var cgFloatValue: CGFloat? {
-        if let float = expression.as(FloatLiteralExprSyntax.self) {
-            return CGFloat(Double(float.literal.text) ?? 0)
-        }
-        if let int = expression.as(IntegerLiteralExprSyntax.self) {
-            return CGFloat(Double(int.literal.text) ?? 0)
-        }
-        return nil
-    }
-    
-    // New helper: vertical alignment literal
-    var vertAlignLiteral: VerticalAlignment? {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text {
-            switch ident {
-            case "top": return .top
-            case "bottom": return .bottom
-            case "firstTextBaseline": return .firstTextBaseline
-            case "lastTextBaseline": return .lastTextBaseline
-            case "center": return .center
-            default: return nil
+        switch self {
+        case .simple(let data):
+            switch data.syntaxKind {
+            case .float, .integer:
+                return CGFloat(Double(data.value) ?? 0)
+            default:
+                return nil
             }
+        default:
+            return nil
         }
-        return nil
     }
-    
+}
+
+extension SyntaxViewMemberAccess {
     // New helper: horizontal alignment literal
     var horizAlignLiteral: HorizontalAlignment? {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text {
-            switch ident {
-            case "leading": return .leading
-            case "trailing": return .trailing
-            case "center": return .center
-            default: return nil
-            }
-        }
-        return nil
-    }
-    
-    var vertAlignValue: VerticalAlignment {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text
-        {
-            switch ident {
-            case "top":               return .top
-            case "bottom":            return .bottom
-            case "firstTextBaseline": return .firstTextBaseline
-            case "lastTextBaseline":  return .lastTextBaseline
-            default:                  return .center
-            }
-        }
-        return .center
-    }
-    
-    func asParameterString() -> Parameter<String> {
-        if let lit = expression.as(StringLiteralExprSyntax.self) {
-            return .literal(lit.decoded())
-        }
-        return .expression(expression)
-    }
-    
-    func asParameterCGFloat() -> Parameter<CGFloat> {
-        if let lit = cgFloatValue {
-            return .literal(lit)
-        }
-        return .expression(expression)
-    }
-    
-    func asParameterCGSize() -> Parameter<CGSize> {
-        if let tuple = expression.as(TupleExprSyntax.self),
-           let wLit = tuple.elements.first?.expression.as(FloatLiteralExprSyntax.self),
-           let hLit = tuple.elements[safe: 1]?.expression.as(FloatLiteralExprSyntax.self),
-           let w = Double(wLit.literal.text),
-           let h = Double(hLit.literal.text) {
-            return .literal(CGSize(width: w, height: h))
-        }
-        return .expression(expression)
-    }
-    
-    func asParameterAxisSet() -> Parameter<Axis.Set> {
-        if let ident = expression.as(MemberAccessExprSyntax.self)?
-            .declName.baseName.text {
-            switch ident {
-            case "vertical":   return .literal(.vertical)
-            case "horizontal": return .literal(.horizontal)
-            default: break
-            }
-        }
-        return .expression(expression)
-    }
-    
-    func asParameterBool() -> Parameter<Bool> {
-        if let bool = expression.as(BooleanLiteralExprSyntax.self) {
-            return .literal(bool.literal.text == "true")
-        }
-        return .expression(expression)
-    }
-}
-
-extension Parameter where Value: CustomStringConvertible {
-    /// Fragment suitable for regenerating Swift source.
-    var swiftFragment: String {
-        switch self {
-        case .literal(let v):    return String(describing: v)
-        case .expression(let e): return e.description
+        let ident = self.base
+        switch ident {
+        case "leading": return .leading
+        case "trailing": return .trailing
+        case "center": return .center
+        default: return nil
         }
     }
-}
-
-extension ExprSyntax {
-    /// If this expression is `.constant("string")` return the literal string.
-    /// Otherwise return `nil`.
-    func stringLiteralFromConstantBinding() -> String? {
-        guard
-            let call = self.as(FunctionCallExprSyntax.self),
-            let baseName = call.calledExpression.as(MemberAccessExprSyntax.self)?
-                .declName.baseName.text ?? call.calledExpression
-                .as(DeclReferenceExprSyntax.self)?
-                .baseName.text,
-            baseName == "constant",
-            let first = call.arguments.first,
-            let lit   = first.expression.as(StringLiteralExprSyntax.self)
-        else { return nil }
         
-        return lit.decoded()
+    var vertAlignLiteral: VerticalAlignment? {
+        let ident = self.base
+        switch ident {
+        case "top": return .top
+        case "bottom": return .bottom
+        case "firstTextBaseline": return .firstTextBaseline
+        case "lastTextBaseline": return .lastTextBaseline
+        case "center": return .center
+        default: return nil
+        }
     }
 }
+//
+//    func asParameterCGSize() -> Parameter<CGSize> {
+//        if let tuple = expression.as(TupleExprSyntax.self),
+//           let wLit = tuple.elements.first?.expression.as(FloatLiteralExprSyntax.self),
+//           let hLit = tuple.elements[safe: 1]?.expression.as(FloatLiteralExprSyntax.self),
+//           let w = Double(wLit.literal.text),
+//           let h = Double(hLit.literal.text) {
+//            return .literal(CGSize(width: w, height: h))
+//        }
+//        return .expression(expression)
+//    }
+//    
+//    func asParameterAxisSet() -> Parameter<Axis.Set> {
+//        if let ident = expression.as(MemberAccessExprSyntax.self)?
+//            .declName.baseName.text {
+//            switch ident {
+//            case "vertical":   return .literal(.vertical)
+//            case "horizontal": return .literal(.horizontal)
+//            default: break
+//            }
+//        }
+//        return .expression(expression)
+//    }
+//    
+//    func asParameterBool() -> Parameter<Bool> {
+//        if let bool = expression.as(BooleanLiteralExprSyntax.self) {
+//            return .literal(bool.literal.text == "true")
+//        }
+//        return .expression(expression)
+//    }
+
+//extension Parameter where Value: CustomStringConvertible {
+//    /// Fragment suitable for regenerating Swift source.
+//    var swiftFragment: String {
+//        switch self {
+//        case .literal(let v):    return String(describing: v)
+//        case .expression(let e): return e.description
+//        }
+//    }
+//}
+//
+//extension ExprSyntax {
+//    /// If this expression is `.constant("string")` return the literal string.
+//    /// Otherwise return `nil`.
+//    func stringLiteralFromConstantBinding() -> String? {
+//        guard
+//            let call = self.as(FunctionCallExprSyntax.self),
+//            let baseName = call.calledExpression.as(MemberAccessExprSyntax.self)?
+//                .declName.baseName.text ?? call.calledExpression
+//                .as(DeclReferenceExprSyntax.self)?
+//                .baseName.text,
+//            baseName == "constant",
+//            let first = call.arguments.first,
+//            let lit   = first.expression.as(StringLiteralExprSyntax.self)
+//        else { return nil }
+//        
+//        return lit.decoded()
+//    }
+//}

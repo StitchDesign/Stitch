@@ -45,9 +45,7 @@ extension SyntaxView {
         do {
             let layerDataResult = try self.name.deriveLayerData(
                 id: self.id,
-                viewConstructor: self.constructor,
                 args: self.constructorArguments,
-//                args: [],
                 modifiers: self.modifiers,
                 childrenLayers: childResults.actions)
             
