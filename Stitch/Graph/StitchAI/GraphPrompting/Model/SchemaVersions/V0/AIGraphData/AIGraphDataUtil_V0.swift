@@ -15,19 +15,55 @@ enum AICodeGenError: Error {
 extension AIGraphData_V0 {
     typealias GraphEntity = GraphEntity_V31.GraphEntity
     typealias NodeEntity = NodeEntity_V31.NodeEntity
+    typealias PatchNodeEntity = PatchNodeEntity_V31.PatchNodeEntity
     typealias LayerNodeEntity = LayerNodeEntity_V31.LayerNodeEntity
     typealias SidebarLayerData = SidebarLayerData_V31.SidebarLayerData
+    typealias NodeType = StitchAIPortValue_V0.NodeType
+    
+    // Exception to all versions which should be version 31
+    typealias JavaScriptNodeSettings = JavaScriptNodeSettings_V32.JavaScriptNodeSettings
+    typealias JavaScriptPortDefinition = JavaScriptPortDefinition_V32.JavaScriptPortDefinition
 }
 
 extension AIGraphData_V0.GraphData {
-    
     init(from graphEntity: AIGraphData_V0.GraphEntity) throws {
         let nodesDict = graphEntity.nodes.reduce(into: [UUID : AIGraphData_V0.NodeEntity]()) { result, node in
             result.updateValue(node, forKey: node.id)
         }
         
+        var jsNodes = [AIGraphData_V0.JsPatchNode]()
+        var nativeNodes = [AIGraphData_V0.NativePatchNode]()
+        
+        for nodeEntity in graphEntity.nodes {
+            switch nodeEntity.nodeTypeEntity {
+            case .patch(let patchNodeEntity):
+                if let jsData = patchNodeEntity...
+                
+            default:
+                continue
+            }
+        }
+        
         let aiLayerData: [AIGraphData_V0.LayerData] = try graphEntity.orderedSidebarLayers
             .createAIData(nodesDict: nodesDict)
+    }
+}
+
+extension AIGraphData_V0.JsPatchNode {
+    init(from jsSettings: AIGraphData_V0.JavaScriptNodeSettings,
+         id: UUID) throws {
+        self = .init(node_id: id.description,
+                     javascript_source_code: jsSettings.script,
+                     suggested_title: jsSettings.suggestedTitle,
+                     input_definitions: try jsSettings.inputDefinitions.map { try JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI(from: $0) },
+                     output_definitions: try jsSettings.outputDefinitions.map { try JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI(from: $0) })
+    }
+}
+
+extension JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI {
+    init(from portSettings: AIGraphData_V0.JavaScriptPortDefinition) throws {
+        self = .init(label: portSettings.label,
+                     strict_type: try portSettings.strictType.convert(to: AIGraphData_V0.NodeType.self))
     }
 }
 
