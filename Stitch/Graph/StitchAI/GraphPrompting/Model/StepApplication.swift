@@ -308,6 +308,9 @@ func positionAIGeneratedNodesDuringApply(
     // TODO: if we have a chain of nodes, shift our starting point further west
     //    var viewPortCenter = viewPortCenter
     //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
+
+    // Horizontal spacing between depth‑columns
+    let horizontalPadding: CGFloat = 120.0
     
     let (depthMap, hasCycle) = calculateAINodesAdjacency(nodes: nodes) // patchData.calculateAINodesAdjacency()
     
@@ -328,6 +331,26 @@ func positionAIGeneratedNodesDuringApply(
     let depthLevels = depthMap.values.sorted().toOrderedSet
 
     let createdNodes: IdSet = nodes.nodes.keys.toSet
+
+    // Determine the widest item (including padding) in each depth column
+    var columnWidths: [Int: CGFloat] = [:]
+    depthLevels.forEach { depth in
+        let nodesAtLevel = createdNodes.compactMap { depthMap.get($0) == depth ? nodes.getNode($0) : nil }
+        let maxWidth = nodesAtLevel.flatMap { node in
+            node.getAllCanvasObservers().compactMap { observer in
+                (observer.getHardcodedSize(graph)?.width ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER) + horizontalPadding
+            }
+        }.max() ?? (CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER + horizontalPadding)
+        columnWidths[depth] = maxWidth
+    }
+
+    // Build cumulative X‑offsets so each column begins where the previous one ends
+    var cumulativeXOffset: [Int: CGFloat] = [:]
+    var runningX: CGFloat = 0
+    depthLevels.sorted().forEach { depth in
+        cumulativeXOffset[depth] = runningX
+        runningX += columnWidths[depth] ?? 0
+    }
         
     // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
     depthLevels.forEach { depthLevel in
@@ -364,14 +387,12 @@ func positionAIGeneratedNodesDuringApply(
                 log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
                 
                 // Add some 'padding' to the canvas item's size, so items do not end up right next to each other
-//                let padding: CGFloat = 36.0
-//                let padding: CGFloat = 48.0
-                let padding: CGFloat = 64.0
+                let padding: CGFloat = horizontalPadding
                 size.width += padding
                 size.height += padding
                                
                 let newPosition =  CGPoint(
-                    x: viewPortCenter.x + (CGFloat(depthLevel) * size.width),
+                    x: viewPortCenter.x + (cumulativeXOffset[depthLevel] ?? 0),
                     y: viewPortCenter.y + (CGFloat(canvasItemIndex) * size.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * size.height)
                 )
                 
