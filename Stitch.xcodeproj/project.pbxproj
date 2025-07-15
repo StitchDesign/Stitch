@@ -384,6 +384,7 @@
 		E42CFD462D4413F90034CCFF /* secrets.json in Resources */ = {isa = PBXBuildFile; fileRef = E42CFD452D4413F90034CCFF /* secrets.json */; };
 		E42CFD482D4414F10034CCFF /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42CFD472D4414F10034CCFF /* Secrets.swift */; };
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
+		E449A76B2E25BF51005DBECB /* TEST_IMAGE_3.png in Resources */ = {isa = PBXBuildFile; fileRef = E449A76A2E25BF51005DBECB /* TEST_IMAGE_3.png */; };
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
 		E48A07922D38C528002E8A98 /* StitchAIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E48A07912D38C528002E8A98 /* StitchAIManager.swift */; };
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
@@ -1531,6 +1532,7 @@
 		E42CFD452D4413F90034CCFF /* secrets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = secrets.json; sourceTree = SOURCE_ROOT; };
 		E42CFD472D4414F10034CCFF /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
 		E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARRaycastingNode.swift; sourceTree = "<group>"; };
+		E449A76A2E25BF51005DBECB /* TEST_IMAGE_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TEST_IMAGE_3.png; sourceTree = "<group>"; };
 		E457441C2BC0548300B1642E /* QRCodeDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeDetection.swift; sourceTree = "<group>"; };
 		E48A07912D38C528002E8A98 /* StitchAIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIManager.swift; sourceTree = "<group>"; };
 		E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLDetectionNode.swift; sourceTree = "<group>"; };
@@ -2369,6 +2371,7 @@
 			children = (
 				E41850A12E25AD9E0006878E /* TEST_IMAGE.png */,
 				E41850A32E25B0BF0006878E /* TEST_IMAGE_2.png */,
+				E449A76A2E25BF51005DBECB /* TEST_IMAGE_3.png */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */,
@@ -5669,6 +5672,7 @@
 				E41850A22E25AD9E0006878E /* TEST_IMAGE.png in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
 				E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */,
+				E449A76B2E25BF51005DBECB /* TEST_IMAGE_3.png in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				B5849FB62DFBDA7100D668ED /* versioning.sh in Resources */,
