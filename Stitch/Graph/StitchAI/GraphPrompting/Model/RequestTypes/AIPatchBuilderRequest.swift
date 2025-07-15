@@ -21,7 +21,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     @MainActor
     init(prompt: String,
          swiftUISourceCode: String,
-         layerDataList: [CurrentAIPatchBuilderResponseFormat.LayerData],
+         layerDataList: [CurrentAIGraphData.LayerData],
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -43,17 +43,17 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateResponse(decodedResult: CurrentAIPatchBuilderResponseFormat.PatchData) throws -> CurrentAIPatchBuilderResponseFormat.PatchData {
+    static func validateResponse(decodedResult: CurrentAIGraphData.PatchData) throws -> CurrentAIGraphData.PatchData {
         decodedResult
     }
     
     @MainActor
-    func onSuccessfulDecodingChunk(result: CurrentAIPatchBuilderResponseFormat.PatchData,
+    func onSuccessfulDecodingChunk(result: CurrentAIGraphData.PatchData,
                                    currentAttempt: Int) {
         fatalErrorIfDebug()
     }
     
-    static func buildResponse(from streamingChunks: [CurrentAIPatchBuilderResponseFormat.PatchData]) throws -> CurrentAIPatchBuilderResponseFormat.PatchData {
+    static func buildResponse(from streamingChunks: [CurrentAIGraphData.PatchData]) throws -> CurrentAIGraphData.PatchData {
         // Unsupported
         fatalError()
     }
@@ -62,7 +62,7 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
 extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.
     @MainActor
-    func createLayerNodeFromAI(newLayer: CurrentAIPatchBuilderResponseFormat.LayerData,
+    func createLayerNodeFromAI(newLayer: CurrentAIGraphData.LayerData,
                                idMap: inout [String : UUID]) throws {
         let newId = UUID()
         idMap.updateValue(newId, forKey: newLayer.node_id)
@@ -114,7 +114,7 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension CurrentAIPatchBuilderResponseFormat.GraphData {
+extension CurrentAIGraphData.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
         let graphEntity = try self.createAIGraph(graphCenter: document.viewPortCenter,
@@ -327,7 +327,7 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
 }
 
 extension NodeIOCoordinate {
-    init(from aiPatchCoordinate: CurrentAIPatchBuilderResponseFormat.NodeIndexedCoordinate,
+    init(from aiPatchCoordinate: CurrentAIGraphData.NodeIndexedCoordinate,
          idMap: [String : UUID]) throws {
         guard let newId = idMap.get(aiPatchCoordinate.node_id) else {
             fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiPatchCoordinate.node_id \(aiPatchCoordinate.node_id), idMap: \(idMap)")
@@ -338,7 +338,7 @@ extension NodeIOCoordinate {
                   nodeId: newId)
     }
     
-    init(from aiLayerCoordinate: CurrentAIPatchBuilderResponseFormat.LayerInputCoordinate,
+    init(from aiLayerCoordinate: CurrentAIGraphData.LayerInputCoordinate,
          idMap: [String : UUID]) throws {
         guard let newId = idMap.get(aiLayerCoordinate.layer_id) else {
             fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiLayerCoordinate.layer_id \(aiLayerCoordinate.layer_id), idMap: \(idMap)")

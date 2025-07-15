@@ -47,7 +47,7 @@ extension SyntaxView {
     ///
     /// - Parameter actions: The action list (layer creations, input sets, incoming edges, …).
     /// - Returns: The root `SyntaxView` or `nil` when no layer‑creation action is found.
-    static func build(from actions: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> [Self] {
+    static func build(from actions: [CurrentAIGraphData.LayerData]) throws -> [Self] {
         try actions.map(Self.node(from:))
     }
 
@@ -55,7 +55,7 @@ extension SyntaxView {
 
     /// Recursively create a `SyntaxView` from a `VPLLayer`, using `actions`
     /// to populate constructor arguments and modifiers.
-    private static func node(from layerData: CurrentAIPatchBuilderResponseFormat.LayerData) throws -> Self {
+    private static func node(from layerData: CurrentAIGraphData.LayerData) throws -> Self {
         // TODO: will come back here
         fatalError()
 //

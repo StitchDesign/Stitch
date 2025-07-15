@@ -109,7 +109,7 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
 }
 
 enum LayerInputViewModification {
-    case layerInputValues([CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue])
+    case layerInputValues([CurrentAIGraphData.CustomLayerInputValue])
     case layerIdAssignment(String)
 }
 

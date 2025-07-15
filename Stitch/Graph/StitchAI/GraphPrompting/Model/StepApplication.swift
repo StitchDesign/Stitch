@@ -308,9 +308,8 @@ func positionAIGeneratedNodesDuringApply(
     // TODO: if we have a chain of nodes, shift our starting point further west
     //    var viewPortCenter = viewPortCenter
     //    viewPortCenter.x -= 500 // We actually shift left a little bit, so nodes look like they're crawling from left to right
-
     // Horizontal spacing between depth‑columns
-    let horizontalPadding: CGFloat = 120.0
+    let horizontalPadding: CGFloat = 80.0
     
     let (depthMap, hasCycle) = calculateAINodesAdjacency(nodes: nodes) // patchData.calculateAINodesAdjacency()
     
@@ -387,7 +386,7 @@ func positionAIGeneratedNodesDuringApply(
         
         createdNodesAtThisLevel.enumerated().forEach { x in
             let createdNode = x.element
-            
+
             createdNode.getAllCanvasObservers().enumerated().forEach { x in
                 let canvasItem = x.element
                 
