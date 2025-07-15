@@ -389,6 +389,11 @@ extension SyntaxViewName {
             layerData = .init(node_id: id.description,
                               node_name: .init(value: .layer(constructor.value.layer)),
                               custom_layer_input_values: customInputValuesFromViewConstructor.inputValues)
+            
+            if !childrenLayers.isEmpty {
+                layerData.children = childrenLayers
+            }
+            
             silentErrors += customInputValuesFromViewConstructor.silentErrors
             
         case .other, .none:
