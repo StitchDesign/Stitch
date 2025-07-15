@@ -332,6 +332,8 @@ func positionAIGeneratedNodesDuringApply(
     // Iterate by depth-level, so that nodes at same depth (e.g. 0) can be y-offset from each other
     depthLevels.forEach { depthLevel in
 
+        log("on depthLevel: \(depthLevel)")
+        
         // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
         // Find all the created-nodes at this depth-level,
         // and adjust their positions
@@ -339,7 +341,8 @@ func positionAIGeneratedNodesDuringApply(
             if depthMap.get($0) == depthLevel {
                 return nodes.getNode($0)
             }
-            log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
+            // THIS JUST MEANS WE COULD NOT FIND THE NODE AT THIS LEVEL
+            // log("positionAIGeneratedNodes: Could not get depth level for \($0.debugFriendlyId)")
             return nil
         }
         
@@ -362,7 +365,8 @@ func positionAIGeneratedNodesDuringApply(
                 
                 // Add some 'padding' to the canvas item's size, so items do not end up right next to each other
 //                let padding: CGFloat = 36.0
-                let padding: CGFloat = 48.0
+//                let padding: CGFloat = 48.0
+                let padding: CGFloat = 64.0
                 size.width += padding
                 size.height += padding
                                
@@ -370,7 +374,7 @@ func positionAIGeneratedNodesDuringApply(
                     x: viewPortCenter.x + (CGFloat(depthLevel) * size.width),
                     y: viewPortCenter.y + (CGFloat(canvasItemIndex) * size.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * size.height)
                 )
-                                
+                
                 log("positionAIGeneratedNodes: newPosition: \(newPosition)")
                 canvasItem.position = newPosition
                 canvasItem.previousPosition = newPosition
