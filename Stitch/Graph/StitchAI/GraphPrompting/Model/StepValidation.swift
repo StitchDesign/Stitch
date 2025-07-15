@@ -64,3 +64,83 @@ extension Array where Element == any StepActionable {
 }
 
 
+@MainActor
+func calculateAINodesAdjacency(
+    nodes: VisibleNodesViewModel
+) -> (depthMap: DepthMap?,
+      hasCycle: Bool) {
+    
+    let adjacency = AdjacencyCalculator()
+    
+    nodes.nodes.values.forEach { node in
+        node.getAllInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
+            if let upstreamOutput = inputObserver.upstreamOutputCoordinate {
+                adjacency.addEdge(from: upstreamOutput.nodeId,
+                                  to: inputObserver.id.nodeId)
+            }
+        }
+    }
+    
+    let (depthMap, hasCycle) = adjacency.computeDepth()
+    
+    if var depthMap = depthMap, !hasCycle {
+        // If we did not have a cycle, also add those nodes which did not have a connection;
+        // Node without connection = node with depth level 0
+        nodes.nodes.keys.forEach {
+            if !depthMap.get($0).isDefined {
+                depthMap.updateValue(0, forKey: $0)
+            }
+        }
+        return (depthMap, hasCycle)
+    } else {
+        return (depthMap, hasCycle)
+    }
+}
+
+
+extension AIPatchBuilderResponseFormat_V0.PatchData {
+    func calculateAINodesAdjacency() -> (depthMap: DepthMap?,
+                                         hasCycle: Bool) {
+        let adjacency = AdjacencyCalculator()
+                
+        self.patch_connections.forEach {
+            if let fromNodeId = UUID($0.src_port.node_id),
+               let toNodeId = UUID($0.dest_port.node_id) {
+                adjacency.addEdge(from: fromNodeId, to: toNodeId)
+            }
+        }
+        
+        self.layer_connections.forEach {
+            if let fromNodeId = UUID($0.src_port.node_id),
+               let toNodeId = UUID($0.dest_port.layer_id) {
+                adjacency.addEdge(from: fromNodeId, to: toNodeId)
+            }
+        }
+        
+        let (depthMap, hasCycle) = adjacency.computeDepth()
+        
+        if var depthMap = depthMap, !hasCycle {
+            // If we did not have a cycle, also add those nodes which did not have a connection;
+            // Node without connection = node with depth level 0
+            self.javascript_patches.forEach {
+                if let nodeId = UUID($0.node_id) {
+                    if !depthMap.get(nodeId).isDefined {
+                        depthMap.updateValue(0, forKey: nodeId)
+                    }
+                }
+            }
+            
+            self.native_patches.forEach {
+                if let nodeId = UUID($0.node_id) {
+                    if !depthMap.get(nodeId).isDefined {
+                        depthMap.updateValue(0, forKey: nodeId)
+                    }
+                }
+            }
+            return (depthMap, hasCycle)
+            
+        } else {
+            return (depthMap, hasCycle)
+        }
+    }
+}

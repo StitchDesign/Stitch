@@ -128,6 +128,14 @@ extension CurrentAIPatchBuilderResponseFormat.GraphData {
                                 originGraphOutputValuesMap: .init(),
                                 document: document)
         
+        
+        // Can't build the depth map from the `patch_data`,
+        // since those UUIDs have not been remapped yet
+        positionAIGeneratedNodesDuringApply(
+            nodes: document.visibleGraph.visibleNodesViewModel,
+            viewPortCenter: document.viewPortCenter,
+            graph: document.visibleGraph)
+        
         document.encodeProjectInBackground()
     }
     

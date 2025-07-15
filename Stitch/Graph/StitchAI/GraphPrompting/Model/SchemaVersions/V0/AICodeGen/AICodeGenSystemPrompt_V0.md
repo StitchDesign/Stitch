@@ -83,6 +83,14 @@ These native patch nodes create looped behavior:
 * `loop || Patch`: creates a looped output where each value represents the index of that loop. This is commonly used to create an arbitrary loop length to create a desired quantity of looped layers.
 * `loopBuilder || Patch`: packs each input into a single looped output port. Loop Builder patches can contain any number of input ports, and are useful when specific values are desired when constructing a loop.
 For more information on when to create a Loop or Loop Builder patch node, see "Examples of Looped Views Using Native Patches" in the Data Glossary.
+### More loop advice
+If an output is already a loop, then we may not need to pass it through another loop patch again.
+For example, this graph here:
+Loop patch node -> RGB Color patch -> Rectangle's color layer input
+... does not another loop patch, e.g. should not be: 
+Loop patch node -> RGBColor patch -> LoopOverArray patch node -> Rectangle's color layer input
+Generaly speaking, when working with loops, we do not need the "Loop Over Array" patch. 
+We only need the "Loop Over Array" patch if we're working with a JSON array. 
 ### Output Expectations
 The script must return the same outputs ports length on each eval call. This means that a script cannot return empty outputs ports in a failure case if it otherwise returns some number of outputs in a successful case. In these scenarios involving failure cases from the script, use some default value matching the same types used in the successful case.
 An output port cannot have empty values. There should be a minimum of one value at each output port.
@@ -317,10 +325,6 @@ Example payloads for each `PortValue` by its type are provided below. Strictly a
     {
       "example" : null,
       "type" : "layer"
-    },
-    {
-      "example" : "free",
-      "type" : "scrollMode"
     },
     {
       "example" : "left",
@@ -13304,6 +13308,16 @@ The prototype window's color is usually white, so a white shape will not show up
 ## Preferred size for layer groups
 
 Unless user has explicitly asked for a specific size, use "fill" for both width and height on the layer group.   
+
+## Make sure we use all the edges and custom values
+
+Please be sure to use all the edges and custom values.
+
+For example, 
+
+## Handling loops and ForEach
+
+We currently blacklist SwiftUI's 'ForEach View.  
 
 
 # Final Thoughts
