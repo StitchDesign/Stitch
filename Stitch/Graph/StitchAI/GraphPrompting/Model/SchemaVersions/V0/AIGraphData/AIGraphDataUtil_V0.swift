@@ -21,20 +21,21 @@ extension AIGraphData_V0 {
 
 extension AIGraphData_V0.GraphData {
     
-    init(from graphEntity: GraphEntity) {
-        let nodeDict = graphEntity.nodes.reduce(into: [UUID : NodeEntity]()) { result, node in
+    init(from graphEntity: AIGraphData_V0.GraphEntity) throws {
+        let nodesDict = graphEntity.nodes.reduce(into: [UUID : AIGraphData_V0.NodeEntity]()) { result, node in
             result.updateValue(node, forKey: node.id)
         }
         
-        let aiLayerData: [AIGraphData_V0.LayerData]
+        let aiLayerData: [AIGraphData_V0.LayerData] = try graphEntity.orderedSidebarLayers
+            .createAIData(nodesDict: nodesDict)
     }
 }
 
 extension Array where Element == AIGraphData_V0.SidebarLayerData {
-//    init(from sidebarListData: [SidebarLayerData]) {
-    func createAIData -> [AIGraphData_V0.LayerData] {
-        self.map { sidebarData in
-            
+    func createAIData(nodesDict: [UUID : AIGraphData_V0.NodeEntity]) throws -> [AIGraphData_V0.LayerData] {
+        try self.map { sidebarData in
+            try .init(from: sidebarData,
+                      nodesDict: nodesDict)
         }
     }
 }
@@ -47,12 +48,31 @@ extension AIGraphData_V0.LayerData {
             throw AICodeGenError.nodeDataNotFound
         }
         
-        let children = sidebarData.children?.createAIData()
+        // Recursively create children
+        let children = try sidebarData.children?.createAIData(nodesDict: nodesDict)
         
         let customInputValues: [AIGraphData_V0.CustomLayerInputValue] = try LayerInputPort_V31.LayerInputPort
             .allCases.compactMap { port in
-                let migratedPortData = try port.convert(to: LayerInputPort.self)
-                let portData = layerData[keyPath: migratedPortData]
+                let portData = layerData[keyPath: port.schemaPortKeyPath]
+                
+                switch portData.packedData.inputPort {
+                case .values(let values):
+                    let defaultData = port.getDefaultValue(for: layerData.layer)
+                    
+                    // Save data if different from default value
+                    if let firstValue = values.first,
+                       defaultData != firstValue {
+                        return try .init(id: layerData.id,
+                                         input: port,
+                                         value: firstValue)
+                    }
+                    
+                    return nil
+                    
+                case .upstreamConnection:
+                    // Ignore upstream connection
+                    return nil
+                }
             }
         
         self = .init(node_id: sidebarData.id.description,

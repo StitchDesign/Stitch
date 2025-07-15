@@ -303,7 +303,7 @@ extension LayerInputPort_V31.LayerInputPort {
     }
     
     /// Keypath mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputEntity> {
+    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity_V31.LayerNodeEntity, LayerInputEntity_V31.LayerInputEntity> {
         switch self {
             
         // Required
