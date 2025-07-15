@@ -369,26 +369,43 @@ extension SyntaxViewModifierName {
 }
 
 extension SyntaxViewName {
-    
     /// Leaf-level mapping for **this** node only
     func deriveLayerData(id: UUID,
                          args: ViewConstructorType?,
                          modifiers: [SyntaxViewModifier],
                          childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
-
-        // ── Base mapping from SyntaxViewName → Layer ────────────────────────
-        var (layerType, layerData) = try self
-            .deriveLayerAndCustomValuesFromName(id: id,
-                                                args: args?.defaultArgs ?? [],
-                                                childrenLayers: childrenLayers)
-           
-        if let viewConstructor = args {
+        var layerData: CurrentAIPatchBuilderResponseFormat.LayerData
+        let layerType: CurrentStep.Layer
+        
+        switch args {
+            
+        case .trackedConstructor(let constructor):
+            // Creates view data based on caller/constructor
             let customInputValuesFromViewConstructor = try self
-                .deriveInputValuesData(argsType: viewConstructor,
+                .deriveInputValuesData(viewConstructor: constructor,
+                                       id: id)
+            layerType = constructor.value.layer
+            layerData = .init(node_id: id.description,
+                              node_name: .init(value: .layer(constructor.value.layer)),
+                              custom_layer_input_values: customInputValuesFromViewConstructor.inputValues)
+            silentErrors += customInputValuesFromViewConstructor.silentErrors
+            
+        case .other, .none:
+            // Legacy handling
+            let args = args?.defaultArgs ?? []
+            
+            // ── Base mapping from SyntaxViewName → Layer ────────────────────────
+            (layerType, layerData) = try self
+                .deriveLayerAndCustomValuesFromName(id: id,
+                                                    args: args,
+                                                    childrenLayers: childrenLayers)
+            
+            let customInputValuesFromViewConstructor = try self
+                .deriveInputValuesData(args: args,
                                        id: id,
                                        layerType: layerType)
-
+                    
             layerData.custom_layer_input_values += customInputValuesFromViewConstructor.inputValues
             silentErrors += customInputValuesFromViewConstructor.silentErrors
         }
@@ -430,55 +447,57 @@ extension SyntaxViewName {
                      silentErrors: silentErrors)
     }
     
-    func deriveInputValuesData(argsType: ViewConstructorType,
+    func deriveInputValuesData(viewConstructor: ViewConstructor,
+                               id: UUID) throws -> LayerInputValuesDerivationResult {
+        var silentErrors = [SwiftUISyntaxError]()
+        let layerType = viewConstructor.value.layer
+        
+        // Handle constructor-arguments
+        // Try to access the SyntaxView.ViewConstructor, if we have one
+        let customInputValues = try viewConstructor.value
+            .createCustomValueEvents()
+        
+        let values = try customInputValues.map { astInputValue in
+            try CurrentAIPatchBuilderResponseFormat
+                .CustomLayerInputValue(id: id,
+                                       input: astInputValue.input,
+                                       value: astInputValue.value)
+        }
+        return .init(inputValues: values,
+                     silentErrors: silentErrors)
+    }
+    
+    func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
                                layerType: CurrentStep.Layer) throws -> LayerInputValuesDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         
-        switch argsType {
-        case .trackedConstructor(let viewConstructor):
-            // Handle constructor-arguments
-            // Try to access the SyntaxView.ViewConstructor, if we have one
-            let customInputValues = try viewConstructor.value
-                .createCustomValueEvents()
-            
-            let values = try customInputValues.map { astInputValue in
-                try CurrentAIPatchBuilderResponseFormat
-                    .CustomLayerInputValue(id: id,
-                                           input: astInputValue.input,
-                                           value: astInputValue.value)
+        // Else fall back to legacy style:
+        var values = try args.flatMap { arg -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
+            do {
+                return try self
+                    .deriveCustomValuesFromConstructorArgument(id: id,
+                                                               layerType: layerType,
+                                                               arg: arg)
+            } catch let error as SwiftUISyntaxError {
+                silentErrors.append(error)
+                return []
+            } catch {
+                throw error
             }
-            return .init(inputValues: values,
-                         silentErrors: silentErrors)
-            
-        case .other(let args):
-            // Else fall back to legacy style:
-            var values = try args.flatMap { arg -> [CurrentAIPatchBuilderResponseFormat.CustomLayerInputValue] in
-                do {
-                    return try self
-                        .deriveCustomValuesFromConstructorArgument(id: id,
-                                                                   layerType: layerType,
-                                                                   arg: arg)
-                } catch let error as SwiftUISyntaxError {
-                    silentErrors.append(error)
-                    return []
-                } catch {
-                    throw error
-                }
-            }
-
-            // TODO: remove and rely on ScrollViewConstructor instead
-            if args.isEmpty && self == .scrollView {
-                values += [
-                    try .init(id: id,
-                              input: .scrollYEnabled,
-                              value: .bool(true))
-                ]
-            }
-            
-            return .init(inputValues: values,
-                         silentErrors: silentErrors)
         }
+        
+        // TODO: remove and rely on ScrollViewConstructor instead
+        if args.isEmpty && self == .scrollView {
+            values += [
+                try .init(id: id,
+                          input: .scrollYEnabled,
+                          value: .bool(true))
+            ]
+        }
+        
+        return .init(inputValues: values,
+                     silentErrors: silentErrors)
     }
     
     func deriveLayerAndCustomValuesFromName(
