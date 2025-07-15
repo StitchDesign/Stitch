@@ -310,6 +310,8 @@
 		B5CB68362CC9A0D700DFC660 /* LayersSidebarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB68352CC9A0D300DFC660 /* LayersSidebarViewModel.swift */; };
 		B5CB82F4283D987F00FE29A6 /* StitchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB82F3283D987F00FE29A6 /* StitchStore.swift */; };
 		B5CEA0B32E26FC0000A647FD /* AIGraphData_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */; };
+		B5CEA0B62E27084D00A647FD /* AIGraphDataUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */; };
+		B5CEA0B82E2713B000A647FD /* AIGraphDataLayerUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */; };
 		B5CEC1A428F8D95700BE083E /* StitchAVCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEC1A328F8D95700BE083E /* StitchAVCaptureSession.swift */; };
 		B5CF6448294B8AF700EF83DB /* StitchButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF6447294B8AF700EF83DB /* StitchButton.swift */; };
 		B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF6449294B8B6200EF83DB /* NodeTitleTextField.swift */; };
@@ -1462,6 +1464,8 @@
 		B5CB68352CC9A0D300DFC660 /* LayersSidebarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersSidebarViewModel.swift; sourceTree = "<group>"; };
 		B5CB82F3283D987F00FE29A6 /* StitchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchStore.swift; sourceTree = "<group>"; };
 		B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphData_V0.swift; sourceTree = "<group>"; };
+		B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataUtil_V0.swift; sourceTree = "<group>"; };
+		B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataLayerUtil_V0.swift; sourceTree = "<group>"; };
 		B5CEC1A328F8D95700BE083E /* StitchAVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAVCaptureSession.swift; sourceTree = "<group>"; };
 		B5CF6447294B8AF700EF83DB /* StitchButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchButton.swift; sourceTree = "<group>"; };
 		B5CF6449294B8B6200EF83DB /* NodeTitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTitleTextField.swift; sourceTree = "<group>"; };
@@ -4439,7 +4443,9 @@
 		B5CEA0B12E26FAE300A647FD /* AIGraphData */ = {
 			isa = PBXGroup;
 			children = (
+				B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */,
 				B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */,
+				B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */,
 			);
 			path = AIGraphData;
 			sourceTree = "<group>";
@@ -6500,6 +6506,7 @@
 				EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */,
 				EC0A7A452DDA8EC8004C1698 /* ActivelyDrawnEdge.swift in Sources */,
 				ECA92A00260A694C00281B52 /* PressInteractionPatchNode.swift in Sources */,
+				B5CEA0B62E27084D00A647FD /* AIGraphDataUtil_V0.swift in Sources */,
 				ECF0B0EE28775FEA001D7CFC /* PulseNode.swift in Sources */,
 				ECA4D99927BED73C005CF4BC /* AdjustmentNumber.swift in Sources */,
 				EC4379F32BA4FAF60077493E /* PortValueEnum.swift in Sources */,
@@ -6729,6 +6736,7 @@
 				ECA6BB66280F2FC500695290 /* EdgeDrawingView.swift in Sources */,
 				EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */,
 				ECB7B5D12A72DD7600E2D30B /* NodeViewModelType.swift in Sources */,
+				B5CEA0B82E2713B000A647FD /* AIGraphDataLayerUtil_V0.swift in Sources */,
 				EC4081272C014CD70047989F /* StitchRootModifier.swift in Sources */,
 				EC6A70622E22D364009ED3C1 /* DeclarativeViewConstructorsDemoView.swift in Sources */,
 				ECB238EF2E0B958700D55A25 /* deriveSyntaxFromLayerInput.swift in Sources */,
