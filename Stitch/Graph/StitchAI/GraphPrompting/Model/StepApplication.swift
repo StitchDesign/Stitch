@@ -356,7 +356,23 @@ func positionAIGeneratedNodesDuringApply(
     depthLevels.forEach { depthLevel in
 
         log("on depthLevel: \(depthLevel)")
+
+        // ────────────────  vertical layout helpers  ────────────────
+        let verticalPadding: CGFloat = 80.0            // space between rows
+        // Determine a single row‑height for this depth column: the tallest observer + padding
+        let rowHeight: CGFloat = {
+            let maxH = createdNodes.compactMap { depthMap.get($0) == depthLevel ? nodes.getNode($0) : nil }
+                .flatMap { node in
+                    node.getAllCanvasObservers().compactMap { obs in
+                        obs.getHardcodedSize(graph)?.height ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+                    }
+                }
+                .max() ?? CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER
+            return maxH + verticalPadding
+        }()
         
+        var rowIndexForDepth = 0  // increments for every observer we lay out in this depth column
+
         // TODO: just rewrite the adjacency logic to be a mapping of [Int: [UUID]] instead of [UUID: Int]
         // Find all the created-nodes at this depth-level,
         // and adjust their positions
@@ -371,32 +387,18 @@ func positionAIGeneratedNodesDuringApply(
         
         createdNodesAtThisLevel.enumerated().forEach { x in
             let createdNode = x.element
-            let createdNodeIndexAtThisDepthLevel = x.offset
-            // log("positionAIGeneratedNodes: createdNode.id: \(createdNode.id)")
-            // log("positionAIGeneratedNodes: createdNodeIndexAtThisDepthLevel: \(createdNodeIndexAtThisDepthLevel)")
             
             createdNode.getAllCanvasObservers().enumerated().forEach { x in
-                
                 let canvasItem = x.element
-                let canvasItemIndex = x.offset
                 
-                var size: CGSize = canvasItem.getHardcodedSize(graph)
-                ?? CGSize(width: CANVAS_ITEM_ADDED_VIA_LLM_STEP_WIDTH_STAGGER,
-                          height: CANVAS_ITEM_ADDED_VIA_LLM_STEP_HEIGHT_STAGGER)
-                
-                log("positionAIGeneratedNodes: size for \(canvasItem.id): \(String(describing: size))")
-                
-                // Add some 'padding' to the canvas item's size, so items do not end up right next to each other
-                let padding: CGFloat = horizontalPadding
-                size.width += padding
-                size.height += padding
-                               
-                let newPosition =  CGPoint(
+                let newPosition = CGPoint(
                     x: viewPortCenter.x + (cumulativeXOffset[depthLevel] ?? 0),
-                    y: viewPortCenter.y + (CGFloat(canvasItemIndex) * size.height) + (CGFloat(createdNodeIndexAtThisDepthLevel) * size.height)
+                    y: viewPortCenter.y + CGFloat(rowIndexForDepth) * rowHeight
                 )
                 
-                log("positionAIGeneratedNodes: newPosition: \(newPosition)")
+                rowIndexForDepth += 1   // advance to next row
+
+                // log("positionAIGeneratedNodes: newPosition: \(newPosition)")
                 canvasItem.position = newPosition
                 canvasItem.previousPosition = newPosition
             }
