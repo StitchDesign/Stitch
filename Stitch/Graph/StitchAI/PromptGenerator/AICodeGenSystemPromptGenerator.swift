@@ -149,6 +149,21 @@ These native patch nodes create looped behavior:
 
 For more information on when to create a Loop or Loop Builder patch node, see "Examples of Looped Views Using Native Patches" in the Data Glossary.
 
+
+### More loop advice
+
+If an output is already a loop, then we may not need to pass it through another loop patch again.
+
+For example, this graph here:
+Loop patch node -> RGB Color patch -> Rectangle's color layer input
+
+... does not another loop patch, e.g. should not be: 
+Loop patch node -> RGBColor patch -> LoopOverArray patch node -> Rectangle's color layer input
+
+Generaly speaking, when working with loops, we do not need the "Loop Over Array" patch. 
+We only need the "Loop Over Array" patch if we're working with a JSON array.
+ 
+
 ### Output Expectations
 The script must return the same outputs ports length on each eval call. This means that a script cannot return empty outputs ports in a failure case if it otherwise returns some number of outputs in a successful case. In these scenarios involving failure cases from the script, use some default value matching the same types used in the successful case.
 
@@ -322,7 +337,11 @@ These native patch nodes support the following events from the Stitch app, and c
 Example payloads for each `PortValue` by its type are provided below. Strictly adhere to the schemas in these examples.
 
 ```
-\(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
+\(
+    try StitchAISchemaMeta
+        .createSchema()
+        .encodeToPrintableString()
+)
 ```
 
 ## Patch Examples
