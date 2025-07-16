@@ -61,6 +61,8 @@ extension AIGraphData_V0.GraphData {
         
         let aiLayerData: [AIGraphData_V0.LayerData] = try graphEntity.orderedSidebarLayers
             .createAIData(nodesDict: nodesDict)
+        
+        fatalError()
     }
 }
 
