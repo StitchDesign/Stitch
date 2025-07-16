@@ -8,6 +8,22 @@
 import SwiftUI
 import StitchSchemaKit
 
+/// Only used for supplying graph data for edit scenarios.
+enum AIGraphDataSchema_V0 {
+    struct AIGraphDataSchemaWrapper: OpenAISchemaDefinable {
+        let defs = AIPatchBuilderResponseFormat_V0.PatchBuilderStructuredOutputsDefinitions()
+        let schema = OpenAISchema(type: .object,
+                                  properties: AIGraphDataSchema(),
+                                  required: ["layer_data_list", "patch_data"])
+        
+    }
+    
+    struct AIGraphDataSchema: Encodable {
+        let layer_data_list = OpenAISchemaRef(ref: "LayerNodes")
+        let patch_data = OpenAISchemaRef(ref: "PatchData")
+    }
+}
+
 enum AIPatchBuilderResponseFormat_V0 {
     struct AIPatchBuilderResponseFormat: OpenAIResponseFormatable {
         let type = "json_schema"
@@ -21,9 +37,7 @@ enum AIPatchBuilderResponseFormat_V0 {
     
     struct PatchBuilderStructuredOutputsPayload: OpenAISchemaDefinable {
         let defs = PatchBuilderStructuredOutputsDefinitions()
-        let schema = OpenAISchema(type: .object,
-                                  properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                  required: ["javascript_patches", "native_patches", "native_patch_value_type_settings", "patch_connections", "layer_connections", "custom_patch_input_values"])
+        let schema = OpenAISchemaRef(ref: "PatchData")
         let strict = true
     }
 
@@ -41,7 +55,11 @@ enum AIPatchBuilderResponseFormat_V0 {
             .map { $0.asLLMStepPort }
         )
         
-        let Layer_Nodes = OpenAISchema(
+        let PatchData = OpenAISchema(type: .object,
+                                     properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
+                                     required: ["javascript_patches", "native_patches", "native_patch_value_type_settings", "patch_connections", "layer_connections", "custom_patch_input_values"])
+        
+        let LayerNodes = OpenAISchema(
             type: .array,
             required: ["node_id", "node_name", "custom_layer_input_values"],
             description: "A nested list of layer nodes to be created in the graph.",
@@ -115,7 +133,7 @@ enum AIPatchBuilderResponseFormat_V0 {
         let node_id = OpenAISchema(type: .string)
         let suggested_title = OpenAISchema(type: .string)
         let node_name = OpenAISchemaRef(ref: "NodeName")
-        let children = OpenAISchemaRef(ref: "Layer_Nodes")
+        let children = OpenAISchemaRef(ref: "LayerNodes")
         let custom_layer_input_values = OpenAISchema(
             type: .array,
             required: ["layer_input_coordinate", "value", "value_type"],
