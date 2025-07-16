@@ -15,6 +15,21 @@ import StitchSchemaKit
 // TODO: if you have e.g. (0.25, 0.75), what (0 vs 0.5 vs 1) anchor point does that become?
 // Round up? Round down?
 
+extension CurrentStitchAIPortValue.PortValueVersion.Anchoring { // : PortValueEnum {
+    
+    // The traditional
+    static let topLeft: Self = .init(x: Self.left, y: Self.top)
+    static let topCenter: Self = .init(x: Self.center, y: Self.top)
+    static let topRight: Self = .init(x: Self.right, y: Self.top)
+    static let centerLeft: Self = .init(x: Self.left, y: Self.center)
+    // fka `center`
+    static let centerCenter: Self = .init(x: Self.center, y: Self.center)
+    static let centerRight: Self = .init(x: Self.right, y: Self.center)
+    static let bottomLeft: Self = .init(x: Self.left, y: Self.bottom)
+    static let bottomCenter: Self = .init(x: Self.center, y: Self.bottom)
+    static let bottomRight: Self = .init(x: Self.right, y: Self.bottom)
+}
+
 
 // "how a view anchors itself within the parent"
 extension Anchoring { // : PortValueEnum {

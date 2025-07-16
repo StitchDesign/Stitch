@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct SwiftSyntaxActionsResult: Encodable {
-    var actions: [CurrentAIPatchBuilderResponseFormat.LayerData]
+    var actions: [CurrentAIGraphData.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }
 
@@ -45,9 +45,7 @@ extension SyntaxView {
         do {
             let layerDataResult = try self.name.deriveLayerData(
                 id: self.id,
-                viewConstructor: self.constructor,
                 args: self.constructorArguments,
-//                args: [],
                 modifiers: self.modifiers,
                 childrenLayers: childResults.actions)
             
@@ -59,7 +57,7 @@ extension SyntaxView {
                 throw SwiftUISyntaxError.layerDecodingFailed
             }
             
-            if !layer.isGroup {
+            if !layer.isGroupForAI {
                 // Make sure non-grouped layer has no children
                 assertInDebug(childResults.actions.isEmpty)
                 layerData.children = nil
@@ -86,32 +84,38 @@ extension SyntaxView {
 extension SyntaxViewName {
     /// Handles ScrollView-specific logic including axis detection and scroll behavior
     static func createScrollGroupLayer(args: [SyntaxViewArgumentData],
-                                       childrenLayers: [CurrentAIPatchBuilderResponseFormat.LayerData]) throws -> CurrentAIPatchBuilderResponseFormat.LayerData {
+                                       childrenLayers: [CurrentAIGraphData.LayerData]) throws -> CurrentAIGraphData.LayerData {
         // Check the scroll axis from constructor arguments
         // let scrollAxis = Self.detectScrollAxis(args: args)
       
-        var groupLayer: CurrentAIPatchBuilderResponseFormat.LayerData  
-        let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroup ?? false
+        // var groupLayer: CurrentAIGraphData.LayerData
+        let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroupForAI ?? false
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         
         // Create a new nested VStack if no root group
         if hasRootGroupLayer,
-           let _groupData = childrenLayers.first {
-            groupLayer = _groupData
+           let _groupData: CurrentAIGraphData.LayerData = childrenLayers.first {
+            return _groupData
         } else if !hasRootGroupLayer {
             // Add new node as middle-man
-            let newGroupNode = CurrentAIPatchBuilderResponseFormat
-                .LayerData(node_id: UUID().description,
+            let newId = UUID()
+            let newGroupNode = CurrentAIGraphData
+                .LayerData(node_id: newId.description,
                            node_name: .init(value: .layer(.group)),
-                           children: childrenLayers)
-            
-            groupLayer = newGroupNode
+                           children: childrenLayers,
+                           // the new group node should be a VStack, i.e. a layer group with orientation = .vertical
+                           custom_layer_input_values: [
+                            try AIGraphData_V0.CustomLayerInputValue.init(
+                                id: newId,
+                                input: .orientation,
+                                value: .orientation(.vertical))
+                           ])
+                        
+            return newGroupNode
         } else {
             fatalErrorIfDebug("Unexpected scenario for groups in scroll.")
             throw SwiftUISyntaxError.groupLayerDecodingFailed
         }
-        
-        return groupLayer
     }
 }
 

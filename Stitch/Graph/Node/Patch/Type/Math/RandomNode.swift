@@ -24,7 +24,7 @@ struct RandomPatchNode: PatchNodeDefinition {
                     defaultType: .number
                 ),
                 .init(
-                    defaultValues: [.number(50)],
+                    defaultValues: [.number(1)],
                     label: "End Value"
                 )
             ],

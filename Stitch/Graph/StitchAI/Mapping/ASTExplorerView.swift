@@ -44,7 +44,7 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchActions: [CurrentAIPatchBuilderResponseFormat.LayerData] = []
+    @State private var stitchActions: [CurrentAIGraphData.LayerData] = []
     @State private var rebuiltSyntax: [SyntaxView] = []
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
@@ -271,7 +271,7 @@ struct ASTExplorerView: View {
 
 
 // MARK: – Pretty‑printing helpers for VPL actions
-private extension CurrentAIPatchBuilderResponseFormat.LayerData? {
+private extension CurrentAIGraphData.LayerData? {
 
     /// Pretty‑printed JSON with the nested `{ "orientation": { } }`
     /// (or `{ "bool": { } }`, etc.) collapsed to a single string value so the

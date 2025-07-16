@@ -14,7 +14,8 @@ struct StitchAISchemaMeta: Encodable {
 
 extension StitchAISchemaMeta {
     static func createSchema() -> Self {
-        let valueTypes = StitchAINodeType.allCases.filter { $0 != .none }
+//        let valueTypes = StitchAINodeType.allCases.filter { $0 != .none }
+        let valueTypes = StitchAINodeType.allCases.filter { $0 != .none && $0 != .scrollMode }
         let schema = StitchAISchemaMeta(valueTypes: valueTypes.map { .init(type: $0) })
         return schema
     }

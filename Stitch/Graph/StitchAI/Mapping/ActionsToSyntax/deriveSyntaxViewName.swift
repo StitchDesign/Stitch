@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension CurrentStep.Layer {
+extension CurrentAIGraphData.Layer {
     
     func deriveSyntaxViewName(layerGroupOrientiation: StitchOrientation? = nil) throws -> SyntaxViewName {
         

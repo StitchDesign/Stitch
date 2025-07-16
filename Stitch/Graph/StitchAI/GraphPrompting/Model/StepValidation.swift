@@ -64,3 +64,35 @@ extension Array where Element == any StepActionable {
 }
 
 
+@MainActor
+func calculateAINodesAdjacency(
+    nodes: VisibleNodesViewModel
+) -> (depthMap: DepthMap?,
+      hasCycle: Bool) {
+    
+    let adjacency = AdjacencyCalculator()
+    
+    nodes.nodes.values.forEach { node in
+        node.getAllInputsObservers().forEach { (inputObserver: InputNodeRowObserver) in
+            if let upstreamOutput = inputObserver.upstreamOutputCoordinate {
+                adjacency.addEdge(from: upstreamOutput.nodeId,
+                                  to: inputObserver.id.nodeId)
+            }
+        }
+    }
+    
+    let (depthMap, hasCycle) = adjacency.computeDepth()
+    
+    if var depthMap = depthMap, !hasCycle {
+        // If we did not have a cycle, also add those nodes which did not have a connection;
+        // Node without connection = node with depth level 0
+        nodes.nodes.keys.forEach {
+            if !depthMap.get($0).isDefined {
+                depthMap.updateValue(0, forKey: $0)
+            }
+        }
+        return (depthMap, hasCycle)
+    } else {
+        return (depthMap, hasCycle)
+    }
+}

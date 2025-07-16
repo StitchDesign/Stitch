@@ -42,14 +42,15 @@ struct StitchApp: App {
     }
 
 //#if DEV_DEBUG
-//    var body: some Scene {
-//        WindowGroup {
+#if STITCH_AI_TESTING
+    var body: some Scene {
+        WindowGroup {
 //            ConstructorDemoView()
-////             VarBodyParserDemoView()
-////             ASTExplorerView()
-//        }
-//    }
-//#else
+//             VarBodyParserDemoView()
+             ASTExplorerView()
+        }
+    }
+#else
     var body: some Scene {
         WindowGroup {
             
@@ -115,6 +116,6 @@ struct StitchApp: App {
         }
         #endif
     }
-//#endif
+#endif
 }
 

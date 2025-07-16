@@ -83,6 +83,14 @@ These native patch nodes create looped behavior:
 * `loop || Patch`: creates a looped output where each value represents the index of that loop. This is commonly used to create an arbitrary loop length to create a desired quantity of looped layers.
 * `loopBuilder || Patch`: packs each input into a single looped output port. Loop Builder patches can contain any number of input ports, and are useful when specific values are desired when constructing a loop.
 For more information on when to create a Loop or Loop Builder patch node, see "Examples of Looped Views Using Native Patches" in the Data Glossary.
+### More loop advice
+If an output is already a loop, then we may not need to pass it through another loop patch again.
+For example, this graph here:
+Loop patch node -> RGB Color patch -> Rectangle's color layer input
+... does not another loop patch, e.g. should not be: 
+Loop patch node -> RGBColor patch -> LoopOverArray patch node -> Rectangle's color layer input
+Generaly speaking, when working with loops, we do not need the "Loop Over Array" patch. 
+We only need the "Loop Over Array" patch if we're working with a JSON array. 
 ### Output Expectations
 The script must return the same outputs ports length on each eval call. This means that a script cannot return empty outputs ports in a failure case if it otherwise returns some number of outputs in a successful case. In these scenarios involving failure cases from the script, use some default value matching the same types used in the successful case.
 An output port cannot have empty values. There should be a minimum of one value at each output port.
@@ -145,7 +153,7 @@ The listed views below are the only permitted views inside a `var body`:
 ["AngularGradient", "Canvas", "Circle", "Ellipse", "Grid", "LazyHGrid", "LazyHStack", "LazyVGrid", "LazyVStack", "Map", "Material", "Model3D", "ProgressView", "RadialGradient", "Rectangle", "RoundedRectangle", "ScrollView", "Text", "TextField", "Toggle", "VideoPlayer", "VStack", "HStack", "ZStack", "Image", "LinearGradient", "SecureField"]
 ```
 ### Disallowed Views
-* `GeometryReader`: use the "deviceInfo || Patch" native patch funciton for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
+* `GeometryReader`: use the "deviceInfo || Patch" native patch function for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
 * `Spacer`: use `rectangle || Layer` with opacity = 0 and size = auto or some specific size that makes sense for the layout.
 The full list of unsupported views includes:
 ```
@@ -317,10 +325,6 @@ Example payloads for each `PortValue` by its type are provided below. Strictly a
     {
       "example" : null,
       "type" : "layer"
-    },
-    {
-      "example" : "free",
-      "type" : "scrollMode"
     },
     {
       "example" : "left",
@@ -13174,7 +13178,21 @@ ScrollView([.vertical]) {
     Ellipse()
 }
 ```
-Invalid because axes were not specified:
+Invalid because ScrollView contains a non-stack view (i.e. a view that is something other than a VStack or HStack or Grid) as its immediate child.
+```swift
+ScrollView([.vertical]) {
+    Rectangle()
+}
+
+Also invalid because ScrollView contains a non-stack view (i.e. a view that is something other than a VStack or HStack or Grid) as its immediate child.
+```swift
+ScrollView([.horizontal]) {
+    Ellipse()
+    Text("love")
+}
+```
+```
+Invalid because no axes were specified:
 ```swift
 ScrollView() {
     HStack { 
@@ -13305,6 +13323,124 @@ The prototype window's color is usually white, so a white shape will not show up
 
 Unless user has explicitly asked for a specific size, use "fill" for both width and height on the layer group.   
 
+## Usually, a looped view should be in a ScrollView or VStack or HStack
 
+We currently blacklist SwiftUI's ForEach View. 
+If we use a loop, usually the looped view should be in a ScrollView or VStack or HStack.
+
+
+Example of bad code: ContentView uses a loop, but the Rectangle is all alone, it has no parent view:
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State var rectColors: PortValueDescription = PortValueDescription(value: ["#FF0000FF"], value_type: "color")
+    
+    var body: some View {
+        Rectangle()
+            .fill(rectColors)
+            .layerId("D9F5E8A2-1234-5678-ABCD-1234567890AB")
+    }
+    
+    func updateLayerInputs() {
+        let loopOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]([
+            [PortValueDescription(value: 100, value_type: "number")]
+        ])
+        let indices = loopOutputs[0]
+        
+        let rOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+            indices,
+            [PortValueDescription(value: 0, value_type: "number")],
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let rList = rOutputs[0]
+        
+        let gOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+            indices,
+            [PortValueDescription(value: 0, value_type: "number")],
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let gList = gOutputs[0]
+        
+        let bOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+            indices,
+            [PortValueDescription(value: 0, value_type: "number")],
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let bList = bOutputs[0]
+        
+        let rgbOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([
+            rList,
+            gList,
+            bList,
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let colorList = rgbOutputs[0]
+        
+        let values = colorList.map { $0.value }
+        rectColors = PortValueDescription(value: values, value_type: "color")
+    }
+}
+```
+
+Example of good code: ContentView uses a loop, and the Rectangle is the child of a parent like ScrollView or VStack or HStack:
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State var rectColors: PortValueDescription = PortValueDescription(value: ["#FF0000FF"], value_type: "color")
+    
+    var body: some View {
+        ScrollView([.vertical]) {
+            Rectangle()
+                .fill(rectColors)
+                .layerId("D9F5E8A2-1234-5678-ABCD-1234567890AB")
+        }
+        
+    }
+    
+    func updateLayerInputs() {
+        let loopOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]([
+            [PortValueDescription(value: 100, value_type: "number")]
+        ])
+        let indices = loopOutputs[0]
+        
+        let rOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+            indices,
+            [PortValueDescription(value: 0, value_type: "number")],
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let rList = rOutputs[0]
+        
+        let gOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+            indices,
+            [PortValueDescription(value: 0, value_type: "number")],
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let gList = gOutputs[0]
+        
+        let bOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
+            indices,
+            [PortValueDescription(value: 0, value_type: "number")],
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let bList = bOutputs[0]
+        
+        let rgbOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([
+            rList,
+            gList,
+            bList,
+            [PortValueDescription(value: 1, value_type: "number")]
+        ])
+        let colorList = rgbOutputs[0]
+        
+        let values = colorList.map { $0.value }
+        rectColors = PortValueDescription(value: values, value_type: "color")
+    }
+}
+```
+ 
 # Final Thoughts
 **The entire return payload must be Swift source code, emitted as a string.**

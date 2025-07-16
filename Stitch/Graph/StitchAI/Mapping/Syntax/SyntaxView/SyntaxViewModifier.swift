@@ -10,13 +10,13 @@ import SwiftSyntax
 import SwiftParser
 
 
-struct SyntaxViewModifier: Equatable, Hashable, Sendable {
+struct SyntaxViewModifier: Equatable, Sendable, Encodable {
 
     // representation of a SwiftUI view modifier name
     let name: SyntaxViewModifierName
     
     // representation of argument(s) to SwiftUI view modifer
-    var arguments: [SyntaxViewArgumentData]
+    var arguments: ViewConstructorType
 }
 
 
@@ -33,17 +33,17 @@ struct SyntaxViewModifier: Equatable, Hashable, Sendable {
  )
  ```
  */
-struct SyntaxViewArgumentData: Equatable, Hashable, Sendable {
+struct SyntaxViewArgumentData: Equatable, Hashable, Sendable, Encodable {
     let label: String? //SyntaxViewModifierArgumentLabel
     let value: SyntaxViewModifierArgumentType
 }
 
-struct SyntaxViewSimpleData: Hashable, Sendable {
+struct SyntaxViewSimpleData: Hashable, Sendable, Encodable {
     let value: String
     let syntaxKind: SyntaxArgumentLiteralKind
 }
 
-struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
+struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable, Encodable {
     let typeName: String
     
     let arguments: [SyntaxViewArgumentData]
@@ -61,17 +61,20 @@ struct SyntaxViewModifierComplexType: Equatable, Hashable, Sendable {
     )
  ```
  */
-indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable {
+indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Encodable {
     
     // e.g. .opacity(5.0)
     case simple(SyntaxViewSimpleData)
     
+    // e.g. a binding or `PortValueDescription`
     case complex(SyntaxViewModifierComplexType)
     
     case tuple([SyntaxViewArgumentData])
     
+    // e.g. `ScrollView([.horizontal, .vertical])`
     case array([SyntaxViewModifierArgumentType])
     
+    // e.g. `.fill(.yellow)` or `Color.yellow`; `ScrollView(.horizontal)`
     case memberAccess(SyntaxViewMemberAccess)
 }
 
@@ -113,7 +116,7 @@ extension SyntaxViewModifierArgumentType {
 
 // Note: easier to debug: looks better in debugger and print statements than `MemberAccessExprSyntax`, which contains other data and types we don't need
 // for e.g. "Color.yellow" or ".yellow"
-struct SyntaxViewMemberAccess: Equatable, Hashable, Sendable {
+struct SyntaxViewMemberAccess: Equatable, Hashable, Sendable, Encodable {
     let base: String? // e.g. "Color" in "Color.yellow"; or nil in ".yellow"
     let property: String // e.g. "yellow" in "Color.yellow" or ".yellow"
 }

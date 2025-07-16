@@ -9,33 +9,20 @@ import SwiftUI
 import SwiftSyntax
 import SwiftParser
 
-
-// MARK: - Parameter wrapper: literal vs. arbitrary expression ---------
+struct ASTCustomInputValue: Equatable, Hashable {
+    let input: CurrentAIGraphData.LayerInputPort
+    let value: CurrentAIGraphData.PortValue
+}
 
 /// A constructor argument that was either a compile‑time literal (`"logo"`,
-/// `.center`, `12`) or an arbitrary Swift expression (`myGap`, `foo()`, etc.).
-enum Parameter<Value: Equatable>: Equatable {
-    case literal(Value)
-    case expression(ExprSyntax)
+ /// `.center`, `12`) or an arbitrary Swift expression (`myGap`, `foo()`, etc.).
+ enum Parameter<Value: Equatable>: Equatable {
+     case literal(Value)
+     case expression(ExprSyntax)
 
-    /// Convenience for pattern‑matching in `toStitch`.
-    var literal: Value? {
-        if case .literal(let v) = self { return v }
-        return nil
-    }
-}
-
-enum ValueOrEdge: Equatable {
-    case value(CustomInputValue)
-    case edge(ExprSyntax)
-}
-
-struct CustomInputValue: Equatable, Hashable {
-    let input: LayerInputPort
-    let value: PortValue
-    
-    init(_ input: LayerInputPort,  _ value: PortValue) {
-        self.input = input
-        self.value = value
-    }
-}
+     /// Convenience for pattern‑matching in `toStitch`.
+     var literal: Value? {
+         if case .literal(let v) = self { return v }
+         return nil
+     }
+ }

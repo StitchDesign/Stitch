@@ -19,9 +19,9 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedViewModifierCall(SyntaxViewModifierName)
     
     // e.g. `.cornerRadius()`, when that view modifier *requires* an explicit number argument
-    case unsupportedConstructorArgument(CurrentStep.Layer, String?, SyntaxViewModifierArgumentFlatType?)
+    case unsupportedConstructorArgument(CurrentAIGraphData.Layer, String?, SyntaxViewModifierArgumentFlatType?)
     
-    case unsupportedViewModifierForLayer(SyntaxViewModifierName, CurrentStep.Layer)
+    case unsupportedViewModifierForLayer(SyntaxViewModifierName, CurrentAIGraphData.Layer)
     
     // Decoding from string
     case unsupportedSyntaxArgumentKind(String)
@@ -31,21 +31,23 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedSyntaxViewModifierArgumentName(String)
     case unsupportedComplexValueType(String)
     case unsupportedPortValueTypeDecoding(SyntaxViewModifierArgumentType)
+    case unsupportedConstructorForPortValueDecoding(ViewConstructor)
     
     case unsupportedLayer(SyntaxViewName)
 //    case unsupportedConstructorArgument(SyntaxViewArgumentData)
-    case unsupportedSyntaxFromLayerInput(CurrentStep.LayerInputPort)
-    case unsupportedSyntaxViewLayer(CurrentStep.Layer)
+    case unsupportedSyntaxFromLayerInput(CurrentAIGraphData.LayerInputPort)
+    case unsupportedSyntaxViewLayer(CurrentAIGraphData.Layer)
     
     case unsupportedLayerIdParsing([SyntaxViewArgumentData])
     
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed
     case layerDecodingFailed
-    case unexpectedPatchFound(CurrentStep.PatchOrLayer)
+    case unexpectedPatchFound(CurrentAIGraphData.PatchOrLayer)
     case portValueDataDecodingFailure
-    case layerEdgeDataFailure(AIPatchBuilderResponseFormat_V0.LayerConnection)
+    case layerEdgeDataFailure(CurrentAIGraphData.LayerConnection)
     case unexpectedPatchInputRowCount(Patch)
+    case portValueNotFound
     
     // Value decoding
     case noLabelFoundForComplexType
@@ -80,7 +82,9 @@ extension SwiftUISyntaxError {
                 .unsupportedComplexValueType,
                 .unsupportedViewModifier,
                 .unsupportedViewModifierForLayer,
-                .unexpectedPatchInputRowCount:
+                .unexpectedPatchInputRowCount,
+                .unsupportedConstructorForPortValueDecoding,
+                .portValueNotFound:
             return true
             
         default:
@@ -89,11 +93,11 @@ extension SwiftUISyntaxError {
     }
 }
 
-extension CurrentStep.LayerInputPort {
+extension CurrentAIGraphData.LayerInputPort {
     
     // MARK: 7/5 update: commenting out temporarily
 //    func toSwiftUISyntax(valueOrEdge: StitchValueOrEdge, // loops? should pass in `value` ?
-//                         layer: CurrentStep.Layer) throws -> FromLayerInputToSyntax {
+//                         layer: CurrentAIGraphData.Layer) throws -> FromLayerInputToSyntax {
 //        
 //        guard let value = valueOrEdge.getValue else {
 //            fatalErrorIfDebug("Incoming edges not yet handled")
@@ -392,7 +396,7 @@ extension CurrentStep.LayerInputPort {
 }
 
 
-extension CurrentStep.PortValue {
+extension CurrentAIGraphData.PortValue {
     
     var isMultifield: Bool {
         guard let migratedValue = try? self.migrate() else {
@@ -447,8 +451,8 @@ extension CurrentStep.PortValue {
 
 //extension CGPoint {
 //    func deriveSyntaxViewModifierArguments() -> [SyntaxViewModifierArgument] {
-//        let x = CurrentStep.PortValue.number(self.x)
-//        let y = CurrentStep.PortValue.number(self.y)
+//        let x = CurrentAIGraphData.PortValue.number(self.x)
+//        let y = CurrentAIGraphData.PortValue.number(self.y)
 //        return [
 //            SyntaxViewModifierArgument(
 //                label: .x,
@@ -470,8 +474,8 @@ extension CurrentStep.PortValue {
 
 //extension CurrentStitchAIPortValue.LayerSize {
 //    func deriveSyntaxViewModifierArguments() -> [SyntaxViewModifierArgument] {
-//        let width = CurrentStep.PortValue.layerDimension(self.width)
-//        let height = CurrentStep.PortValue.layerDimension(self.height)
+//        let width = CurrentAIGraphData.PortValue.layerDimension(self.width)
+//        let height = CurrentAIGraphData.PortValue.layerDimension(self.height)
 //        
 //        // TODO: may need to use different labels, e.g. `.minWidth` ?
 //        return [

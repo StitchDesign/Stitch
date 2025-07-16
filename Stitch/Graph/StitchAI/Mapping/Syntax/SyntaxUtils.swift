@@ -54,60 +54,15 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
 func formatSyntaxView(_ node: SyntaxView, indent: String = "") -> String {
     var result = "\(indent)SyntaxView("
     result += "\n\(indent)    name: \"\(node.name.rawValue)\","
-    // Include constructor (if available)
-    if let ctor = node.constructor {
-        result += "\n\(indent)    constructor: \(ctor),"
-    } else {
-        result += "\n\(indent)    constructor: nil,"
-    }
+    
+    let argsString = (try? node.constructorArguments.encodeToPrintableString()) ?? ""
+    let modifiersString = (try? node.modifiers.encodeToPrintableString()) ?? ""
     
     // Format arguments
-    result += "\n\(indent)    constructorArguments: ["
-    if !node.constructorArguments.isEmpty {
-        for (i, arg) in node.constructorArguments.enumerated() {
-            let label = "\(arg.label ?? "none")"
-            let valuesDesc = arg.value //values.map { "(\($0.value), \(describe($0.syntaxKind)))" }.joined(separator: ", ")
-            result += "\n\(indent)        (label: \(label), values: [\(valuesDesc)])"
-            if i < node.constructorArguments.count - 1 {
-                result += ","
-            }
-        }
-        result += "\n\(indent)    ],"
-    } else {
-        result += "],"
-    }
+    result += "\n\(indent)    constructorArguments: \n\(argsString)"
     
     // Format modifiers
-    result += "\n\(indent)    modifiers: ["
-    if !node.modifiers.isEmpty {
-        for (i, modifier) in node.modifiers.enumerated() {
-            result += "\n\(indent)        SyntaxViewModifier("
-            result += "\n\(indent)            name: \(modifier.name.rawValue),"
-            // value field removed
-            // Format modifier arguments
-            result += "\n\(indent)            arguments: ["
-            if !modifier.arguments.isEmpty {
-                for (j, arg) in modifier.arguments.enumerated() {
-                    let labelDesc = arg.label == nil ? "" : "\"\(arg.label!)\""
-                    let valueDesc = describe(arg.value)
-                    result += "\n\(indent)                (label: \(labelDesc), value: \(valueDesc))"
-                    if j < modifier.arguments.count - 1 {
-                        result += ","
-                    }
-                }
-                result += "\n\(indent)            ]"
-            } else {
-                result += "]"
-            }
-            result += "\n\(indent)        )"
-            if i < node.modifiers.count - 1 {
-                result += ","
-            }
-        }
-        result += "\n\(indent)    ],"
-    } else {
-        result += "],"
-    }
+    result += "\n\(indent)    modifiers: \n\(modifiersString)"
     
     // Format children recursively
     result += "\n\(indent)    children: ["

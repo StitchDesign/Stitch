@@ -80,6 +80,6 @@ enum AICodeGenRequestBody_V0 {
     }
     struct AICodeGenRequestInputs: Encodable {
         let user_prompt: String
-        let layer_list: SidebarLayerList
+        let current_graph_data: CurrentAIGraphData.GraphData
     }
 }
