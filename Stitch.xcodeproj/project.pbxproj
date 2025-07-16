@@ -4443,9 +4443,9 @@
 		B5CEA0B12E26FAE300A647FD /* AIGraphData */ = {
 			isa = PBXGroup;
 			children = (
-				B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */,
 				B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */,
 				B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */,
+				B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */,
 			);
 			path = AIGraphData;
 			sourceTree = "<group>";

@@ -13,16 +13,18 @@ enum AICodeGenError: Error {
 }
 
 extension AIGraphData_V0 {
-    typealias GraphEntity = GraphEntity_V31.GraphEntity
-    typealias NodeEntity = NodeEntity_V31.NodeEntity
-    typealias PatchNodeEntity = PatchNodeEntity_V31.PatchNodeEntity
-    typealias LayerNodeEntity = LayerNodeEntity_V31.LayerNodeEntity
-    typealias SidebarLayerData = SidebarLayerData_V31.SidebarLayerData
-    typealias NodeType = StitchAIPortValue_V0.NodeType
-    
-    // Exception to all versions which should be version 31
+    typealias GraphEntity = GraphEntity_V32.GraphEntity
+    typealias NodeEntity = NodeEntity_V32.NodeEntity
+    typealias PatchNodeEntity = PatchNodeEntity_V32.PatchNodeEntity
+    typealias LayerNodeEntity = LayerNodeEntity_V32.LayerNodeEntity
+    typealias SidebarLayerData = SidebarLayerData_V32.SidebarLayerData
+    typealias NodeType = UserVisibleType_V32.UserVisibleType
     typealias JavaScriptNodeSettings = JavaScriptNodeSettings_V32.JavaScriptNodeSettings
     typealias JavaScriptPortDefinition = JavaScriptPortDefinition_V32.JavaScriptPortDefinition
+    typealias Patch = Patch_V32.Patch
+    typealias Layer = Layer_V32.Layer
+    typealias LayerInputPort = LayerInputPort_V32.LayerInputPort
+    typealias PortValue = PortValue_V32.PortValue
 }
 
 extension AIGraphData_V0.GraphData {
@@ -37,7 +39,17 @@ extension AIGraphData_V0.GraphData {
         for nodeEntity in graphEntity.nodes {
             switch nodeEntity.nodeTypeEntity {
             case .patch(let patchNodeEntity):
-                if let jsData = patchNodeEntity...
+                // JS node scenario
+                if let jsData = patchNodeEntity.javaScriptNodeSettings {
+                    jsNodes.append( .init(from: jsData,
+                                          id: patchNodeEntity.id))
+                }
+                
+                // Native node scenario
+                else {
+                    nativeNodes.append(.init(node_id: patchNodeEntity.id.description,
+                                             node_name: .init(value: .patch(patchNodeEntity.patch))))
+                }
                 
             default:
                 continue
@@ -51,19 +63,19 @@ extension AIGraphData_V0.GraphData {
 
 extension AIGraphData_V0.JsPatchNode {
     init(from jsSettings: AIGraphData_V0.JavaScriptNodeSettings,
-         id: UUID) throws {
+         id: UUID) {
         self = .init(node_id: id.description,
                      javascript_source_code: jsSettings.script,
                      suggested_title: jsSettings.suggestedTitle,
-                     input_definitions: try jsSettings.inputDefinitions.map { try JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI(from: $0) },
-                     output_definitions: try jsSettings.outputDefinitions.map { try JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI(from: $0) })
+                     input_definitions: jsSettings.inputDefinitions.map { JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI(from: $0) },
+                     output_definitions: jsSettings.outputDefinitions.map { JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI(from: $0) })
     }
 }
 
-extension JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI {
-    init(from portSettings: AIGraphData_V0.JavaScriptPortDefinition) throws {
+extension JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI {
+    init(from portSettings: AIGraphData_V0.JavaScriptPortDefinition) {
         self = .init(label: portSettings.label,
-                     strict_type: try portSettings.strictType.convert(to: AIGraphData_V0.NodeType.self))
+                     strict_type: portSettings.strictType)
     }
 }
 
@@ -87,13 +99,13 @@ extension AIGraphData_V0.LayerData {
         // Recursively create children
         let children = try sidebarData.children?.createAIData(nodesDict: nodesDict)
         
-        let customInputValues: [AIGraphData_V0.CustomLayerInputValue] = try LayerInputPort_V31.LayerInputPort
+        let customInputValues: [AIGraphData_V0.CustomLayerInputValue] = try LayerInputPort_V32.LayerInputPort
             .allCases.compactMap { port in
                 let portData = layerData[keyPath: port.schemaPortKeyPath]
                 
                 switch portData.packedData.inputPort {
                 case .values(let values):
-                    let defaultData = port.getDefaultValue(for: layerData.layer)
+                    let defaultData = port.getDefaultValueForAI(for: layerData.layer)
                     
                     // Save data if different from default value
                     if let firstValue = values.first,
@@ -112,19 +124,18 @@ extension AIGraphData_V0.LayerData {
             }
         
         self = .init(node_id: sidebarData.id.description,
-                     node_name: .init(value: layerData.layer.patchOrLayer),
+                     node_name: .init(value: .layer(layerData.layer)),
                      children: children,
                      custom_layer_input_values: customInputValues)
     }
 }
 
-extension AIGraphData_V0.NodeEntity {
-    var layerNodeEntity: AIGraphData_V0.LayerNodeEntity? {
-        switch self.nodeTypeEntity {
-        case .layer(let layerNodeEntity):
-            return layerNodeEntity
-            
-        default:
+extension AIGraphData_V0.PatchOrLayer {
+    var layer: Layer_V32.Layer? {
+        switch self {
+        case .layer(let layer):
+            return layer
+        case .patch:
             return nil
         }
     }

@@ -9,8 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension LayerInputPort_V31.LayerInputPort {
-    func getDefaultValue(for layer: Layer_V31.Layer) -> PortValue_V31.PortValue {
+// MARK: - helpers here are redundant copies that we need for versioning
+
+extension LayerInputPort_V32.LayerInputPort {
+    func getDefaultValueForAI(for layer: Layer_V32.Layer) -> PortValue_V32.PortValue {
         switch self {
             // Required everywhere
         case .position:
@@ -283,27 +285,25 @@ extension LayerInputPort_V31.LayerInputPort {
             return .number(100)
         case .isScrollAuto:
             return .bool(true)
-            
-            // TODO: support after version 0
-//        case .beginEditing:
-//            return .pulse(.zero)
-//        case .endEditing:
-//            return .pulse(.zero)
-//        case .setText:
-//            return .pulse(.zero)
-//        case .textToSet:
-//            return stringDefault
-//        case .isSecureEntry:
-//            return .bool(false)
-//        case .isSpellCheckEnabled:
-//            return .bool(true)
-//        case .keyboardType:
-//            return KeyboardType.defaultKeyboardTypePortValue
+        case .beginEditing:
+            return .pulse(.zero)
+        case .endEditing:
+            return .pulse(.zero)
+        case .setText:
+            return .pulse(.zero)
+        case .textToSet:
+            return stringDefault
+        case .isSecureEntry:
+            return .bool(false)
+        case .isSpellCheckEnabled:
+            return .bool(true)
+        case .keyboardType:
+            return .keyboardType(.defaultKeyboard)
         }
     }
     
     /// Keypath mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity_V31.LayerNodeEntity, LayerInputEntity_V31.LayerInputEntity> {
+    var schemaPortKeyPathForAI: WritableKeyPath<LayerNodeEntity_V32.LayerNodeEntity, LayerInputEntity_V32.LayerInputEntity> {
         switch self {
             
         // Required
@@ -555,22 +555,20 @@ extension LayerInputPort_V31.LayerInputPort {
             return \.height3DPort
         case .isScrollAuto:
             return \.isScrollAutoPort
-            
-            // TODO: re-enable after version 0
-//        case .beginEditing:
-//            return \.beginEditingPort
-//        case .endEditing:
-//            return \.endEditingPort
-//        case .setText:
-//            return \.setTextPort
-//        case .textToSet:
-//            return \.textToSetPort
-//        case .isSecureEntry:
-//            return \.isSecureEntryPort
-//        case .isSpellCheckEnabled:
-//            return \.isSpellCheckEnabledPort
-//        case .keyboardType:
-//            return \.keyboardTypePort
+        case .beginEditing:
+            return \.beginEditingPort
+        case .endEditing:
+            return \.endEditingPort
+        case .setText:
+            return \.setTextPort
+        case .textToSet:
+            return \.textToSetPort
+        case .isSecureEntry:
+            return \.isSecureEntryPort
+        case .isSpellCheckEnabled:
+            return \.isSpellCheckEnabledPort
+        case .keyboardType:
+            return \.keyboardTypePort
         }
     }
 }
