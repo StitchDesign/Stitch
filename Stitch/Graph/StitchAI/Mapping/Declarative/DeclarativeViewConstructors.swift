@@ -37,6 +37,9 @@ enum ViewConstructor: Equatable, Encodable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
+        
+    // case scrollView(ScrollViewViewConstructor)
+    
     //    case vStack(VStackViewConstructor)
     //    case lazyHStack(LazyHStackViewConstructor)
     //    case lazyVStack(LazyVStackViewConstructor)
@@ -44,7 +47,7 @@ enum ViewConstructor: Equatable, Encodable {
     //    case ellipse(EllipseViewConstructor)
     //    case rectangle(RectangleViewConstructor)
     //    case roundedRectangle(RoundedRectangleViewConstructor)
-    case scrollView(ScrollViewViewConstructor)
+
     //    case zStack(ZStackViewConstructor)
     //    case textField(TextFieldViewConstructor)
     //    case angularGradient(AngularGradientViewConstructor)
@@ -56,6 +59,8 @@ enum ViewConstructor: Equatable, Encodable {
         case .text(let c):             return c
         case .image(let c):            return c
         case .hStack(let c):           return c
+        // case .scrollView(let c):       return c
+            
             //        case .vStack(let c):           return c.toStitch
             //        case .lazyHStack(let c):       return c.toStitch
             //        case .lazyVStack(let c):       return c.toStitch
@@ -63,7 +68,7 @@ enum ViewConstructor: Equatable, Encodable {
             //        case .ellipse(let c):          return c.toStitch
             //        case .rectangle(let c):        return c.toStitch
             //        case .roundedRectangle(let c): return c.toStitch
-        case .scrollView(let c):       return c // .toStitch
+        
             //        case .zStack(let c):           return c.toStitch
             //        case .textField(let c):        return c.toStitch
             //        case .angularGradient(let c):  return c.toStitch
@@ -97,11 +102,11 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
         if let ctor = HStackViewConstructor.from(arguments) {
             return .hStack(ctor)
         }
-    case .scrollView:
-        if let ctor = ScrollViewViewConstructor.from(arguments) {
-            return .scrollView(ctor)
-        }
-        
+//    case .scrollView:
+//        if let ctor = ScrollViewViewConstructor.from(arguments) {
+//            return .scrollView(ctor)
+//        }
+//        
 //        case .vStack:
 //            if let ctor = VStackViewConstructor.from(node).map(ViewConstructor.vStack) {
 //                attachConstructor(ctor)
@@ -723,186 +728,187 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //
 //// MARK: - ScrollView -------------------------------------------------------
 
-
-enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
-    /// ScrollView(axes:showIndicators:)
-    //    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
-    //                    showsIndicators: Parameter<Bool> = .literal(true))
-    
-    case parameters(axes: SyntaxViewModifierArgumentType?,
-                    showsIndicators: SyntaxViewModifierArgumentType?)
-    
-    // Will this now always produce a group?
-    var layer: AIGraphData_V0.Layer { .group }
-    
-    // MARK: Stitch mapping
-    ///
-    /// • Always returns `(.scroll, …)`
-    /// • `.horizontal`   →  scrollXEnabled = true
-    /// • `.vertical`     →  scrollYEnabled = true   (default if no arg)
-    /// • `[.horizontal, .vertical]` or `.all`
-    ///                    →  both scrollXEnabled & scrollYEnabled = true
-    /// • Any expression  →  single `.edge(expr)` (caller decides)
-    //    var toStitch: (Layer?, [ValueOrEdge])? {
-    //        guard case let .parameters(axes, _) = self else { return nil }
-    //        var list: [ValueOrEdge] = []
-    //
-    //        switch axes {
-    //        case .literal(let set):
-    //            // Axis.Set is an OptionSet; test for membership.
-    //            if set.contains(.horizontal) {
-    //                list.append(.value(.init(.scrollXEnabled, .bool(true))))
-    //            }
-    //            if set.contains(.vertical) {
-    //                list.append(.value(.init(.scrollYEnabled, .bool(true))))
-    //            }
-    //            if set == [.horizontal, .vertical] {
-    //                // Already handled by the contains checks, nothing extra
-    //            }
-    //            // If neither bit is set (shouldn’t happen), default to vertical
-    //            if list.isEmpty {
-    //                list.append(.value(.init(.scrollYEnabled, .bool(true))))
-    //            }
-    //
-    //        case .expression(let expr):
-    //            // Try to evaluate at compile‑time
-    //            if let litSet = expr.axisSetLiteral() {
-    //                if litSet.contains(.horizontal) {
-    //                    list.append(.value(.init(.scrollXEnabled, .bool(true))))
-    //                }
-    //                if litSet.contains(.vertical) || litSet.isEmpty {
-    //                    list.append(.value(.init(.scrollYEnabled, .bool(true))))
-    //                }
-    //            } else {
-    //                // Unresolved at compile‑time → forward as edge
-    //                list.append(.edge(expr))
-    //            }
-    //        }
-    //
-    //        return (
-    //            nil, // ScrollView does not technically correspond to a Stitch Layer
-    //            list
-    //        )
-    //    }
-    
-    // MARK: - ScrollView createCustomValueEvents
-    ///
-    /// • Enables scrollX / scrollY as before.
-    /// • Also sets `orientation`:
-    ///     – horizontal-only  → .horizontal
-    ///     – vertical-only *or* both  → .vertical
-    ///
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        guard case let .parameters(axesArg, _) = self else { return [] }
-        
-        func enable(_ port: LayerInputPort) -> ASTCustomInputValue {
-            .init(input: port, value: .bool(true))
-        }
-        
-        // ── Default when no `axes:` parameter is supplied
-        if axesArg == nil {
-            return [
-                enable(.scrollYEnabled),
-                .init(input: .orientation,
-                      value: .orientation(.vertical))
-            ]
-        }
-        
-        var enableX = false
-        var enableY = false
-        
-        switch axesArg! {
-            
-        // ----- .horizontal / .vertical / .all ------------------------------
-        case .memberAccess(let ma):
-            switch ma.property {
-            case "horizontal": enableX = true
-            case "vertical":   enableY = true
-            case "all":        enableX = true; enableY = true
-            default:
-                throw SwiftUISyntaxError
-                    .unsupportedConstructorForPortValueDecoding(.scrollView(self))
-            }
-            
-        // ----- [.horizontal, .vertical] etc. -------------------------------
-        case .array(let elements):
-            for el in elements {
-                if case let .memberAccess(ma) = el {
-                    switch ma.property {
-                    case "horizontal": enableX = true
-                    case "vertical":   enableY = true
-                    default: break
-                    }
-                }
-            }
-            if !enableX && !enableY {
-                throw SwiftUISyntaxError
-                    .unsupportedConstructorForPortValueDecoding(.scrollView(self))
-            }
-            
-        case .complex(let complexType):
-            return try handleComplexArgumentType(
-                complexType,
-                // Not relevant when working with `PortValueDescription` ?
-                context: nil)
-            
-            // What does PVD for `[.horizontal, .vertical]` look like? Do we get one PVD, or multiple?
-            // The returned PortValue is just a bool, i.e. not enough to tell us
-            .map { (pv: AIGraphData_V0.PortValueVersion.PortValue) in
-                    // TODO: there's not really a good way to turn
-                    // Can't know
-                    ASTCustomInputValue(input: .scrollYEnabled,
-                                        value: pv)
-                }
-            
-        default:
-            throw SwiftUISyntaxError
-                .unsupportedConstructorForPortValueDecoding(.scrollView(self))
-        }
-        
-        // Assemble events ---------------------------------------------------
-        var events: [ASTCustomInputValue] = []
-        if enableX { events.append(enable(.scrollXEnabled)) }
-        if enableY { events.append(enable(.scrollYEnabled)) }
-        
-        let orientationValue: PortValue = .orientation(
-            (enableX && !enableY) ? .horizontal : .vertical
-        )
-        events.append(.init(input: .orientation, value: orientationValue))
-        
-        return events
-    }
-    
-    static func from(_ args: [SyntaxViewArgumentData]) -> ScrollViewViewConstructor? {
-        // SwiftUI defaults: vertical scrolling & indicators shown
-        var axes: SyntaxViewModifierArgumentType?
-        var indicators: SyntaxViewModifierArgumentType?
-        
-        //        var axes: Parameter<Axis.Set> = .literal(.vertical)
-        //        var indicators: Parameter<Bool> = .literal(true)
-        
-        for arg in args {
-            // Identify the parameter by `label`
-            switch arg.label {
-            case nil,            // first unlabeled param is `Axis.Set`
-                "axes":
-                axes = arg.value
-                
-            case "showsIndicators":
-                //                if let bool = arg.value.boolLiteral {
-                //                    indicators = .literal(bool)
-                //                }
-                indicators = arg.value
-                
-            default:
-                break       // ignore `content:` closure and any unknown labels
-            }
-        }
-        
-        return .parameters(axes: axes, showsIndicators: indicators)
-    }
-    
-}
+//
+//// TODO: NOT USED ATM
+//enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
+//    /// ScrollView(axes:showIndicators:)
+//    //    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
+//    //                    showsIndicators: Parameter<Bool> = .literal(true))
+//    
+//    case parameters(axes: SyntaxViewModifierArgumentType?,
+//                    showsIndicators: SyntaxViewModifierArgumentType?)
+//    
+//    // Will this now always produce a group?
+//    var layer: AIGraphData_V0.Layer { .group }
+//    
+//    // MARK: Stitch mapping
+//    ///
+//    /// • Always returns `(.scroll, …)`
+//    /// • `.horizontal`   →  scrollXEnabled = true
+//    /// • `.vertical`     →  scrollYEnabled = true   (default if no arg)
+//    /// • `[.horizontal, .vertical]` or `.all`
+//    ///                    →  both scrollXEnabled & scrollYEnabled = true
+//    /// • Any expression  →  single `.edge(expr)` (caller decides)
+//    //    var toStitch: (Layer?, [ValueOrEdge])? {
+//    //        guard case let .parameters(axes, _) = self else { return nil }
+//    //        var list: [ValueOrEdge] = []
+//    //
+//    //        switch axes {
+//    //        case .literal(let set):
+//    //            // Axis.Set is an OptionSet; test for membership.
+//    //            if set.contains(.horizontal) {
+//    //                list.append(.value(.init(.scrollXEnabled, .bool(true))))
+//    //            }
+//    //            if set.contains(.vertical) {
+//    //                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+//    //            }
+//    //            if set == [.horizontal, .vertical] {
+//    //                // Already handled by the contains checks, nothing extra
+//    //            }
+//    //            // If neither bit is set (shouldn’t happen), default to vertical
+//    //            if list.isEmpty {
+//    //                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+//    //            }
+//    //
+//    //        case .expression(let expr):
+//    //            // Try to evaluate at compile‑time
+//    //            if let litSet = expr.axisSetLiteral() {
+//    //                if litSet.contains(.horizontal) {
+//    //                    list.append(.value(.init(.scrollXEnabled, .bool(true))))
+//    //                }
+//    //                if litSet.contains(.vertical) || litSet.isEmpty {
+//    //                    list.append(.value(.init(.scrollYEnabled, .bool(true))))
+//    //                }
+//    //            } else {
+//    //                // Unresolved at compile‑time → forward as edge
+//    //                list.append(.edge(expr))
+//    //            }
+//    //        }
+//    //
+//    //        return (
+//    //            nil, // ScrollView does not technically correspond to a Stitch Layer
+//    //            list
+//    //        )
+//    //    }
+//    
+//    // MARK: - ScrollView createCustomValueEvents
+//    ///
+//    /// • Enables scrollX / scrollY as before.
+//    /// • Also sets `orientation`:
+//    ///     – horizontal-only  → .horizontal
+//    ///     – vertical-only *or* both  → .vertical
+//    ///
+//    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+//        guard case let .parameters(axesArg, _) = self else { return [] }
+//        
+//        func enable(_ port: LayerInputPort) -> ASTCustomInputValue {
+//            .init(input: port, value: .bool(true))
+//        }
+//        
+//        // ── Default when no `axes:` parameter is supplied
+//        if axesArg == nil {
+//            return [
+//                enable(.scrollYEnabled),
+//                .init(input: .orientation,
+//                      value: .orientation(.vertical))
+//            ]
+//        }
+//        
+//        var enableX = false
+//        var enableY = false
+//        
+//        switch axesArg! {
+//            
+//        // ----- .horizontal / .vertical / .all ------------------------------
+//        case .memberAccess(let ma):
+//            switch ma.property {
+//            case "horizontal": enableX = true
+//            case "vertical":   enableY = true
+//            case "all":        enableX = true; enableY = true
+//            default:
+//                throw SwiftUISyntaxError
+//                    .unsupportedConstructorForPortValueDecoding(.scrollView(self))
+//            }
+//            
+//        // ----- [.horizontal, .vertical] etc. -------------------------------
+//        case .array(let elements):
+//            for el in elements {
+//                if case let .memberAccess(ma) = el {
+//                    switch ma.property {
+//                    case "horizontal": enableX = true
+//                    case "vertical":   enableY = true
+//                    default: break
+//                    }
+//                }
+//            }
+//            if !enableX && !enableY {
+//                throw SwiftUISyntaxError
+//                    .unsupportedConstructorForPortValueDecoding(.scrollView(self))
+//            }
+//            
+//        case .complex(let complexType):
+//            return try handleComplexArgumentType(
+//                complexType,
+//                // Not relevant when working with `PortValueDescription` ?
+//                context: nil)
+//            
+//            // What does PVD for `[.horizontal, .vertical]` look like? Do we get one PVD, or multiple?
+//            // The returned PortValue is just a bool, i.e. not enough to tell us
+//            .map { (pv: AIGraphData_V0.PortValueVersion.PortValue) in
+//                    // TODO: there's not really a good way to turn
+//                    // Can't know
+//                    ASTCustomInputValue(input: .scrollYEnabled,
+//                                        value: pv)
+//                }
+//            
+//        default:
+//            throw SwiftUISyntaxError
+//                .unsupportedConstructorForPortValueDecoding(.scrollView(self))
+//        }
+//        
+//        // Assemble events ---------------------------------------------------
+//        var events: [ASTCustomInputValue] = []
+//        if enableX { events.append(enable(.scrollXEnabled)) }
+//        if enableY { events.append(enable(.scrollYEnabled)) }
+//        
+//        let orientationValue: PortValue = .orientation(
+//            (enableX && !enableY) ? .horizontal : .vertical
+//        )
+//        events.append(.init(input: .orientation, value: orientationValue))
+//        
+//        return events
+//    }
+//    
+//    static func from(_ args: [SyntaxViewArgumentData]) -> ScrollViewViewConstructor? {
+//        // SwiftUI defaults: vertical scrolling & indicators shown
+//        var axes: SyntaxViewModifierArgumentType?
+//        var indicators: SyntaxViewModifierArgumentType?
+//        
+//        //        var axes: Parameter<Axis.Set> = .literal(.vertical)
+//        //        var indicators: Parameter<Bool> = .literal(true)
+//        
+//        for arg in args {
+//            // Identify the parameter by `label`
+//            switch arg.label {
+//            case nil,            // first unlabeled param is `Axis.Set`
+//                "axes":
+//                axes = arg.value
+//                
+//            case "showsIndicators":
+//                //                if let bool = arg.value.boolLiteral {
+//                //                    indicators = .literal(bool)
+//                //                }
+//                indicators = arg.value
+//                
+//            default:
+//                break       // ignore `content:` closure and any unknown labels
+//            }
+//        }
+//        
+//        return .parameters(axes: axes, showsIndicators: indicators)
+//    }
+//    
+//}
 
 
 
