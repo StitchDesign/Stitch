@@ -36,7 +36,7 @@ enum ViewConstructor: Equatable, Encodable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
-//    case vStack(VStackViewConstructor)
+    case vStack(VStackViewConstructor)
 //    case lazyHStack(LazyHStackViewConstructor)
 //    case lazyVStack(LazyVStackViewConstructor)
 //    case circle(CircleViewConstructor)
@@ -55,7 +55,7 @@ enum ViewConstructor: Equatable, Encodable {
         case .text(let c):             return c
         case .image(let c):            return c
         case .hStack(let c):           return c
-//        case .vStack(let c):           return c.toStitch
+        case .vStack(let c):           return c // .toStitch
 //        case .lazyHStack(let c):       return c.toStitch
 //        case .lazyVStack(let c):       return c.toStitch
 //        case .circle(let c):           return c.toStitch
@@ -309,10 +309,12 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     
 }
 
-//// TODO: a lot of this logic overlaps with HStackViewConstructor; only difference is `HorizontalAlignment` instead of `VerticalAlignment`
+// TODO: a lot of this logic overlaps with HStackViewConstructor; only difference is `HorizontalAlignment` instead of `VerticalAlignment`
 //enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    /// SwiftUI exposes just one public initializer:
 //    /// `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
+////    case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
+////                    spacing:   Parameter<CGFloat?>            = .literal(nil))
 //    case parameters(alignment: Parameter<HorizontalAlignment> = .literal(.center),
 //                    spacing:   Parameter<CGFloat?>            = .literal(nil))
 //
@@ -372,6 +374,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //        return .parameters(alignment: alignment, spacing: spacing)
 //    }
 //}
+
 //
 //// ── Helper: random-access a TupleExprElementListSyntax by Int index ────────────
 //extension LabeledExprListSyntax {
@@ -638,80 +641,80 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //
 //// MARK: - ScrollView -------------------------------------------------------
 //
-//enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
-//    /// ScrollView(axes:showIndicators:)
-//    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
-//                    showsIndicators: Parameter<Bool> = .literal(true))
-//    
-//    // MARK: Stitch mapping
-//    ///
-//    /// • Always returns `(.scroll, …)`
-//    /// • `.horizontal`   →  scrollXEnabled = true
-//    /// • `.vertical`     →  scrollYEnabled = true   (default if no arg)
-//    /// • `[.horizontal, .vertical]` or `.all`
-//    ///                    →  both scrollXEnabled & scrollYEnabled = true
-//    /// • Any expression  →  single `.edge(expr)` (caller decides)
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        guard case let .parameters(axes, _) = self else { return nil }
-//        var list: [ValueOrEdge] = []
-//        
-//        switch axes {
-//        case .literal(let set):
-//            // Axis.Set is an OptionSet; test for membership.
-//            if set.contains(.horizontal) {
-//                list.append(.value(.init(.scrollXEnabled, .bool(true))))
-//            }
-//            if set.contains(.vertical) {
-//                list.append(.value(.init(.scrollYEnabled, .bool(true))))
-//            }
-//            if set == [.horizontal, .vertical] {
-//                // Already handled by the contains checks, nothing extra
-//            }
-//            // If neither bit is set (shouldn’t happen), default to vertical
-//            if list.isEmpty {
-//                list.append(.value(.init(.scrollYEnabled, .bool(true))))
-//            }
-//            
-//        case .expression(let expr):
-//            // Try to evaluate at compile‑time
-//            if let litSet = expr.axisSetLiteral() {
-//                if litSet.contains(.horizontal) {
-//                    list.append(.value(.init(.scrollXEnabled, .bool(true))))
-//                }
-//                if litSet.contains(.vertical) || litSet.isEmpty {
-//                    list.append(.value(.init(.scrollYEnabled, .bool(true))))
-//                }
-//            } else {
-//                // Unresolved at compile‑time → forward as edge
-//                list.append(.edge(expr))
-//            }
-//        }
-//        
-//        return (
-//            nil, // ScrollView does not technically correspond to a Stitch Layer
-//            list
-//        )
-//    }
-//    
-//    static func from(_ node: FunctionCallExprSyntax) -> Self? {
-//        let args = node.arguments
-//        var axes: Parameter<Axis.Set> = .literal(.vertical)
-//        var indicators: Parameter<Bool> = .literal(true)
-//        
-//        for arg in args {
-//            switch arg.label?.text {
-//            case nil:      // unnamed first parameter can be Axis.Set
-//                axes = arg.asParameterAxisSet()
-//            case "showsIndicators":
-//                indicators = arg.asParameterBool()
-//            default:
-//                break
-//            }
-//        }
-//        return .parameters(axes: axes, showsIndicators: indicators)
-//    }
-//}
-//
+enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// ScrollView(axes:showIndicators:)
+    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
+                    showsIndicators: Parameter<Bool> = .literal(true))
+    
+    // MARK: Stitch mapping
+    ///
+    /// • Always returns `(.scroll, …)`
+    /// • `.horizontal`   →  scrollXEnabled = true
+    /// • `.vertical`     →  scrollYEnabled = true   (default if no arg)
+    /// • `[.horizontal, .vertical]` or `.all`
+    ///                    →  both scrollXEnabled & scrollYEnabled = true
+    /// • Any expression  →  single `.edge(expr)` (caller decides)
+    var toStitch: (Layer?, [ValueOrEdge])? {
+        guard case let .parameters(axes, _) = self else { return nil }
+        var list: [ValueOrEdge] = []
+        
+        switch axes {
+        case .literal(let set):
+            // Axis.Set is an OptionSet; test for membership.
+            if set.contains(.horizontal) {
+                list.append(.value(.init(.scrollXEnabled, .bool(true))))
+            }
+            if set.contains(.vertical) {
+                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+            }
+            if set == [.horizontal, .vertical] {
+                // Already handled by the contains checks, nothing extra
+            }
+            // If neither bit is set (shouldn’t happen), default to vertical
+            if list.isEmpty {
+                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+            }
+            
+        case .expression(let expr):
+            // Try to evaluate at compile‑time
+            if let litSet = expr.axisSetLiteral() {
+                if litSet.contains(.horizontal) {
+                    list.append(.value(.init(.scrollXEnabled, .bool(true))))
+                }
+                if litSet.contains(.vertical) || litSet.isEmpty {
+                    list.append(.value(.init(.scrollYEnabled, .bool(true))))
+                }
+            } else {
+                // Unresolved at compile‑time → forward as edge
+                list.append(.edge(expr))
+            }
+        }
+        
+        return (
+            nil, // ScrollView does not technically correspond to a Stitch Layer
+            list
+        )
+    }
+    
+    static func from(_ node: FunctionCallExprSyntax) -> Self? {
+        let args = node.arguments
+        var axes: Parameter<Axis.Set> = .literal(.vertical)
+        var indicators: Parameter<Bool> = .literal(true)
+        
+        for arg in args {
+            switch arg.label?.text {
+            case nil:      // unnamed first parameter can be Axis.Set
+                axes = arg.asParameterAxisSet()
+            case "showsIndicators":
+                indicators = arg.asParameterBool()
+            default:
+                break
+            }
+        }
+        return .parameters(axes: axes, showsIndicators: indicators)
+    }
+}
+
 //
 //// MARK: - Gradients --------------------------------------------------------
 //

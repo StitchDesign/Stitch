@@ -882,80 +882,81 @@ extension SyntaxViewName {
             }
             
         case .memberAccess(let memberAccess):
+            return [.number(9999)]
             // need to return PortValue, but need to know which is the relevant type
             // e.g. Color is base name
             // examples: `Color.yellow`, `VerticalAlignment.center`, `EdgeInsets.horizontal`
             // examples 2: `.yellow`, `.center`, `.horizontal`
-            // ^^ so need context, e.g. the view modifier, e.g. `.fill` and `.foregroundColor` both take color
-            switch context {
-            case .none:
-                // Edge case behavior needs context
-                fatalErrorIfDebug()
-                throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                                
-            case .viewConstructor(let viewName, let port):
-
-                switch viewName {
-
-                case .scrollView:
-                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
-                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
-                    // https://developer.apple.com/documentation/swiftui/scrollview
-                    // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
-                    switch port {
-                    case .scrollYEnabled:
-                        return [.bool(memberAccess.property == "vertical")]
-                    case .scrollXEnabled:
-                        return [.bool(memberAccess.property == "horizontal")]
-                    default:
-                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                    }
-                    
-                case .vStack, .hStack, .lazyVStack, .lazyHStack:
-                    switch port {
-                    case .layerGroupAlignment:
-                        if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
-//                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
-                           let migrated = try? anchoring.convert(to: Anchoring.PreviousCodable.self) {
-                            return [.anchoring(migrated)]
-                        } else {
-                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                        }
-                    
-                    case .spacing:
-                        if let n = toNumberBasic(memberAccess.property) {
-                            return [.spacing(.number(n))]
-                        } else {
-                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                        }
-                        
-                    default:
-                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                    }
-                    
-                default:
-                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                }
-                
-//                let string = memberAccess.valueText
-//                
-//                // View constructor support needed
+//            // ^^ so need context, e.g. the view modifier, e.g. `.fill` and `.foregroundColor` both take color
+//            switch context {
+//            case .none:
+//                // Edge case behavior needs context
+//                fatalErrorIfDebug()
 //                throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                
-            case .viewModifier(let port):
-                switch port {
-                case .color:
-                    // Tricky color case, for Color.systemName etc.
-                    let colorStr = memberAccess.property
-                    guard let color = Color.fromSystemName(colorStr) else {
-                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                    }
-                    return [.color(color)]
-                    
-                default:
-                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                }
-            }
+//                                
+//            case .viewConstructor(let viewName, let port):
+//
+//                switch viewName {
+//
+//                case .scrollView:
+//                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
+//                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
+//                    // https://developer.apple.com/documentation/swiftui/scrollview
+//                    // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
+//                    switch port {
+//                    case .scrollYEnabled:
+//                        return [.bool(memberAccess.property == "vertical")]
+//                    case .scrollXEnabled:
+//                        return [.bool(memberAccess.property == "horizontal")]
+//                    default:
+//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                    }
+//                    
+//                case .vStack, .hStack, .lazyVStack, .lazyHStack:
+//                    switch port {
+//                    case .layerGroupAlignment:
+//                        if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
+////                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
+//                           let migrated = try? anchoring.convert(to: Anchoring.PreviousCodable.self) {
+//                            return [.anchoring(migrated)]
+//                        } else {
+//                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                        }
+//                    
+//                    case .spacing:
+//                        if let n = toNumberBasic(memberAccess.property) {
+//                            return [.spacing(.number(n))]
+//                        } else {
+//                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                        }
+//                        
+//                    default:
+//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                    }
+//                    
+//                default:
+//                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                }
+//                
+////                let string = memberAccess.valueText
+////                
+////                // View constructor support needed
+////                throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                
+//            case .viewModifier(let port):
+//                switch port {
+//                case .color:
+//                    // Tricky color case, for Color.systemName etc.
+//                    let colorStr = memberAccess.property
+//                    guard let color = Color.fromSystemName(colorStr) else {
+//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                    }
+//                    return [.color(color)]
+//                    
+//                default:
+//                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                }
+//            }
             
             
         case .simple(let data):

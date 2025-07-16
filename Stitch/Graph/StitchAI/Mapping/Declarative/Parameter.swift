@@ -9,7 +9,48 @@ import SwiftUI
 import SwiftSyntax
 import SwiftParser
 
+
+// This is fine as a return value;
+// we
 struct ASTCustomInputValue: Equatable, Hashable {
     let input: CurrentStep.LayerInputPort
     let value: CurrentStep.PortValue
+}
+
+
+// MARK: - Parameter wrapper: literal vs. arbitrary expression ---------
+
+/// A constructor argument that was either a compile‑time literal (`"logo"`,
+/// `.center`, `12`) or an arbitrary Swift expression (`myGap`, `foo()`, etc.).
+enum Parameter<Value: Equatable>: Equatable {
+    
+    // where `Value` is some Swift / SwiftUI type
+    case literal(Value)
+    
+    // catch all for e.g. PortValueDescription, expressions etc.
+//    case syntaxViewArgument()
+    
+    
+     case expression(ExprSyntax)
+
+    /// Convenience for pattern‑matching in `toStitch`.
+    var literal: Value? {
+        if case .literal(let v) = self { return v }
+        return nil
+    }
+}
+
+enum ValueOrEdge: Equatable {
+    case value(CustomInputValue)
+    case edge(ExprSyntax)
+}
+
+struct CustomInputValue: Equatable, Hashable {
+    let input: LayerInputPort
+    let value: PortValue
+    
+    init(_ input: LayerInputPort,  _ value: PortValue) {
+        self.input = input
+        self.value = value
+    }
 }
