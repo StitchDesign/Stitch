@@ -179,110 +179,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
         dbg("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
     }
-    
-    /// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
-    /// returned, attach it to the *current* SyntaxView.
-    private static func createKnownViewConstructor(from node: FunctionCallExprSyntax,
-                                                   arguments: [SyntaxViewArgumentData]) -> ViewConstructor? {
         
-        guard let name = node.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
-              let viewName = SyntaxViewName(rawValue: name) else {
-            return nil
-        }
-        
-        switch viewName {
-        case .text:
-            if let ctor = TextViewConstructor.from(arguments) {
-                return .text(ctor)
-            }
-        case .image:
-            if let ctor = ImageViewConstructor.from(arguments) {
-                return .image(ctor)
-            }
-        case .hStack:
-            if let ctor = HStackViewConstructor.from(arguments) {
-                return .hStack(ctor)
-            }
-//        case .vStack:
-//            if let ctor = VStackViewConstructor.from(node).map(ViewConstructor.vStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .lazyHStack:
-//            if let ctor = LazyHStackViewConstructor.from(node).map(ViewConstructor.lazyHStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .lazyVStack:
-//            if let ctor = LazyVStackViewConstructor.from(node).map(ViewConstructor.lazyVStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .circle:
-//            if let ctor = CircleViewConstructor.from(node).map(ViewConstructor.circle) {
-//                attachConstructor(ctor)
-//            }
-//        case .ellipse:
-//            if let ctor = EllipseViewConstructor.from(node).map(ViewConstructor.ellipse) {
-//                attachConstructor(ctor)
-//            }
-//        case .rectangle:
-//            if let ctor = RectangleViewConstructor.from(node).map(ViewConstructor.rectangle) {
-//                attachConstructor(ctor)
-//            }
-//        case .roundedRectangle:
-//            if let ctor = RoundedRectangleViewConstructor.from(node).map(ViewConstructor.roundedRectangle) {
-//                attachConstructor(ctor)
-//            }
-//        case .scrollView:
-//            if let ctor = ScrollViewViewConstructor.from(node).map(ViewConstructor.scrollView) {
-//                attachConstructor(ctor)
-//            }
-//        case .zStack:
-//            if let ctor = ZStackViewConstructor.from(node).map(ViewConstructor.zStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .textField:
-//            if let ctor = TextFieldViewConstructor.from(node).map(ViewConstructor.textField) {
-//                attachConstructor(ctor)
-//            }
-//        case .angularGradient:
-//            if let ctor = AngularGradientViewConstructor.from(node).map(ViewConstructor.angularGradient) {
-//                attachConstructor(ctor)
-//            }
-//        case .linearGradient:
-//            if let ctor = LinearGradientViewConstructor.from(node).map(ViewConstructor.linearGradient) {
-//                attachConstructor(ctor)
-//            }
-//        case .radialGradient:
-//            if let ctor = RadialGradientViewConstructor.from(node).map(ViewConstructor.radialGradient) {
-//                attachConstructor(ctor)
-//            }
-        default:
-            break
-        }
-        
-        
-//        if let ctor = TextViewConstructor.from(node).map(ViewConstructor.text)
-//            ?? ImageViewConstructor.from(node).map(ViewConstructor.image)
-//            ?? HStackViewConstructor.from(node).map(ViewConstructor.hStack)
-//            ?? VStackViewConstructor.from(node).map(ViewConstructor.vStack)
-//            ?? LazyHStackViewConstructor.from(node).map(ViewConstructor.lazyHStack)
-//            ?? LazyVStackViewConstructor.from(node).map(ViewConstructor.lazyVStack)
-//            ?? CircleViewConstructor.from(node).map(ViewConstructor.circle)
-//            ?? EllipseViewConstructor.from(node).map(ViewConstructor.ellipse)
-//            ?? RectangleViewConstructor.from(node).map(ViewConstructor.rectangle)
-//            ?? RoundedRectangleViewConstructor.from(node).map(ViewConstructor.roundedRectangle)
-//            ?? ScrollViewViewConstructor.from(node).map(ViewConstructor.scrollView)
-//            ?? ZStackViewConstructor.from(node).map(ViewConstructor.zStack)
-//            ?? TextFieldViewConstructor.from(node).map(ViewConstructor.textField)
-//            ?? AngularGradientViewConstructor.from(node).map(ViewConstructor.angularGradient)
-//            ?? LinearGradientViewConstructor.from(node).map(ViewConstructor.linearGradient)
-//            ?? RadialGradientViewConstructor.from(node).map(ViewConstructor.radialGradient)
-//        {
-//            attachConstructor(ctor)
-//        }
-        
-        return nil
-    }
-    
     // Visit function call expressions (which represent view initializations and modifiers)
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         log("Visiting function call: \(node.description)")
@@ -397,9 +294,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         dbg("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
         
-        guard let knownViewConstructor = SwiftUIViewVisitor
-            .createKnownViewConstructor(from: node,
-                                        arguments: arguments) else {
+        guard let knownViewConstructor = createKnownViewConstructor(
+            from: node,
+            arguments: arguments) else {
             return .other(arguments)
         }
         

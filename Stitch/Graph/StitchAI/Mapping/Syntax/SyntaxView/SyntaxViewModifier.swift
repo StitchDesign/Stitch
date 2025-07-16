@@ -66,12 +66,15 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Enc
     // e.g. .opacity(5.0)
     case simple(SyntaxViewSimpleData)
     
+    // e.g. a binding or `PortValueDescription`
     case complex(SyntaxViewModifierComplexType)
     
     case tuple([SyntaxViewArgumentData])
     
+    // e.g. `ScrollView([.horizontal, .vertical])`
     case array([SyntaxViewModifierArgumentType])
     
+    // e.g. `.fill(.yellow)` or `Color.yellow`; `ScrollView(.horizontal)`
     case memberAccess(SyntaxViewMemberAccess)
 }
 

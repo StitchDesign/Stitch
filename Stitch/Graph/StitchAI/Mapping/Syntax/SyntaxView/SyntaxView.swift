@@ -9,10 +9,7 @@ import Foundation
 
 // fka `ViewNode`
 struct SyntaxView: Equatable {
-    
-    /// Parsed constructor (if any)
-    var constructor: ViewConstructor?
-    
+        
     // representation of a SwiftUI View
     // e.g. `Text`, `Rectangle`, `Image`
     var name: SyntaxViewName  // strongly-typed SwiftUI view kind

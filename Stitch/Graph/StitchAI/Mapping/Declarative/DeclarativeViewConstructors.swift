@@ -18,13 +18,14 @@ protocol FromSwiftUIViewToStitch: Encodable {
     associatedtype T
     
     // nil if ViewConstructor could not be turned into Stitch concepts
-//    var toStitch: (
-//        Layer?, // nil e.g. for ScrollView, which contributes custom-values but not own layer
-//        [ValueOrEdge]
-//    )? { get }
+    //    var toStitch: (
+    //        Layer?, // nil e.g. for ScrollView, which contributes custom-values but not own layer
+    //        [ValueOrEdge]
+    //    )? { get }
     
     static func from(_ args: [SyntaxViewArgumentData]) -> T?
     
+    // TODO: this property is incorrect -- some SwiftUI views like ScrollView may not become a Layer
     var layer: AIGraphData_V0.Layer { get }
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue]
@@ -36,42 +37,126 @@ enum ViewConstructor: Equatable, Encodable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
-//    case vStack(VStackViewConstructor)
-//    case lazyHStack(LazyHStackViewConstructor)
-//    case lazyVStack(LazyVStackViewConstructor)
-//    case circle(CircleViewConstructor)
-//    case ellipse(EllipseViewConstructor)
-//    case rectangle(RectangleViewConstructor)
-//    case roundedRectangle(RoundedRectangleViewConstructor)
-//    case scrollView(ScrollViewViewConstructor)
-//    case zStack(ZStackViewConstructor)
-//    case textField(TextFieldViewConstructor)
-//    case angularGradient(AngularGradientViewConstructor)
-//    case linearGradient(LinearGradientViewConstructor)
-//    case radialGradient(RadialGradientViewConstructor)
+    //    case vStack(VStackViewConstructor)
+    //    case lazyHStack(LazyHStackViewConstructor)
+    //    case lazyVStack(LazyVStackViewConstructor)
+    //    case circle(CircleViewConstructor)
+    //    case ellipse(EllipseViewConstructor)
+    //    case rectangle(RectangleViewConstructor)
+    //    case roundedRectangle(RoundedRectangleViewConstructor)
+    case scrollView(ScrollViewViewConstructor)
+    //    case zStack(ZStackViewConstructor)
+    //    case textField(TextFieldViewConstructor)
+    //    case angularGradient(AngularGradientViewConstructor)
+    //    case linearGradient(LinearGradientViewConstructor)
+    //    case radialGradient(RadialGradientViewConstructor)
     
     var value: any FromSwiftUIViewToStitch {
         switch self {
         case .text(let c):             return c
         case .image(let c):            return c
         case .hStack(let c):           return c
-//        case .vStack(let c):           return c.toStitch
-//        case .lazyHStack(let c):       return c.toStitch
-//        case .lazyVStack(let c):       return c.toStitch
-//        case .circle(let c):           return c.toStitch
-//        case .ellipse(let c):          return c.toStitch
-//        case .rectangle(let c):        return c.toStitch
-//        case .roundedRectangle(let c): return c.toStitch
-//        case .scrollView(let c):       return c.toStitch
-//        case .zStack(let c):           return c.toStitch
-//        case .textField(let c):        return c.toStitch
-//        case .angularGradient(let c):  return c.toStitch
-//        case .linearGradient(let c):   return c.toStitch
-//        case .radialGradient(let c):   return c.toStitch
+            //        case .vStack(let c):           return c.toStitch
+            //        case .lazyHStack(let c):       return c.toStitch
+            //        case .lazyVStack(let c):       return c.toStitch
+            //        case .circle(let c):           return c.toStitch
+            //        case .ellipse(let c):          return c.toStitch
+            //        case .rectangle(let c):        return c.toStitch
+            //        case .roundedRectangle(let c): return c.toStitch
+        case .scrollView(let c):       return c // .toStitch
+            //        case .zStack(let c):           return c.toStitch
+            //        case .textField(let c):        return c.toStitch
+            //        case .angularGradient(let c):  return c.toStitch
+            //        case .linearGradient(let c):   return c.toStitch
+            //        case .radialGradient(let c):   return c.toStitch
         }
     }
 }
+
+
+/// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
+/// returned, attach it to the *current* SyntaxView.
+func createKnownViewConstructor(from node: FunctionCallExprSyntax,
+                                               arguments: [SyntaxViewArgumentData]) -> ViewConstructor? {
     
+    guard let name = node.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
+          let viewName = SyntaxViewName(rawValue: name) else {
+        return nil
+    }
+    
+    switch viewName {
+    case .text:
+        if let ctor = TextViewConstructor.from(arguments) {
+            return .text(ctor)
+        }
+    case .image:
+        if let ctor = ImageViewConstructor.from(arguments) {
+            return .image(ctor)
+        }
+    case .hStack:
+        if let ctor = HStackViewConstructor.from(arguments) {
+            return .hStack(ctor)
+        }
+    case .scrollView:
+        if let ctor = ScrollViewViewConstructor.from(arguments) {
+            return .scrollView(ctor)
+        }
+        
+//        case .vStack:
+//            if let ctor = VStackViewConstructor.from(node).map(ViewConstructor.vStack) {
+//                attachConstructor(ctor)
+//            }
+//        case .lazyHStack:
+//            if let ctor = LazyHStackViewConstructor.from(node).map(ViewConstructor.lazyHStack) {
+//                attachConstructor(ctor)
+//            }
+//        case .lazyVStack:
+//            if let ctor = LazyVStackViewConstructor.from(node).map(ViewConstructor.lazyVStack) {
+//                attachConstructor(ctor)
+//            }
+//        case .circle:
+//            if let ctor = CircleViewConstructor.from(node).map(ViewConstructor.circle) {
+//                attachConstructor(ctor)
+//            }
+//        case .ellipse:
+//            if let ctor = EllipseViewConstructor.from(node).map(ViewConstructor.ellipse) {
+//                attachConstructor(ctor)
+//            }
+//        case .rectangle:
+//            if let ctor = RectangleViewConstructor.from(node).map(ViewConstructor.rectangle) {
+//                attachConstructor(ctor)
+//            }
+//        case .roundedRectangle:
+//            if let ctor = RoundedRectangleViewConstructor.from(node).map(ViewConstructor.roundedRectangle) {
+//                attachConstructor(ctor)
+//            }
+//        case .zStack:
+//            if let ctor = ZStackViewConstructor.from(node).map(ViewConstructor.zStack) {
+//                attachConstructor(ctor)
+//            }
+//        case .textField:
+//            if let ctor = TextFieldViewConstructor.from(node).map(ViewConstructor.textField) {
+//                attachConstructor(ctor)
+//            }
+//        case .angularGradient:
+//            if let ctor = AngularGradientViewConstructor.from(node).map(ViewConstructor.angularGradient) {
+//                attachConstructor(ctor)
+//            }
+//        case .linearGradient:
+//            if let ctor = LinearGradientViewConstructor.from(node).map(ViewConstructor.linearGradient) {
+//                attachConstructor(ctor)
+//            }
+//        case .radialGradient:
+//            if let ctor = RadialGradientViewConstructor.from(node).map(ViewConstructor.radialGradient) {
+//                attachConstructor(ctor)
+//            }
+    default:
+        break
+    }
+    
+    return nil
+}
+
 
 enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Text("Hello")`
@@ -102,7 +187,7 @@ extension TextViewConstructor {
             return syntaxViewModifierArgumentType
         }
     }
-
+    
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         let arg = self.arg
         guard let value = try arg.derivePortValues().first else {
@@ -111,7 +196,7 @@ extension TextViewConstructor {
         
         return [.init(input: .text, value: value)]
     }
-
+    
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ args: [SyntaxViewArgumentData]) -> TextViewConstructor? {
         guard let first = args.first else {
@@ -132,15 +217,15 @@ extension TextViewConstructor {
                     return .attributed(firstStringArg.value)
                 }
             }
-
+            
             return .string(first.value)
         }
-
+        
         // Text(verbatim: "Raw")
         if first.label == "verbatim" {
             return .verbatim(first.value)
         }
-
+        
         // If it's some other expression like Text(title)
         return .string(first.value)
     }
@@ -166,7 +251,7 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
             return .image
         }
     }
-
+    
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         switch self {
             
@@ -193,31 +278,31 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
             ]
         }
     }
-
+    
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
     static func from(_ args: [SyntaxViewArgumentData]) -> ImageViewConstructor? {
         guard let first = args.first else { return nil }
-
+        
         // 1. Image(systemName:)
         if first.label == "systemName" {
             return .sfSymbol(name: first.value)
         }
-
+        
         // 2. Image("asset"[, bundle:])
         if first.label == nil {
             return .asset(name: first.value)
         }
-
+        
         // 3. Image(decorative: "name"[, bundle:])
         if first.label == "decorative" {
             return .decorative(name: first.value)
         }
-
+        
         // 4. Image(uiImage:)
         if first.label == "uiImage" {
             return .uiImage(image: first.value)
         }
-
+        
         return nil
     }
 }
@@ -240,16 +325,16 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// call site provided—using `.center` and `nil` when the developer omitted them.
     case parameters(alignment: SyntaxViewModifierArgumentType?,
                     spacing:   SyntaxViewModifierArgumentType?)
-
+    
     var layer: AIGraphData_V0.Layer { .group }
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         var list: [ASTCustomInputValue] = [
             .init(input: .orientation, value: .orientation(.horizontal))
         ]
-
+        
         guard case let .parameters(alignmentArg, spacingArg) = self else { return [] }
-
+        
         switch alignmentArg {
         case .none:
             // Default to center align
@@ -281,15 +366,15 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             list.append(.init(input: .spacing,
                               value: value))
         }
-
+        
         return list
     }
-
+    
     // MARK: Parse from SwiftSyntax
     static func from(_ args: [SyntaxViewArgumentData]) -> HStackViewConstructor? {
         var alignment: SyntaxViewModifierArgumentType?
         var spacing: SyntaxViewModifierArgumentType?
-
+        
         // iterate through labelled args
         for arg in args {
             switch arg.label {
@@ -303,7 +388,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
                 break
             }
         }
-
+        
         return .parameters(alignment: alignment, spacing: spacing)
     }
     
@@ -442,7 +527,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    var toStitch: (Layer?, [ValueOrEdge])? {
 //        guard case let .parameters(title, bindingExpr) = self else { return nil }
 //        var list: [ValueOrEdge] = []
-//        
+//
 //        // ----- title / placeholder ---------------------------------------
 //        switch title {
 //        case .literal(let str?):
@@ -453,7 +538,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //        default:
 //            break    // .literal(nil)  → no placeholder
 //        }
-//        
+//
 //        // ----- binding / text -------------------------------------------
 //        if let constLiteral = bindingExpr.stringLiteralFromConstantBinding() {
 //            list.append(.value(.init(.text,
@@ -461,7 +546,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //        } else {
 //            list.append(.edge(bindingExpr))
 //        }
-//        
+//
 //        return (.textField, list)
 //    }
 //
@@ -573,11 +658,11 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    /// RoundedRectangle(cornerRadius:style:)
 //    case cornerRadius(radius: Parameter<CGFloat>,
 //                      style:  Parameter<RoundedCornerStyle> = .literal(.continuous))
-//    
+//
 //    /// RoundedRectangle(cornerSize:style:)
 //    case cornerSize(size: Parameter<CGSize>,
 //                    style: Parameter<RoundedCornerStyle> = .literal(.continuous))
-//    
+//
 //    // MARK: Stitch mapping
 //    ///
 //    /// • RoundedRectangle(cornerRadius:) → Layer.rectangle + cornerRadius
@@ -619,11 +704,11 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //            }
 //        }
 //    }
-//    
+//
 //    static func from(_ node: FunctionCallExprSyntax) -> Self? {
 //        let args = node.arguments
 //        guard let first = args.first else { return nil }
-//        
+//
 //        if first.label?.text == "cornerRadius" {
 //            let style: Parameter<RoundedCornerStyle> = .literal(.continuous)
 //            return .cornerRadius(radius: first.asParameterCGFloat(), style: style)
@@ -637,80 +722,190 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //}
 //
 //// MARK: - ScrollView -------------------------------------------------------
-//
-//enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
-//    /// ScrollView(axes:showIndicators:)
-//    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
-//                    showsIndicators: Parameter<Bool> = .literal(true))
-//    
-//    // MARK: Stitch mapping
-//    ///
-//    /// • Always returns `(.scroll, …)`
-//    /// • `.horizontal`   →  scrollXEnabled = true
-//    /// • `.vertical`     →  scrollYEnabled = true   (default if no arg)
-//    /// • `[.horizontal, .vertical]` or `.all`
-//    ///                    →  both scrollXEnabled & scrollYEnabled = true
-//    /// • Any expression  →  single `.edge(expr)` (caller decides)
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        guard case let .parameters(axes, _) = self else { return nil }
-//        var list: [ValueOrEdge] = []
-//        
-//        switch axes {
-//        case .literal(let set):
-//            // Axis.Set is an OptionSet; test for membership.
-//            if set.contains(.horizontal) {
-//                list.append(.value(.init(.scrollXEnabled, .bool(true))))
-//            }
-//            if set.contains(.vertical) {
-//                list.append(.value(.init(.scrollYEnabled, .bool(true))))
-//            }
-//            if set == [.horizontal, .vertical] {
-//                // Already handled by the contains checks, nothing extra
-//            }
-//            // If neither bit is set (shouldn’t happen), default to vertical
-//            if list.isEmpty {
-//                list.append(.value(.init(.scrollYEnabled, .bool(true))))
-//            }
-//            
-//        case .expression(let expr):
-//            // Try to evaluate at compile‑time
-//            if let litSet = expr.axisSetLiteral() {
-//                if litSet.contains(.horizontal) {
-//                    list.append(.value(.init(.scrollXEnabled, .bool(true))))
-//                }
-//                if litSet.contains(.vertical) || litSet.isEmpty {
-//                    list.append(.value(.init(.scrollYEnabled, .bool(true))))
-//                }
-//            } else {
-//                // Unresolved at compile‑time → forward as edge
-//                list.append(.edge(expr))
-//            }
-//        }
-//        
-//        return (
-//            nil, // ScrollView does not technically correspond to a Stitch Layer
-//            list
-//        )
-//    }
-//    
-//    static func from(_ node: FunctionCallExprSyntax) -> Self? {
-//        let args = node.arguments
-//        var axes: Parameter<Axis.Set> = .literal(.vertical)
-//        var indicators: Parameter<Bool> = .literal(true)
-//        
-//        for arg in args {
-//            switch arg.label?.text {
-//            case nil:      // unnamed first parameter can be Axis.Set
-//                axes = arg.asParameterAxisSet()
-//            case "showsIndicators":
-//                indicators = arg.asParameterBool()
-//            default:
-//                break
-//            }
-//        }
-//        return .parameters(axes: axes, showsIndicators: indicators)
-//    }
-//}
+
+
+enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// ScrollView(axes:showIndicators:)
+    //    case parameters(axes: Parameter<Axis.Set> = .literal(.vertical),
+    //                    showsIndicators: Parameter<Bool> = .literal(true))
+    
+    case parameters(axes: SyntaxViewModifierArgumentType?,
+                    showsIndicators: SyntaxViewModifierArgumentType?)
+    
+    // Will this now always produce a group?
+    var layer: AIGraphData_V0.Layer { .group }
+    
+    // MARK: Stitch mapping
+    ///
+    /// • Always returns `(.scroll, …)`
+    /// • `.horizontal`   →  scrollXEnabled = true
+    /// • `.vertical`     →  scrollYEnabled = true   (default if no arg)
+    /// • `[.horizontal, .vertical]` or `.all`
+    ///                    →  both scrollXEnabled & scrollYEnabled = true
+    /// • Any expression  →  single `.edge(expr)` (caller decides)
+    //    var toStitch: (Layer?, [ValueOrEdge])? {
+    //        guard case let .parameters(axes, _) = self else { return nil }
+    //        var list: [ValueOrEdge] = []
+    //
+    //        switch axes {
+    //        case .literal(let set):
+    //            // Axis.Set is an OptionSet; test for membership.
+    //            if set.contains(.horizontal) {
+    //                list.append(.value(.init(.scrollXEnabled, .bool(true))))
+    //            }
+    //            if set.contains(.vertical) {
+    //                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+    //            }
+    //            if set == [.horizontal, .vertical] {
+    //                // Already handled by the contains checks, nothing extra
+    //            }
+    //            // If neither bit is set (shouldn’t happen), default to vertical
+    //            if list.isEmpty {
+    //                list.append(.value(.init(.scrollYEnabled, .bool(true))))
+    //            }
+    //
+    //        case .expression(let expr):
+    //            // Try to evaluate at compile‑time
+    //            if let litSet = expr.axisSetLiteral() {
+    //                if litSet.contains(.horizontal) {
+    //                    list.append(.value(.init(.scrollXEnabled, .bool(true))))
+    //                }
+    //                if litSet.contains(.vertical) || litSet.isEmpty {
+    //                    list.append(.value(.init(.scrollYEnabled, .bool(true))))
+    //                }
+    //            } else {
+    //                // Unresolved at compile‑time → forward as edge
+    //                list.append(.edge(expr))
+    //            }
+    //        }
+    //
+    //        return (
+    //            nil, // ScrollView does not technically correspond to a Stitch Layer
+    //            list
+    //        )
+    //    }
+    
+    // MARK: - ScrollView createCustomValueEvents
+    ///
+    /// • Enables scrollX / scrollY as before.
+    /// • Also sets `orientation`:
+    ///     – horizontal-only  → .horizontal
+    ///     – vertical-only *or* both  → .vertical
+    ///
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard case let .parameters(axesArg, _) = self else { return [] }
+        
+        func enable(_ port: LayerInputPort) -> ASTCustomInputValue {
+            .init(input: port, value: .bool(true))
+        }
+        
+        // ── Default when no `axes:` parameter is supplied
+        if axesArg == nil {
+            return [
+                enable(.scrollYEnabled),
+                .init(input: .orientation,
+                      value: .orientation(.vertical))
+            ]
+        }
+        
+        var enableX = false
+        var enableY = false
+        
+        switch axesArg! {
+            
+        // ----- .horizontal / .vertical / .all ------------------------------
+        case .memberAccess(let ma):
+            switch ma.property {
+            case "horizontal": enableX = true
+            case "vertical":   enableY = true
+            case "all":        enableX = true; enableY = true
+            default:
+                throw SwiftUISyntaxError
+                    .unsupportedConstructorForPortValueDecoding(.scrollView(self))
+            }
+            
+        // ----- [.horizontal, .vertical] etc. -------------------------------
+        case .array(let elements):
+            for el in elements {
+                if case let .memberAccess(ma) = el {
+                    switch ma.property {
+                    case "horizontal": enableX = true
+                    case "vertical":   enableY = true
+                    default: break
+                    }
+                }
+            }
+            if !enableX && !enableY {
+                throw SwiftUISyntaxError
+                    .unsupportedConstructorForPortValueDecoding(.scrollView(self))
+            }
+            
+        case .complex(let complexType):
+            return try handleComplexArgumentType(
+                complexType,
+                // Not relevant when working with `PortValueDescription` ?
+                context: nil)
+            
+            // What does PVD for `[.horizontal, .vertical]` look like? Do we get one PVD, or multiple?
+            // The returned PortValue is just a bool, i.e. not enough to tell us
+            .map { (pv: AIGraphData_V0.PortValueVersion.PortValue) in
+                    // TODO: there's not really a good way to turn
+                    // Can't know
+                    ASTCustomInputValue(input: .scrollYEnabled,
+                                        value: pv)
+                }
+            
+        default:
+            throw SwiftUISyntaxError
+                .unsupportedConstructorForPortValueDecoding(.scrollView(self))
+        }
+        
+        // Assemble events ---------------------------------------------------
+        var events: [ASTCustomInputValue] = []
+        if enableX { events.append(enable(.scrollXEnabled)) }
+        if enableY { events.append(enable(.scrollYEnabled)) }
+        
+        let orientationValue: PortValue = .orientation(
+            (enableX && !enableY) ? .horizontal : .vertical
+        )
+        events.append(.init(input: .orientation, value: orientationValue))
+        
+        return events
+    }
+    
+    static func from(_ args: [SyntaxViewArgumentData]) -> ScrollViewViewConstructor? {
+        // SwiftUI defaults: vertical scrolling & indicators shown
+        var axes: SyntaxViewModifierArgumentType?
+        var indicators: SyntaxViewModifierArgumentType?
+        
+        //        var axes: Parameter<Axis.Set> = .literal(.vertical)
+        //        var indicators: Parameter<Bool> = .literal(true)
+        
+        for arg in args {
+            // Identify the parameter by `label`
+            switch arg.label {
+            case nil,            // first unlabeled param is `Axis.Set`
+                "axes":
+                axes = arg.value
+                
+            case "showsIndicators":
+                //                if let bool = arg.value.boolLiteral {
+                //                    indicators = .literal(bool)
+                //                }
+                indicators = arg.value
+                
+            default:
+                break       // ignore `content:` closure and any unknown labels
+            }
+        }
+        
+        return .parameters(axes: axes, showsIndicators: indicators)
+    }
+    
+}
+
+
+
 //
 //
 //// MARK: - Gradients --------------------------------------------------------
@@ -721,7 +916,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //                    center: Parameter<UnitPoint>,
 //                    startAngle: Parameter<CGFloat>,
 //                    endAngle:   Parameter<CGFloat>)
-//    
+//
 //    // MARK: Stitch mapping
 //    ///
 //    /// SwiftUI                      → Stitch
@@ -734,7 +929,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    var toStitch: (Layer?, [ValueOrEdge])? {
 //        guard case let .parameters(colors, center, startAngle, endAngle) = self else { return nil }
 //        var list: [ValueOrEdge] = []
-//        
+//
 //        // ----- colors ---------------------------------------------------
 //        switch colors {
 //        case .literal(let arr) where arr.count >= 2:
@@ -745,7 +940,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //        default:
 //            break
 //        }
-//        
+//
 //        // ----- center / centerAnchor -----------------------------------
 //        switch center {
 //        case .literal(let p):
@@ -753,7 +948,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //        case .expression(let expr):
 //            list.append(.edge(expr))
 //        }
-//        
+//
 //        // ----- startAngle ----------------------------------------------
 //        switch startAngle {
 //        case .literal(let deg):
@@ -761,7 +956,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //        case .expression(let expr):
 //            list.append(.edge(expr))
 //        }
-//        
+//
 //        // ----- endAngle -------------------------------------------------
 //        switch endAngle {
 //        case .literal(let deg):
@@ -769,10 +964,10 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //        case .expression(let expr):
 //            list.append(.edge(expr))
 //        }
-//        
+//
 //        return (.angularGradient, list)
 //    }
-//    
+//
 //    static func from(_ node: FunctionCallExprSyntax) -> Self? {
 //        let args = node.arguments
 //        guard let colorsArg = args[safe: 0],

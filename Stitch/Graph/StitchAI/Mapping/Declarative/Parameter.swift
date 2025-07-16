@@ -13,3 +13,16 @@ struct ASTCustomInputValue: Equatable, Hashable {
     let input: CurrentAIGraphData.LayerInputPort
     let value: CurrentAIGraphData.PortValue
 }
+
+/// A constructor argument that was either a compile‑time literal (`"logo"`,
+ /// `.center`, `12`) or an arbitrary Swift expression (`myGap`, `foo()`, etc.).
+ enum Parameter<Value: Equatable>: Equatable {
+     case literal(Value)
+     case expression(ExprSyntax)
+
+     /// Convenience for pattern‑matching in `toStitch`.
+     var literal: Value? {
+         if case .literal(let v) = self { return v }
+         return nil
+     }
+ }
