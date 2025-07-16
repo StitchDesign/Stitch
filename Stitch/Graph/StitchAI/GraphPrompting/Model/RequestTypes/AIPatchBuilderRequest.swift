@@ -345,7 +345,7 @@ extension NodeIOCoordinate {
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         
-        let portType = Step_V0.NodeIOPortType
+        let portType = AIGraphData_V0.NodeIOPortType
             .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.value,
                            portType: .packed))
         

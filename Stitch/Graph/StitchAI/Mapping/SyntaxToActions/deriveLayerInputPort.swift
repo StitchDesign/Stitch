@@ -11,9 +11,9 @@ import SwiftUI
 
 
 extension SyntaxViewArgumentData {
-    static func deriveLayerInputPort(_ layer: CurrentStep.Layer,
+    static func deriveLayerInputPort(_ layer: CurrentAIGraphData.Layer,
                                      label: String?,
-                                     argFlatType: SyntaxViewModifierArgumentFlatType?) throws -> CurrentStep.LayerInputPort? {
+                                     argFlatType: SyntaxViewModifierArgumentFlatType?) throws -> CurrentAIGraphData.LayerInputPort? {
         
         
         switch SyntaxConstructorArgumentLabel(rawValue: label ?? "") {
@@ -75,7 +75,7 @@ extension SyntaxViewArgumentData {
 
 extension String {
     // A member-access might correspond to a single layer-input-port
-    func parseAsScrollAxis() -> CurrentStep.LayerInputPort? {
+    func parseAsScrollAxis() -> CurrentAIGraphData.LayerInputPort? {
         switch self {
         case Axis.horizontal.description:
             return .scrollXEnabled
@@ -91,7 +91,7 @@ extension String {
 enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
     
     // Vast majority of cases: a single view modifier name corresponds to a single layer input
-    case simple(CurrentStep.LayerInputPort)
+    case simple(CurrentAIGraphData.LayerInputPort)
     
     // Special case: .rotation3DEffect modifier corresponds to *three* different layer inputs; .rotation also requires special parsing of its `.degrees(x)` arguments
     case rotationScenario
@@ -115,7 +115,7 @@ enum LayerInputViewModification {
 
 extension SyntaxViewModifierName {
     
-    func deriveLayerInputPort(_ layer: CurrentStep.Layer) throws -> DerivedLayerInputPortsResult? {
+    func deriveLayerInputPort(_ layer: CurrentAIGraphData.Layer) throws -> DerivedLayerInputPortsResult? {
         // Handle edge cases
         switch layer {
         case .text, .textField:
