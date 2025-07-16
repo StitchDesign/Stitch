@@ -16,6 +16,7 @@ struct AICodeGenRequest: StitchAIRequestable {
     
     @MainActor
     init(prompt: String,
+         currentGraphData: CurrentAIGraphData.GraphData,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -25,7 +26,8 @@ struct AICodeGenRequest: StitchAIRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeGenRequestBody(prompt: prompt)
+        self.body = try AICodeGenRequestBody(prompt: prompt,
+                                             currentGraphData: currentGraphData)
     }
     
     @MainActor
@@ -52,10 +54,12 @@ struct AICodeGenRequest: StitchAIRequestable {
     
     @MainActor
     static func getRequestTask(userPrompt: String,
-                               document: StitchDocumentViewModel) throws -> Task<Result<AIPatchBuilderRequest.FinalDecodedResult, any Error>,
-                                                                                 Never> {
+                               document: StitchDocumentViewModel) throws -> Task<Result<AIPatchBuilderRequest.FinalDecodedResult, any Error>, Never> {
+        let currentGraphData = try CurrentAIGraphData.GraphData(from: document.visibleGraph.createSchema())
+        
         let request = try AICodeGenRequest(
-            prompt: userPrompt)
+            prompt: userPrompt,
+            currentGraphData: currentGraphData)
         
         return Task(priority: .high) { [weak document] in            
             guard let document = document,

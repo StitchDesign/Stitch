@@ -10,6 +10,6 @@ import SwiftSyntax
 import SwiftParser
 
 struct ASTCustomInputValue: Equatable, Hashable {
-    let input: CurrentStep.LayerInputPort
-    let value: CurrentStep.PortValue
+    let input: CurrentAIGraphData.LayerInputPort
+    let value: CurrentAIGraphData.PortValue
 }

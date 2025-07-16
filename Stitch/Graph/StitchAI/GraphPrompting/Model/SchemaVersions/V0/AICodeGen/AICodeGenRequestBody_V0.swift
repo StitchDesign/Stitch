@@ -18,7 +18,8 @@ enum AICodeGenRequestBody_V0 {
         let messages: [OpenAIMessage]
         let stream: Bool = false
         
-        init(prompt: String) throws {
+        init(prompt: String,
+             currentGraphData: CurrentAIGraphData.GraphData) throws {
             guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
                                                     withExtension: "md") else {
                 throw StitchAIStreamingError.markdownNotFound
@@ -26,6 +27,12 @@ enum AICodeGenRequestBody_V0 {
             
             let systemPrompt = try String(contentsOf: markdownUrl,
                                           encoding: .utf8)
+            
+            // TODO: re-enable when ready for editing flow
+//            let inputs = AICodeGenRequestInputs(user_prompt: prompt,
+//                                                current_graph_data: currentGraphData)
+//            
+//            let inputsString = try inputs.encodeToPrintableString()
             
             self.messages = [
                 .init(role: .system,
@@ -38,6 +45,6 @@ enum AICodeGenRequestBody_V0 {
     
     struct AICodeGenRequestInputs: Encodable {
         let user_prompt: String
-        let layer_list: SidebarLayerList
+        let current_graph_data: CurrentAIGraphData.GraphData
     }
 }

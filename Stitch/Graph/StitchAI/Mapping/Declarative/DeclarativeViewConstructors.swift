@@ -25,7 +25,7 @@ protocol FromSwiftUIViewToStitch: Encodable {
     
     static func from(_ args: [SyntaxViewArgumentData]) -> T?
     
-    var layer: CurrentStep.Layer { get }
+    var layer: AIGraphData_V0.Layer { get }
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue]
 }
@@ -88,7 +88,7 @@ enum TextViewConstructor: Equatable, FromSwiftUIViewToStitch {
 }
 
 extension TextViewConstructor {
-    var layer: CurrentStep.Layer { .text }
+    var layer: AIGraphData_V0.Layer { .text }
     
     var arg: SyntaxViewModifierArgumentType {
         switch self {
@@ -157,7 +157,7 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
     /// `Image(uiImage:)`
     case uiImage(image: SyntaxViewModifierArgumentType)
     
-    var layer: CurrentStep.Layer {
+    var layer: AIGraphData_V0.Layer {
         switch self {
         case .sfSymbol:
             return .sfSymbol
@@ -241,7 +241,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case parameters(alignment: SyntaxViewModifierArgumentType?,
                     spacing:   SyntaxViewModifierArgumentType?)
 
-    var layer: CurrentStep.Layer { .group }
+    var layer: AIGraphData_V0.Layer { .group }
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         var list: [ASTCustomInputValue] = [

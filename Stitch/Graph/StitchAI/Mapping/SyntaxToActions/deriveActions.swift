@@ -57,7 +57,7 @@ extension SyntaxView {
                 throw SwiftUISyntaxError.layerDecodingFailed
             }
             
-            if !layer.isGroup {
+            if !layer.isGroupForAI {
                 // Make sure non-grouped layer has no children
                 assertInDebug(childResults.actions.isEmpty)
                 layerData.children = nil
@@ -89,7 +89,7 @@ extension SyntaxViewName {
         // let scrollAxis = Self.detectScrollAxis(args: args)
       
         var groupLayer: CurrentAIGraphData.LayerData  
-        let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroup ?? false
+        let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroupForAI ?? false
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         
         // Create a new nested VStack if no root group
