@@ -28,16 +28,17 @@ enum AICodeGenRequestBody_V0 {
             let systemPrompt = try String(contentsOf: markdownUrl,
                                           encoding: .utf8)
             
-            let inputs = AICodeGenRequestInputs(user_prompt: prompt,
-                                                current_graph_data: currentGraphData)
-            
-            let inputsString = try inputs.encodeToPrintableString()
+            // TODO: re-enable when ready for editing flow
+//            let inputs = AICodeGenRequestInputs(user_prompt: prompt,
+//                                                current_graph_data: currentGraphData)
+//            
+//            let inputsString = try inputs.encodeToPrintableString()
             
             self.messages = [
                 .init(role: .system,
                       content: systemPrompt),
                 .init(role: .user,
-                      content: inputsString)
+                      content: prompt)
             ]
         }
     }
