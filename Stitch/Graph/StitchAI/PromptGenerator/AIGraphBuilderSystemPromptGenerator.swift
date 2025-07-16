@@ -321,6 +321,10 @@ PatchData(
     ])
 ```
 
+## RGB Color patch takes values between 0 and 1, inclusive
+
+The inputs on the RGB Color patch should be values between 0 and 1, inclusive.
+
 ## Converting SwiftUI to Stitch Concepts
 One of your tasks is to determine which Stitch concepts to harness given some SwiftUI view component. This section notes special considerations for various SwiftUI view components.
 
