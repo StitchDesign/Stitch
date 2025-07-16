@@ -375,6 +375,7 @@ Each patch and layer supports the following inputs and outputs:
 
 Examples of valid ScrollViews in our app:
 
+Valid because immediate child is HStack and at least one axis was specified:
 ```swift
 ScrollView([.horizontal, .vertical]) {
     HStack { 
@@ -385,6 +386,7 @@ ScrollView([.horizontal, .vertical]) {
 }
 ```
 
+Valid because immediate child is VStack and at least one axis was specified:
 ```swift
 ScrollView([.horizontal, .vertical]) {
     VStack { 
@@ -437,7 +439,22 @@ ScrollView([.vertical]) {
 }
 ```
 
-Invalid because axes were not specified:
+Invalid because ScrollView contains a non-stack view (i.e. a view that is something other than a VStack or HStack or Grid) as its immediate child.
+```swift
+ScrollView([.vertical]) {
+    Rectangle()
+}
+```
+
+Also invalid because ScrollView contains a non-stack view (i.e. a view that is something other than a VStack or HStack or Grid) as its immediate child.
+```swift
+ScrollView([.horizontal]) {
+    Ellipse()
+    Text("love")
+}
+```
+
+Invalid because no axes were specified:
 ```swift
 ScrollView() {
     HStack { 
