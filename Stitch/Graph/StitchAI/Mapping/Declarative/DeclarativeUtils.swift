@@ -30,7 +30,7 @@ extension LocalizedStringKey {
 // ── Alignment → Anchoring helpers ───────────────────────────────────────
 
 extension VerticalAlignment {
-    var toAnchoring: CurrentStitchAIPortValue.PortValueVersion.Anchoring {
+    var toAnchoring: CurrentAIGraphData.PortValueVersion.Anchoring {
         switch self {
         case .top:               return .topCenter
         case .bottom:            return .bottomCenter

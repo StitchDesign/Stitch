@@ -91,12 +91,12 @@ extension StitchDocumentViewModel {
     
     @MainActor
     func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
-                                      valueType: Step_V0.NodeType,
+                                      valueType: AIGraphData_V0.NodeType,
                                       data: (any Codable & Sendable),
                                       idMap: inout [String : UUID]) throws {
         let graph = self.visibleGraph
         
-        let value = try Step_V0.PortValue.decodeFromAI(data: data,
+        let value = try AIGraphData_V0.PortValue.decodeFromAI(data: data,
                                                        valueType: valueType,
                                                        idMap: &idMap)
         let migratedValue = try value.migrate()
@@ -345,7 +345,7 @@ extension NodeIOCoordinate {
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         
-        let portType = Step_V0.NodeIOPortType
+        let portType = AIGraphData_V0.NodeIOPortType
             .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.value,
                            portType: .packed))
         

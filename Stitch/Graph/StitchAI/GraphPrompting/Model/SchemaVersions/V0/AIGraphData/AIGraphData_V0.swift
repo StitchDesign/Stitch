@@ -37,8 +37,8 @@ enum AIGraphData_V0 {
         let node_id: String
         let javascript_source_code: String
         let suggested_title: String
-        let input_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
-        let output_definitions: [JavaScriptPortDefinitionAI_V0.JavaScriptPortDefinitionAI]
+        let input_definitions: [JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI]
+        let output_definitions: [JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI]
     }
     
     struct NativePatchNode: Codable {
@@ -77,28 +77,42 @@ enum AIGraphData_V0 {
         let value_type: StitchAINodeType
     }
     
-    struct CustomLayerInputValue: Codable {
+    struct CustomLayerInputValue {
         var layer_input_coordinate: LayerInputCoordinate
         let value: any (Codable & Sendable)
         let value_type: StitchAINodeType
     }
     
     struct AILayerInputPort {
-        var value: LayerInputPort_V31.LayerInputPort
+        var value: AIGraphData_V0.LayerInputPort
     }
     
     struct StitchAIPatchOrLayer: StitchAIStringConvertable {
-        var value: Step_V0.PatchOrLayer
+        var value: AIGraphData_V0.PatchOrLayer
     }
     
     struct StitchAINodeType: StitchAIStringConvertable {
-        var value: Step_V0.NodeType
+        var value: AIGraphData_V0.NodeType
+    }
+    
+    public enum PatchOrLayer: Hashable, Equatable {
+        case patch(AIGraphData_V0.Patch), layer(AIGraphData_V0.Layer)
     }
 }
 
-extension Step_V0.PatchOrLayer: StitchAIValueStringConvertable {
+extension AIGraphData_V0.PatchOrLayer: StitchAIValueStringConvertable {
     var encodableString: String {
         self.asLLMStepNodeName
+    }
+    
+    var asLLMStepNodeName: String {
+        switch self {
+        case .patch(let x):
+            // e.g. Patch.squareRoot -> "Square Root" -> "squareRoot || Patch"
+            return x.aiDisplayTitle
+        case .layer(let x):
+            return x.aiDisplayTitle
+        }
     }
     
     public init?(_ description: String) {
@@ -107,6 +121,53 @@ extension Step_V0.PatchOrLayer: StitchAIValueStringConvertable {
         } catch {
             fatalErrorIfDebug("PatchOrLayer error: \(error.localizedDescription)")
             return nil
+        }
+    }
+    
+    // Note: Swift `init?` is tricky for returning nil vs initializing self; we have to both initialize self *and* return, else we continue past if/else branches etc.;
+    // let's prefer functions with clearer return values
+    static func fromLLMNodeName(_ nodeName: String) throws -> Self {
+        // E.G. from "squareRoot || Patch", grab just the camelCase "squareRoot"
+        if let nodeKindName = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) {
+            
+            // Tricky: can't use `Patch(rawValue:)` constructor since newer patches use a non-camelCase rawValue
+            if let patch = AIGraphData_V0.Patch.allCases.first(where: {
+                // e.g. Patch.squareRoot 1-> "Square Root" -> "squareRoot"
+                let patchDisplay = $0.defaultDisplayTitle().toCamelCase()
+                return patchDisplay == nodeKindName
+            }) {
+                return .patch(patch)
+            }
+            
+            //Handle cases where we have numbers...
+            if nodeKindName == "base64StringToImage" {
+                return .patch(.base64StringToImage)
+            }
+            
+            if nodeKindName == "imageToBase64String" {
+                return .patch(.imageToBase64String)
+            }
+            
+            if nodeKindName == "arcTan2" {
+                return .patch(.arcTan2)
+            }
+            
+            else if let layer = AIGraphData_V0.Layer.allCases.first(where: {
+                $0.defaultDisplayTitle().toCamelCase() == nodeKindName
+            }) {
+                return .layer(layer)
+            }
+        }
+        
+        throw StitchAIParsingError.nodeNameParsing(nodeName)
+    }
+    
+    var description: String {
+        switch self {
+        case .patch(let patch):
+            return patch.defaultDisplayTitle()
+        case .layer(let layer):
+            return layer.defaultDisplayTitle()
         }
     }
 }
@@ -120,7 +181,7 @@ extension AIGraphData_V0.AILayerInputPort: Codable {
         
         // Try decoding as different types, converting each to string
         if let stringValue = try? container.decode(String.self),
-           let valueFromString = LayerInputPort_V31.LayerInputPort.allCases
+           let valueFromString = AIGraphData_V0.LayerInputPort.allCases
             .first(where: { $0.asLLMStepPort == stringValue }) {
             self.init(value: valueFromString)
         } else {
@@ -165,8 +226,13 @@ extension AIGraphData_V0.CustomPatchInputValue {
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(patch_input_coordinate, forKey: .patch_input_coordinate)
-        try container.encode(value_type, forKey: .value_type)
-        try container.encode(value, forKey: .value)
+        
+        // Encodes values in manner that produces friendly printable result
+        try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
+                                                  valueData: self.value,
+                                                  valueType: self.value_type,
+                                                  valueKey: .value,
+                                                  valueTypeKey: .value_type)
     }
 }
 
@@ -210,9 +276,9 @@ extension AIGraphData_V0.LayerData: Codable {
 
 extension AIGraphData_V0.CustomLayerInputValue {
     init(id: UUID,
-         input: Step_V0.LayerInputPort,
-         value: Step_V0.PortValue) throws {
-        let data = try JSONEncoder().encode(value.anyCodable)
+         input: AIGraphData_V0.LayerInputPort,
+         value: AIGraphData_V0.PortValue) throws {
+        let data = value.anyCodable
         
         self = .init(layer_input_coordinate: .init(
             layer_id: .init(id),
@@ -222,7 +288,7 @@ extension AIGraphData_V0.CustomLayerInputValue {
     }
 }
 
-extension AIGraphData_V0.CustomLayerInputValue {
+extension AIGraphData_V0.CustomLayerInputValue: Codable {
     enum CodingKeys: String, CodingKey {
         case layer_input_coordinate
         case value
@@ -247,16 +313,21 @@ extension AIGraphData_V0.CustomLayerInputValue {
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(layer_input_coordinate, forKey: .layer_input_coordinate)
-        try container.encode(value_type, forKey: .value_type)
-        try container.encode(value, forKey: .value)
+        
+        // Encodes values in manner that produces friendly printable result
+        try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
+                                                  valueData: self.value,
+                                                  valueType: self.value_type,
+                                                  valueKey: .value,
+                                                  valueTypeKey: .value_type)
     }
 }
 
 // TODO: move
-extension Step_V0.PortValue {
+extension AIGraphData_V0.PortValue {
     static func decodeFromAI(data: (any Codable & Sendable),
-                             valueType: Step_V0.NodeType,
-                             idMap: inout [String : UUID]) throws -> Step_V0.PortValue {
+                             valueType: AIGraphData_V0.NodeType,
+                             idMap: inout [String : UUID]) throws -> AIGraphData_V0.PortValue {
         do {
             let value = try valueType.coerceToPortValueForStitchAI(from: data,
                                                                    idMap: idMap)
@@ -278,11 +349,31 @@ extension Step_V0.PortValue {
     }
     
     static func encodeFromAI<CodingKeys: CodingKey>(container: inout KeyedEncodingContainer<CodingKeys>,
-                                                    portValue: Step_V0.PortValue,
+                                                    portValue: AIGraphData_V0.PortValue,
                                                     valueKey: CodingKeys,
                                                     valueTypeKey: CodingKeys) throws {
         try container.encode(portValue.anyCodable, forKey: valueKey)
         try container.encode(portValue.nodeType, forKey: valueTypeKey)
+    }
+    
+    static func encodeFromAI<CodingKeys: CodingKey>(container: inout KeyedEncodingContainer<CodingKeys>,
+                                                    valueData: any Codable,
+                                                    valueType: AIGraphData_V0.StitchAINodeType,
+                                                    valueKey: CodingKeys,
+                                                    valueTypeKey: CodingKeys) throws {
+        try container.encode(valueType, forKey: valueTypeKey)
+        
+        // Encodes values with friendly format
+        if let data = valueData as? Data {
+            var fakeMap = [String : UUID]()
+            let portValue = try AIGraphData_V0.PortValue.decodeFromAI(data: data,
+                                                                      valueType: valueType.value,
+                                                                      idMap: &fakeMap)
+            
+            try container.encode(portValue.anyCodable, forKey: valueKey)
+        } else {
+            try container.encode(valueData, forKey: valueKey)
+        }
     }
 }
 
@@ -310,7 +401,7 @@ extension AIGraphData_V0.LayerData {
     }
 }
 
-extension Step_V0.NodeType: StitchAIValueStringConvertable {
+extension AIGraphData_V0.NodeType: StitchAIValueStringConvertable {
     public init?(_ description: String) {
         guard let type = Self.init(llmString: description) else {
             return nil
@@ -325,5 +416,16 @@ extension Step_V0.NodeType: StitchAIValueStringConvertable {
     
     public var description: String {
         self.asLLMStepNodeType
+    }
+}
+
+extension CurrentAIGraphData.JavaScriptPortDefinition {
+    init(_ portDefinition: JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI) throws {
+        let migratedNodeType = try NodeTypeVersion
+            .migrate(entity: portDefinition.strict_type,
+                     version: CurrentAIGraphData.documentVersion)
+        
+        self.init(label: portDefinition.label,
+                  strictType: migratedNodeType)
     }
 }

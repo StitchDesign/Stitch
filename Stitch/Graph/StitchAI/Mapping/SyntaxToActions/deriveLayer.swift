@@ -23,9 +23,9 @@ extension SyntaxViewModifierName {
     // May or may not correspond to SwiftUI view modifier's own default argument,
     // e.g. `.clipped`'s default argument is for antialiasing, not whether the view is clipped or not (which is what Stitch's clipped layer-input is about).
     func deriveDefaultPortValueForArgumentlessViewModifier(
-//        layer: CurrentStep.Layer,
+//        layer: CurrentAIGraphData.Layer,
 //        layerInput: CurrentLayerInputPort
-    ) throws -> CurrentStep.PortValue? {
+    ) throws -> CurrentAIGraphData.PortValue? {
         
         // defaultValue
         
@@ -376,7 +376,7 @@ extension SyntaxViewName {
                          childrenLayers: [CurrentAIGraphData.LayerData]) throws -> LayerDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         var layerData: CurrentAIGraphData.LayerData
-        let layerType: CurrentStep.Layer
+        let layerType: CurrentAIGraphData.Layer
         
         switch args {
             
@@ -474,7 +474,7 @@ extension SyntaxViewName {
     
     func deriveInputValuesData(args: [SyntaxViewArgumentData],
                                id: UUID,
-                               layerType: CurrentStep.Layer) throws -> LayerInputValuesDerivationResult {
+                               layerType: CurrentAIGraphData.Layer) throws -> LayerInputValuesDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         
         // Else fall back to legacy style:
@@ -509,9 +509,9 @@ extension SyntaxViewName {
         id: UUID,
         args: [SyntaxViewArgumentData],
         childrenLayers: [CurrentAIGraphData.LayerData]
-    ) throws -> (CurrentStep.Layer, CurrentAIGraphData.LayerData) {
+    ) throws -> (CurrentAIGraphData.Layer, CurrentAIGraphData.LayerData) {
         
-        var layerType: CurrentStep.Layer
+        var layerType: CurrentAIGraphData.Layer
         var customValues: [CurrentAIGraphData.CustomLayerInputValue] = []
         
         switch self {
@@ -675,7 +675,7 @@ extension SyntaxViewName {
     }
     
     func deriveCustomValuesFromConstructorArgument(id: UUID,
-                                                   layerType: CurrentStep.Layer,
+                                                   layerType: CurrentAIGraphData.Layer,
                                                    arg: SyntaxViewArgumentData
     ) throws -> [CurrentAIGraphData.CustomLayerInputValue] {
         
@@ -713,7 +713,7 @@ extension SyntaxViewName {
     }
     
     private static func deriveCustomValuesFromViewModifier(id: UUID,
-                                                           layerType: CurrentStep.Layer,
+                                                           layerType: CurrentAIGraphData.Layer,
                                                            modifier: SyntaxViewModifier) throws -> LayerInputViewModification? {
         
         
@@ -768,8 +768,8 @@ extension SyntaxViewName {
         from arguments: [SyntaxViewArgumentData],
         modifierName: SyntaxViewModifierName,
         id: UUID,
-        port: CurrentStep.LayerInputPort, // simple because we have a single layer
-        layerType: CurrentStep.Layer
+        port: CurrentAIGraphData.LayerInputPort, // simple because we have a single layer
+        layerType: CurrentAIGraphData.Layer
     ) throws -> CurrentAIGraphData.CustomLayerInputValue? {
         //        let migratedPort = try port.convert(to: LayerInputPort.self)
         //        let migratedLayerType = try layerType.convert(to: Layer.self)
@@ -794,9 +794,9 @@ extension SyntaxViewName {
     private static func derivePortValue(
         from arguments: [SyntaxViewArgumentData],
         modifierName: SyntaxViewModifierName,
-        port: CurrentStep.LayerInputPort,
-        layerType: CurrentStep.Layer
-    ) throws -> CurrentStep.PortValue? {
+        port: CurrentAIGraphData.LayerInputPort,
+        layerType: CurrentAIGraphData.Layer
+    ) throws -> CurrentAIGraphData.PortValue? {
         // Note: some modifiers can have no arguments, e.g. `.padding()`, `.clipped()`
         // In such a case, we return a default value for that SwiftUI view modifier.
         guard !arguments.isEmpty else {
@@ -823,18 +823,17 @@ extension SyntaxViewName {
             let valueType = try port.getDefaultValue(layerType: layerType).nodeType
             
             let migratedValues = try portValuesFromArgs.map {
-                try PortValueVersion.migrate(entity: $0,
-                                             version: ._V31)
+                try $0.migrate()
             }
             
             let packedValue = migratedValues.pack(type: valueType)
-            let aiPackedValue = try packedValue.convert(to: CurrentStep.PortValue.self)
+            let aiPackedValue = try packedValue.convert(to: CurrentAIGraphData.PortValue.self)
             return aiPackedValue
         }
     }
 
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
-                                 context: SyntaxArgumentConstructorContext?) throws -> [CurrentStep.PortValue] {
+                                 context: SyntaxArgumentConstructorContext?) throws -> [CurrentAIGraphData.PortValue] {
         
         switch argument {
         
@@ -854,7 +853,7 @@ extension SyntaxViewName {
                 
             case .portValueDescription:
                 do {
-                    let aiPortValue = try complexType.arguments.decode(StitchAIPortValue.self)
+                    let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
                     return [aiPortValue.value]
                 } catch {
                     print("PortValue decoding error: \(error)")
@@ -916,7 +915,7 @@ extension SyntaxViewName {
                     case .layerGroupAlignment:
                         if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
 //                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
-                           let migrated = try? anchoring.convert(to: Anchoring.PreviousCodable.self) {
+                           let migrated = try? anchoring.convert(to: Anchoring.self) {
                             return [.anchoring(migrated)]
                         } else {
                             throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
@@ -970,13 +969,13 @@ extension SyntaxViewName {
             
             // Decode dictionary, getting a PortValue
             let data = try JSONEncoder().encode(aiPortValueEncoding)
-            let aiPortValue = try JSONDecoder().decode(StitchAIPortValue.self, from: data)
+            let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
             return [aiPortValue.value]
         }
     }
     
     static func deriveCustomValuesFromRotationLayerInputTranslation(id: UUID,
-                                                                    layerType: CurrentStep.Layer,
+                                                                    layerType: CurrentAIGraphData.Layer,
                                                                     modifier: SyntaxViewModifier) throws -> [CurrentAIGraphData.CustomLayerInputValue] {
         var customValues = [CurrentAIGraphData.CustomLayerInputValue]()
         
@@ -991,7 +990,7 @@ extension SyntaxViewName {
         
         // degrees = *how much* we're rotating the given rotation layer input
         // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
-        let fn = { (port: CurrentStep.LayerInputPort, portValue: CurrentStep.PortValue) in
+        let fn = { (port: CurrentAIGraphData.LayerInputPort, portValue: CurrentAIGraphData.PortValue) in
             customValues.append(try .init(id: id, input: port, value: portValue))
         }
         
@@ -1027,8 +1026,8 @@ extension SyntaxViewName {
     }
 }
 
-extension CurrentStep.LayerInputPort {
-    func getDefaultValue(layerType: CurrentStep.Layer) throws -> PortValue {
+extension CurrentAIGraphData.LayerInputPort {
+    func getDefaultValue(layerType: CurrentAIGraphData.Layer) throws -> PortValue {
         
 #if DEV_DEBUG
         let migratedPort = try! self.convert(to: LayerInputPort.self)
@@ -1062,12 +1061,12 @@ extension SyntaxArgumentLiteralKind {
 }
 
 enum SyntaxArgumentConstructorContext {
-    case viewConstructor(SyntaxViewName, CurrentStep.LayerInputPort)
-    case viewModifier(CurrentStep.LayerInputPort)
+    case viewConstructor(SyntaxViewName, CurrentAIGraphData.LayerInputPort)
+    case viewModifier(CurrentAIGraphData.LayerInputPort)
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues() throws -> [CurrentStep.PortValue] {
+    func derivePortValues() throws -> [CurrentAIGraphData.PortValue] {
         try SyntaxViewName.derivePortValues(from: self,
                                             context: nil)
     }
