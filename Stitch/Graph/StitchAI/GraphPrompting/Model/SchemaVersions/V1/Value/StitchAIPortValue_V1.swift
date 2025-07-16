@@ -89,7 +89,7 @@ extension StitchAIPortValue_V1.PortValue {
         self = value
     }
     
-    var anyCodable: any Codable {
+    var anyCodable: any (Codable & Sendable) {
         switch self {
         case .string(let x):
             return x.string
