@@ -77,7 +77,7 @@ enum AIGraphData_V0 {
         let value_type: StitchAINodeType
     }
     
-    struct CustomLayerInputValue: Codable {
+    struct CustomLayerInputValue {
         var layer_input_coordinate: LayerInputCoordinate
         let value: any (Codable & Sendable)
         let value_type: StitchAINodeType
@@ -226,8 +226,13 @@ extension AIGraphData_V0.CustomPatchInputValue {
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(patch_input_coordinate, forKey: .patch_input_coordinate)
-        try container.encode(value_type, forKey: .value_type)
-        try container.encode(value, forKey: .value)
+        
+        // Encodes values in manner that produces friendly printable result
+        try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
+                                                  valueData: self.value,
+                                                  valueType: self.value_type,
+                                                  valueKey: .value,
+                                                  valueTypeKey: .value_type)
     }
 }
 
@@ -273,7 +278,7 @@ extension AIGraphData_V0.CustomLayerInputValue {
     init(id: UUID,
          input: AIGraphData_V0.LayerInputPort,
          value: AIGraphData_V0.PortValue) throws {
-        let data = try JSONEncoder().encode(value.anyCodable)
+        let data = value.anyCodable
         
         self = .init(layer_input_coordinate: .init(
             layer_id: .init(id),
@@ -283,7 +288,7 @@ extension AIGraphData_V0.CustomLayerInputValue {
     }
 }
 
-extension AIGraphData_V0.CustomLayerInputValue {
+extension AIGraphData_V0.CustomLayerInputValue: Codable {
     enum CodingKeys: String, CodingKey {
         case layer_input_coordinate
         case value
@@ -308,8 +313,13 @@ extension AIGraphData_V0.CustomLayerInputValue {
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(layer_input_coordinate, forKey: .layer_input_coordinate)
-        try container.encode(value_type, forKey: .value_type)
-        try container.encode(value, forKey: .value)
+        
+        // Encodes values in manner that produces friendly printable result
+        try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
+                                                  valueData: self.value,
+                                                  valueType: self.value_type,
+                                                  valueKey: .value,
+                                                  valueTypeKey: .value_type)
     }
 }
 
@@ -344,6 +354,26 @@ extension AIGraphData_V0.PortValue {
                                                     valueTypeKey: CodingKeys) throws {
         try container.encode(portValue.anyCodable, forKey: valueKey)
         try container.encode(portValue.nodeType, forKey: valueTypeKey)
+    }
+    
+    static func encodeFromAI<CodingKeys: CodingKey>(container: inout KeyedEncodingContainer<CodingKeys>,
+                                                    valueData: any Codable,
+                                                    valueType: AIGraphData_V0.StitchAINodeType,
+                                                    valueKey: CodingKeys,
+                                                    valueTypeKey: CodingKeys) throws {
+        try container.encode(valueType, forKey: valueTypeKey)
+        
+        // Encodes values with friendly format
+        if let data = valueData as? Data {
+            var fakeMap = [String : UUID]()
+            let portValue = try AIGraphData_V0.PortValue.decodeFromAI(data: data,
+                                                                      valueType: valueType.value,
+                                                                      idMap: &fakeMap)
+            
+            try container.encode(portValue.anyCodable, forKey: valueKey)
+        } else {
+            try container.encode(valueData, forKey: valueKey)
+        }
     }
 }
 
