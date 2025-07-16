@@ -330,7 +330,7 @@ extension NodeIOCoordinate {
     init(from aiPatchCoordinate: CurrentAIGraphData.NodeIndexedCoordinate,
          idMap: [String : UUID]) throws {
         guard let newId = idMap.get(aiPatchCoordinate.node_id) else {
-            fatalErrorIfDevDebug("updateCustomInputValueFromAI: idMap did not have aiPatchCoordinate.node_id \(aiPatchCoordinate.node_id), idMap: \(idMap)")
+            log("updateCustomInputValueFromAI: idMap did not have aiPatchCoordinate.node_id \(aiPatchCoordinate.node_id), idMap: \(idMap)")
             throw AIPatchBuilderRequestError.nodeIdNotFound
         }
         

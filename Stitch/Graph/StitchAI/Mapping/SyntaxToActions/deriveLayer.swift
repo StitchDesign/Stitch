@@ -839,31 +839,8 @@ extension SyntaxViewName {
         
         // Handles types like PortValueDescription
         case .complex(let complexType):
-            let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
-            switch complexTypeName {
-            case .none:
-                // Default scenario looks for first arg and extracts PortValue data
-                guard complexType.arguments.count == 1,
-                      let firstArg = complexType.arguments.first else {
-                    throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
-                }
-                
-                // Search for simple value recursively
-                return try Self.derivePortValues(from: firstArg.value, context: context)
-                
-            case .portValueDescription:
-                do {
-                    let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
-                    return [aiPortValue.value]
-                } catch {
-                    print("PortValue decoding error: \(error)")
-                    throw error
-                }
-            
-            case .binding:
-                // Do nothing for bindings
-                return []
-            }
+            return try handleComplexArgumentType(complexType,
+                                                 context: context)
             
         case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
@@ -1023,6 +1000,36 @@ extension SyntaxViewName {
         }
         
         return customValues
+    }
+}
+
+func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
+                               context: SyntaxArgumentConstructorContext?) throws -> [CurrentAIGraphData.PortValue] {
+    
+    let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
+    switch complexTypeName {
+    case .none:
+        // Default scenario looks for first arg and extracts PortValue data
+        guard complexType.arguments.count == 1,
+              let firstArg = complexType.arguments.first else {
+            throw SwiftUISyntaxError.unsupportedComplexValueType(complexType.typeName)
+        }
+        
+        // Search for simple value recursively
+        return try SyntaxViewName.derivePortValues(from: firstArg.value, context: context)
+        
+    case .portValueDescription:
+        do {
+            let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
+            return [aiPortValue.value]
+        } catch {
+            print("PortValue decoding error: \(error)")
+            throw error
+        }
+    
+    case .binding:
+        // Do nothing for bindings
+        return []
     }
 }
 

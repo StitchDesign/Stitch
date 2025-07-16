@@ -153,7 +153,7 @@ The listed views below are the only permitted views inside a `var body`:
 ["AngularGradient", "Canvas", "Circle", "Ellipse", "Grid", "LazyHGrid", "LazyHStack", "LazyVGrid", "LazyVStack", "Map", "Material", "Model3D", "ProgressView", "RadialGradient", "Rectangle", "RoundedRectangle", "ScrollView", "Text", "TextField", "Toggle", "VideoPlayer", "VStack", "HStack", "ZStack", "Image", "LinearGradient", "SecureField"]
 ```
 ### Disallowed Views
-* `GeometryReader`: use the "deviceInfo || Patch" native patch funciton for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
+* `GeometryReader`: use the "deviceInfo || Patch" native patch function for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
 * `Spacer`: use `rectangle || Layer` with opacity = 0 and size = auto or some specific size that makes sense for the layout.
 The full list of unsupported views includes:
 ```

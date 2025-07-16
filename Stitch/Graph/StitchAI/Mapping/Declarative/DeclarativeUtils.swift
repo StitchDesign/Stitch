@@ -272,6 +272,80 @@ extension SyntaxViewMemberAccess {
         }
     }
 }
+
+// ---------------------------------------------------------------
+//  1.  Helper on the *value* enum
+// ---------------------------------------------------------------
+extension SyntaxViewModifierArgumentType {
+    /// Returns a Swift `Bool` when the argument is literally `true` / `false`.
+    var boolLiteral: Bool? {
+        switch self {
+        case .simple(let data)
+            where data.syntaxKind == .boolean:
+            return data.value.lowercased() == "true"
+
+        case .memberAccess(let ma):                // in case you ever get `.true`
+            if ma.base == nil {                    //  ^ rarely used, but valid Swift
+                switch ma.property {
+                case "true":  return true
+                case "false": return false
+                default:      return nil
+                }
+            }
+            return nil
+
+        default:
+            return nil                            // tuple / array / complex ➜ *not* a literal
+        }
+    }
+}
+
+//// MARK: Axis-Set helper  (single or array literal)
+//extension SyntaxViewModifierArgumentType {
+//
+//    /// Converts the argument into `Parameter<Axis.Set>`.
+//    /// * `.vertical`, `.horizontal`, `.all`                 → `.literal`
+//    /// * `[.vertical]`, `[.horizontal, .vertical]`          → `.literal`
+//    /// * anything else (e.g.  `myAxesVar`)                  → `.expression`
+//    func asParameterAxisSet() -> Parameter<Axis.Set> {
+//
+//        switch self {
+//
+//        // 1️⃣  Member access  (.vertical / .horizontal / .all)
+//        case .memberAccess(let ma):
+//            switch ma.property {
+//            case "vertical":   return .literal(.vertical)
+//            case "horizontal": return .literal(.horizontal)
+//            case "all":        return .literal([.vertical, .horizontal])
+//            default: break
+//            }
+//
+//        // 2️⃣  Array literal  ([.vertical, .horizontal] or [.vertical])
+//        case .array(let elements):
+//            var set: Axis.Set = []
+//            for el in elements {
+//                if case let .memberAccess(ma) = el {
+//                    switch ma.property {
+//                    case "vertical":   set.insert(.vertical)
+//                    case "horizontal": set.insert(.horizontal)
+//                    default:
+//                        break
+//                    }
+//                }
+//            }
+//            
+//            if !set.isEmpty {
+//                return .literal(set)
+//            } else {
+//                
+//            }
+//
+//        // 3️⃣  Couldn’t reduce to literal → treat as expression edge
+//        return .expression(makeExprSyntax())
+//    }
+//}
+
+
 //
 //    func asParameterCGSize() -> Parameter<CGSize> {
 //        if let tuple = expression.as(TupleExprSyntax.self),
@@ -295,13 +369,16 @@ extension SyntaxViewMemberAccess {
 //        }
 //        return .expression(expression)
 //    }
-//    
-//    func asParameterBool() -> Parameter<Bool> {
-//        if let bool = expression.as(BooleanLiteralExprSyntax.self) {
-//            return .literal(bool.literal.text == "true")
-//        }
-//        return .expression(expression)
+//
+
+
+
+//func asParameterBool() -> Parameter<Bool> {
+//    if let bool = expression.as(BooleanLiteralExprSyntax.self) {
+//        return .literal(bool.literal.text == "true")
 //    }
+//    return .expression(expression)
+//}
 
 //extension Parameter where Value: CustomStringConvertible {
 //    /// Fragment suitable for regenerating Swift source.

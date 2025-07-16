@@ -88,28 +88,34 @@ extension SyntaxViewName {
         // Check the scroll axis from constructor arguments
         // let scrollAxis = Self.detectScrollAxis(args: args)
       
-        var groupLayer: CurrentAIGraphData.LayerData  
+        // var groupLayer: CurrentAIGraphData.LayerData
         let isFirstLayerGroup = childrenLayers.first?.node_name.value.layer?.isGroupForAI ?? false
         let hasRootGroupLayer = childrenLayers.count == 1 && isFirstLayerGroup
         
         // Create a new nested VStack if no root group
         if hasRootGroupLayer,
-           let _groupData = childrenLayers.first {
-            groupLayer = _groupData
+           let _groupData: CurrentAIGraphData.LayerData = childrenLayers.first {
+            return _groupData
         } else if !hasRootGroupLayer {
             // Add new node as middle-man
+            let newId = UUID()
             let newGroupNode = CurrentAIGraphData
-                .LayerData(node_id: UUID().description,
+                .LayerData(node_id: newId.description,
                            node_name: .init(value: .layer(.group)),
-                           children: childrenLayers)
-            
-            groupLayer = newGroupNode
+                           children: childrenLayers,
+                           // the new group node should be a VStack, i.e. a layer group with orientation = .vertical
+                           custom_layer_input_values: [
+                            try AIGraphData_V0.CustomLayerInputValue.init(
+                                id: newId,
+                                input: .orientation,
+                                value: .orientation(.vertical))
+                           ])
+                        
+            return newGroupNode
         } else {
             fatalErrorIfDebug("Unexpected scenario for groups in scroll.")
             throw SwiftUISyntaxError.groupLayerDecodingFailed
         }
-        
-        return groupLayer
     }
 }
 
