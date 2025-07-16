@@ -167,7 +167,7 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
     }
 }
 
-extension StitchAINodeType {
+extension CurrentStep.NodeType {
     /// Migrates Stitch AI's node type to runtime.
     func migrate() throws -> NodeType {
         try NodeTypeVersion.migrate(entity: self,

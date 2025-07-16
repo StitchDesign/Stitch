@@ -13,6 +13,8 @@ enum AICodeGenError: Error {
 }
 
 extension AIGraphData_V0 {
+    static let documentVersion = StitchSchemaVersion._V32
+    
     typealias GraphEntity = GraphEntity_V32.GraphEntity
     typealias NodeEntity = NodeEntity_V32.NodeEntity
     typealias PatchNodeEntity = PatchNodeEntity_V32.PatchNodeEntity
@@ -214,6 +216,6 @@ extension AIGraphData_V0.NodeType {
     /// Migrates Stitch AI's node type to runtime.
     func migrate() throws -> NodeType {
         try NodeTypeVersion.migrate(entity: self,
-                                    version: CurrentStep.documentVersion)
+                                    version: AIGraphData_V0.documentVersion)
     }
 }

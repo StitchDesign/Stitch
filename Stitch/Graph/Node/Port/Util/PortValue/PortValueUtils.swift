@@ -526,6 +526,6 @@ extension CurrentAIGraphData.PortValue {
     /// Migrates Stitch AI's PortValue to runtime.
     func migrate() throws -> PortValue {
         try PortValueVersion.migrate(entity: self,
-                                     version: CurrentStep.documentVersion)
+                                     version: CurrentAIGraphData.documentVersion)
     }
 }
