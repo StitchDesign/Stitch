@@ -823,8 +823,7 @@ extension SyntaxViewName {
             let valueType = try port.getDefaultValue(layerType: layerType).nodeType
             
             let migratedValues = try portValuesFromArgs.map {
-                try PortValueVersion.migrate(entity: $0,
-                                             version: ._V31)
+                try $0.migrate()
             }
             
             let packedValue = migratedValues.pack(type: valueType)

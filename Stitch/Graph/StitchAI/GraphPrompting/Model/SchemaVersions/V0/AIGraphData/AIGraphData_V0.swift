@@ -419,11 +419,11 @@ extension AIGraphData_V0.NodeType: StitchAIValueStringConvertable {
     }
 }
 
-extension JavaScriptPortDefinition {
+extension CurrentAIGraphData.JavaScriptPortDefinition {
     init(_ portDefinition: JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI) throws {
         let migratedNodeType = try NodeTypeVersion
             .migrate(entity: portDefinition.strict_type,
-                     version: CurrentStep.documentVersion)
+                     version: CurrentAIGraphData.documentVersion)
         
         self.init(label: portDefinition.label,
                   strictType: migratedNodeType)

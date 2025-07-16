@@ -29,6 +29,7 @@ enum Step_V0: StitchSchemaVersionable {
     typealias StitchAIUUid = StitchAIUUID_V0.StitchAIUUID
     typealias LayerNodeId = LayerNodeId_V31.LayerNodeId
     typealias NodeIOCoordinate = NodeIOCoordinate_V31.NodeIOCoordinate
+    typealias JavaScriptPortDefinition = JavaScriptPortDefinition_V32.JavaScriptPortDefinition
     
     typealias PreviousInstance = Self.Step
     // MARK: - end
