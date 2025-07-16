@@ -33,11 +33,13 @@ enum AICodeGenRequestBody_V0 {
             
             let inputsString = try inputs.encodeToPrintableString()
             
+            print("AICodeGenRequestBody: incoming graph data:\n\((try? currentGraphData.encodeToPrintableString()) ?? "")")
+            
             self.messages = [
                 .init(role: .system,
                       content: systemPrompt),
                 .init(role: .user,
-                      content: prompt)
+                      content: inputsString)
             ]
         }
     }
