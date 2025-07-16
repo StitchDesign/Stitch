@@ -388,3 +388,14 @@ extension AIGraphData_V0.NodeType: StitchAIValueStringConvertable {
         self.asLLMStepNodeType
     }
 }
+
+extension JavaScriptPortDefinition {
+    init(_ portDefinition: JavaScriptPortDefinitionAI_V1.JavaScriptPortDefinitionAI) throws {
+        let migratedNodeType = try NodeTypeVersion
+            .migrate(entity: portDefinition.strict_type,
+                     version: CurrentStep.documentVersion)
+        
+        self.init(label: portDefinition.label,
+                  strictType: migratedNodeType)
+    }
+}

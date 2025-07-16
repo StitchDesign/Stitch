@@ -140,3 +140,23 @@ extension AIGraphData_V0.PatchOrLayer {
         }
     }
 }
+
+extension AIGraphData_V0.Layer {
+    var isGroupForAI: Bool {
+        switch self {
+        case .group, .realityView:
+            return true
+            
+        default:
+            return false
+        }
+    }
+}
+
+extension AIGraphData_V0.NodeType {
+    /// Migrates Stitch AI's node type to runtime.
+    func migrate() throws -> NodeType {
+        try NodeTypeVersion.migrate(entity: self,
+                                    version: CurrentStep.documentVersion)
+    }
+}
