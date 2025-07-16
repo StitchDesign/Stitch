@@ -284,7 +284,7 @@ PatchData(
 
      custom_patch_input_values: [
     Stitch.AIPatchBuilderResponseFormat_V0.CustomPatchInputValue(
-        patch_input_coordinate: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "11111111-1111-1111-1111-111111111111", port_index: 1), 
+        patch_input_coordinate: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "11111111-1111-1111-1111-111111111111", port_index: 0), 
         value: 100.0, 
         value_type: Stitch.AIPatchBuilderResponseFormat_V0.StitchAINodeType(value: number)),
         ...
