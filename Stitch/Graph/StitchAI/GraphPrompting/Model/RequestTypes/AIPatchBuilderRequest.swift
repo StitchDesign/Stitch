@@ -119,9 +119,9 @@ extension StitchDocumentViewModel {
 extension CurrentAIGraphData.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel) throws {
-        let graphEntity = try self.createAIGraph(graphCenter: document.viewPortCenter,
-                                                 highestZIndex: document.visibleGraph.highestZIndex,
-                                                 existingGraph: document.visibleGraph)
+        try self.createAIGraph(graphCenter: document.viewPortCenter,
+                               highestZIndex: document.visibleGraph.highestZIndex,
+                               document: document)
 //        document.visibleGraph
 //            .insertNewComponent(graphEntity: graphEntity,
 //                                encoder: document.documentEncoder,
@@ -130,8 +130,6 @@ extension CurrentAIGraphData.GraphData {
 //                                isCopyPaste: false,
 //                                originGraphOutputValuesMap: .init(),
 //                                document: document)
-        
-        document.visibleGraph.update(from: graphEntity)
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
@@ -146,13 +144,12 @@ extension CurrentAIGraphData.GraphData {
     @MainActor
     func createAIGraph(graphCenter: CGPoint,
                        highestZIndex: Double,
-                       existingGraph: GraphState) throws -> GraphEntity {
-        let document = StitchDocumentViewModel.createEmpty()
+                       document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
         // Make sure currently used IDs are tracked so we don't create redundant nodes
-        var idMap = existingGraph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
+        var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
             result.updateValue(nodeId, forKey: nodeId.description)
         }
         
@@ -173,7 +170,7 @@ extension CurrentAIGraphData.GraphData {
             let newId = idMap.get(newPatch.node_id) ?? UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id)
             
-            let newNode = existingGraph.nodes.get(newId) ?? graph
+            let newNode = graph.nodes.get(newId) ?? graph
                 .createNode(graphTime: .zero,
                             newNodeId: newId,
                             highestZIndex: highestZIndex,
@@ -201,7 +198,7 @@ extension CurrentAIGraphData.GraphData {
             idMap.updateValue(newId, forKey: oldId)
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
-            let newNode = existingGraph.nodes.get(newId) ?? graph
+            let newNode = graph.nodes.get(newId) ?? graph
                 .createNode(graphTime: .zero,
                             newNodeId: newId,
                             highestZIndex: highestZIndex,
@@ -248,7 +245,7 @@ extension CurrentAIGraphData.GraphData {
         for newLayer in self.layer_data_list {
             // Recursive caller
             try document.createLayerNodeFromAI(newLayer: newLayer,
-                                               existingGraph: existingGraph,
+                                               existingGraph: graph,
                                                idMap: &idMap)
         }
         
@@ -331,10 +328,18 @@ extension CurrentAIGraphData.GraphData {
             let _ = document.visibleGraph.edgeAdded(edge: edge)
         }
         
-        var graphEntity = document.graph.createSchema()
-        graphEntity.id = existingGraph.id.value
+        // Delete unused nodes
+        let allNewIds = self.patch_data.javascript_patches.map(\.node_id) +
+        self.patch_data.native_patches.map(\.node_id) +
+        self.layer_data_list.allFlattenedItems.map(\.node_id)
         
-        return graphEntity
+        let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
+        let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
+
+        for nodeIdToDelete in nodeIdsToDelete {
+            document.visibleGraph.deleteNode(id: nodeIdToDelete,
+                                             document: document)
+        }
     }
 }
 
