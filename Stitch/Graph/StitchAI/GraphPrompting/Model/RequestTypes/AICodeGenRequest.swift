@@ -73,9 +73,7 @@ struct AICodeGenRequest: StitchAIRequestable {
             let request = try! AICodeGenRequest(
                 prompt: userPrompt,
                 base64ImageDescription: base64TestImage.value)
-            
-            print("getRequestTask: request: \(request)")
-            
+                        
             guard let document = document,
                   let aiManager = document.aiManager else {
                 log("getRequestTask: AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)

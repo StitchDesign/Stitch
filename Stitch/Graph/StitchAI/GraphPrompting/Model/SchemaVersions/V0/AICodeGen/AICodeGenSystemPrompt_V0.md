@@ -370,6 +370,27 @@ These native patch nodes support the following events from the Stitch app, and c
 ### Stitch Event Invocation
 * "restartPrototype || Patch": triggers a prototype restart when its pulse input is invoked.
 # Data Glossary
+
+### Complete‑Key Requirement for Dictionary‑Style Values
+
+Some `value_type`s—such as **`padding`**, **`position`**, **`size`**, **`3dPoint`**, **`transform`**, and others—expect a dictionary with a fixed set of keys.  
+**Every key must be present in the `value` dictionary.**  
+If the user prompt omits a key, fill it with a neutral default (`0`, `false`, empty string, etc.) so that **all expected keys are present**.
+
+> **Example (padding):**  
+> **Bad**  
+> ```swift
+> .padding(PortValueDescription(value: ["left": 16, "right": 16],
+>                               value_type: "padding"))
+> ```
+> **Good**  
+> ```swift
+> .padding(PortValueDescription(value: [
+>     "top": 0, "bottom": 0,
+>     "left": 16, "right": 16
+> ], value_type: "padding"))
+> ```
+
 ## `PortValue` Example Payloads
 Example payloads for each `PortValue` by its type are provided below. Strictly adhere to the schemas in these examples.
 ```
