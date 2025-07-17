@@ -152,7 +152,7 @@ For examples of proper invocation and prioritization of native patch nodes, cons
 ### Allowed Views
 The listed views below are the only permitted views inside a `var body`:
 ```
-["AngularGradient", "Canvas", "Circle", "Ellipse", "Grid", "LazyHGrid", "LazyHStack", "LazyVGrid", "LazyVStack", "Map", "Material", "Model3D", "ProgressView", "RadialGradient", "Rectangle", "RoundedRectangle", "ScrollView", "Text", "TextField", "Toggle", "VideoPlayer", "VStack", "HStack", "ZStack", "Image", "LinearGradient", "SecureField"]
+["AngularGradient", "Canvas", "Circle", "Ellipse", "Grid", "LazyHGrid", "LazyHStack", "LazyVGrid", "LazyVStack", "Map", "Material", "Model3D", "ProgressView", "RadialGradient", "Rectangle", "RoundedRectangle", "ScrollView", "Text", "TextField", "Toggle", "VideoPlayer", "VStack", "HStack", "ZStack", "Image", "LinearGradient", "SecureField", "StitchRealityView", "Box", "Sphere", "Cone", "Cylinder"]
 ```
 ### Disallowed Views
 * `GeometryReader`: use the "deviceInfo || Patch" native patch function for getting full device info, or "layerInfo || Patch" for getting sizing info on a specific view.
@@ -161,6 +161,8 @@ The full list of unsupported views includes:
 ```
 ["AnyView", "AsyncImage", "Button", "Capsule", "Chart", "Color", "ColorPicker", "ContentUnavailableView", "ControlGroup", "DatePicker", "Divider", "DisclosureGroup", "EmptyView", "ForEach", "Form", "Gauge", "GeometryReader", "GridRow", "Group", "GroupBox", "LabeledContent", "Label", "Link", "Menu", "NavigationLink", "NavigationStack", "NavigationSplitView", "NavigationView", "OutlineGroup", "Path", "Preview", "RealityView", "SceneView", "ScrollViewReader", "Section", "ShareLink", "Slider", "SnapshotView", "Spacer", "SpriteView", "Stepper", "SymbolEffect", "TabView", "TextEditor", "TimelineSchedule", "TimelineView", "TokenField", "ToolBar", "ViewThatFits", "List", "AlignmentGuide", "Table", "Picker"]
 ```
+
+> **Note:** Apple's built‑in `RealityView` is *not* supported. When the user requests augmented reality, RealityKit, AR, or 3D content that should appear in real space, **generate `StitchRealityView` instead**. See *Augmented Reality Guidelines (StitchRealityView)* below for required patterns.
 ### ScrollView Considerations
 A ScrollView in our app always contains a single immediate child view, which is either an `HStack`, `VStack`, `ZStack` or `LazyVGrid`.
 A ScrollView in our app always has its `axes` parameter explicitly filled in.
@@ -208,6 +210,91 @@ In most scenarios, you should not need to replicate functionality that would inv
 * Creating a timed delay: "delay || Patch"
 * Elapsed duration of view runtime since appearence or since prototype restart, whichever was more recent: "time || Patch"
 * System time: "deviceTime || Patch"
+## Augmented Reality Guidelines (StitchRealityView)
+
+Stitch provides a lightweight, opinionated wrapper around AR/RealityKit called **`StitchRealityView`**. Use it whenever the user asks for **augmented reality**, **AR**, **AR view**, **RealityKit**, **reality view**, **place object in real space**, **3D model**, **USDZ**, or names a **3D primitive** (box/cube, sphere, cone, cylinder) that should appear in AR.
+
+### When to Use
+Use `StitchRealityView` if *any* of the following are true in the user prompt:
+* Mentions: *"augmented reality"*, *"AR"*, *"AR view"*, *"reality kit"* / *"realitykit"*, *"reality view"*, *"mixed reality"*, *"place in space"*, *"place on table"*, *"3D model"*, *"USDZ"*, or explicitly names a supported 3D primitive (e.g., *"3D cone"*).
+* Wants to "place", "drop", "spawn", "preview", or "interact with" a 3D object in the environment.
+* Asks for 3D content that clearly implies depth/positioning beyond a flat 2D layer.
+
+If the user only wants to *render* a static 3D asset in 2D (no AR), you may instead use `Model3D` per the normal Allowed Views list. When unsure, prefer `StitchRealityView`—AR is a safe default.
+
+### Basic Structure
+`StitchRealityView` acts as a container whose content closure declares one or more AR 3D child layers (Box, Sphere, Cone, Cylinder, or Model3D). The container itself must receive a `.layerId(...)` like any other view. Each child 3D element also requires its own `.layerId(...)`.
+
+**Important:** The built‑in 3D primitives `Box`, `Sphere`, `Cone`, and `Cylinder` take **no constructor arguments**—always instantiate them with empty parentheses (e.g., `Cone()`).
+
+```swift
+StitchRealityView {
+    Cone()    // or Box(), Sphere(), Cylinder(), Model3D(...)
+}
+.layerId("UUID-HERE")
+```
+
+> **Sizing Note:** Units are abstract numbers interpreted by Stitch; you do **not** need to convert to meters. Use simple 0‑1 (normalized) or prototype‑friendly numbers (e.g., 0.1, 1, 100) as appropriate to the user request.
+
+### Mapping User Language → AR Primitives
+| User phrase examples | Generate this child view inside `StitchRealityView` |
+| --- | --- |
+| "3D box", "cube", "block" | `Box()` |
+| "3D sphere", "ball", "globe" | `Sphere()` |
+| "3D cone" | `Cone()` |
+| "3D cylinder" | `Cylinder()` |
+| "import my usdz", "custom 3D model" | `Model3D( ... )` (pass a `PortValueDescription` string URL / asset ref) |
+
+### Minimal Examples
+**Example: 3D Cone in AR**
+
+```swift
+StitchRealityView {
+    Cone()
+        .layerId("E9C8B5A8-0E61-4D2E-8A7C-9A6E2F4B4F7C")
+}
+.layerId("5B3C3C9B-2C3D-45E8-9A34-3A5C9C0D77D4")
+```
+
+**Example: 3D Sphere in AR**
+
+```swift
+StitchRealityView {
+    Sphere()
+        .layerId("7D764B3F-5A19-4E28-A0E9-DF0E8C3F927B")
+}
+.layerId("B6A9D25F-8C30-4E8A-ABF9-5571785EAA3E")
+```
+
+### State & `updateLayerInputs`
+* Treat AR child properties (position, scale, opacity, color, etc.) exactly like other Stitch views: bind via `@State var` of type `PortValueDescription`.
+* Only `updateLayerInputs` mutates these states. It may call native AR‑related patches:
+  * `"arAnchor || Patch"` to anchor a child to a detected plane / feature point.
+  * `"raycasting || Patch"` when the user taps to place a model where they tapped.
+  * `"deviceMotion || Patch"` if orientation‑aware placement is requested.
+* If the user simply asks to "show" a 3D object in AR without placement instructions, anchor at world‑origin (identity) by default—emit a sensible default `PortValueDescription` position (0,0,0).
+* Skip helper patches such as `transformPack || Patch` (identity transform) and `arAnchor || Patch` (world‑origin anchor) unless the user *explicitly* requests non‑default position, rotation, scale, or plane anchoring.  Default objects at the origin do **not** need these patches—omit them to keep the graph minimal.
+
+**Not supported:** The `anchorEntity(_:)` view‑modifier from RealityKit is **not** supported.  
+Never emit `.anchorEntity(...)`. Use the `"arAnchor || Patch"` native node for anchoring instead.
+
+### Multi‑Object AR
+Multiple primitives may be declared in the closure. Remember: each must have its own `.layerId(...)`. If the user asks for "a solar system of spheres", do **not** manually write loops in `body`; instead, produce a *single* `Sphere` child whose size/color inputs are looped via `@State` arrays (see Loop guidance above).
+
+### Interaction Mapping Cheatsheet
+| User asks… | Use in `updateLayerInputs` |
+| --- | --- |
+| "tap to place" | `"pressInteraction || Patch"` + `"raycasting || Patch"` to convert screen tap to world position, then update position state. |
+| "drag in AR" | `"dragInteraction || Patch"` to adjust model offset. |
+| "reset AR scene" | `"restartPrototype || Patch"` or zero‑out transforms in state. |
+
+### Fallback Behavior
+If parsing fails or unsupported primitive requested, fall back to `Box()` in `StitchRealityView` so that something visible renders. Use neutral gray color `"#808080FF"`.
+
+---
+
+These rules ensure consistent AR behavior across prompts and keep the visual programming graph clean and mappable.
+
 ## Stitch Events
 ### Stitch Event Responding
 These native patch nodes support the following events from the Stitch app, and can be invoked from `updateLayerInputs`:
