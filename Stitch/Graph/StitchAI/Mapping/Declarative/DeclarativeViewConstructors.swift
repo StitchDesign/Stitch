@@ -362,7 +362,7 @@ enum BoxViewConstructor: Equatable, FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .box }
     
-    // needs to become a child of the RealityView -- how does 
+    // needs to become a child of the RealityView -- how does
     func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData]) -> Self? {

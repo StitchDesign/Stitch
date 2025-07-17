@@ -225,21 +225,12 @@ If the user only wants to *render* a static 3D asset in 2D (no AR), you may inst
 ### Basic Structure
 `StitchRealityView` acts as a container whose content closure declares one or more AR 3D child layers (Box, Sphere, Cone, Cylinder, or Model3D). The container itself must receive a `.layerId(...)` like any other view. Each child 3D element also requires its own `.layerId(...)`.
 
+**Important:** The built‑in 3D primitives `Box`, `Sphere`, `Cone`, and `Cylinder` take **no constructor arguments**—always instantiate them with empty parentheses (e.g., `Cone()`).
+
 ```swift
 StitchRealityView {
     Cone()    // or Box(), Sphere(), Cylinder(), Model3D(...)
 }
-.layerId("UUID-HERE")
-```
-
-Child example with its own layerId and color input:
-
-```swift
-Cone(
-    PortValueDescription(value: 0.1, value_type: "number"), // radius or size param A
-    PortValueDescription(value: 0.2, value_type: "number")  // height param B
-)
-.foregroundColor(PortValueDescription(value: "#FF0000FF", value_type: "color"))
 .layerId("UUID-HERE")
 ```
 
@@ -282,6 +273,10 @@ StitchRealityView {
   * `"raycasting || Patch"` when the user taps to place a model where they tapped.
   * `"deviceMotion || Patch"` if orientation‑aware placement is requested.
 * If the user simply asks to "show" a 3D object in AR without placement instructions, anchor at world‑origin (identity) by default—emit a sensible default `PortValueDescription` position (0,0,0).
+* Skip helper patches such as `transformPack || Patch` (identity transform) and `arAnchor || Patch` (world‑origin anchor) unless the user *explicitly* requests non‑default position, rotation, scale, or plane anchoring.  Default objects at the origin do **not** need these patches—omit them to keep the graph minimal.
+
+**Not supported:** The `anchorEntity(_:)` view‑modifier from RealityKit is **not** supported.  
+Never emit `.anchorEntity(...)`. Use the `"arAnchor || Patch"` native node for anchoring instead.
 
 ### Multi‑Object AR
 Multiple primitives may be declared in the closure. Remember: each must have its own `.layerId(...)`. If the user asks for "a solar system of spheres", do **not** manually write loops in `body`; instead, produce a *single* `Sphere` child whose size/color inputs are looped via `@State` arrays (see Loop guidance above).
