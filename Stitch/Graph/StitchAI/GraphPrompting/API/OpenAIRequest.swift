@@ -253,10 +253,18 @@ extension StitchAIManager {
 
 extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
-                 aiManager: StitchAIManager) async -> Result<Self.FinalDecodedResult, StitchAIStreamingError> {
-        await aiManager.startOpenAIRequest(self,
-                                           attempt: 0,
-                                           lastCapturedError: "",
-                                           document: document)
+                 aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
+        let result = await aiManager.startOpenAIRequest(self,
+                                                        attempt: 0,
+                                                        lastCapturedError: "",
+                                                        document: document)
+        
+        switch result {
+        case .success(let success):
+            return success
+        case .failure(let failure):
+            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
+            throw failure
+        }
     }
 }

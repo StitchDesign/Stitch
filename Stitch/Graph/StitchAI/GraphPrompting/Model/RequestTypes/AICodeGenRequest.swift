@@ -119,79 +119,66 @@ struct AICodeGenRequest: StitchAIRequestable {
                                        request: AICodeGenRequest,
                                        document: StitchDocumentViewModel,
                                        aiManager: StitchAIManager) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
-        let result = await request.request(document: document,
-                                           aiManager: aiManager)
-        switch result {
-        case .success(let toolsResponse):
-            guard let tool = toolsResponse.first?.function,
-                  tool.name == StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.rawValue,
-                  let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
-                throw StitchAIManagerError.functionDecodingFailed
-            }
-            
-            let swiftUISourceCode: String
-            
-            do {
-                let decodedSwiftUISourceCode: StitchAIRequestBuilder_V0.SourceCodeResponse = try JSONDecoder().decode(
-                    StitchAIRequestBuilder_V0.SourceCodeResponse.self,
-                    from: swiftUISourceCodeData
-                )
-                
-                swiftUISourceCode = decodedSwiftUISourceCode.source_code
-            } catch {
-                fatalError()
-            }
-            
-            logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
-            logToServerIfRelease("SUCCESS Code Gen:\n\(swiftUISourceCode)")
-            
-            guard let parsedVarBody = VarBodyParser.extract(from: swiftUISourceCode) else {
-                logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
-                throw SwiftUISyntaxError.couldNotParseVarBody
-            }
-            
-            logToServerIfRelease("SUCCESS parsedVarBody:\n\(parsedVarBody)")
-            
-            let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)
-            var allDiscoveredErrors = codeParserResult.caughtErrors
-            
-            guard let viewNode = codeParserResult.rootView else {
-                logToServerIfRelease("SwiftUISyntaxError.viewNodeNotFound.localizedDescription: \(SwiftUISyntaxError.viewNodeNotFound.localizedDescription)")
-                throw SwiftUISyntaxError.viewNodeNotFound
-            }
-            
-            let actionsResult = try viewNode.deriveStitchActions()
-            
-            print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
-            
-            let layerDataList = actionsResult.actions
-            allDiscoveredErrors += actionsResult.caughtErrors
-            
-            let patchBuilderRequest = try await AIPatchBuilderRequest(
-                prompt: userPrompt,
-                swiftUISourceCode: swiftUISourceCode,
-                layerDataList: layerDataList)
-            
-            let patchBuilderResult = await patchBuilderRequest
-                .request(document: document,
-                         aiManager: aiManager)
-            
-            switch patchBuilderResult {
-            case .success(let patchBuildResult):
-                logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
-                let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
-                                                         patch_data: patchBuildResult)
-                return (graphData, allDiscoveredErrors)
-                
-            case .failure(let failure):
-                logToServerIfRelease("AICodeGenRequest: getRequestTask: patchBuilderResult: failure: \(failure.localizedDescription)")
-                throw failure
-            }
-            
-        case .failure(let failure):
-            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
-            throw failure
+        let toolsResponse = try await request.request(document: document,
+                                                      aiManager: aiManager)
+        
+        guard let tool = toolsResponse.first?.function,
+              tool.name == StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.rawValue,
+              let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
+            throw StitchAIManagerError.functionDecodingFailed
         }
+        
+        let swiftUISourceCode: String
+        
+        do {
+            let decodedSwiftUISourceCode: StitchAIRequestBuilder_V0.SourceCodeResponse = try JSONDecoder().decode(
+                StitchAIRequestBuilder_V0.SourceCodeResponse.self,
+                from: swiftUISourceCodeData
+            )
+            
+            swiftUISourceCode = decodedSwiftUISourceCode.source_code
+        } catch {
+            fatalError()
+        }
+        
+        logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
+        logToServerIfRelease("SUCCESS Code Gen:\n\(swiftUISourceCode)")
+        
+        guard let parsedVarBody = VarBodyParser.extract(from: swiftUISourceCode) else {
+            logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
+            throw SwiftUISyntaxError.couldNotParseVarBody
+        }
+        
+        logToServerIfRelease("SUCCESS parsedVarBody:\n\(parsedVarBody)")
+        
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)
+        var allDiscoveredErrors = codeParserResult.caughtErrors
+        
+        guard let viewNode = codeParserResult.rootView else {
+            logToServerIfRelease("SwiftUISyntaxError.viewNodeNotFound.localizedDescription: \(SwiftUISyntaxError.viewNodeNotFound.localizedDescription)")
+            throw SwiftUISyntaxError.viewNodeNotFound
+        }
+        
+        let actionsResult = try viewNode.deriveStitchActions()
+        
+        print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
+        
+        let layerDataList = actionsResult.actions
+        allDiscoveredErrors += actionsResult.caughtErrors
+        
+        let patchBuilderRequest = try await AIPatchBuilderRequest(
+            prompt: userPrompt,
+            swiftUISourceCode: swiftUISourceCode,
+            layerDataList: layerDataList)
+        
+        let patchBuildResult = try await patchBuilderRequest
+            .request(document: document,
+                     aiManager: aiManager)
+            
+        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
+        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
+                                                 patch_data: patchBuildResult)
+        return (graphData, allDiscoveredErrors)
     }
     
     @MainActor
