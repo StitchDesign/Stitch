@@ -32,7 +32,7 @@ enum AICodeGenRequestBody_V0 {
             let systemPrompt = try String(contentsOf: markdownUrl,
                                           encoding: .utf8)
 
-            var systemPromptContent: [StructuredOpenAIMessage.Content] = [
+            let systemPromptContent: [StructuredOpenAIMessage.Content] = [
                 .text(systemPrompt)
             ]
             
