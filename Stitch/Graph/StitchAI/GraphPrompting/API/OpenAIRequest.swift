@@ -20,7 +20,7 @@ extension StitchAIManager {
     func getOpenAITask(request: AIGraphCreationRequest,
                        attempt: Int,
                        document: StitchDocumentViewModel,
-                       canShareAIRetries: Bool) -> Task<AIGraphCreationRequest.FinalDecodedResult, any Error> {
+                       canShareAIRetries: Bool) -> Task<OpenAIMessageStruct, any Error> {
         Task(priority: .high) { [weak self] in
             guard let aiManager = self else {
                 fatalErrorIfDebug()
@@ -104,7 +104,7 @@ extension StitchAIManager {
     func startOpenAIRequest<AIRequest>(_ request: AIRequest,
                                        attempt: Int,
                                        lastCapturedError: String,
-                                       document: StitchDocumentViewModel) async -> Result<AIRequest.FinalDecodedResult, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
+                                       document: StitchDocumentViewModel) async -> Result<OpenAIMessageStruct, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
@@ -254,6 +254,16 @@ extension StitchAIManager {
 extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
+        let msg = try await self.requestForMessage(document: document,
+                                                      aiManager: aiManager)
+        
+        let initialDecodedResult = try Self.parseOpenAIResponse(message: msg)
+        let result = try Self.validateResponse(decodedResult: initialDecodedResult)
+        return result
+    }
+    
+    func requestForMessage(document: StitchDocumentViewModel,
+                           aiManager: StitchAIManager) async throws -> OpenAIMessageStruct {
         let result = await aiManager.startOpenAIRequest(self,
                                                         attempt: 0,
                                                         lastCapturedError: "",

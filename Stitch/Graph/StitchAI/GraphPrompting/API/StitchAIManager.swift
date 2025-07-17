@@ -14,7 +14,7 @@ import Sentry
 // Lifecycle is a single stream; if we have to retry, we destroy the existing CurrentAITask and create a new one
 struct CurrentAITask {
     // Streaming request to OpenAI
-    var task: Task<AIGraphCreationRequest.FinalDecodedResult, any Error>
+    var task: Task<OpenAIMessageStruct, any Error>
     
     // Map of OpenAI-provided UUIDs (which may be same across multiple sessions) vs. Stitch's genuinely always-unique UUIDs;
     // See notes for `remapNodeIds`;

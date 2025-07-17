@@ -178,11 +178,10 @@ extension StitchAIManager {
                     return .failure(StitchAIManagerError.firstChoiceNotDecoded)
                 }
                 
-                let initialDecodedResult = try AIRequest.parseOpenAIResponse(message: firstChoice.message)
-                let result = try AIRequest.validateResponse(decodedResult: initialDecodedResult)
+//                let initialDecodedResult = try AIRequest.parseOpenAIResponse(message: firstChoice.message)
+//                let result = try AIRequest.validateResponse(decodedResult: initialDecodedResult)
                 
-                
-                return .success((result, success.1))
+                return .success((firstChoice.message, success.1))
             } catch {
                 print(error)
                 return .failure(StitchAIManagerError.responseDecodingFailure("\(error)"))
@@ -264,7 +263,9 @@ extension StitchAIManager {
                 let decodedResponse = try AIRequest.buildResponse(from: decodedChunks)
                 let validatedDecodedResponse = try AIRequest.validateResponse(decodedResult: decodedResponse)
 
-                return .success((validatedDecodedResponse, response))
+                // TODO: need to come back here to support message struct
+//                return .success((validatedDecodedResponse, response))
+                fatalError()
             } catch {
                 log("Could not get byte from bytes: \(error.localizedDescription)")
                 return .failure(error)
