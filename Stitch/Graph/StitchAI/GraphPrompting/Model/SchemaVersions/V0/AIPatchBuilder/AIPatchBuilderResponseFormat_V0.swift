@@ -24,7 +24,9 @@ enum StitchAIRequestBuilder_V0 {
         name: "edit_swiftui_code",
         description: "Edit SwiftUI code based on user prompt.",
         parameters: OpenAISchema(
-            type: .string,
+            type: .object,
+            properties: SourceCodeResponseSchema(),
+            required: ["source_code"],
             description: "SwiftUI source code."),
         strict: true
     )
