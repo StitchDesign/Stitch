@@ -36,17 +36,17 @@ struct AICodeGenRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateResponse(decodedResult: String) throws -> String {
+    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
         decodedResult
     }
     
     @MainActor
-    func onSuccessfulDecodingChunk(result: String,
+    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
                                    currentAttempt: Int) {
         fatalErrorIfDebug()
     }
     
-    static func buildResponse(from streamingChunks: [String]) throws -> String {
+    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
         // Unsupported
         fatalError()
     }
@@ -76,7 +76,23 @@ struct AICodeGenRequest: StitchAIRequestable {
             let result = await request.request(document: document,
                                                aiManager: aiManager)
             switch result {
-            case .success(let swiftUISourceCode):
+            case .success(let toolsResponse):
+                guard let tool = toolsResponse.first?.function,
+                      tool.name == StitchAIRequestBuilder_V0.codeBuilderFunction.function.name,
+                      let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
+                    fatalError()
+                }
+                    
+                let swiftUISourceCode: String
+                
+                do {
+                    swiftUISourceCode = try JSONDecoder().decode(StitchAIRequestBuilder_V0.SourceCodeResponse.self,
+                                                                     from: swiftUISourceCodeData)
+                    .source_code
+                } catch {
+                    fatalError()
+                }
+                
                 logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
                 logToServerIfRelease("SUCCESS Code Gen:\n\(swiftUISourceCode)")
                 

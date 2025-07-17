@@ -111,6 +111,15 @@ extension StitchAIRequestable {
     /// - Throws: DecodingError if content cannot be parsed
     /// - Returns: Parsed ContentJSON structure
     static func parseOpenAIResponse(message: OpenAIMessageStruct) throws -> Self.InitialDecodedResult {
+        // Check for function scenario
+        if let toolResponse = message.tool_calls {
+            guard let castedToolResponse = toolResponse as? Self.InitialDecodedResult else {
+                throw StitchAIManagerError.functionDecodingFailed
+            }
+            
+            return castedToolResponse
+        }
+        
         guard let content = message.content,
               let contentData = content.data(using: .utf8) else {
             print("Debug - raw content: \(message)")
