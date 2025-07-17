@@ -139,6 +139,14 @@ extension Array where Element == AIGraphData_V0.SidebarLayerData {
     }
 }
 
+extension Array where Element == AIGraphData_V0.LayerData {
+    var allFlattenedItems: [AIGraphData_V0.LayerData] {
+        self.flatMap { item in
+            [item] + (item.children?.allFlattenedItems ?? [])
+        }
+    }
+}
+
 extension AIGraphData_V0.LayerData {
     init(from sidebarData: AIGraphData_V0.SidebarLayerData,
          nodesDict: [UUID : AIGraphData_V0.NodeEntity],
