@@ -176,41 +176,8 @@ For example, this `updateLayerInputs` function has a loopOutputs with value = 10
         let loopOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]([
             [PortValueDescription(value: 100, value_type: "number")]
         ])
-        let indices = loopOutputs[0]
-        
-        let rOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
-            indices,
-            [PortValueDescription(value: 0, value_type: "number")],
-            [PortValueDescription(value: 1, value_type: "number")]
-        ])
-        let rList = rOutputs[0]
-        
-        let gOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
-            indices,
-            [PortValueDescription(value: 0, value_type: "number")],
-            [PortValueDescription(value: 1, value_type: "number")]
-        ])
-        let gList = gOutputs[0]
-        
-        let bOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["random || Patch"]([
-            indices,
-            [PortValueDescription(value: 0, value_type: "number")],
-            [PortValueDescription(value: 1, value_type: "number")]
-        ])
-        let bList = bOutputs[0]
-        
-        let rgbOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["rgbColor || Patch"]([
-            rList,
-            gList,
-            bList,
-            [PortValueDescription(value: 1, value_type: "number")]
-        ])
-        let colorList = rgbOutputs[0]
-        
-        let values = colorList.map { $0.value }
-        rectColors = PortValueDescription(value: values, value_type: "color")
     }
-    
+```
 
 That means that, from the patch builder, we should get a CustomPatchInputValue for that loop node with a value of 100. 
 
@@ -238,25 +205,8 @@ struct ContentView: View {
         let loopOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["loop || Patch"]([
             [PortValueDescription(value: 100, value_type: "number")]
         ])
-        let indices = loopOutputs[0]
-        let countList = [PortValueDescription(value: 100, value_type: "number")]
-        let divideOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["divide || Patch"]([
-            indices,
-            countList
-        ])
-        let hueList = divideOutputs[0]
-        let satList = [PortValueDescription(value: 1, value_type: "number")]
-        let lightList = [PortValueDescription(value: 0.5, value_type: "number")]
-        let alphaList = [PortValueDescription(value: 1, value_type: "number")]
-        let hslOutputs = NATIVE_STITCH_PATCH_FUNCTIONS["hslColor || Patch"]([
-            hueList,
-            satList,
-            lightList,
-            alphaList
-        ])
-        let colorList = hslOutputs[0]
-        let colorValues = colorList.map { $0.value }
-        rectColors = PortValueDescription(value: colorValues, value_type: "color")
+        
+        // other stuff
     }
 }
 ```
@@ -267,32 +217,18 @@ Good PatchData: we have the expected entry in `custom_patch_input_values` for 10
 PatchData(
     javascript_patches: [], 
     native_patches: [
-        
         Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNode(node_id: "11111111-1111-1111-1111-111111111111", node_name: Stitch.AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer(value: Loop)),
-         
-         Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNode(node_id: "22222222-2222-2222-2222-222222222222", node_name: Stitch.AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer(value: Divide)),
-         
-          Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNode(node_id: "33333333-3333-3333-3333-333333333333", node_name: Stitch.AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer(value: HSL Color))
         ], 
-        native_patch_value_type_settings: [
-        ...
-        ], 
-
-    patch_connections: [
-        ...
-        ],
-
-     custom_patch_input_values: [
+    native_patch_value_type_settings: [ ], 
+    patch_connections: [ ],
+    custom_patch_input_values: [
     Stitch.AIPatchBuilderResponseFormat_V0.CustomPatchInputValue(
         patch_input_coordinate: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "11111111-1111-1111-1111-111111111111", port_index: 0), 
         value: 100.0, 
-        value_type: Stitch.AIPatchBuilderResponseFormat_V0.StitchAINodeType(value: number)),
-        ...
+        value_type: Stitch.AIPatchBuilderResponseFormat_V0.StitchAINodeType(value: number))
     ], 
-
-    layer_connections: [
-        Stitch.AIPatchBuilderResponseFormat_V0.LayerConnection(src_port: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "33333333-3333-3333-3333-333333333333", port_index: 0), dest_port: Stitch.AIPatchBuilderResponseFormat_V0.LayerInputCoordinate(layer_id: "3C4D5E6F-7A8B-9C0D-1E2F-3A4B5C6D7E8F", input_port_type: Stitch.AIPatchBuilderResponseFormat_V0.AILayerInputPort(value: StitchSchemaKit.LayerInputPort_V31.LayerInputPort.color)))
-    ])
+    layer_connections: []
+)
 ```
 
 Bad PatchData: we DO NOT have the expected entry in `custom_patch_input_values` for 100: 
@@ -301,24 +237,13 @@ Bad PatchData: we DO NOT have the expected entry in `custom_patch_input_values` 
 PatchData(
     javascript_patches: [], 
     native_patches: [
-        Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNode(node_id: "11111111-1111-1111-1111-111111111111", node_name: Stitch.AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer(value: Loop)), Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNode(node_id: "22222222-2222-2222-2222-222222222222", node_name: Stitch.AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer(value: Divide)), Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNode(node_id: "33333333-3333-3333-3333-333333333333", node_name: Stitch.AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer(value: HSL Color))
+        Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNode(node_id: "11111111-1111-1111-1111-111111111111", node_name: Stitch.AIPatchBuilderResponseFormat_V0.StitchAIPatchOrLayer(value: Loop)),
         ], 
-        native_patch_value_type_settings: [
-        Stitch.AIPatchBuilderResponseFormat_V0.NativePatchNodeValueTypeSetting(node_id: "22222222-2222-2222-2222-222222222222", value_type: Stitch.AIPatchBuilderResponseFormat_V0.StitchAINodeType(value: number))
-        ], 
-
-    patch_connections: [
-        Stitch.AIPatchBuilderResponseFormat_V0.PatchConnection(src_port: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "11111111-1111-1111-1111-111111111111", port_index: 0), dest_port: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "22222222-2222-2222-2222-222222222222", port_index: 0)), Stitch.AIPatchBuilderResponseFormat_V0.PatchConnection(src_port: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "22222222-2222-2222-2222-222222222222", port_index: 0), dest_port: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "33333333-3333-3333-3333-333333333333", port_index: 0))
-        ],
-
-     custom_patch_input_values: [
-    Stitch.AIPatchBuilderResponseFormat_V0.CustomPatchInputValue(patch_input_coordinate: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "33333333-3333-3333-3333-333333333333", port_index: 1), value: 1.0, value_type: Stitch.AIPatchBuilderResponseFormat_V0.StitchAINodeType(value: number)), 
-    Stitch.AIPatchBuilderResponseFormat_V0.CustomPatchInputValue(patch_input_coordinate: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "33333333-3333-3333-3333-333333333333", port_index: 2), value: 0.5, value_type: Stitch.AIPatchBuilderResponseFormat_V0.StitchAINodeType(value: number)), Stitch.AIPatchBuilderResponseFormat_V0.CustomPatchInputValue(patch_input_coordinate: Stitch.AIPatchBuilderResponseFormat_V0.NodeIndexedCoordinate(node_id: "33333333-3333-3333-3333-333333333333", port_index: 3), value: 1.0, value_type: Stitch.AIPatchBuilderResponseFormat_V0.StitchAINodeType(value: number))
-    ], 
-
-    layer_connections: [
-        ... 
-    ])
+    native_patch_value_type_settings: [ ], 
+    patch_connections: [ ],
+    custom_patch_input_values: [], 
+    layer_connections: []
+)
 ```
 
 ## RGB Color patch takes values between 0 and 1, inclusive

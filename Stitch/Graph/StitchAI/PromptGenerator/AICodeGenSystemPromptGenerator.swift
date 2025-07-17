@@ -161,8 +161,8 @@ Loop patch node -> RGB Color patch -> Rectangle's color layer input
 Loop patch node -> RGBColor patch -> LoopOverArray patch node -> Rectangle's color layer input
 
 Generaly speaking, when working with loops, we do not need the "Loop Over Array" patch. 
-We only need the "Loop Over Array" patch if we're working with a JSON array.
- 
+We only need the "LoopOverArray" patch if we're working with a JSON array. 
+An example of working with a JSON would be if upstream of this patch we have another JSON patch, e.g. JSON Array, JSON Object, JSON to Shape, Get Keys, Loop Over Array, Loop to Array, Network Request, Set Value for Key, Value at Path, Value For.
 
 ### Output Expectations
 The script must return the same outputs ports length on each eval call. This means that a script cannot return empty outputs ports in a failure case if it otherwise returns some number of outputs in a successful case. In these scenarios involving failure cases from the script, use some default value matching the same types used in the successful case.
