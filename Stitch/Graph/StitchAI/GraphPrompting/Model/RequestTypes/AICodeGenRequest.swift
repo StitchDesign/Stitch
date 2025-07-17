@@ -7,6 +7,78 @@
 
 import SwiftUI
 
+extension StitchAIRequestable {
+    func functionRequest<ResultType>(document: StitchDocumentViewModel,
+                                     aiManager: StitchAIManager,
+                                     resultType: ResultType.Type) async throws -> ResultType where Self.FinalDecodedResult == [OpenAIToolCallResponse], ResultType: Decodable, Self.Body: StitchAIRequestableFunctionBody {
+        let toolsResponse = try await self.request(document: document,
+                                                   aiManager: aiManager)
+        
+        guard let tool = toolsResponse.first?.function,
+              tool.name == self.body.functionName,
+              let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
+            throw StitchAIManagerError.functionDecodingFailed
+        }
+        
+        let decodedResult = try JSONDecoder().decode(
+            resultType.self,
+            from: swiftUISourceCodeData
+        )
+        
+        return decodedResult
+    }
+}
+
+// TODO: move
+struct AICodeEditRequest: StitchAIRequestable {
+    let id: UUID
+    let userPrompt: String             // User's input prompt
+    let config: OpenAIRequestConfig // Request configuration settings
+    let body: AICodeEditBody_V0.AICodeGenRequestBody
+    static let willStream: Bool = false
+    
+    init(id: UUID,
+         prompt: String,
+         swiftUICode: String,
+         prevMessages: [OpenAIMessage],
+         config: OpenAIRequestConfig = .default) throws {
+        
+        // The id of the user's inference call; does not change across retries etc.
+        self.id = id
+        
+        self.userPrompt = prompt
+        self.config = config
+        
+        // Construct http payload
+        self.body = try AICodeEditBody_V0.AICodeGenRequestBody(
+            userPrompt: prompt,
+            swiftUICode: swiftUICode,
+            prevMessages: prevMessages)
+    }
+    
+    @MainActor
+    func willRequest(document: StitchDocumentViewModel,
+                     canShareData: Bool,
+                     requestTask: Self.RequestTask) {
+        // Nothing to do
+    }
+    
+    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
+        decodedResult
+    }
+    
+    @MainActor
+    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
+                                   currentAttempt: Int) {
+        fatalErrorIfDebug()
+    }
+    
+    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
+        // Unsupported
+        fatalError()
+    }
+}
+
 struct AICodeGenRequest: StitchAIRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
@@ -50,7 +122,9 @@ struct AICodeGenRequest: StitchAIRequestable {
         // Unsupported
         fatalError()
     }
-    
+}
+
+extension AICodeGenRequest {
     @MainActor
     static func getRequestTask(userPrompt: String,
                                document: StitchDocumentViewModel) throws -> Task<Result<AIGraphData_V0.GraphData, any Error>, Never> {
@@ -119,32 +193,30 @@ struct AICodeGenRequest: StitchAIRequestable {
                                        request: AICodeGenRequest,
                                        document: StitchDocumentViewModel,
                                        aiManager: StitchAIManager) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
-        let toolsResponse = try await request.request(document: document,
-                                                      aiManager: aiManager)
+        let decodedSwiftUISourceCode = try await request
+            .functionRequest(document: document,
+                             aiManager: aiManager,
+                             resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
         
-        guard let tool = toolsResponse.first?.function,
-              tool.name == StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.rawValue,
-              let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
-            throw StitchAIManagerError.functionDecodingFailed
-        }
-        
-        let swiftUISourceCode: String
-        
-        do {
-            let decodedSwiftUISourceCode: StitchAIRequestBuilder_V0.SourceCodeResponse = try JSONDecoder().decode(
-                StitchAIRequestBuilder_V0.SourceCodeResponse.self,
-                from: swiftUISourceCodeData
-            )
+        let originSwiftUISourceCode = decodedSwiftUISourceCode.source_code
             
-            swiftUISourceCode = decodedSwiftUISourceCode.source_code
-        } catch {
-            fatalError()
-        }
-        
         logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
-        logToServerIfRelease("SUCCESS Code Gen:\n\(swiftUISourceCode)")
+        logToServerIfRelease("SUCCESS Code Gen:\n\(originSwiftUISourceCode)")
         
-        guard let parsedVarBody = VarBodyParser.extract(from: swiftUISourceCode) else {
+        let editRequest = try AICodeEditRequest(id: request.id,
+                                                prompt: request.userPrompt,
+                                                swiftUICode: originSwiftUISourceCode,
+                                                
+                                                // TODO: messages
+                                                prevMessages: [])
+        
+        let decodedSwiftUIEditedCode = try await editRequest
+            .functionRequest(document: document,
+                             aiManager: aiManager,
+                             resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+        let swiftUIEditedCode = decodedSwiftUIEditedCode.source_code
+        
+        guard let parsedVarBody = VarBodyParser.extract(from: swiftUIEditedCode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
             throw SwiftUISyntaxError.couldNotParseVarBody
         }
@@ -168,7 +240,7 @@ struct AICodeGenRequest: StitchAIRequestable {
         
         let patchBuilderRequest = try await AIPatchBuilderRequest(
             prompt: userPrompt,
-            swiftUISourceCode: swiftUISourceCode,
+            swiftUISourceCode: swiftUIEditedCode,
             layerDataList: layerDataList)
         
         let patchBuildResult = try await patchBuilderRequest

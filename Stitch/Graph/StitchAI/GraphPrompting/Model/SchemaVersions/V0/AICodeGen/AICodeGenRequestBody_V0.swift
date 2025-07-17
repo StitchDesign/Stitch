@@ -7,9 +7,59 @@
 
 import Foundation
 
+// TODO: move
+protocol StitchAIRequestableFunctionBody: Encodable {
+    var tools: [OpenAIFunction] { get }
+    var tool_choice: OpenAIFunction { get }
+}
+
+extension StitchAIRequestableFunctionBody {
+    var functionName: String {
+        self.tool_choice.function.name
+    }
+}
+
+enum AICodeEditBody_V0 {
+    // https://platform.openai.com/docs/api-reference/making-requests
+    struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
+        static let markdownLocation = "AICodeGenSystemPrompt_V0"
+        
+        let model: String = "o4-mini-2025-04-16"
+        let n: Int = 1
+        let temperature: Double = 1.0
+        let messages: [OpenAIMessage]
+        let tools = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.allFunctions
+        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeEditor.function
+        let stream: Bool = false
+        
+        init(userPrompt: String,
+             swiftUICode: String,
+             prevMessages: [OpenAIMessage]) throws {
+            let systemPrompt = "Modify SwiftUI source code based on the request from a user prompt. Adhere to previously defined rules regarding patch and layer behavior in Stitch."
+            
+            let inputs = AICodeEditBody_V0.AICodeEditInputsPayload(
+                user_prompt: userPrompt,
+                swiftui_source_code: swiftUICode)
+            let inputsString = try inputs.encodeToPrintableString()
+            
+            self.messages = prevMessages + [
+                .init(role: .system,
+                      content: systemPrompt),
+                .init(role: .user,
+                      content: inputsString)
+            ]
+        }
+    }
+    
+    struct AICodeEditInputsPayload: Encodable {
+        let user_prompt: String
+        let swiftui_source_code: String
+    }
+}
+
 enum AICodeGenRequestBody_V0 {
     // https://platform.openai.com/docs/api-reference/making-requests
-    struct AICodeGenRequestBody : Encodable {
+    struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
         static let markdownLocation = "AICodeGenSystemPrompt_V0"
         
         let model: String = "o4-mini-2025-04-16"
