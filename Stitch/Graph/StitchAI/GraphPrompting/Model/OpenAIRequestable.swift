@@ -30,11 +30,6 @@ protocol OpenAIJsonSchema: Encodable {
     var schema: Schema { get }
 }
 
-struct OpenAIMessage: Codable {
-    let role: OpenAIRole
-    let content: String
-}
-
 enum OpenAIRole: String, Codable {
     case system
     case assistant

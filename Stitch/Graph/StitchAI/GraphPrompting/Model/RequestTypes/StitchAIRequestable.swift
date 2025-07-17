@@ -22,7 +22,7 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, Toke
     associatedtype FinalDecodedResult: Sendable
     // Type that's processed from streaming
     associatedtype TokenDecodedResult: Sendable
-    typealias RequestResponsePayload = (OpenAIMessageStruct, URLResponse)
+    typealias RequestResponsePayload = (OpenAIMessage, URLResponse)
     // Task object for request
     typealias RequestTask = Task<FinalDecodedResult, any Error>
     

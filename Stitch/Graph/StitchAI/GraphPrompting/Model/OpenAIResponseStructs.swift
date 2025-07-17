@@ -76,7 +76,7 @@ struct CompletionTokenDetails: Codable {
 /// Represents a single response choice from the API
 struct OpenAIChoice: Codable {
     var index: Int               // Index of this choice in the response array
-    var message: OpenAIMessageStruct   // The actual response message
+    var message: OpenAIMessage   // The actual response message
     var logprobs: JSON?         // Log probabilities (if requested)
     var finishReason: String    // Reason why the API stopped generating
     
@@ -87,8 +87,8 @@ struct OpenAIChoice: Codable {
 }
 
 /// Structure representing a message in the API response
-struct OpenAIMessageStruct: Codable {
-    var role: String            // Role of the message (e.g., "assistant", "user")
+struct OpenAIMessage: Codable {
+    var role: OpenAIRole            // Role of the message (e.g., "assistant", "user")
     var content: String?         // Actual content of the message
     var tool_calls: [OpenAIToolCallResponse]?
     var refusal: String?       // Optional refusal message if content was denied
@@ -110,7 +110,7 @@ extension StitchAIRequestable {
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed
     /// - Returns: Parsed ContentJSON structure
-    static func parseOpenAIResponse(message: OpenAIMessageStruct) throws -> Self.InitialDecodedResult {
+    static func parseOpenAIResponse(message: OpenAIMessage) throws -> Self.InitialDecodedResult {
         // Check for function scenario
         if let toolResponse = message.tool_calls {
             guard let castedToolResponse = toolResponse as? Self.InitialDecodedResult else {

@@ -7,12 +7,19 @@
 
 import SwiftUI
 
-extension StitchAIRequestable {
-    func functionRequest<ResultType>(document: StitchDocumentViewModel,
-                                     aiManager: StitchAIManager,
-                                     resultType: ResultType.Type) async throws -> ResultType where Self.FinalDecodedResult == [OpenAIToolCallResponse], ResultType: Decodable, Self.Body: StitchAIRequestableFunctionBody {
-        let toolsResponse = try await self.request(document: document,
-                                                   aiManager: aiManager)
+protocol StitchAIFunctionRequestable: StitchAIRequestable where
+Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, Self.Body: StitchAIRequestableFunctionBody { }
+
+extension StitchAIFunctionRequestable {
+    var functionName: String { self.body.functionName }
+}
+
+extension StitchAIFunctionRequestable {
+    func decodeMessage<ResultType>(from message: OpenAIMessage,
+                                   document: StitchDocumentViewModel,
+                                   aiManager: StitchAIManager,
+                                   resultType: ResultType.Type) throws -> ResultType where Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, ResultType: Decodable, Self.Body: StitchAIRequestableFunctionBody {
+        let toolsResponse = try Self.parseOpenAIResponse(message: message)
         
         guard let tool = toolsResponse.first?.function,
               tool.name == self.body.functionName,
@@ -30,7 +37,7 @@ extension StitchAIRequestable {
 }
 
 // TODO: move
-struct AICodeEditRequest: StitchAIRequestable {
+struct AICodeEditRequest: StitchAIFunctionRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
@@ -79,7 +86,7 @@ struct AICodeEditRequest: StitchAIRequestable {
     }
 }
 
-struct AICodeGenRequest: StitchAIRequestable {
+struct AICodeGenRequest: StitchAIFunctionRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
@@ -193,10 +200,15 @@ extension AICodeGenRequest {
                                        request: AICodeGenRequest,
                                        document: StitchDocumentViewModel,
                                        aiManager: StitchAIManager) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
-        let decodedSwiftUISourceCode = try await request
-            .functionRequest(document: document,
-                             aiManager: aiManager,
-                             resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+        let msgFromSourceCodeRequest = try await request
+            .requestForMessage(document: document,
+                               aiManager: aiManager)
+        
+        let decodedSwiftUISourceCode = try request
+            .decodeMessage(from: msgFromSourceCodeRequest,
+                           document: document,
+                           aiManager: aiManager,
+                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
         
         let originSwiftUISourceCode = decodedSwiftUISourceCode.source_code
             
@@ -206,14 +218,18 @@ extension AICodeGenRequest {
         let editRequest = try AICodeEditRequest(id: request.id,
                                                 prompt: request.userPrompt,
                                                 swiftUICode: originSwiftUISourceCode,
-                                                
-                                                // TODO: messages
-                                                prevMessages: [])
+                                                prevMessages: request.body.messages + [msgFromSourceCodeRequest])
         
-        let decodedSwiftUIEditedCode = try await editRequest
-            .functionRequest(document: document,
-                             aiManager: aiManager,
-                             resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+        let msgFromEditCodeRequest = try await editRequest
+            .requestForMessage(
+                document: document,
+                aiManager: aiManager)
+        
+        let decodedSwiftUIEditedCode = try editRequest
+            .decodeMessage(from: msgFromEditCodeRequest,
+                           document: document,
+                           aiManager: aiManager,
+                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
         let swiftUIEditedCode = decodedSwiftUIEditedCode.source_code
         
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUIEditedCode) else {

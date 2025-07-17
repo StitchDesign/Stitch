@@ -20,7 +20,7 @@ extension StitchAIManager {
     func getOpenAITask(request: AIGraphCreationRequest,
                        attempt: Int,
                        document: StitchDocumentViewModel,
-                       canShareAIRetries: Bool) -> Task<OpenAIMessageStruct, any Error> {
+                       canShareAIRetries: Bool) -> Task<OpenAIMessage, any Error> {
         Task(priority: .high) { [weak self] in
             guard let aiManager = self else {
                 fatalErrorIfDebug()
@@ -104,7 +104,7 @@ extension StitchAIManager {
     func startOpenAIRequest<AIRequest>(_ request: AIRequest,
                                        attempt: Int,
                                        lastCapturedError: String,
-                                       document: StitchDocumentViewModel) async -> Result<OpenAIMessageStruct, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
+                                       document: StitchDocumentViewModel) async -> Result<OpenAIMessage, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
@@ -263,7 +263,7 @@ extension StitchAIRequestable {
     }
     
     func requestForMessage(document: StitchDocumentViewModel,
-                           aiManager: StitchAIManager) async throws -> OpenAIMessageStruct {
+                           aiManager: StitchAIManager) async throws -> OpenAIMessage {
         let result = await aiManager.startOpenAIRequest(self,
                                                         attempt: 0,
                                                         lastCapturedError: "",
