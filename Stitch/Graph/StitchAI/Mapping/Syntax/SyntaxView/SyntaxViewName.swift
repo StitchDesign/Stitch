@@ -75,6 +75,9 @@ extension SyntaxViewName {
             return true
         case .lazyVStack, .lazyHStack, .lazyVGrid, .lazyHGrid:
             return true
+            
+        case .stitchRealityView, .realityView:
+            return true
         
         // Layout containers
         case .grid, .group:
@@ -112,6 +115,18 @@ extension SyntaxViewName {
 /// Use `ViewKind(from:)` to convert a textual identifier into a typed case;
 /// use `.string` to go the other way.  Anything unknown is stored in `.custom`.
 enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendable {
+    
+    // MARK: non-native, Stitch-introduced "views" (that mostly correspond to a layer);
+    // used especially with Augmented Reality
+    case stitchRealityView = "StitchRealityView"
+    case box = "Box"
+    case cone = "Cone"
+    case cylinder = "Cylinder"
+    case sphere = "Sphere"
+    // case 3dModel = "3DModel" // proper string for this? depends on system prompt ?
+    
+    
+    // MARK: native SwiftUI views
     case anyView = "AnyView"
     case angularGradient = "AngularGradient"
     case asyncImage = "AsyncImage"

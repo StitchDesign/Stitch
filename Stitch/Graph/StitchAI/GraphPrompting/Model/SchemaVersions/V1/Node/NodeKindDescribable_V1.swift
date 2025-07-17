@@ -102,7 +102,7 @@ extension Step_V1.Patch: NodeKindDescribable_V1.NodeKindDescribable {
         // Downgrade back
         let downgradedTypes: [CurrentStep.NodeType] = types.compactMap {
             guard let convertedType = try? $0.convert(to: CurrentStep.NodeType.self) else {
-                log("No support at this version for type for: \(self)")
+                // log("No support at this version for type for: \(self)")
                 return nil
             }
             
