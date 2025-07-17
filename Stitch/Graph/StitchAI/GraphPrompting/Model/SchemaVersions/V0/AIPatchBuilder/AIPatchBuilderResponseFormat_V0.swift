@@ -8,29 +8,46 @@
 import SwiftUI
 import StitchSchemaKit
 
+
 enum StitchAIRequestBuilder_V0 {
-    static let codeBuilderFunction = OpenAIFunction(
-        name: "create_swiftui_code",
-        description: "Generate SwiftUI code from Stitch concepts.",
-        parameters: OpenAISchema(
-            type: .object,
-            properties: SourceCodeResponseSchema(),
-            required: ["source_code"],
-            description: "SwiftUI source code."),
-        strict: true
-    )
+    enum StitchAIRequestBuilderFunctions: String, CaseIterable {
+        case codeBuilder = "create_swiftui_code"
+        case codeEditor = "edit_swiftui_code"
+    }
+}
+
+extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions {
+    static let allFunctions: [OpenAIFunction] = Self.allCases.map(\.function)
     
-    static let codeEditorFunction = OpenAIFunction(
-        name: "edit_swiftui_code",
-        description: "Edit SwiftUI code based on user prompt.",
-        parameters: OpenAISchema(
-            type: .object,
-            properties: SourceCodeResponseSchema(),
-            required: ["source_code"],
-            description: "SwiftUI source code."),
-        strict: true
-    )
-    
+    var function: OpenAIFunction {
+        switch self {
+        case .codeBuilder:
+            OpenAIFunction(
+                name: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.rawValue,
+                description: "Generate SwiftUI code from Stitch concepts.",
+                parameters: OpenAISchema(
+                    type: .object,
+                    properties: StitchAIRequestBuilder_V0.SourceCodeResponseSchema(),
+                    required: ["source_code"],
+                    description: "SwiftUI source code."),
+                strict: true
+            )
+        case .codeEditor:
+            OpenAIFunction(
+                name: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeEditor.rawValue,
+                description: "Edit SwiftUI code based on user prompt.",
+                parameters: OpenAISchema(
+                    type: .object,
+                    properties: StitchAIRequestBuilder_V0.SourceCodeResponseSchema(),
+                    required: ["source_code"],
+                    description: "SwiftUI source code."),
+                strict: true
+            )
+        }
+    }
+}
+
+extension StitchAIRequestBuilder_V0 {
     struct SourceCodeResponseSchema: Encodable {
         let source_code = OpenAISchema(
             type: .string,

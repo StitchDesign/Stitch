@@ -16,10 +16,8 @@ enum AICodeGenRequestBody_V0 {
         let n: Int = 1
         let temperature: Double = 1.0
         let messages: [OpenAIMessage]
-        let tools = [
-            StitchAIRequestBuilder_V0.codeBuilderFunction,
-            StitchAIRequestBuilder_V0.codeEditorFunction
-        ]
+        let tools = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.allFunctions
+//        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.rawValue
         let stream: Bool = false
         
         init(currentGraphData: CurrentAIGraphData.GraphData) throws {
@@ -43,4 +41,12 @@ enum AICodeGenRequestBody_V0 {
             ]
         }
     }
+}
+
+final class OpenAIFunctionsHandler {
+    // initial messages...
+    
+    // tool choice...
+    
+    //
 }
