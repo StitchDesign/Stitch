@@ -75,6 +75,9 @@ extension SyntaxViewName {
             return true
         case .lazyVStack, .lazyHStack, .lazyVGrid, .lazyHGrid:
             return true
+            
+        case .stitchRealityView, .realityView:
+            return true
         
         // Layout containers
         case .grid, .group:
