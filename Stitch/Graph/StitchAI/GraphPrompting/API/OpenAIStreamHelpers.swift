@@ -178,7 +178,7 @@ extension StitchAIManager {
                     return .failure(StitchAIManagerError.firstChoiceNotDecoded)
                 }
                 
-                let initialDecodedResult = try AIRequest.parseOpenAIResponse(content: firstChoice.message.content)
+                let initialDecodedResult = try AIRequest.parseOpenAIResponse(message: firstChoice.message)
                 let result = try AIRequest.validateResponse(decodedResult: initialDecodedResult)
                 
                 
