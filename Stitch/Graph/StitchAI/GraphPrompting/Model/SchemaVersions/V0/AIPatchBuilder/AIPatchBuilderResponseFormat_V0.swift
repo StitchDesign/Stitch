@@ -8,6 +8,38 @@
 import SwiftUI
 import StitchSchemaKit
 
+enum StitchAIRequestBuilder_V0 {
+    static let codeBuilderFunction = OpenAIFunction(
+        name: "create_swiftui_code",
+        description: "Generate SwiftUI code from Stitch concepts.",
+        parameters: OpenAISchema(
+            type: .object,
+            properties: SourceCodeResponseSchema(),
+            required: ["source_code"],
+            description: "SwiftUI source code."),
+        strict: true
+    )
+    
+    static let codeEditorFunction = OpenAIFunction(
+        name: "edit_swiftui_code",
+        description: "Edit SwiftUI code based on user prompt.",
+        parameters: OpenAISchema(
+            type: .string,
+            description: "SwiftUI source code."),
+        strict: true
+    )
+    
+    struct SourceCodeResponseSchema: Encodable {
+        let source_code = OpenAISchema(
+            type: .string,
+            description: "SwiftUI source code.")
+    }
+    
+    struct SourceCodeResponse: Codable {
+        let source_code: String
+    }
+}
+
 /// Only used for supplying graph data for edit scenarios.
 enum AIGraphDataSchema_V0 {
     struct AIGraphDataSchemaWrapper: OpenAISchemaDefinable {
@@ -15,7 +47,6 @@ enum AIGraphDataSchema_V0 {
         let schema = OpenAISchema(type: .object,
                                   properties: AIGraphDataSchema(),
                                   required: ["layer_data_list", "patch_data"])
-        
     }
     
     struct AIGraphDataSchema: Encodable {

@@ -26,8 +26,7 @@ struct AICodeGenRequest: StitchAIRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeGenRequestBody(prompt: prompt,
-                                             currentGraphData: currentGraphData)
+        self.body = try AICodeGenRequestBody(currentGraphData: currentGraphData)
     }
     
     @MainActor

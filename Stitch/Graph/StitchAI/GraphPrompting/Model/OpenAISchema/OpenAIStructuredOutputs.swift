@@ -22,7 +22,7 @@ extension OpenAISchemaCustomizable {
          properties: Self.PropertiesType,
          const: String? = nil,
          required: [String]? = nil,
-         additionalProperties: Bool? = nil) {
+         additionalProperties: Bool = false) {
         let schema = OpenAISchema(type: type,
                                   const: const,
                                   required: required,
@@ -75,12 +75,34 @@ extension OpenAISchemaDefinable {
     }
 }
 
+struct OpenAIFunction: Encodable {
+    let type = "function"
+    let function: OpenAIFunctionPayload
+    
+    init(name: String,
+         description: String,
+         parameters: OpenAISchema,
+         strict: Bool) {
+        self.function = .init(name: name,
+                              description: description,
+                              parameters: parameters,
+                              strict: strict)
+    }
+}
+
+struct OpenAIFunctionPayload: Encodable {
+    let name: String
+    let description: String
+    let parameters: OpenAISchema
+    let strict: Bool
+}
+
 struct OpenAISchema {
-    var type: OpenAISchemaType
+    var type: OpenAISchemaType?
     var properties: (any Encodable & Sendable)?
     var const: String? = nil
     var required: [String]? = nil
-    var additionalProperties: Bool? = nil
+    var additionalProperties: Bool = false
     var title: String? = nil
     var description: String? = nil
     var items: OpenAIGeneric? = nil
@@ -105,17 +127,17 @@ extension OpenAISchema: Encodable, Sendable {
     
     func encode(to encoder: Encoder,
                 container: inout KeyedEncodingContainer<OpenAISchema.CodingKeys>) throws {
-        try container.encode(self.type, forKey: .type)
+        try container.encodeIfPresent(self.type, forKey: .type)
         try container.encodeIfPresent(self.description, forKey: .description)
         try container.encodeIfPresent(self.const, forKey: .const)
         try container.encodeIfPresent(self.required, forKey: .required)
-        try container.encodeIfPresent(self.additionalProperties, forKey: .additionalProperties)
+        try container.encode(self.additionalProperties, forKey: .additionalProperties)
         try container.encodeIfPresent(self.items, forKey: .items)
         try container.encodeIfPresent(self.title, forKey: .title)
         
         // Conditional encoding for generic
         if let properties = self.properties {
-            try self.properties?.encode(to: container.superEncoder(forKey: .properties))
+            try properties.encode(to: container.superEncoder(forKey: .properties))
         }
     }
 }
