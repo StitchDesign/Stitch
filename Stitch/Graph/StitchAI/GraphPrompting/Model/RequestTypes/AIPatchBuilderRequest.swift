@@ -67,6 +67,7 @@ extension StitchDocumentViewModel {
                                idMap: inout [String : UUID]) throws {
         let newId = idMap.get(newLayer.node_id) ?? UUID()
         idMap.updateValue(newId, forKey: newLayer.node_id)
+        idMap.updateValue(newId, forKey: newId.description)
         let graph = self.visibleGraph
         
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
@@ -169,6 +170,7 @@ extension CurrentAIGraphData.GraphData {
         for newPatch in self.patch_data.javascript_patches {
             let newId = idMap.get(newPatch.node_id) ?? UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id)
+            idMap.updateValue(newId, forKey: newId.description)
             
             let newNode = graph.nodes.get(newId) ?? graph
                 .createNode(graphTime: .zero,
@@ -196,6 +198,8 @@ extension CurrentAIGraphData.GraphData {
             let oldId = newPatch.node_id
             let newId = idMap.get(oldId) ?? UUID()
             idMap.updateValue(newId, forKey: oldId)
+            idMap.updateValue(newId, forKey: newId.description)
+            
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
             
             let newNode = graph.nodes.get(newId) ?? graph
