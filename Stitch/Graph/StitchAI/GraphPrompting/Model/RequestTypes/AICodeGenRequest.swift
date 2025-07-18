@@ -66,7 +66,7 @@ struct AICodeGenRequest: StitchAIRequestable {
             
 //            let testImage: UIImage = UIImage(named: "TEST_IMAGE")!
 //            let testImage: UIImage = UIImage(named: "TEST_IMAGE_3")!
-            let testImage: UIImage = UIImage(named: "TEST_IMAGE_5")!
+            let testImage: UIImage = UIImage(named: "TEST_IMAGE_8")!
             let base64TestImage = await convertImageToBase64String(uiImage: testImage)
             print("getRequestTask: Design Image?: \(base64TestImage.value.isDefined)")
             

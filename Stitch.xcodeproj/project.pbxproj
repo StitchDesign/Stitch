@@ -399,6 +399,9 @@
 		E4CC7D1528F48EF6008EA1C0 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4CC7D1328F48EF6008EA1C0 /* MainInterface.storyboard */; };
 		E4CC7D1928F48EF6008EA1C0 /* StitchQuickLookExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E4CC7D0B28F48EF6008EA1C0 /* StitchQuickLookExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E4D7EA152BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7EA142BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift */; };
+		E4E341E62E2ABCBE008FC7F1 /* TEST_IMAGE_6.png in Resources */ = {isa = PBXBuildFile; fileRef = E4E341E42E2ABCBE008FC7F1 /* TEST_IMAGE_6.png */; };
+		E4E341E72E2ABCBE008FC7F1 /* TEST_IMAGE_7.png in Resources */ = {isa = PBXBuildFile; fileRef = E4E341E52E2ABCBE008FC7F1 /* TEST_IMAGE_7.png */; };
+		E4E341E92E2ABE71008FC7F1 /* TEST_IMAGE_8.png in Resources */ = {isa = PBXBuildFile; fileRef = E4E341E82E2ABE71008FC7F1 /* TEST_IMAGE_8.png */; };
 		E4E860022CBD5448006763DA /* StitchAIErrorModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */; };
 		E4F7AC242974AF5300B7F55A /* RealityNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F7AC232974AF5300B7F55A /* RealityNode.swift */; };
 		E4F7AC262974B6E700B7F55A /* PreviewRealityLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F7AC252974B6E700B7F55A /* PreviewRealityLayer.swift */; };
@@ -1556,6 +1559,9 @@
 		E4CC7D1A28F48EF6008EA1C0 /* StitchQuickLookExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StitchQuickLookExtension.entitlements; sourceTree = "<group>"; };
 		E4D7EA142BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorLayerNode.swift; sourceTree = "<group>"; };
 		E4D9CC6D2D44179200370C0A /* ci_pre_xcodebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_pre_xcodebuild.sh; sourceTree = "<group>"; };
+		E4E341E42E2ABCBE008FC7F1 /* TEST_IMAGE_6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TEST_IMAGE_6.png; sourceTree = "<group>"; };
+		E4E341E52E2ABCBE008FC7F1 /* TEST_IMAGE_7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TEST_IMAGE_7.png; sourceTree = "<group>"; };
+		E4E341E82E2ABE71008FC7F1 /* TEST_IMAGE_8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TEST_IMAGE_8.png; sourceTree = "<group>"; };
 		E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIErrorModalView.swift; sourceTree = "<group>"; };
 		E4F7AC232974AF5300B7F55A /* RealityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityNode.swift; sourceTree = "<group>"; };
 		E4F7AC252974B6E700B7F55A /* PreviewRealityLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewRealityLayer.swift; sourceTree = "<group>"; };
@@ -2386,6 +2392,9 @@
 				E449A76A2E25BF51005DBECB /* TEST_IMAGE_3.png */,
 				ECE40BDB2E29A90F002A04FD /* TEST_IMAGE_4.png */,
 				ECE40BDC2E29A90F002A04FD /* TEST_IMAGE_5.png */,
+				E4E341E42E2ABCBE008FC7F1 /* TEST_IMAGE_6.png */,
+				E4E341E52E2ABCBE008FC7F1 /* TEST_IMAGE_7.png */,
+				E4E341E82E2ABE71008FC7F1 /* TEST_IMAGE_8.png */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				E42B46DD2DC55B89009C6890 /* GoogleService-Info.plist */,
@@ -5695,10 +5704,13 @@
 				ECE40BDD2E29A90F002A04FD /* TEST_IMAGE_4.png in Resources */,
 				ECE40BDE2E29A90F002A04FD /* TEST_IMAGE_5.png in Resources */,
 				E41850A42E25B0BF0006878E /* TEST_IMAGE_2.png in Resources */,
+				E4E341E92E2ABE71008FC7F1 /* TEST_IMAGE_8.png in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				B5849FB82DFBDB5E00D668ED /* VersioningInstructions.md in Resources */,
 				E41850A22E25AD9E0006878E /* TEST_IMAGE.png in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
+				E4E341E62E2ABCBE008FC7F1 /* TEST_IMAGE_6.png in Resources */,
+				E4E341E72E2ABCBE008FC7F1 /* TEST_IMAGE_7.png in Resources */,
 				E42B46DE2DC55B89009C6890 /* GoogleService-Info.plist in Resources */,
 				E449A76B2E25BF51005DBECB /* TEST_IMAGE_3.png in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
