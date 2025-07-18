@@ -55,7 +55,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions {
                     properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
                     required: ["javascript_patches", "native_patches", "native_patch_value_type_settings", "patch_connections", "layer_connections", "custom_patch_input_values"],
                     description: "Patch data for a Stitch graph."),
-                strict: true
+                strict: false
             )
         }
     }
@@ -142,7 +142,7 @@ enum AIPatchBuilderResponseFormat_V0 {
             types: [OpenAISchema(type: .number),
                     OpenAISchema(type: .string),
                     OpenAISchema(type: .boolean),
-                    OpenAISchema(type: .object, additionalProperties: false)],
+                    OpenAISchema(type: .object, additionalProperties: true)],
             required: []
         )
         
