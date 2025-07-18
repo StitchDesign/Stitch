@@ -98,7 +98,7 @@ struct OpenAIFunctionPayload: Encodable {
 }
 
 struct OpenAISchema {
-    var type: OpenAISchemaType?
+    var type: OpenAISchemaType
     var properties: (any Encodable & Sendable)?
     var const: String? = nil
     var required: [String]? = nil
@@ -127,7 +127,7 @@ extension OpenAISchema: Encodable, Sendable {
     
     func encode(to encoder: Encoder,
                 container: inout KeyedEncodingContainer<OpenAISchema.CodingKeys>) throws {
-        try container.encodeIfPresent(self.type, forKey: .type)
+        try container.encode(self.type, forKey: .type)
         try container.encodeIfPresent(self.description, forKey: .description)
         try container.encodeIfPresent(self.const, forKey: .const)
         try container.encodeIfPresent(self.required, forKey: .required)
