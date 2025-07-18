@@ -23,7 +23,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions {
     var function: OpenAIFunction {
         switch self {
         case .codeBuilder:
-            OpenAIFunction(
+            return OpenAIFunction(
                 name: self.rawValue,
                 description: "Generate SwiftUI code from Stitch concepts.",
                 parameters: OpenAISchema(
@@ -35,7 +35,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions {
             )
         
         case .codeEditor:
-            OpenAIFunction(
+            return OpenAIFunction(
                 name: self.rawValue,
                 description: "Edit SwiftUI code based on user prompt.",
                 parameters: OpenAISchema(
@@ -47,7 +47,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions {
             )
             
         case .patchBuilder:
-            OpenAIFunction(
+            return OpenAIFunction(
                 name: self.rawValue,
                 description: "Build Stitch graphs based on layer data and SwiftUI source code.",
                 parameters: OpenAISchema(
@@ -128,7 +128,8 @@ enum AIPatchBuilderResponseFormat_V0 {
         
         static let PatchData = OpenAISchema(type: .object,
                                      properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                                     required: ["javascript_patches", "native_patches", "native_patch_value_type_settings", "patch_connections", "layer_connections", "custom_patch_input_values"])
+                                     required: [
+                                        "javascript_patches", "native_patches", "native_patch_value_type_settings", "patch_connections", "layer_connections", "custom_patch_input_values"])
         
 //        let LayerNodes = OpenAISchema(
 //            type: .array,
@@ -137,12 +138,13 @@ enum AIPatchBuilderResponseFormat_V0 {
 //            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.LayerNodeSchema()])
 //        )
         
-        static let Values = OpenAIGeneric(types: [
-            OpenAISchema(type: .number),
-            OpenAISchema(type: .string),
-            OpenAISchema(type: .boolean),
-            OpenAISchema(type: .object, additionalProperties: false)
-          ])
+        static let Values = OpenAIGeneric(
+            types: [OpenAISchema(type: .number),
+                    OpenAISchema(type: .string),
+                    OpenAISchema(type: .boolean),
+                    OpenAISchema(type: .object, additionalProperties: false)],
+            required: []
+        )
         
         static let PatchCoordinate = OpenAISchema(
             type: .object,
@@ -158,44 +160,44 @@ enum AIPatchBuilderResponseFormat_V0 {
     struct GraphBuilderSchema: Encodable {
         let javascript_patches = OpenAISchema(
             type: .array,
-            required: ["node_id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"],
-            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.JsPatchNodeSchema()])
+            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.JsPatchNodeSchema()],
+                                 required: ["node_id", "suggested_title", "javascript_source_code", "input_definitions", "output_definitions"])
         )
         
         let native_patches = OpenAISchema(
             type: .array,
-            required: ["node_id", "node_name"],
-            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.NativePatchNodeSchema()])
+            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.NativePatchNodeSchema()],
+                                 required: ["node_id", "node_name"])
         )
         
         let native_patch_value_type_settings = OpenAISchema(
             type: .array,
-            required: ["node_id", "value_type"],
-            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.NativePatchNodeValueSettingSchema()])
+            items: OpenAIGeneric(types: [AIPatchBuilderResponseFormat_V0.NativePatchNodeValueSettingSchema()],
+                                 required: ["node_id", "value_type"])
             )
-        
+//        
         let patch_connections = OpenAISchema(
             type: .array,
-            required: ["src_port", "dest_port"],
-            items: OpenAIGeneric(types: [
-                AIPatchBuilderResponseFormat_V0.PatchConnectionSchema()
-            ])
+            items: OpenAIGeneric(
+                types: [AIPatchBuilderResponseFormat_V0.PatchConnectionSchema()],
+                required: ["src_port", "dest_port"]
+            )
         )
         
         let layer_connections = OpenAISchema(
             type: .array,
-            required: ["src_port", "dest_port"],
-            items: OpenAIGeneric(types: [
-                AIPatchBuilderResponseFormat_V0.LayerConnectionSchema()
-            ])
+            items: OpenAIGeneric(
+                types: [AIPatchBuilderResponseFormat_V0.LayerConnectionSchema()],
+                required: ["src_port", "dest_port"]
+            )
         )
 
         let custom_patch_input_values = OpenAISchema(
             type: .array,
-            required: ["patch_input_coordinate", "value", "value_type"],
-            items: OpenAIGeneric(types: [
-                AIPatchBuilderResponseFormat_V0.CustomPatchInputValueSchema()
-            ])
+            items: OpenAIGeneric(
+                types: [AIPatchBuilderResponseFormat_V0.CustomPatchInputValueSchema()],
+                required: ["patch_input_coordinate", "value", "value_type"]
+            )
         )
     }
     
