@@ -303,6 +303,12 @@ Adds interaction to a specific rectangle in the Preview Window.
 * Z Index
 * A Boolean to toggle Setup Mode (visualizes the hit area)
 
+### Spacer
+Expands to fill its parent.
+*Inputs*
+* A Boolean to Enable/Disable the Spacer
+* Z Index
+
 
 ## 3D & AR
 
