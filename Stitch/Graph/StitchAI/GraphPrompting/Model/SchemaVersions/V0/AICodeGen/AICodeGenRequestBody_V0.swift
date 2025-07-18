@@ -34,7 +34,15 @@ enum AICodeEditBody_V0 {
         
         init(userPrompt: String,
              prevMessages: [OpenAIMessage]) throws {
+            let assistantPrompt = """
+                Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
+
+                Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
+                """
+            
             self.messages = prevMessages + [
+                .init(role: .assistant,
+                      content: assistantPrompt),
                 .init(role: .user,
                       content: userPrompt)
             ]
@@ -63,6 +71,7 @@ enum AICodeGenRequestBody_V0 {
             
             let systemPrompt = try String(contentsOf: systemMarkdownUrl,
                                           encoding: .utf8)
+            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator()
             
             let inputsString = try currentGraphData.encodeToPrintableString()
             
@@ -71,6 +80,8 @@ enum AICodeGenRequestBody_V0 {
             self.messages = [
                 .init(role: .system,
                       content: systemPrompt),
+                .init(role: .assistant,
+                      content: codeGenAssistantPrompt),
                 .init(role: .user,
                       content: inputsString)
 //                .init(role: .assistant,

@@ -9,10 +9,7 @@ import SwiftUI
 
 extension StitchAIManager {
     @MainActor
-    func stitchAIGraphBuilderSystem(graph: GraphState) throws -> String {
-        let codeBuilderPrompt = try Self.aiCodeGenSystemPromptGenerator()
-        let patchBuilderPrompt = try Self.aiPatchBuilderSystemPromptGenerator()
-        
+    func stitchAIGraphBuilderSystem(graph: GraphState) throws -> String {        
         let patchDescriptions = AIGraphData_V0.Patch.allAiDescriptions
             .filter { description in
                 !description.nodeKind.contains("scrollInteraction") &&
@@ -34,17 +31,6 @@ You will call a series of OpenAI functions in sequential order. The job of these
 1. **`\(StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.rawValue)`: build SwiftUI Code from Stitch Data.** You will receive as input structured data about the current Stitch document, and your output must be a SwiftUI app that reflects this prototype.
 2. **`\(StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeEditor.rawValue)`: edit SwiftUI Code.** Based on the SwiftUI source code created from the last step, modify the code based on the user prompt.
 3. **`\(StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.patchBuilder.rawValue)`: create Stitch structured prototype data.** Convert the SwiftUI source code into Stitch concepts. 
-
-# SwiftUI Code Builder Function
-\(codeBuilderPrompt)
-
-# SwiftUI Code Editor Function
-Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
-
-Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
-
-# Stitch Code Conversion Function
-\(patchBuilderPrompt)
 
 # Stitch Data Glossary
 

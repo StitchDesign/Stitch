@@ -10,7 +10,7 @@ import Foundation
 enum AIPatchBuilderRequestBody_V0 {
     // https://platform.openai.com/docs/api-reference/making-requests
     struct AIPatchBuilderRequestBody: StitchAIRequestableFunctionBody {
-        static let markdownLocation = "AIPatchBuilderSystemPrompt_V0"
+//        static let markdownLocation = "AIPatchBuilderSystemPrompt_V0"
         
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
@@ -35,19 +35,20 @@ enum AIPatchBuilderRequestBody_V0 {
 //                                          encoding: .utf8)
 //            let fullSystemPrompt = "\(systemPrompt)\nUse the following structured outputs schema:\n\(try structuredOutputs.encodeToPrintableString())"
             
-            let layerData = try layerDataList.encodeToPrintableString()
+//            let layerData = try layerDataList.encodeToPrintableString()
             
-            // TODO: ????
+            
+            let assistantPrompt = try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
             
             self.messages = prevMessages
-//            + [
+            + [
 //                .init(role: .user,
 //                      content: layerData)
-//                .init(role: .assistant,
-//                      content: assistantPrompt),
+                .init(role: .assistant,
+                      content: assistantPrompt),
 //                .init(role: .user,
 //                      content: userInputsString)
-//            ]
+            ]
         }
     }
     

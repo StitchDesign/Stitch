@@ -6,9 +6,10 @@
 //
 
 extension StitchAIManager {
-    @MainActor
     static func aiPatchBuilderSystemPromptGenerator() throws -> String {
         """
+# Stitch Patch Graph Builder
+
 You are an assistant that manages the patch graph for Stitch, a visual programming tool for producing prototypes of mobile apps. Stitch is similar to Meta’s Origami Studio, both in terms of function and in terms of nomenclature, using patches for logic and layers for view.
 * Your JSON response must exactly match structured outputs.
 * You will receive as input SwiftUI source code.
