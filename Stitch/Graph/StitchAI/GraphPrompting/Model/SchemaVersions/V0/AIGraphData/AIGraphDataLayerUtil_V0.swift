@@ -11,8 +11,8 @@ import StitchSchemaKit
 
 // MARK: - helpers here are redundant copies that we need for versioning
 
-extension LayerInputPort_V32.LayerInputPort {
-    func getDefaultValueForAI(for layer: Layer_V32.Layer) -> PortValue_V32.PortValue {
+extension LayerInputPort {
+    func getDefaultValueForAI(for layer: Layer) -> PortValue {
         switch self {
             // Required everywhere
         case .position:

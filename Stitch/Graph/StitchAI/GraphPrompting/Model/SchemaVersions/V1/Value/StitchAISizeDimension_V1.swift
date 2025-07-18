@@ -11,7 +11,7 @@ import StitchSchemaKit
 enum StitchAISizeDimension_V1: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V1
-    typealias LayerDimension = LayerDimension_V32.LayerDimension
+    typealias LayerDimension = LayerDimension_V33.LayerDimension
     typealias PreviousInstance = Self.StitchAISizeDimension
     // MARK: - end
     

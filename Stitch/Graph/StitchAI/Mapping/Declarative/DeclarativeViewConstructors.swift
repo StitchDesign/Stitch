@@ -48,6 +48,8 @@ enum ViewConstructor: Equatable, Encodable {
     case cylinder(CylinderViewConstructor)
     case sphere(SphereViewConstructor)
     
+    case spacer(SpacerViewConstructor)
+    
     // case scrollView(ScrollViewViewConstructor)
     
     //    case vStack(VStackViewConstructor)
@@ -77,6 +79,7 @@ enum ViewConstructor: Equatable, Encodable {
         case .cone(let c):              return c
         case .cylinder(let c):          return c
         case .sphere(let c):            return c
+        case .spacer(let c):            return c
         // case .scrollView(let c):       return c
             
             //        case .vStack(let c):           return c.toStitch
@@ -130,7 +133,10 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
         return CylinderViewConstructor.from(arguments).map { .cylinder($0) }
     case .sphere:
         return SphereViewConstructor.from(arguments).map { .sphere($0) }
-    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyHStack, .lazyVGrid, .lazyVStack, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spacer, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .vStack, .zStack, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
+    case .spacer:
+        return SpacerViewConstructor.from(arguments).map { .spacer($0) }
+        
+    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyHStack, .lazyVGrid, .lazyVStack, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .vStack, .zStack, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
         return nil
         
 //    case .scrollView:
@@ -340,6 +346,20 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
     }
 }
 
+
+enum SpacerViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    // TODO: support `Spacer(minLength: CGFloat? = nil)`
+    case plain
+    
+    var layer: AIGraphData_V0.Layer { .spacer }
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
+    
+    static func from(_ args: [SyntaxViewArgumentData]) -> Self? {
+        // args.isEmpty ? .plain : nil
+        .plain
+    }
+}
 
 // MARK: - Reality-view primitives (no-arg)
 

@@ -62,6 +62,8 @@ extension CurrentAIGraphData.Layer {
             return .videoPlayer
         case .box, .sphere, .cylinder, .cone:
             return .model3D
+        case .spacer:
+            return .spacer
         }
     }
 }

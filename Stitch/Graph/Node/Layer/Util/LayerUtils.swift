@@ -36,7 +36,7 @@ extension Layer {
         switch self {
         case .canvasSketch, .textField, .switchLayer:
             return true
-        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material, .box, .sphere, .cylinder, .cone:
+        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material, .box, .sphere, .cylinder, .cone, .spacer:
             return false
         }
     }
@@ -128,6 +128,8 @@ extension Layer {
             return .cylinder
         case .cone:
             return .cone
+        case .spacer:
+            return .spacer
         }
     }
 

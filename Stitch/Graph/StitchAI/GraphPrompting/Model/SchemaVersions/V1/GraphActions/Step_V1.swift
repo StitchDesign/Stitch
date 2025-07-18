@@ -16,19 +16,19 @@ import StitchSchemaKit
 enum Step_V1: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V1
-    static let documentVersion = StitchSchemaVersion._V32
+    static let documentVersion = StitchSchemaVersion._V33
     typealias StepType = StepType_V1.StepType
     typealias NodeType = StitchAIPortValue_V1.NodeType
     typealias PortValue = StitchAIPortValue_V1.PortValue
-    typealias NodeKind = NodeKind_V32.NodeKind
-    typealias Patch = Patch_V32.Patch
-    typealias Layer = Layer_V32.Layer
-    typealias NodeIOPortTypeVersion = NodeIOPortType_V32
+    typealias NodeKind = NodeKind_V33.NodeKind
+    typealias Patch = Patch_V33.Patch
+    typealias Layer = Layer_V33.Layer
+    typealias NodeIOPortTypeVersion = NodeIOPortType_V33
     typealias NodeIOPortType = NodeIOPortTypeVersion.NodeIOPortType
-    typealias LayerInputPort = LayerInputPort_V32.LayerInputPort
+    typealias LayerInputPort = LayerInputPort_V33.LayerInputPort
     typealias StitchAIUUid = StitchAIUUID_V1.StitchAIUUID
-    typealias LayerNodeId = LayerNodeId_V32.LayerNodeId
-    typealias NodeIOCoordinate = NodeIOCoordinate_V32.NodeIOCoordinate
+    typealias LayerNodeId = LayerNodeId_V33.LayerNodeId
+    typealias NodeIOCoordinate = NodeIOCoordinate_V33.NodeIOCoordinate
     
     typealias PreviousInstance = Self.Step
     // MARK: - end
