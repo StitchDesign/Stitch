@@ -46,7 +46,6 @@ struct AICodeEditRequest: StitchAIFunctionRequestable {
     
     init(id: UUID,
          prompt: String,
-         swiftUICode: String,
          prevMessages: [OpenAIMessage],
          config: OpenAIRequestConfig = .default) throws {
         
@@ -59,7 +58,6 @@ struct AICodeEditRequest: StitchAIFunctionRequestable {
         // Construct http payload
         self.body = try AICodeEditBody_V0.AICodeGenRequestBody(
             userPrompt: prompt,
-            swiftUICode: swiftUICode,
             prevMessages: prevMessages)
     }
     
@@ -204,16 +202,16 @@ extension AICodeGenRequest {
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
-        let decodedSwiftUISourceCode = try request
-            .decodeMessage(from: msgFromSourceCodeRequest,
-                           document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-        
-        let originSwiftUISourceCode = decodedSwiftUISourceCode.source_code
-            
-        logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
-        logToServerIfRelease("SUCCESS Code Gen:\n\(originSwiftUISourceCode)")
+//        let decodedSwiftUISourceCode = try request
+//            .decodeMessage(from: msgFromSourceCodeRequest,
+//                           document: document,
+//                           aiManager: aiManager,
+//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+//        
+//        let originSwiftUISourceCode = decodedSwiftUISourceCode.source_code
+//            
+//        logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
+//        logToServerIfRelease("SUCCESS Code Gen:\n\(originSwiftUISourceCode)")
         
         guard let toolFromMsg = msgFromSourceCodeRequest.tool_calls?.first else {
             throw StitchAIManagerError.toolNotFoundForFunction
@@ -224,14 +222,8 @@ extension AICodeGenRequest {
                                        tool_call_id: toolFromMsg.id,
                                        name: toolFromMsg.function.name)
         
-        
-        // TODO: DO WE NEED TO PASS DOWN SOURCE CODE???
-        
-        
-        
         let editRequest = try AICodeEditRequest(id: request.id,
                                                 prompt: request.userPrompt,
-                                                swiftUICode: originSwiftUISourceCode,
                                                 prevMessages: request.body.messages + [msgFromSourceCodeRequest, newMessage])
         
         let msgFromEditCodeRequest = try await editRequest

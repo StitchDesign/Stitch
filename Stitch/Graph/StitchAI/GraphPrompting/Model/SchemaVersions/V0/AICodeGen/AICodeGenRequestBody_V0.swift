@@ -33,27 +33,16 @@ enum AICodeEditBody_V0 {
         let stream: Bool = false
         
         init(userPrompt: String,
-             swiftUICode: String,
              prevMessages: [OpenAIMessage]) throws {
-            let systemPrompt = "Modify SwiftUI source code based on the request from a user prompt. Adhere to previously defined rules regarding patch and layer behavior in Stitch."
-            
-            let inputs = AICodeEditBody_V0.AICodeEditInputsPayload(
-                user_prompt: userPrompt,
-                swiftui_source_code: swiftUICode)
-            let inputsString = try inputs.encodeToPrintableString()
+            let systemPrompt = "Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch."
             
             self.messages = prevMessages + [
                 .init(role: .system,
                       content: systemPrompt),
                 .init(role: .user,
-                      content: inputsString)
+                      content: userPrompt)
             ]
         }
-    }
-    
-    struct AICodeEditInputsPayload: Encodable {
-        let user_prompt: String
-        let swiftui_source_code: String
     }
 }
 
