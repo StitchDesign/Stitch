@@ -91,6 +91,8 @@ struct OpenAIMessage: Codable {
     var role: OpenAIRole            // Role of the message (e.g., "assistant", "user")
     var content: String?         // Actual content of the message
     var tool_calls: [OpenAIToolCallResponse]?
+    var tool_call_id: String?
+    var name: String?
     var refusal: String?       // Optional refusal message if content was denied
     var annotations: [String]?  // Optional annotations
 }

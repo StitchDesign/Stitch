@@ -158,6 +158,7 @@ enum StitchAIManagerError: Error {
     case portValueDescriptionNotSupported(String)
     case firstChoiceNotDecoded
     case functionDecodingFailed
+    case toolNotFoundForFunction
 }
 
 extension StitchAIManagerError: CustomStringConvertible {
@@ -177,6 +178,8 @@ extension StitchAIManagerError: CustomStringConvertible {
             return "OpenAI response couldn't decode first choice in API call."
         case .functionDecodingFailed:
             return "Could not find valid response for functions."
+        case .toolNotFoundForFunction:
+            return "No tool found for function request."
         }
     }
 }

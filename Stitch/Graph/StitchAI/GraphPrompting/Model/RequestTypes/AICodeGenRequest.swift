@@ -215,10 +215,24 @@ extension AICodeGenRequest {
         logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
         logToServerIfRelease("SUCCESS Code Gen:\n\(originSwiftUISourceCode)")
         
+        guard let toolFromMsg = msgFromSourceCodeRequest.tool_calls?.first else {
+            throw StitchAIManagerError.toolNotFoundForFunction
+        }
+        
+        let newMessage = OpenAIMessage(role: .tool,
+                                       content: toolFromMsg.function.arguments,
+                                       tool_call_id: toolFromMsg.id,
+                                       name: toolFromMsg.function.name)
+        
+        
+        // TODO: DO WE NEED TO PASS DOWN SOURCE CODE???
+        
+        
+        
         let editRequest = try AICodeEditRequest(id: request.id,
                                                 prompt: request.userPrompt,
                                                 swiftUICode: originSwiftUISourceCode,
-                                                prevMessages: request.body.messages + [msgFromSourceCodeRequest])
+                                                prevMessages: request.body.messages + [msgFromSourceCodeRequest, newMessage])
         
         let msgFromEditCodeRequest = try await editRequest
             .requestForMessage(

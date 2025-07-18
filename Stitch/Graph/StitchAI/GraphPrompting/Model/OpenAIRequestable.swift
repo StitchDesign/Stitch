@@ -34,4 +34,5 @@ enum OpenAIRole: String, Codable {
     case system
     case assistant
     case user
+    case tool
 }
