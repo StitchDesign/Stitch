@@ -18,7 +18,6 @@ struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
     let body: AIPatchBuilderRequestBody
     static let willStream: Bool = false
     
-    @MainActor
     init(id: UUID,
          prompt: String,
          layerDataList: [CurrentAIGraphData.LayerData],

@@ -247,7 +247,7 @@ extension AICodeGenRequest {
         
         let newEditToolMessage = try msgFromEditCodeRequest.createNewToolMessage()
         
-        let patchBuilderRequest = try await AIPatchBuilderRequest(
+        let patchBuilderRequest = try AIPatchBuilderRequest(
             id: request.id,
             prompt: userPrompt,
             layerDataList: layerDataList,
