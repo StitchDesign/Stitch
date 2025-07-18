@@ -7,15 +7,8 @@
 
 extension StitchAIManager {
     @MainActor
-    static func aiPatchBuilderSystemPromptGenerator(graph: GraphState) throws -> String {
-        let patchDescriptions = CurrentStep.Patch.allAiDescriptions
-            .filter { description in
-                !description.nodeKind.contains("scrollInteraction") &&
-                !description.nodeKind.contains("legacyScrollInteraction")
-            }
-        
-        let layerDescriptions = CurrentStep.Layer.allAiDescriptions
-        return """
+    static func aiPatchBuilderSystemPromptGenerator() throws -> String {
+        """
 # Patch Graph Builder
 
 You are an assistant that manages the patch graph for Stitch, a visual programming tool for producing prototypes of mobile apps. Stitch is similar to Meta’s Origami Studio, both in terms of function and in terms of nomenclature, using patches for logic and layers for view.
@@ -257,37 +250,7 @@ Strictly map these view modifiers to their respective Sttich layer input port:
 ### Other Notes
 * The `Offset in Group` layer input can only be used for layers which are nested inside some other group layer.
 
-# Data Glossary
-
-## `PortValue` Example Payloads
-Here's an example payload for each `PortValue` by its type:
-
-```
-\(try StitchAISchemaMeta.createSchema().encodeToPrintableString())
-```
-
-## Native Stitch Patches
-Each function should mimic logic composed in patch nodes in Stitch (or Origami Studio). We provide an example list of patches to demonstrate the kind of functions expected in the Swift source code:
-```
-\(try patchDescriptions.encodeToPrintableString())
-```
-
-## Layer Node Types
-You may expect the following layer types:
-```
-\(try layerDescriptions.encodeToPrintableString())
-```
-
-## Inputs and Outputs Definitions for Patches and Layers
-
-The schema below presents the list of inputs and outputs supported for each native patch and layer in Stitch. Patches here cannot be invoked unless previously stated as permissible earlier in this document. Layers themselves cannot be created here, however we can set inputs to layers that are passed into the `updateLayerInputs` function. 
-
-**Please note the value types for `label` used specifically for layer nodes below. This refers to the name of the layer port that is used for `LayerPortCoordinate`**. 
-
-For layers, if the desired behavior is natively supported through a layer’s input, the patch system must prefer setting that input over simulating the behavior with patch nodes.
-
-Each patch and layer supports the following inputs and outputs:
-\(try NodeSection.getAllAIDescriptions(graph: graph).encodeToPrintableString())
+# Good and Bad Data Result Examples
 
 ## Examples of Looped Views Using Native Patches
 
