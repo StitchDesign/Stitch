@@ -225,7 +225,7 @@ struct OpenAIGeneric: Encodable, Sendable {
     }
 }
 
-enum OpenAISchemaType: String, Encodable {
+enum OpenAISchemaType: String, Codable {
     case object
     case string
     case number

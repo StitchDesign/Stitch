@@ -26,23 +26,33 @@ enum AIPatchBuilderRequestBody_V0 {
              prevMessages: [OpenAIMessage]) throws {
 //            let responseFormat = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
 //            let structuredOutputs = responseFormat.json_schema.schema
-            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
-                                                    withExtension: "md") else {
-                throw StitchAIStreamingError.markdownNotFound
-            }
-            
-            let systemPrompt = try String(contentsOf: markdownUrl,
-                                          encoding: .utf8)
+//            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
+//                                                    withExtension: "md") else {
+//                throw StitchAIStreamingError.markdownNotFound
+//            }
+//            
+//            let assistantPrompt = try String(contentsOf: markdownUrl,
+//                                          encoding: .utf8)
 //            let fullSystemPrompt = "\(systemPrompt)\nUse the following structured outputs schema:\n\(try structuredOutputs.encodeToPrintableString())"
             
-            let userInputsString = try layerDataList.encodeToPrintableString()
+            let layerData = try layerDataList.encodeToPrintableString()
             
-            self.messages = prevMessages + [
-                .init(role: .system,
-                      content: systemPrompt),
-                .init(role: .user,
-                      content: userInputsString)
-            ]
+            // TODO: ????
+            
+            self.messages = prevMessages
+//            + [
+//                .init(role: .user,
+//                      content: layerData)
+//                .init(role: .assistant,
+//                      content: assistantPrompt),
+//                .init(role: .user,
+//                      content: userInputsString)
+//            ]
         }
+    }
+    
+    struct AIPatchBuilderFunctionInputs: Encodable {
+        let swiftui_source_code: String
+        let layer_data: [AIGraphData_V0.LayerData]
     }
 }

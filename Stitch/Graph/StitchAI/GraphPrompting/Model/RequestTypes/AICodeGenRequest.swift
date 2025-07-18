@@ -41,7 +41,7 @@ struct AICodeEditRequest: StitchAIFunctionRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: AICodeEditBody_V0.AICodeGenRequestBody
+    let body: AICodeEditBody_V0.AICodeEditRequestBody
     static let willStream: Bool = false
     
     init(id: UUID,
@@ -56,7 +56,7 @@ struct AICodeEditRequest: StitchAIFunctionRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeEditBody_V0.AICodeGenRequestBody(
+        self.body = try AICodeEditBody_V0.AICodeEditRequestBody(
             userPrompt: prompt,
             prevMessages: prevMessages)
     }
@@ -204,8 +204,14 @@ extension AICodeGenRequest {
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
+        let decodedSwiftUICode = try request
+            .decodeMessage(from: msgFromSourceCodeRequest,
+                           document: document,
+                           aiManager: aiManager,
+                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
+        
         let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
-        logToServerIfRelease("SUCCESS \(request.functionName):\n\(newCodeToolMessage)")
         
         let editRequest = try AICodeEditRequest(id: request.id,
                                                 prompt: request.userPrompt,
@@ -223,12 +229,14 @@ extension AICodeGenRequest {
                            resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
         let swiftUIEditedCode = decodedSwiftUIEditedCode.source_code
         
+        logToServerIfRelease("Edited code:\n\(swiftUIEditedCode)")
+        
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUIEditedCode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
             throw SwiftUISyntaxError.couldNotParseVarBody
         }
         
-        logToServerIfRelease("SUCCESS parsedVarBody:\n\(parsedVarBody)")
+        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)
         var allDiscoveredErrors = codeParserResult.caughtErrors
@@ -245,7 +253,13 @@ extension AICodeGenRequest {
         let layerDataList = actionsResult.actions
         allDiscoveredErrors += actionsResult.caughtErrors
         
-        let newEditToolMessage = try msgFromEditCodeRequest.createNewToolMessage()
+        // Update tool message with layer data
+         var newEditToolMessage = try msgFromEditCodeRequest.createNewToolMessage()
+         let patchBuilderInputs = AIPatchBuilderRequestBody_V0.AIPatchBuilderFunctionInputs(
+             swiftui_source_code: swiftUIEditedCode,
+             layer_data: layerDataList
+         )
+         newEditToolMessage.content = try patchBuilderInputs.encodeToPrintableString()
         
         let patchBuilderRequest = try AIPatchBuilderRequest(
             id: request.id,
@@ -272,8 +286,8 @@ extension AICodeGenRequest {
     @MainActor
     static func displayError(failure: any Error,
                              document: StitchDocumentViewModel) -> any Error {
-        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure)", .logToServer)
-        print(failure)
+        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
+        print(failure.localizedDescription)
         document.aiManager?.currentTaskTesting = nil
         document.insertNodeMenuState.show = false
         

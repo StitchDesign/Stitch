@@ -21,7 +21,7 @@ extension StitchAIRequestableFunctionBody {
 
 enum AICodeEditBody_V0 {
     // https://platform.openai.com/docs/api-reference/making-requests
-    struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
+    struct AICodeEditRequestBody: StitchAIRequestableFunctionBody {
         static let markdownLocation = "AICodeGenSystemPrompt_V0"
         
         let model: String = "o4-mini-2025-04-16"
@@ -34,11 +34,7 @@ enum AICodeEditBody_V0 {
         
         init(userPrompt: String,
              prevMessages: [OpenAIMessage]) throws {
-            let systemPrompt = "Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch."
-            
             self.messages = prevMessages + [
-                .init(role: .system,
-                      content: systemPrompt),
                 .init(role: .user,
                       content: userPrompt)
             ]
@@ -49,7 +45,7 @@ enum AICodeEditBody_V0 {
 enum AICodeGenRequestBody_V0 {
     // https://platform.openai.com/docs/api-reference/making-requests
     struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
-        static let markdownLocation = "AICodeGenSystemPrompt_V0"
+        static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
         
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
@@ -60,12 +56,12 @@ enum AICodeGenRequestBody_V0 {
         let stream: Bool = false
         
         init(currentGraphData: CurrentAIGraphData.GraphData) throws {
-            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
-                                                    withExtension: "md") else {
+            guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
+                                                          withExtension: "md") else {
                 throw StitchAIStreamingError.markdownNotFound
             }
             
-            let systemPrompt = try String(contentsOf: markdownUrl,
+            let systemPrompt = try String(contentsOf: systemMarkdownUrl,
                                           encoding: .utf8)
             
             let inputsString = try currentGraphData.encodeToPrintableString()
@@ -77,6 +73,17 @@ enum AICodeGenRequestBody_V0 {
                       content: systemPrompt),
                 .init(role: .user,
                       content: inputsString)
+//                .init(role: .assistant,
+//                      content: assistantPrompt,
+//                      tool_calls: [.init(id: "tc1",
+//                                         type: "function",
+//                                         function: .init(name: self.tool_choice.function.name,
+//                                                         arguments: inputsString))]),
+//                    .init(role: .tool,
+//                          content: inputsString,
+//                          tool_call_id: "tc1",
+//                          name: self.tool_choice.function.name
+//                         )
             ]
         }
     }
