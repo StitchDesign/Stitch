@@ -272,8 +272,8 @@ extension AICodeGenRequest {
     @MainActor
     static func displayError(failure: any Error,
                              document: StitchDocumentViewModel) -> any Error {
-        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)", .logToServer)
-        print(failure.localizedDescription)
+        log("AICodeGenRequest: getRequestTask: request.request: failure: \(failure)", .logToServer)
+        print(failure)
         document.aiManager?.currentTaskTesting = nil
         document.insertNodeMenuState.show = false
         
