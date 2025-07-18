@@ -36,3 +36,17 @@ enum OpenAIRole: String, Codable {
     case user
     case tool
 }
+
+extension OpenAIMessage {
+    func createNewToolMessage() throws -> Self {
+        guard let tool = self.tool_calls?.first else {
+            throw StitchAIManagerError.toolNotFoundForFunction
+        }
+        
+        let newMessage = OpenAIMessage(role: .tool,
+                                       content: tool.function.arguments,
+                                       tool_call_id: tool.id,
+                                       name: tool.function.name)
+        return newMessage
+    }
+}

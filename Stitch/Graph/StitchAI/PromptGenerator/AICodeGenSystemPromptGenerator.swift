@@ -431,16 +431,6 @@ These native patch nodes support the following events from the Stitch app, and c
 
 # Data Glossary
 
-## `GraphData` Input Schema
-
-You will receive as input some data containing information about the user's existing graph. Your job is to first create SwiftUI code from this input data using all the same rules specified in this system prompt.
-
-The schema for `GraphData` is as follows:
-
-```
-\(try AIGraphDataSchema_V0.AIGraphDataSchemaWrapper().encodeToPrintableString())
-```
-
 ## `PortValue` Example Payloads
 
 Example payloads for each `PortValue` by its type are provided below. Strictly adhere to the schemas in these examples.

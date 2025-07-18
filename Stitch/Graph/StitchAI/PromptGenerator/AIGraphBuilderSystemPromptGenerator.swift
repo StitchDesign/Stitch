@@ -30,11 +30,7 @@ Your goal is to create a patch graph, which will create logic that ultimately up
 2. **SwiftUI source code.** This is broken down into various components, detailed below.
 3. **A nested list of already created layers.** These layers have been derived from the `var body` in the SwiftUI code.
 
-Layer nodes contain nested information about layers. Layers might be a “group” which in turn contain nested layers. Layer groups control functionality such as positioning across possibly multiple layers. The layer node's schema is as follows, to which you will receive a nested list as input:
-```
-\(try CurrentAIPatchBuilderResponseFormat.LayerNodeSchema().encodeToPrintableString())
-```
-Where `custom_layer_input_values` are the values specified for some layers' inputs.
+Layer nodes contain nested information about layers. Layers might be a “group” which in turn contain nested layers. Layer groups control functionality such as positioning across possibly multiple layers. You will receive a nested list as input. `custom_layer_input_values` are the values specified for some layers' inputs.
 
 ## Decoding SwiftUI Source Code
 > Note: make sure any IDs created for a node are valid UUIDs.

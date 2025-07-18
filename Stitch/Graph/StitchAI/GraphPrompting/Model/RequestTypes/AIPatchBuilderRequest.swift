@@ -11,7 +11,7 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
-struct AIPatchBuilderRequest: StitchAIRequestable {
+struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
@@ -19,21 +19,22 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
     static let willStream: Bool = false
     
     @MainActor
-    init(prompt: String,
-         swiftUISourceCode: String,
+    init(id: UUID,
+         prompt: String,
          layerDataList: [CurrentAIGraphData.LayerData],
+         prevMessages: [OpenAIMessage],
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
-        self.id = .init()
+        self.id = id
         
         self.userPrompt = prompt
         self.config = config
         
         // Construct http payload
         self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
-                                                  swiftUiSourceCode: swiftUISourceCode,
-                                                  layerDataList: layerDataList)
+                                                  layerDataList: layerDataList,
+                                                  prevMessages: prevMessages)
     }
     
     @MainActor
@@ -43,17 +44,17 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateResponse(decodedResult: CurrentAIGraphData.PatchData) throws -> CurrentAIGraphData.PatchData {
+    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
         decodedResult
     }
     
     @MainActor
-    func onSuccessfulDecodingChunk(result: CurrentAIGraphData.PatchData,
+    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
                                    currentAttempt: Int) {
         fatalErrorIfDebug()
     }
     
-    static func buildResponse(from streamingChunks: [CurrentAIGraphData.PatchData]) throws -> CurrentAIGraphData.PatchData {
+    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
         // Unsupported
         fatalError()
     }

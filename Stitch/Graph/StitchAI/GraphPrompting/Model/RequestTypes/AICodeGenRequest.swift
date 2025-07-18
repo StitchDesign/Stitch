@@ -198,33 +198,18 @@ extension AICodeGenRequest {
                                        request: AICodeGenRequest,
                                        document: StitchDocumentViewModel,
                                        aiManager: StitchAIManager) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
+        logToServerIfRelease("userPrompt: \(userPrompt)")
+
         let msgFromSourceCodeRequest = try await request
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
-//        let decodedSwiftUISourceCode = try request
-//            .decodeMessage(from: msgFromSourceCodeRequest,
-//                           document: document,
-//                           aiManager: aiManager,
-//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-//        
-//        let originSwiftUISourceCode = decodedSwiftUISourceCode.source_code
-//            
-//        logToServerIfRelease("SUCCESS userPrompt: \(userPrompt)")
-//        logToServerIfRelease("SUCCESS Code Gen:\n\(originSwiftUISourceCode)")
-        
-        guard let toolFromMsg = msgFromSourceCodeRequest.tool_calls?.first else {
-            throw StitchAIManagerError.toolNotFoundForFunction
-        }
-        
-        let newMessage = OpenAIMessage(role: .tool,
-                                       content: toolFromMsg.function.arguments,
-                                       tool_call_id: toolFromMsg.id,
-                                       name: toolFromMsg.function.name)
+        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+        logToServerIfRelease("SUCCESS \(request.functionName):\n\(newCodeToolMessage)")
         
         let editRequest = try AICodeEditRequest(id: request.id,
                                                 prompt: request.userPrompt,
-                                                prevMessages: request.body.messages + [msgFromSourceCodeRequest, newMessage])
+                                                prevMessages: request.body.messages + [msgFromSourceCodeRequest, newCodeToolMessage])
         
         let msgFromEditCodeRequest = try await editRequest
             .requestForMessage(
@@ -260,14 +245,23 @@ extension AICodeGenRequest {
         let layerDataList = actionsResult.actions
         allDiscoveredErrors += actionsResult.caughtErrors
         
-        let patchBuilderRequest = try await AIPatchBuilderRequest(
-            prompt: userPrompt,
-            swiftUISourceCode: swiftUIEditedCode,
-            layerDataList: layerDataList)
+        let newEditToolMessage = try msgFromEditCodeRequest.createNewToolMessage()
         
-        let patchBuildResult = try await patchBuilderRequest
-            .request(document: document,
-                     aiManager: aiManager)
+        let patchBuilderRequest = try await AIPatchBuilderRequest(
+            id: request.id,
+            prompt: userPrompt,
+            layerDataList: layerDataList,
+            prevMessages: editRequest.body.messages + [msgFromEditCodeRequest, newEditToolMessage])
+        
+        let patchBuildMessage = try await patchBuilderRequest
+            .requestForMessage(document: document,
+                               aiManager: aiManager)
+        
+        let patchBuildResult = try patchBuilderRequest
+            .decodeMessage(from: patchBuildMessage,
+                           document: document,
+                           aiManager: aiManager,
+                           resultType: CurrentAIGraphData.PatchData.self)
             
         logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
         let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
