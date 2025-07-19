@@ -60,6 +60,9 @@ extension LayerInputPort {
             case .textField:
                 return .size(LayerSize.DEFAULT_TEXT_FIELD_SIZE)
             case .text:
+                // TODO: which is better for a default size for text? Auto = fixed size
+                // TODO: Hug is a bad size for simple text cases? we don't position the newly-created via in range
+//                return .size(.init(width: .hug, height: .hug))
                 return .size(.init(width: .auto, height: .auto))
             case .group:
                 return .size(.DEFAULT_LAYER_GROUP_SIZE)
