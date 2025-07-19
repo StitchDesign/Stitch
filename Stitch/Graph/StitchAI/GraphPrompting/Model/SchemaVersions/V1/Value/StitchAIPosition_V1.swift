@@ -14,7 +14,7 @@ enum StitchAIPosition_V1: StitchSchemaVersionable {
     typealias PreviousInstance = Self.StitchAIPosition
     // MARK: - end
     
-    struct StitchAIPosition: Codable {
+    struct StitchAIPosition: Codable, Equatable {
         var x: Double
         var y: Double
     }

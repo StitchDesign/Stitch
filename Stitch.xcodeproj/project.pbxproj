@@ -45,7 +45,7 @@
 		B50192062C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */; };
 		B50192092C6D100E00A048ED /* LayerInputObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192082C6D100E00A048ED /* LayerInputObserver.swift */; };
 		B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B501920B2C6D144D00A048ED /* StitchEngine */; };
-		B503B0CE2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B503B0CD2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift */; };
+		B503B0CE2E0D826A004F5EB8 /* AIPatchBuilderSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B503B0CD2E0D826A004F5EB8 /* AIPatchBuilderSystemPromptGenerator.swift */; };
 		B504CFD12D2F953F00E245DA /* DebugModePopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B504CFD02D2F953C00E245DA /* DebugModePopover.swift */; };
 		B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */; };
 		B5072B882DD2FD0500C4597B /* StitchAITips.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5072B872DD2FCFB00C4597B /* StitchAITips.swift */; };
@@ -277,9 +277,7 @@
 		B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */; };
 		B5B300ED2D49627F0064D071 /* NodeMediaUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */; };
 		B5B31CD42E05F7C9003EABA2 /* AICodeGenRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CD02E05F7C9003EABA2 /* AICodeGenRequestBody_V0.swift */; };
-		B5B31CD72E05F7C9003EABA2 /* AICodeGenSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5B31CD22E05F7C9003EABA2 /* AICodeGenSystemPrompt_V0.md */; };
 		B5B31CDA2E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */; };
-		B5B31CDC2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */; };
 		B5B31CDE2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */; };
 		B5B31CE42E0A27FA003EABA2 /* AICodeGenRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE32E0A27FA003EABA2 /* AICodeGenRequest.swift */; };
 		B5B31CE62E0A3232003EABA2 /* AIPatchBuilderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */; };
@@ -309,6 +307,10 @@
 		B5CB68342CC9A06500DFC660 /* ProjectSidebarObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB68332CC9A06100DFC660 /* ProjectSidebarObservable.swift */; };
 		B5CB68362CC9A0D700DFC660 /* LayersSidebarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB68352CC9A0D300DFC660 /* LayersSidebarViewModel.swift */; };
 		B5CB82F4283D987F00FE29A6 /* StitchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB82F3283D987F00FE29A6 /* StitchStore.swift */; };
+		B5CD1A292E2AB90D009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */; };
+		B5CD1A2B2E2AC055009CDF74 /* AIGraphBuilderSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */; };
+		B5CD1A2E2E2C32A1009CDF74 /* AICodeEditRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */; };
+		B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */; };
 		B5CEA0B32E26FC0000A647FD /* AIGraphData_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */; };
 		B5CEA0B62E27084D00A647FD /* AIGraphDataUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */; };
 		B5CEA0B82E2713B000A647FD /* AIGraphDataLayerUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */; };
@@ -1210,7 +1212,7 @@
 		B500F3672DE6BF1400904992 /* StitchDocsPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocsPopoverView.swift; sourceTree = "<group>"; };
 		B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputUnpackedPortObserver.swift; sourceTree = "<group>"; };
 		B50192082C6D100E00A048ED /* LayerInputObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputObserver.swift; sourceTree = "<group>"; };
-		B503B0CD2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphBuilderSystemPromptGenerator.swift; sourceTree = "<group>"; };
+		B503B0CD2E0D826A004F5EB8 /* AIPatchBuilderSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderSystemPromptGenerator.swift; sourceTree = "<group>"; };
 		B504CFD02D2F953C00E245DA /* DebugModePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugModePopover.swift; sourceTree = "<group>"; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
 		B5072B872DD2FCFB00C4597B /* StitchAITips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAITips.swift; sourceTree = "<group>"; };
@@ -1434,9 +1436,7 @@
 		B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHostingController.swift; sourceTree = "<group>"; };
 		B5B300EC2D49627A0064D071 /* NodeMediaUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMediaUtils.swift; sourceTree = "<group>"; };
 		B5B31CD02E05F7C9003EABA2 /* AICodeGenRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeGenRequestBody_V0.swift; sourceTree = "<group>"; };
-		B5B31CD22E05F7C9003EABA2 /* AICodeGenSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AICodeGenSystemPrompt_V0.md; sourceTree = "<group>"; };
 		B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderRequestBody_V0.swift; sourceTree = "<group>"; };
-		B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIPatchBuilderSystemPrompt_V0.md; sourceTree = "<group>"; };
 		B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderResponseFormat_V0.swift; sourceTree = "<group>"; };
 		B5B31CE32E0A27FA003EABA2 /* AICodeGenRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeGenRequest.swift; sourceTree = "<group>"; };
 		B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIPatchBuilderRequest.swift; sourceTree = "<group>"; };
@@ -1463,6 +1463,10 @@
 		B5CB68332CC9A06100DFC660 /* ProjectSidebarObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSidebarObservable.swift; sourceTree = "<group>"; };
 		B5CB68352CC9A0D300DFC660 /* LayersSidebarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersSidebarViewModel.swift; sourceTree = "<group>"; };
 		B5CB82F3283D987F00FE29A6 /* StitchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchStore.swift; sourceTree = "<group>"; };
+		B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphBuilderSystemPromptGenerator.swift; sourceTree = "<group>"; };
+		B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIGraphBuilderSystemPrompt_V0.md; sourceTree = "<group>"; };
+		B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeEditRequestBody_V0.swift; sourceTree = "<group>"; };
+		B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBuilder_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphData_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataUtil_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataLayerUtil_V0.swift; sourceTree = "<group>"; };
@@ -2491,6 +2495,7 @@
 			children = (
 				B5CEA0B12E26FAE300A647FD /* AIGraphData */,
 				B5B31CD32E05F7C9003EABA2 /* AICodeGen */,
+				B5CD1A2C2E2C328B009CDF74 /* AICodeEdit */,
 				B5B31CD82E09F3B7003EABA2 /* AIPatchBuilder */,
 				B525786D2DF510C4003ABD2C /* AIGraphDescription */,
 				B53BF63A2DF0A05E004EA770 /* AIGraphCreation */,
@@ -4394,7 +4399,7 @@
 			isa = PBXGroup;
 			children = (
 				B5B31CD02E05F7C9003EABA2 /* AICodeGenRequestBody_V0.swift */,
-				B5B31CD22E05F7C9003EABA2 /* AICodeGenSystemPrompt_V0.md */,
+				B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */,
 			);
 			path = AICodeGen;
 			sourceTree = "<group>";
@@ -4404,7 +4409,6 @@
 			children = (
 				B5B31CD92E09F3D2003EABA2 /* AIPatchBuilderRequestBody_V0.swift */,
 				B5B31CDD2E09F512003EABA2 /* AIPatchBuilderResponseFormat_V0.swift */,
-				B5B31CDB2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md */,
 			);
 			path = AIPatchBuilder;
 			sourceTree = "<group>";
@@ -4440,9 +4444,18 @@
 			path = Type;
 			sourceTree = "<group>";
 		};
+		B5CD1A2C2E2C328B009CDF74 /* AICodeEdit */ = {
+			isa = PBXGroup;
+			children = (
+				B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */,
+			);
+			path = AICodeEdit;
+			sourceTree = "<group>";
+		};
 		B5CEA0B12E26FAE300A647FD /* AIGraphData */ = {
 			isa = PBXGroup;
 			children = (
+				B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */,
 				B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */,
 				B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */,
 				B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */,
@@ -4502,9 +4515,10 @@
 		B5F3D0B02DE3CBBA00103676 /* PromptGenerator */ = {
 			isa = PBXGroup;
 			children = (
+				B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */,
 				B5EFD5B02D5D8967006A68FB /* StitchAISystemPromptGenerator.swift */,
 				B5B31CE72E0C6769003EABA2 /* AICodeGenSystemPromptGenerator.swift */,
-				B503B0CD2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift */,
+				B503B0CD2E0D826A004F5EB8 /* AIPatchBuilderSystemPromptGenerator.swift */,
 			);
 			path = PromptGenerator;
 			sourceTree = "<group>";
@@ -5689,12 +5703,11 @@
 				B5AED9162DE2BAFB00C514F2 /* Patch.md in Resources */,
 				B5A8899A2DFBD2F6000A8148 /* AIGraphCreationSystemPrompt_V0.md in Resources */,
 				B5EE9A962DE66D0A00DB85C3 /* README.md in Resources */,
-				B5B31CD72E05F7C9003EABA2 /* AICodeGenSystemPrompt_V0.md in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
+				B5CD1A2B2E2AC055009CDF74 /* AIGraphBuilderSystemPrompt_V0.md in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
-				B5B31CDC2E09F453003EABA2 /* AIPatchBuilderSystemPrompt_V0.md in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5940,6 +5953,7 @@
 				EC47EB322CDEE2B500995FF5 /* SpringConverterPatches.swift in Sources */,
 				ECCEB26829634CB5007E35D1 /* ShapeAndRectUtils.swift in Sources */,
 				EC8605AC269DEBA2007B8ED3 /* ValueForKeyNode.swift in Sources */,
+				B5CD1A2E2E2C32A1009CDF74 /* AICodeEditRequestBody_V0.swift in Sources */,
 				203D56BD25B0DAE000EF7AC2 /* LegacyNodeHelpers.swift in Sources */,
 				ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */,
 				EC57659D2DB7F64200D71CB2 /* PortUIViewModel.swift in Sources */,
@@ -5947,7 +5961,7 @@
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
 				B5221F6C2D398947009FF89A /* ConeLayerNode.swift in Sources */,
-				B503B0CE2E0D826A004F5EB8 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */,
+				B503B0CE2E0D826A004F5EB8 /* AIPatchBuilderSystemPromptGenerator.swift in Sources */,
 				EC913A722DE54A0E0056CEE1 /* StitchAIRatingToast.swift in Sources */,
 				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
@@ -6123,6 +6137,7 @@
 				E40EBAD22BB5D8DD00CCA3C3 /* SwitchLayerNode.swift in Sources */,
 				B57B27392A77522A007D6A4F /* FieldValueNumberView.swift in Sources */,
 				ECD7FA8B29D73C010073ACAC /* InsertNodeMenuOption.swift in Sources */,
+				B5CD1A292E2AB90D009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */,
 				E4F7AC242974AF5300B7F55A /* RealityNode.swift in Sources */,
 				ECEC4A462CE3BEAF0062ACAF /* StepActionToStateChange.swift in Sources */,
 				ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */,
@@ -6626,6 +6641,7 @@
 				B5136F452DED264A007F12D0 /* StitchAIPosition_V0.swift in Sources */,
 				8B77BA792713CED400255C40 /* GraphUI.swift in Sources */,
 				EC1DE58C260AB07C009497CF /* AndNode.swift in Sources */,
+				B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder_V0.swift in Sources */,
 				E41140F12BB23054000C34E3 /* MapLayerNode.swift in Sources */,
 				EC418939294BBF9D0098D0B6 /* KeyboardNode.swift in Sources */,
 				ECD50ACA285D34B80009B564 /* StitchCommands.swift in Sources */,

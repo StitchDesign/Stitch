@@ -9,63 +9,32 @@ import Foundation
 
 enum AIPatchBuilderRequestBody_V0 {
     // https://platform.openai.com/docs/api-reference/making-requests
-    struct AIPatchBuilderRequestBody: StitchAIRequestBodyFormattable {
-        static let markdownLocation = "AIPatchBuilderSystemPrompt_V0"
+    struct AIPatchBuilderRequestBody: StitchAIRequestableFunctionBody {
         
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
         let temperature: Double = 1.0
-        let response_format = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
         let messages: [OpenAIMessage]
+        let tools = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.allFunctions
+        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.patchBuilder.function
         let stream: Bool = false
         
         init(userPrompt: String,
-             swiftUiSourceCode: String,
-             layerDataList: [CurrentAIGraphData.LayerData]) throws {
-            let responseFormat = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
-            let structuredOutputs = responseFormat.json_schema.schema
-            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
-                                                    withExtension: "md") else {
-                throw StitchAIStreamingError.markdownNotFound
-            }
+             layerDataList: [CurrentAIGraphData.LayerData],
+             toolMessages: [OpenAIMessage]) throws {
+            let systemPrompt = try AICodeGenRequestBody_V0.getSystemPrompt()
+            let assistantPrompt = try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
             
-            let systemPrompt = try String(contentsOf: markdownUrl,
-                                          encoding: .utf8)
-            let fullSystemPrompt = "\(systemPrompt)\nUse the following structured outputs schema:\n\(try structuredOutputs.encodeToPrintableString())"
-            
-            let inputs = AIPatchBuilderRequestInputs(
-                user_prompt: userPrompt,
-                swiftui_source_code: swiftUiSourceCode,
-                layer_data_list: layerDataList)
-            let userInputsString = try inputs.encodeToPrintableString()
-            
-            self.messages = [
-                .init(role: .system,
-                      content: fullSystemPrompt),
-                .init(role: .user,
-                      content: userInputsString)
-            ]
+            self.messages = [.init(role: .system,
+                                   content: systemPrompt),
+                             .init(role: .assistant,
+                                   content: assistantPrompt)] +
+            toolMessages
         }
     }
     
-    struct AIPatchBuilderRequestInputs: Encodable {
-        let user_prompt: String
+    struct AIPatchBuilderFunctionInputs: Encodable {
         let swiftui_source_code: String
-        let layer_data_list: [CurrentAIGraphData.LayerData]
-        
-//        enum CodingKeys: String, CodingKey {
-//            case user_prompt
-//            case swiftui_source_code
-//            case layer_list
-//        }
-//        
-//        func encode(to encoder: Encoder) throws {
-//            var container = encoder.container(keyedBy: CodingKeys.self)
-//            try container.encode(user_prompt, forKey: .user_prompt)
-//            try container.encode(swiftui_source_code, forKey: .swiftui_source_code)
-//            
-//            // Only encode if values were provided
-//            try container.encodeIfPresent(layer_list, forKey: .layer_list)
-//        }
+        let layer_data: [AIGraphData_V0.LayerData]
     }
 }

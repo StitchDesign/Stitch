@@ -139,6 +139,14 @@ extension Array where Element == AIGraphData_V0.SidebarLayerData {
     }
 }
 
+extension Array where Element == AIGraphData_V0.LayerData {
+    var allFlattenedItems: [AIGraphData_V0.LayerData] {
+        self.flatMap { item in
+            [item] + (item.children?.allFlattenedItems ?? [])
+        }
+    }
+}
+
 extension AIGraphData_V0.LayerData {
     init(from sidebarData: AIGraphData_V0.SidebarLayerData,
          nodesDict: [UUID : AIGraphData_V0.NodeEntity],
@@ -159,15 +167,22 @@ extension AIGraphData_V0.LayerData {
             switch portData.packedData.inputPort {
             case .values(let values):
                 let defaultData = port.getDefaultValueForAI(for: layerData.layer)
+                let defaultEncodedData = try defaultData.anyCodable.encodeToData()
                 
                 // Save data if different from default value
-                if let firstValue = values.first,
-                   defaultData != firstValue {
-                    customInputValues.append(
-                        try .init(id: layerData.id,
-                                  input: port,
-                                  value: firstValue)
-                    )
+                if let firstValue = values.first {
+                    let firstValueEncodedData = try firstValue.anyCodable.encodeToData()
+                    
+                    // Check if values are equal
+                    if defaultData != firstValue &&
+                        // Redundant check because sometimes values are the same but different (like for color)
+                        defaultEncodedData != firstValueEncodedData {
+                        customInputValues.append(
+                            try .init(id: layerData.id,
+                                      input: port,
+                                      value: firstValue)
+                        )
+                    }
                 }
                 
             case .upstreamConnection(let upstream):
