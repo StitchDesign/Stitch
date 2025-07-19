@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 
 extension CGFloat {
-    static let DEFAULT_FONT_SIZE = 36.0
+    static let DEFAULT_FONT_SIZE = 18.0
 }
 
 extension LayerDimension {
