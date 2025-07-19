@@ -71,16 +71,20 @@ extension StitchDocumentViewModel {
         let graph = self.visibleGraph
         
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
-        
-        // Creates new layer node view model
-        let newLayerNode = existingGraph.nodes.get(newId) ?? graph
-            .createNode(graphTime: self.graphStepState.graphTime,
-                        newNodeId: newId,
-                        highestZIndex: graph.highestZIndex,
-                        choice: migratedNodeName,
-                        center: self.newCanvasItemInsertionLocation)
-        graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
-                                                      forKey: newLayerNode.id)
+        let existingLayerNode = existingGraph.nodes.get(newId)
+        let needsNewNodeCreation = existingLayerNode?.kind.getLayer != migratedNodeName.layer
+
+        if needsNewNodeCreation {
+            // Creates new layer node view model
+            let newLayerNode = graph
+                .createNode(graphTime: self.graphStepState.graphTime,
+                            newNodeId: newId,
+                            highestZIndex: graph.highestZIndex,
+                            choice: migratedNodeName,
+                            center: self.newCanvasItemInsertionLocation)
+            graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
+                                                          forKey: newLayerNode.id)
+        }
                 
         if let children = newLayer.children {
             for child in children {
@@ -201,15 +205,25 @@ extension CurrentAIGraphData.GraphData {
             idMap.updateValue(newId, forKey: newId.description)
             
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
+            let existingPatchNode = graph.nodes.get(newId)
+            let needsNewNodeCreation = existingPatchNode?.patch != migratedNodeName.patch
+            let newNode: NodeViewModel
             
-            let newNode = graph.nodes.get(newId) ?? graph
-                .createNode(graphTime: .zero,
-                            newNodeId: newId,
-                            highestZIndex: highestZIndex,
-                            choice: migratedNodeName,
-                            center: graphCenter)
-            
-            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+            if needsNewNodeCreation {
+                newNode = graph.nodes.get(newId) ?? graph
+                    .createNode(graphTime: .zero,
+                                newNodeId: newId,
+                                highestZIndex: highestZIndex,
+                                choice: migratedNodeName,
+                                center: graphCenter)
+                
+                graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+            } else if let existingPatchNode = existingPatchNode {
+                newNode = existingPatchNode
+            } else {
+                fatalErrorIfDebug()
+                continue
+            }
             
             guard let patchNode = newNode.patchNodeViewModel else {
                 fatalErrorIfDebug()
