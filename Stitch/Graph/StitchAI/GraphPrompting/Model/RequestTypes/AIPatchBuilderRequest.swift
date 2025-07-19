@@ -21,7 +21,7 @@ struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
     init(id: UUID,
          prompt: String,
          layerDataList: [CurrentAIGraphData.LayerData],
-         prevMessages: [OpenAIMessage],
+         toolMessages: [OpenAIMessage],
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -33,7 +33,7 @@ struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
         // Construct http payload
         self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
                                                   layerDataList: layerDataList,
-                                                  prevMessages: prevMessages)
+                                                  toolMessages: toolMessages)
     }
     
     @MainActor

@@ -46,7 +46,7 @@ struct AICodeEditRequest: StitchAIFunctionRequestable {
     
     init(id: UUID,
          prompt: String,
-         prevMessages: [OpenAIMessage],
+         toolMessages: [OpenAIMessage],
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -58,7 +58,7 @@ struct AICodeEditRequest: StitchAIFunctionRequestable {
         // Construct http payload
         self.body = try AICodeEditBody_V0.AICodeEditRequestBody(
             userPrompt: prompt,
-            prevMessages: prevMessages)
+            toolMessages: toolMessages)
     }
     
     @MainActor
@@ -215,7 +215,7 @@ extension AICodeGenRequest {
         
         let editRequest = try AICodeEditRequest(id: request.id,
                                                 prompt: request.userPrompt,
-                                                prevMessages: request.body.messages + [msgFromSourceCodeRequest, newCodeToolMessage])
+                                                toolMessages: [msgFromSourceCodeRequest, newCodeToolMessage])
         
         let msgFromEditCodeRequest = try await editRequest
             .requestForMessage(
@@ -265,7 +265,7 @@ extension AICodeGenRequest {
             id: request.id,
             prompt: userPrompt,
             layerDataList: layerDataList,
-            prevMessages: editRequest.body.messages + [msgFromEditCodeRequest, newEditToolMessage])
+            toolMessages: [msgFromEditCodeRequest, newEditToolMessage])
         
         let patchBuildMessage = try await patchBuilderRequest
             .requestForMessage(document: document,

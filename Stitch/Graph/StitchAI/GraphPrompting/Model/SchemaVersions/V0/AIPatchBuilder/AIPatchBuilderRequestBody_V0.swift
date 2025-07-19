@@ -23,7 +23,7 @@ enum AIPatchBuilderRequestBody_V0 {
         
         init(userPrompt: String,
              layerDataList: [CurrentAIGraphData.LayerData],
-             prevMessages: [OpenAIMessage]) throws {
+             toolMessages: [OpenAIMessage]) throws {
 //            let responseFormat = AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat()
 //            let structuredOutputs = responseFormat.json_schema.schema
 //            guard let markdownUrl = Bundle.main.url(forResource: Self.markdownLocation,
@@ -38,17 +38,14 @@ enum AIPatchBuilderRequestBody_V0 {
 //            let layerData = try layerDataList.encodeToPrintableString()
             
             
+            let systemPrompt = try AICodeGenRequestBody_V0.getSystemPrompt()
             let assistantPrompt = try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
             
-            self.messages = prevMessages
-            + [
-//                .init(role: .user,
-//                      content: layerData)
-                .init(role: .assistant,
-                      content: assistantPrompt),
-//                .init(role: .user,
-//                      content: userInputsString)
-            ]
+            self.messages = [.init(role: .system,
+                                   content: systemPrompt),
+                             .init(role: .assistant,
+                                   content: assistantPrompt)] +
+            toolMessages
         }
     }
     

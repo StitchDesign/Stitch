@@ -33,15 +33,23 @@ enum AICodeEditBody_V0 {
         let stream: Bool = false
         
         init(userPrompt: String,
-             prevMessages: [OpenAIMessage]) throws {
+             toolMessages: [OpenAIMessage]) throws {
+            let systemPrompt = try AICodeGenRequestBody_V0.getSystemPrompt()
+            
             let assistantPrompt = """
                 Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
 
                 Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
+                
+                Adhere to the guidelines specified in this document:
+                
+                \(try StitchAIManager.aiCodeGenSystemPromptGenerator())
                 """
             
-            self.messages = prevMessages + [
-                .init(role: .assistant,
+            self.messages = [.init(role: .system,
+                                   content: systemPrompt)] +
+            toolMessages + [
+                .init(role: .system,
                       content: assistantPrompt),
                 .init(role: .user,
                       content: userPrompt)
@@ -51,9 +59,21 @@ enum AICodeEditBody_V0 {
 }
 
 enum AICodeGenRequestBody_V0 {
+    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
+
+    static func getSystemPrompt() throws -> String {
+        guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
+                                                      withExtension: "md") else {
+            throw StitchAIStreamingError.markdownNotFound
+        }
+        
+        let systemPrompt = try String(contentsOf: systemMarkdownUrl,
+                                      encoding: .utf8)
+        return systemPrompt
+    }
+    
     // https://platform.openai.com/docs/api-reference/making-requests
     struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
-        static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
         
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
@@ -64,13 +84,7 @@ enum AICodeGenRequestBody_V0 {
         let stream: Bool = false
         
         init(currentGraphData: CurrentAIGraphData.GraphData) throws {
-            guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
-                                                          withExtension: "md") else {
-                throw StitchAIStreamingError.markdownNotFound
-            }
-            
-            let systemPrompt = try String(contentsOf: systemMarkdownUrl,
-                                          encoding: .utf8)
+            let systemPrompt = try AICodeGenRequestBody_V0.getSystemPrompt()
             let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator()
             
             let inputsString = try currentGraphData.encodeToPrintableString()
@@ -80,7 +94,7 @@ enum AICodeGenRequestBody_V0 {
             self.messages = [
                 .init(role: .system,
                       content: systemPrompt),
-                .init(role: .assistant,
+                .init(role: .system,
                       content: codeGenAssistantPrompt),
                 .init(role: .user,
                       content: inputsString)
