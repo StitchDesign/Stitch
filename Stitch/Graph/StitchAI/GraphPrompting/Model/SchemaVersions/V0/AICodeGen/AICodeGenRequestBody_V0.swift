@@ -47,10 +47,10 @@ enum AICodeEditBody_V0 {
                 """
             
             self.messages = [.init(role: .system,
-                                   content: systemPrompt)] +
+                                   content: systemPrompt),
+                             .init(role: .system,
+                                   content: assistantPrompt)] +
             toolMessages + [
-                .init(role: .system,
-                      content: assistantPrompt),
                 .init(role: .user,
                       content: userPrompt)
             ]
