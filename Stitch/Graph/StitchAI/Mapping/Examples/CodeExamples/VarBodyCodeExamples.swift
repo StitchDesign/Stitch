@@ -89,4 +89,56 @@ struct ContentView: View {
 }
 """
     )
+    
+    static let phone_dial = MappingCodeExample(
+        title: "Phone Dial",
+        code:
+"""
+import SwiftUI
+
+struct VanilliaPhoneDialView: View {
+    var body: some View {
+        VStack {
+
+            Text("1 (234) 567-8900")
+            Text("Add Number")
+            
+            VStack {
+                ForEach(0..<4) { row in
+                    HStack {
+                        ForEach(0..<3) { col in
+                            ZStack {
+                                Circle()
+                                VStack {
+                                    Text("N")
+                                        .foregroundColor(.white)
+                                } // VStack
+                            } // ZStack
+                        } // ForEach
+                    } // HStack
+                } // ForEach
+            } // VStack
+            
+            HStack {
+                Circle().overlay(Image(systemName: "phone.fill").foregroundColor(.white))
+                ZStack {
+                    Rectangle()
+                    Image(systemName: "delete.left").foregroundColor(.white)
+                } // ZStack
+            } // HStack
+
+        } // VStack
+
+    } // body
+    
+    func updateLayerInputs() {
+        // No dynamic state to update
+    }
 }
+
+"""
+    )
+    
+}
+
+
