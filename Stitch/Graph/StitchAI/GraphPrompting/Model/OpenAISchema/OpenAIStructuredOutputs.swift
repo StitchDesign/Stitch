@@ -175,9 +175,11 @@ struct OpenAIGeneric: Encodable, Sendable {
     var description: String?
     var additionalProperties = false
     var required: [String]?
+    var isOneOf: Bool = false
     
     enum CodingKeys: String, CodingKey {
         case anyOf
+        case oneOf
         case description
         case type
         case properties
@@ -195,7 +197,7 @@ struct OpenAIGeneric: Encodable, Sendable {
         try keyedContainer.encode(self.additionalProperties, forKey: .additionalProperties)
         
         if isGeneric {
-            var unkeyedContainer = keyedContainer.nestedUnkeyedContainer(forKey: .anyOf)
+            var unkeyedContainer = keyedContainer.nestedUnkeyedContainer(forKey: isOneOf ? .oneOf : .anyOf)
             
             // Add types to array
             for type in self.types {
