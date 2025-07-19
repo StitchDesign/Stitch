@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -680,6 +680,7 @@
 		EC60AE772DFB3BF5001F5119 /* CatalystNavBarButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60AE762DFB3BF5001F5119 /* CatalystNavBarButtonView.swift */; };
 		EC60B8652C18044D00984FC8 /* ProjectThumbnailActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60B8642C18044D00984FC8 /* ProjectThumbnailActions.swift */; };
 		EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC60E57B27178DDD00AABE71 /* LayerUtils.swift */; };
+		EC6140022E2B378D00E8EBF9 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = EC6140012E2B378D00E8EBF9 /* StitchSchemaKit */; };
 		EC631402265C418D00BD45B2 /* LoopSelectNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC631401265C418D00BD45B2 /* LoopSelectNode.swift */; };
 		EC63B97A29FB0D8800C65A95 /* ExistingEdgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC63B97929FB0D8800C65A95 /* ExistingEdgesView.swift */; };
 		EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC650BD826864DF200C4CCC9 /* SoundImportNode.swift */; };
@@ -942,6 +943,7 @@
 		ECB9A86F2AEB4950006E65EE /* AlphaSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9A86E2AEB4950006E65EE /* AlphaSliderView.swift */; };
 		ECBB853F25E9BA5500C1EE40 /* PreviewText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */; };
 		ECBB94732D60007A005311D5 /* HomescreenProjectSelectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB94722D60007A005311D5 /* HomescreenProjectSelectionState.swift */; };
+		ECBC20B62E2B3730001CD845 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC20B52E2B3730001CD845 /* StitchSchemaKit */; };
 		ECBC56FB2E05FE1100BF5CA7 /* SwiftBasicFormat in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */; };
 		ECBC56FD2E05FE1100BF5CA7 /* SwiftCompilerPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FC2E05FE1100BF5CA7 /* SwiftCompilerPlugin */; };
 		ECBC56FF2E05FE1100BF5CA7 /* SwiftDiagnostics in Frameworks */ = {isa = PBXBuildFile; productRef = ECBC56FE2E05FE1100BF5CA7 /* SwiftDiagnostics */; };
@@ -2288,6 +2290,7 @@
 			files = (
 				B5FBE3C42C4195B3006DA0A7 /* DirectoryWatcher in Frameworks */,
 				B5EB3F072C165FE900879947 /* (null) in Frameworks */,
+				EC6140022E2B378D00E8EBF9 /* StitchSchemaKit in Frameworks */,
 				B53AA6402D9B1683008D5C23 /* StitchEngine in Frameworks */,
 				EC1B97CB2E29FEF80029B80C /* StitchSchemaKit in Frameworks */,
 				B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */,
@@ -2345,6 +2348,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ECBC20B62E2B3730001CD845 /* StitchSchemaKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5593,6 +5597,7 @@
 				ECBC57002E05FE1100BF5CA7 /* SwiftIDEUtils */,
 				ECBC57022E05FE1100BF5CA7 /* SwiftIfConfig */,
 				EC1B97CA2E29FEF80029B80C /* StitchSchemaKit */,
+				EC6140012E2B378D00E8EBF9 /* StitchSchemaKit */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -5682,7 +5687,7 @@
 				EC8826CB2DCD04AD003529BA /* XCRemoteSwiftPackageReference "json-stream" */,
 				ECA76B9E2DFD13E90018D16C /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */,
-				EC1B97C92E29FEF80029B80C /* XCLocalSwiftPackageReference "../StitchSchemaKit" */,
+				EC6140002E2B378D00E8EBF9 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -7981,13 +7986,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		EC1B97C92E29FEF80029B80C /* XCLocalSwiftPackageReference "../StitchSchemaKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../StitchSchemaKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -8069,6 +8067,14 @@
 				version = 1.0.2;
 			};
 		};
+		EC6140002E2B378D00E8EBF9 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
+			requirement = {
+				kind = revision;
+				revision = 4d5e28b254648e9a3e432b74e5b2878844e20229;
+			};
+		};
 		EC7784CD27053D9700B662DD /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
@@ -8099,6 +8105,14 @@
 			requirement = {
 				kind = exactVersion;
 				version = 2.5.1;
+			};
+		};
+		ECBC20B42E2B3730001CD845 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
+			requirement = {
+				kind = revision;
+				revision = 4d5e28b254648e9a3e432b74e5b2878844e20229;
 			};
 		};
 		ECBC56F92E05FE1100BF5CA7 /* XCRemoteSwiftPackageReference "swift-syntax" */ = {
@@ -8250,6 +8264,11 @@
 			package = EC53F3C1287E27250021095B /* XCRemoteSwiftPackageReference "swift-numerics" */;
 			productName = Numerics;
 		};
+		EC6140012E2B378D00E8EBF9 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EC6140002E2B378D00E8EBF9 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
+			productName = StitchSchemaKit;
+		};
 		EC7784CE27053D9700B662DD /* ZIPFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = EC7784CD27053D9700B662DD /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
@@ -8302,6 +8321,11 @@
 		ECB46CD52DB14D80006EFB93 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
+		};
+		ECBC20B52E2B3730001CD845 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ECBC20B42E2B3730001CD845 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
+			productName = StitchSchemaKit;
 		};
 		ECBC56FA2E05FE1100BF5CA7 /* SwiftBasicFormat */ = {
 			isa = XCSwiftPackageProductDependency;
