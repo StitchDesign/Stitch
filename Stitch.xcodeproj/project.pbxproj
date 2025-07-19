@@ -309,6 +309,8 @@
 		B5CB82F4283D987F00FE29A6 /* StitchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB82F3283D987F00FE29A6 /* StitchStore.swift */; };
 		B5CD1A292E2AB90D009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */; };
 		B5CD1A2B2E2AC055009CDF74 /* AIGraphBuilderSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */; };
+		B5CD1A2E2E2C32A1009CDF74 /* AICodeEditRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */; };
+		B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */; };
 		B5CEA0B32E26FC0000A647FD /* AIGraphData_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */; };
 		B5CEA0B62E27084D00A647FD /* AIGraphDataUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */; };
 		B5CEA0B82E2713B000A647FD /* AIGraphDataLayerUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */; };
@@ -1463,6 +1465,8 @@
 		B5CB82F3283D987F00FE29A6 /* StitchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchStore.swift; sourceTree = "<group>"; };
 		B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphBuilderSystemPromptGenerator.swift; sourceTree = "<group>"; };
 		B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIGraphBuilderSystemPrompt_V0.md; sourceTree = "<group>"; };
+		B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeEditRequestBody_V0.swift; sourceTree = "<group>"; };
+		B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBuilder_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphData_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataUtil_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataLayerUtil_V0.swift; sourceTree = "<group>"; };
@@ -2491,6 +2495,7 @@
 			children = (
 				B5CEA0B12E26FAE300A647FD /* AIGraphData */,
 				B5B31CD32E05F7C9003EABA2 /* AICodeGen */,
+				B5CD1A2C2E2C328B009CDF74 /* AICodeEdit */,
 				B5B31CD82E09F3B7003EABA2 /* AIPatchBuilder */,
 				B525786D2DF510C4003ABD2C /* AIGraphDescription */,
 				B53BF63A2DF0A05E004EA770 /* AIGraphCreation */,
@@ -4439,9 +4444,18 @@
 			path = Type;
 			sourceTree = "<group>";
 		};
+		B5CD1A2C2E2C328B009CDF74 /* AICodeEdit */ = {
+			isa = PBXGroup;
+			children = (
+				B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */,
+			);
+			path = AICodeEdit;
+			sourceTree = "<group>";
+		};
 		B5CEA0B12E26FAE300A647FD /* AIGraphData */ = {
 			isa = PBXGroup;
 			children = (
+				B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */,
 				B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */,
 				B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */,
 				B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */,
@@ -5939,6 +5953,7 @@
 				EC47EB322CDEE2B500995FF5 /* SpringConverterPatches.swift in Sources */,
 				ECCEB26829634CB5007E35D1 /* ShapeAndRectUtils.swift in Sources */,
 				EC8605AC269DEBA2007B8ED3 /* ValueForKeyNode.swift in Sources */,
+				B5CD1A2E2E2C32A1009CDF74 /* AICodeEditRequestBody_V0.swift in Sources */,
 				203D56BD25B0DAE000EF7AC2 /* LegacyNodeHelpers.swift in Sources */,
 				ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */,
 				EC57659D2DB7F64200D71CB2 /* PortUIViewModel.swift in Sources */,
@@ -6626,6 +6641,7 @@
 				B5136F452DED264A007F12D0 /* StitchAIPosition_V0.swift in Sources */,
 				8B77BA792713CED400255C40 /* GraphUI.swift in Sources */,
 				EC1DE58C260AB07C009497CF /* AndNode.swift in Sources */,
+				B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder_V0.swift in Sources */,
 				E41140F12BB23054000C34E3 /* MapLayerNode.swift in Sources */,
 				EC418939294BBF9D0098D0B6 /* KeyboardNode.swift in Sources */,
 				ECD50ACA285D34B80009B564 /* StitchCommands.swift in Sources */,

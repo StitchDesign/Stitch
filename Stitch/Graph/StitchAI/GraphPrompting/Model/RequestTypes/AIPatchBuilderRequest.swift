@@ -127,14 +127,6 @@ extension CurrentAIGraphData.GraphData {
         try self.createAIGraph(graphCenter: document.viewPortCenter,
                                highestZIndex: document.visibleGraph.highestZIndex,
                                document: document)
-//        document.visibleGraph
-//            .insertNewComponent(graphEntity: graphEntity,
-//                                encoder: document.documentEncoder,
-//                                copiedFiles: .init(importedMediaUrls: [],
-//                                                   componentDirs: []),
-//                                isCopyPaste: false,
-//                                originGraphOutputValuesMap: .init(),
-//                                document: document)
         
         // Can't build the depth map from the `patch_data`,
         // since those UUIDs have not been remapped yet
@@ -270,9 +262,7 @@ extension CurrentAIGraphData.GraphData {
         // Create nested sidebar layer data AFTER idMap gets updated from above layer logic
         let newSidebarData = try self.layer_data_list.map { try $0.createSidebarLayerData(idMap: idMap) }
         
-        // Update sidebar view model data with new layer data in beginning
-//        let oldSidebarList = graph.layersSidebarViewModel.createdOrderedEncodedData()
-//        let newList = newSidebarData + oldSidebarList
+        // Update sidebar view model data with new layer data
         graph.layersSidebarViewModel.update(from: newSidebarData)
         
         // Update graph data so that input observers are created

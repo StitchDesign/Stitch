@@ -49,3 +49,14 @@ extension StitchAIRequestable {
         return try encoder.encode(self.body)
     }
 }
+
+protocol StitchAIRequestableFunctionBody: Encodable {
+    var tools: [OpenAIFunction] { get }
+    var tool_choice: OpenAIFunction { get }
+}
+
+extension StitchAIRequestableFunctionBody {
+    var functionName: String {
+        self.tool_choice.function.name
+    }
+}
