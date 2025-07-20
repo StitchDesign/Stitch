@@ -36,6 +36,54 @@ extension StitchAIFunctionRequestable {
     }
 }
 
+// Claude-based initial code generation request (non-function based)
+struct ClaudeCodeGenRequest: StitchAIRequestable {
+    let id: UUID
+    let userPrompt: String
+    let config: OpenAIRequestConfig
+    let body: AICodeGenRequestBody_V0.ClaudeCodeGenRequestBody
+    static let willStream: Bool = false
+    
+    typealias InitialDecodedResult = String
+    typealias FinalDecodedResult = String
+    typealias TokenDecodedResult = String
+    
+    init(currentGraphData: CurrentAIGraphData.GraphData, 
+         config: OpenAIRequestConfig = .default) throws {
+        self.id = .init()
+        self.userPrompt = ""  
+        self.config = config
+        self.body = try AICodeGenRequestBody_V0.ClaudeCodeGenRequestBody(currentGraphData: currentGraphData)
+    }
+    
+    @MainActor
+    func willRequest(document: StitchDocumentViewModel,
+                     canShareData: Bool,
+                     requestTask: Self.RequestTask) {
+        // Nothing to do
+    }
+    
+    static func validateResponse(decodedResult: String) throws -> String {
+        decodedResult
+    }
+    
+    @MainActor
+    func onSuccessfulDecodingChunk(result: String,
+                                   currentAttempt: Int) {
+        fatalErrorIfDebug()
+    }
+    
+    static func buildResponse(from streamingChunks: [String]) throws -> String {
+        // Unsupported
+        fatalError()
+    }
+    
+    func getPayloadData() throws -> Data {
+        let encoder = JSONEncoder()
+        return try encoder.encode(self.body)
+    }
+}
+
 // TODO: move
 struct AICodeEditRequest: StitchAIFunctionRequestable {
     let id: UUID
@@ -200,16 +248,38 @@ extension AICodeGenRequest {
                                        aiManager: StitchAIManager) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
         logToServerIfRelease("userPrompt: \(userPrompt)")
 
-        let msgFromSourceCodeRequest = try await request
-            .requestForMessage(document: document,
-                               aiManager: aiManager)
+        // Use Claude for the initial SwiftUI code generation
+        let currentGraphData = try await CurrentAIGraphData.GraphData(from: document.visibleGraph.createSchema())
+        let claudeRequest = try ClaudeCodeGenRequest(currentGraphData: currentGraphData)
         
-        let decodedSwiftUICode = try request
-            .decodeMessage(from: msgFromSourceCodeRequest,
-                           document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
+        let initialSwiftUICode = try await claudeRequest.request(document: document, aiManager: aiManager)
+        logToServerIfRelease("Initial code from Claude:\n\(initialSwiftUICode)")
+        
+        // Use the SwiftUI code directly from Claude (it's already source code, not structured data)
+        let swiftUISourceCode = initialSwiftUICode
+        logToServerIfRelease("Initial SwiftUI code:\n\(swiftUISourceCode)")
+        
+        // Create a mock structured response for compatibility with existing flow
+        let decodedSwiftUICode = StitchAIRequestBuilder_V0.SourceCodeResponse(source_code: swiftUISourceCode)
+        
+        // Create a mock message for the edit request flow
+        let mockToolCall = OpenAIToolCallResponse(
+            id: "mock_tool_call", 
+            type: "function", 
+            function: OpenAIFunctionResponse(
+                name: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.function.function.name,
+                arguments: try decodedSwiftUICode.encodeToPrintableString()
+            )
+        )
+        let msgFromSourceCodeRequest = OpenAIMessage(
+            role: .assistant, 
+            content: nil, 
+            tool_calls: [mockToolCall], 
+            tool_call_id: nil, 
+            name: nil, 
+            refusal: nil, 
+            annotations: nil
+        )
         
         let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
         

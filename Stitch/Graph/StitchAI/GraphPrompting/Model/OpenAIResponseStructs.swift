@@ -108,6 +108,28 @@ struct OpenAIFunctionResponse: Codable {
     var arguments: String
 }
 
+/// Claude API response structures
+struct ClaudeResponse: Codable {
+    let id: String
+    let type: String
+    let role: String
+    let content: [ClaudeContent]
+    let model: String
+    let stop_reason: String?
+    let stop_sequence: String?
+    let usage: ClaudeUsage
+}
+
+struct ClaudeContent: Codable {
+    let type: String
+    let text: String
+}
+
+struct ClaudeUsage: Codable {
+    let input_tokens: Int
+    let output_tokens: Int
+}
+
 extension StitchAIRequestable {
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed

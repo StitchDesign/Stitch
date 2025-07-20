@@ -50,4 +50,54 @@ enum AICodeGenRequestBody_V0 {
             ]
         }
     }
+    
+    // Claude API request body structure for initial SwiftUI code generation
+    struct ClaudeCodeGenRequestBody: Encodable {
+        let model: String = "claude-3-5-sonnet-20241022"
+        let max_tokens: Int = 4096
+        let temperature: Double = 1.0
+        let system: String
+        let messages: [ClaudeMessage]
+        
+        init(currentGraphData: CurrentAIGraphData.GraphData) throws {
+            // Get system prompts
+            let systemPrompt = try AICodeGenRequestBody_V0.getSystemPrompt()
+            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator()
+            
+            self.system = systemPrompt + "\n\n" + codeGenAssistantPrompt
+            
+            let inputsString = try currentGraphData.encodeToPrintableString()
+            
+            self.messages = [
+                ClaudeMessage(role: "user", content: [
+                    ClaudeMessageContent.text(inputsString)
+                ])
+            ]
+        }
+    }
+    
+    struct ClaudeMessage: Encodable {
+        let role: String
+        let content: [ClaudeMessageContent]
+    }
+    
+    struct ClaudeMessageContent: Encodable {
+        let type: String
+        let text: String?
+        let source: ClaudeImageSource?
+        
+        static func text(_ text: String) -> ClaudeMessageContent {
+            ClaudeMessageContent(type: "text", text: text, source: nil)
+        }
+        
+        static func image(type: String, source: ClaudeImageSource) -> ClaudeMessageContent {
+            ClaudeMessageContent(type: type, text: nil, source: source)
+        }
+    }
+    
+    struct ClaudeImageSource: Encodable {
+        let type: String
+        let media_type: String
+        let data: String
+    }
 }
