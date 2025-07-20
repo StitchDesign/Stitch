@@ -31,7 +31,7 @@ enum AICodeEditBody_V0 {
                 
                 Adhere to the guidelines specified in this document:
                 
-                \(try StitchAIManager.aiCodeGenSystemPromptGenerator())
+                \(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt))
                 """
             
             self.messages = [.init(role: .system,

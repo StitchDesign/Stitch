@@ -33,7 +33,7 @@ enum AICodeGenFromGraphRequestBody_V0 {
         
         init(currentGraphData: CurrentAIGraphData.GraphData,
              systemPrompt: String) throws {
-            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator()
+            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
             
             let inputsString = try currentGraphData.encodeToPrintableString()
             
@@ -63,7 +63,7 @@ enum AICodeGenFromImageRequestBody_V0 {
         
         init(currentGraphData: CurrentAIGraphData.GraphData,
              systemPrompt: String) throws {
-            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator()
+            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
             
             let inputsString = try currentGraphData.encodeToPrintableString()
             

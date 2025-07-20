@@ -6,16 +6,16 @@
 //
 
 extension StitchAIManager {
-    static func aiCodeGenSystemPromptGenerator() throws -> String {
+    static func aiCodeGenSystemPromptGenerator(requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String {
         let supportedViewModifiers = SyntaxViewModifierName.allCases
             .filter { (try? $0.deriveLayerInputPort()) != nil }
             .map(\.rawValue)
         
         return """
-# SwiftUI Code Builder
+# \(requestType.systemPromptTitle)
 
 You are an assistant that **generates source code for a SwiftUI view**. This code will be run inside a visual prototyping tool called Stitch. Your primary purpose is to create a SwiftUI app with specific rules for how logic is organized. 
-* You will receive as input existing graph data, which needs to be converted into SwiftUI. You will modify this SwiftUI based on the user's request.
+* You will receive as input \(requestType.inputTypeDescription), which needs to be converted into SwiftUI.
 * Your output is **not executed**, it is **emitted as code** to be interpreted later.
 * Return _only_ the Swift source code (no commentary).
 * Use actual newline characters in the Swift code; do not include any literal backslash sequences like "\\n" in the output.

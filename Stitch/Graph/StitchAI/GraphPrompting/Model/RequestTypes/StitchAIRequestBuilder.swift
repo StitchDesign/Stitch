@@ -68,6 +68,24 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
             """
         }.joined(separator: "\n")
     }
+    
+    var systemPromptTitle: String {
+        switch self {
+        case .userPrompt:
+            return "SwiftUI Code Builder from Stitch Graph Data"
+        case .imagePrompt:
+            return "SwiftUI Code Builder from Image Upload"
+        }
+    }
+    
+    var inputTypeDescription: String {
+        switch self {
+        case .userPrompt:
+            return "existing graph data"
+        case .imagePrompt:
+            return "image upload"
+        }
+    }
 }
 
 extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
