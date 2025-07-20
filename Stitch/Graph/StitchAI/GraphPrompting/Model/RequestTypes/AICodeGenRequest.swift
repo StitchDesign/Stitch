@@ -156,7 +156,8 @@ extension StitchAIGraphBuilderRequestable {
                     guard let document = document else { return }
                     
                     do {
-                        try graphData.applyAIGraph(to: document)
+                        try graphData.applyAIGraph(to: document,
+                                                   requestType: Self.type)
                         
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                         // Display parsing warnings
