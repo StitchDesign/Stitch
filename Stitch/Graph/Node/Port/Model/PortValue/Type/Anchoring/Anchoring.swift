@@ -58,7 +58,12 @@ extension Anchoring { // : PortValueEnum {
         .anchoring(Self.bottomRight)
     ]
     
+    // Traditional Stitch default anchoring
     static let defaultAnchoring: Anchoring = .topLeft
+    
+    // New anchoring that reflects how SwiftUI .offset is from the center of the parent
+    static let DEFAULT_ANCHORING_FOR_SWIFTUI_AI: Anchoring = .centerCenter
+    
     static let defaultPivot: Anchoring = .centerCenter
 
     var toPivot: UnitPoint {

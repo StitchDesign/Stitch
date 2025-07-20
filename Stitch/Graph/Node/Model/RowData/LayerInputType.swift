@@ -72,7 +72,8 @@ extension LayerInputPort {
         case .scale:
             return .number(1)
         case .anchoring:
-            return .anchoring(.defaultAnchoring)
+//            return .anchoring(.defaultAnchoring)
+            return .anchoring(.DEFAULT_ANCHORING_FOR_SWIFTUI_AI) // center
         case .opacity:
             return defaultOpacity
         case .zIndex:
