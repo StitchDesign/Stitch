@@ -57,6 +57,8 @@
 		B50C897B2864E2750032E95D /* DelayedEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50C897A2864E2750032E95D /* DelayedEffect.swift */; };
 		B50CE3082908D0C40065378E /* StitchTextEditingField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE3072908D0C40065378E /* StitchTextEditingField.swift */; };
 		B50F41712C1F52C00082262F /* LayerInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50F41702C1F52C00082262F /* LayerInspectorView.swift */; };
+		B5115A232E2D9DA200068FB1 /* AICodeEditRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5115A222E2D9DA200068FB1 /* AICodeEditRequest.swift */; };
+		B5115A252E2D9E2E00068FB1 /* StitchAIFunctionRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5115A242E2D9E2800068FB1 /* StitchAIFunctionRequestable.swift */; };
 		B5136F452DED264A007F12D0 /* StitchAIPosition_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F442DED2642007F12D0 /* StitchAIPosition_V0.swift */; };
 		B5136F492DED2723007F12D0 /* StitchAICurrentVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */; };
 		B5136F4B2DED27BB007F12D0 /* StitchAIPortValue_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F4A2DED27B7007F12D0 /* StitchAIPortValue_V0.swift */; };
@@ -308,9 +310,8 @@
 		B5CB68362CC9A0D700DFC660 /* LayersSidebarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB68352CC9A0D300DFC660 /* LayersSidebarViewModel.swift */; };
 		B5CB82F4283D987F00FE29A6 /* StitchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CB82F3283D987F00FE29A6 /* StitchStore.swift */; };
 		B5CD1A292E2AB90D009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */; };
-		B5CD1A2B2E2AC055009CDF74 /* AIGraphBuilderSystemPrompt_V0.md in Resources */ = {isa = PBXBuildFile; fileRef = B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */; };
 		B5CD1A2E2E2C32A1009CDF74 /* AICodeEditRequestBody_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */; };
-		B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */; };
+		B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder.swift */; };
 		B5CEA0B32E26FC0000A647FD /* AIGraphData_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */; };
 		B5CEA0B62E27084D00A647FD /* AIGraphDataUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */; };
 		B5CEA0B82E2713B000A647FD /* AIGraphDataLayerUtil_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */; };
@@ -1224,6 +1225,8 @@
 		B50C897A2864E2750032E95D /* DelayedEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayedEffect.swift; sourceTree = "<group>"; };
 		B50CE3072908D0C40065378E /* StitchTextEditingField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchTextEditingField.swift; sourceTree = "<group>"; };
 		B50F41702C1F52C00082262F /* LayerInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorView.swift; sourceTree = "<group>"; };
+		B5115A222E2D9DA200068FB1 /* AICodeEditRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeEditRequest.swift; sourceTree = "<group>"; };
+		B5115A242E2D9E2800068FB1 /* StitchAIFunctionRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIFunctionRequestable.swift; sourceTree = "<group>"; };
 		B5136F442DED2642007F12D0 /* StitchAIPosition_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPosition_V0.swift; sourceTree = "<group>"; };
 		B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAICurrentVersions.swift; sourceTree = "<group>"; };
 		B5136F4A2DED27B7007F12D0 /* StitchAIPortValue_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPortValue_V0.swift; sourceTree = "<group>"; };
@@ -1464,9 +1467,8 @@
 		B5CB68352CC9A0D300DFC660 /* LayersSidebarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersSidebarViewModel.swift; sourceTree = "<group>"; };
 		B5CB82F3283D987F00FE29A6 /* StitchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchStore.swift; sourceTree = "<group>"; };
 		B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphBuilderSystemPromptGenerator.swift; sourceTree = "<group>"; };
-		B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AIGraphBuilderSystemPrompt_V0.md; sourceTree = "<group>"; };
 		B5CD1A2D2E2C329C009CDF74 /* AICodeEditRequestBody_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeEditRequestBody_V0.swift; sourceTree = "<group>"; };
-		B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBuilder_V0.swift; sourceTree = "<group>"; };
+		B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIRequestBuilder.swift; sourceTree = "<group>"; };
 		B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphData_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataUtil_V0.swift; sourceTree = "<group>"; };
 		B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIGraphDataLayerUtil_V0.swift; sourceTree = "<group>"; };
@@ -4399,7 +4401,6 @@
 			isa = PBXGroup;
 			children = (
 				B5B31CD02E05F7C9003EABA2 /* AICodeGenRequestBody_V0.swift */,
-				B5CD1A2A2E2AC051009CDF74 /* AIGraphBuilderSystemPrompt_V0.md */,
 			);
 			path = AICodeGen;
 			sourceTree = "<group>";
@@ -4455,7 +4456,6 @@
 		B5CEA0B12E26FAE300A647FD /* AIGraphData */ = {
 			isa = PBXGroup;
 			children = (
-				B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder_V0.swift */,
 				B5CEA0B22E26FBFA00A647FD /* AIGraphData_V0.swift */,
 				B5CEA0B52E27083D00A647FD /* AIGraphDataUtil_V0.swift */,
 				B5CEA0B72E27139C00A647FD /* AIGraphDataLayerUtil_V0.swift */,
@@ -4467,9 +4467,12 @@
 			isa = PBXGroup;
 			children = (
 				EC0B034F2DF200E40045E894 /* StitchAIRequestable.swift */,
+				B5115A242E2D9E2800068FB1 /* StitchAIFunctionRequestable.swift */,
+				B5CD1A2F2E2C33CB009CDF74 /* StitchAIRequestBuilder.swift */,
 				B5D34C8D2DF5391F007405BF /* AIGraphCreationRequest.swift */,
 				B5D34C8F2DF53947007405BF /* AIGraphDescriptionRequest.swift */,
 				B5B31CE32E0A27FA003EABA2 /* AICodeGenRequest.swift */,
+				B5115A222E2D9DA200068FB1 /* AICodeEditRequest.swift */,
 				B5B31CE52E0A3232003EABA2 /* AIPatchBuilderRequest.swift */,
 				B5D34C912DF53966007405BF /* AIJsNodeEditRequest.swift */,
 			);
@@ -5706,7 +5709,6 @@
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
 				E42CFD462D4413F90034CCFF /* secrets.json in Resources */,
-				B5CD1A2B2E2AC055009CDF74 /* AIGraphBuilderSystemPrompt_V0.md in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);
@@ -5857,6 +5859,7 @@
 				B55501342C1C00EB0081C3F1 /* GraphStepIncrementer.swift in Sources */,
 				EC65AC312DC197D60046E59C /* TapToEditTextPickerView.swift in Sources */,
 				EC0F334C2BED93EF008093BC /* GraphDelegate.swift in Sources */,
+				B5115A232E2D9DA200068FB1 /* AICodeEditRequest.swift in Sources */,
 				EC6EDC3227FF93CF00843E62 /* SidebarSelectionState.swift in Sources */,
 				ECB238E12E0B922200D55A25 /* SyntaxToActionsUtils.swift in Sources */,
 				ECB54D70288638A200EB75D0 /* RepeatingAnimationNode.swift in Sources */,
@@ -6630,6 +6633,7 @@
 				ECB18FCA2681469B00D439BE /* VideoHelpers.swift in Sources */,
 				EC7062BF2E15E6310017A9F0 /* StackCodeExamples.swift in Sources */,
 				B5BC6F412C718BF2004541CD /* StitchComponentUtil.swift in Sources */,
+				B5115A252E2D9E2E00068FB1 /* StitchAIFunctionRequestable.swift in Sources */,
 				ECA92A1C260A6A0900281B52 /* SwitchNode.swift in Sources */,
 				B525786F2DF510D9003ABD2C /* AIGraphDescriptionRequestBody_V0.swift in Sources */,
 				ECA56F79296736EB00ABE9A4 /* CubicBezierUtils.swift in Sources */,
@@ -6641,7 +6645,7 @@
 				B5136F452DED264A007F12D0 /* StitchAIPosition_V0.swift in Sources */,
 				8B77BA792713CED400255C40 /* GraphUI.swift in Sources */,
 				EC1DE58C260AB07C009497CF /* AndNode.swift in Sources */,
-				B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder_V0.swift in Sources */,
+				B5CD1A302E2C33CF009CDF74 /* StitchAIRequestBuilder.swift in Sources */,
 				E41140F12BB23054000C34E3 /* MapLayerNode.swift in Sources */,
 				EC418939294BBF9D0098D0B6 /* KeyboardNode.swift in Sources */,
 				ECD50ACA285D34B80009B564 /* StitchCommands.swift in Sources */,
