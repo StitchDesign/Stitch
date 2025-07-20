@@ -19,21 +19,25 @@ struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
     static let willStream: Bool = false
     
     init(id: UUID,
-         prompt: String,
+         userPrompt: String,
          layerDataList: [CurrentAIGraphData.LayerData],
          toolMessages: [OpenAIMessage],
+         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+         systemPrompt: String,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = id
         
-        self.userPrompt = prompt
+        self.userPrompt = userPrompt
         self.config = config
         
         // Construct http payload
-        self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
+        self.body = try AIPatchBuilderRequestBody(userPrompt: userPrompt,
                                                   layerDataList: layerDataList,
-                                                  toolMessages: toolMessages)
+                                                  toolMessages: toolMessages,
+                                                  requestType: requestType,
+                                                  systemPrompt: systemPrompt)
     }
     
     @MainActor

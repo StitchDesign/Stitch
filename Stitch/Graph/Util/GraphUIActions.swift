@@ -177,19 +177,22 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             return .noChange
         }
         
-//#if !STITCH_AI_TESTING
-//        try? AIGraphCreationRequest.createAndMakeRequest(prompt: prompt,
-//                                                         aiManager: aiManager,
-        //                                                         document: document)
-        //#else
         do {
-            aiManager.currentTaskTesting = try AICodeGenRequest
+            let graphData = try AIGraphData_V0.GraphData(from: document.visibleGraph.createSchema())
+            let systemPrompt = try StitchAIManager
+                .stitchAIGraphBuilderSystem(graph: document.visibleGraph,
+                                            requestType: .userPrompt)
+            let requestTask = try AICodeGenFromGraphRequest(prompt: prompt,
+                                                            currentGraphData: graphData,
+                                                            systemPrompt: systemPrompt)
+            
+            aiManager.currentTaskTesting = try requestTask
                 .getRequestTask(userPrompt: prompt,
                                 document: document)
         } catch {
             log("SubmitUserPromptToOpenAI: had error: \(error.localizedDescription)", .logToServer)
-            AICodeGenRequest.displayError(failure: error,
-                                          document: document)
+            let _ = AICodeGenFromGraphRequest.displayError(failure: error,
+                                                           document: document)
         }
         //#endif
         

@@ -142,8 +142,7 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
     @MainActor
     init(prompt: String,
          currentGraphData: CurrentAIGraphData.GraphData,
-         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         graph: GraphState,
+         systemPrompt: String,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -155,7 +154,7 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
         // Construct http payload
         self.body = try AICodeGenFromGraphRequestBody_V0
             .AICodeGenFromGraphRequestBody(currentGraphData: currentGraphData,
-                                           graph: graph)
+                                           systemPrompt: systemPrompt)
     }
     
     func createCode(document: StitchDocumentViewModel,
@@ -196,21 +195,23 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
     }
 }
 
+
+
 // TODO: MOVE
+
+
 struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
-    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
+    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
     
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: AICodeGenFromGraphRequestBody_V0.AICodeGenFromGraphRequestBody
+    let body: AICodeGenFromImageRequestBody_V0.AICodeGenFromImageRequestBody
     static let willStream: Bool = false
     
-    @MainActor
     init(prompt: String,
          currentGraphData: CurrentAIGraphData.GraphData,
-         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         graph: GraphState,
+         systemPrompt: String,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -220,9 +221,9 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeGenFromGraphRequestBody_V0
-            .AICodeGenFromGraphRequestBody(currentGraphData: currentGraphData,
-                                           graph: graph)
+        self.body = try AICodeGenFromImageRequestBody_V0
+            .AICodeGenFromImageRequestBody(currentGraphData: currentGraphData,
+                                           systemPrompt: systemPrompt)
     }
     
     func createCode(document: StitchDocumentViewModel,
@@ -250,7 +251,8 @@ extension StitchAIGraphBuilderRequestable {
     func getRequestTask(userPrompt: String,
                         document: StitchDocumentViewModel) throws -> Task<Result<AIGraphData_V0.GraphData, any Error>, Never> {
         let currentGraphData = try CurrentAIGraphData.GraphData(from: document.visibleGraph.createSchema())
-        
+        let systemPrompt = try StitchAIManager.stitchAIGraphBuilderSystem(graph: document.visibleGraph,
+                                                                          requestType: Self.type)
         let request = self
 //        try AICodeGenRequest(
 //            prompt: userPrompt,
@@ -272,8 +274,9 @@ extension StitchAIGraphBuilderRequestable {
             do {
                 let (graphData, allDiscoveredErrors) = try await request
                     .processRequest(userPrompt: userPrompt,
-                                                                                        document: document,
-                                                                                        aiManager: aiManager)
+                                    document: document,
+                                    aiManager: aiManager,
+                                    systemPrompt: systemPrompt)
                 
                 logToServerIfRelease("SUCCESS Patch Builder:\n\((try? graphData.encodeToPrintableString()) ?? "")")
                 
@@ -313,13 +316,14 @@ extension StitchAIGraphBuilderRequestable {
     
     private func processRequest(userPrompt: String,
                                 document: StitchDocumentViewModel,
-                                aiManager: StitchAIManager) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
+                                aiManager: StitchAIManager,
+                                systemPrompt: String) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
         logToServerIfRelease("userPrompt: \(userPrompt)")
 
         let (swiftUICode, msgFromCode) = try await self
             .createCode(document: document,
                         aiManager: aiManager,
-                        systemPrompt: Self.systemPrompt)
+                        systemPrompt: systemPrompt)
         
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
@@ -353,9 +357,11 @@ extension StitchAIGraphBuilderRequestable {
         
         let patchBuilderRequest = try AIPatchBuilderRequest(
             id: self.id,
-            prompt: userPrompt,
+            userPrompt: userPrompt,
             layerDataList: layerDataList,
-            toolMessages: [msgFromCode, newEditToolMessage])
+            toolMessages: [msgFromCode, newEditToolMessage],
+            requestType: Self.type,
+            systemPrompt: systemPrompt)
         
         let patchBuildMessage = try await patchBuilderRequest
             .requestForMessage(document: document,

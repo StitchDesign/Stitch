@@ -8,18 +8,18 @@
 import Foundation
 
 enum AICodeGenFromGraphRequestBody_V0 {
-//    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
-
-//    static func getSystemPrompt() throws -> String {
-//        guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
-//                                                      withExtension: "md") else {
-//            throw StitchAIStreamingError.markdownNotFound
-//        }
-//        
-//        let systemPrompt = try String(contentsOf: systemMarkdownUrl,
-//                                      encoding: .utf8)
-//        return systemPrompt
-//    }
+    //    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
+    
+    //    static func getSystemPrompt() throws -> String {
+    //        guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
+    //                                                      withExtension: "md") else {
+    //            throw StitchAIStreamingError.markdownNotFound
+    //        }
+    //
+    //        let systemPrompt = try String(contentsOf: systemMarkdownUrl,
+    //                                      encoding: .utf8)
+    //        return systemPrompt
+    //    }
     
     // https://platform.openai.com/docs/api-reference/making-requests
     struct AICodeGenFromGraphRequestBody: StitchAIRequestableFunctionBody {
@@ -31,12 +31,8 @@ enum AICodeGenFromGraphRequestBody_V0 {
         let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilder.function
         let stream: Bool = false
         
-        @MainActor
         init(currentGraphData: CurrentAIGraphData.GraphData,
-             graph: GraphState) throws {
-            let systemPrompt = try StitchAIManager
-                .stitchAIGraphBuilderSystem(graph: graph,
-                                            requestType: .userPrompt)       
+             systemPrompt: String) throws {
             let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator()
             
             let inputsString = try currentGraphData.encodeToPrintableString()
@@ -53,7 +49,13 @@ enum AICodeGenFromGraphRequestBody_V0 {
             ]
         }
     }
-    
+}
+
+
+// TODO: move
+
+
+enum AICodeGenFromImageRequestBody_V0 {
     struct AICodeGenFromImageRequestBody: StitchAIRequestableFunctionBody {
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
@@ -63,12 +65,8 @@ enum AICodeGenFromGraphRequestBody_V0 {
         let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
         let stream: Bool = false
         
-        @MainActor
         init(currentGraphData: CurrentAIGraphData.GraphData,
-             graph: GraphState) throws {
-            let systemPrompt = try StitchAIManager
-                .stitchAIGraphBuilderSystem(graph: graph,
-                                            requestType: .imagePrompt)
+             systemPrompt: String) throws {
             let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator()
             
             let inputsString = try currentGraphData.encodeToPrintableString()
