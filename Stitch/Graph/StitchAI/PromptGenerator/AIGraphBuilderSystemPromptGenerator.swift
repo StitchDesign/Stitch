@@ -9,7 +9,8 @@ import SwiftUI
 
 extension StitchAIManager {
     @MainActor
-    func stitchAIGraphBuilderSystem(graph: GraphState) throws -> String {        
+    static func stitchAIGraphBuilderSystem(graph: GraphState,
+                                           requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String {
         let patchDescriptions = AIGraphData_V0.Patch.allAiDescriptions
             .filter { description in
                 !description.nodeKind.contains("scrollInteraction") &&
@@ -25,12 +26,10 @@ extension StitchAIManager {
 
 You are a tool that creates data for prototypes in our app, called Stitch. Stitch uses a visual programming language and is similar to Meta's Origami Studio. Like Origami, Stitch contains “patches”, which is the set of functions which power the logic to an app, and “layers”, which represent the visual elements of an app.
 
-The end-goal is to produce structured data that modifies an existing document. To get there, we will first convert existing graph data into SwiftUI code, make modifications to that SwiftUI code based on user prompt, and then convert that data back into Stitch graph data.
+\(requestType.goalDescription)
 
 You will call a series of OpenAI functions in sequential order. The job of these functions is to break down graph building into scoped steps. These functions are:
-1. **`\(StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeBuilder.rawValue)`: build SwiftUI Code from Stitch Data.** You will receive as input structured data about the current Stitch document, and your output must be a SwiftUI app that reflects this prototype.
-2. **`\(StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeEditor.rawValue)`: edit SwiftUI Code.** Based on the SwiftUI source code created from the last step, modify the code based on the user prompt.
-3. **`\(StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.patchBuilder.rawValue)`: create Stitch structured prototype data.** Convert the SwiftUI source code into Stitch concepts. 
+\(requestType.listedFunctionsDescriptionForSystemPrompt)
 
 # Stitch Data Glossary
 

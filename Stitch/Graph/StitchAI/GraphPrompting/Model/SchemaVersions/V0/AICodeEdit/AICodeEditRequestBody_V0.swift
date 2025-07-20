@@ -16,14 +16,14 @@ enum AICodeEditBody_V0 {
         let n: Int = 1
         let temperature: Double = 1.0
         let messages: [OpenAIMessage]
-        let tools = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.allFunctions
-        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.codeEditor.function
+        let tools = StitchAIRequestBuilder_V0.StitchAIRequestType
+            .userPrompt.allOpenAIFunctions
+        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeEditor.function
         let stream: Bool = false
         
         init(userPrompt: String,
-             toolMessages: [OpenAIMessage]) throws {
-            let systemPrompt = try AICodeGenRequestBody_V0.getSystemPrompt()
-            
+             toolMessages: [OpenAIMessage],
+             systemPrompt: String) throws {
             let assistantPrompt = """
                 Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
 

@@ -15,15 +15,18 @@ enum AIPatchBuilderRequestBody_V0 {
         let n: Int = 1
         let temperature: Double = 1.0
         let messages: [OpenAIMessage]
-        let tools = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.allFunctions
-        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunctions.patchBuilder.function
+        let tools: [OpenAIFunction]
+        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.patchBuilder.function
         let stream: Bool = false
         
         init(userPrompt: String,
              layerDataList: [CurrentAIGraphData.LayerData],
-             toolMessages: [OpenAIMessage]) throws {
-            let systemPrompt = try AICodeGenRequestBody_V0.getSystemPrompt()
+             toolMessages: [OpenAIMessage],
+             requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+             systemPrompt: String) throws {
             let assistantPrompt = try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
+            
+            self.tools = requestType.allOpenAIFunctions
             
             self.messages = [.init(role: .system,
                                    content: systemPrompt),
