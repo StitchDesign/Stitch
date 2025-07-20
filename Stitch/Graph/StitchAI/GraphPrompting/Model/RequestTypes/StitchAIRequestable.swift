@@ -12,6 +12,9 @@ import StitchSchemaKit
 let OPEN_AI_BASE_URL_STRING = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
+let CLAUDE_BASE_URL_STRING = "https://api.anthropic.com/v1/messages"
+let CLAUDE_BASE_URL: URL = URL(string: CLAUDE_BASE_URL_STRING)!
+
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
 protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, TokenDecodedResult: Decodable {
