@@ -127,17 +127,32 @@ extension StitchDocumentViewModel {
 
 extension CurrentAIGraphData.GraphData {
     @MainActor
-    func applyAIGraph(to document: StitchDocumentViewModel) throws {
-        try self.createAIGraph(graphCenter: document.viewPortCenter,
-                               highestZIndex: document.visibleGraph.highestZIndex,
-                               document: document)
-        
-        // Can't build the depth map from the `patch_data`,
-        // since those UUIDs have not been remapped yet
-        positionAIGeneratedNodesDuringApply(
-            nodes: document.visibleGraph.visibleNodesViewModel,
-            viewPortCenter: document.viewPortCenter,
-            graph: document.visibleGraph)
+    func applyAIGraph(to document: StitchDocumentViewModel,
+                      requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws {
+        switch requestType {
+        case .userPrompt:
+            // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
+            try self.createAIGraph(graphCenter: document.viewPortCenter,
+                                   highestZIndex: document.visibleGraph.highestZIndex,
+                                   document: document)
+            
+        case .imagePrompt:
+            // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
+            let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
+            try self.createAIGraph(graphCenter: document.viewPortCenter,
+                                   highestZIndex: document.visibleGraph.highestZIndex,
+                                   document: mockDocumentViewModel)
+            let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
+            
+            document.visibleGraph
+                .insertNewComponent(graphEntity: graphEntity,
+                                    encoder: document.documentEncoder,
+                                    copiedFiles: .init(importedMediaUrls: [],
+                                                       componentDirs: []),
+                                    isCopyPaste: false,
+                                    originGraphOutputValuesMap: .init(),
+                                    document: document)
+        }
         
         document.encodeProjectInBackground()
     }
@@ -352,6 +367,13 @@ extension CurrentAIGraphData.GraphData {
             document.visibleGraph.deleteNode(id: nodeIdToDelete,
                                              document: document)
         }
+        
+        // Can't build the depth map from the `patch_data`,
+        // since those UUIDs have not been remapped yet
+        positionAIGeneratedNodesDuringApply(
+            nodes: document.visibleGraph.visibleNodesViewModel,
+            viewPortCenter: document.viewPortCenter,
+            graph: document.visibleGraph)
     }
 }
 
