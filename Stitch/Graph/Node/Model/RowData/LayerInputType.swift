@@ -264,8 +264,12 @@ extension LayerInputPort {
             return .padding(.zero)
         case .offsetInGroup:
             return .size(.zero)
+            
         case .layerGroupAlignment:
-            return .anchoring(.defaultAnchoring)
+            // return .anchoring(.defaultAnchoring)
+            // Note: .center matches SwiftUI default
+            return .anchoring(.DEFAULT_ANCHORING_FOR_SWIFTUI_AI)
+            
         case .materialThickness:
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:
