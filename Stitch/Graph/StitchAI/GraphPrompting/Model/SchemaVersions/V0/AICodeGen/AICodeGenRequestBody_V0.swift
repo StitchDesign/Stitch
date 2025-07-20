@@ -51,10 +51,6 @@ enum AICodeGenFromGraphRequestBody_V0 {
     }
 }
 
-
-// TODO: move
-
-
 enum AICodeGenFromImageRequestBody_V0 {
     struct AICodeGenFromImageRequestBody: StitchAIRequestableFunctionBody {
         let model: String = "o4-mini-2025-04-16"

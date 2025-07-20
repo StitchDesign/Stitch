@@ -64,7 +64,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
     var listedFunctionsDescriptionForSystemPrompt: String {
         self.allFunctions.enumerated().map { index, fn in
             """
-            \(index + 1). \(fn.rawValue): \(fn.functionDescription)
+            \(index + 1). `\(fn.rawValue)`: \(fn.functionDescription)
             """
         }.joined(separator: "\n")
     }
