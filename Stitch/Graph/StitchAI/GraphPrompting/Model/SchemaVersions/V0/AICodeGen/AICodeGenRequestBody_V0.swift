@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AICodeGenFromGraphRequestBody_V0 {
+enum AICodeGenRequestBody_V0 {
     //    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
     
     //    static func getSystemPrompt() throws -> String {
@@ -21,62 +21,53 @@ enum AICodeGenFromGraphRequestBody_V0 {
     //        return systemPrompt
     //    }
     
-    // https://platform.openai.com/docs/api-reference/making-requests
-    struct AICodeGenFromGraphRequestBody: StitchAIRequestableFunctionBody {
+    struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
         let temperature: Double = 1.0
         let messages: [OpenAIMessage]
-        let tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
-        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilder.function
+        let tools: [OpenAIFunction]
+        let tool_choice: OpenAIFunction
         let stream: Bool = false
-        
-        init(currentGraphData: CurrentAIGraphData.GraphData,
-             systemPrompt: String) throws {
-            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
-            
-            let inputsString = try currentGraphData.encodeToPrintableString()
-            
-            print("AICodeGenRequestBody: incoming graph data:\n\((try? currentGraphData.encodeToPrintableString()) ?? "")")
-            
-            self.messages = [
-                .init(role: .system,
-                      content: systemPrompt),
-                .init(role: .system,
-                      content: codeGenAssistantPrompt),
-                .init(role: .user,
-                      content: inputsString)
-            ]
-        }
     }
 }
 
-enum AICodeGenFromImageRequestBody_V0 {
-    struct AICodeGenFromImageRequestBody: StitchAIRequestableFunctionBody {
-        let model: String = "o4-mini-2025-04-16"
-        let n: Int = 1
-        let temperature: Double = 1.0
-        let messages: [OpenAIMessage]
-        let tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
-        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
-        let stream: Bool = false
+extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
+    init(currentGraphData: CurrentAIGraphData.GraphData,
+         systemPrompt: String) throws {
+        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
+        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilder.function
         
-        init(currentGraphData: CurrentAIGraphData.GraphData,
-             systemPrompt: String) throws {
-            let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
-            
-            let inputsString = try currentGraphData.encodeToPrintableString()
-            
-            print("AICodeGenRequestBody: incoming graph data:\n\((try? currentGraphData.encodeToPrintableString()) ?? "")")
-            
-            self.messages = [
-                .init(role: .system,
-                      content: systemPrompt),
-                .init(role: .system,
-                      content: codeGenAssistantPrompt),
-                .init(role: .user,
-                      content: inputsString)
-            ]
-        }
+        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
+        
+        let inputsString = try currentGraphData.encodeToPrintableString()
+        
+        print("AICodeGenRequestBody: incoming graph data:\n\((try? currentGraphData.encodeToPrintableString()) ?? "")")
+        
+        self.messages = [
+            .init(role: .system,
+                  content: systemPrompt),
+            .init(role: .system,
+                  content: codeGenAssistantPrompt),
+            .init(role: .user,
+                  content: inputsString)
+        ]
+    }
+   
+    init(userPrompt: String,
+         systemPrompt: String) throws {
+        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
+        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
+        
+        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
+        
+        self.messages = [
+            .init(role: .system,
+                  content: systemPrompt),
+            .init(role: .system,
+                  content: codeGenAssistantPrompt),
+            .init(role: .user,
+                  content: userPrompt)
+        ]
     }
 }
