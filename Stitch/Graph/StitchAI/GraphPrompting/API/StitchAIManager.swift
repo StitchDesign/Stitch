@@ -31,6 +31,9 @@ final actor StitchAIManager {
     
     // Tracks task for new AI strat
     @MainActor var currentTaskTesting: Task<Result<AIGraphData_V0.GraphData, any Error>, Never>?
+    
+    // TODO: user defaults!
+    @MainActor var aiService: AIServiceType = .claude
 
     init?() throws {
         guard let secrets = try Secrets() else {

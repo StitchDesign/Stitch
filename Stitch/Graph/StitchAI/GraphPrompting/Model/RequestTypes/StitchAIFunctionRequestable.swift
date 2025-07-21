@@ -39,7 +39,7 @@ extension StitchAIFunctionRequestable {
 protocol StitchAIGraphBuilderRequestable: StitchAIFunctionRequestable {
     // TODO: Group the entire code gen/edit requests under one handler
     
-    static var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
+    static var userRequestRouter: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
         
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
@@ -51,7 +51,7 @@ extension StitchAIGraphBuilderRequestable {
     static func systemPrompt(graph: GraphState) throws -> String {
         try StitchAIManager
             .stitchAIGraphBuilderSystem(graph: graph,
-                                        requestType: Self.type)
+                                        requestType: Self.userRequestRouter)
     }
 }
 

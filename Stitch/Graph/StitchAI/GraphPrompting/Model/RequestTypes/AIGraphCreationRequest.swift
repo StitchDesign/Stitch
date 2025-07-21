@@ -19,6 +19,8 @@ func structuredOutputsSchemaAsString() -> String  {
 }
 
 struct AIGraphCreationRequest: StitchAIRequestable {
+    static let aiService: AIServiceType = .openAI
+    
     typealias InitialDecodedResult = AIGraphCreationContentJSON
     
     private static let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"

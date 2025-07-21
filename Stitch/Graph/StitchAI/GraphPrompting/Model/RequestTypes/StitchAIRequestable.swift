@@ -12,6 +12,14 @@ import StitchSchemaKit
 let OPEN_AI_BASE_URL_STRING = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_BASE_URL: URL = URL(string: OPEN_AI_BASE_URL_STRING)!
 
+let CLAUDE_BASE_URL_STRING = "https://api.anthropic.com/v1/messages"
+let CLAUDE_BASE_URL: URL = URL(string: CLAUDE_BASE_URL_STRING)!
+
+enum AIServiceType {
+    case openAI
+    case claude
+}
+
 // Note: an event is usually not a long-lived data structure; but this is used for retry attempts.
 /// Main event handler for initiating OpenAI API requests
 protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, TokenDecodedResult: Decodable {
@@ -27,9 +35,13 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, Toke
     typealias RequestTask = Task<FinalDecodedResult, any Error>
     
     var id: UUID { get }
-    var userPrompt: String { get }             // User's input prompt
+
     var config: OpenAIRequestConfig { get } // Request configuration settings
+
     var body: Body { get }
+    
+    static var aiService: AIServiceType { get }
+    
     static var willStream: Bool { get }
     
     /// Validates a successfully decoded response and outputs a possibly different data structure.
@@ -44,7 +56,7 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, Toke
 }
 
 extension StitchAIRequestable {
-    func getPayloadData() throws -> Data {
+    func getBodyData() throws -> Data {
         let encoder = JSONEncoder()
         return try encoder.encode(self.body)
     }

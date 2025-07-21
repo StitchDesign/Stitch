@@ -81,19 +81,30 @@ extension StitchAIManager {
     }
         
     // Note: the failures that can happen in here are catastrophic and meant for us as developers, not something the user can take action on
-    static func getURLRequestForOpenAI<AIRequest>(request: AIRequest,
-                                                  secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
+    static func getURLRequest<AIRequest>(for aiService: AIServiceType,
+                                         request: AIRequest,
+                                         secrets: Secrets) -> URLRequest? where AIRequest: StitchAIRequestable {
         
         let config = request.config
-                
+        var urlRequest: URLRequest
+        
         // Configure request headers and parameters
-        var urlRequest = URLRequest(url: OPEN_AI_BASE_URL)
+        switch aiService {
+        case .openAI:
+            urlRequest = URLRequest(url: OPEN_AI_BASE_URL)
+            urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
+
+        case .claude:
+            urlRequest = URLRequest(url: CLAUDE_BASE_URL)
+            urlRequest.setValue(secrets.claudeAPIKey, forHTTPHeaderField: "x-api-key")
+            urlRequest.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        }
+        
         urlRequest.httpMethod = "POST"
         urlRequest.timeoutInterval = config.timeoutInterval
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(secrets.openAIAPIKey)", forHTTPHeaderField: "Authorization")
 
-        let bodyPayload = try? request.getPayloadData()
+        let bodyPayload = try? request.getBodyData()
         urlRequest.httpBody = bodyPayload
         
         return urlRequest
@@ -113,8 +124,9 @@ extension StitchAIManager {
                                              lastCapturedError))
         }
         
-        guard let urlRequest = Self.getURLRequestForOpenAI(request: request,
-                                                           secrets: self.secrets) else {
+        guard let urlRequest = Self.getURLRequest(for: AIRequest.aiService,
+                                                  request: request,
+                                                  secrets: self.secrets) else {
             log("StitchAIManager: startOpenAIRequest: could not get request", .logToServer)
             return .failure(.urlRequestCreationFailure)
         }
@@ -255,7 +267,7 @@ extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
         let msg = try await self.requestForMessage(document: document,
-                                                      aiManager: aiManager)
+                                                   aiManager: aiManager)
         
         let initialDecodedResult = try Self.parseOpenAIResponse(message: msg)
         let result = try Self.validateResponse(decodedResult: initialDecodedResult)

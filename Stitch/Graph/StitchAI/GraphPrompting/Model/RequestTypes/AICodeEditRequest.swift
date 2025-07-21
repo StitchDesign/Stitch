@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AICodeEditRequest: StitchAIFunctionRequestable {
+    static let aiService: AIServiceType = .openAI
+    
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings

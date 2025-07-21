@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
-    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
+    static let aiService: AIServiceType = .openAI
+    static let userRequestRouter = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt
     
     let id: UUID
     let userPrompt: String             // User's input prompt
@@ -73,29 +74,25 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
 }
 
 struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
-    static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
+    static let aiService: AIServiceType = .openAI
+    static let userRequestRouter = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
     
     let id: UUID
-    let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
     static let willStream: Bool = false
     
-    init(prompt: String,
-         currentGraphData: CurrentAIGraphData.GraphData,
-         systemPrompt: String,
+    init(systemPrompt: String,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
         
-        self.userPrompt = prompt
         self.config = config
         
-        // Construct http payload
-        self.body = try AICodeGenRequestBody_V0
-            .AICodeGenRequestBody(currentGraphData: currentGraphData,
-                                           systemPrompt: systemPrompt)
+        // TODO: yo Chris, put your new body struct here
+        //        self.body = ???
+        fatalError()
     }
     
     func createCode(document: StitchDocumentViewModel,
@@ -120,12 +117,10 @@ extension StitchAIGraphBuilderRequestable {
     @MainActor
     func getRequestTask(userPrompt: String,
                         document: StitchDocumentViewModel) throws -> Task<Result<AIGraphData_V0.GraphData, any Error>, Never> {
-        let systemPrompt = try StitchAIManager.stitchAIGraphBuilderSystem(graph: document.visibleGraph,
-                                                                          requestType: Self.type)
+        let systemPrompt = try StitchAIManager
+            .stitchAIGraphBuilderSystem(graph: document.visibleGraph,
+                                        requestType: Self.userRequestRouter)
         let request = self
-//        try AICodeGenRequest(
-//            prompt: userPrompt,
-//            currentGraphData: currentGraphData)
         
         return Task(priority: .high) { [weak document] in
             guard let document = document,
@@ -154,7 +149,7 @@ extension StitchAIGraphBuilderRequestable {
                     
                     do {
                         try graphData.applyAIGraph(to: document,
-                                                   requestType: Self.type)
+                                                   requestType: Self.userRequestRouter)
                         
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                         // Display parsing warnings
@@ -230,7 +225,7 @@ extension StitchAIGraphBuilderRequestable {
             userPrompt: userPrompt,
             layerDataList: layerDataList,
             toolMessages: [msgFromCode, newEditToolMessage],
-            requestType: Self.type,
+            requestType: Self.userRequestRouter,
             systemPrompt: systemPrompt)
         
         let patchBuildMessage = try await patchBuilderRequest
