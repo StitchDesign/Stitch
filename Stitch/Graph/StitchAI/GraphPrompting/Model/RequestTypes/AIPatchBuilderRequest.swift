@@ -11,29 +11,33 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
-struct AIPatchBuilderRequest: StitchAIRequestable {
+struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AIPatchBuilderRequestBody
     static let willStream: Bool = false
     
-    @MainActor
-    init(prompt: String,
-         swiftUISourceCode: String,
+    init(id: UUID,
+         userPrompt: String,
          layerDataList: [CurrentAIGraphData.LayerData],
+         toolMessages: [OpenAIMessage],
+         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+         systemPrompt: String,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
-        self.id = .init()
+        self.id = id
         
-        self.userPrompt = prompt
+        self.userPrompt = userPrompt
         self.config = config
         
         // Construct http payload
-        self.body = try AIPatchBuilderRequestBody(userPrompt: prompt,
-                                                  swiftUiSourceCode: swiftUISourceCode,
-                                                  layerDataList: layerDataList)
+        self.body = try AIPatchBuilderRequestBody(userPrompt: userPrompt,
+                                                  layerDataList: layerDataList,
+                                                  toolMessages: toolMessages,
+                                                  requestType: requestType,
+                                                  systemPrompt: systemPrompt)
     }
     
     @MainActor
@@ -43,17 +47,17 @@ struct AIPatchBuilderRequest: StitchAIRequestable {
         // Nothing to do
     }
     
-    static func validateResponse(decodedResult: CurrentAIGraphData.PatchData) throws -> CurrentAIGraphData.PatchData {
+    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
         decodedResult
     }
     
     @MainActor
-    func onSuccessfulDecodingChunk(result: CurrentAIGraphData.PatchData,
+    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
                                    currentAttempt: Int) {
         fatalErrorIfDebug()
     }
     
-    static func buildResponse(from streamingChunks: [CurrentAIGraphData.PatchData]) throws -> CurrentAIGraphData.PatchData {
+    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
         // Unsupported
         fatalError()
     }
@@ -63,27 +67,34 @@ extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.
     @MainActor
     func createLayerNodeFromAI(newLayer: CurrentAIGraphData.LayerData,
+                               existingGraph: GraphState,
                                idMap: inout [String : UUID]) throws {
-        let newId = UUID()
+        let newId = idMap.get(newLayer.node_id) ?? UUID()
         idMap.updateValue(newId, forKey: newLayer.node_id)
+        idMap.updateValue(newId, forKey: newId.description)
         let graph = self.visibleGraph
         
         let migratedNodeName = try newLayer.node_name.value.convert(to: PatchOrLayer.self)
-        
-        // Creates new layer node view model
-        let newLayerNode = graph
-            .createNode(graphTime: self.graphStepState.graphTime,
-                        newNodeId: newId,
-                        highestZIndex: graph.highestZIndex,
-                        choice: migratedNodeName,
-                        center: self.newCanvasItemInsertionLocation)
-        graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
-                                                      forKey: newLayerNode.id)
+        let existingLayerNode = existingGraph.nodes.get(newId)
+        let needsNewNodeCreation = existingLayerNode?.kind.getLayer != migratedNodeName.layer
+
+        if needsNewNodeCreation {
+            // Creates new layer node view model
+            let newLayerNode = graph
+                .createNode(graphTime: self.graphStepState.graphTime,
+                            newNodeId: newId,
+                            highestZIndex: graph.highestZIndex,
+                            choice: migratedNodeName,
+                            center: self.newCanvasItemInsertionLocation)
+            graph.visibleNodesViewModel.nodes.updateValue(newLayerNode,
+                                                          forKey: newLayerNode.id)
+        }
                 
         if let children = newLayer.children {
             for child in children {
                 // Recursive call
                 try self.createLayerNodeFromAI(newLayer: child,
+                                               existingGraph: existingGraph,
                                                idMap: &idMap)
             }
         }
@@ -116,37 +127,47 @@ extension StitchDocumentViewModel {
 
 extension CurrentAIGraphData.GraphData {
     @MainActor
-    func applyAIGraph(to document: StitchDocumentViewModel) throws {
-        let graphEntity = try self.createAIGraph(graphCenter: document.viewPortCenter,
-                                                 highestZIndex: document.visibleGraph.highestZIndex)
-        document.visibleGraph
-            .insertNewComponent(graphEntity: graphEntity,
-                                encoder: document.documentEncoder,
-                                copiedFiles: .init(importedMediaUrls: [],
-                                                   componentDirs: []),
-                                isCopyPaste: false,
-                                originGraphOutputValuesMap: .init(),
-                                document: document)
-        
-        
-        // Can't build the depth map from the `patch_data`,
-        // since those UUIDs have not been remapped yet
-        positionAIGeneratedNodesDuringApply(
-            nodes: document.visibleGraph.visibleNodesViewModel,
-            viewPortCenter: document.viewPortCenter,
-            graph: document.visibleGraph)
+    func applyAIGraph(to document: StitchDocumentViewModel,
+                      requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws {
+        switch requestType {
+        case .userPrompt:
+            // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
+            try self.createAIGraph(graphCenter: document.viewPortCenter,
+                                   highestZIndex: document.visibleGraph.highestZIndex,
+                                   document: document)
+            
+        case .imagePrompt:
+            // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
+            let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
+            try self.createAIGraph(graphCenter: document.viewPortCenter,
+                                   highestZIndex: document.visibleGraph.highestZIndex,
+                                   document: mockDocumentViewModel)
+            let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
+            
+            document.visibleGraph
+                .insertNewComponent(graphEntity: graphEntity,
+                                    encoder: document.documentEncoder,
+                                    copiedFiles: .init(importedMediaUrls: [],
+                                                       componentDirs: []),
+                                    isCopyPaste: false,
+                                    originGraphOutputValuesMap: .init(),
+                                    document: document)
+        }
         
         document.encodeProjectInBackground()
     }
     
     @MainActor
     func createAIGraph(graphCenter: CGPoint,
-                       highestZIndex: Double) throws -> GraphEntity {
-        let document = StitchDocumentViewModel.createEmpty()
+                       highestZIndex: Double,
+                       document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
         
         // Track node ID map to create new IDs, fixing ID reusage issue
-        var idMap = [String : UUID]()
+        // Make sure currently used IDs are tracked so we don't create redundant nodes
+        var idMap = graph.nodes.keys.reduce(into: [String : UUID]()) { result, nodeId in
+            result.updateValue(nodeId, forKey: nodeId.description)
+        }
         
         // Tracks all patch input coordinates we either make connections or custom vaues for, used for determining if extra rows need to be created
         let allModifiedPatchIds = self.patch_data.custom_patch_input_values.map(\.patch_input_coordinate) + self.patch_data.patch_connections.map(\.dest_port)
@@ -162,9 +183,11 @@ extension CurrentAIGraphData.GraphData {
         
         // new js patches
         for newPatch in self.patch_data.javascript_patches {
-            let newId = UUID()
+            let newId = idMap.get(newPatch.node_id) ?? UUID()
             idMap.updateValue(newId, forKey: newPatch.node_id)
-            let newNode = graph
+            idMap.updateValue(newId, forKey: newId.description)
+            
+            let newNode = graph.nodes.get(newId) ?? graph
                 .createNode(graphTime: .zero,
                             newNodeId: newId,
                             highestZIndex: highestZIndex,
@@ -188,17 +211,30 @@ extension CurrentAIGraphData.GraphData {
         // new native patches
         for newPatch in self.patch_data.native_patches {
             let oldId = newPatch.node_id
-            let newId = UUID()
+            let newId = idMap.get(oldId) ?? UUID()
             idMap.updateValue(newId, forKey: oldId)
+            idMap.updateValue(newId, forKey: newId.description)
+            
             let migratedNodeName = try newPatch.node_name.value.convert(to: PatchOrLayer.self)
+            let existingPatchNode = graph.nodes.get(newId)
+            let needsNewNodeCreation = existingPatchNode?.patch != migratedNodeName.patch
+            let newNode: NodeViewModel
             
-            let newNode = graph.createNode(graphTime: .zero,
-                                           newNodeId: newId,
-                                           highestZIndex: highestZIndex,
-                                           choice: migratedNodeName,
-                                           center: graphCenter)
-            
-            graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+            if needsNewNodeCreation {
+                newNode = graph.nodes.get(newId) ?? graph
+                    .createNode(graphTime: .zero,
+                                newNodeId: newId,
+                                highestZIndex: highestZIndex,
+                                choice: migratedNodeName,
+                                center: graphCenter)
+                
+                graph.visibleNodesViewModel.nodes.updateValue(newNode, forKey: newId)
+            } else if let existingPatchNode = existingPatchNode {
+                newNode = existingPatchNode
+            } else {
+                fatalErrorIfDebug()
+                continue
+            }
             
             guard let patchNode = newNode.patchNodeViewModel else {
                 fatalErrorIfDebug()
@@ -238,16 +274,15 @@ extension CurrentAIGraphData.GraphData {
         for newLayer in self.layer_data_list {
             // Recursive caller
             try document.createLayerNodeFromAI(newLayer: newLayer,
+                                               existingGraph: graph,
                                                idMap: &idMap)
         }
         
         // Create nested sidebar layer data AFTER idMap gets updated from above layer logic
         let newSidebarData = try self.layer_data_list.map { try $0.createSidebarLayerData(idMap: idMap) }
         
-        // Update sidebar view model data with new layer data in beginning
-        let oldSidebarList = graph.layersSidebarViewModel.createdOrderedEncodedData()
-        let newList = newSidebarData + oldSidebarList
-        graph.layersSidebarViewModel.update(from: newList)
+        // Update sidebar view model data with new layer data
+        graph.layersSidebarViewModel.update(from: newSidebarData)
         
         // Update graph data so that input observers are created
         graph.updateGraphData(document)
@@ -320,9 +355,25 @@ extension CurrentAIGraphData.GraphData {
             let _ = document.visibleGraph.edgeAdded(edge: edge)
         }
         
-        let graphEntity = document.graph.createSchema()
+        // Delete unused nodes
+        let allNewIds = self.patch_data.javascript_patches.map(\.node_id) +
+        self.patch_data.native_patches.map(\.node_id) +
+        self.layer_data_list.allFlattenedItems.map(\.node_id)
         
-        return graphEntity
+        let allNewMappedIds = allNewIds.compactMap { idMap.get($0) }
+        let nodeIdsToDelete = Set(document.visibleGraph.nodes.keys).subtracting(allNewMappedIds)
+
+        for nodeIdToDelete in nodeIdsToDelete {
+            document.visibleGraph.deleteNode(id: nodeIdToDelete,
+                                             document: document)
+        }
+        
+        // Can't build the depth map from the `patch_data`,
+        // since those UUIDs have not been remapped yet
+        positionAIGeneratedNodesDuringApply(
+            nodes: document.visibleGraph.visibleNodesViewModel,
+            viewPortCenter: document.viewPortCenter,
+            graph: document.visibleGraph)
     }
 }
 

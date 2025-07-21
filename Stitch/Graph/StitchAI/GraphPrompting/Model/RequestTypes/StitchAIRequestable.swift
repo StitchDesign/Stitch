@@ -22,7 +22,7 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, Toke
     associatedtype FinalDecodedResult: Sendable
     // Type that's processed from streaming
     associatedtype TokenDecodedResult: Sendable
-    typealias RequestResponsePayload = (FinalDecodedResult, URLResponse)
+    typealias RequestResponsePayload = (OpenAIMessage, URLResponse)
     // Task object for request
     typealias RequestTask = Task<FinalDecodedResult, any Error>
     
@@ -47,5 +47,16 @@ extension StitchAIRequestable {
     func getPayloadData() throws -> Data {
         let encoder = JSONEncoder()
         return try encoder.encode(self.body)
+    }
+}
+
+protocol StitchAIRequestableFunctionBody: Encodable {
+    var tools: [OpenAIFunction] { get }
+    var tool_choice: OpenAIFunction { get }
+}
+
+extension StitchAIRequestableFunctionBody {
+    var functionName: String {
+        self.tool_choice.function.name
     }
 }

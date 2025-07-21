@@ -149,32 +149,23 @@ extension StitchDocumentViewModel {
                 canShareData: StitchStore.canShareAIData,
                 userPromptTableName: nil)
             
-            let result = await jsAIRequest.request(document: document,
-                                                   aiManager: aiManager)
+            let jsSettings = try await jsAIRequest.request(document: document,
+                                                           aiManager: aiManager)
+            log("success: jsSettings: \(jsSettings)")
             
-            switch result {
-                
-            case .success(let jsSettings):
-                log("success: jsSettings: \(jsSettings)")
-                
-                // TODO: are we not catching this potential error? Swift compiler is not detecting that within the Task ?
-                try await aiManager.uploadJavascriptCallResultToSupabase(
-                    userPrompt: jsAIRequest.userPrompt,
-                    requestId: jsAIRequest.id,
-                    javascriptSettings: jsSettings)
-                
-                aiPatchNode.canvasObserver.isLoading = false
-                
-                // Process the new Javascript settings
-                aiPatchNode.processNewJavascript(response: jsSettings,
-                                                 document: document)
-                
-                document.graph.updateGraphData(document)
-                
-            case .failure(let error):
-                log("failure: error: \(error)")
-                fatalErrorIfDebug(error.description)
-            }
+            // TODO: are we not catching this potential error? Swift compiler is not detecting that within the Task ?
+            try await aiManager.uploadJavascriptCallResultToSupabase(
+                userPrompt: jsAIRequest.userPrompt,
+                requestId: jsAIRequest.id,
+                javascriptSettings: jsSettings)
+            
+            aiPatchNode.canvasObserver.isLoading = false
+            
+            // Process the new Javascript settings
+            aiPatchNode.processNewJavascript(response: jsSettings,
+                                             document: document)
+            
+            document.graph.updateGraphData(document)
         } catch {
             log("javascriptNodeField error: \(error.localizedDescription)")
         }

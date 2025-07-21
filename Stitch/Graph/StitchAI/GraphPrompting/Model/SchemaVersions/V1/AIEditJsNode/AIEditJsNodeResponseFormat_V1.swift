@@ -44,6 +44,6 @@ enum AIEditJsNodeResponseFormat_V1 {
 
     struct PortDefinitionSchema: Encodable {
         let label = OpenAISchema(type: .string)
-        let strict_type = OpenAISchemaRef(ref: "ValueType")
+        let strict_type = AIPatchBuilderResponseFormat_V0.PatchBuilderStructuredOutputsDefinitions.ValueType
     }
 }

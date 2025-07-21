@@ -20,7 +20,7 @@ extension StitchAIManager {
     func getOpenAITask(request: AIGraphCreationRequest,
                        attempt: Int,
                        document: StitchDocumentViewModel,
-                       canShareAIRetries: Bool) -> Task<AIGraphCreationRequest.FinalDecodedResult, any Error> {
+                       canShareAIRetries: Bool) -> Task<OpenAIMessage, any Error> {
         Task(priority: .high) { [weak self] in
             guard let aiManager = self else {
                 fatalErrorIfDebug()
@@ -104,7 +104,7 @@ extension StitchAIManager {
     func startOpenAIRequest<AIRequest>(_ request: AIRequest,
                                        attempt: Int,
                                        lastCapturedError: String,
-                                       document: StitchDocumentViewModel) async -> Result<AIRequest.FinalDecodedResult, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
+                                       document: StitchDocumentViewModel) async -> Result<OpenAIMessage, StitchAIStreamingError> where AIRequest: StitchAIRequestable {
         
         // Check if we've exceeded retry attempts
         guard attempt <= request.config.maxRetries else {
@@ -253,10 +253,28 @@ extension StitchAIManager {
 
 extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
-                 aiManager: StitchAIManager) async -> Result<Self.FinalDecodedResult, StitchAIStreamingError> {
-        await aiManager.startOpenAIRequest(self,
-                                           attempt: 0,
-                                           lastCapturedError: "",
-                                           document: document)
+                 aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
+        let msg = try await self.requestForMessage(document: document,
+                                                      aiManager: aiManager)
+        
+        let initialDecodedResult = try Self.parseOpenAIResponse(message: msg)
+        let result = try Self.validateResponse(decodedResult: initialDecodedResult)
+        return result
+    }
+    
+    func requestForMessage(document: StitchDocumentViewModel,
+                           aiManager: StitchAIManager) async throws -> OpenAIMessage {
+        let result = await aiManager.startOpenAIRequest(self,
+                                                        attempt: 0,
+                                                        lastCapturedError: "",
+                                                        document: document)
+        
+        switch result {
+        case .success(let success):
+            return success
+        case .failure(let failure):
+            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
+            throw failure
+        }
     }
 }

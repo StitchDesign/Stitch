@@ -421,24 +421,29 @@ struct CanvasItemMenuButtonsView: View {
                     }
                     
                     // something something request.handle
-                    let result = await request.request(document: document,
-                                                       aiManager: aiManager)
+                    let summaryResponse: String
+                    
+                    do {
+                        summaryResponse = try await request.request(document: document,
+                                                                    aiManager: aiManager)
+                    } catch {
+                        await MainActor.run {
+                            self.showNodesSummaryPopover = false
+                        }
+                        return
+                    }
                     
                     await MainActor.run {
-                        switch result {
-                        case .success(let summaryResponse):
-                            do {
-                                self.nodeSummariesText = try AttributedString(styledMarkdown: summaryResponse, isTitle: false)
-                            } catch {
-                                fatalErrorIfDebug(error.localizedDescription)
-                            }
-                        case .failure(let failure):
+                        do {
+                            self.nodeSummariesText = try AttributedString(styledMarkdown: summaryResponse, isTitle: false)
+                        } catch {
                             self.showNodesSummaryPopover = false
-                            fatalErrorIfDebug(failure.description)
+                            fatalErrorIfDebug(error.localizedDescription)
                         }
                     }
                 }
             } catch {
+                self.showNodesSummaryPopover = false
                 fatalErrorIfDebug("AI summarizer error: \(error.localizedDescription)")
             }
         }

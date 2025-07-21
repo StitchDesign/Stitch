@@ -22,7 +22,7 @@ extension OpenAISchemaCustomizable {
          properties: Self.PropertiesType,
          const: String? = nil,
          required: [String]? = nil,
-         additionalProperties: Bool? = nil) {
+         additionalProperties: Bool = false) {
         let schema = OpenAISchema(type: type,
                                   const: const,
                                   required: required,
@@ -75,12 +75,34 @@ extension OpenAISchemaDefinable {
     }
 }
 
+struct OpenAIFunction: Encodable {
+    let type = "function"
+    let function: OpenAIFunctionPayload
+    
+    init(name: String,
+         description: String,
+         parameters: OpenAISchema,
+         strict: Bool) {
+        self.function = .init(name: name,
+                              description: description,
+                              parameters: parameters,
+                              strict: strict)
+    }
+}
+
+struct OpenAIFunctionPayload: Encodable {
+    let name: String
+    let description: String
+    let parameters: OpenAISchema
+    let strict: Bool
+}
+
 struct OpenAISchema {
     var type: OpenAISchemaType
     var properties: (any Encodable & Sendable)?
     var const: String? = nil
     var required: [String]? = nil
-    var additionalProperties: Bool? = nil
+    var additionalProperties: Bool = false
     var title: String? = nil
     var description: String? = nil
     var items: OpenAIGeneric? = nil
@@ -100,22 +122,18 @@ extension OpenAISchema: Encodable, Sendable {
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try self.encode(to: encoder, container: &container)
-    }
-    
-    func encode(to encoder: Encoder,
-                container: inout KeyedEncodingContainer<OpenAISchema.CodingKeys>) throws {
+        
         try container.encode(self.type, forKey: .type)
         try container.encodeIfPresent(self.description, forKey: .description)
         try container.encodeIfPresent(self.const, forKey: .const)
         try container.encodeIfPresent(self.required, forKey: .required)
-        try container.encodeIfPresent(self.additionalProperties, forKey: .additionalProperties)
+        try container.encode(self.additionalProperties, forKey: .additionalProperties)
         try container.encodeIfPresent(self.items, forKey: .items)
         try container.encodeIfPresent(self.title, forKey: .title)
         
         // Conditional encoding for generic
         if let properties = self.properties {
-            try self.properties?.encode(to: container.superEncoder(forKey: .properties))
+            try properties.encode(to: container.superEncoder(forKey: .properties))
         }
     }
 }
@@ -155,22 +173,31 @@ struct OpenAIGeneric: Encodable, Sendable {
     var types: [any Encodable & Sendable] = []
     var refs: [OpenAISchemaRef] = []
     var description: String?
+    var additionalProperties = false
+    var required: [String]?
+    var isOneOf: Bool = false
     
     enum CodingKeys: String, CodingKey {
         case anyOf
+        case oneOf
         case description
+        case type
+        case properties
+        case additionalProperties
+        case required
     }
     
     func encode(to encoder: Encoder) throws {
         // Specify generic "anyOf" property if multiple types
         let isGeneric = types.count + refs.count > 1
+
+        var keyedContainer = encoder.container(keyedBy: CodingKeys.self)
+        try keyedContainer.encodeIfPresent(self.description,
+                                           forKey: .description)
+        try keyedContainer.encode(self.additionalProperties, forKey: .additionalProperties)
         
         if isGeneric {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encodeIfPresent(self.description,
-                                          forKey: .description)
-            
-            var unkeyedContainer = container.nestedUnkeyedContainer(forKey: .anyOf)
+            var unkeyedContainer = keyedContainer.nestedUnkeyedContainer(forKey: isOneOf ? .oneOf : .anyOf)
             
             // Add types to array
             for type in self.types {
@@ -184,22 +211,23 @@ struct OpenAIGeneric: Encodable, Sendable {
         }
         
         else {
-            var container = encoder.singleValueContainer()
+            try keyedContainer.encode(OpenAISchemaType.object, forKey: .type)
+            try keyedContainer.encodeIfPresent(self.required, forKey: .required)
             
             // Add types to array
             for type in self.types {
-                try container.encode(type)
+                try keyedContainer.encode(type, forKey: .properties)
             }
             
             // Add refs to array
             for ref in self.refs {
-                try container.encode(ref)
+                try keyedContainer.encode(ref, forKey: .properties)
             }
         }
     }
 }
 
-enum OpenAISchemaType: String, Encodable {
+enum OpenAISchemaType: String, Codable {
     case object
     case string
     case number

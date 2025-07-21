@@ -33,9 +33,11 @@ enum AIEditJsNodeResponseFormat_V0 {
     }
 
     struct JsNodeSettingsSchema: Encodable {
-        static let portDefinitions = OpenAISchema(type: .array,
-                                                  required: ["label", "strict_type"],
-                                                  items: OpenAIGeneric(types: [PortDefinitionSchema()]))
+        static let portDefinitions = OpenAISchema(
+            type: .array,
+            items: OpenAIGeneric(types: [PortDefinitionSchema()],
+                                 required: ["label", "strict_type"])
+        )
         
         let suggested_title = OpenAISchema(type: .string)
         let script = OpenAISchema(type: .string)
@@ -45,6 +47,6 @@ enum AIEditJsNodeResponseFormat_V0 {
 
     struct PortDefinitionSchema: Encodable {
         let label = OpenAISchema(type: .string)
-        let strict_type = OpenAISchemaRef(ref: "ValueType")
+        let strict_type = AIPatchBuilderResponseFormat_V0.PatchBuilderStructuredOutputsDefinitions.ValueType
     }
 }
