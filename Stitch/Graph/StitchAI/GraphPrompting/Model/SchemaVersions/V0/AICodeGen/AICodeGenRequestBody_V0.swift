@@ -57,22 +57,22 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
         ]
     }
    
-    init(userPrompt: String,
-         systemPrompt: String) throws {
-        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
-        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
-        
-        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
-        
-        self.messages = [
-            .init(role: .system,
-                  content: systemPrompt),
-            .init(role: .system,
-                  content: codeGenAssistantPrompt),
-            .init(role: .user,
-                  content: userPrompt)
-        ]
-    }
+//    init(userPrompt: String,
+//         systemPrompt: String) throws {
+//        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
+//        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
+//        
+//        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
+//        
+//        self.messages = [
+//            .init(role: .system,
+//                  content: systemPrompt),
+//            .init(role: .system,
+//                  content: codeGenAssistantPrompt),
+//            .init(role: .user,
+//                  content: userPrompt)
+//        ]
+//    }
     
     
     // For images
@@ -83,17 +83,17 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
         self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
         self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
         
-        let codeGenAssistantPrompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
+        let codeGenAssistantPrompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
         
         var content: [OpenAIMessageContent] = [
             .text(userPrompt)
         ]
-        
+        `
         let imageUrl = "data:image/jpeg;base64,\(base64ImageDescription)"
         content.append(.image(url: imageUrl, detail: "high"))
         
         let encodedContent = try! content.encodeToPrintableString()
-        // log("encodedContent: \(encodedContent)")
+        log("encodedContent: \(encodedContent)")
 
         self.messages = [
             OpenAIMessage(role: .system,

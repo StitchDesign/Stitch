@@ -101,15 +101,6 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
             .AICodeGenRequestBody(userPrompt: prompt,
                                   systemPrompt: systemPrompt,
                                   base64ImageDescription: base64ImageDescription)
-        
-//        let testImage: UIImage = UIImage (named: "TEST_IMAGE_7")!
-//        let base64TestImage = await convertImageToBase64String (uilmage: testImage)
-//        print ("getRequestTask: Design Image?: \(base64TestImage.value.isDefined)")
-        
-//        self.body = AICodeGenFromImageRequestBody(
-//            prompt: prompt,
-//            systemPrompt: systemPrompt,
-//            base64ImageDescription: nil)
     }
     
     func createCode(document: StitchDocumentViewModel,
