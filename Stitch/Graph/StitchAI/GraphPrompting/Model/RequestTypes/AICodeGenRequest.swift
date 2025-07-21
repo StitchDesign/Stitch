@@ -94,9 +94,6 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         self.config = config
         
         // Construct http payload
-        
-        // this might need to be a little different ...
-        
         self.body = try AICodeGenRequestBody_V0
             .AICodeGenRequestBody(userPrompt: prompt,
                                   systemPrompt: systemPrompt,

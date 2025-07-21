@@ -8,19 +8,6 @@
 import Foundation
 
 enum AICodeGenRequestBody_V0 {
-
-    //    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
-    
-    //    static func getSystemPrompt() throws -> String {
-    //        guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
-    //                                                      withExtension: "md") else {
-    //            throw StitchAIStreamingError.markdownNotFound
-    //        }
-    //
-    //        let systemPrompt = try String(contentsOf: systemMarkdownUrl,
-    //                                      encoding: .utf8)
-    //        return systemPrompt
-    //    }
     
     struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
         let model: String = "o4-mini-2025-04-16"
@@ -56,44 +43,26 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
                   content: inputsString)
         ]
     }
-   
-//    init(userPrompt: String,
-//         systemPrompt: String) throws {
-//        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
-//        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
-//        
-//        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
-//        
-//        self.messages = [
-//            .init(role: .system,
-//                  content: systemPrompt),
-//            .init(role: .system,
-//                  content: codeGenAssistantPrompt),
-//            .init(role: .user,
-//                  content: userPrompt)
-//        ]
-//    }
-    
-    
-    // For images
+       
     init(userPrompt: String,
          systemPrompt: String,
-         base64ImageDescription: String) {
+         base64ImageDescription: String) throws {
         
         self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
         self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
         
-        let codeGenAssistantPrompt = try! StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
+        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
         
         var content: [OpenAIMessageContent] = [
             .text(userPrompt)
         ]
-        `
+        
         let imageUrl = "data:image/jpeg;base64,\(base64ImageDescription)"
         content.append(.image(url: imageUrl, detail: "high"))
-        
-        let encodedContent = try! content.encodeToPrintableString()
-        log("encodedContent: \(encodedContent)")
+
+        // TODO: AI IMAGE IS WIP
+        let encodedContent = try content.encodeToPrintableString()
+        // log("encodedContent: \(encodedContent)")
 
         self.messages = [
             OpenAIMessage(role: .system,
@@ -104,7 +73,6 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
                           content: encodedContent)
         ]
     }
-
 }
 
 enum OpenAIMessageContent: Encodable {
