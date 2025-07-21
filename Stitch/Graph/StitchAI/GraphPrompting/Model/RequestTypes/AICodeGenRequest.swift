@@ -84,6 +84,7 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     init(prompt: String,
          currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String,
+         base64ImageDescription: String,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -93,9 +94,22 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         self.config = config
         
         // Construct http payload
+        
+        // this might need to be a little different ...
+        
         self.body = try AICodeGenRequestBody_V0
-            .AICodeGenRequestBody(currentGraphData: currentGraphData,
-                                           systemPrompt: systemPrompt)
+            .AICodeGenRequestBody(userPrompt: prompt,
+                                  systemPrompt: systemPrompt,
+                                  base64ImageDescription: base64ImageDescription)
+        
+//        let testImage: UIImage = UIImage (named: "TEST_IMAGE_7")!
+//        let base64TestImage = await convertImageToBase64String (uilmage: testImage)
+//        print ("getRequestTask: Design Image?: \(base64TestImage.value.isDefined)")
+        
+//        self.body = AICodeGenFromImageRequestBody(
+//            prompt: prompt,
+//            systemPrompt: systemPrompt,
+//            base64ImageDescription: nil)
     }
     
     func createCode(document: StitchDocumentViewModel,

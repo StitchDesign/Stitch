@@ -73,4 +73,92 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
                   content: userPrompt)
         ]
     }
+    
+    
+    // For images
+    init(userPrompt: String,
+         systemPrompt: String,
+         base64ImageDescription: String) {
+        
+        var content: [OpenAIMessageContent] = [
+            .text(userPrompt)
+        ]
+        
+//        let systemPromptContent: [OpenAIMessageContent] = [
+//            .text(systemPrompt)
+//        ]
+
+        let imageUrl = "data:image/jpeg;base64,\(base64ImageDescription)"
+        content.append(.image(url: imageUrl, detail: "high"))
+        
+        let encodedContent = try! content.encodeToPrintableString()
+        log("encodedContent: \(encodedContent)")
+
+        self.messages = [
+            OpenAIMessage(role: .system, content: systemPrompt),
+            OpenAIMessage(role: .user, content: encodedContent)
+            
+//            StructuredOpenAIMessage(role: "system", content: systemPromptContent),
+//            StructuredOpenAIMessage(role: "user", content: content)
+        ]
+    }
+    
+    
+   
 }
+
+enum OpenAIMessageContent: Encodable {
+    case text(String)
+    case image(url: String, detail: String)
+    
+    enum CodingKeys: String, CodingKey {
+        case type
+        case text
+        case imageURL = "image_url"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        switch self {
+        case .text(let text):
+            try container.encode("text", forKey: .type)
+            try container.encode(text, forKey: .text)
+            
+        case .image(let url, let detail):
+            try container.encode("image_url", forKey: .type)
+            try container.encode(["url": url, "detail": detail], forKey: .imageURL)
+        }
+    }
+}
+
+//// TODO: rework these; clean these up
+//struct StructuredOpenAIMessage: Codable {
+//    let role: OpenAIRole
+//    let content: [Content]
+//
+//    enum Content: Codable {
+//        case text(String)
+//        case image(url: String, detail: String)
+//
+//        enum CodingKeys: String, CodingKey {
+//            case type
+//            case text
+//            case imageURL = "image_url"
+//        }
+//
+//        func encode(to encoder: Encoder) throws {
+//            var container = encoder.container(keyedBy: CodingKeys.self)
+//
+//            switch self {
+//            case .text(let text):
+//                try container.encode("text", forKey: .type)
+//                try container.encode(text, forKey: .text)
+//
+//            case .image(let url, let detail):
+//                try container.encode("image_url", forKey: .type)
+//                try container.encode(["url": url, "detail": detail], forKey: .imageURL)
+//            }
+//        }
+//    }
+//}
