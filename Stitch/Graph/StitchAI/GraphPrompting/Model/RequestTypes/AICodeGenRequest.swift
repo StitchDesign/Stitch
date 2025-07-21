@@ -185,18 +185,21 @@ extension StitchAIGraphBuilderRequestable {
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
                                 systemPrompt: String) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
-        logToServerIfRelease("userPrompt: \(userPrompt)")
+        log("SUCCESS: userPrompt: \(userPrompt)")
 
         let (swiftUICode, msgFromCode) = try await self
             .createCode(document: document,
                         aiManager: aiManager,
                         systemPrompt: systemPrompt)
         
+        log("SUCCESS: swiftUICode: \(swiftUICode)")
+        log("SUCCESS: msgFromCode: \(msgFromCode)")
+        
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
             throw SwiftUISyntaxError.couldNotParseVarBody
         }
-        
+                
         logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)

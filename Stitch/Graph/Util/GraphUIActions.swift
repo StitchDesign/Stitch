@@ -182,9 +182,16 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             let systemPrompt = try StitchAIManager
                 .stitchAIGraphBuilderSystem(graph: document.visibleGraph,
                                             requestType: .userPrompt)
-            let requestTask = try AICodeGenFromGraphRequest(prompt: prompt,
-                                                            currentGraphData: graphData,
-                                                            systemPrompt: systemPrompt)
+            
+//            let requestTask = try AICodeGenFromGraphRequest(
+//                prompt: prompt,
+//                currentGraphData: graphData,
+//                systemPrompt: systemPrompt)
+            
+            let requestTask = try AICodeGenFromImageRequest(
+                prompt: prompt,
+                currentGraphData: graphData,
+                systemPrompt: systemPrompt)
             
             aiManager.currentTaskTesting = try requestTask
                 .getRequestTask(userPrompt: prompt,
