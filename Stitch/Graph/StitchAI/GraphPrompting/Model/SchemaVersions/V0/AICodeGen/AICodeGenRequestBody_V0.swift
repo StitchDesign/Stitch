@@ -80,31 +80,25 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
          systemPrompt: String,
          base64ImageDescription: String) {
         
+        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
+        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
+        
         var content: [OpenAIMessageContent] = [
             .text(userPrompt)
         ]
         
-//        let systemPromptContent: [OpenAIMessageContent] = [
-//            .text(systemPrompt)
-//        ]
-
         let imageUrl = "data:image/jpeg;base64,\(base64ImageDescription)"
         content.append(.image(url: imageUrl, detail: "high"))
         
         let encodedContent = try! content.encodeToPrintableString()
-        log("encodedContent: \(encodedContent)")
+        // log("encodedContent: \(encodedContent)")
 
         self.messages = [
             OpenAIMessage(role: .system, content: systemPrompt),
             OpenAIMessage(role: .user, content: encodedContent)
-            
-//            StructuredOpenAIMessage(role: "system", content: systemPromptContent),
-//            StructuredOpenAIMessage(role: "user", content: content)
         ]
     }
-    
-    
-   
+
 }
 
 enum OpenAIMessageContent: Encodable {

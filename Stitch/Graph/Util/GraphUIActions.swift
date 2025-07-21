@@ -198,7 +198,7 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
                     prompt: prompt,
                     currentGraphData: graphData,
                     systemPrompt: systemPrompt,
-                    base64ImageDescription: <#String#>)
+                    base64ImageDescription: base64TestImage.value!)
                 
                 aiManager.currentTaskTesting = try requestTask
                     .getRequestTask(userPrompt: prompt,
