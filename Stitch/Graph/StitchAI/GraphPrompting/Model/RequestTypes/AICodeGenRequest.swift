@@ -13,7 +13,7 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: AICodeGenFromGraphRequestBody_V0.AICodeGenFromGraphRequestBody
+    let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
     static let willStream: Bool = false
     
     @MainActor
@@ -29,9 +29,9 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeGenFromGraphRequestBody_V0
-            .AICodeGenFromGraphRequestBody(currentGraphData: currentGraphData,
-                                           systemPrompt: systemPrompt)
+        self.body = try AICodeGenRequestBody_V0
+            .AICodeGenRequestBody(currentGraphData: currentGraphData,
+                                  systemPrompt: systemPrompt)
     }
     
     func createCode(document: StitchDocumentViewModel,
@@ -78,7 +78,7 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: AICodeGenFromImageRequestBody_V0.AICodeGenFromImageRequestBody
+    let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
     static let willStream: Bool = false
     
     init(prompt: String,
@@ -93,8 +93,8 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeGenFromImageRequestBody_V0
-            .AICodeGenFromImageRequestBody(currentGraphData: currentGraphData,
+        self.body = try AICodeGenRequestBody_V0
+            .AICodeGenRequestBody(currentGraphData: currentGraphData,
                                            systemPrompt: systemPrompt)
     }
     
@@ -112,8 +112,6 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
                            resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
         logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
         
-        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
-        
         return (decodedSwiftUICode.source_code, msgFromSourceCodeRequest)
     }
 }
@@ -122,7 +120,6 @@ extension StitchAIGraphBuilderRequestable {
     @MainActor
     func getRequestTask(userPrompt: String,
                         document: StitchDocumentViewModel) throws -> Task<Result<AIGraphData_V0.GraphData, any Error>, Never> {
-        let currentGraphData = try CurrentAIGraphData.GraphData(from: document.visibleGraph.createSchema())
         let systemPrompt = try StitchAIManager.stitchAIGraphBuilderSystem(graph: document.visibleGraph,
                                                                           requestType: Self.type)
         let request = self
