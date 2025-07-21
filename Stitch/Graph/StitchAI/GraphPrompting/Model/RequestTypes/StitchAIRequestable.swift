@@ -27,7 +27,6 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, Toke
     typealias RequestTask = Task<FinalDecodedResult, any Error>
     
     var id: UUID { get }
-    var userPrompt: String { get }             // User's input prompt
     var config: OpenAIRequestConfig { get } // Request configuration settings
     var body: Body { get }
     static var willStream: Bool { get }
@@ -50,13 +49,13 @@ extension StitchAIRequestable {
     }
 }
 
-protocol StitchAIRequestableFunctionBody: Encodable {
-    var tools: [OpenAIFunction] { get }
-    var tool_choice: OpenAIFunction { get }
-}
+//protocol StitchAIRequestableFunctionBody: Encodable {
+//    var tools: [OpenAIFunction] { get }
+//    var tool_choice: OpenAIFunction { get }
+//}
 
-extension StitchAIRequestableFunctionBody {
+extension OpenAIRequestBody {
     var functionName: String {
-        self.tool_choice.function.name
+        self.tool_choice?.function?.name ?? OpenAIFunctionType.none.rawValue
     }
 }

@@ -11,56 +11,16 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
-struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
-    let id: UUID
-    let userPrompt: String             // User's input prompt
-    let config: OpenAIRequestConfig // Request configuration settings
-    let body: AIPatchBuilderRequestBody
-    static let willStream: Bool = false
+struct AIPatchBuilderFunctionInputs: Encodable {
+    let swiftui_source_code: String
+    let layer_data_list: [AIGraphData_V0.LayerData]
+}
+
+struct AIPatchBuilderFunctionInputsSchema: Encodable {
+    let swiftui_source_code = OpenAISchema(type: .string)
     
-    init(id: UUID,
-         userPrompt: String,
-         layerDataList: [CurrentAIGraphData.LayerData],
-         toolMessages: [OpenAIMessage],
-         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         systemPrompt: String,
-         config: OpenAIRequestConfig = .default) throws {
-        
-        // The id of the user's inference call; does not change across retries etc.
-        self.id = id
-        
-        self.userPrompt = userPrompt
-        self.config = config
-        
-        // Construct http payload
-        self.body = try AIPatchBuilderRequestBody(userPrompt: userPrompt,
-                                                  layerDataList: layerDataList,
-                                                  toolMessages: toolMessages,
-                                                  requestType: requestType,
-                                                  systemPrompt: systemPrompt)
-    }
-    
-    @MainActor
-    func willRequest(document: StitchDocumentViewModel,
-                     canShareData: Bool,
-                     requestTask: Self.RequestTask) {
-        // Nothing to do
-    }
-    
-    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
-        decodedResult
-    }
-    
-    @MainActor
-    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
-                                   currentAttempt: Int) {
-        fatalErrorIfDebug()
-    }
-    
-    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
-        // Unsupported
-        fatalError()
-    }
+    // MARK: string because no nesting support in structured outputs
+    let layer_data_list = OpenAISchema(type: .string)
 }
 
 extension StitchDocumentViewModel {

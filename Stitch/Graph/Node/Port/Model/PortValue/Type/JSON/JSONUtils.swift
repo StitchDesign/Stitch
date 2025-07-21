@@ -106,9 +106,13 @@ extension Data {
     }
 
     func createPrintableJsonString() throws -> String {
+        try self.createJsonString(options: [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes])
+    }
+    
+    func createJsonString(options: JSONSerialization.WritingOptions = [.sortedKeys]) throws -> String {
         do {
             let json = try JSONSerialization.jsonObject(with: self, options: [])
-            let data = try JSONSerialization.data(withJSONObject: json, options: [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes])
+            let data = try JSONSerialization.data(withJSONObject: json, options: options)
             guard let jsonString = String(data: data, encoding: .utf8) else {
                 print("createPrintableJsonString: invalid data.")
                 throw SwiftyJSONError.invalidJSON

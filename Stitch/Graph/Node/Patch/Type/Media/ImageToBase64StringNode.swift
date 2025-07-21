@@ -9,8 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-@MainActor
-func convertImageToBase64String(uiImage: UIImage) async -> StitchFileResult<String> {
+func convertImageToBase64String(uiImage: UIImage) -> StitchFileResult<String> {
     // 1 is highest quality;
     // but 0.1 seems fine, and gives much better perf.
     guard let string = uiImage

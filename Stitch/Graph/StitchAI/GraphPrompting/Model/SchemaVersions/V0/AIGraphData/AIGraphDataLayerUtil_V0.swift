@@ -40,7 +40,7 @@ extension LayerInputPort {
         case .scale:
             return .number(1)
         case .anchoring:
-            return .anchoring(.topLeft)
+            return .anchoring(.centerCenter)
         case .opacity:
             return .number(1.0)
         case .zIndex:
