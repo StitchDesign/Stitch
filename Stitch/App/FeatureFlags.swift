@@ -14,6 +14,8 @@ struct FeatureFlags {
     static let USE_COMPONENTS = false
     static let USE_AI_MODE = true
     
+    static let USE_AI_IMAGE_REQUEST = true
+    
     // TODO: SET FALSE BEFORE NEXT RELEASE / just use Stitch AI Reasoning ?
     static let SHOW_AI_TABLE_ROWS_VIEWER = true
 

@@ -124,14 +124,7 @@ struct InsertNodeMenuView: View {
                                     launchTip: self.launchTip,
                                     queryString: $queryString,
                                     userSubmitted: userSubmitted)
-            
-//            let testImage: UIImage = UIImage(named: "TEST_IMAGE")!
-//            
-//            Image(uiImage: testImage)
-//                .frame(width: 300, height: 300)
-//                .border(.red, width: 4)
-            
-            
+
             if !isGeneratingAINode {
                 HStack(spacing: .zero) {
                     // alternatively, change the height available for this?

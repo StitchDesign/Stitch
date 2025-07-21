@@ -34,6 +34,8 @@ enum AICodeGenRequestBody_V0 {
 }
 
 extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
+    
+    // TODO: "throws" = "can fail at runtime"; but actually the app should not  run if we can't create a system prompt
     init(currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String) throws {
         self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
