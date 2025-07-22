@@ -18,30 +18,33 @@ enum AICodeEditBody_V0 {
         let messages: [OpenAIMessage]
         let tools = StitchAIRequestBuilder_V0.StitchAIRequestType
             .userPrompt.allOpenAIFunctions
-        let tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeEditor.function
+        let tool_choice: OpenAIFunction
         let stream: Bool = false
+        
+        
+        
+        // TODO: MOVE TO EXISTING FUNCTION BODY STRUCT
+        
         
         init(userPrompt: String,
              toolMessages: [OpenAIMessage],
-             systemPrompt: String) throws {
-            let assistantPrompt = """
-                Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
-
-                Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
-                
-                Adhere to the guidelines specified in this document:
-                
-                \(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt))
-                """
+             systemPrompt: String) {
+            self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeEditor.function
             
-            self.messages = [.init(role: .system,
-                                   content: systemPrompt),
-                             .init(role: .system,
-                                   content: assistantPrompt)] +
+            self.messages = [
+                .init(role: .system,
+                      content: systemPrompt)
+            ] +
             toolMessages + [
                 .init(role: .user,
                       content: userPrompt)
             ]
+        }
+        
+        // init used for calling the edit code function
+        init(prevMessages: [OpenAIMessage]) throws {
+            self.messages = prevMessages + [try AICodeEditRequest.createAssistantPrompt()]
+            self.tool_choice = .init(type: .none)
         }
     }
 }

@@ -8,11 +8,13 @@
 import Foundation
 
 enum AICodeGenRequestBody_V0 {
-    struct AICodeGenRequestBody: Encodable {
+    struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
         let temperature: Double = 1.0
         let messages: [OpenAIMessage]
+        let tools: [OpenAIFunction]
+        let tool_choice: OpenAIFunction
         let stream: Bool = false
     }
 }
@@ -22,7 +24,8 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
     // TODO: "throws" = "can fail at runtime"; but actually the app should not  run if we can't create a system prompt
     init(currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String) throws {
-        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
+        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
+        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilder.function
         
         let inputsString = try currentGraphData.encodeToPrintableString()
         
@@ -31,8 +34,6 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
         self.messages = [
             .init(role: .system,
                   content: systemPrompt),
-            .init(role: .system,
-                  content: codeGenAssistantPrompt),
             .init(role: .user,
                   content: inputsString)
         ]
@@ -42,7 +43,8 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
          systemPrompt: String,
          base64ImageDescription: String) throws {
         
-        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
+        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
+        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
         
         let base64Message = OpenAIUserImageContent(base64Image: base64ImageDescription)
         let base64MessageString = try base64Message.encodeToPrintableString()
@@ -50,8 +52,6 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
         self.messages = [
             OpenAIMessage(role: .system,
                           content: systemPrompt),
-            OpenAIMessage(role: .system,
-                          content: codeGenAssistantPrompt),
             OpenAIMessage(role:. user,
                           content: userPrompt),
             OpenAIMessage(role: .user,

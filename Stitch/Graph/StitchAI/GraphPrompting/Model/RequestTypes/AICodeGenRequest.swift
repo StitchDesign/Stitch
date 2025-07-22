@@ -34,6 +34,13 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
                                   systemPrompt: systemPrompt)
     }
     
+    static func createAssistantPrompt() throws -> OpenAIMessage {
+        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type)
+        
+        return .init(role: .assistant,
+                     content: codeGenAssistantPrompt)
+    }
+    
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> (String, OpenAIMessage) {
@@ -41,34 +48,43 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
-        guard let decodedSwiftUICode = msgFromSourceCodeRequest
-            .content else {
-            throw StitchAIManagerError.contentDataDecodingError(try msgFromSourceCodeRequest.encodeToPrintableString(), "No content found.")
-        }
-        
-        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode)")
+//        let decodedSwiftUICode = try self
+//            .decodeMessage(from: msgFromSourceCodeRequest,
+//                           document: document,
+//                           aiManager: aiManager,
+//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+//        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
         
         let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
         
+        let createEditFunctionRequest = AICodeEditRequest(id: self.id,
+                                                          prompt: self.userPrompt,
+                                                          toolMessages: [msgFromSourceCodeRequest, newCodeToolMessage,
+                                                                         try Self.createAssistantPrompt()],
+                                                          systemPrompt: systemPrompt)
+        
+        let allPrevMessages = createEditFunctionRequest.body.messages
+        
         let editRequest = try AICodeEditRequest(id: self.id,
-                                                prompt: self.userPrompt,
-                                                toolMessages: [msgFromSourceCodeRequest, newCodeToolMessage],
-                                                systemPrompt: systemPrompt)
+                                                prevMessages: allPrevMessages)
         
         let msgFromEditCodeRequest = try await editRequest
             .requestForMessage(
                 document: document,
                 aiManager: aiManager)
         
-        let decodedSwiftUIEditedCode = try editRequest
-            .decodeMessage(from: msgFromEditCodeRequest,
-                           document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-        let swiftUIEditedCode = decodedSwiftUIEditedCode.source_code
+        // TODO: what happens here??? What does the decoded swift ui code look like
+        fatalError()
         
-        logToServerIfRelease("Edited code:\n\(swiftUIEditedCode)")
-        return (swiftUIEditedCode, msgFromEditCodeRequest)
+//        let decodedSwiftUIEditedCode = try editRequest
+//            .decodeMessage(from: msgFromEditCodeRequest,
+//                           document: document,
+//                           aiManager: aiManager,
+//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+//        let swiftUIEditedCode = decodedSwiftUIEditedCode.source_code
+//        
+//        logToServerIfRelease("Edited code:\n\(swiftUIEditedCode)")
+//        return (swiftUIEditedCode, msgFromEditCodeRequest)
     }
 }
 
@@ -99,6 +115,13 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
                                   base64ImageDescription: base64ImageDescription)
     }
     
+    static func createAssistantPrompt() throws -> OpenAIMessage {
+        let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type)
+        
+        return .init(role: .assistant,
+                     content: codeGenAssistantPrompt)
+    }
+    
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> (String, OpenAIMessage) {
@@ -106,14 +129,18 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
-        guard let decodedSwiftUICode = msgFromSourceCodeRequest
-            .content else {
-            throw StitchAIManagerError.contentDataDecodingError(try msgFromSourceCodeRequest.encodeToPrintableString(), "No content found.")
-        }
+        // TODO: what happens here??
         
-        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode)")
-        
-        return (decodedSwiftUICode, msgFromSourceCodeRequest)
+        fatalError()
+//
+//        let decodedSwiftUICode = try self
+//            .decodeMessage(from: msgFromSourceCodeRequest,
+//                           document: document,
+//                           aiManager: aiManager,
+//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+//        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
+//        
+//        return (decodedSwiftUICode.source_code, msgFromSourceCodeRequest)
     }
 }
 
@@ -196,6 +223,8 @@ extension StitchAIGraphBuilderRequestable {
         log("SUCCESS: swiftUICode: \(swiftUICode)")
         log("SUCCESS: msgFromCode: \(msgFromCode)")
         
+        // TODO: look here, make sure extraction is good
+        
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
             throw SwiftUISyntaxError.couldNotParseVarBody
@@ -220,16 +249,16 @@ extension StitchAIGraphBuilderRequestable {
         
         // Update tool message with layer data
          var newEditToolMessage = try msgFromCode.createNewToolMessage()
-         let patchBuilderInputs = AIPatchBuilderRequestBody_V0.AIPatchBuilderFunctionInputs(
-             swiftui_source_code: swiftUICode,
-             layer_data: layerDataList
-         )
-         newEditToolMessage.content = try patchBuilderInputs.encodeToPrintableString()
+//         let patchBuilderInputs = AIPatchBuilderRequestBody_V0.AIPatchBuilderFunctionInputs(
+//             swiftui_source_code: swiftUICode,
+//             layer_data: layerDataList
+//         )
+//         newEditToolMessage.content = try patchBuilderInputs.encodeToPrintableString()
         
         let patchBuilderRequest = try AIPatchBuilderRequest(
             id: self.id,
             userPrompt: userPrompt,
-//            layerDataList: layerDataList,
+            layerDataList: layerDataList,
             toolMessages: [msgFromCode, newEditToolMessage],
             requestType: Self.type,
             systemPrompt: systemPrompt)
@@ -237,6 +266,8 @@ extension StitchAIGraphBuilderRequestable {
         let patchBuildMessage = try await patchBuilderRequest
             .requestForMessage(document: document,
                                aiManager: aiManager)
+        
+        // TODO: make final call
         
         let patchBuildResult = try patchBuilderRequest
             .decodeMessage(from: patchBuildMessage,

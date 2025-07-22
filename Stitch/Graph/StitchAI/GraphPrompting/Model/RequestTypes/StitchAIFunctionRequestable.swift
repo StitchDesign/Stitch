@@ -8,15 +8,11 @@
 import SwiftUI
 
 protocol StitchAIFunctionRequestable: StitchAIRequestable where
-Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult {
-    static var openAIFunction: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction { get }
-}
+Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, Self.Body: StitchAIRequestableFunctionBody { }
 
-//extension StitchAIFunctionRequestable {
-//    var functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
-//        self.openAIFunction
-//    }
-//}
+extension StitchAIFunctionRequestable {
+    var functionName: String { self.body.functionName }
+}
 
 extension StitchAIFunctionRequestable {
     func decodeMessage<ResultType>(from message: OpenAIMessage,
@@ -40,7 +36,7 @@ extension StitchAIFunctionRequestable {
     }
 }
 
-protocol StitchAIGraphBuilderRequestable: StitchAIRequestable {
+protocol StitchAIGraphBuilderRequestable: StitchAIFunctionRequestable {
     // TODO: Group the entire code gen/edit requests under one handler
     
     static var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
@@ -48,6 +44,8 @@ protocol StitchAIGraphBuilderRequestable: StitchAIRequestable {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> (String, OpenAIMessage)
+    
+    static func createAssistantPrompt() throws -> OpenAIMessage
 }
 
 extension StitchAIGraphBuilderRequestable {

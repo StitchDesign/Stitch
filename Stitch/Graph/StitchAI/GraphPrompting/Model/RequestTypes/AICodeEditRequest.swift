@@ -8,10 +8,7 @@
 import SwiftUI
 
 struct AICodeEditRequest: StitchAIFunctionRequestable {
-    static let openAIFunction: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction = .codeEditor
-    
     let id: UUID
-    let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AICodeEditBody_V0.AICodeEditRequestBody
     static let willStream: Bool = false
@@ -20,19 +17,42 @@ struct AICodeEditRequest: StitchAIFunctionRequestable {
          prompt: String,
          toolMessages: [OpenAIMessage],
          systemPrompt: String,
-         config: OpenAIRequestConfig = .default) throws {
+         config: OpenAIRequestConfig = .default) {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = id
         
-        self.userPrompt = prompt
         self.config = config
         
         // Construct http payload
-        self.body = try AICodeEditBody_V0.AICodeEditRequestBody(
+        self.body = AICodeEditBody_V0.AICodeEditRequestBody(
             userPrompt: prompt,
             toolMessages: toolMessages,
             systemPrompt: systemPrompt)
+    }
+
+    // Initializer used for invoking the edit request
+    init(id: UUID,
+         prevMessages: [OpenAIMessage]) throws {
+        self.id = id
+        self.config = .default
+        self.body = try .init(prevMessages: prevMessages)
+    }
+    
+    
+    static func createAssistantPrompt() throws -> OpenAIMessage {
+        let assistantPrompt = """
+            Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
+
+            Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
+            
+            Adhere to the guidelines specified in this document:
+            
+            \(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt))
+            """
+        
+        return .init(role: .assistant,
+                     content: assistantPrompt)
     }
     
     @MainActor

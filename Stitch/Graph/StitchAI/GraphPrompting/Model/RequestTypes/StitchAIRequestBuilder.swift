@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct StitchAIRequestBuilder_V0 {
+    struct ImageRequestInputParameters: Encodable {
+        let user_prompt = OpenAISchema(type: .string)
+        let image_url = OpenAISchema(type: .string)
+    }
+    
     struct SourceCodeResponseSchema: Encodable {
         let source_code = OpenAISchema(
             type: .string,
@@ -26,6 +31,8 @@ extension StitchAIRequestBuilder_V0 {
     }
     
     enum StitchAIRequestBuilderFunction: String {
+        case codeBuilder = "create_swiftui_code"
+        case codeBuilderFromImage = "create_code_from_image"
         case codeEditor = "edit_swiftui_code"
         case patchBuilder = "patch_builder"
     }
@@ -36,9 +43,9 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
     var allFunctions: [StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction] {
         switch self {
         case .userPrompt:
-            return [.codeEditor, .patchBuilder]
+            return [.codeBuilder, .codeEditor, .patchBuilder]
         case .imagePrompt:
-            return [.patchBuilder]
+            return [.codeBuilderFromImage, .patchBuilder]
         }
     }
     
@@ -89,6 +96,30 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
 extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
     var function: OpenAIFunction {
         switch self {
+        case .codeBuilder:
+            return OpenAIFunction(
+                name: self.rawValue,
+                description: "Generate SwiftUI code from Stitch concepts.",
+                parameters: OpenAISchema(
+                    type: .object,
+                    properties: AIGraphData_V0.GraphDataSchema(),
+                    required: ["layer_data_list", "patch_data"],
+                    description: "Graph data of existing graph."),
+                strict: true
+            )
+            
+        case .codeBuilderFromImage:
+            return OpenAIFunction(
+                name: self.rawValue,
+                description: "Generate SwiftUI code from an image.",
+                parameters: OpenAISchema(
+                    type: .object,
+                    properties: StitchAIRequestBuilder_V0.ImageRequestInputParameters(),
+                    required: ["user_prompt", "image_url"],
+                    description: "Parameters for building SwiftUI view from image."),
+                strict: true
+            )
+        
         case .codeEditor:
             return OpenAIFunction(
                 name: self.rawValue,
@@ -97,7 +128,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
                     type: .object,
                     properties: StitchAIRequestBuilder_V0.SourceCodeResponseSchema(),
                     required: ["source_code"],
-                    description: "SwiftUI source code."),
+                    description: "SwiftUI source code of existing graph."),
                 strict: true
             )
             
@@ -107,9 +138,9 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
                 description: "Build Stitch graphs based on layer data and SwiftUI source code.",
                 parameters: OpenAISchema(
                     type: .object,
-                    properties: AIPatchBuilderResponseFormat_V0.GraphBuilderSchema(),
-                    required: ["javascript_patches", "native_patches", "native_patch_value_type_settings", "patch_connections", "layer_connections", "custom_patch_input_values"],
-                    description: "Patch data for a Stitch graph."),
+                    properties: AIPatchBuilderRequestBody_V0.AIPatchBuilderFunctionInputsSchema(),
+                    required: ["swiftui_source_code", "layer_data_list"],
+                    description: "Provides SwiftUI source code and Stitch layer data for a function that produces Stitch patch data."),
                 strict: true
             )
         }
@@ -117,6 +148,14 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
     
     var functionDescription: String {
         switch self {
+        case .codeBuilder:
+            return """
+                **Builds SwiftUI Code from Stitch Data.** You will receive as input structured data about the current Stitch document, and your output must be a SwiftUI app that reflects this prototype.
+                """
+        case .codeBuilderFromImage:
+            return """
+                **Builds SwiftUI Code from an Image.** You will receive as input an uploaded image, and your output must be a SwiftUI app that attempts to replicate the uploaded image.
+                """
         case .codeEditor:
             return """
                 **Edits SwiftUI Code.** Based on the SwiftUI source code created from the last step, modify the code based on the user prompt.

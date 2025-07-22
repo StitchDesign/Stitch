@@ -20,7 +20,7 @@ enum AIPatchBuilderRequestBody_V0 {
         let stream: Bool = false
         
         init(userPrompt: String,
-//             layerDataList: [CurrentAIGraphData.LayerData],
+             layerDataList: [CurrentAIGraphData.LayerData],
              toolMessages: [OpenAIMessage],
              requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
              systemPrompt: String) throws {
@@ -28,16 +28,34 @@ enum AIPatchBuilderRequestBody_V0 {
             
             self.tools = requestType.allOpenAIFunctions
             
-            self.messages = [.init(role: .system,
-                                   content: systemPrompt),
-                             .init(role: .assistant,
-                                   content: assistantPrompt)] +
-            toolMessages
+            let userInputs = AIPatchBuilderFunctionInputs(
+                layer_data_list: try layerDataList.encodeToPrintableString()
+            )
+            
+            self.messages = [
+                .init(role: .system,
+                      content: systemPrompt)
+            ] +
+            toolMessages + [
+                .init(role: .system,
+                      content: assistantPrompt),
+                .init(role: .user,
+                      content: try userInputs.encodeToPrintableString())
+            ]
         }
     }
     
     struct AIPatchBuilderFunctionInputs: Encodable {
-        let swiftui_source_code: String
-        let layer_data: [AIGraphData_V0.LayerData]
+        // MARK: already provided in previous tools
+//        let swiftui_source_code: String
+        
+        // MARK: no nesting support in structured schema, using string for now
+        let layer_data_list: String
+//        let layer_data: [AIGraphData_V0.LayerData]
+    }
+    
+    struct AIPatchBuilderFunctionInputsSchema: Encodable {
+        let swiftui_source_code = OpenAISchema(type: .string)
+        let layer_data_list = OpenAISchema(type: .string)
     }
 }
