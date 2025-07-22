@@ -163,12 +163,15 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
 ////                          content: try imageRequestInputs.image_data.encodeToPrintableString())
 //        ]
 
+        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
+        let toolId = "call_BS6GNUPw4tDLPlWBBqvKlr3O"
+        
         let msgFromSourceCodeRequest = OpenAIMessage(
             role: .assistant,
             content: try AICodeGenFromImageRequest.createAssistantPrompt().content,
             tool_calls: [
                 .init(
-                    id: self.id.description,
+                    id: toolId,
                     type: "function",
                     function: .init(name: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.rawValue,
                                     arguments: try imageRequestInputs.encodeToString())
@@ -188,7 +191,7 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         
         let newCodeToolMessage = OpenAIMessage(role: .tool,
                                                content: tool.function.arguments,
-                                               tool_call_id: tool.id,
+                                               tool_call_id: toolId,
                                                name: tool.function.name)
         
         
