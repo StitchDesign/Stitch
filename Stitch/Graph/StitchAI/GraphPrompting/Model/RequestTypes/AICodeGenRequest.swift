@@ -92,6 +92,8 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
     
     let id: UUID
+    let userPrompt: String
+    let base64Image: String
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
     static let willStream: Bool = false
@@ -103,6 +105,8 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
+        self.userPrompt = prompt
+        self.base64Image = base64ImageDescription
         self.config = config
         
         // Construct http payload
@@ -114,8 +118,12 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     
     // Object for creating actual code creation request
     init(id: UUID,
+         userPrompt: String,
+         base64Image: String,
          messages: [OpenAIMessage]) {
         self.id = id
+        self.userPrompt = userPrompt
+        self.base64Image = base64Image
         self.config = .default
         self.body = .init(messages: messages,
                           type: Self.type)
@@ -130,28 +138,80 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> (String, OpenAIMessage) {        
-        var msgFromSourceCodeRequest = try await self
-            .requestForMessage(document: document,
-                               aiManager: aiManager)
-        msgFromSourceCodeRequest.content = try AICodeGenFromImageRequest.createAssistantPrompt().content
+                    systemPrompt: String) async throws -> (String, OpenAIMessage) {
         
-        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+        
+        // TODO: ADD ASSISTANT MESSAGE EVERYWHERE
+        
+//        var msgFromSourceCodeRequest = try await self
+//            .requestForMessage(document: document,
+//                               aiManager: aiManager)
+        
+        //        msgFromSourceCodeRequest.content = try AICodeGenFromImageRequest.createAssistantPrompt().content
+        
+        let imageRequestInputs = AICodeGenFromImageInputs(
+            user_prompt: self.userPrompt,
+            image_data: .init(base64Image: self.base64Image)
+        )
+        
+//        var imageRequestMessages: [OpenAIMessage] = [
+//            OpenAIMessage(role: .system,
+//                          content: systemPrompt)
+////            OpenAIMessage(role:. user,
+////                          content: userPrompt),
+////            OpenAIMessage(role: .user,
+////                          content: try imageRequestInputs.image_data.encodeToPrintableString())
+//        ]
+
+        let msgFromSourceCodeRequest = OpenAIMessage(
+            role: .assistant,
+            content: try AICodeGenFromImageRequest.createAssistantPrompt().content,
+            tool_calls: [
+                .init(
+                    id: self.id.description,
+                    type: "function",
+                    function: .init(name: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.rawValue,
+                                    arguments: try imageRequestInputs.encodeToString())
+                )
+            ],
+            annotations: []
+        )
+
+        // TODO: fix helper
+//        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+
+        guard let tool = msgFromSourceCodeRequest.tool_calls?.first else {
+            throw StitchAIManagerError.toolNotFoundForFunction
+        }
+        
+//        let decodedArgs = tool.function.arguments
+        
+        let newCodeToolMessage = OpenAIMessage(role: .tool,
+                                               content: tool.function.arguments,
+                                               tool_call_id: tool.id,
+                                               name: tool.function.name)
+        
         
         let createCodeRequest = AICodeGenFromImageRequest(
             id: self.id,
+            
+            // TODO: remove
+            userPrompt: self.userPrompt,
+            base64Image: self.base64Image,
+            
             messages: [
-            .init(role: .system, content: systemPrompt),
-            msgFromSourceCodeRequest,
-            newCodeToolMessage
-        ])
+                .init(role: .system, content: systemPrompt),
+                msgFromSourceCodeRequest,
+                newCodeToolMessage
+            ]
+        )
         
         let msgFromCodeCreation = try await createCodeRequest
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
+        print("\(msgFromCodeCreation)")
         fatalError()
-        
 //
 //        let decodedSwiftUICode = try self
 //            .decodeMessage(from: msgFromSourceCodeRequest,

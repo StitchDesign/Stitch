@@ -26,4 +26,9 @@ extension Encodable {
         let data = try self.encodeToData()
         return try data.createPrintableJsonString()
     }
+    
+    func encodeToString() throws -> String {
+        let data = try self.encodeToData()
+        return try data.createJsonString()
+    }
 }

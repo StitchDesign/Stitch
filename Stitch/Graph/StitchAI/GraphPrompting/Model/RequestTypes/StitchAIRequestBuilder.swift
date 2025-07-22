@@ -10,13 +10,21 @@ import SwiftUI
 struct StitchAIRequestBuilder_V0 {
     struct ImageRequestInputParameters: Encodable {
         let user_prompt = OpenAISchema(type: .string)
-        let image_url = OpenAISchema(type: .string)
+        let image_data = OpenAISchema(type: .object,
+                                      properties: ImageDataSchema(),
+                                      required: ["type", "image_url", "detail"])
     }
     
     struct SourceCodeResponseSchema: Encodable {
         let source_code = OpenAISchema(
             type: .string,
             description: "SwiftUI source code.")
+    }
+    
+    struct ImageDataSchema: Encodable {
+        let type = OpenAISchema(type: .string)
+        let image_url = OpenAISchema(type: .string)
+        let detail = OpenAISchema(type: .string)
     }
     
     struct SourceCodeResponse: Codable {
@@ -115,7 +123,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
                 parameters: OpenAISchema(
                     type: .object,
                     properties: StitchAIRequestBuilder_V0.ImageRequestInputParameters(),
-                    required: ["user_prompt", "image_url"],
+                    required: ["user_prompt", "image_data"],
                     description: "Parameters for building SwiftUI view from image."),
                 strict: true
             )

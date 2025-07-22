@@ -87,6 +87,18 @@ struct OpenAIChoice: Codable {
 }
 
 /// Structure representing a message in the API response
+//protocol OpenAIToolCallsMessage: Codable {
+//    associatedtype ToolCallType: OpenAIToolCallResponse
+////    associatedtype ContentType: Codable
+//    
+//    var role: OpenAIRole { get }
+//    var content: String? { get }
+//    var tool_calls: [ToolCallType] { get }
+//    var name: String? { get }
+//    var refusal: String? { get }
+//    var annotations: [String]? { get }
+//}
+
 struct OpenAIMessage: Codable {
     var role: OpenAIRole            // Role of the message (e.g., "assistant", "user")
     var content: String?         // Actual content of the message
@@ -98,7 +110,7 @@ struct OpenAIMessage: Codable {
     var annotations: [String]?  // Optional annotations
 }
 
-struct OpenAIToolCallResponse: Codable {
+struct OpenAIToolCallResponse: Codable {    
     var id: String
     var type: String
     var function: OpenAIFunctionResponse
@@ -109,19 +121,42 @@ struct OpenAIFunctionResponse: Codable {
     var arguments: String
 }
 
+
+// TODO: move
+
+//struct OpenAIMessageCodeGenFromImage: OpenAIToolCallsMessage {
+//    var role: OpenAIRole
+//    var content: String?
+//    var tool_calls: [OpenAIToolCallCodeGenFromImage]
+//    var name: String?
+//    var refusal: String?
+//    var annotations: [String]?
+//}
+//
+//struct OpenAIToolCallCodeGenFromImage: OpenAIToolCallResponse {
+//    var id: String
+//    var type: String
+//    var function: OpenAIFunctionResponseCodeGenFromImage
+//}
+//
+//struct OpenAIFunctionResponseCodeGenFromImage: OpenAIFunctionResponse {
+//    var name: String
+//    var arguments: AICodeGenFromImageInputs
+//}
+
 extension StitchAIRequestable {
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed
     /// - Returns: Parsed ContentJSON structure
     static func parseOpenAIResponse(message: OpenAIMessage) throws -> Self.InitialDecodedResult {
         // Check for function scenario
-        if let toolResponse = message.tool_calls {
-            guard let castedToolResponse = toolResponse as? Self.InitialDecodedResult else {
-                throw StitchAIManagerError.functionDecodingFailed
-            }
-            
-            return castedToolResponse
-        }
+//        if let toolResponse = message.tool_calls {
+//            guard let castedToolResponse = toolResponse as? Self.InitialDecodedResult else {
+//                throw StitchAIManagerError.functionDecodingFailed
+//            }
+//            
+//            return castedToolResponse
+//        }
         
         guard let content = message.content,
               let contentData = content.data(using: .utf8) else {
