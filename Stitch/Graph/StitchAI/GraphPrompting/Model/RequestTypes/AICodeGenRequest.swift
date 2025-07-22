@@ -130,10 +130,11 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> (String, OpenAIMessage) {
-        let msgFromSourceCodeRequest = try await self
+                    systemPrompt: String) async throws -> (String, OpenAIMessage) {        
+        var msgFromSourceCodeRequest = try await self
             .requestForMessage(document: document,
                                aiManager: aiManager)
+        msgFromSourceCodeRequest.content = try AICodeGenFromImageRequest.createAssistantPrompt().content
         
         let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
         
@@ -141,7 +142,6 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
             id: self.id,
             messages: [
             .init(role: .system, content: systemPrompt),
-            try AICodeGenFromImageRequest.createAssistantPrompt(),
             msgFromSourceCodeRequest,
             newCodeToolMessage
         ])
