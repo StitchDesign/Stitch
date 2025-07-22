@@ -53,49 +53,42 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
         
         let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
         
-        var content: [OpenAIMessageContent] = [
-            .text(userPrompt)
-        ]
-        
-        let imageUrl = "data:image/jpeg;base64,\(base64ImageDescription)"
-        content.append(.image(url: imageUrl, detail: "high"))
-
-        // TODO: AI IMAGE IS WIP
-        let encodedContent = try content.encodeToPrintableString()
-        // log("encodedContent: \(encodedContent)")
+        let base64Message = OpenAIUserImageContent(base64Image: base64ImageDescription)
+        let base64MessageString = try base64Message.encodeToPrintableString()
 
         self.messages = [
             OpenAIMessage(role: .system,
                           content: systemPrompt),
             OpenAIMessage(role: .system,
                           content: codeGenAssistantPrompt),
+            OpenAIMessage(role:. user,
+                          content: userPrompt),
             OpenAIMessage(role: .user,
-                          content: encodedContent)
+                          content: base64MessageString)
         ]
     }
 }
 
-enum OpenAIMessageContent: Encodable {
-    case text(String)
-    case image(url: String, detail: String)
+struct OpenAIUserImageContent: Encodable {
+    let type = "image_url"
+    let image_url: OpenAIImageUrl
+    let detail = "high"
+    
+    init(base64Image: String) {
+        self.image_url = .init(base64Image: base64Image)
+    }
+}
+
+struct OpenAIImageUrl: Encodable {
+    let base64Image: String
     
     enum CodingKeys: String, CodingKey {
-        case type
-        case text
-        case imageURL = "image_url"
+        case url
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        switch self {
-        case .text(let text):
-            try container.encode("text", forKey: .type)
-            try container.encode(text, forKey: .text)
-            
-        case .image(let url, let detail):
-            try container.encode("image_url", forKey: .type)
-            try container.encode(["url": url, "detail": detail], forKey: .imageURL)
-        }
+        let urlString = "data:image/jpeg;base64,\(base64Image)"
+        try container.encode(urlString, forKey: .url)
     }
 }

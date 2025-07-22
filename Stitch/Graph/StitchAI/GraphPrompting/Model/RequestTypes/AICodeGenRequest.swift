@@ -82,7 +82,6 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     static let willStream: Bool = false
     
     init(prompt: String,
-         currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String,
          base64ImageDescription: String,
          config: OpenAIRequestConfig = .default) throws {
