@@ -9,6 +9,19 @@ import Foundation
 
 enum AICodeGenRequestBody_V0 {
     
+    //    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
+    //
+    //    static func getSystemPrompt() throws -> String {
+    //        guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
+    //                                                      withExtension: "md") else {
+    //            throw StitchAIStreamingError.markdownNotFound
+    //        }
+    //
+    //        let systemPrompt = try String(contentsOf: systemMarkdownUrl,
+    //                                      encoding: .utf8)
+    //        return systemPrompt
+    //    }
+    
     struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
