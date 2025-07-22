@@ -20,8 +20,7 @@ enum AICodeGenRequestBody_V0 {
 }
 
 extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
-    
-    // TODO: "throws" = "can fail at runtime"; but actually the app should not  run if we can't create a system prompt
+    // Creates function of code gen from graph data
     init(currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String) throws {
         self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
@@ -39,6 +38,7 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
         ]
     }
        
+    // Creates function of code gen from graph data from image gen
     init(userPrompt: String,
          systemPrompt: String,
          base64ImageDescription: String) throws {
@@ -57,6 +57,14 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
             OpenAIMessage(role: .user,
                           content: base64MessageString)
         ]
+    }
+    
+    // Creates code
+    init(messages: [OpenAIMessage],
+         type: StitchAIRequestBuilder_V0.StitchAIRequestType) {
+        self.messages = messages
+        self.tools = type.allOpenAIFunctions
+        self.tool_choice = .init(type: .none)
     }
 }
 

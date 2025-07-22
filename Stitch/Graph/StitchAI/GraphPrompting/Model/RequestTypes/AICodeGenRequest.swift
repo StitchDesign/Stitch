@@ -92,7 +92,6 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     static let type = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt
     
     let id: UUID
-    let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
     static let willStream: Bool = false
@@ -104,8 +103,6 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
-        
-        self.userPrompt = prompt
         self.config = config
         
         // Construct http payload
@@ -113,6 +110,15 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
             .AICodeGenRequestBody(userPrompt: prompt,
                                   systemPrompt: systemPrompt,
                                   base64ImageDescription: base64ImageDescription)
+    }
+    
+    // Object for creating actual code creation request
+    init(id: UUID,
+         messages: [OpenAIMessage]) {
+        self.id = id
+        self.config = .default
+        self.body = .init(messages: messages,
+                          type: Self.type)
     }
     
     static func createAssistantPrompt() throws -> OpenAIMessage {
@@ -129,9 +135,23 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
-        // TODO: what happens here??
+        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+        
+        let createCodeRequest = AICodeGenFromImageRequest(
+            id: self.id,
+            messages: [
+            .init(role: .system, content: systemPrompt),
+            try AICodeGenFromImageRequest.createAssistantPrompt(),
+            msgFromSourceCodeRequest,
+            newCodeToolMessage
+        ])
+        
+        let msgFromCodeCreation = try await createCodeRequest
+            .requestForMessage(document: document,
+                               aiManager: aiManager)
         
         fatalError()
+        
 //
 //        let decodedSwiftUICode = try self
 //            .decodeMessage(from: msgFromSourceCodeRequest,
