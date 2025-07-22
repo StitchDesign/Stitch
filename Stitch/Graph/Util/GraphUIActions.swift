@@ -177,24 +177,44 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             return .noChange
         }
         
-        do {
-            let graphData = try AIGraphData_V0.GraphData(from: document.visibleGraph.createSchema())
-            let systemPrompt = try StitchAIManager
-                .stitchAIGraphBuilderSystem(graph: document.visibleGraph,
-                                            requestType: .userPrompt)
-            let requestTask = try AICodeGenFromGraphRequest(prompt: prompt,
-                                                            currentGraphData: graphData,
-                                                            systemPrompt: systemPrompt)
+        // Task(priority: .userInitiated) { @MainActor in
             
-            aiManager.currentTaskTesting = try requestTask
-                .getRequestTask(userPrompt: prompt,
-                                document: document)
-        } catch {
-            log("SubmitUserPromptToOpenAI: had error: \(error.localizedDescription)", .logToServer)
-            let _ = AICodeGenFromGraphRequest.displayError(failure: error,
-                                                           document: document)
-        }
-        //#endif
+            do {
+                let graphData = try AIGraphData_V0.GraphData(from: document.visibleGraph.createSchema())
+                let systemPrompt = try StitchAIManager
+                    .stitchAIGraphBuilderSystem(graph: document.visibleGraph,
+                                                
+                                                requestType: .userPrompt)
+                                                
+                // TODO: AI IMAGE IS WIP
+                // requestType: .imagePrompt)
+                
+                let requestTask = try AICodeGenFromGraphRequest(
+                    prompt: prompt,
+                    currentGraphData: graphData,
+                    systemPrompt: systemPrompt)
+                
+//                // TODO: AI IMAGE IS WIP
+//                let testImage: UIImage = UIImage (named: "TEST_IMAGE_7")!
+//                let base64TestImage = await convertImageToBase64String(uiImage: testImage)
+//                print ("getRequestTask: Design Image?: \(base64TestImage.value.isDefined)")
+//                
+//                let requestTask = try AICodeGenFromImageRequest(
+//                    prompt: prompt,
+//                    currentGraphData: graphData,
+//                    systemPrompt: systemPrompt,
+//                    base64ImageDescription: base64TestImage.value!)
+                
+                aiManager.currentTaskTesting = try requestTask
+                    .getRequestTask(userPrompt: prompt,
+                                    document: document)
+            } catch {
+                log("SubmitUserPromptToOpenAI: had error: \(error.localizedDescription)", .logToServer)
+                let _ = AICodeGenFromGraphRequest.displayError(failure: error,
+                                                               document: document)
+            }
+            
+        // } // Task
         
         return .noChange
     }

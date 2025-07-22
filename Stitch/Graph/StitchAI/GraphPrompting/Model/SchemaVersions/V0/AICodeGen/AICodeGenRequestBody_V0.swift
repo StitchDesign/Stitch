@@ -8,8 +8,9 @@
 import Foundation
 
 enum AICodeGenRequestBody_V0 {
-    //    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
     
+    //    static let systemMarkdownLocation = "AIGraphBuilderSystemPrompt_V0"
+    //
     //    static func getSystemPrompt() throws -> String {
     //        guard let systemMarkdownUrl = Bundle.main.url(forResource: Self.systemMarkdownLocation,
     //                                                      withExtension: "md") else {
@@ -33,6 +34,8 @@ enum AICodeGenRequestBody_V0 {
 }
 
 extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
+    
+    // TODO: "throws" = "can fail at runtime"; but actually the app should not  run if we can't create a system prompt
     init(currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String) throws {
         self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
@@ -53,21 +56,59 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
                   content: inputsString)
         ]
     }
-   
+       
     init(userPrompt: String,
-         systemPrompt: String) throws {
+         systemPrompt: String,
+         base64ImageDescription: String) throws {
+        
         self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
         self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
         
         let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
         
-        self.messages = [
-            .init(role: .system,
-                  content: systemPrompt),
-            .init(role: .system,
-                  content: codeGenAssistantPrompt),
-            .init(role: .user,
-                  content: userPrompt)
+        var content: [OpenAIMessageContent] = [
+            .text(userPrompt)
         ]
+        
+        let imageUrl = "data:image/jpeg;base64,\(base64ImageDescription)"
+        content.append(.image(url: imageUrl, detail: "high"))
+
+        // TODO: AI IMAGE IS WIP
+        let encodedContent = try content.encodeToPrintableString()
+        // log("encodedContent: \(encodedContent)")
+
+        self.messages = [
+            OpenAIMessage(role: .system,
+                          content: systemPrompt),
+            OpenAIMessage(role: .system,
+                          content: codeGenAssistantPrompt),
+            OpenAIMessage(role: .user,
+                          content: encodedContent)
+        ]
+    }
+}
+
+enum OpenAIMessageContent: Encodable {
+    case text(String)
+    case image(url: String, detail: String)
+    
+    enum CodingKeys: String, CodingKey {
+        case type
+        case text
+        case imageURL = "image_url"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        switch self {
+        case .text(let text):
+            try container.encode("text", forKey: .type)
+            try container.encode(text, forKey: .text)
+            
+        case .image(let url, let detail):
+            try container.encode("image_url", forKey: .type)
+            try container.encode(["url": url, "detail": detail], forKey: .imageURL)
+        }
     }
 }

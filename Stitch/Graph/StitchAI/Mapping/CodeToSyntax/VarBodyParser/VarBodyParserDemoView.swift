@@ -17,6 +17,7 @@ struct VarBodyParserDemoView: View {
     
     // Demo snippets lifted from `VarBodyCodeExamples`.
     static let examples = [
+        VarBodyCodeExamples.phone_dial,
         VarBodyCodeExamples.var_body,
         VarBodyCodeExamples.var_body_method,
         VarBodyCodeExamples.file_views

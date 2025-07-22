@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 
 extension CGFloat {
-    static let DEFAULT_FONT_SIZE = 36.0
+    static let DEFAULT_FONT_SIZE = 18.0
 }
 
 extension LayerDimension {
@@ -60,6 +60,9 @@ extension LayerInputPort {
             case .textField:
                 return .size(LayerSize.DEFAULT_TEXT_FIELD_SIZE)
             case .text:
+                // TODO: which is better for a default size for text? Auto = fixed size
+                // TODO: Hug is a bad size for simple text cases? we don't position the newly-created via in range
+//                return .size(.init(width: .hug, height: .hug))
                 return .size(.init(width: .auto, height: .auto))
             case .group:
                 return .size(.DEFAULT_LAYER_GROUP_SIZE)
@@ -69,7 +72,8 @@ extension LayerInputPort {
         case .scale:
             return .number(1)
         case .anchoring:
-            return .anchoring(.defaultAnchoring)
+//            return .anchoring(.defaultAnchoring)
+            return .anchoring(.DEFAULT_ANCHORING_FOR_SWIFTUI_AI) // center
         case .opacity:
             return defaultOpacity
         case .zIndex:
@@ -260,8 +264,12 @@ extension LayerInputPort {
             return .padding(.zero)
         case .offsetInGroup:
             return .size(.zero)
+            
         case .layerGroupAlignment:
-            return .anchoring(.defaultAnchoring)
+            // return .anchoring(.defaultAnchoring)
+            // Note: .center matches SwiftUI default
+            return .anchoring(.DEFAULT_ANCHORING_FOR_SWIFTUI_AI)
+            
         case .materialThickness:
             return .materialThickness(.defaultMaterialThickness)
         case .deviceAppearance:

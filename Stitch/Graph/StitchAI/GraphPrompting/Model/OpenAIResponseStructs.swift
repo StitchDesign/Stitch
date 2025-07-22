@@ -90,6 +90,7 @@ struct OpenAIChoice: Codable {
 struct OpenAIMessage: Codable {
     var role: OpenAIRole            // Role of the message (e.g., "assistant", "user")
     var content: String?         // Actual content of the message
+//    var content: [OpenAIMessageContent]         // Actual content of the message
     var tool_calls: [OpenAIToolCallResponse]?
     var tool_call_id: String?
     var name: String?

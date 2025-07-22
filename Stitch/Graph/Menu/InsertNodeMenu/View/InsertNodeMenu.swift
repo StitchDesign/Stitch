@@ -124,7 +124,7 @@ struct InsertNodeMenuView: View {
                                     launchTip: self.launchTip,
                                     queryString: $queryString,
                                     userSubmitted: userSubmitted)
-            
+
             if !isGeneratingAINode {
                 HStack(spacing: .zero) {
                     // alternatively, change the height available for this?

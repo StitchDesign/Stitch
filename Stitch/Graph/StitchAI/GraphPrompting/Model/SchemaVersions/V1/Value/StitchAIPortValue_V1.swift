@@ -11,14 +11,14 @@ import StitchSchemaKit
 enum StitchAIPortValue_V1: StitchSchemaVersionable {
     // MARK: - ensure versions are correct
     static let version = StitchAISchemaVersion._V1
-    typealias PortValueVersion = PortValue_V32
+    typealias PortValueVersion = PortValue_V33
     typealias PortValue = PortValueVersion.PortValue
-    typealias NodeType = UserVisibleType_V32.UserVisibleType
-    typealias LayerSize = LayerSize_V32.LayerSize
-    typealias TextDecoration = LayerTextDecoration_V32.LayerTextDecoration
-    typealias CustomShape = CustomShape_V32.CustomShape
+    typealias NodeType = UserVisibleType_V33.UserVisibleType
+    typealias LayerSize = LayerSize_V33.LayerSize
+    typealias TextDecoration = LayerTextDecoration_V33.LayerTextDecoration
+    typealias CustomShape = CustomShape_V33.CustomShape
     typealias SizeDimension = StitchAISizeDimension_V1.StitchAISizeDimension
-    typealias PreviousInstance = Self.StitchAIPortValue
+    typealias PreviousInstance = StitchAIPortValue_V0.PortValue
     // MARK: - end
     
     struct StitchAIPortValue {

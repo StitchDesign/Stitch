@@ -231,6 +231,8 @@ extension StitchDocumentVersion {
             return StitchDocument_V31.StitchDocument.self
         case ._V32:
             return StitchDocument_V32.StitchDocument.self
+        case ._V33:
+            return StitchDocument_V33.StitchDocument.self
         }
     }
 }
@@ -302,6 +304,8 @@ extension PortValueVersion {
             return PortValue_V31.PortValue.self
         case ._V32:
             return PortValue_V32.PortValue.self
+        case ._V33:
+            return PortValue_V33.PortValue.self
         }
     }
 }
@@ -373,6 +377,8 @@ extension NodeTypeVersion {
             return UserVisibleType_V31.UserVisibleType.self
         case ._V32:
             return UserVisibleType_V32.UserVisibleType.self
+        case ._V33:
+            return UserVisibleType_V33.UserVisibleType.self
         }
     }
 }
@@ -399,6 +405,8 @@ extension StitchSystemVersion {
             return StitchSystem_V31.StitchSystem.self
         case ._V32:
             return StitchSystem_V32.StitchSystem.self
+        case ._V33:
+            return StitchSystem_V33.StitchSystem.self
         }
     }
 }
@@ -425,6 +433,8 @@ extension StitchComponentVersion {
             return StitchComponent_V31.StitchComponent.self
         case ._V32:
             return StitchComponent_V32.StitchComponent.self
+        case ._V33:
+            return StitchComponent_V33.StitchComponent.self
         }
     }
 }

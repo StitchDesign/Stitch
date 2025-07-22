@@ -101,6 +101,8 @@ extension SidebarItemGestureViewModel {
             return "cylinder"
         case .cone:
             return "cone"
+        case .spacer:
+            return "square.dashed"
         }
     }
 }

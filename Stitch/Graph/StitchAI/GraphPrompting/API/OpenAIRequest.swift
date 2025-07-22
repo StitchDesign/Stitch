@@ -270,9 +270,12 @@ extension StitchAIRequestable {
                                                         document: document)
         
         switch result {
+            
         case .success(let success):
+            log("StitchAIRequestable: requestForMessage: success")
             return success
         case .failure(let failure):
+            log("StitchAIRequestable: requestForMessage: failure")
             logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
             throw failure
         }

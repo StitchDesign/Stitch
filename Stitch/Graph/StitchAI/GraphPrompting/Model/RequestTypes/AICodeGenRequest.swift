@@ -84,6 +84,7 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     init(prompt: String,
          currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String,
+         base64ImageDescription: String,
          config: OpenAIRequestConfig = .default) throws {
         
         // The id of the user's inference call; does not change across retries etc.
@@ -94,8 +95,9 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
         
         // Construct http payload
         self.body = try AICodeGenRequestBody_V0
-            .AICodeGenRequestBody(currentGraphData: currentGraphData,
-                                           systemPrompt: systemPrompt)
+            .AICodeGenRequestBody(userPrompt: prompt,
+                                  systemPrompt: systemPrompt,
+                                  base64ImageDescription: base64ImageDescription)
     }
     
     func createCode(document: StitchDocumentViewModel,
@@ -123,14 +125,11 @@ extension StitchAIGraphBuilderRequestable {
         let systemPrompt = try StitchAIManager.stitchAIGraphBuilderSystem(graph: document.visibleGraph,
                                                                           requestType: Self.type)
         let request = self
-//        try AICodeGenRequest(
-//            prompt: userPrompt,
-//            currentGraphData: currentGraphData)
         
         return Task(priority: .high) { [weak document] in
             guard let document = document,
                   let aiManager = document.aiManager else {
-                log("AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
+                log("getRequestTask: AICodeGenRequest: getRequestTask: no document or ai manager", .logToServer)
                 
                 if let document: StitchDocumentViewModel = document {
                     return .failure(Self.displayError(failure: StitchAIManagerError.secretsNotFound,
@@ -188,18 +187,21 @@ extension StitchAIGraphBuilderRequestable {
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
                                 systemPrompt: String) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
-        logToServerIfRelease("userPrompt: \(userPrompt)")
+        log("SUCCESS: userPrompt: \(userPrompt)")
 
         let (swiftUICode, msgFromCode) = try await self
             .createCode(document: document,
                         aiManager: aiManager,
                         systemPrompt: systemPrompt)
         
+        log("SUCCESS: swiftUICode: \(swiftUICode)")
+        log("SUCCESS: msgFromCode: \(msgFromCode)")
+        
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
             throw SwiftUISyntaxError.couldNotParseVarBody
         }
-        
+                
         logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)

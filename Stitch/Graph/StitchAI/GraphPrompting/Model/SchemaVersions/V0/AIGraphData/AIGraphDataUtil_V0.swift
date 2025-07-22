@@ -13,23 +13,23 @@ enum AICodeGenError: Error {
 }
 
 extension AIGraphData_V0 {
-    static let documentVersion = StitchSchemaVersion._V32
+    static let documentVersion = StitchSchemaVersion._V33
     
-    typealias GraphEntity = GraphEntity_V32.GraphEntity
-    typealias NodeEntity = NodeEntity_V32.NodeEntity
-    typealias PatchNodeEntity = PatchNodeEntity_V32.PatchNodeEntity
-    typealias LayerNodeEntity = LayerNodeEntity_V32.LayerNodeEntity
-    typealias SidebarLayerData = SidebarLayerData_V32.SidebarLayerData
-    typealias NodeType = UserVisibleType_V32.UserVisibleType
-    typealias JavaScriptNodeSettings = JavaScriptNodeSettings_V32.JavaScriptNodeSettings
-    typealias JavaScriptPortDefinition = JavaScriptPortDefinition_V32.JavaScriptPortDefinition
-    typealias Patch = Patch_V32.Patch
-    typealias Layer = Layer_V32.Layer
-    typealias LayerInputPort = LayerInputPort_V32.LayerInputPort
+    typealias GraphEntity = GraphEntity_V33.GraphEntity
+    typealias NodeEntity = NodeEntity_V33.NodeEntity
+    typealias PatchNodeEntity = PatchNodeEntity_V33.PatchNodeEntity
+    typealias LayerNodeEntity = LayerNodeEntity_V33.LayerNodeEntity
+    typealias SidebarLayerData = SidebarLayerData_V33.SidebarLayerData
+    typealias NodeType = UserVisibleType_V33.UserVisibleType
+    typealias JavaScriptNodeSettings = JavaScriptNodeSettings_V33.JavaScriptNodeSettings
+    typealias JavaScriptPortDefinition = JavaScriptPortDefinition_V33.JavaScriptPortDefinition
+    typealias Patch = Patch_V33.Patch
+    typealias Layer = Layer_V33.Layer
+    typealias LayerInputPort = LayerInputPort_V33.LayerInputPort
     typealias StitchAIPortValue = StitchAIPortValue_V1.StitchAIPortValue
-    typealias PortValueVersion = PortValue_V32
+    typealias PortValueVersion = PortValue_V33
     typealias PortValue = PortValueVersion.PortValue
-    typealias NodeIOPortType = NodeIOPortType_V32.NodeIOPortType
+    typealias NodeIOPortType = NodeIOPortType_V33.NodeIOPortType
 }
 
 extension AIGraphData_V0.GraphData {
@@ -161,7 +161,7 @@ extension AIGraphData_V0.LayerData {
                                                               layerConnections: &layerConnections)
         
         var customInputValues = [AIGraphData_V0.CustomLayerInputValue]()
-        for port in LayerInputPort_V32.LayerInputPort.allCases {
+        for port in LayerInputPort.allCases {
             let portData = layerData[keyPath: port.schemaPortKeyPath]
             
             switch portData.packedData.inputPort {
@@ -205,7 +205,7 @@ extension AIGraphData_V0.LayerData {
 }
 
 extension AIGraphData_V0.PatchOrLayer {
-    var layer: Layer_V32.Layer? {
+    var layer: Layer? {
         switch self {
         case .layer(let layer):
             return layer

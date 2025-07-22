@@ -30,5 +30,6 @@ enum PreviewLayerType {
          box,
          sphere,
          cylinder,
-         cone
+         cone,
+         spacer
 }

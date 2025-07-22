@@ -128,7 +128,7 @@ extension StitchAIPortValue_V1.NodeType {
         case .sizingScenario:
             return .sizingScenario(.auto)
         case .pinToId:
-            return .pinTo(PinToId_V32.PinToId.root)
+            return .pinTo(.root)
         case .deviceAppearance:
             return .deviceAppearance(.system)
         case .materialThickness:
