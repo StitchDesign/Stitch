@@ -229,7 +229,7 @@ extension StitchAIGraphBuilderRequestable {
         let patchBuilderRequest = try AIPatchBuilderRequest(
             id: self.id,
             userPrompt: userPrompt,
-            layerDataList: layerDataList,
+//            layerDataList: layerDataList,
             toolMessages: [msgFromCode, newEditToolMessage],
             requestType: Self.type,
             systemPrompt: systemPrompt)

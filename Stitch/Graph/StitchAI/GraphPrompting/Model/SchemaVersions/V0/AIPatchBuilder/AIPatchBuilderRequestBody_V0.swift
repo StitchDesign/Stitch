@@ -20,7 +20,7 @@ enum AIPatchBuilderRequestBody_V0 {
         let stream: Bool = false
         
         init(userPrompt: String,
-             layerDataList: [CurrentAIGraphData.LayerData],
+//             layerDataList: [CurrentAIGraphData.LayerData],
              toolMessages: [OpenAIMessage],
              requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
              systemPrompt: String) throws {

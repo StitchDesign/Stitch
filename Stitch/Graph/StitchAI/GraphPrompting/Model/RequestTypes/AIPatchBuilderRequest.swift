@@ -22,7 +22,7 @@ struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
     
     init(id: UUID,
          userPrompt: String,
-         layerDataList: [CurrentAIGraphData.LayerData],
+//         layerDataList: [CurrentAIGraphData.LayerData],
          toolMessages: [OpenAIMessage],
          requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
          systemPrompt: String,
