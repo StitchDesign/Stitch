@@ -12,6 +12,8 @@ enum AIPatchBuilderRequestError: Error {
 }
 
 struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
+    static let openAIFunction: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction = .patchBuilder
+    
     let id: UUID
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings

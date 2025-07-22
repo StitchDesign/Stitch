@@ -26,8 +26,6 @@ extension StitchAIRequestBuilder_V0 {
     }
     
     enum StitchAIRequestBuilderFunction: String {
-        case codeBuilder = "create_swiftui_code"
-        case codeBuilderFromImage = "create_code_from_image"
         case codeEditor = "edit_swiftui_code"
         case patchBuilder = "patch_builder"
     }
@@ -38,9 +36,9 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
     var allFunctions: [StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction] {
         switch self {
         case .userPrompt:
-            return [.codeBuilder, .codeEditor, .patchBuilder]
+            return [.codeEditor, .patchBuilder]
         case .imagePrompt:
-            return [.codeBuilderFromImage, .patchBuilder]
+            return [.patchBuilder]
         }
     }
     
@@ -91,30 +89,6 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
 extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
     var function: OpenAIFunction {
         switch self {
-        case .codeBuilder:
-            return OpenAIFunction(
-                name: self.rawValue,
-                description: "Generate SwiftUI code from Stitch concepts.",
-                parameters: OpenAISchema(
-                    type: .object,
-                    properties: StitchAIRequestBuilder_V0.SourceCodeResponseSchema(),
-                    required: ["source_code"],
-                    description: "SwiftUI source code."),
-                strict: true
-            )
-            
-        case .codeBuilderFromImage:
-            return OpenAIFunction(
-                name: self.rawValue,
-                description: "Generate SwiftUI code from an image.",
-                parameters: OpenAISchema(
-                    type: .object,
-                    properties: StitchAIRequestBuilder_V0.SourceCodeResponseSchema(),
-                    required: ["source_code"],
-                    description: "SwiftUI source code."),
-                strict: true
-            )
-        
         case .codeEditor:
             return OpenAIFunction(
                 name: self.rawValue,
@@ -143,14 +117,6 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
     
     var functionDescription: String {
         switch self {
-        case .codeBuilder:
-            return """
-                **Builds SwiftUI Code from Stitch Data.** You will receive as input structured data about the current Stitch document, and your output must be a SwiftUI app that reflects this prototype.
-                """
-        case .codeBuilderFromImage:
-            return """
-                **Builds SwiftUI Code from an Image.** You will receive as input an uploaded image, and your output must be a SwiftUI app that attempts to replicate the uploaded image.
-                """
         case .codeEditor:
             return """
                 **Edits SwiftUI Code.** Based on the SwiftUI source code created from the last step, modify the code based on the user prompt.

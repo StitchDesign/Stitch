@@ -8,11 +8,15 @@
 import SwiftUI
 
 protocol StitchAIFunctionRequestable: StitchAIRequestable where
-Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, Self.Body: StitchAIRequestableFunctionBody { }
-
-extension StitchAIFunctionRequestable {
-    var functionName: String { self.body.functionName }
+Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult {
+    static var openAIFunction: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction { get }
 }
+
+//extension StitchAIFunctionRequestable {
+//    var functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
+//        self.openAIFunction
+//    }
+//}
 
 extension StitchAIFunctionRequestable {
     func decodeMessage<ResultType>(from message: OpenAIMessage,
@@ -36,7 +40,7 @@ extension StitchAIFunctionRequestable {
     }
 }
 
-protocol StitchAIGraphBuilderRequestable: StitchAIFunctionRequestable {
+protocol StitchAIGraphBuilderRequestable: StitchAIRequestable {
     // TODO: Group the entire code gen/edit requests under one handler
     
     static var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }

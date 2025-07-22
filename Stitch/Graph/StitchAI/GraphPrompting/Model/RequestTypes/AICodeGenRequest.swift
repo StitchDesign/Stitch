@@ -41,12 +41,12 @@ struct AICodeGenFromGraphRequest: StitchAIGraphBuilderRequestable {
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
-        let decodedSwiftUICode = try self
-            .decodeMessage(from: msgFromSourceCodeRequest,
-                           document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
+        guard let decodedSwiftUICode = msgFromSourceCodeRequest
+            .content else {
+            throw StitchAIManagerError.contentDataDecodingError(try msgFromSourceCodeRequest.encodeToPrintableString(), "No content found.")
+        }
+        
+        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode)")
         
         let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
         
@@ -106,14 +106,14 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
             .requestForMessage(document: document,
                                aiManager: aiManager)
         
-        let decodedSwiftUICode = try self
-            .decodeMessage(from: msgFromSourceCodeRequest,
-                           document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
+        guard let decodedSwiftUICode = msgFromSourceCodeRequest
+            .content else {
+            throw StitchAIManagerError.contentDataDecodingError(try msgFromSourceCodeRequest.encodeToPrintableString(), "No content found.")
+        }
         
-        return (decodedSwiftUICode.source_code, msgFromSourceCodeRequest)
+        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode)")
+        
+        return (decodedSwiftUICode, msgFromSourceCodeRequest)
     }
 }
 

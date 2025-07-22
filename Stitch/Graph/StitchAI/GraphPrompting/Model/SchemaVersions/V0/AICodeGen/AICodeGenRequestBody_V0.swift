@@ -8,14 +8,11 @@
 import Foundation
 
 enum AICodeGenRequestBody_V0 {
-    
-    struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
+    struct AICodeGenRequestBody: Encodable {
         let model: String = "o4-mini-2025-04-16"
         let n: Int = 1
         let temperature: Double = 1.0
         let messages: [OpenAIMessage]
-        let tools: [OpenAIFunction]
-        let tool_choice: OpenAIFunction
         let stream: Bool = false
     }
 }
@@ -25,9 +22,6 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
     // TODO: "throws" = "can fail at runtime"; but actually the app should not  run if we can't create a system prompt
     init(currentGraphData: CurrentAIGraphData.GraphData,
          systemPrompt: String) throws {
-        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
-        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilder.function
-        
         let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt)
         
         let inputsString = try currentGraphData.encodeToPrintableString()
@@ -47,9 +41,6 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
     init(userPrompt: String,
          systemPrompt: String,
          base64ImageDescription: String) throws {
-        
-        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
-        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
         
         let codeGenAssistantPrompt = try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt)
         
