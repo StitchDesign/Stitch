@@ -58,32 +58,26 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
             ])
         
         // Creates code and then creates tool call for edit request
-        let editRequestToolCall = try await editCodeFnRequest
-            .requestForFnMessage(functionType: .codeEditor,
-                                 requestType: self.type,
-                                 document: document,
-                                 aiManager: aiManager)
-        
-        // Create tool messsages for process code function, which runs edit request
-        let editRequestToolMsg = try editRequestToolCall
-            .createNewToolMessage()
-        
+        let editRequestToolCalls = try await editCodeFnRequest
+            .requestMessagesForNextFn(returnedFnType: .codeEditor,
+                                      requestType: self.type,
+                                      document: document,
+                                      aiManager: aiManager)
+
         let processCodeFnRequest = OpenAIFunctionRequest(
             id: self.id,
             functionType: .processCode,
             requestType: self.type,
             messages: [
                 .init(role: .system,
-                     content: systemPrompt),
-                // Can safely ignore first code creation tools since edit request contains most recent code
-                editRequestToolCall,
-                editRequestToolMsg
-            ])
+                      content: systemPrompt)
+            ] +
+            // Can safely ignore first code creation tools since edit request contains most recent code
+            editRequestToolCalls
+        )
         
         let processCodeToolCall = try await processCodeFnRequest
-            .requestForFnMessage(functionType: .processCode,
-                                 requestType: self.type,
-                                 document: document,
+            .requestMessageForFn(document: document,
                                  aiManager: aiManager)
         
         let decodedSwiftUICode = try self
@@ -148,11 +142,7 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
             messages: toolMessages)
         
         let msgFromCodeCreation = try await createCodeRequest
-            .requestForFnMessage(
-                functionType: .processCode,
-                requestType: self.type,
-                document: document,
-                aiManager: aiManager)
+            .requestMessageForFn(document: document, aiManager: aiManager)
 
         let decodedSwiftUICode = try self
             .decodeMessage(from: msgFromCodeCreation,
@@ -306,9 +296,7 @@ extension StitchAICodeCreator {
             messages: patchBuilderToolMessages)
         
         let processPatchBuilderMsg = try await processPatchBuilderRequest
-            .requestForFnMessage(functionType: .processPatchData,
-                                 requestType: self.type,
-                                 document: document,
+            .requestMessageForFn(document: document,
                                  aiManager: aiManager)
         
         let patchBuildResult = try processPatchBuilderRequest

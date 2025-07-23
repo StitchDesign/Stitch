@@ -67,15 +67,21 @@ extension StitchAIGraphBuilderRequestable {
                                         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
                                         inputsArguments: any Encodable,
                                         systemPrompt: String) throws -> [OpenAIMessage] {
-        let systemPromptMsg = OpenAIMessage(role: .system,
-                                            content: systemPrompt)
+        let systemPromptMsg = OpenAIMessage(
+            role: .system,
+            content: systemPrompt
+        )
+        
+        let supplementarySystemPrompt = OpenAIMessage(
+            role: .system,
+            content: try functionType.getAssistantPrompt(for: requestType)
+        )
 
         // MARK: OpenAI requires a specific ID format that if unmatched will break requests
         let toolId = OpenAISchema.sampleId
         
         let msgFromSourceCodeRequest = OpenAIMessage(
             role: .assistant,
-            content: try functionType.getAssistantPrompt(for: requestType),
             tool_calls: [
                 .init(
                     id: toolId,
@@ -91,6 +97,7 @@ extension StitchAIGraphBuilderRequestable {
         
         return [
             systemPromptMsg,
+            supplementarySystemPrompt,
             msgFromSourceCodeRequest,
             newCodeToolMessage]
     }
