@@ -49,13 +49,13 @@ extension StitchAIRequestable {
     }
 }
 
-protocol StitchAIRequestableFunctionBody: Encodable {
-    var tools: [OpenAIFunction] { get }
-    var tool_choice: OpenAIFunction { get }
-}
+//protocol StitchAIRequestableFunctionBody: Encodable {
+//    var tools: [OpenAIFunction] { get }
+//    var tool_choice: OpenAIFunction { get }
+//}
 
-extension StitchAIRequestableFunctionBody {
+extension OpenAIRequestBody {
     var functionName: String {
-        self.tool_choice.function?.name ?? OpenAIFunctionType.none.rawValue
+        self.tool_choice?.function?.name ?? OpenAIFunctionType.none.rawValue
     }
 }

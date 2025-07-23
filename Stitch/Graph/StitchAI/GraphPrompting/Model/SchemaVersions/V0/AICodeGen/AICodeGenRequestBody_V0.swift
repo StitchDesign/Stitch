@@ -7,36 +7,25 @@
 
 import Foundation
 
-enum AICodeGenRequestBody_V0 {
-    struct AICodeGenRequestBody: StitchAIRequestableFunctionBody {
-        let model: String = "o4-mini-2025-04-16"
-        let n: Int = 1
-        let temperature: Double = 1.0
-        let messages: [OpenAIMessage]
-        let tools: [OpenAIFunction]
-        let tool_choice: OpenAIFunction
-        let stream: Bool = false
-    }
-}
 
-extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
+//extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
     // Creates function of code gen from graph data
-    init(currentGraphData: CurrentAIGraphData.GraphData,
-         systemPrompt: String) throws {
-        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
-        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilder.function
-        
-        let inputsString = try currentGraphData.encodeToPrintableString()
-        
-        print("AICodeGenRequestBody: incoming graph data:\n\((try? currentGraphData.encodeToPrintableString()) ?? "")")
-        
-        self.messages = [
-            .init(role: .system,
-                  content: systemPrompt),
-            .init(role: .user,
-                  content: inputsString)
-        ]
-    }
+//    init(currentGraphData: CurrentAIGraphData.GraphData,
+//         systemPrompt: String) throws {
+//        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.userPrompt.allOpenAIFunctions
+//        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilder.function
+//        
+//        let inputsString = try currentGraphData.encodeToPrintableString()
+//        
+//        print("AICodeGenRequestBody: incoming graph data:\n\((try? currentGraphData.encodeToPrintableString()) ?? "")")
+//        
+//        self.messages = [
+//            .init(role: .system,
+//                  content: systemPrompt),
+//            .init(role: .user,
+//                  content: inputsString)
+//        ]
+//    }
        
     // Creates function of code gen from graph data from image gen
 //    init(userPrompt: String,
@@ -62,20 +51,20 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
 //    }
     
     /// Sets up request body for OpenAI. Assign a `toolChoice` if you want the response object to be a function.
-    init(messages: [OpenAIMessage],
-         type: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction? = nil) {
-        self.messages = messages
-        self.tools = type.allOpenAIFunctions
-        
-        if let functionType = functionType {
-            self.tool_choice = functionType.function
-        } else {
-            // Basically runs the unstructured assistant response
-            self.tool_choice = .init(type: .none)
-        }
-    }
-}
+//    init(messages: [OpenAIMessage],
+//         type: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction? = nil) {
+//        self.messages = messages
+//        self.tools = type.allOpenAIFunctions
+//        
+//        if let functionType = functionType {
+//            self.tool_choice = functionType.function
+//        } else {
+//            // Basically runs the unstructured assistant response
+//            self.tool_choice = .init(type: .none)
+//        }
+//    }
+//}
 
 struct AICodeGenFromImageInputs: Codable {
     let user_prompt: String

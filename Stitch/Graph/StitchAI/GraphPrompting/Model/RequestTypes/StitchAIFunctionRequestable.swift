@@ -8,7 +8,7 @@
 import SwiftUI
 
 protocol StitchAIFunctionRequestable: StitchAIRequestable where
-Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, Self.Body: StitchAIRequestableFunctionBody {
+Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, Self.Body == OpenAIRequestBody {
     var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
 }
 
@@ -17,10 +17,10 @@ extension StitchAIFunctionRequestable {
 }
 
 extension StitchAIFunctionRequestable {
-    func decodeMessage<ResultType>(from message: OpenAIMessage,
-                                   document: StitchDocumentViewModel,
-                                   aiManager: StitchAIManager,
-                                   resultType: ResultType.Type) throws -> ResultType where Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, ResultType: Decodable, Self.Body: StitchAIRequestableFunctionBody {
+    static func decodeMessage<ResultType>(from message: OpenAIMessage,
+                                          document: StitchDocumentViewModel,
+                                          aiManager: StitchAIManager,
+                                          resultType: ResultType.Type) throws -> ResultType where Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, ResultType: Decodable {
 //        let toolsResponse = try Self.parseOpenAIResponse(message: message)
         
         guard let tool = message.tool_calls?.first?.function,
@@ -38,20 +38,17 @@ extension StitchAIFunctionRequestable {
     }
 }
 
-// TODO: can we remove this??
-
-protocol StitchAIGraphBuilderRequestable: StitchAIFunctionRequestable {
+protocol StitchAICodeCreator {
+    var id: UUID { get }
     
-//    func createAssistantPrompt() throws -> String
-}
-
-protocol StitchAICodeCreator: StitchAIGraphBuilderRequestable {
+    static var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
+    
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String
 }
 
-extension StitchAIGraphBuilderRequestable {
+extension StitchAIFunctionRequestable {
 //    func createToolMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
 //                            requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
 //                            inputsArguments: any Encodable) throws -> [OpenAIMessage] {
