@@ -119,7 +119,7 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
         return HStackViewConstructor.from(arguments).map { .hStack($0) }
     case .circle:
         return CircleViewConstructor.from(arguments).map { .circle($0) }
-    case .ellipse:
+    case .ellipse, .oval:
         return EllipseViewConstructor.from(arguments).map { .ellipse($0) }
     case .rectangle:
         return RectangleViewConstructor.from(arguments).map { .rectangle($0) }
@@ -766,13 +766,18 @@ enum EllipseViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
 enum RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     case plain                                    // Rectangle()
+    case portValue([SyntaxViewArgumentData])
 
     var layer: AIGraphData_V0.Layer { .rectangle }
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] { [] }
     
     static func from(_ args: [SyntaxViewArgumentData]) -> Self? {
-        args.isEmpty ? .plain : nil
+        guard !args.isEmpty else {
+            return .plain
+        }
+        
+        return .portValue(args)
     }
 }
 //

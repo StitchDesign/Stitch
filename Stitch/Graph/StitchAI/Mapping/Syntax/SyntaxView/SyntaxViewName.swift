@@ -134,6 +134,7 @@ enum SyntaxViewName: String, Equatable, Codable, Hashable, CaseIterable, Sendabl
     case capsule = "Capsule"
     case canvas = "Canvas"
     case chart = "Chart"
+    case oval = "Oval"
     case circle = "Circle"
     case color = "Color"
     case colorPicker = "ColorPicker"

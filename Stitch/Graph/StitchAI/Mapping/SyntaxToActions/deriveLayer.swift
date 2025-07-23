@@ -518,7 +518,7 @@ extension SyntaxViewName {
         case .rectangle:         layerType = .rectangle
             
             // Note: Swift Circle is a little bit different
-        case .circle, .ellipse:  layerType = .oval
+        case .circle, .ellipse, .oval:  layerType = .oval
             
             // SwiftUI Text view has different arg-constructors, but those do not change the Layer we return
         case .text: layerType = .text

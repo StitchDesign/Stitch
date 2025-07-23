@@ -259,6 +259,13 @@ As mentioned previously, `updateLayerInputs` invokes all native and custom patch
 
 **Avoid logic in `updateLayerInputs` that does anything other than making calls to native or custom patch functions, or populate view state**. Logic that doesn't meet this criteria should be replaced with invocations to native patch nodes, or worst case scenario, to newly-defined custom patch functions.
 
+**You do not need to invoke `updateLayerInputs` directly.** This will be called by Stitch directly. For example, there's no need to any logic resembling the following:
+```swift
+.onAppear {
+    updateLayerInputs()
+}
+```
+
 For examples of proper invocation and prioritization of native patch nodes, consult "Examples of Prioritizing Native Patches Over Custom Patches".
 
 ### SwiftUI View Behavior
