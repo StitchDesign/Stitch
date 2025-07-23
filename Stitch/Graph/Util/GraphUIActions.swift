@@ -180,9 +180,6 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
 
         do {
             let graphData = try AIGraphData_V0.GraphData(from: document.visibleGraph.createSchema())
-            let systemPrompt = try StitchAIManager
-                .stitchAIGraphBuilderSystem(graph: document.visibleGraph,
-                                            requestType: .userPrompt)
             
             let requestTask = try AICodeGenFromGraphRequest(
                 prompt: prompt,
