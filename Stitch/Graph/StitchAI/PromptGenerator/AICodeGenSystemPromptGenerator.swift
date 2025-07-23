@@ -76,7 +76,21 @@ Text(PortValueDescription(value: "hello world", value_type: "string"))
 
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `PortValueDescription` object.
 
-The only exception to this rule is `layerId`, which may declare its string directly.
+There are two exceptions to this:
+1. If `@State` is used, you may reference that state object directly without establishing a `PortValueDescription`.
+2. Invocations of `layerId` view modifier may declare the string directly.
+
+For example, the following scenario should never happen:
+```swift
+.scaleEffect(
+    PortValueDescription(value: rectScale.value, value_type: "number")
+)
+```
+
+Because this is clearly reference some state variable. Therefore, it should just be:
+```swift
+.scaleEffect(rectScale.value)
+```
 
 #### `.layerId` View Modifier Requirement
 Each declared view inside the `var body` **must** assign a `layerId` view modifier, like: `.layerId("17A9A565-20FF-4686-85C7-2794CF548369")`. This is a view modifier that's defined elsewhere and is used for mapping IDs to specific view objects. **You are NOT allowed to use constants or variables as the value payload**.
@@ -323,73 +337,13 @@ In most scenarios, you should not need to replicate functionality that would inv
 * Elapsed duration of view runtime since appearence or since prototype restart, whichever was more recent: "time || Patch"
 * System time: "deviceTime || Patch"
 
-## 🚫 No Custom Views / Structs / Enums
+#### 🚫 No Custom Views / Structs / Enums
 
 Stitch’s parser understands **only native SwiftUI views, modifiers, and value types**.  
 Do **not** declare your own `struct`, `enum`, `Shape`, or custom `View`.
 
-* Need structured data? Represent it with **Swift dictionaries** (`[String: Any]`) or simple arrays—never custom model types.
+* Need structured data? Represent it with `PortValueDescription` objects. Use the Data Glossary for accepted data structures for `PortValueDescription`.
 * Need custom shapes? Compose with the built‑in shapes (`Rectangle`, `Capsule`, `RoundedRectangle`, etc.).
-
-### “Bad vs. Good” Example
-
-**Bad:** (custom structs, shape, and view)
-
-```swift
-struct ChatMessage: Identifiable { … }
-struct ChatBubble: Shape { … }
-struct ChatRow: View { … }
-```
-
-**Good:** (same UI using only native SwiftUI + dictionaries)
-
-```swift
-import SwiftUI
-
-struct ContentView: View {
-    // Each message is a dictionary
-    @State var messages: [[String: Any]] = [
-        ["sender": "Me", "text": "Hello world", "isMe": true],
-        ["sender": "Elliot", "text": "Hey there!", "isMe": false]
-    ]
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 4) {
-                ForEach(messages.indices, id: \\.self) { idx in
-                    let msg = messages[idx]
-                    let isMe = (msg["isMe"] as? Bool) == true
-
-                    HStack {
-                        if isMe { Spacer(minLength: 40) }
-
-                        VStack(alignment: .leading) {
-                            if let name = msg["sender"] as? String, !isMe {
-                                Text(name)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Text(msg["text"] as? String ?? "")
-                                .padding(10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .fill(isMe ? Color.blue : Color(.systemGray5))
-                                )
-                                .foregroundStyle(isMe ? .white : .primary)
-                        }
-
-                        if !isMe { Spacer(minLength: 40) }
-                    }
-                    .padding(.horizontal)
-                }
-            }
-        }
-    }
-}
-```
-
-➡️ No custom `Shape`, no custom `View`, and the model is a plain **array of dictionaries**.
-
 
 ### Augmented Reality Guidelines (StitchRealityView)
 
@@ -498,10 +452,10 @@ If the user prompt omits a key, fill it with a neutral default (`0`, `false`, em
 > ```
 > **Good**  
 > ```swift
-> .padding(PortValueDescription(value: [
+> .padding(PortValueDescription(value: {
 >     "top": 0, "bottom": 0,
 >     "left": 16, "right": 16
-> ], value_type: "padding"))
+> }, value_type: "padding"))
 > ```
 
 ## `PortValue` Example Payloads

@@ -69,7 +69,6 @@ Each patch and layer supports the following inputs and outputs:
 ```
 \(try nodePortDescriptions.encodeToPrintableString())
 ```
-
 """
     }
 }
