@@ -15,6 +15,16 @@ struct StitchAIRequestBuilder_V0 {
                                       required: ["type", "image_url", "detail"])
     }
     
+    struct EditRequestInputParameters: Encodable {
+        let user_prompt = OpenAISchema(
+            type: .string,
+            description: "Code change request by the user.")
+        
+        let source_code = OpenAISchema(
+            type: .string,
+            description: "SwiftUI source code.")
+    }
+    
     struct SourceCodeResponseSchema: Encodable {
         let source_code = OpenAISchema(
             type: .string,
@@ -136,8 +146,8 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
                 description: "Edit SwiftUI code based on user prompt.",
                 parameters: OpenAISchema(
                     type: .object,
-                    properties: StitchAIRequestBuilder_V0.SourceCodeResponseSchema(),
-                    required: ["source_code"],
+                    properties: StitchAIRequestBuilder_V0.EditRequestInputParameters(),
+                    required: ["user_prompt", "source_code"],
                     description: "SwiftUI source code of existing graph."),
                 strict: true
             )
