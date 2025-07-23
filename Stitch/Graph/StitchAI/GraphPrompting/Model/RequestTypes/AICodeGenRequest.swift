@@ -139,32 +139,13 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> (String, OpenAIMessage) {
-        
-        
-        // TODO: ADD ASSISTANT MESSAGE EVERYWHERE
-        
-//        var msgFromSourceCodeRequest = try await self
-//            .requestForMessage(document: document,
-//                               aiManager: aiManager)
-        
-        //        msgFromSourceCodeRequest.content = try AICodeGenFromImageRequest.createAssistantPrompt().content
-        
         let imageRequestInputs = AICodeGenFromImageInputs(
             user_prompt: self.userPrompt,
             image_data: .init(base64Image: self.base64Image)
         )
         
-//        var imageRequestMessages: [OpenAIMessage] = [
-//            OpenAIMessage(role: .system,
-//                          content: systemPrompt)
-////            OpenAIMessage(role:. user,
-////                          content: userPrompt),
-////            OpenAIMessage(role: .user,
-////                          content: try imageRequestInputs.image_data.encodeToPrintableString())
-//        ]
-
         // MARK: OpenAI requires a specific ID format that if unmatched will break requests
-        let toolId = "call_BS6GNUPw4tDLPlWBBqvKlr3O"
+        let toolId = OpenAISchema.sampleId
         
         let msgFromSourceCodeRequest = OpenAIMessage(
             role: .assistant,
@@ -180,20 +161,7 @@ struct AICodeGenFromImageRequest: StitchAIGraphBuilderRequestable {
             annotations: []
         )
 
-        // TODO: fix helper
-//        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
-
-        guard let tool = msgFromSourceCodeRequest.tool_calls?.first else {
-            throw StitchAIManagerError.toolNotFoundForFunction
-        }
-        
-//        let decodedArgs = tool.function.arguments
-        
-        let newCodeToolMessage = OpenAIMessage(role: .tool,
-                                               content: tool.function.arguments,
-                                               tool_call_id: toolId,
-                                               name: tool.function.name)
-        
+        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()        
         
         let createCodeRequest = AICodeGenFromImageRequest(
             id: self.id,

@@ -125,6 +125,9 @@ struct OpenAIFunctionPayload: Encodable {
 }
 
 struct OpenAISchema {
+    // MARK: OpenAI requires a specific ID format that if unmatched will break requests
+    static let sampleId = "call_BS6GNUPw4tDLPlWBBqvKlr3O"
+    
     var type: OpenAISchemaType
     var properties: (any Encodable & Sendable)?
     var const: String? = nil
