@@ -227,13 +227,17 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
             
         case .codeEditor:
             return """
-            Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
+            # Code Edit Request
+            **You are a function that modifies SwiftUI source code in `source_code` parameter based on the provided `user_prompt` parameter.**
             
             Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
             
             Adhere to the guidelines specified in this document:
             
             \(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt))
+            
+            # Summary
+            Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.
             """
             
         case .processCode:
