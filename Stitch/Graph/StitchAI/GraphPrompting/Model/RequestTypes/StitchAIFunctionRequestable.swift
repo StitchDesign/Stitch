@@ -21,10 +21,7 @@ extension StitchAIFunctionRequestable {
                                           document: StitchDocumentViewModel,
                                           aiManager: StitchAIManager,
                                           resultType: ResultType.Type) throws -> ResultType where Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, ResultType: Decodable {
-//        let toolsResponse = try Self.parseOpenAIResponse(message: message)
-        
         guard let tool = message.tool_calls?.first?.function,
-//              tool.name == self.body.functionName,
               let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
             throw StitchAIManagerError.functionDecodingFailed
         }
@@ -48,17 +45,7 @@ protocol StitchAICodeCreator {
                     systemPrompt: String) async throws -> String
 }
 
-extension StitchAIFunctionRequestable {
-//    func createToolMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
-//                            requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-//                            inputsArguments: any Encodable) throws -> [OpenAIMessage] {
-////        let assistantPrompt = try self.createAssistantPrompt()
-//        
-//        try Self.createToolMessages(functionType: functionType,
-//                                    requestType: requestType,
-//                                    inputsArguments: inputsArguments)
-//    }
-    
+extension StitchAIFunctionRequestable {    
     /// Starts new chain of function calling. Call this when no existing funciton messages can be used.
     static func createInitialFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
                                         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,

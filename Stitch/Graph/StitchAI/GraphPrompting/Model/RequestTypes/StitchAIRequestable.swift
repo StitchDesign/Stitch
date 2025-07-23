@@ -49,11 +49,6 @@ extension StitchAIRequestable {
     }
 }
 
-//protocol StitchAIRequestableFunctionBody: Encodable {
-//    var tools: [OpenAIFunction] { get }
-//    var tool_choice: OpenAIFunction { get }
-//}
-
 extension OpenAIRequestBody {
     var functionName: String {
         self.tool_choice?.function?.name ?? OpenAIFunctionType.none.rawValue

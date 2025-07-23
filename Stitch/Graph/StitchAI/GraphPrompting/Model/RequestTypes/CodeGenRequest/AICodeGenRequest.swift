@@ -210,8 +210,6 @@ extension StitchAICodeCreator {
         
         logToServerIfRelease("SUCCESS: swiftUICode: \(swiftUICode)")
         
-        // TODO: look here, make sure extraction is good
-        
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
             throw SwiftUISyntaxError.couldNotParseVarBody
