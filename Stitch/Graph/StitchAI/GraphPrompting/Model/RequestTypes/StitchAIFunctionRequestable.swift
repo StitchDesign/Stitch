@@ -8,21 +8,20 @@
 import SwiftUI
 
 protocol StitchAIFunctionRequestable: StitchAIRequestable where
-Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, Self.Body: StitchAIRequestableFunctionBody { }
+Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, Self.Body == OpenAIRequestBody {
+    var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
+}
 
 extension StitchAIFunctionRequestable {
     var functionName: String { self.body.functionName }
 }
 
 extension StitchAIFunctionRequestable {
-    func decodeMessage<ResultType>(from message: OpenAIMessage,
-                                   document: StitchDocumentViewModel,
-                                   aiManager: StitchAIManager,
-                                   resultType: ResultType.Type) throws -> ResultType where Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, ResultType: Decodable, Self.Body: StitchAIRequestableFunctionBody {
-        let toolsResponse = try Self.parseOpenAIResponse(message: message)
-        
-        guard let tool = toolsResponse.first?.function,
-              tool.name == self.body.functionName,
+    static func decodeMessage<ResultType>(from message: OpenAIMessage,
+                                          document: StitchDocumentViewModel,
+                                          aiManager: StitchAIManager,
+                                          resultType: ResultType.Type) throws -> ResultType where Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, ResultType: Decodable {
+        guard let tool = message.tool_calls?.first?.function,
               let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
             throw StitchAIManagerError.functionDecodingFailed
         }
@@ -36,26 +35,68 @@ extension StitchAIFunctionRequestable {
     }
 }
 
-protocol StitchAIGraphBuilderRequestable: StitchAIFunctionRequestable {
-    // TODO: Group the entire code gen/edit requests under one handler
+protocol StitchAICodeCreator {
+    var id: UUID { get }
     
     static var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
-        
+    
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> (String, OpenAIMessage)
+                    systemPrompt: String) async throws -> String
 }
 
-extension StitchAIGraphBuilderRequestable {
-    @MainActor
-    static func systemPrompt(graph: GraphState) throws -> String {
-        try StitchAIManager
-            .stitchAIGraphBuilderSystem(graph: graph,
-                                        requestType: Self.type)
+extension StitchAIFunctionRequestable {    
+    /// Starts new chain of function calling. Call this when no existing funciton messages can be used.
+    static func createInitialFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+                                        inputsArguments: any Encodable,
+                                        systemPrompt: String) throws -> [OpenAIMessage] {
+        let systemPromptMsg = OpenAIMessage(
+            role: .system,
+            content: systemPrompt
+        )
+        
+        let supplementarySystemPrompt = OpenAIMessage(
+            role: .system,
+            content: try functionType.getAssistantPrompt(for: requestType)
+        )
+
+        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
+        let toolId = OpenAISchema.sampleId
+        
+        let msgFromSourceCodeRequest = OpenAIMessage(
+            role: .assistant,
+            tool_calls: [
+                .init(
+                    id: toolId,
+                    type: "function",
+                    function: .init(name: functionType.rawValue,
+                                    arguments: try inputsArguments.encodeToString())
+                )
+            ],
+            annotations: []
+        )
+
+        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+        
+        return [
+            systemPromptMsg,
+            supplementarySystemPrompt,
+            msgFromSourceCodeRequest,
+            newCodeToolMessage]
     }
 }
 
-extension StitchAIGraphBuilderRequestable {
+extension StitchAIFunctionRequestable {
+    @MainActor
+    func systemPrompt(graph: GraphState) throws -> String {
+        try StitchAIManager
+            .stitchAIGraphBuilderSystem(graph: graph,
+                                        requestType: self.type)
+    }
+}
+
+extension StitchAIFunctionRequestable {
     @MainActor
     func willRequest(document: StitchDocumentViewModel,
                      canShareData: Bool,

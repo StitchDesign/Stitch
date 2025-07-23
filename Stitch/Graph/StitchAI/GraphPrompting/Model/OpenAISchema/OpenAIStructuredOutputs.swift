@@ -75,18 +75,45 @@ extension OpenAISchemaDefinable {
     }
 }
 
-struct OpenAIFunction: Encodable {
-    let type = "function"
-    let function: OpenAIFunctionPayload
-    
+enum OpenAIFunctionType: String, Encodable {
+    case function = "function"
+    case none = "none"
+}
+
+struct OpenAIFunction {
+    let type: OpenAIFunctionType
+    var function: OpenAIFunctionPayload?
+}
+
+extension OpenAIFunction {
     init(name: String,
          description: String,
          parameters: OpenAISchema,
          strict: Bool) {
+        self.type = .function
         self.function = .init(name: name,
                               description: description,
                               parameters: parameters,
                               strict: strict)
+    }
+}
+
+extension OpenAIFunction: Encodable {
+    enum CodingKeys: String, CodingKey {
+        case type
+        case function
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        guard type != .none else {
+            var container = encoder.singleValueContainer()
+            try container.encode("none")
+            return
+        }
+        
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(type, forKey: .type)
+        try container.encodeIfPresent(function, forKey: .function)
     }
 }
 
@@ -98,6 +125,9 @@ struct OpenAIFunctionPayload: Encodable {
 }
 
 struct OpenAISchema {
+    // MARK: OpenAI requires a specific ID format that if unmatched will break requests
+    static let sampleId = "call_BS6GNUPw4tDLPlWBBqvKlr3O"
+    
     var type: OpenAISchemaType
     var properties: (any Encodable & Sendable)?
     var const: String? = nil
@@ -235,4 +265,34 @@ enum OpenAISchemaType: String, Codable {
     case boolean
     case array
     case null
+}
+
+struct OpenAIRequestBody: Encodable {
+    var model: String = "o4-mini-2025-04-16"
+    var n: Int = 1
+    var temperature: Double = 1.0
+    var messages: [OpenAIMessage]
+    var tools: [OpenAIFunction] = []
+    var tool_choice: OpenAIFunction? = nil
+    var stream: Bool = false
+}
+
+extension OpenAIRequestBody {
+    /// Sets up request body for OpenAI. Assign a `toolChoice` if you want the response object to be a function.
+    init(messages: [OpenAIMessage],
+         type: StitchAIRequestBuilder_V0.StitchAIRequestType,
+         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction? = nil) {
+        let tools = type.allOpenAIFunctions
+        
+        if let functionType = functionType {
+            self = .init(messages: messages,
+                         tools: tools,
+                         tool_choice: functionType.function)
+        } else {
+            // Basically runs the unstructured assistant response
+            self = .init(messages: messages,
+                         tools: tools,
+                         tool_choice: .init(type: .none))
+        }
+    }
 }

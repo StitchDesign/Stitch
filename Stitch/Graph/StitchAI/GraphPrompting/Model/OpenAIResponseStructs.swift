@@ -98,7 +98,7 @@ struct OpenAIMessage: Codable {
     var annotations: [String]?  // Optional annotations
 }
 
-struct OpenAIToolCallResponse: Codable {
+struct OpenAIToolCallResponse: Codable {    
     var id: String
     var type: String
     var function: OpenAIFunctionResponse
@@ -113,16 +113,7 @@ extension StitchAIRequestable {
     /// Attempts to parse the message content into structured JSON
     /// - Throws: DecodingError if content cannot be parsed
     /// - Returns: Parsed ContentJSON structure
-    static func parseOpenAIResponse(message: OpenAIMessage) throws -> Self.InitialDecodedResult {
-        // Check for function scenario
-        if let toolResponse = message.tool_calls {
-            guard let castedToolResponse = toolResponse as? Self.InitialDecodedResult else {
-                throw StitchAIManagerError.functionDecodingFailed
-            }
-            
-            return castedToolResponse
-        }
-        
+    static func parseOpenAIResponse(message: OpenAIMessage) throws -> Self.InitialDecodedResult {        
         guard let content = message.content,
               let contentData = content.data(using: .utf8) else {
             print("Debug - raw content: \(message)")

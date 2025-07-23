@@ -156,7 +156,6 @@ extension StitchDocumentViewModel {
         self.aiManager?.currentTask?.task.cancel()
         self.aiManager?.currentTask = nil
         
-        self.showErrorModal(message: error.description,
-                            userPrompt: request.userPrompt)
+        self.storeDelegate?.alertState.stitchFileError = .unknownError("\(error)")
     }
 }

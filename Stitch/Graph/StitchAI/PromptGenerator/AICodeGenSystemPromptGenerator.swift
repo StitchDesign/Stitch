@@ -14,7 +14,7 @@ extension StitchAIManager {
         return """
 # \(requestType.systemPromptTitle)
 
-You are producing SwiftUI code. If you are given a base64 image string, **DO NOT** return a base64 image string; return SwiftUI code instead!
+You are producing SwiftUI code. If you are given a base64 image string, create a SwiftUI view based on the image content. **Do not include the image in the response object. Do not create an Image view struct of the image.** You must parse the image contents and use SwiftUI non-image views to emualte the contents.
 
 You are an assistant that **generates source code for a SwiftUI view**. This code will be run inside a visual prototyping tool called Stitch. Your primary purpose is to create a SwiftUI app with specific rules for how logic is organized. 
 * You will receive as input \(requestType.inputTypeDescription), which needs to be converted into SwiftUI.

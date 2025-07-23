@@ -65,7 +65,7 @@ enum LoggingAction: Equatable {
 // For debug printing from within SwiftUI views
 func log(_ message: Any,
          _ loggingAction: LoggingAction = .none) {
-#if DEBUG || DEV_DEBUG || STITCH_AI_REASONING
+#if !RELEASE
     print("** \(message)")
 
     switch loggingAction {

@@ -14,6 +14,14 @@ enum AIGraphData_V0 {
         let patch_data: PatchData
     }
     
+    struct GraphDataSchema: Encodable {
+        // MARK: string because recursive schemas aren't supported and we'll have mapping replace this
+        let layer_data_list = OpenAISchema(type: .string)
+        let patch_data = AIPatchBuilderResponseFormat_V0
+            .PatchBuilderStructuredOutputsDefinitions
+            .PatchData
+    }
+    
     struct PatchData: Codable {
         let javascript_patches: [AIGraphData_V0.JsPatchNode]
         let native_patches: [AIGraphData_V0.NativePatchNode]
