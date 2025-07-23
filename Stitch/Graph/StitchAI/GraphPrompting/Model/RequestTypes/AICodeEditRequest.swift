@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AICodeEditRequest: StitchAIFunctionRequestable {
+    let type: StitchAIRequestBuilder_V0.StitchAIRequestType = .userPrompt
+    
     let id: UUID
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AICodeEditBody_V0.AICodeEditRequestBody

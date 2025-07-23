@@ -11,17 +11,18 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
-struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
+struct AIPatchBuilderRequest: StitchAIGraphBuilderRequestable {
+    static let functionType = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.processPatchData
+    
     let id: UUID
-    let userPrompt: String             // User's input prompt
+    let type: StitchAIRequestBuilder_V0.StitchAIRequestType
     let config: OpenAIRequestConfig // Request configuration settings
-    let body: AIPatchBuilderRequestBody
+    let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
     static let willStream: Bool = false
     
     init(id: UUID,
-         userPrompt: String,
+         swiftUICode: String,
          layerDataList: [CurrentAIGraphData.LayerData],
-         toolMessages: [OpenAIMessage],
          requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
          systemPrompt: String,
          config: OpenAIRequestConfig = .default) throws {
@@ -29,39 +30,41 @@ struct AIPatchBuilderRequest: StitchAIFunctionRequestable {
         // The id of the user's inference call; does not change across retries etc.
         self.id = id
         
-        self.userPrompt = userPrompt
+        self.type = requestType
         self.config = config
         
+        let inputs = AIPatchBuilderFunctionInputs(swiftui_source_code: swiftUICode,
+                                                  layer_data_list: layerDataList)
+        
+        let toolMessages = try Self.createToolMessages(functionName: Self.functionType.rawValue,
+                                                       assistantPrompt: Self.createAssistantPrompt(),
+                                                       inputsArguments: inputs)
+        
+        let allMessages: [OpenAIMessage] = [
+            .init(role: .system,
+                  content: systemPrompt)
+        ] + toolMessages
+        
         // Construct http payload
-        self.body = try AIPatchBuilderRequestBody(userPrompt: userPrompt,
-                                                  layerDataList: layerDataList,
-                                                  toolMessages: toolMessages,
-                                                  requestType: requestType,
-                                                  systemPrompt: systemPrompt)
+        self.body = .init(messages: allMessages,
+                          type: requestType,
+                          functionType: Self.functionType)
     }
     
-    @MainActor
-    func willRequest(document: StitchDocumentViewModel,
-                     canShareData: Bool,
-                     requestTask: Self.RequestTask) {
-        // Nothing to do
+    static func createAssistantPrompt() throws -> String {
+        try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
     }
     
-    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
-        decodedResult
-    }
-    
-    @MainActor
-    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
-                                   currentAttempt: Int) {
-        fatalErrorIfDebug()
-    }
-    
-    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
-        // Unsupported
-        fatalError()
+    func createAssistantPrompt() throws -> String {
+        try Self.createAssistantPrompt()
     }
 }
+
+struct AIPatchBuilderFunctionInputs: Encodable {
+    let swiftui_source_code: String
+    let layer_data_list: [AIGraphData_V0.LayerData]
+}
+
 
 extension StitchDocumentViewModel {
     /// Recursively creates new sidebar layer data from AI result after creating nodes.

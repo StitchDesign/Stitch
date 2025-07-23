@@ -39,34 +39,41 @@ extension AICodeGenRequestBody_V0.AICodeGenRequestBody {
     }
        
     // Creates function of code gen from graph data from image gen
-    init(userPrompt: String,
-         systemPrompt: String,
-         base64ImageDescription: String) throws {
-        
-        // TODO: REMOVE THIS!!
-        
-        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
-        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
-        
-        let base64Message = OpenAIUserImageContent(base64Image: base64ImageDescription)
-        let base64MessageString = try base64Message.encodeToPrintableString()
-
-        self.messages = [
-            OpenAIMessage(role: .system,
-                          content: systemPrompt),
-            OpenAIMessage(role:. user,
-                          content: userPrompt),
-            OpenAIMessage(role: .user,
-                          content: base64MessageString)
-        ]
-    }
+//    init(userPrompt: String,
+//         systemPrompt: String,
+//         base64ImageDescription: String) throws {
+//        
+//        // TODO: REMOVE THIS!!
+//        
+//        self.tools = StitchAIRequestBuilder_V0.StitchAIRequestType.imagePrompt.allOpenAIFunctions
+//        self.tool_choice = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.codeBuilderFromImage.function
+//        
+//        let base64Message = OpenAIUserImageContent(base64Image: base64ImageDescription)
+//        let base64MessageString = try base64Message.encodeToPrintableString()
+//
+//        self.messages = [
+//            OpenAIMessage(role: .system,
+//                          content: systemPrompt),
+//            OpenAIMessage(role:. user,
+//                          content: userPrompt),
+//            OpenAIMessage(role: .user,
+//                          content: base64MessageString)
+//        ]
+//    }
     
-    // Creates code
+    /// Sets up request body for OpenAI. Assign a `toolChoice` if you want the response object to be a function.
     init(messages: [OpenAIMessage],
-         type: StitchAIRequestBuilder_V0.StitchAIRequestType) {
+         type: StitchAIRequestBuilder_V0.StitchAIRequestType,
+         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction? = nil) {
         self.messages = messages
         self.tools = type.allOpenAIFunctions
-        self.tool_choice = .init(type: .none)
+        
+        if let functionType = functionType {
+            self.tool_choice = functionType.function
+        } else {
+            // Basically runs the unstructured assistant response
+            self.tool_choice = .init(type: .none)
+        }
     }
 }
 

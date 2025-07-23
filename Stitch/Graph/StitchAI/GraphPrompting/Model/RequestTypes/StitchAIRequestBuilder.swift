@@ -42,7 +42,8 @@ extension StitchAIRequestBuilder_V0 {
         case codeBuilder = "create_swiftui_code"
         case codeBuilderFromImage = "create_code_from_image"
         case codeEditor = "edit_swiftui_code"
-        case patchBuilder = "patch_builder"
+        case processCode = "process_code"
+        case processPatchData = "process_patch_data"
     }
 }
 
@@ -51,9 +52,9 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
     var allFunctions: [StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction] {
         switch self {
         case .userPrompt:
-            return [.codeBuilder, .codeEditor, .patchBuilder]
+            return [.codeBuilder, .codeEditor, .processCode, .processPatchData]
         case .imagePrompt:
-            return [.codeBuilderFromImage, .patchBuilder]
+            return [.codeBuilderFromImage, .processCode, .processPatchData]
         }
     }
     
@@ -140,15 +141,23 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
                 strict: true
             )
             
-        case .patchBuilder:
+        case .processCode:
             return OpenAIFunction(
                 name: self.rawValue,
-                description: "Build Stitch graphs based on layer data and SwiftUI source code.",
+                description: "Processes some SwiftUI code before Stitch conversion.",
                 parameters: OpenAISchema(
                     type: .object,
-                    properties: AIPatchBuilderRequestBody_V0.AIPatchBuilderFunctionInputsSchema(),
-                    required: ["swiftui_source_code", "layer_data_list"],
-                    description: "Provides SwiftUI source code and Stitch layer data for a function that produces Stitch patch data."),
+                    properties: StitchAIRequestBuilder_V0.SourceCodeResponseSchema(),
+                    required: ["source_code"],
+                    description: "SwiftUI source code following user request."),
+                strict: true
+            )
+            
+        case .processPatchData:
+            return OpenAIFunction(
+                name: self.rawValue,
+                description: "Processes patch graph data.",
+                parameters: AIPatchBuilderResponseFormat_V0.PatchBuilderStructuredOutputsDefinitions.PatchData,
                 strict: true
             )
         }
@@ -168,9 +177,13 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
             return """
                 **Edits SwiftUI Code.** Based on the SwiftUI source code created from the last step, modify the code based on the user prompt.
                 """
-        case .patchBuilder:
+        case .processCode:
             return """
-                **Creates Stitch structured prototype data.** Convert the SwiftUI source code into Stitch concepts. 
+                **Processes SwiftUI source code.** Let's Stitch process code for deriving some data before sending into patch builder.
+                """
+        case .processPatchData:
+            return """
+                **Processes patch graph data.** Last step before patch data is combined with already parsed layer data to update a Stitch document.
                 """
         }
     }
