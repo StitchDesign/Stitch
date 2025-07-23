@@ -38,9 +38,11 @@ extension StitchAIFunctionRequestable {
     }
 }
 
+// TODO: can we remove this??
+
 protocol StitchAIGraphBuilderRequestable: StitchAIFunctionRequestable {
     
-    func createAssistantPrompt() throws -> String
+//    func createAssistantPrompt() throws -> String
 }
 
 protocol StitchAICodeCreator: StitchAIGraphBuilderRequestable {
@@ -50,28 +52,35 @@ protocol StitchAICodeCreator: StitchAIGraphBuilderRequestable {
 }
 
 extension StitchAIGraphBuilderRequestable {
-    func createToolMessages(inputsArguments: any Encodable) throws -> [OpenAIMessage] {
-        let assistantPrompt = try self.createAssistantPrompt()
-        
-        return try Self.createToolMessages(functionName: self.functionName,
-                                           assistantPrompt: assistantPrompt,
-                                           inputsArguments: inputsArguments)
-    }
+//    func createToolMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+//                            requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//                            inputsArguments: any Encodable) throws -> [OpenAIMessage] {
+////        let assistantPrompt = try self.createAssistantPrompt()
+//        
+//        try Self.createToolMessages(functionType: functionType,
+//                                    requestType: requestType,
+//                                    inputsArguments: inputsArguments)
+//    }
     
-    static func createToolMessages(functionName: String,
-                                   assistantPrompt: String,
-                                   inputsArguments: any Encodable) throws -> [OpenAIMessage] {
+    /// Starts new chain of function calling. Call this when no existing funciton messages can be used.
+    static func createInitialFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+                                        inputsArguments: any Encodable,
+                                        systemPrompt: String) throws -> [OpenAIMessage] {
+        let systemPromptMsg = OpenAIMessage(role: .system,
+                                            content: systemPrompt)
+
         // MARK: OpenAI requires a specific ID format that if unmatched will break requests
         let toolId = OpenAISchema.sampleId
         
         let msgFromSourceCodeRequest = OpenAIMessage(
             role: .assistant,
-            content: assistantPrompt,
+            content: try functionType.getAssistantPrompt(for: requestType),
             tool_calls: [
                 .init(
                     id: toolId,
                     type: "function",
-                    function: .init(name: functionName,
+                    function: .init(name: functionType.rawValue,
                                     arguments: try inputsArguments.encodeToString())
                 )
             ],
@@ -80,7 +89,10 @@ extension StitchAIGraphBuilderRequestable {
 
         let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
         
-        return [msgFromSourceCodeRequest, newCodeToolMessage]
+        return [
+            systemPromptMsg,
+            msgFromSourceCodeRequest,
+            newCodeToolMessage]
     }
 }
 

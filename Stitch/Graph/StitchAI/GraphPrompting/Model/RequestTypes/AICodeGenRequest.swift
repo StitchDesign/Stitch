@@ -12,6 +12,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     let id: UUID
     let userPrompt: String             // User's input prompt
+    let currentGraphData: CurrentAIGraphData.GraphData
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
     static let willStream: Bool = false
@@ -26,6 +27,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         self.id = .init()
         
         self.userPrompt = prompt
+        self.currentGraphData = currentGraphData
         self.config = config
         
         // Construct http payload
@@ -34,57 +36,59 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
                                   systemPrompt: systemPrompt)
     }
     
-    func createAssistantPrompt() throws -> String {
-        try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: self.type)
-    }
-    
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String {
+        // Create tool messages for code creation
+        let editRequestMessages = try Self
+            .createInitialFnMessages(functionType: .codeBuilder,
+                                     requestType: self.type,
+                                     inputsArguments: self.currentGraphData,
+                                     systemPrompt: systemPrompt)
         
-        fatalError("come back, look at image")
-        
-        let msgFromSourceCodeRequest = try await self
-            .requestForMessage(document: document,
-                               aiManager: aiManager)
-        
-//        let decodedSwiftUICode = try self
-//            .decodeMessage(from: msgFromSourceCodeRequest,
-//                           document: document,
-//                           aiManager: aiManager,
-//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-//        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
-        
-        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
-        
-        let createEditFunctionRequest = AICodeEditRequest(
+        // Create tool messages for create edit function, processing the code creation step
+        let editCodeFnRequest = OpenAIFunctionRequest(
             id: self.id,
-            prompt: self.userPrompt,
-            toolMessages: [msgFromSourceCodeRequest, newCodeToolMessage],
-            systemPrompt: systemPrompt)
+            functionType: .codeEditor,
+            requestType: self.type,
+            messages: editRequestMessages)
         
-        let allPrevMessages = createEditFunctionRequest.body.messages
+        // Creates code and then creates tool call for edit request
+        let editRequestToolCall = try await editCodeFnRequest
+            .requestForFnMessage(functionType: .codeEditor,
+                                 requestType: self.type,
+                                 document: document,
+                                 aiManager: aiManager)
         
-        let editRequest = try AICodeEditRequest(id: self.id,
-                                                prevMessages: allPrevMessages)
+        // Create tool messsages for process code function, which runs edit request
+        let editRequestToolMsg = try editRequestToolCall
+            .createNewToolMessage()
         
-        let msgFromEditCodeRequest = try await editRequest
-            .requestForMessage(
-                document: document,
-                aiManager: aiManager)
+        let processCodeFnRequest = OpenAIFunctionRequest(
+            id: self.id,
+            functionType: .processCode,
+            requestType: self.type,
+            messages: [
+                .init(role: .system,
+                     content: systemPrompt),
+                // Can safely ignore first code creation tools since edit request contains most recent code
+                editRequestToolCall,
+                editRequestToolMsg
+            ])
         
-        // TODO: what happens here??? What does the decoded swift ui code look like
-        fatalError()
+        let processCodeToolCall = try await processCodeFnRequest
+            .requestForFnMessage(functionType: .processCode,
+                                 requestType: self.type,
+                                 document: document,
+                                 aiManager: aiManager)
         
-//        let decodedSwiftUIEditedCode = try editRequest
-//            .decodeMessage(from: msgFromEditCodeRequest,
-//                           document: document,
-//                           aiManager: aiManager,
-//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-//        let swiftUIEditedCode = decodedSwiftUIEditedCode.source_code
-//        
-//        logToServerIfRelease("Edited code:\n\(swiftUIEditedCode)")
-//        return (swiftUIEditedCode, msgFromEditCodeRequest)
+        let decodedSwiftUICode = try self
+            .decodeMessage(from: processCodeToolCall,
+                           document: document,
+                           aiManager: aiManager,
+                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+        
+        return decodedSwiftUICode.source_code
     }
 }
 
@@ -113,23 +117,7 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
         self.body = AICodeGenRequestBody_V0
             .AICodeGenRequestBody(messages: [],
                                   type: self.type)
-//            .AICodeGenRequestBody(userPrompt: prompt,
-//                                  systemPrompt: systemPrompt,
-//                                  base64ImageDescription: base64ImageDescription)
     }
-    
-    // Object for creating actual code creation request
-//    init(id: UUID,
-//         userPrompt: String,
-//         base64Image: String,
-//         messages: [OpenAIMessage]) {
-//        self.id = id
-//        self.userPrompt = userPrompt
-//        self.base64Image = base64Image
-//        self.config = .default
-//        self.body = .init(messages: messages,
-//                          type: self.type)
-//    }
     
     func createAssistantPrompt() throws -> String {
         try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: self.type)
@@ -143,39 +131,37 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
             image_data: .init(base64Image: self.base64Image)
         )
         
-        let toolMessages = try self.createToolMessages(inputsArguments: imageRequestInputs)
+        let toolMessages = try Self.createInitialFnMessages(
+            functionType: .codeBuilderFromImage,
+            requestType: self.type,
+            inputsArguments: imageRequestInputs,
+            systemPrompt: systemPrompt)
         
-        let createCodeRequest = AIProcessCodeGenRequest(
+        let createCodeRequest = OpenAIFunctionRequest(
             id: self.id,
-            type: self.type,
-            messages: [
-                .init(role: .system, content: systemPrompt)
-                ] + toolMessages
-        )
+            functionType: .processCode,
+            requestType: self.type,
+            messages: toolMessages)
         
         let msgFromCodeCreation = try await createCodeRequest
-            .requestForMessage(document: document,
-                               aiManager: aiManager)
+            .requestForFnMessage(
+                functionType: .processCode,
+                requestType: self.type,
+                document: document,
+                aiManager: aiManager)
 
         let decodedSwiftUICode = try self
             .decodeMessage(from: msgFromCodeCreation,
                            document: document,
                            aiManager: aiManager,
                            resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-        logToServerIfRelease("Initial code:\n\(decodedSwiftUICode.source_code)")
-        
-//        guard let codeCreationContent = msgFromCodeCreation.content else {
-//            throw StitchAIManagerError.functionDecodingFailed
-//        }
-//        
-//        let decodedSwiftUICode = try JSONDecoder().decode(StitchAIRequestBuilder_V0.SourceCodeResponse.self,
-//                                                          from: try codeCreationContent.encodeToData())
-//
+
         return decodedSwiftUICode.source_code
     }
 }
 
-struct AIProcessCodeGenRequest: StitchAIFunctionRequestable {
+// TODO: can we use this everywhere??
+struct OpenAIFunctionRequest: StitchAIFunctionRequestable {
     let id: UUID
     let type: StitchAIRequestBuilder_V0.StitchAIRequestType
     let config: OpenAIRequestConfig = .default
@@ -184,13 +170,14 @@ struct AIProcessCodeGenRequest: StitchAIFunctionRequestable {
     
     // Object for creating actual code creation request
     init(id: UUID,
-         type: StitchAIRequestBuilder_V0.StitchAIRequestType,
+         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
          messages: [OpenAIMessage]) {
         self.id = id
-        self.type = type
+        self.type = requestType
         self.body = .init(messages: messages,
-                          type: type,
-                          functionType: .processCode)
+                          type: requestType,
+                          functionType: functionType)
     }
 }
 
@@ -270,7 +257,7 @@ extension StitchAICodeCreator {
                         aiManager: aiManager,
                         systemPrompt: systemPrompt)
         
-        log("SUCCESS: swiftUICode: \(swiftUICode)")
+        logToServerIfRelease("SUCCESS: swiftUICode: \(swiftUICode)")
         
         // TODO: look here, make sure extraction is good
         
@@ -296,37 +283,36 @@ extension StitchAICodeCreator {
         let layerDataList = actionsResult.actions
         allDiscoveredErrors += actionsResult.caughtErrors
         
-        // Update tool message with layer data
-//        var newEditToolMessage = try msgFromCode.createNewToolMessage()
-        //         let patchBuilderInputs = AIPatchBuilderRequestBody_V0.AIPatchBuilderFunctionInputs(
-        //             swiftui_source_code: swiftUICode,
-        //             layer_data: layerDataList
-        //         )
-        //         newEditToolMessage.content = try patchBuilderInputs.encodeToPrintableString()
+        let patchBuilderInputs = AIPatchBuilderFunctionInputs(
+            swiftui_source_code: swiftUICode,
+            layer_data_list: layerDataList)
         
-        let patchBuilderRequest = try AIPatchBuilderRequest(
+        // Create new tool messages for patch builder
+        let patchBuilderToolMessages = try Self
+            .createInitialFnMessages(functionType: .patchBuilder,
+                                     requestType: self.type,
+                                     inputsArguments: patchBuilderInputs,
+                                     systemPrompt: systemPrompt)
+        
+        // Create request object that process patch builder
+        let processPatchBuilderRequest = OpenAIFunctionRequest(
             id: self.id,
-            swiftUICode: swiftUICode,
-            layerDataList: layerDataList,
+            functionType: .processPatchData,
             requestType: self.type,
-            systemPrompt: systemPrompt)
+            messages: patchBuilderToolMessages)
         
-        let patchBuildMessage = try await patchBuilderRequest
-            .requestForMessage(document: document,
-                               aiManager: aiManager)
+        let processPatchBuilderMsg = try await processPatchBuilderRequest
+            .requestForFnMessage(functionType: .processPatchData,
+                                 requestType: self.type,
+                                 document: document,
+                                 aiManager: aiManager)
         
-        let patchBuildResult = try patchBuilderRequest
-            .decodeMessage(from: patchBuildMessage,
+        let patchBuildResult = try processPatchBuilderRequest
+            .decodeMessage(from: processPatchBuilderMsg,
                            document: document,
                            aiManager: aiManager,
                            resultType: CurrentAIGraphData.PatchData.self)
-//        guard let patchBuildContent = patchBuildMessage.content else {
-//            throw StitchAIManagerError.functionDecodingFailed
-//        }
-//        
-//        let patchBuildResult = try JSONDecoder().decode(CurrentAIGraphData.PatchData.self,
-//                                                        from: patchBuildContent.encodeToData())
-//        
+
         logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
         let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
                                                  patch_data: patchBuildResult)

@@ -42,6 +42,7 @@ extension StitchAIRequestBuilder_V0 {
         case codeBuilder = "create_swiftui_code"
         case codeBuilderFromImage = "create_code_from_image"
         case codeEditor = "edit_swiftui_code"
+        case patchBuilder = "patch_builder"
         case processCode = "process_code"
         case processPatchData = "process_patch_data"
     }
@@ -52,9 +53,9 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestType {
     var allFunctions: [StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction] {
         switch self {
         case .userPrompt:
-            return [.codeBuilder, .codeEditor, .processCode, .processPatchData]
+            return [.codeBuilder, .codeEditor, .processCode, .patchBuilder, .processPatchData]
         case .imagePrompt:
-            return [.codeBuilderFromImage, .processCode, .processPatchData]
+            return [.codeBuilderFromImage, .processCode, .patchBuilder, .processPatchData]
         }
     }
     
@@ -153,6 +154,18 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
                 strict: true
             )
             
+        case .patchBuilder:
+            return OpenAIFunction(
+                name: self.rawValue,
+                description: "Build Stitch graphs based on layer data and SwiftUI source code.",
+                parameters: OpenAISchema(
+                    type: .object,
+                    properties: AIPatchBuilderFunctionInputsSchema(),
+                    required: ["swiftui_source_code", "layer_data_list"],
+                    description: "Provides SwiftUI source code and Stitch layer data for a function that produces Stitch patch data."),
+                strict: true
+            )
+            
         case .processPatchData:
             return OpenAIFunction(
                 name: self.rawValue,
@@ -181,10 +194,48 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
             return """
                 **Processes SwiftUI source code.** Let's Stitch process code for deriving some data before sending into patch builder.
                 """
+        
+        case .patchBuilder:
+            return """
+                **Creates Stitch structured prototype data.** Convert the SwiftUI source code into Stitch concepts. 
+                """
+            
         case .processPatchData:
             return """
                 **Processes patch graph data.** Last step before patch data is combined with already parsed layer data to update a Stitch document.
                 """
+        }
+    }
+    
+    func getAssistantPrompt(for requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws -> String? {
+        switch self {
+        case .codeBuilder:
+            return try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType)
+            
+        case .codeBuilderFromImage:
+            return try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType)
+            
+        case .codeEditor:
+            return """
+            Modify SwiftUI source code based on the request from a user prompt. Use code returned from the last function caller. Adhere to previously defined rules regarding patch and layer behavior in Stitch.
+            
+            Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
+            
+            Adhere to the guidelines specified in this document:
+            
+            \(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt))
+            """
+            
+        case .processCode:
+            // End of function calling, no more subsequent calls to make
+            return nil
+            
+        case .patchBuilder:
+            return try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
+            
+        case .processPatchData:
+            // End of function calling, no more subsequent calls to make
+            return nil
         }
     }
 }

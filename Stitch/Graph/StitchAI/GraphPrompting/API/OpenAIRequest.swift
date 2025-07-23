@@ -254,16 +254,6 @@ extension StitchAIManager {
 extension StitchAIRequestable {
     func request(document: StitchDocumentViewModel,
                  aiManager: StitchAIManager) async throws -> Self.FinalDecodedResult {
-        let msg = try await self.requestForMessage(document: document,
-                                                      aiManager: aiManager)
-        
-        let initialDecodedResult = try Self.parseOpenAIResponse(message: msg)
-        let result = try Self.validateResponse(decodedResult: initialDecodedResult)
-        return result
-    }
-    
-    func requestForMessage(document: StitchDocumentViewModel,
-                           aiManager: StitchAIManager) async throws -> OpenAIMessage {
         let result = await aiManager.startOpenAIRequest(self,
                                                         attempt: 0,
                                                         lastCapturedError: "",
@@ -271,9 +261,39 @@ extension StitchAIRequestable {
         
         switch result {
             
-        case .success(let success):
+        case .success(let msg):
             log("StitchAIRequestable: requestForMessage: success")
-            return success
+            let initialDecodedResult = try Self.parseOpenAIResponse(message: msg)
+            let result = try Self.validateResponse(decodedResult: initialDecodedResult)
+            return result
+
+        case .failure(let failure):
+            log("StitchAIRequestable: requestForMessage: failure")
+            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
+            throw failure
+        }
+    }
+}
+
+extension StitchAIFunctionRequestable {
+    func requestForFnMessage(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+                             requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+                             document: StitchDocumentViewModel,
+                             aiManager: StitchAIManager) async throws -> OpenAIMessage {
+        let result = await aiManager.startOpenAIRequest(self,
+                                                        attempt: 0,
+                                                        lastCapturedError: "",
+                                                        document: document)
+        
+        switch result {
+            
+        case .success(var msg):
+            log("StitchAIRequestable: requestForMessage: success")
+            
+            // Update message with assistant prompt
+            msg.content = try functionType.getAssistantPrompt(for: requestType)
+            
+            return msg
         case .failure(let failure):
             log("StitchAIRequestable: requestForMessage: failure")
             logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")

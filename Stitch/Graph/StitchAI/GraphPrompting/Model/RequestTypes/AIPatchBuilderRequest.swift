@@ -11,58 +11,69 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
-struct AIPatchBuilderRequest: StitchAIGraphBuilderRequestable {
-    static let functionType = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.processPatchData
-    
-    let id: UUID
-    let type: StitchAIRequestBuilder_V0.StitchAIRequestType
-    let config: OpenAIRequestConfig // Request configuration settings
-    let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
-    static let willStream: Bool = false
-    
-    init(id: UUID,
-         swiftUICode: String,
-         layerDataList: [CurrentAIGraphData.LayerData],
-         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         systemPrompt: String,
-         config: OpenAIRequestConfig = .default) throws {
-        
-        // The id of the user's inference call; does not change across retries etc.
-        self.id = id
-        
-        self.type = requestType
-        self.config = config
-        
-        let inputs = AIPatchBuilderFunctionInputs(swiftui_source_code: swiftUICode,
-                                                  layer_data_list: layerDataList)
-        
-        let toolMessages = try Self.createToolMessages(functionName: Self.functionType.rawValue,
-                                                       assistantPrompt: Self.createAssistantPrompt(),
-                                                       inputsArguments: inputs)
-        
-        let allMessages: [OpenAIMessage] = [
-            .init(role: .system,
-                  content: systemPrompt)
-        ] + toolMessages
-        
-        // Construct http payload
-        self.body = .init(messages: allMessages,
-                          type: requestType,
-                          functionType: Self.functionType)
-    }
-    
-    static func createAssistantPrompt() throws -> String {
-        try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
-    }
-    
-    func createAssistantPrompt() throws -> String {
-        try Self.createAssistantPrompt()
-    }
-}
+//struct AIPatchBuilderRequest: StitchAIGraphBuilderRequestable {
+//    static let functionType = StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction.processPatchData
+//    
+//    let id: UUID
+//    let type: StitchAIRequestBuilder_V0.StitchAIRequestType
+//    let config: OpenAIRequestConfig // Request configuration settings
+//    let body: AICodeGenRequestBody_V0.AICodeGenRequestBody
+//    static let willStream: Bool = false
+//    
+//    init(id: UUID,
+//         swiftUICode: String,
+//         layerDataList: [CurrentAIGraphData.LayerData],
+//         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//         systemPrompt: String,
+//         config: OpenAIRequestConfig = .default) throws {
+//        
+//        // The id of the user's inference call; does not change across retries etc.
+//        self.id = id
+//        
+//        self.type = requestType
+//        self.config = config
+//        
+//        let inputs = AIPatchBuilderFunctionInputs(swiftui_source_code: swiftUICode,
+//                                                  layer_data_list: layerDataList)
+//        
+//        let toolMessages = try Self.createToolMessages(
+//            functionType: Self.functionType,
+//            requestType: self.type,
+//            inputsArguments: inputs)
+//        
+//        let allMessages: [OpenAIMessage] = [
+//            .init(role: .system,
+//                  content: systemPrompt)
+//        ] + toolMessages
+//        
+//        // Construct http payload
+//        self.body = .init(messages: allMessages,
+//                          type: requestType,
+//                          functionType: Self.functionType)
+//    }
+////    
+////    static func createAssistantPrompt() throws -> String {
+////        try StitchAIManager.aiPatchBuilderSystemPromptGenerator()
+////    }
+////    
+////    func createAssistantPrompt() throws -> String {
+////        try Self.createAssistantPrompt()
+////    }
+//}
+
+
+// TODO: move
 
 struct AIPatchBuilderFunctionInputs: Encodable {
     let swiftui_source_code: String
     let layer_data_list: [AIGraphData_V0.LayerData]
+}
+
+struct AIPatchBuilderFunctionInputsSchema: Encodable {
+    let swiftui_source_code = OpenAISchema(type: .string)
+    
+    // MARK: string because no nesting support in structured outputs
+    let layer_data_list = OpenAISchema(type: .string)
 }
 
 

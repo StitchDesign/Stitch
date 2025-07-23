@@ -182,26 +182,22 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
             let graphData = try AIGraphData_V0.GraphData(from: document.visibleGraph.createSchema())
             let systemPrompt = try StitchAIManager
                 .stitchAIGraphBuilderSystem(graph: document.visibleGraph,
-                                            
-                                    //                                                requestType: .userPrompt)
-                                    
-                                    //                 TODO: AI IMAGE IS WIP
-                                    requestType: .imagePrompt)
+                                            requestType: .userPrompt)
             
-//            let requestTask = try AICodeGenFromGraphRequest(
-//                prompt: prompt,
-//                currentGraphData: graphData,
-//                systemPrompt: systemPrompt)
+            let requestTask = try AICodeGenFromGraphRequest(
+                prompt: prompt,
+                currentGraphData: graphData,
+                systemPrompt: systemPrompt)
             
             // TODO: AI IMAGE IS WIP
-            let testImage: UIImage = UIImage (named: "TEST_IMAGE_7")!
-            let base64TestImage = convertImageToBase64String(uiImage: testImage)
-            print ("getRequestTask: Design Image?: \(base64TestImage.value.isDefined)")
-            
-            let requestTask = try AICodeGenFromImageRequest(
-                prompt: prompt,
-                systemPrompt: systemPrompt,
-                base64ImageDescription: base64TestImage.value!)
+//            let testImage: UIImage = UIImage (named: "TEST_IMAGE_7")!
+//            let base64TestImage = convertImageToBase64String(uiImage: testImage)
+//            print ("getRequestTask: Design Image?: \(base64TestImage.value.isDefined)")
+//            
+//            let requestTask = try AICodeGenFromImageRequest(
+//                prompt: prompt,
+//                systemPrompt: systemPrompt,
+//                base64ImageDescription: base64TestImage.value!)
             
             aiManager.currentTaskTesting = try requestTask
                 .getRequestTask(userPrompt: prompt,
