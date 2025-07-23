@@ -23,16 +23,6 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         
         self.userPrompt = prompt
         self.currentGraphData = currentGraphData
-        
-        // Construct http payload
-//        self.body = .init(messages: [
-//            .init(role: .system,
-//                  content: systemPrompt)
-//        ])
-//        
-//        try AICodeGenRequestBody_V0
-//            .AICodeGenRequestBody(currentGraphData: currentGraphData,
-//                                  systemPrompt: systemPrompt)
     }
     
     func createCode(document: StitchDocumentViewModel,
@@ -139,27 +129,6 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
                            resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
 
         return decodedSwiftUICode.source_code
-    }
-}
-
-// TODO: can we use this everywhere??
-struct OpenAIFunctionRequest: StitchAIFunctionRequestable {
-    let id: UUID
-    let type: StitchAIRequestBuilder_V0.StitchAIRequestType
-    let config: OpenAIRequestConfig = .default
-    let body: OpenAIRequestBody
-    static let willStream: Bool = false
-    
-    // Object for creating actual code creation request
-    init(id: UUID,
-         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
-         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         messages: [OpenAIMessage]) {
-        self.id = id
-        self.type = requestType
-        self.body = .init(messages: messages,
-                          type: requestType,
-                          functionType: functionType)
     }
 }
 
