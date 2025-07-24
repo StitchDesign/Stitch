@@ -180,8 +180,8 @@ struct ContentView: View {
             LazyVStack {
                 Rectangle()
                     .fill(rectColors)
-                    .frame(width: PortValueDescription(value: "50.0", value_type: "layerDimension"),
-                           height: PortValueDescription(value: "50.0", value_type: "layerDimension"))
+                    .frame(width: [PortValueDescription(value: "50.0", value_type: "layerDimension")],
+                           height: [PortValueDescription(value: "50.0", value_type: "layerDimension")])
                     .layerId("3C4D5E6F-7A8B-9C0D-1E2F-3A4B5C6D7E8F")
             }
             .layerId("2B3C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E")
