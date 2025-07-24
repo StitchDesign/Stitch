@@ -46,7 +46,7 @@ Code components **not** allowed in our view are:
 * **Top-level constants other than layer IDs.** Do not create constants defined at the view level. Instead, use `@State` variables and update them from `updateLayerInputs` function. Define values directly in view if no constant needs to be made.
 
 ### Rules for `var body`
-A few requirements for logic handled in the view:
+The view you create is a derivative of SwiftUI. There are slight changes to the normal SwiftUI rules which the dependency of your code creation (Stitch) is able to manage. The most notable exception to normal SwiftUI is the handling of looped views and usage of `PortValueDescription` (described later) for all value types.
 
 #### Input Layer Data as a Starting Point
 
@@ -74,7 +74,18 @@ Text(PortValueDescription(value: "hello world", value_type: "string"))
     .color([PortValueDescription(value: "#FFFFFF", value_type: "color")])
 ```
 
-This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `PortValueDescription` object.
+This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
+
+**This includes invocation of state viarables for view modifiers, which must be processed by the view modifier in its looped form**. For example:
+```swift
+.offset(x: ovalDragX.first?.value as? Double ?? 0,
+        y: ovalDragY.first?.value as? Double ?? 0)
+```
+
+Is invalid because each offset argument is equipped to handle the full looped value. Thefore, this example should be:
+```swift
+.offset(x: ovalDragX, y: ovalDragY)
+```
 
 ##### Specific Rules to `PortValueDescription`
 
