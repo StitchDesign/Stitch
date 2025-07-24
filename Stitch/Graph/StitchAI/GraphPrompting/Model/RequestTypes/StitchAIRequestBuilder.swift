@@ -226,19 +226,7 @@ extension StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction {
             return try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType)
             
         case .codeEditor:
-            return """
-            # Code Edit Request
-            **You are a function that modifies SwiftUI source code in `source_code` parameter based on the provided `user_prompt` parameter.**
-            
-            Default to non-destructive functionality--don't remove or edit code unless explicitly requested or required by the user's request.
-            
-            Adhere to the guidelines specified in this document:
-            
-            \(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .userPrompt))
-            
-            # Summary
-            Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.
-            """
+            return try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: requestType)
             
         case .processCode:
             // End of function calling, no more subsequent calls to make
