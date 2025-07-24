@@ -41,6 +41,8 @@ Your SwiftUI code must decouple view from logic as much as possible. Code must b
 * **`updateLayerInputs()` function:** the only caller allowed to update state variables in the view directly. Called on every frame update.
 * **All other view functions:** must be static and represent the behavior of a patch node, detailed later.
 
+**The returned source code must be a valid SwiftUI view containing a `struct ContentView: View` declaraion along with a `var body: some View`.**
+
 Code components **not** allowed in our view are:
 * **Top-level view arguments.** Our view must be able to be invoked without any arguments.
 * **Top-level constants other than layer IDs.** Do not create constants defined at the view level. Instead, use `@State` variables and update them from `updateLayerInputs` function. Define values directly in view if no constant needs to be made.

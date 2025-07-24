@@ -4537,10 +4537,10 @@
 		B5F3D0B02DE3CBBA00103676 /* PromptGenerator */ = {
 			isa = PBXGroup;
 			children = (
-				B5675A922E31A94A00269ABB /* AICodeEditSystemPromptGenerator.swift */,
 				B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */,
 				B5EFD5B02D5D8967006A68FB /* StitchAISystemPromptGenerator.swift */,
 				B5B31CE72E0C6769003EABA2 /* AICodeGenSystemPromptGenerator.swift */,
+				B5675A922E31A94A00269ABB /* AICodeEditSystemPromptGenerator.swift */,
 				B503B0CD2E0D826A004F5EB8 /* AIPatchBuilderSystemPromptGenerator.swift */,
 			);
 			path = PromptGenerator;
