@@ -46,7 +46,7 @@ Code components **not** allowed in our view are:
 * **Top-level constants other than layer IDs.** Do not create constants defined at the view level. Instead, use `@State` variables and update them from `updateLayerInputs` function. Define values directly in view if no constant needs to be made.
 
 ### Rules for `var body`
-A few requirements for logic handled in the view:
+The view you create is a derivative of SwiftUI. There are slight changes to the normal SwiftUI rules which the dependency of your code creation (Stitch) is able to manage. The most notable exception to normal SwiftUI is the handling of looped views and usage of `PortValueDescription` (described later) for all value types.
 
 #### Input Layer Data as a Starting Point
 
@@ -58,9 +58,9 @@ Use `layer_data_list` inside the inputted `GraphData` to create a starting point
 * Use custom input values for determining input values for view constructors and view modifiers.
 
 #### Permitted Value Type Declarations in the View
-**You are only permitted to use `PortValueDescription` for any declared value.** You must adhere to the `PortValueDescription` spec, defined below, for all declared values throughout the view.
+**You are only permitted to use an array of `PortValueDescription` for any declared value.** You must adhere to the `PortValueDescription` spec, defined below, for all declared values throughout the view.
 
-Assume that for every view and view modifier that exists, Stitch contains an exact replica definition of that view or view modifier, but made to process `PortValueDescription`. For example:
+Assume that for every view and view modifier that exists, Stitch contains an exact replica definition of that view or view modifier, but made to process `[PortValueDescription]`. For example:
 
 ```swift
 Text("hello world")
@@ -71,10 +71,31 @@ Would become:
 
 ```swift
 Text(PortValueDescription(value: "hello world", value_type: "string"))
-    .color(PortValueDescription(value: "#FFFFFF", value_type: "color"))
+    .color([PortValueDescription(value: "#FFFFFF", value_type: "color")])
 ```
 
-This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `PortValueDescription` object.
+This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
+
+#### Permitted Usage of State in View Modifiers
+
+**This includes invocation of state viarables for view modifiers, which must be processed by the view modifier in its looped form**. For example:
+```swift
+.offset(x: ovalDragX.first?.value as? Double ?? 0,
+        y: ovalDragY.first?.value as? Double ?? 0)
+```
+
+Is invalid because each offset argument is equipped to handle the full looped value. Thefore, this example should be:
+```swift
+.offset(x: ovalDragX, y: ovalDragY)
+```
+
+State should be invoked directly without any additional logic. This includes examples like this where we attempt to get specific indexed values:
+```swift
+.offset(x: dragPosition.value(at: 0) as? Double ?? 0,
+        y: dragPosition.value(at: 1) as? Double ?? 0)
+```
+
+Instead, either create separate x and y looped state variables, like in the previous example.
 
 ##### Specific Rules to `PortValueDescription`
 
@@ -85,7 +106,7 @@ This means that for any value declared inside a view's constructor, a view modif
 
 Would be invalid because of the array invocation for the value. There should instead be a value like:
 ```swift
-.fill(PortValueDescription(value: "#FFFFFF", value_type: "color"))
+.fill([PortValueDescription(value: "#FFFFFF", value_type: "color")])
 ```
 
 ##### When to Not Use `PortValueDescription`
@@ -97,7 +118,9 @@ Notable exceptions to the rule:
 For example, the following scenario should never happen:
 ```swift
 .scaleEffect(
-    PortValueDescription(value: rectScale.value, value_type: "number")
+    [
+        PortValueDescription(value: rectScale.value, value_type: "number")
+    ]
 )
 ```
 
@@ -127,7 +150,7 @@ The view must have a `updateLayerInputs()` function, representing the only funct
 Logic should be decoupled from `updateLayerInputs` whenever possible for the purpose of creating "patch" functions, described next.
 
 ### State Variable Requirements
-**The only permissible type for `@State` variables is `PortValueDescription`, defined later.** `PortValue` description contains `value` property that uses a generic `Any` type.
+**The only permissible type for `@State` variables is `[PortValueDescription]`, defined later.** `PortValue` description contains `value` property that uses a generic `Any` type.
 
 #### Use Input Layer Connection Data as Starting Point
 Use `layer_connections` to determine a starting point for `@State` variables that should be created. Each layer connection should have some referenced state in the SwiftUI code, and this state should be used somewhere in the `var body`.
@@ -478,15 +501,15 @@ If the user prompt omits a key, fill it with a neutral default (`0`, `false`, em
 > **Example (padding):**  
 > **Bad**  
 > ```swift
-> .padding(PortValueDescription(value: ["left": 16, "right": 16],
->                               value_type: "padding"))
+> .padding([PortValueDescription(value: ["left": 16, "right": 16],
+>                               value_type: "padding")])
 > ```
 > **Good**  
 > ```swift
-> .padding(PortValueDescription(value: {
+> .padding([PortValueDescription(value: {
 >     "top": 0, "bottom": 0,
 >     "left": 16, "right": 16
-> }, value_type: "padding"))
+> }, value_type: "padding")])
 > ```
 
 ## `PortValue` Example Payloads
