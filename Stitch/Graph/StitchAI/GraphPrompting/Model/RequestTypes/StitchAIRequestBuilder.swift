@@ -40,6 +40,11 @@ struct StitchAIRequestBuilder_V0 {
     struct SourceCodeResponse: Codable {
         let source_code: String
     }
+    
+    struct EditCodeParams: Codable {
+        var source_code: String
+        var user_prompt: String
+    }
 }
 
 extension StitchAIRequestBuilder_V0 {

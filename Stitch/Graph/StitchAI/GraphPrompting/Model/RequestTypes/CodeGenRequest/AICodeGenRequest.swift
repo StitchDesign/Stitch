@@ -40,18 +40,18 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
             id: self.id,
             functionType: .codeEditor,
             requestType: Self.type,
-            messages: editRequestMessages + [
-                // Add user prompt
-                .init(role: .user,
-                      content: self.userPrompt)
-            ])
+            messages: editRequestMessages)
         
         // Creates code and then creates tool call for edit request
         let editRequestToolCalls = try await editCodeFnRequest
             .requestMessagesForNextFn(returnedFnType: .codeEditor,
                                       requestType: Self.type,
                                       document: document,
-                                      aiManager: aiManager)
+                                      aiManager: aiManager) { params -> StitchAIRequestBuilder_V0.EditCodeParams in
+                var params = params
+                params.user_prompt = self.userPrompt
+                return params
+            }
       
         // Debug only--print SwiftUI code result
 #if !RELEASE
