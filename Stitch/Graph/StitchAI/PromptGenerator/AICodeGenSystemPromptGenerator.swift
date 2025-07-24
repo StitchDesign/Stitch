@@ -76,6 +76,8 @@ Text(PortValueDescription(value: "hello world", value_type: "string"))
 
 This means that for any value declared inside a view's constructor, a view modifier, or anywhere some value is declared, you must use a `[PortValueDescription]` object.
 
+#### Permitted Usage of State in View Modifiers
+
 **This includes invocation of state viarables for view modifiers, which must be processed by the view modifier in its looped form**. For example:
 ```swift
 .offset(x: ovalDragX.first?.value as? Double ?? 0,
@@ -86,6 +88,14 @@ Is invalid because each offset argument is equipped to handle the full looped va
 ```swift
 .offset(x: ovalDragX, y: ovalDragY)
 ```
+
+State should be invoked directly without any additional logic. This includes examples like this where we attempt to get specific indexed values:
+```swift
+.offset(x: dragPosition.value(at: 0) as? Double ?? 0,
+        y: dragPosition.value(at: 1) as? Double ?? 0)
+```
+
+Instead, either create separate x and y looped state variables, like in the previous example.
 
 ##### Specific Rules to `PortValueDescription`
 
