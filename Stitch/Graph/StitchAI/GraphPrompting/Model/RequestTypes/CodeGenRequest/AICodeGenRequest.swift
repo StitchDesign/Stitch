@@ -52,6 +52,18 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
                                       requestType: Self.type,
                                       document: document,
                                       aiManager: aiManager)
+      
+        // Debug only--print SwiftUI code result
+#if !RELEASE
+        if let initialToolMsg = editRequestToolCalls[safe: 1] {
+            if let initialSwiftUICode = try? initialToolMsg
+                .decodeMessage(document: document,
+                               aiManager: aiManager,
+                               resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self) {
+                log("AICodeGenFromGraphRequest initial code from graph:\n\(initialSwiftUICode.source_code)")
+            }
+        }
+#endif
 
         let processCodeFnRequest = OpenAIFunctionRequest(
             id: self.id,
@@ -69,9 +81,8 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
             .requestMessageForFn(document: document,
                                  aiManager: aiManager)
         
-        let decodedSwiftUICode = try OpenAIFunctionRequest
-            .decodeMessage(from: processCodeToolCall,
-                           document: document,
+        let decodedSwiftUICode = try processCodeToolCall
+            .decodeMessage(document: document,
                            aiManager: aiManager,
                            resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
         
@@ -122,9 +133,8 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
         let msgFromCodeCreation = try await createCodeRequest
             .requestMessageForFn(document: document, aiManager: aiManager)
 
-        let decodedSwiftUICode = try OpenAIFunctionRequest
-            .decodeMessage(from: msgFromCodeCreation,
-                           document: document,
+        let decodedSwiftUICode = try msgFromCodeCreation
+            .decodeMessage(document: document,
                            aiManager: aiManager,
                            resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
 
@@ -208,7 +218,7 @@ extension StitchAICodeCreator {
                         aiManager: aiManager,
                         systemPrompt: systemPrompt)
         
-        logToServerIfRelease("SUCCESS: swiftUICode: \(swiftUICode)")
+        logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
         
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
@@ -254,9 +264,8 @@ extension StitchAICodeCreator {
             .requestMessageForFn(document: document,
                                  aiManager: aiManager)
         
-        let patchBuildResult = try OpenAIFunctionRequest
-            .decodeMessage(from: processPatchBuilderMsg,
-                           document: document,
+        let patchBuildResult = try processPatchBuilderMsg
+            .decodeMessage(document: document,
                            aiManager: aiManager,
                            resultType: CurrentAIGraphData.PatchData.self)
 

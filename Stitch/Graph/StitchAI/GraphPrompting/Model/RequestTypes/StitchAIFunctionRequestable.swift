@@ -16,12 +16,11 @@ extension StitchAIFunctionRequestable {
     var functionName: String { self.body.functionName }
 }
 
-extension StitchAIFunctionRequestable {
-    static func decodeMessage<ResultType>(from message: OpenAIMessage,
-                                          document: StitchDocumentViewModel,
-                                          aiManager: StitchAIManager,
-                                          resultType: ResultType.Type) throws -> ResultType where Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult == Self.FinalDecodedResult, ResultType: Decodable {
-        guard let tool = message.tool_calls?.first?.function,
+extension OpenAIMessage {
+    func decodeMessage<ResultType>(document: StitchDocumentViewModel,
+                                   aiManager: StitchAIManager,
+                                   resultType: ResultType.Type) throws -> ResultType where ResultType: Decodable {
+        guard let tool = self.tool_calls?.first?.function,
               let swiftUISourceCodeData = tool.arguments.data(using: .utf8) else {
             throw StitchAIManagerError.functionDecodingFailed
         }
