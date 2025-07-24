@@ -174,6 +174,7 @@
 		B561B44B2923465D00DE4A0D /* iPadProjectSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B561B44A2923465D00DE4A0D /* iPadProjectSidebarView.swift */; };
 		B5657D362C0983E300287362 /* MediaEvalOpObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */; };
 		B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5657D382C0B94A300287362 /* GraphMediaValue.swift */; };
+		B5675A932E31A95400269ABB /* AICodeEditSystemPromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5675A922E31A94A00269ABB /* AICodeEditSystemPromptGenerator.swift */; };
 		B569E58B2B06A8B100C7435B /* NodeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B569E58A2B06A8B100C7435B /* NodeInfo.swift */; };
 		B56EA8A62C409898003D39E2 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B56EA8A52C409898003D39E2 /* StitchEngine */; };
 		B56EC9F22D81524A00C4ACF3 /* ConnectedEdgeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56EC9F12D81524500C4ACF3 /* ConnectedEdgeData.swift */; };
@@ -1348,6 +1349,7 @@
 		B561B44A2923465D00DE4A0D /* iPadProjectSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadProjectSidebarView.swift; sourceTree = "<group>"; };
 		B5657D352C0983E300287362 /* MediaEvalOpObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaEvalOpObservable.swift; sourceTree = "<group>"; };
 		B5657D382C0B94A300287362 /* GraphMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMediaValue.swift; sourceTree = "<group>"; };
+		B5675A922E31A94A00269ABB /* AICodeEditSystemPromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICodeEditSystemPromptGenerator.swift; sourceTree = "<group>"; };
 		B569E58A2B06A8B100C7435B /* NodeInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeInfo.swift; sourceTree = "<group>"; };
 		B56EC9F12D81524500C4ACF3 /* ConnectedEdgeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectedEdgeData.swift; sourceTree = "<group>"; };
 		B56FFB202C18B4F600623CC7 /* AnimationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationUtils.swift; sourceTree = "<group>"; };
@@ -4535,6 +4537,7 @@
 		B5F3D0B02DE3CBBA00103676 /* PromptGenerator */ = {
 			isa = PBXGroup;
 			children = (
+				B5675A922E31A94A00269ABB /* AICodeEditSystemPromptGenerator.swift */,
 				B5CD1A282E2AB907009CDF74 /* AIGraphBuilderSystemPromptGenerator.swift */,
 				B5EFD5B02D5D8967006A68FB /* StitchAISystemPromptGenerator.swift */,
 				B5B31CE72E0C6769003EABA2 /* AICodeGenSystemPromptGenerator.swift */,
@@ -6444,6 +6447,7 @@
 				EC1318C52B8801CF00F74E93 /* CoercerUtils.swift in Sources */,
 				EC560E1B293A9C8400350046 /* LoopToArrayNode.swift in Sources */,
 				B544D3A8283C3F90000A24E2 /* StitchSheet.swift in Sources */,
+				B5675A932E31A95400269ABB /* AICodeEditSystemPromptGenerator.swift in Sources */,
 				B5432D20276A57800052E59F /* ScrollAnimation.swift in Sources */,
 				ECD9F2AF2DD66DA300616C21 /* LayerPortAddedToCanvas.swift in Sources */,
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
