@@ -41,7 +41,7 @@ protocol StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> OpenAIMessage
+                    systemPrompt: String) async throws -> (OpenAIMessage, [OpenAIMessage])
 }
 
 extension StitchAIFunctionRequestable {    
@@ -53,7 +53,7 @@ extension StitchAIFunctionRequestable {
         
         if let systemPrompt = try functionType.getAssistantPrompt(for: requestType) {
             messages.append(OpenAIMessage(
-                role: .system,
+                role: .assistant,
                 content: try functionType.getAssistantPrompt(for: requestType)
             ))
         }

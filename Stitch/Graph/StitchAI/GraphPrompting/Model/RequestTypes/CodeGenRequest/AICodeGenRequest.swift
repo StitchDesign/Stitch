@@ -27,7 +27,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> OpenAIMessage {
+                    systemPrompt: String) async throws -> (OpenAIMessage, [OpenAIMessage]) {
         var allMessages = [OpenAIMessage(
             role: .system,
             content: systemPrompt
@@ -80,7 +80,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         }
 #endif
         
-        return editToolCall
+        return (editToolCall, allMessages)
     }
 }
 
@@ -106,7 +106,7 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> OpenAIMessage {
+                    systemPrompt: String) async throws -> (OpenAIMessage, [OpenAIMessage]) {
         fatalError()
 //
 //        let imageRequestInputs = AICodeGenFromImageInputs(
@@ -209,12 +209,7 @@ extension StitchAICodeCreator {
                                 systemPrompt: String) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
         log("SUCCESS: userPrompt: \(userPrompt)")
         
-        var allMessages: [OpenAIMessage] = [
-            .init(role: .system,
-                  content: systemPrompt)
-        ]
-        
-        let codeToolCallMsg = try await self
+        var (codeToolCallMsg, allMessages) = try await self
             .createCode(document: document,
                         aiManager: aiManager,
                         systemPrompt: systemPrompt)
