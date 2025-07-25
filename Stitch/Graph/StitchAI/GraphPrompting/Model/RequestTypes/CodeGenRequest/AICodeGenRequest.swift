@@ -34,23 +34,23 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         )]
         
         // Create tool message for code creation
-        let codeCreateRequestMessages = try OpenAIFunctionRequest
+        let (createCodeToolCall, codeCreateRequestMessages) = try OpenAIFunctionRequest
             .createInitialFnMessages(functionType: .codeBuilder,
                                      requestType: Self.type,
                                      inputsArguments: self.currentGraphData)
         allMessages += codeCreateRequestMessages
         
-        // Request for code creation
-        let codeCreateFnRequest = OpenAIFunctionRequest(
-            id: self.id,
-            functionType: .codeBuilder,
-            requestType: Self.type,
-            messages: allMessages)
-        
-        // Creates function stub for code create
-        let createCodeToolCall = try await codeCreateFnRequest
-            .requestMessageForFn(document: document,
-                                 aiManager: aiManager)
+//        // Request for code creation
+//        let codeCreateFnRequest = OpenAIFunctionRequest(
+//            id: self.id,
+//            functionType: .codeBuilder,
+//            requestType: Self.type,
+//            messages: allMessages)
+//        
+//        // Creates function stub for code create
+//        let createCodeToolCall = try await codeCreateFnRequest
+//            .requestMessageForFn(document: document,
+//                                 aiManager: aiManager)
     
         // Create tool message for code edit
         let codeEditRequestMessages = try OpenAIFunctionRequest
