@@ -41,7 +41,7 @@ protocol StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> String
+                    systemPrompt: String) async throws -> OpenAIMessage
 }
 
 extension StitchAIFunctionRequestable {    

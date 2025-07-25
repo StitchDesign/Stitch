@@ -27,7 +27,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> String {
+                    systemPrompt: String) async throws -> OpenAIMessage {
         var allMessages = [OpenAIMessage(
             role: .system,
             content: systemPrompt
@@ -80,30 +80,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         }
 #endif
         
-        // Create tool message for code processing
-        let codeProcessingRequestMessages = try OpenAIFunctionRequest
-            .createChainedFnMessages(toolResponse: editToolCall,
-                                     functionType: .processCode,
-                                     requestType: Self.type,
-                                     inputsArguments: nil)
-        allMessages += codeProcessingRequestMessages
-        
-        let processCodeRequest = OpenAIFunctionRequest(
-            id: self.id,
-            functionType: .processCode,
-            requestType: Self.type,
-            messages: allMessages)
-        
-        let processToolCall = try await processCodeRequest
-            .requestMessageForFn(document: document,
-                                 aiManager: aiManager)
-        
-        let decodedSwiftUICode = try processToolCall
-            .decodeMessage(document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-        
-        return decodedSwiftUICode.source_code
+        return editToolCall
     }
 }
 
@@ -129,7 +106,7 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> String {
+                    systemPrompt: String) async throws -> OpenAIMessage {
         fatalError()
 //
 //        let imageRequestInputs = AICodeGenFromImageInputs(
@@ -232,10 +209,40 @@ extension StitchAICodeCreator {
                                 systemPrompt: String) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
         log("SUCCESS: userPrompt: \(userPrompt)")
         
-        let swiftUICode = try await self
+        var allMessages: [OpenAIMessage] = [
+            .init(role: .system,
+                  content: systemPrompt)
+        ]
+        
+        let codeToolCallMsg = try await self
             .createCode(document: document,
                         aiManager: aiManager,
                         systemPrompt: systemPrompt)
+        
+        // Create tool message for code processing
+        let codeProcessingRequestMessages = try OpenAIFunctionRequest
+            .createChainedFnMessages(toolResponse: codeToolCallMsg,
+                                     functionType: .patchBuilder,
+                                     requestType: Self.type,
+                                     inputsArguments: nil)
+        allMessages += codeProcessingRequestMessages
+        
+        let processCodeRequest = OpenAIFunctionRequest(
+            id: self.id,
+            functionType: .patchBuilder,
+            requestType: Self.type,
+            messages: allMessages)
+        
+        let processToolCall = try await processCodeRequest
+            .requestMessageForFn(document: document,
+                                 aiManager: aiManager)
+        
+        let decodedSwiftUICode = try processToolCall
+            .decodeMessage(document: document,
+                           aiManager: aiManager,
+                           resultType: AIPatchBuilderFunctionInputs.self)
+        
+        let swiftUICode = decodedSwiftUICode.swiftui_source_code
         
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
         
@@ -263,7 +270,7 @@ extension StitchAICodeCreator {
         
         let patchBuilderInputs = AIPatchBuilderFunctionInputs(
             swiftui_source_code: swiftUICode,
-            layer_data_list: layerDataList)
+            layer_data_list: try layerDataList.encodeToString())
         
         fatalError()
 //
