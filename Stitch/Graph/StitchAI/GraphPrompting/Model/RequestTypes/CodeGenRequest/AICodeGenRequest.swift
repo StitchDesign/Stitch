@@ -85,7 +85,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
             .createChainedFnMessages(toolResponse: editToolCall,
                                      functionType: .processCode,
                                      requestType: Self.type,
-                                     inputsArguments: self.userPrompt)
+                                     inputsArguments: nil)
         allMessages += codeProcessingRequestMessages
         
         let processCodeRequest = OpenAIFunctionRequest(
