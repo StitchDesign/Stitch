@@ -71,7 +71,9 @@ ZStack {
 ```
 
 # Code Generation Rules
-Adhere to the guidelines specified earlier in the system prompt.
+Adhere to the following guideliens:
+
+\(try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: requestType))
 
 # Summary
 Edit the provided source code given the provided user prompt. Adhere to the strict guidelines provided in the above document.

@@ -27,60 +27,34 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> (OpenAIMessage, [OpenAIMessage]) {
-        var allMessages = [OpenAIMessage(
-            role: .system,
-            content: systemPrompt
-        )]
-        
-        // Create tool message for code creation
-        let (createCodeToolCall, codeCreateRequestMessages) = try OpenAIFunctionRequest
-            .createInitialFnMessages(functionType: .codeBuilder,
-                                     requestType: Self.type,
-                                     inputsArguments: self.currentGraphData)
-        allMessages += codeCreateRequestMessages
-        
-//        // Request for code creation
-//        let codeCreateFnRequest = OpenAIFunctionRequest(
-//            id: self.id,
-//            functionType: .codeBuilder,
-//            requestType: Self.type,
-//            messages: allMessages)
-//        
-//        // Creates function stub for code create
-//        let createCodeToolCall = try await codeCreateFnRequest
-//            .requestMessageForFn(document: document,
-//                                 aiManager: aiManager)
-    
-        // Create tool message for code edit
-        let codeEditRequestMessages = try OpenAIFunctionRequest
-            .createChainedFnMessages(toolResponse: createCodeToolCall,
-                                     functionType: .codeEditor,
-                                     requestType: Self.type,
-                                     inputsArguments: self.userPrompt)
-        allMessages += codeEditRequestMessages
-        
-        let editRequest = OpenAIFunctionRequest(
+                    systemPrompt: String) async throws -> String {
+        // Request for code creation
+        let codeCreateRequest = try OpenAIChatCompletionRequest(
             id: self.id,
-            functionType: .codeEditor,
             requestType: Self.type,
-            messages: allMessages)
+            systemPrompt: systemPrompt,
+            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type),
+            inputs: self.currentGraphData)
         
-        let editToolCall = try await editRequest
-            .requestMessageForFn(document: document,
-                                 aiManager: aiManager)
-    
-        // Debug only--print SwiftUI code result
-#if !RELEASE
-        if let initialSwiftUICode = try? editToolCall
-            .decodeMessage(document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self) {
-            log("AICodeGenFromGraphRequest initial code from graph:\n\(initialSwiftUICode.source_code)")
-        }
-#endif
+        let codeResult = try await codeCreateRequest
+            .request(document: document,
+                     aiManager: aiManager)
         
-        return (editToolCall, allMessages)
+        log("AICodeGenFromGraphRequest.createCode initial result:\n\(codeResult)")
+        
+        // Request for code edit
+        let codeEditRequest = try OpenAIChatCompletionRequest(
+            id: self.id,
+            requestType: Self.type,
+            systemPrompt: systemPrompt,
+            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type),
+            inputs: self.userPrompt)
+        
+        let codeEditResult = try await codeEditRequest
+            .request(document: document,
+                     aiManager: aiManager)
+        
+        return codeEditResult
     }
 }
 
@@ -106,7 +80,7 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> (OpenAIMessage, [OpenAIMessage]) {
+                    systemPrompt: String) async throws -> String {
         fatalError()
 //
 //        let imageRequestInputs = AICodeGenFromImageInputs(
@@ -209,43 +183,18 @@ extension StitchAICodeCreator {
                                 systemPrompt: String) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
         log("SUCCESS: userPrompt: \(userPrompt)")
         
-        var (codeToolCallMsg, allMessages) = try await self
+        let swiftUICode = try await self
             .createCode(document: document,
                         aiManager: aiManager,
                         systemPrompt: systemPrompt)
-        
-        // Create tool message for code processing
-        let codeProcessingRequestMessages = try OpenAIFunctionRequest
-            .createChainedFnMessages(toolResponse: codeToolCallMsg,
-                                     functionType: .patchBuilder,
-                                     requestType: Self.type,
-                                     inputsArguments: nil)
-        allMessages += codeProcessingRequestMessages
-        
-        let processCodeRequest = OpenAIFunctionRequest(
-            id: self.id,
-            functionType: .patchBuilder,
-            requestType: Self.type,
-            messages: allMessages)
-        
-        var patchBuilderToolCall = try await processCodeRequest
-            .requestMessageForFn(document: document,
-                                 aiManager: aiManager)
-        
-        let decodedSwiftUICode = try patchBuilderToolCall
-            .decodeMessage(document: document,
-                           aiManager: aiManager,
-                           resultType: AIPatchBuilderFunctionInputs.self)
-        
-        let swiftUICode = decodedSwiftUICode.swiftui_source_code
-        
+
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
         
         guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
             logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
             throw SwiftUISyntaxError.couldNotParseVarBody
         }
-                
+        
         logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)
@@ -266,37 +215,37 @@ extension StitchAICodeCreator {
         let patchBuilderInputs = AIPatchBuilderFunctionInputs(
             swiftui_source_code: swiftUICode,
             layer_data_list: try layerDataList.encodeToString())
-        
-        // Update parameters of patch builder request with updated layer list
-        patchBuilderToolCall.tool_calls?[0].function.arguments = try patchBuilderInputs.encodeToString()
-        
-        let processPatchBuilderMsgs = try OpenAIFunctionRequest
-            .createChainedFnMessages(toolResponse: patchBuilderToolCall,
-                                     functionType: .processPatchData,
-                                     requestType: Self.type,
-                                     inputsArguments: nil)
-        
-        allMessages += processPatchBuilderMsgs
-        
-        let processPatchDataRequest = OpenAIFunctionRequest(
-            id: self.id,
-            functionType: .processPatchData,
-            requestType: Self.type,
-            messages: allMessages)
-        
-        let processPatchDataToolCall = try await processPatchDataRequest
-            .requestMessageForFn(document: document,
-                                 aiManager: aiManager)
-        
-        let patchBuildResult = try processPatchDataToolCall
-            .decodeMessage(document: document,
-                           aiManager: aiManager,
-                           resultType: CurrentAIGraphData.PatchData.self)
-
-        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
-        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
-                                                 patch_data: patchBuildResult)
-        return (graphData, allDiscoveredErrors)
+//        
+//        // Update parameters of patch builder request with updated layer list
+//        patchBuilderToolCall.tool_calls?[0].function.arguments = try patchBuilderInputs.encodeToString()
+//        
+//        let processPatchBuilderMsgs = try OpenAIFunctionRequest
+//            .createChainedFnMessages(toolResponse: patchBuilderToolCall,
+//                                     functionType: .processPatchData,
+//                                     requestType: Self.type,
+//                                     inputsArguments: nil)
+//        
+//        allMessages += processPatchBuilderMsgs
+//        
+//        let processPatchDataRequest = OpenAIFunctionRequest(
+//            id: self.id,
+//            functionType: .processPatchData,
+//            requestType: Self.type,
+//            messages: allMessages)
+//        
+//        let processPatchDataToolCall = try await processPatchDataRequest
+//            .requestMessageForFn(document: document,
+//                                 aiManager: aiManager)
+//        
+//        let patchBuildResult = try processPatchDataToolCall
+//            .decodeMessage(document: document,
+//                           aiManager: aiManager,
+//                           resultType: CurrentAIGraphData.PatchData.self)
+//
+//        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
+//        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
+//                                                 patch_data: patchBuildResult)
+//        return (graphData, allDiscoveredErrors)
     }
 }
 

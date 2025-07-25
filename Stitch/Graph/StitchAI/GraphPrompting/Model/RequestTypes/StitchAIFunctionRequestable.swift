@@ -12,9 +12,13 @@ Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult
     var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
 }
 
-extension StitchAIFunctionRequestable {
-    var functionName: String { self.body.functionName }
+protocol StitchAIChatCompletionRequestable: StitchAIRequestable where Self.Body == OpenAIRequestBody {
+    var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
 }
+
+//extension StitchAIFunctionRequestable {
+//    var functionName: String { self.body.functionName }
+//}
 
 extension OpenAIMessage {
     func decodeMessage<ResultType>(document: StitchDocumentViewModel,
@@ -41,74 +45,39 @@ protocol StitchAICodeCreator {
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
-                    systemPrompt: String) async throws -> (OpenAIMessage, [OpenAIMessage])
+                    systemPrompt: String) async throws -> String
 }
 
-extension StitchAIFunctionRequestable {    
-    /// Starts new chain of function calling. Call this when no existing funciton messages can be used.
-    static func createPrimerFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
-                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-                                       inputsArguments: (any Encodable)?) throws -> [OpenAIMessage] {
-        var messages = [OpenAIMessage]()
-        
-        if let systemPrompt = try functionType.getAssistantPrompt(for: requestType) {
-            messages.append(OpenAIMessage(
-                role: .assistant,
-                content: systemPrompt
-            ))
-        }
-        
-        if let inputsArguments = inputsArguments {
-            messages.append(OpenAIMessage(
-                role: .user,
-                content: try inputsArguments.encodeToString()
-            ))
-        }
-        
-        return messages
-    }
-    
-    static func createInitialFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
-                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-                                        inputsArguments: (any Encodable)) throws -> (OpenAIMessage, [OpenAIMessage]) {
-        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
-        let toolId = OpenAISchema.sampleId
-        
-        let msgFromSourceCodeRequest = OpenAIMessage(
-            role: .assistant,
-            tool_calls: [
-                .init(
-                    id: toolId,
-                    type: "function",
-                    function: .init(name: functionType.rawValue,
-                                    arguments: try inputsArguments.encodeToString())
-                )
-            ],
-            annotations: []
-        )
-
-        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
-        
-        let primerMsgs = try Self
-            .createPrimerFnMessages(functionType: functionType,
-                                    requestType: requestType,
-                                    inputsArguments: inputsArguments)
-        
-        return (msgFromSourceCodeRequest, primerMsgs + [msgFromSourceCodeRequest, newCodeToolMessage])
-    }
-    
-    static func createChainedFnMessages(toolResponse: OpenAIMessage,
-                                        functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
-                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-                                        inputsArguments: (any Encodable)?) throws -> [OpenAIMessage] {
-        let toolMsg = try toolResponse.createNewToolMessage()
-        
-        let fnMessages = try Self.createPrimerFnMessages(functionType: functionType,
-                                                          requestType: requestType,
-                                                          inputsArguments: inputsArguments)
+//extension StitchAIFunctionRequestable {
+//    /// Starts new chain of function calling. Call this when no existing funciton messages can be used.
+//    static func createPrimerFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+//                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//                                       inputsArguments: (any Encodable)?) throws -> [OpenAIMessage] {
+//        var messages = [OpenAIMessage]()
+//        
+//        if let systemPrompt = try functionType.getAssistantPrompt(for: requestType) {
+//            messages.append(OpenAIMessage(
+//                role: .assistant,
+//                content: systemPrompt
+//            ))
+//        }
+//        
+//        if let inputsArguments = inputsArguments {
+//            messages.append(OpenAIMessage(
+//                role: .user,
+//                content: try inputsArguments.encodeToString()
+//            ))
+//        }
+//        
+//        return messages
+//    }
+//    
+//    static func createInitialFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+//                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//                                        inputsArguments: (any Encodable)) throws -> (OpenAIMessage, [OpenAIMessage]) {
 //        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
 //        let toolId = OpenAISchema.sampleId
-//
+//        
 //        let msgFromSourceCodeRequest = OpenAIMessage(
 //            role: .assistant,
 //            tool_calls: [
@@ -123,40 +92,75 @@ extension StitchAIFunctionRequestable {
 //        )
 //
 //        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
-        
-        return [toolResponse, toolMsg] + fnMessages
-    }
-}
-
-extension StitchAIFunctionRequestable {
-    @MainActor
-    func systemPrompt(graph: GraphState) throws -> String {
-        try StitchAIManager
-            .stitchAIGraphBuilderSystem(graph: graph,
-                                        requestType: self.type)
-    }
-}
-
-extension StitchAIFunctionRequestable {
-    @MainActor
-    func willRequest(document: StitchDocumentViewModel,
-                     canShareData: Bool,
-                     requestTask: Self.RequestTask) {
-        // Nothing to do
-    }
-    
-    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
-        decodedResult
-    }
-    
-    @MainActor
-    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
-                                   currentAttempt: Int) {
-        fatalErrorIfDebug()
-    }
-    
-    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
-        // Unsupported
-        fatalError()
-    }
-}
+//        
+//        let primerMsgs = try Self
+//            .createPrimerFnMessages(functionType: functionType,
+//                                    requestType: requestType,
+//                                    inputsArguments: inputsArguments)
+//        
+//        return (msgFromSourceCodeRequest, primerMsgs + [msgFromSourceCodeRequest, newCodeToolMessage])
+//    }
+//    
+//    static func createChainedFnMessages(toolResponse: OpenAIMessage,
+//                                        functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+//                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//                                        inputsArguments: (any Encodable)?) throws -> [OpenAIMessage] {
+//        let toolMsg = try toolResponse.createNewToolMessage()
+//        
+//        let fnMessages = try Self.createPrimerFnMessages(functionType: functionType,
+//                                                          requestType: requestType,
+//                                                          inputsArguments: inputsArguments)
+////        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
+////        let toolId = OpenAISchema.sampleId
+////
+////        let msgFromSourceCodeRequest = OpenAIMessage(
+////            role: .assistant,
+////            tool_calls: [
+////                .init(
+////                    id: toolId,
+////                    type: "function",
+////                    function: .init(name: functionType.rawValue,
+////                                    arguments: try inputsArguments.encodeToString())
+////                )
+////            ],
+////            annotations: []
+////        )
+////
+////        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+//        
+//        return [toolResponse, toolMsg] + fnMessages
+//    }
+//}
+//
+//extension StitchAIFunctionRequestable {
+//    @MainActor
+//    func systemPrompt(graph: GraphState) throws -> String {
+//        try StitchAIManager
+//            .stitchAIGraphBuilderSystem(graph: graph,
+//                                        requestType: self.type)
+//    }
+//}
+//
+//extension StitchAIFunctionRequestable {
+//    @MainActor
+//    func willRequest(document: StitchDocumentViewModel,
+//                     canShareData: Bool,
+//                     requestTask: Self.RequestTask) {
+//        // Nothing to do
+//    }
+//    
+//    static func validateResponse(decodedResult: [OpenAIToolCallResponse]) throws -> [OpenAIToolCallResponse] {
+//        decodedResult
+//    }
+//    
+//    @MainActor
+//    func onSuccessfulDecodingChunk(result: [OpenAIToolCallResponse],
+//                                   currentAttempt: Int) {
+//        fatalErrorIfDebug()
+//    }
+//    
+//    static func buildResponse(from streamingChunks: [[OpenAIToolCallResponse]]) throws -> [OpenAIToolCallResponse] {
+//        // Unsupported
+//        fatalError()
+//    }
+//}
