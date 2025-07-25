@@ -233,11 +233,11 @@ extension StitchAICodeCreator {
             requestType: Self.type,
             messages: allMessages)
         
-        let processToolCall = try await processCodeRequest
+        var patchBuilderToolCall = try await processCodeRequest
             .requestMessageForFn(document: document,
                                  aiManager: aiManager)
         
-        let decodedSwiftUICode = try processToolCall
+        let decodedSwiftUICode = try patchBuilderToolCall
             .decodeMessage(document: document,
                            aiManager: aiManager,
                            resultType: AIPatchBuilderFunctionInputs.self)
@@ -272,35 +272,36 @@ extension StitchAICodeCreator {
             swiftui_source_code: swiftUICode,
             layer_data_list: try layerDataList.encodeToString())
         
-        fatalError()
-//
-//        // Create new tool messages for patch builder
-//        let patchBuilderToolMessages = try OpenAIFunctionRequest
-//            .createInitialFnMessages(functionType: .patchBuilder,
-//                                     requestType: Self.type,
-//                                     inputsArguments: patchBuilderInputs,
-//                                     systemPrompt: systemPrompt)
-//        
-//        // Create request object that process patch builder
-//        let processPatchBuilderRequest = OpenAIFunctionRequest(
-//            id: self.id,
-//            functionType: .processPatchData,
-//            requestType: Self.type,
-//            messages: patchBuilderToolMessages)
-//        
-//        let processPatchBuilderMsg = try await processPatchBuilderRequest
-//            .requestMessageForFn(document: document,
-//                                 aiManager: aiManager)
-//        
-//        let patchBuildResult = try processPatchBuilderMsg
-//            .decodeMessage(document: document,
-//                           aiManager: aiManager,
-//                           resultType: CurrentAIGraphData.PatchData.self)
-//
-//        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
-//        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
-//                                                 patch_data: patchBuildResult)
-//        return (graphData, allDiscoveredErrors)
+        // Update parameters of patch builder request with updated layer list
+        patchBuilderToolCall.tool_calls?[0].function.arguments = try patchBuilderInputs.encodeToString()
+        
+        let processPatchBuilderMsgs = try OpenAIFunctionRequest
+            .createChainedFnMessages(toolResponse: patchBuilderToolCall,
+                                     functionType: .processPatchData,
+                                     requestType: Self.type,
+                                     inputsArguments: nil)
+        
+        allMessages += processPatchBuilderMsgs
+        
+        let processPatchDataRequest = OpenAIFunctionRequest(
+            id: self.id,
+            functionType: .processPatchData,
+            requestType: Self.type,
+            messages: allMessages)
+        
+        let processPatchDataToolCall = try await processPatchDataRequest
+            .requestMessageForFn(document: document,
+                                 aiManager: aiManager)
+        
+        let patchBuildResult = try processPatchDataToolCall
+            .decodeMessage(document: document,
+                           aiManager: aiManager,
+                           resultType: CurrentAIGraphData.PatchData.self)
+
+        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
+        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
+                                                 patch_data: patchBuildResult)
+        return (graphData, allDiscoveredErrors)
     }
 }
 
