@@ -47,7 +47,7 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
             id: self.id,
             requestType: Self.type,
             systemPrompt: systemPrompt,
-            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type),
+            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
             inputs: self.userPrompt)
         
         let codeEditResult = try await codeEditRequest
