@@ -215,37 +215,24 @@ extension StitchAICodeCreator {
         let patchBuilderInputs = AIPatchBuilderFunctionInputs(
             swiftui_source_code: swiftUICode,
             layer_data_list: try layerDataList.encodeToString())
-//        
-//        // Update parameters of patch builder request with updated layer list
-//        patchBuilderToolCall.tool_calls?[0].function.arguments = try patchBuilderInputs.encodeToString()
-//        
-//        let processPatchBuilderMsgs = try OpenAIFunctionRequest
-//            .createChainedFnMessages(toolResponse: patchBuilderToolCall,
-//                                     functionType: .processPatchData,
-//                                     requestType: Self.type,
-//                                     inputsArguments: nil)
-//        
-//        allMessages += processPatchBuilderMsgs
-//        
-//        let processPatchDataRequest = OpenAIFunctionRequest(
-//            id: self.id,
-//            functionType: .processPatchData,
-//            requestType: Self.type,
-//            messages: allMessages)
-//        
-//        let processPatchDataToolCall = try await processPatchDataRequest
-//            .requestMessageForFn(document: document,
-//                                 aiManager: aiManager)
-//        
-//        let patchBuildResult = try processPatchDataToolCall
-//            .decodeMessage(document: document,
-//                           aiManager: aiManager,
-//                           resultType: CurrentAIGraphData.PatchData.self)
-//
-//        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
-//        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
-//                                                 patch_data: patchBuildResult)
-//        return (graphData, allDiscoveredErrors)
+        
+        let patchBuilderRequest = try OpenAIChatCompletionStructuredOutputsRequest(
+            id: self.id,
+            requestType: Self.type,
+            systemPrompt: systemPrompt,
+            assistantPrompt: try StitchAIManager.aiPatchBuilderSystemPromptGenerator(),
+            responseFormat: AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat(),
+            inputs: patchBuilderInputs)
+        
+        let patchBuilderResult = try await patchBuilderRequest
+            .request(document: document,
+                     aiManager: aiManager)
+        
+        logToServerIfRelease("Successful patch builder result: \(try patchBuilderResult.encodeToPrintableString())")
+        
+        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
+                                                 patch_data: patchBuilderResult)
+        return (graphData, allDiscoveredErrors)
     }
 }
 

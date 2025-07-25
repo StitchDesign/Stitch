@@ -16,7 +16,7 @@ protocol OpenAIRequestable: Encodable {
     var response_format: FormatType { get }
 }
 
-protocol OpenAIResponseFormatable: Encodable {
+protocol OpenAIResponseFormatable: Encodable, Sendable {
     associatedtype JsonSchema: OpenAIJsonSchema
     
     var type: String { get }

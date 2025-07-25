@@ -27,7 +27,7 @@ struct AIGraphCreationRequest: StitchAIRequestable {
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AIGraphCreationRequestBody
-    static let willStream: Bool = true
+    let willStream: Bool = true
     
     /// Initialize a new request with prompt and optional configuration
     @MainActor

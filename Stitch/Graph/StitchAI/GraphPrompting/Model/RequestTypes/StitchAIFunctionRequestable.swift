@@ -12,7 +12,7 @@ Self.InitialDecodedResult == [OpenAIToolCallResponse], Self.InitialDecodedResult
     var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
 }
 
-protocol StitchAIChatCompletionRequestable: StitchAIRequestable where Self.Body == OpenAIRequestBody {
+protocol StitchAIChatCompletionRequestable: StitchAIRequestable {
     var type: StitchAIRequestBuilder_V0.StitchAIRequestType { get }
 }
 
