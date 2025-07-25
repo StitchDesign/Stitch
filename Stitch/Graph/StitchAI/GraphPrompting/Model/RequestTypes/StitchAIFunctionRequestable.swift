@@ -48,41 +48,71 @@ extension StitchAIFunctionRequestable {
     /// Starts new chain of function calling. Call this when no existing funciton messages can be used.
     static func createInitialFnMessages(functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
                                         requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-                                        inputsArguments: any Encodable,
-                                        systemPrompt: String) throws -> [OpenAIMessage] {
-        let systemPromptMsg = OpenAIMessage(
-            role: .system,
-            content: systemPrompt
-        )
+                                        inputsArguments: (any Encodable)?) throws -> [OpenAIMessage] {
+        var messages = [OpenAIMessage]()
         
-        let supplementarySystemPrompt = OpenAIMessage(
-            role: .system,
-            content: try functionType.getAssistantPrompt(for: requestType)
-        )
+        if let systemPrompt = try functionType.getAssistantPrompt(for: requestType) {
+            messages.append(OpenAIMessage(
+                role: .system,
+                content: try functionType.getAssistantPrompt(for: requestType)
+            ))
+        }
 
-        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
-        let toolId = OpenAISchema.sampleId
+        if let inputsArguments = inputsArguments {
+            messages.append(OpenAIMessage(
+                role: .user,
+                content: try inputsArguments.encodeToString()
+            ))
+        }
+//        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
+//        let toolId = OpenAISchema.sampleId
+//        
+//        let msgFromSourceCodeRequest = OpenAIMessage(
+//            role: .assistant,
+//            tool_calls: [
+//                .init(
+//                    id: toolId,
+//                    type: "function",
+//                    function: .init(name: functionType.rawValue,
+//                                    arguments: try inputsArguments.encodeToString())
+//                )
+//            ],
+//            annotations: []
+//        )
+//
+//        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
         
-        let msgFromSourceCodeRequest = OpenAIMessage(
-            role: .assistant,
-            tool_calls: [
-                .init(
-                    id: toolId,
-                    type: "function",
-                    function: .init(name: functionType.rawValue,
-                                    arguments: try inputsArguments.encodeToString())
-                )
-            ],
-            annotations: []
-        )
-
-        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+        return messages
+    }
+    
+    static func createChainedFnMessages(toolResponse: OpenAIMessage,
+                                        functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+                                        requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+                                        inputsArguments: (any Encodable)?) throws -> [OpenAIMessage] {
+        let toolMsg = try toolResponse.createNewToolMessage()
         
-        return [
-            systemPromptMsg,
-            supplementarySystemPrompt,
-            msgFromSourceCodeRequest,
-            newCodeToolMessage]
+        let fnMessages = try Self.createInitialFnMessages(functionType: functionType,
+                                                          requestType: requestType,
+                                                          inputsArguments: inputsArguments)
+//        // MARK: OpenAI requires a specific ID format that if unmatched will break requests
+//        let toolId = OpenAISchema.sampleId
+//
+//        let msgFromSourceCodeRequest = OpenAIMessage(
+//            role: .assistant,
+//            tool_calls: [
+//                .init(
+//                    id: toolId,
+//                    type: "function",
+//                    function: .init(name: functionType.rawValue,
+//                                    arguments: try inputsArguments.encodeToString())
+//                )
+//            ],
+//            annotations: []
+//        )
+//
+//        let newCodeToolMessage = try msgFromSourceCodeRequest.createNewToolMessage()
+        
+        return [toolResponse, toolMsg] + fnMessages
     }
 }
 

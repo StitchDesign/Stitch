@@ -12,11 +12,11 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     let id: UUID
     let userPrompt: String             // User's input prompt
-    let currentGraphData: CurrentAIGraphData.GraphData
+    let currentGraphData: CurrentAIGraphData.CodeCreatorParams
     
     @MainActor
     init(prompt: String,
-         currentGraphData: CurrentAIGraphData.GraphData) throws {
+         currentGraphData: CurrentAIGraphData.CodeCreatorParams) throws {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
@@ -28,60 +28,77 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String {
-        // Create tool messages for code creation
-        let editRequestMessages = try OpenAIFunctionRequest
+        var allMessages = [OpenAIMessage(
+            role: .system,
+            content: systemPrompt
+        )]
+        
+        // Create tool message for code creation
+        let codeCreateRequestMessages = try OpenAIFunctionRequest
             .createInitialFnMessages(functionType: .codeBuilder,
                                      requestType: Self.type,
-                                     inputsArguments: self.currentGraphData,
-                                     systemPrompt: systemPrompt)
+                                     inputsArguments: self.currentGraphData)
+        allMessages += codeCreateRequestMessages
         
-        // Create tool messages for create edit function, processing the code creation step
-        let editCodeFnRequest = OpenAIFunctionRequest(
+        // Request for code creation
+        let codeCreateFnRequest = OpenAIFunctionRequest(
+            id: self.id,
+            functionType: .codeBuilder,
+            requestType: Self.type,
+            messages: allMessages)
+        
+        // Creates function stub for code create
+        let createCodeToolCall = try await codeCreateFnRequest
+            .requestMessageForFn(document: document,
+                                 aiManager: aiManager)
+    
+        // Create tool message for code edit
+        let codeEditRequestMessages = try OpenAIFunctionRequest
+            .createChainedFnMessages(toolResponse: createCodeToolCall,
+                                     functionType: .codeEditor,
+                                     requestType: Self.type,
+                                     inputsArguments: self.userPrompt)
+        allMessages += codeEditRequestMessages
+        
+        let editRequest = OpenAIFunctionRequest(
             id: self.id,
             functionType: .codeEditor,
             requestType: Self.type,
-            messages: editRequestMessages)
+            messages: allMessages)
         
-        // Creates code and then creates tool call for edit request
-        let editRequestToolCalls = try await editCodeFnRequest
-            .requestMessagesForNextFn(returnedFnType: .codeEditor,
-                                      requestType: Self.type,
-                                      document: document,
-                                      aiManager: aiManager) { params -> StitchAIRequestBuilder_V0.EditCodeParams in
-                var params = params
-                params.user_prompt = self.userPrompt
-                return params
-            }
-      
+        let editToolCall = try await editRequest
+            .requestMessageForFn(document: document,
+                                 aiManager: aiManager)
+    
         // Debug only--print SwiftUI code result
 #if !RELEASE
-        if let initialToolMsg = editRequestToolCalls[safe: 1] {
-            if let initialSwiftUICode = try? initialToolMsg
-                .decodeMessage(document: document,
-                               aiManager: aiManager,
-                               resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self) {
-                log("AICodeGenFromGraphRequest initial code from graph:\n\(initialSwiftUICode.source_code)")
-            }
+        if let initialSwiftUICode = try? editToolCall
+            .decodeMessage(document: document,
+                           aiManager: aiManager,
+                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self) {
+            log("AICodeGenFromGraphRequest initial code from graph:\n\(initialSwiftUICode.source_code)")
         }
 #endif
-
-        let processCodeFnRequest = OpenAIFunctionRequest(
+        
+        // Create tool message for code processing
+        let codeProcessingRequestMessages = try OpenAIFunctionRequest
+            .createChainedFnMessages(toolResponse: editToolCall,
+                                     functionType: .processCode,
+                                     requestType: Self.type,
+                                     inputsArguments: self.userPrompt)
+        allMessages += codeProcessingRequestMessages
+        
+        let processCodeRequest = OpenAIFunctionRequest(
             id: self.id,
             functionType: .processCode,
             requestType: Self.type,
-            messages: [
-                .init(role: .system,
-                      content: systemPrompt)
-            ] +
-            // Can safely ignore first code creation tools since edit request contains most recent code
-            editRequestToolCalls
-        )
+            messages: allMessages)
         
-        let processCodeToolCall = try await processCodeFnRequest
+        let processToolCall = try await processCodeRequest
             .requestMessageForFn(document: document,
                                  aiManager: aiManager)
         
-        let decodedSwiftUICode = try processCodeToolCall
+        let decodedSwiftUICode = try processToolCall
             .decodeMessage(document: document,
                            aiManager: aiManager,
                            resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
@@ -113,32 +130,34 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String {
-        let imageRequestInputs = AICodeGenFromImageInputs(
-            user_prompt: self.userPrompt,
-            image_data: .init(base64Image: self.base64Image)
-        )
-        
-        let toolMessages = try OpenAIFunctionRequest.createInitialFnMessages(
-            functionType: .codeBuilderFromImage,
-            requestType: Self.type,
-            inputsArguments: imageRequestInputs,
-            systemPrompt: systemPrompt)
-        
-        let createCodeRequest = OpenAIFunctionRequest(
-            id: self.id,
-            functionType: .processCode,
-            requestType: Self.type,
-            messages: toolMessages)
-        
-        let msgFromCodeCreation = try await createCodeRequest
-            .requestMessageForFn(document: document, aiManager: aiManager)
-
-        let decodedSwiftUICode = try msgFromCodeCreation
-            .decodeMessage(document: document,
-                           aiManager: aiManager,
-                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-
-        return decodedSwiftUICode.source_code
+        fatalError()
+//
+//        let imageRequestInputs = AICodeGenFromImageInputs(
+//            user_prompt: self.userPrompt,
+//            image_data: .init(base64Image: self.base64Image)
+//        )
+//        
+//        let toolMessages = try OpenAIFunctionRequest.createInitialFnMessages(
+//            functionType: .codeBuilderFromImage,
+//            requestType: Self.type,
+//            inputsArguments: imageRequestInputs,
+//            systemPrompt: systemPrompt)
+//        
+//        let createCodeRequest = OpenAIFunctionRequest(
+//            id: self.id,
+//            functionType: .processCode,
+//            requestType: Self.type,
+//            messages: toolMessages)
+//        
+//        let msgFromCodeCreation = try await createCodeRequest
+//            .requestMessageForFn(document: document, aiManager: aiManager)
+//
+//        let decodedSwiftUICode = try msgFromCodeCreation
+//            .decodeMessage(document: document,
+//                           aiManager: aiManager,
+//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
+//
+//        return decodedSwiftUICode.source_code
     }
 }
 
@@ -246,33 +265,35 @@ extension StitchAICodeCreator {
             swiftui_source_code: swiftUICode,
             layer_data_list: layerDataList)
         
-        // Create new tool messages for patch builder
-        let patchBuilderToolMessages = try OpenAIFunctionRequest
-            .createInitialFnMessages(functionType: .patchBuilder,
-                                     requestType: Self.type,
-                                     inputsArguments: patchBuilderInputs,
-                                     systemPrompt: systemPrompt)
-        
-        // Create request object that process patch builder
-        let processPatchBuilderRequest = OpenAIFunctionRequest(
-            id: self.id,
-            functionType: .processPatchData,
-            requestType: Self.type,
-            messages: patchBuilderToolMessages)
-        
-        let processPatchBuilderMsg = try await processPatchBuilderRequest
-            .requestMessageForFn(document: document,
-                                 aiManager: aiManager)
-        
-        let patchBuildResult = try processPatchBuilderMsg
-            .decodeMessage(document: document,
-                           aiManager: aiManager,
-                           resultType: CurrentAIGraphData.PatchData.self)
-
-        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
-        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
-                                                 patch_data: patchBuildResult)
-        return (graphData, allDiscoveredErrors)
+        fatalError()
+//
+//        // Create new tool messages for patch builder
+//        let patchBuilderToolMessages = try OpenAIFunctionRequest
+//            .createInitialFnMessages(functionType: .patchBuilder,
+//                                     requestType: Self.type,
+//                                     inputsArguments: patchBuilderInputs,
+//                                     systemPrompt: systemPrompt)
+//        
+//        // Create request object that process patch builder
+//        let processPatchBuilderRequest = OpenAIFunctionRequest(
+//            id: self.id,
+//            functionType: .processPatchData,
+//            requestType: Self.type,
+//            messages: patchBuilderToolMessages)
+//        
+//        let processPatchBuilderMsg = try await processPatchBuilderRequest
+//            .requestMessageForFn(document: document,
+//                                 aiManager: aiManager)
+//        
+//        let patchBuildResult = try processPatchBuilderMsg
+//            .decodeMessage(document: document,
+//                           aiManager: aiManager,
+//                           resultType: CurrentAIGraphData.PatchData.self)
+//
+//        logToServerIfRelease("Successful patch builder result: \(try patchBuildResult.encodeToPrintableString())")
+//        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
+//                                                 patch_data: patchBuildResult)
+//        return (graphData, allDiscoveredErrors)
     }
 }
 
