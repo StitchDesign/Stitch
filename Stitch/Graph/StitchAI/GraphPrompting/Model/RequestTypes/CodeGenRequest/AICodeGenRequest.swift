@@ -42,13 +42,17 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
         
         log("AICodeGenFromGraphRequest.createCode initial result:\n\(codeResult)")
         
+        let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
+            source_code: codeResult,
+            user_prompt: userPrompt)
+        
         // Request for code edit
         let codeEditRequest = try OpenAIChatCompletionRequest(
             id: self.id,
             requestType: Self.type,
             systemPrompt: systemPrompt,
             assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
-            inputs: self.userPrompt)
+            inputs: editInputs)
         
         let codeEditResult = try await codeEditRequest
             .request(document: document,
@@ -116,6 +120,8 @@ extension StitchAICodeCreator {
     @MainActor
     func getRequestTask(userPrompt: String,
                         document: StitchDocumentViewModel) throws -> Task<Result<AIGraphData_V0.GraphData, any Error>, Never> {
+        log("getRequestTask: user prompt: \(userPrompt)")
+        
         let systemPrompt = try StitchAIManager.stitchAIGraphBuilderSystem(graph: document.visibleGraph,
                                                                           requestType: Self.type)
         let request = self

@@ -8,34 +8,34 @@
 import SwiftUI
 
 struct StitchAIRequestBuilder_V0 {
-    struct ImageRequestInputParameters: Encodable {
-        let user_prompt = OpenAISchema(type: .string)
-        let image_data = OpenAISchema(type: .object,
-                                      properties: ImageDataSchema(),
-                                      required: ["type", "image_url", "detail"])
-    }
-    
-    struct EditRequestInputParameters: Encodable {
-        let user_prompt = OpenAISchema(
-            type: .string,
-            description: "Code change request by the user.")
-        
-        let source_code = OpenAISchema(
-            type: .string,
-            description: "SwiftUI source code.")
-    }
-    
-    struct SourceCodeResponseSchema: Encodable {
-        let source_code = OpenAISchema(
-            type: .string,
-            description: "SwiftUI source code.")
-    }
-    
-    struct ImageDataSchema: Encodable {
-        let type = OpenAISchema(type: .string)
-        let image_url = OpenAISchema(type: .string)
-        let detail = OpenAISchema(type: .string)
-    }
+//    struct ImageRequestInputParameters: Encodable {
+//        let user_prompt = OpenAISchema(type: .string)
+//        let image_data = OpenAISchema(type: .object,
+//                                      properties: ImageDataSchema(),
+//                                      required: ["type", "image_url", "detail"])
+//    }
+//    
+//    struct EditRequestInputParameters: Encodable {
+//        let user_prompt = OpenAISchema(
+//            type: .string,
+//            description: "Code change request by the user.")
+//        
+//        let source_code = OpenAISchema(
+//            type: .string,
+//            description: "SwiftUI source code.")
+//    }
+//    
+//    struct SourceCodeResponseSchema: Encodable {
+//        let source_code = OpenAISchema(
+//            type: .string,
+//            description: "SwiftUI source code.")
+//    }
+//    
+//    struct ImageDataSchema: Encodable {
+//        let type = OpenAISchema(type: .string)
+//        let image_url = OpenAISchema(type: .string)
+//        let detail = OpenAISchema(type: .string)
+//    }
     
     struct SourceCodeResponse: Codable {
         let source_code: String
