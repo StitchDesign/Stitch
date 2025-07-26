@@ -85,34 +85,23 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String {
-        fatalError()
-//
-//        let imageRequestInputs = AICodeGenFromImageInputs(
-//            user_prompt: self.userPrompt,
-//            image_data: .init(base64Image: self.base64Image)
-//        )
-//        
-//        let toolMessages = try OpenAIFunctionRequest.createInitialFnMessages(
-//            functionType: .codeBuilderFromImage,
-//            requestType: Self.type,
-//            inputsArguments: imageRequestInputs,
-//            systemPrompt: systemPrompt)
-//        
-//        let createCodeRequest = OpenAIFunctionRequest(
-//            id: self.id,
-//            functionType: .processCode,
-//            requestType: Self.type,
-//            messages: toolMessages)
-//        
-//        let msgFromCodeCreation = try await createCodeRequest
-//            .requestMessageForFn(document: document, aiManager: aiManager)
-//
-//        let decodedSwiftUICode = try msgFromCodeCreation
-//            .decodeMessage(document: document,
-//                           aiManager: aiManager,
-//                           resultType: StitchAIRequestBuilder_V0.SourceCodeResponse.self)
-//
-//        return decodedSwiftUICode.source_code
+        let imageRequestInputs = AICodeGenFromImageInputs(
+            user_prompt: self.userPrompt,
+            image_data: .init(base64Image: self.base64Image)
+        )
+        
+        let createCodeRequest = try OpenAIChatCompletionRequest(
+            id: self.id,
+            requestType: Self.type,
+            systemPrompt: systemPrompt,
+            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt),
+            inputs: imageRequestInputs)
+        
+        let codeResult = try await createCodeRequest
+            .request(document: document,
+                     aiManager: aiManager)
+        
+        return codeResult
     }
 }
 
