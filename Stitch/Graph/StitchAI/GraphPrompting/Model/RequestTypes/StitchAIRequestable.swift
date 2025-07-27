@@ -29,7 +29,7 @@ protocol StitchAIRequestable: Sendable where InitialDecodedResult: Codable, Toke
     var id: UUID { get }
     var config: OpenAIRequestConfig { get } // Request configuration settings
     var body: Body { get }
-    static var willStream: Bool { get }
+    var willStream: Bool { get }
     
     /// Validates a successfully decoded response and outputs a possibly different data structure.
     static func validateResponse(decodedResult: InitialDecodedResult) throws -> FinalDecodedResult

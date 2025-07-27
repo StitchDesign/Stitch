@@ -23,11 +23,19 @@ extension Encodable {
     }
     
     func encodeToPrintableString() throws -> String {
+        if let stringValue = self as? String {
+            return stringValue
+        }
+        
         let data = try self.encodeToData()
         return try data.createPrintableJsonString()
     }
     
     func encodeToString() throws -> String {
+        if let stringValue = self as? String {
+            return stringValue
+        }
+        
         let data = try self.encodeToData()
         return try data.createJsonString()
     }

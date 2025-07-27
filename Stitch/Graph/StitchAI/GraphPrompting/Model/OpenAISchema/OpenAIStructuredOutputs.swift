@@ -272,27 +272,38 @@ struct OpenAIRequestBody: Encodable {
     var n: Int = 1
     var temperature: Double = 1.0
     var messages: [OpenAIMessage]
-    var tools: [OpenAIFunction] = []
+    var tools: [OpenAIFunction]?
     var tool_choice: OpenAIFunction? = nil
     var stream: Bool = false
 }
 
-extension OpenAIRequestBody {
-    /// Sets up request body for OpenAI. Assign a `toolChoice` if you want the response object to be a function.
-    init(messages: [OpenAIMessage],
-         type: StitchAIRequestBuilder_V0.StitchAIRequestType,
-         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction? = nil) {
-        let tools = type.allOpenAIFunctions
-        
-        if let functionType = functionType {
-            self = .init(messages: messages,
-                         tools: tools,
-                         tool_choice: functionType.function)
-        } else {
-            // Basically runs the unstructured assistant response
-            self = .init(messages: messages,
-                         tools: tools,
-                         tool_choice: .init(type: .none))
-        }
-    }
+struct OpenAIStructuredOutputsRequestBody<ResponseFormat: OpenAIResponseFormatable>: Encodable {
+    var model: String = "o4-mini-2025-04-16"
+    var n: Int = 1
+    var temperature: Double = 1.0
+    var response_format: ResponseFormat
+    var messages: [OpenAIMessage]
+    var tools: [OpenAIFunction]?
+    var tool_choice: OpenAIFunction? = nil
+    var stream: Bool = false
 }
+
+//extension OpenAIRequestBody {
+//    /// Sets up request body for OpenAI. Assign a `toolChoice` if you want the response object to be a function.
+//    init(messages: [OpenAIMessage],
+//         type: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//         functionType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction? = nil) {
+//        let tools = type.allOpenAIFunctions
+//        
+//        if let functionType = functionType {
+//            self = .init(messages: messages,
+//                         tools: tools,
+//                         tool_choice: functionType.function)
+//        } else {
+//            // Basically runs the unstructured assistant response
+//            self = .init(messages: messages,
+//                         tools: tools,
+//                         tool_choice: .init(type: .none))
+//        }
+//    }
+//}

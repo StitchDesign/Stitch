@@ -277,33 +277,33 @@ extension StitchAIRequestable {
 
 extension StitchAIFunctionRequestable {
     /// Called when an OpenAI function expects subsequent functions to call.
-    func requestMessagesForNextFn(returnedFnType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
-                                  requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
-                                  document: StitchDocumentViewModel,
-                                  aiManager: StitchAIManager) async throws -> [OpenAIMessage] {
-        let result = await aiManager.startOpenAIRequest(self,
-                                                        attempt: 0,
-                                                        lastCapturedError: "",
-                                                        document: document)
-        switch result {
-            
-        case .success(let msg):
-            log("StitchAIRequestable: requestForMessage: success")
-            let supplementarySystemPrompt = OpenAIMessage(
-                role: .system,
-                content: try returnedFnType.getAssistantPrompt(for: requestType)
-            )
-            
-            // Create tool message for function response
-            let responseToolMsg = try msg.createNewToolMessage()
-            
-            return [supplementarySystemPrompt, msg, responseToolMsg]
-        case .failure(let failure):
-            log("StitchAIRequestable: requestForMessage: failure")
-            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
-            throw failure
-        }
-    }
+//    func requestMessagesForNextFn<ResultType>(returnedFnType: StitchAIRequestBuilder_V0.StitchAIRequestBuilderFunction,
+//                                              requestType: StitchAIRequestBuilder_V0.StitchAIRequestType,
+//                                              document: StitchDocumentViewModel,
+//                                              aiManager: StitchAIManager) async throws -> [OpenAIMessage] where ResultType: Codable {
+//        let result = await aiManager.startOpenAIRequest(self,
+//                                                        attempt: 0,
+//                                                        lastCapturedError: "",
+//                                                        document: document)
+//        switch result {
+//            
+//        case .success(var msg):
+//            log("StitchAIRequestable: requestForMessage: success")
+//            let supplementarySystemPrompt = OpenAIMessage(
+//                role: .system,
+//                content: try returnedFnType.getAssistantPrompt(for: requestType)
+//            )
+//            
+//            // Create tool message for function response
+//            let responseToolMsg = try msg.createNewToolMessage()
+//            
+//            return [supplementarySystemPrompt, msg, responseToolMsg]
+//        case .failure(let failure):
+//            log("StitchAIRequestable: requestForMessage: failure")
+//            logToServerIfRelease("AICodeGenRequest: getRequestTask: request.request: failure: \(failure.localizedDescription)")
+//            throw failure
+//        }
+//    }
     
     /// Called when last OpenAI function is called.
     func requestMessageForFn(document: StitchDocumentViewModel,

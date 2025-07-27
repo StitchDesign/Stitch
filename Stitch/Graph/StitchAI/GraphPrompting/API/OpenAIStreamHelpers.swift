@@ -146,7 +146,7 @@ extension StitchAIManager {
                                 with request: AIRequest,
                                 attempt: Int,
                                 document: StitchDocumentViewModel) async -> Result<AIRequest.RequestResponsePayload, Error> where AIRequest: StitchAIRequestable {
-        if AIRequest.willStream {
+        if request.willStream {
             return await self.openStream(for: urlRequest,
                                    with: request,
                                    attempt: attempt)

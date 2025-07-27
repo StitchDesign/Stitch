@@ -28,9 +28,6 @@ You are a tool that creates data for prototypes in our app, called Stitch. Stitc
 
 \(requestType.goalDescription)
 
-You will call a series of OpenAI functions in sequential order. The job of these functions is to break down graph building into scoped steps. These functions are:
-\(requestType.listedFunctionsDescriptionForSystemPrompt)
-
 # Stitch Data Glossary
 
 Each function is adhering to a specific set of rules which are designed to restrict the known universe to Stitch-only concepts. Invoked functions should consult this glossary whenever Stitch-specific data is created.

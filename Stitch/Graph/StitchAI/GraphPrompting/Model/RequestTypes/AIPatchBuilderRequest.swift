@@ -11,9 +11,9 @@ enum AIPatchBuilderRequestError: Error {
     case nodeIdNotFound
 }
 
-struct AIPatchBuilderFunctionInputs: Encodable {
+struct AIPatchBuilderFunctionInputs: Codable {
     let swiftui_source_code: String
-    let layer_data_list: [AIGraphData_V0.LayerData]
+    let layer_data_list: String
 }
 
 struct AIPatchBuilderFunctionInputsSchema: Encodable {

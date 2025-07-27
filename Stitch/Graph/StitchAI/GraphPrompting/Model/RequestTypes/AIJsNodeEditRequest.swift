@@ -12,7 +12,7 @@ struct AIEditJSNodeRequest: StitchAIRequestable {
     let userPrompt: String             // User's input prompt
     let config: OpenAIRequestConfig // Request configuration settings
     let body: AIEditJsNodeRequestBody
-    static let willStream: Bool = false
+    let willStream: Bool = false
     
     // Tracks origin node of request
     let nodeId: NodeId

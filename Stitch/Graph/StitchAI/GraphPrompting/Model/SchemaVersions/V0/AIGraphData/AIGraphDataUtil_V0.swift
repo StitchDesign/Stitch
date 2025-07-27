@@ -32,7 +32,7 @@ extension AIGraphData_V0 {
     typealias NodeIOPortType = NodeIOPortType_V33.NodeIOPortType
 }
 
-extension AIGraphData_V0.GraphData {
+extension AIGraphData_V0.CodeCreatorParams {
     init(from graphEntity: AIGraphData_V0.GraphEntity) throws {
         let nodesDict = graphEntity.nodes.reduce(into: [UUID : AIGraphData_V0.NodeEntity]()) { result, node in
             result.updateValue(node, forKey: node.id)
@@ -100,7 +100,7 @@ extension AIGraphData_V0.GraphData {
             .createAIData(nodesDict: nodesDict,
             layerConnections: &layerConnections)
         
-        self = .init(layer_data_list: aiLayerData,
+        self = .init(layer_data_list: try aiLayerData.encodeToString(),
                      patch_data: .init(javascript_patches: jsNodes,
                                        native_patches: nativeNodes,
                                        native_patch_value_type_settings: nodeTypeSettings,

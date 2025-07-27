@@ -12,7 +12,7 @@ struct AIGraphDescriptionRequest: StitchAIRequestable {
     let userPrompt: String              // User's input prompt
     let config: OpenAIRequestConfig     // Request configuration settings
     let body: AIGraphDescriptionRequestBody
-    static let willStream: Bool = false
+    let willStream: Bool = false
     
     @MainActor
     init(config: OpenAIRequestConfig = .default,
