@@ -54,7 +54,9 @@ struct OpenAIChatCompletionRequest: StitchAIChatCompletionRequestable {
         self.type = requestType
         self.body = .init(messages: messages)
     }
-    
+}
+
+extension OpenAIChatCompletionRequest {
     @MainActor
     func willRequest(document: StitchDocumentViewModel,
                      canShareData: Bool,

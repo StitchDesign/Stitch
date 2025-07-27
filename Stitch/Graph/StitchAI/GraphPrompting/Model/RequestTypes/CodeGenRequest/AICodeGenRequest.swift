@@ -85,17 +85,33 @@ struct AICodeGenFromImageRequest: StitchAICodeCreator {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String {
-        let imageRequestInputs = AICodeGenFromImageInputs(
-            user_prompt: self.userPrompt,
-            image_data: .init(base64Image: self.base64Image)
-        )
+        
+        // TODO: images aren't being decoded properly from OpenAI, will come back
+        fatalError()
+        
+//        let imageRequestInput = OpenAIUserImageContent(base64Image: self.base64Image)
+//        let userRequestInput = OpenAIUserTextContent(text: self.userPrompt)
+//        let userInputsFull = try [
+//            try imageRequestInput.encodeToString(),
+//            try userRequestInput.encodeToString()
+//        ].encodeToString()
+        
+        var content: [OpenAIMessageContent] = [
+             .text(userPrompt)
+         ]
+        
+        let imageUrl = "data:image/jpeg;base64,\(self.base64Image)"
+         content.append(.image(url: imageUrl, detail: "high"))
+
+         // TODO: AI IMAGE IS WIP
+         let encodedContent = try content.encodeToPrintableString()
         
         let createCodeRequest = try OpenAIChatCompletionRequest(
             id: self.id,
             requestType: Self.type,
             systemPrompt: systemPrompt,
             assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: .imagePrompt),
-            inputs: imageRequestInputs)
+            inputs: encodedContent)
         
         let codeResult = try await createCodeRequest
             .request(document: document,
