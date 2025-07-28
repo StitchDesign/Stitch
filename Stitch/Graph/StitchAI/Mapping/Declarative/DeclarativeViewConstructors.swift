@@ -53,20 +53,9 @@ enum ViewConstructor: Equatable, Encodable {
     
     case spacer(SpacerViewConstructor)
     
-    // TODO: handle here(?), instead of as a special case
-    // case scrollView(ScrollViewViewConstructor)
-    
-    //    case lazyHStack(LazyHStackViewConstructor)
-    //    case lazyVStack(LazyVStackViewConstructor)
-    //    case circle(CircleViewConstructor)
-    //    case ellipse(EllipseViewConstructor)
-    //    case rectangle(RectangleViewConstructor)
-    //    case roundedRectangle(RoundedRectangleViewConstructor)
-
-    //    case textField(TextFieldViewConstructor)
-    //    case angularGradient(AngularGradientViewConstructor)
-    //    case linearGradient(LinearGradientViewConstructor)
-    //    case radialGradient(RadialGradientViewConstructor)
+    // New: Lazy stacks
+    case lazyHStack(LazyHStackViewConstructor)
+    case lazyVStack(LazyVStackViewConstructor)
     
     var value: any FromSwiftUIViewToStitch {
         switch self {
@@ -84,6 +73,8 @@ enum ViewConstructor: Equatable, Encodable {
         case .cylinder(let c):          return c
         case .sphere(let c):            return c
         case .spacer(let c):            return c
+        case .lazyHStack(let c):        return c
+        case .lazyVStack(let c):        return c
         }
     }
 }
@@ -156,64 +147,16 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
         return SpacerViewConstructor.from(arguments,
                                           viewName: viewName)
         .map { .spacer($0) }
-        
-    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyHStack, .lazyVGrid, .lazyVStack, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
+    case .lazyHStack:
+        return LazyHStackViewConstructor.from(arguments,
+                                             viewName: viewName)
+            .map { .lazyHStack($0) }
+    case .lazyVStack:
+        return LazyVStackViewConstructor.from(arguments,
+                                             viewName: viewName)
+            .map { .lazyVStack($0) }
+    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyVGrid, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
         return nil
-        
-//    case .scrollView:
-//        if let ctor = ScrollViewViewConstructor.from(arguments) {
-//            return .scrollView(ctor)
-//        }
-//
-//        case .vStack:
-//            if let ctor = VStackViewConstructor.from(node).map(ViewConstructor.vStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .lazyHStack:
-//            if let ctor = LazyHStackViewConstructor.from(node).map(ViewConstructor.lazyHStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .lazyVStack:
-//            if let ctor = LazyVStackViewConstructor.from(node).map(ViewConstructor.lazyVStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .circle:
-//            if let ctor = CircleViewConstructor.from(node).map(ViewConstructor.circle) {
-//                attachConstructor(ctor)
-//            }
-//        case .ellipse:
-//            if let ctor = EllipseViewConstructor.from(node).map(ViewConstructor.ellipse) {
-//                attachConstructor(ctor)
-//            }
-//        case .rectangle:
-//            if let ctor = RectangleViewConstructor.from(node).map(ViewConstructor.rectangle) {
-//                attachConstructor(ctor)
-//            }
-//        case .roundedRectangle:
-//            if let ctor = RoundedRectangleViewConstructor.from(node).map(ViewConstructor.roundedRectangle) {
-//                attachConstructor(ctor)
-//            }
-//        case .zStack:
-//            if let ctor = ZStackViewConstructor.from(node).map(ViewConstructor.zStack) {
-//                attachConstructor(ctor)
-//            }
-//        case .textField:
-//            if let ctor = TextFieldViewConstructor.from(node).map(ViewConstructor.textField) {
-//                attachConstructor(ctor)
-//            }
-//        case .angularGradient:
-//            if let ctor = AngularGradientViewConstructor.from(node).map(ViewConstructor.angularGradient) {
-//                attachConstructor(ctor)
-//            }
-//        case .linearGradient:
-//            if let ctor = LinearGradientViewConstructor.from(node).map(ViewConstructor.linearGradient) {
-//                attachConstructor(ctor)
-//            }
-//        case .radialGradient:
-//            if let ctor = RadialGradientViewConstructor.from(node).map(ViewConstructor.radialGradient) {
-//                attachConstructor(ctor)
-//            }
-  
     }
 }
 
@@ -1369,3 +1312,120 @@ struct CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //                           endRadius:   endR)
 //    }
 //}
+
+// TODO: consolidate the code between LazyHStackViewConstructor and HStackViewConstructor, etc.
+// MARK: LazyHStackViewConstructor (new-style)
+enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// SwiftUI: `init(alignment: VerticalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
+    case parameters(alignment: SyntaxViewModifierArgumentType?,
+                    spacing:   SyntaxViewModifierArgumentType?)
+
+    var layer: AIGraphData_V0.Layer { .group }
+
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+                
+        var list: [ASTCustomInputValue] = [
+            .init(input: .orientation, value: .orientation(.horizontal))
+        ]
+        guard case let .parameters(alignmentArg, spacingArg) = self else { return list }
+
+        // alignment (VerticalAlignment) → .layerGroupAlignment (Anchoring)
+        switch alignmentArg {
+        case .none:
+            list.append(.init(input: .layerGroupAlignment,
+                              value: .anchoring(.centerCenter)))
+        case .memberAccess(let ma):
+            guard let v = ma.vertAlignLiteral else {
+                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.hStack(HStackViewConstructor.parameters(alignment: nil, spacing: nil)))
+            }
+            list.append(.init(input: .layerGroupAlignment,
+                              value: .anchoring(v.toAnchoring)))
+        case .some(let arg):
+            guard let value = try arg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            list.append(.init(input: .layerGroupAlignment, value: value))
+        }
+
+        if let spacingArg = spacingArg {
+            guard let value = try spacingArg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            list.append(.init(input: .spacing, value: value))
+        }
+        return list
+    }
+
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName) -> LazyHStackViewConstructor? {
+        
+        var alignment: SyntaxViewModifierArgumentType?
+        var spacing:   SyntaxViewModifierArgumentType?
+        for arg in args {
+            switch arg.label {
+            case "alignment": alignment = arg.value
+            case "spacing":   spacing   = arg.value
+            // ignore pinnedViews / content / unknown
+            default: break
+            }
+        }
+        return .parameters(alignment: alignment, spacing: spacing)
+    }
+}
+
+// MARK: LazyVStackViewConstructor (new-style)
+enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// SwiftUI: `init(alignment: HorizontalAlignment = .center, spacing: CGFloat? = nil, @ViewBuilder content: () -> Content)`
+    case parameters(alignment: SyntaxViewModifierArgumentType?,
+                    spacing:   SyntaxViewModifierArgumentType?)
+
+    var layer: AIGraphData_V0.Layer { .group }
+
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        var list: [ASTCustomInputValue] = [
+            .init(input: .orientation, value: .orientation(.vertical))
+        ]
+        guard case let .parameters(alignmentArg, spacingArg) = self else { return list }
+
+        // alignment (HorizontalAlignment) → .layerGroupAlignment (Anchoring)
+        switch alignmentArg {
+        case .none:
+            list.append(.init(input: .layerGroupAlignment,
+                              value: .anchoring(.centerCenter)))
+        case .memberAccess(let ma):
+            if let h = ma.horizAlignLiteral {
+                list.append(.init(input: .layerGroupAlignment,
+                                  value: .anchoring(h.toAnchoring)))
+            } else {
+                throw SwiftUISyntaxError.unsupportedConstructorForPortValueDecoding(.vStack(VStackViewConstructor.parameters(alignment: nil, spacing: nil)))
+            }
+        case .some(let arg):
+            guard let value = try arg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            list.append(.init(input: .layerGroupAlignment, value: value))
+        }
+
+        if let spacingArg = spacingArg {
+            guard let value = try spacingArg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            list.append(.init(input: .spacing, value: value))
+        }
+        return list
+    }
+
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName) -> LazyVStackViewConstructor? {
+        var alignment: SyntaxViewModifierArgumentType?
+        var spacing:   SyntaxViewModifierArgumentType?
+        for arg in args {
+            switch arg.label {
+            case "alignment": alignment = arg.value
+            case "spacing":   spacing   = arg.value
+            default: break
+            }
+        }
+        return .parameters(alignment: alignment, spacing: spacing)
+    }
+}
