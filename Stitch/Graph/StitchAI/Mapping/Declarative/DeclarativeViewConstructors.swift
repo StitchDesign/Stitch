@@ -39,6 +39,7 @@ enum ViewConstructor: Equatable, Encodable {
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
     case vStack(VStackViewConstructor)
+    case zStack(ZStackViewConstructor)
     case circle(NoArgViewConstructor)
     case ellipse(NoArgViewConstructor)
     case rectangle(NoArgViewConstructor)
@@ -55,7 +56,6 @@ enum ViewConstructor: Equatable, Encodable {
     // TODO: handle here(?), instead of as a special case
     // case scrollView(ScrollViewViewConstructor)
     
-    //    case vStack(VStackViewConstructor)
     //    case lazyHStack(LazyHStackViewConstructor)
     //    case lazyVStack(LazyVStackViewConstructor)
     //    case circle(CircleViewConstructor)
@@ -63,7 +63,6 @@ enum ViewConstructor: Equatable, Encodable {
     //    case rectangle(RectangleViewConstructor)
     //    case roundedRectangle(RoundedRectangleViewConstructor)
 
-    //    case zStack(ZStackViewConstructor)
     //    case textField(TextFieldViewConstructor)
     //    case angularGradient(AngularGradientViewConstructor)
     //    case linearGradient(LinearGradientViewConstructor)
@@ -75,6 +74,7 @@ enum ViewConstructor: Equatable, Encodable {
         case .image(let c):            return c
         case .hStack(let c):           return c
         case .vStack(let c):           return c
+        case .zStack(let c):           return c
         case .circle(let c):           return c
         case .ellipse(let c):          return c
         case .rectangle(let c):        return c
@@ -116,6 +116,10 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
         return VStackViewConstructor.from(arguments,
                                           viewName: viewName)
         .map { .vStack($0) }
+    case .zStack:
+        return ZStackViewConstructor.from(arguments,
+                                          viewName: viewName)
+        .map { .zStack($0) }
     case .circle:
         return NoArgViewConstructor.from(arguments,
                                          viewName: viewName)
@@ -153,7 +157,7 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
                                           viewName: viewName)
         .map { .spacer($0) }
         
-    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyHStack, .lazyVGrid, .lazyVStack, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .zStack, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
+    case .anyView, .angularGradient, .asyncImage, .button, .capsule, .canvas, .chart, .color, .colorPicker, .contentUnavailableView, .controlGroup, .datePicker, .divider, .disclosureGroup, .emptyView, .forEach, .form, .gauge, .geometryReader, .grid, .gridRow, .group, .groupBox, .labeledContent, .label, .lazyHGrid, .lazyHStack, .lazyVGrid, .lazyVStack, .link, .map, .material, .menu, .model3D, .navigationLink, .navigationStack, .navigationSplit, .navigationView, .outlineGroup, .path, .preview, .progressView, .radialGradient, .realityView, .roundedRectangle, .sceneView, .scrollView, .scrollViewReader, .section, .shareLink, .slider, .snapshotView, .spriteView, .stepper, .symbolEffect, .tabView, .textEditor, .textField, .timelineSchedule, .timelineView, .toggle, .tokenField, .toolBar, .videoPlayer, .viewThatFits, .list, .linearGradient, .secureField, .alignmentGuide, .table, .picker, .unevenRoundedRectangle:
         return nil
         
 //    case .scrollView:
@@ -731,45 +735,73 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
 //    }
 //}
 //
-//enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
-//    /// SwiftUI: `init(alignment: Alignment = .center, content:)`
-//    case parameters(alignment: Parameter<Alignment> = .literal(.center))
-//
-//    // Orientation is implicit overlap; we won’t emit orientation value.
-//    var toStitch: (Layer?, [ValueOrEdge])? {
-//        var list: [ValueOrEdge] = []
-//
-//        guard case let .parameters(alignment) = self else { return nil }
-//
-//        switch alignment {
-//        case .literal(let a) where a != .center:
-//            list.append(.value(.init(.layerGroupAlignment,
-//                                     .anchoring(a.toAnchoring))))
-//        case .expression(let expr):
-//            list.append(.edge(expr))
-//        default:
-//            break
-//        }
-//
-//        return (.group, list)
-//    }
-//
-//    static func from(_ node: FunctionCallExprSyntax) -> ZStackViewConstructor? {
-//        var alignment: Parameter<Alignment> = .literal(.center)
-//
-//        for arg in node.arguments {
-//            if arg.label?.text == "alignment" {
-//                if let alignLit = arg.alignmentLiteral {
-//                    alignment = .literal(alignLit)
-//                } else {
-//                    alignment = .expression(arg.expression)
-//                }
-//            }
-//        }
-//
-//        return .parameters(alignment: alignment)
-//    }
-//}
+// MARK: - ZStackViewConstructor (new-style)
+enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    /// SwiftUI: `init(alignment: Alignment = .center, content:)`
+    case parameters(alignment: SyntaxViewModifierArgumentType?)
+
+    var layer: AIGraphData_V0.Layer { .group }
+
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        var list: [ASTCustomInputValue] = []
+
+        guard case let .parameters(alignmentArg) = self else { return [] }
+
+        // Map Alignment → Anchoring
+        switch alignmentArg {
+        case .none:
+            // Default is .center
+            list.append(.init(input: .layerGroupAlignment,
+                              value: .anchoring(.centerCenter)))
+
+        case .some(let arg):
+            // Prefer literal member-access if we can
+            if case let .memberAccess(ma) = arg, let anch = ma.alignmentAnchoring {
+                list.append(.init(input: .layerGroupAlignment,
+                                  value: .anchoring(anch)))
+            } else {
+                // Fall back to generic port-value derivation
+                guard let value = try arg.derivePortValues().first else {
+                    throw SwiftUISyntaxError.portValueNotFound
+                }
+                list.append(.init(input: .layerGroupAlignment, value: value))
+            }
+        }
+
+        return list
+    }
+
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName) -> ZStackViewConstructor? {
+        var alignment: SyntaxViewModifierArgumentType?
+        for arg in args {
+            if arg.label == "alignment" {
+                alignment = arg.value
+            }
+        }
+        return .parameters(alignment: alignment)
+    }
+}
+// Helper: map SwiftUI `Alignment` member access (e.g. `.topLeading`) to Stitch `Anchoring`
+private extension SyntaxViewMemberAccess {
+    /// Returns a concrete `Anchoring` when this member access clearly denotes a SwiftUI `Alignment` literal.
+    /// Examples: `.center`, `.top`, `.bottom`, `.leading`, `.trailing`, `.topLeading`, `.topTrailing`, `.bottomLeading`, `.bottomTrailing`.
+    var alignmentAnchoring: Anchoring? {
+        switch self.property {
+        case "center":          return .centerCenter
+        case "top":             return .topCenter
+        case "bottom":          return .bottomCenter
+        case "leading":         return .centerLeft
+        case "trailing":        return .centerRight
+        case "topLeading":      return .topLeft
+        case "topTrailing":     return .topRight
+        case "bottomLeading":   return .bottomLeft
+        case "bottomTrailing":  return .bottomRight
+        default:
+            return nil
+        }
+    }
+}
 //
 //// MARK: - Circle & Rectangle (no‑arg views) -------------------------------
 
