@@ -18,18 +18,18 @@ import SwiftParser
 /// missing, falls back to Stitch defaults (for type correctness only).
 struct LayerDataConstructorInputs {
     let layer: AIGraphData_V0.Layer
-    private let explicit: [LayerInputPort : AIGraphData_V0.PortValue]
+    let explicit: [LayerInputPort : AIGraphData_V0.PortValue]
     
     public init(layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) {
         if case let .layer(kind) = layerData.node_name.value { self.layer = kind }
         else { self.layer = .group }
         
-        var e: [LayerInputPort : AIGraphData_V0.PortValue] = [:]
-        for civ in layerData.custom_layer_input_values {
-            let port = civ.layer_input_coordinate.input_port_type.value
-            if let v = decodePortValueFromCIV(civ, idMap: &idMap) { e[port] = v }
+        var explicit: [LayerInputPort : AIGraphData_V0.PortValue] = [:]
+        for customInputValue in layerData.custom_layer_input_values {
+            let port = customInputValue.layer_input_coordinate.input_port_type.value
+            if let v = decodePortValueFromCIV(customInputValue, idMap: &idMap) { explicit[port] = v }
         }
-        self.explicit = e
+        self.explicit = explicit
     }
     
     public func value(_ port: LayerInputPort) -> AIGraphData_V0.PortValue {
@@ -135,3 +135,190 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
 
 
 
+// MARK: - ViewConstructor → SwiftUI source string (constructors only)
+extension ViewConstructor {
+    /// Returns a SwiftUI call-site string for this constructor.
+    /// NOTE: No modifiers or children are emitted here.
+    func swiftUICallString() -> String {
+        switch self {
+        case .text(let ctor):
+            return renderText(ctor)
+            
+        case .image(let ctor):
+            return renderImage(ctor)
+            
+        case .hStack(let ctor):
+            switch ctor {
+            case .parameters(let alignment, let spacing):
+                let parts = callParts([
+                    named("alignment", alignment),
+                    named("spacing", spacing)
+                ])
+                return parts.isEmpty ? "HStack { }" : "HStack(\(parts)) { }"
+            }
+            
+        case .vStack(let ctor):
+            switch ctor {
+            case .parameters(let alignment, let spacing):
+                let parts = callParts([
+                    named("alignment", alignment),
+                    named("spacing", spacing)
+                ])
+                return parts.isEmpty ? "VStack { }" : "VStack(\(parts)) { }"
+            }
+            
+        case .zStack(let ctor):
+            switch ctor {
+            case .parameters(let alignment):
+                if let alignment = alignment { return "ZStack(alignment: \(renderArg(alignment))) { }" }
+                return "ZStack { }"
+            }
+            
+        case .circle:
+            return "Circle()"
+            
+        case .ellipse:
+            return "Ellipse()"
+            
+        case .rectangle:
+            return "Rectangle()"
+            
+            //        case .roundedRectangle(let ctor):
+            //            switch ctor {
+            //            case .cornerRadius(let radius):
+            //                return "RoundedRectangle(cornerRadius: \(renderArg(radius)))"
+            //            }
+            //
+            //        case .scrollView(let ctor):
+            //            switch ctor {
+            //            case .axes(let axes):
+            //                switch axes {
+            //                case .vertical:   return "ScrollView(.vertical) { }"
+            //                case .horizontal: return "ScrollView(.horizontal) { }"
+            //                case .both:       return "ScrollView([.horizontal, .vertical]) { }"
+            //                }
+            //            }
+            //
+            //        case .textField(let ctor):
+            //            // Minimal placeholder to avoid binding complexity in this pass
+            //            switch ctor {
+            //            case .parameters(let title, _):
+            //                return "TextField(\(renderTextLiteral(title)), .constant(\"\"))"
+            //            default:
+            //                return "TextField(/* … */)"
+            //            }
+            
+        case .stitchRealityView:
+            return "StitchRealityView()"
+        case .box:
+            return "Box()"
+        case .cone:
+            return "Cone()"
+        case .cylinder:
+            return "Cylinder()"
+        case .sphere:
+            return "Sphere()"
+            
+            //        case .angularGradient:
+            //            return "AngularGradient(/* not emitted here */)"
+            //        case .linearGradient:
+            //            return "LinearGradient(/* not emitted here */)"
+            //        case .radialGradient:
+            //            return "RadialGradient(/* not emitted here */)"
+            
+        case .spacer, .lazyHStack, .lazyVStack:
+            return "NOT YET SUPPORTED"
+        }
+    }
+}
+
+// MARK: - Specific renderers used above
+func renderText(_ ctor: TextViewConstructor) -> String {
+    switch ctor {
+    case .string(let arg):
+        return "Text(\(renderArg(arg)))"
+    case .verbatim(let arg):
+        return "Text(verbatim: \(renderArg(arg)))"
+    case .localized(let arg):
+        return "Text(\(renderArg(arg)))"
+    case .attributed(let arg):
+        return "Text(\(renderArg(arg)))"
+    }
+}
+
+func renderImage(_ ctor: ImageViewConstructor) -> String {
+    switch ctor {
+    case .sfSymbol(let name):
+        return "Image(systemName: \(renderArg(name)))"
+    case .asset(let name):
+        return "Image(\(renderArg(name)))"
+    case .decorative(let name):
+        return "Image(decorative: \(renderArg(name)))"
+    case .uiImage:
+        // Historically tied to async media; keep placeholder
+        return "Image(/* async media */)"
+    }
+}
+
+// MARK: - Argument rendering helpers
+func renderArg(_ arg: SyntaxViewModifierArgumentType) -> String {
+    switch arg {
+    case .simple(let data):
+        return renderSimple(data)
+    case .memberAccess(let m):
+        return m.base.map { "\($0).\(m.property)" } ?? ".\(m.property)"
+    case .array(let elements):
+        return "[" + elements.map(renderArg).joined(separator: ", ") + "]"
+    case .tuple(let fields):
+        let inner = fields.map { f in
+            let label = f.label ?? "_"
+            return "\(label): \(renderArg(f.value))"
+        }.joined(separator: ", ")
+        return "(\(inner))"
+    case .complex(let c):
+        // Best-effort for complex types
+        let inner = (try? c.arguments.createValuesDict()).map { dict in
+            dict.map { "\($0.key): \(renderAnyEncodable($0.value))" }
+                .sorted().joined(separator: ", ")
+        } ?? ""
+        return "\(c.typeName)(\(inner))"
+    }
+}
+
+func renderSimple(_ s: SyntaxViewSimpleData) -> String {
+    switch s.syntaxKind {
+    case .string:
+        return "\"\(s.value)\""
+    case .float:
+        return s.value
+    case .boolean:
+        return s.value.lowercased()
+    default:
+        return s.value
+    }
+}
+
+//func renderTextLiteral(_ literal: TextFieldViewConstructor.TextLiteral) -> String {
+//    // Render a text literal used in TextField(title:)
+//    switch literal {
+//    case .literal(let s):
+//        return "\"\(s)\""
+//    }
+//}
+
+func callParts(_ labeled: [String?]) -> String {
+    labeled.compactMap { $0 }.joined(separator: ", ")
+}
+
+func named(_ label: String, _ arg: SyntaxViewModifierArgumentType?) -> String? {
+    guard let a = arg else { return nil }
+    return "\(label): \(renderArg(a))"
+}
+
+func renderAnyEncodable(_ any: AnyEncodable) -> String {
+    let encoder = JSONEncoder()
+    if let data = try? encoder.encode(any), let s = String(data: data, encoding: .utf8) {
+        return s
+    }
+    return "_"
+}

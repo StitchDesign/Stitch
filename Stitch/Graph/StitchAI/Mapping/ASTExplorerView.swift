@@ -10,6 +10,7 @@
 import SwiftUI
 import SwiftSyntax
 import SwiftParser
+import StitchSchemaKit
 
 
 /// Playground that shows the *full* Stitch round‑trip.
@@ -49,13 +50,15 @@ struct ASTExplorerView: View {
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
     @State private var silentlyCaughtErrors: [SwiftUISyntaxError] = []
+    @State private var derivedConstructors: [ViewConstructor] = []
 
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
 
     init(
 //        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
-        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions])
+//        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions])
+        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions, .rebuiltSyntax])
     ) {
         _visibleStages = State(initialValue: initialVisibleStages)
     }
@@ -181,11 +184,29 @@ struct ASTExplorerView: View {
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
                     
                 case .rebuiltSyntax:
+                    let derivedText: String = {
+                        if derivedConstructors.isEmpty { return "—" }
+                        return derivedConstructors.enumerated().map { idx, ctor in
+                            "\(idx + 1). \(String(describing: ctor))"
+                        }.joined(separator: "\n")
+                    }()
+
+                    let rebuiltText: String = rebuiltSyntax.reduce(into: "") { stringBuilder, syntax in
+                        stringBuilder += "\n\(formatSyntaxView(syntax))"
+                    }
+
+                    let display = """
+                    Derived Constructors:
+                    \(derivedText)
+
+                    Re-built Syntax:
+                    \(rebuiltText)
+                    """
+                    // \(rebuiltText.isEmpty ? "—" : rebuiltText)
+
                     stageView(
                         title: Stage.rebuiltSyntax.title,
-                        text: rebuiltSyntax.reduce(into: "") { stringBuilder, syntax in
-                            stringBuilder += "\n\(formatSyntaxView(syntax))"
-                        }
+                        text: display
                     )
                     .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
@@ -213,6 +234,7 @@ struct ASTExplorerView: View {
         regeneratedCode = ""
         errorString = nil
         silentlyCaughtErrors = []
+        derivedConstructors = []
 
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
         
@@ -231,9 +253,20 @@ struct ASTExplorerView: View {
             stitchActions = stitchActionsResult.actions
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
+            // Actions → ViewConstructor (constructors only; no modifiers)
+            var idMap: [String: UUID] = [:]
+            let encoder = JSONEncoder()
+            let decoder = JSONDecoder()
+            let v0Layers: [AIGraphData_V0.LayerData] = stitchActions.compactMap { action in
+                guard let data = try? encoder.encode(action) else { return nil }
+                return try? decoder.decode(AIGraphData_V0.LayerData.self, from: data)
+            }
+            self.derivedConstructors = v0Layers.compactMap { makeConstructorFromLayerData($0, idMap: &idMap) }
+            
+            // TODO: support more than just view constructors
 //            // Actions → Syntax
 //            rebuiltSyntax = try SyntaxView.build(from: stitchActions)
-//            
+//
 //            // Syntax → Code
 //            regeneratedCode = rebuiltSyntax.reduce(into: "") { result, node in
 //                let codeString = swiftUICode(from: node)
