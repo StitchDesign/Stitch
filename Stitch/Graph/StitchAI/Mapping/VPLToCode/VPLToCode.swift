@@ -122,6 +122,16 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
     case .sphere:
         return .sphere(.plain)
         
+        // ───────── SF Symbol / Image ─────────
+    case .sfSymbol:
+        if let symbolName = inputs.string(.sfSymbol) {
+            let arg: SyntaxViewModifierArgumentType = .simple(
+                SyntaxViewSimpleData(value: symbolName, syntaxKind: .string)
+            )
+            return .image(.sfSymbol(name: arg))
+        }
+        return nil
+        
         // ───────── Not yet handled ─────────
     case .linearGradient, .radialGradient, .angularGradient,
             .textField:
