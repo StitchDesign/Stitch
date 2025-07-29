@@ -1457,6 +1457,18 @@ enum StrictViewModifier: Equatable, Encodable {
     case blur(BlurViewModifier)
     case zIndex(ZIndexViewModifier)
     case cornerRadius(CornerRadiusViewModifier)
+    case frame(FrameViewModifier)
+    case foregroundColor(ForegroundColorViewModifier)
+    case backgroundColor(BackgroundColorViewModifier)
+    case brightness(BrightnessViewModifier)
+    case contrast(ContrastViewModifier)
+    case saturation(SaturationViewModifier)
+    case hueRotation(HueRotationViewModifier)
+    case colorInvert(ColorInvertViewModifier)
+    case position(PositionViewModifier)
+    case offset(OffsetViewModifier)
+    case padding(PaddingViewModifier)
+    case clipped(ClippedViewModifier)
     // Add further cases here as new typed modifiers are introduced
 
     /// Type-erased access to the underlying typed modifier for Stitch emission.
@@ -1467,6 +1479,18 @@ enum StrictViewModifier: Equatable, Encodable {
         case .blur(let m):           return m
         case .zIndex(let m):         return m
         case .cornerRadius(let m):   return m
+        case .frame(let m):          return m
+        case .foregroundColor(let m): return m
+        case .backgroundColor(let m): return m
+        case .brightness(let m):     return m
+        case .contrast(let m):       return m
+        case .saturation(let m):     return m
+        case .hueRotation(let m):    return m
+        case .colorInvert(let m):    return m
+        case .position(let m):       return m
+        case .offset(let m):         return m
+        case .padding(let m):        return m
+        case .clipped(let m):        return m
         }
     }
 }
@@ -1486,6 +1510,18 @@ enum ViewModifierConstructor: Equatable, Encodable {
     case blur(BlurViewModifier)
     case zIndex(ZIndexViewModifier)
     case cornerRadius(CornerRadiusViewModifier)
+    case frame(FrameViewModifier)
+    case foregroundColor(ForegroundColorViewModifier)
+    case backgroundColor(BackgroundColorViewModifier)
+    case brightness(BrightnessViewModifier)
+    case contrast(ContrastViewModifier)
+    case saturation(SaturationViewModifier)
+    case hueRotation(HueRotationViewModifier)
+    case colorInvert(ColorInvertViewModifier)
+    case position(PositionViewModifier)
+    case offset(OffsetViewModifier)
+    case padding(PaddingViewModifier)
+    case clipped(ClippedViewModifier)
     // Add more modifiers here as needed
     
     var value: any FromSwiftUIViewModifierToStitch {
@@ -1499,6 +1535,30 @@ enum ViewModifierConstructor: Equatable, Encodable {
         case .zIndex(let modifier):
             return modifier
         case .cornerRadius(let modifier):
+            return modifier
+        case .frame(let modifier):
+            return modifier
+        case .foregroundColor(let modifier):
+            return modifier
+        case .backgroundColor(let modifier):
+            return modifier
+        case .brightness(let modifier):
+            return modifier
+        case .contrast(let modifier):
+            return modifier
+        case .saturation(let modifier):
+            return modifier
+        case .hueRotation(let modifier):
+            return modifier
+        case .colorInvert(let modifier):
+            return modifier
+        case .position(let modifier):
+            return modifier
+        case .offset(let modifier):
+            return modifier
+        case .padding(let modifier):
+            return modifier
+        case .clipped(let modifier):
             return modifier
         }
     }
@@ -1744,6 +1804,353 @@ struct CornerRadiusViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
+// MARK: - Frame View Modifier
+
+struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let width: SyntaxViewModifierArgumentType?
+    let height: SyntaxViewModifierArgumentType?
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // Convert width and height arguments to LayerDimensions
+        var layerWidth: LayerDimension = .number(0)  // default
+        var layerHeight: LayerDimension = .number(0) // default
+        
+        if let width = width {
+            guard let widthPortValues = try width.derivePortValues().first,
+                  let widthNumber = widthPortValues.getNumber else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            layerWidth = .number(widthNumber)
+        }
+        
+        if let height = height {
+            guard let heightPortValues = try height.derivePortValues().first,
+                  let heightNumber = heightPortValues.getNumber else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            layerHeight = .number(heightNumber)
+        }
+        
+        let layerSize = LayerSize(width: layerWidth, height: layerHeight)
+        let sizeValue = PortValue.size(layerSize)
+        
+        return [ASTCustomInputValue(input: .size, value: sizeValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> FrameViewModifier? {
+        var width: SyntaxViewModifierArgumentType?
+        var height: SyntaxViewModifierArgumentType?
+        
+        for arg in arguments {
+            switch arg.label {
+            case "width":  width = arg.value
+            case "height": height = arg.value
+            default: break
+            }
+        }
+        
+        // Require at least one dimension to be present
+        guard width != nil || height != nil else { return nil }
+        
+        return FrameViewModifier(width: width, height: height)
+    }
+}
+
+// MARK: - Color View Modifiers
+
+struct ForegroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let color: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let colorPortValue = try color.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .color, value: colorPortValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> ForegroundColorViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return ForegroundColorViewModifier(color: first.value)
+    }
+}
+
+struct BackgroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let color: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let colorPortValue = try color.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .backgroundColor, value: colorPortValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> BackgroundColorViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return BackgroundColorViewModifier(color: first.value)
+    }
+}
+
+// MARK: - Layer Effects View Modifiers
+
+struct BrightnessViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let value: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let portValue = try value.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .brightness, value: portValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> BrightnessViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return BrightnessViewModifier(value: first.value)
+    }
+}
+
+struct ContrastViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let value: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let portValue = try value.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .contrast, value: portValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> ContrastViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return ContrastViewModifier(value: first.value)
+    }
+}
+
+struct SaturationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let value: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let portValue = try value.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .saturation, value: portValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> SaturationViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return SaturationViewModifier(value: first.value)
+    }
+}
+
+struct HueRotationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let angle: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let anglePortValue = try angle.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .hueRotation, value: anglePortValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> HueRotationViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return HueRotationViewModifier(angle: first.value)
+    }
+}
+
+struct ColorInvertViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    // colorInvert() takes no arguments
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        let trueValue = PortValue.bool(true)
+        return [ASTCustomInputValue(input: .colorInvert, value: trueValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> ColorInvertViewModifier? {
+        // colorInvert() should have no arguments
+        guard arguments.isEmpty else { return nil }
+        return ColorInvertViewModifier()
+    }
+}
+
+// MARK: - Positioning View Modifiers
+
+struct PositionViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let x: SyntaxViewModifierArgumentType
+    let y: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let xPortValue = try x.derivePortValues().first,
+              let yPortValue = try y.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        guard let xNumber = xPortValue.getNumber,
+              let yNumber = yPortValue.getNumber else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        let positionValue = PortValue.position(StitchPosition(x: xNumber, y: yNumber))
+        return [ASTCustomInputValue(input: .position, value: positionValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> PositionViewModifier? {
+        var x: SyntaxViewModifierArgumentType?
+        var y: SyntaxViewModifierArgumentType?
+        
+        // .position(x: X, y: Y) or .position(CGPoint(x: X, y: Y))
+        for arg in arguments {
+            switch arg.label {
+            case "x": x = arg.value
+            case "y": y = arg.value
+            case nil:
+                // Handle CGPoint case - would need more complex parsing
+                return nil
+            default: break
+            }
+        }
+        
+        guard let x = x, let y = y else { return nil }
+        return PositionViewModifier(x: x, y: y)
+    }
+}
+
+struct OffsetViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let x: SyntaxViewModifierArgumentType
+    let y: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let xPortValue = try x.derivePortValues().first,
+              let yPortValue = try y.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        guard let xNumber = xPortValue.getNumber,
+              let yNumber = yPortValue.getNumber else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        let positionValue = PortValue.position(StitchPosition(x: xNumber, y: yNumber))
+        return [ASTCustomInputValue(input: .offsetInGroup, value: positionValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> OffsetViewModifier? {
+        var x: SyntaxViewModifierArgumentType?
+        var y: SyntaxViewModifierArgumentType?
+        
+        for arg in arguments {
+            switch arg.label {
+            case "x": x = arg.value
+            case "y": y = arg.value
+            case nil:
+                // Handle CGSize case - would need more complex parsing
+                return nil
+            default: break
+            }
+        }
+        
+        guard let x = x, let y = y else { return nil }
+        return OffsetViewModifier(x: x, y: y)
+    }
+}
+
+// MARK: - Layout View Modifiers
+
+struct PaddingViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let edges: SyntaxViewModifierArgumentType?
+    let length: SyntaxViewModifierArgumentType?
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // For now, handle uniform padding only
+        guard let length = length,
+              let lengthPortValue = try length.derivePortValues().first,
+              let paddingNumber = lengthPortValue.getNumber else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        let paddingValue = PortValue.padding(StitchPadding(
+            top: paddingNumber,
+            right: paddingNumber,
+            bottom: paddingNumber,
+            left: paddingNumber
+        ))
+        return [ASTCustomInputValue(input: .padding, value: paddingValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> PaddingViewModifier? {
+        var edges: SyntaxViewModifierArgumentType?
+        var length: SyntaxViewModifierArgumentType?
+        
+        for arg in arguments {
+            switch arg.label {
+            case "edges", nil where edges == nil:
+                edges = arg.value
+            case "length", nil where length == nil:
+                length = arg.value
+            default: break
+            }
+        }
+        
+        // Handle .padding() with no arguments - uniform 16pt padding
+        if arguments.isEmpty {
+            let defaultPadding = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: "16", syntaxKind: .float)
+            )
+            return PaddingViewModifier(edges: nil, length: defaultPadding)
+        }
+        
+        // Handle .padding(X) - uniform X padding
+        if arguments.count == 1 && arguments.first?.label == nil {
+            length = arguments.first?.value
+        }
+        
+        return PaddingViewModifier(edges: edges, length: length)
+    }
+}
+
+struct ClippedViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    // .clipped() takes no arguments
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        let trueValue = PortValue.bool(true)
+        return [ASTCustomInputValue(input: .isClipped, value: trueValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> ClippedViewModifier? {
+        // clipped() should have no arguments
+        guard arguments.isEmpty else { return nil }
+        return ClippedViewModifier()
+    }
+}
+
 /// Factory function to create ViewModifierConstructor from parsed SwiftUI syntax
 func createKnownViewModifier(modifierName: SyntaxViewModifierName,
                            arguments: [SyntaxViewArgumentData]) -> ViewModifierConstructor? {
@@ -1764,6 +2171,42 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .cornerRadius:
         return CornerRadiusViewModifier.from(arguments, modifierName: modifierName)
             .map { .cornerRadius($0) }
+    case .frame:
+        return FrameViewModifier.from(arguments, modifierName: modifierName)
+            .map { .frame($0) }
+    case .foregroundColor:
+        return ForegroundColorViewModifier.from(arguments, modifierName: modifierName)
+            .map { .foregroundColor($0) }
+    case .backgroundColor:
+        return BackgroundColorViewModifier.from(arguments, modifierName: modifierName)
+            .map { .backgroundColor($0) }
+    case .brightness:
+        return BrightnessViewModifier.from(arguments, modifierName: modifierName)
+            .map { .brightness($0) }
+    case .contrast:
+        return ContrastViewModifier.from(arguments, modifierName: modifierName)
+            .map { .contrast($0) }
+    case .saturation:
+        return SaturationViewModifier.from(arguments, modifierName: modifierName)
+            .map { .saturation($0) }
+    case .hueRotation:
+        return HueRotationViewModifier.from(arguments, modifierName: modifierName)
+            .map { .hueRotation($0) }
+    case .colorInvert:
+        return ColorInvertViewModifier.from(arguments, modifierName: modifierName)
+            .map { .colorInvert($0) }
+    case .position:
+        return PositionViewModifier.from(arguments, modifierName: modifierName)
+            .map { .position($0) }
+    case .offset:
+        return OffsetViewModifier.from(arguments, modifierName: modifierName)
+            .map { .offset($0) }
+    case .padding:
+        return PaddingViewModifier.from(arguments, modifierName: modifierName)
+            .map { .padding($0) }
+    case .clipped:
+        return ClippedViewModifier.from(arguments, modifierName: modifierName)
+            .map { .clipped($0) }
     default:
         return nil
     }
