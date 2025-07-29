@@ -26,6 +26,7 @@ extension AIGraphData_V0 {
     typealias Patch = Patch_V33.Patch
     typealias Layer = Layer_V33.Layer
     typealias LayerInputPort = LayerInputPort_V33.LayerInputPort
+    typealias LayerInputType = LayerInputType_V33.LayerInputType
     typealias StitchAIPortValue = StitchAIPortValue_V1.StitchAIPortValue
     typealias PortValueVersion = PortValue_V33
     typealias PortValue = PortValueVersion.PortValue
@@ -56,7 +57,7 @@ extension AIGraphData_V0.CodeCreatorParams {
                 
                 // Native node scenario
                 else {
-                    nativeNodes.append(.init(node_id: patchNodeEntity.id.description,
+                    nativeNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
                                              node_name: .init(value: .patch(patchNodeEntity.patch))))
                     
                     // Update node type
@@ -160,39 +161,72 @@ extension AIGraphData_V0.LayerData {
         let children = try sidebarData.children?.createAIData(nodesDict: nodesDict,
                                                               layerConnections: &layerConnections)
         
-        var customInputValues = [AIGraphData_V0.CustomLayerInputValue]()
+        var customInputValues = [LayerPortDerivation]()
         for port in LayerInputPort.allCases {
             let portData = layerData[keyPath: port.schemaPortKeyPath]
             
-            switch portData.packedData.inputPort {
-            case .values(let values):
-                let defaultData = port.getDefaultValueForAI(for: layerData.layer)
-                let defaultEncodedData = try defaultData.anyCodable.encodeToData()
-                
-                // Save data if different from default value
-                if let firstValue = values.first {
-                    let firstValueEncodedData = try firstValue.anyCodable.encodeToData()
+            switch portData.mode {
+            case .packed:
+                switch portData.packedData.inputPort {
+                case .values(let values):
+                    let defaultData = port.getDefaultValueForAI(for: layerData.layer)
+                    let defaultEncodedData = try defaultData.anyCodable.encodeToData()
                     
-                    // Check if values are equal
-                    if defaultData != firstValue &&
-                        // Redundant check because sometimes values are the same but different (like for color)
-                        defaultEncodedData != firstValueEncodedData {
-                        customInputValues.append(
-                            try .init(id: layerData.id,
-                                      input: port,
+                    // Save data if different from default value
+                    if let firstValue = values.first {
+                        let firstValueEncodedData = try firstValue.anyCodable.encodeToData()
+                        
+                        // Check if values are equal
+                        if defaultData != firstValue &&
+                            // Redundant check because sometimes values are the same but different (like for color)
+                            defaultEncodedData != firstValueEncodedData {
+                            customInputValues.append(
+                                .init(input: port,
                                       value: firstValue)
-                        )
+                            )
+                        }
                     }
+                    
+                case .upstreamConnection(let upstream):
+                    let layerConnection = try Self
+                        .createLayerConnection(upstream: upstream,
+                                               downstreamNodeId: layerData.id,
+                                               downstreamPort: port,
+                                               downstreamKeyPathType: .packed)
+                    
+                    layerConnections.append(layerConnection)
                 }
                 
-            case .upstreamConnection(let upstream):
-                if let upstreamPortIndex = upstream.portId {
-                    layerConnections.append(
-                        .init(src_port: .init(node_id: upstream.nodeId.description,
-                                              port_index: upstreamPortIndex),
-                              dest_port: .init(layer_id: layerData.id.description,
-                                               input_port_type: .init(value: port)))
-                    )
+            case .unpacked:
+                for (portIndex, unpackedData) in portData.unpackedData.enumerated() {
+                    guard let unpackedPortType = UnpackedPortType_V33.UnpackedPortType(rawValue: portIndex) else {
+                        fatalErrorIfDebug()
+                        continue
+                    }
+                    
+                    switch unpackedData.inputPort {
+                    case .values(let values):
+                        guard let firstValue = values.first else {
+                            fatalErrorIfDebug()
+                            continue
+                        }
+                        
+                        customInputValues.append(.init(
+                            coordinate: .init(
+                                layerInput: port,
+                                portType: .unpacked(unpackedPortType)),
+                            inputData: .value(.init(firstValue))
+                        ))
+                        
+                    case .upstreamConnection(let upstream):
+                        let layerConnection = try Self
+                            .createLayerConnection(upstream: upstream,
+                                                   downstreamNodeId: layerData.id,
+                                                   downstreamPort: port,
+                                                   downstreamKeyPathType: .unpacked(unpackedPortType))
+                        
+                        layerConnections.append(layerConnection)
+                    }
                 }
             }
         }
@@ -201,6 +235,24 @@ extension AIGraphData_V0.LayerData {
                      node_name: .init(value: .layer(layerData.layer)),
                      children: children,
                      custom_layer_input_values: customInputValues)
+    }
+    
+    static func createLayerConnection(upstream: NodeIOCoordinate,
+                                      downstreamNodeId: UUID,
+                                      downstreamPort: LayerInputPort,
+                                      downstreamKeyPathType: LayerInputKeyPathType) throws -> AIGraphData_V0.LayerConnection {
+        guard let upstreamPortIndex = upstream.portId else {
+            throw SwiftUISyntaxError.unexpectedUpstreamLayerCoordinate
+        }
+            
+        return .init(
+            src_port: .init(node_id: upstream.nodeId.description,
+                            port_index: upstreamPortIndex),
+            dest_port: .init(layer_id: downstreamNodeId.description,
+                             input_port_type: .init(layerInput: downstreamPort,
+                                                    portType: downstreamKeyPathType)
+                            )
+        )
     }
 }
 

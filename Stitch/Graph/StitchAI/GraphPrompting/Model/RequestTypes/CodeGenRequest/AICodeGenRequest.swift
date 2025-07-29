@@ -145,11 +145,14 @@ extension StitchAICodeCreator {
             }
             
             do {
-                let (graphData, allDiscoveredErrors) = try await request
+                let actionsResult = try await request
                     .processRequest(userPrompt: userPrompt,
                                     document: document,
                                     aiManager: aiManager,
                                     systemPrompt: systemPrompt)
+                
+                let graphData = actionsResult.graphData
+                let allDiscoveredErrors = actionsResult.caughtErrors
                 
                 logToServerIfRelease("SUCCESS Patch Builder:\n\((try? graphData.encodeToPrintableString()) ?? "")")
                 
@@ -157,8 +160,10 @@ extension StitchAICodeCreator {
                     guard let document = document else { return }
                     
                     do {
-                        try graphData.applyAIGraph(to: document,
-                                                   requestType: Self.type)
+                        try graphData
+                            .applyAIGraph(to: document,
+                                          viewStatePatchConnections: actionsResult.viewStatePatchConnections,
+                                          requestType: Self.type)
                         
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
                         // Display parsing warnings
@@ -191,7 +196,7 @@ extension StitchAICodeCreator {
     private func processRequest(userPrompt: String,
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
-                                systemPrompt: String) async throws -> (AIGraphData_V0.GraphData, [SwiftUISyntaxError]) {
+                                systemPrompt: String) async throws -> SwiftSyntaxActionsResult {
         log("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
@@ -201,49 +206,25 @@ extension StitchAICodeCreator {
 
         logToServerIfRelease("StitchAICodeCreator swiftUICode:\n\(swiftUICode)")
         
-        guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
-            logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
-            throw SwiftUISyntaxError.couldNotParseVarBody
-        }
+//        guard let parsedVarBody = VarBodyParser.extract(from: swiftUICode) else {
+//            logToServerIfRelease("SwiftUISyntaxError.couldNotParseVarBody.localizedDescription: \(SwiftUISyntaxError.couldNotParseVarBody.localizedDescription)")
+//            throw SwiftUISyntaxError.couldNotParseVarBody
+//        }
         
-        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
+//        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(parsedVarBody)
-        var allDiscoveredErrors = codeParserResult.caughtErrors
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
         
         guard let viewNode = codeParserResult.rootView else {
             logToServerIfRelease("SwiftUISyntaxError.viewNodeNotFound.localizedDescription: \(SwiftUISyntaxError.viewNodeNotFound.localizedDescription)")
             throw SwiftUISyntaxError.viewNodeNotFound
         }
         
-        let actionsResult = try viewNode.deriveStitchActions()
+        let actionsResult = try codeParserResult.deriveStitchActions()
         
         print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
         
-        let layerDataList = actionsResult.actions
-        allDiscoveredErrors += actionsResult.caughtErrors
-        
-        let patchBuilderInputs = AIPatchBuilderFunctionInputs(
-            swiftui_source_code: swiftUICode,
-            layer_data_list: try layerDataList.encodeToString())
-        
-        let patchBuilderRequest = try OpenAIChatCompletionStructuredOutputsRequest(
-            id: self.id,
-            requestType: Self.type,
-            systemPrompt: systemPrompt,
-            assistantPrompt: try StitchAIManager.aiPatchBuilderSystemPromptGenerator(),
-            responseFormat: AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat(),
-            inputs: patchBuilderInputs)
-        
-        let patchBuilderResult = try await patchBuilderRequest
-            .request(document: document,
-                     aiManager: aiManager)
-        
-        logToServerIfRelease("Successful patch builder result: \(try patchBuilderResult.encodeToPrintableString())")
-        
-        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
-                                                 patch_data: patchBuilderResult)
-        return (graphData, allDiscoveredErrors)
+        return actionsResult
     }
 }
 

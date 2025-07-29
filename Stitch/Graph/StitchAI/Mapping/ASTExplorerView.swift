@@ -73,7 +73,7 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchActions: [CurrentAIGraphData.LayerData] = []
+    @State private var stitchActions: SwiftSyntaxActionsResult?
     @State private var rebuiltSyntax: [StrictSyntaxView] = []
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
@@ -243,7 +243,7 @@ struct ASTExplorerView: View {
 
         // Reset all values
         firstSyntax = nil
-        stitchActions = []
+        stitchActions = nil
         rebuiltSyntax = []
         regeneratedCode = ""
         errorString = nil
@@ -253,27 +253,24 @@ struct ASTExplorerView: View {
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
         
         // Parse code → Syntax
-        guard let syntax = codeParserResult.rootView else {
-            return
-        }
-        firstSyntax = syntax
+        firstSyntax = codeParserResult.rootView
         
         silentlyCaughtErrors += codeParserResult.caughtErrors
 
         do {
             // Syntax → Actions
-            let stitchActionsResult = try syntax.deriveStitchActions()
+            let stitchActionsResult = try codeParserResult.deriveStitchActions()
             
-            stitchActions = stitchActionsResult.actions
+            stitchActions = stitchActionsResult
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
             // Actions → StrictSyntaxView (new approach using typed system)
             var idMap: [String: UUID] = [:]
             
             // Convert LayerData to StrictSyntaxView
-            self.rebuiltSyntax = try stitchActions.compactMap { layerData in
+            self.rebuiltSyntax = try stitchActions?.graphData.layer_data_list.compactMap { layerData in
                 try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
-            }
+            } ?? []
             
             // Generate complete SwiftUI code from StrictSyntaxView
             self.regeneratedCode = rebuiltSyntax.map { strictSyntaxView in

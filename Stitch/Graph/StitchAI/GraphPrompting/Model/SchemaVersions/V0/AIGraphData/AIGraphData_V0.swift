@@ -44,7 +44,7 @@ enum AIGraphData_V0 {
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
-        var custom_layer_input_values: [CustomLayerInputValue] = []
+        var custom_layer_input_values: [LayerPortDerivation] = []
     }
     
     struct JsPatchNode: Codable {
@@ -77,7 +77,7 @@ enum AIGraphData_V0 {
     
     struct LayerInputCoordinate: Codable {
         var layer_id: String
-        let input_port_type: AILayerInputPort
+        let input_port_type: LayerInputType
     }
 
     struct NodeIndexedCoordinate: Codable, Hashable {
@@ -87,12 +87,6 @@ enum AIGraphData_V0 {
     
     struct CustomPatchInputValue: Codable {
         let patch_input_coordinate: NodeIndexedCoordinate
-        let value: any (Codable & Sendable)
-        let value_type: StitchAINodeType
-    }
-    
-    struct CustomLayerInputValue {
-        var layer_input_coordinate: LayerInputCoordinate
         let value: any (Codable & Sendable)
         let value_type: StitchAINodeType
     }
@@ -288,52 +282,45 @@ extension AIGraphData_V0.LayerData: Codable {
     }
 }
 
-extension AIGraphData_V0.CustomLayerInputValue {
-    init(id: UUID,
-         input: AIGraphData_V0.LayerInputPort,
-         value: AIGraphData_V0.PortValue) throws {
-        let data = value.anyCodable
-        
-        self = .init(layer_input_coordinate: .init(
-            layer_id: .init(id),
-            input_port_type: .init(value: input)),
-                     value: data,
-                     value_type: .init(value: value.nodeType))
-    }
-}
-
-extension AIGraphData_V0.CustomLayerInputValue: Codable {
+extension LayerPortDerivation: Encodable {
     enum CodingKeys: String, CodingKey {
-        case layer_input_coordinate
+        case coordinate
         case value
         case value_type
+        case state_ref
     }
     
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.layer_input_coordinate = try container
-            .decode(AIGraphData_V0.LayerInputCoordinate.self,
-                    forKey: .layer_input_coordinate)
-        
-        let nodeType = try container.decode(AIGraphData_V0.StitchAINodeType.self, forKey: .value_type)
-        
-        // Parse value given node type
-        let portValueType = nodeType.value.portValueTypeForStitchAI
-        
-        self.value_type = nodeType
-        self.value = try container.decode(portValueType, forKey: .value)
-    }
+//    init(from decoder: any Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.coordinate = try container
+//            .decode(CurrentAIGraphData.LayerInputType.self,
+//                    forKey: .coordinate)
+//        
+//        let nodeType = try container.decode(AIGraphData_V0.StitchAINodeType.self, forKey: .value_type)
+//        
+//        // Parse value given node type
+//        let portValueType = nodeType.value.portValueTypeForStitchAI
+//        
+//        self.value_type = nodeType
+//        self.value = try container.decode(portValueType, forKey: .value)
+//    }
     
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(layer_input_coordinate, forKey: .layer_input_coordinate)
+        try container.encode(coordinate, forKey: .coordinate)
         
-        // Encodes values in manner that produces friendly printable result
-        try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
-                                                  valueData: self.value,
-                                                  valueType: self.value_type,
-                                                  valueKey: .value,
-                                                  valueTypeKey: .value_type)
+        switch self.inputData {
+        case .value(let value):
+            // Encodes values in manner that produces friendly printable result
+            try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
+                                                      valueData: value.value,
+                                                      valueType: value.value_type,
+                                                      valueKey: .value,
+                                                      valueTypeKey: .value_type)
+
+        case .stateRef(let refName):
+            try container.encode(refName, forKey: .state_ref)
+        }
     }
 }
 
@@ -392,10 +379,13 @@ extension AIGraphData_V0.PortValue {
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
-    var allNestedCustomInputValues: [AIGraphData_V0.CustomLayerInputValue] {
-        self.flatMap {
-            $0.custom_layer_input_values +
-            ($0.children?.allNestedCustomInputValues ?? [])
+    func allNestedCustomInputValues(callback: @escaping (String, LayerPortDerivation) throws -> ()) throws {
+        for layerData in self {
+            for customInputValue in layerData.custom_layer_input_values {
+                try callback(layerData.node_id, customInputValue)
+            }
+            
+            try layerData.children?.allNestedCustomInputValues(callback: callback)
         }
     }
 }

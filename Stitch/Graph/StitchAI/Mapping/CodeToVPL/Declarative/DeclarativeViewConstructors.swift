@@ -200,7 +200,7 @@ extension TextViewConstructor {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
-        return [.init(input: .text, value: value)]
+        return [.init(input: .text, inputData: value)]
     }
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
@@ -271,7 +271,7 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
             
             return [
                 .init(input: .image,
-                      value: portValue)
+                      inputData: portValue)
             ]
             
         case .sfSymbol(let arg):
@@ -281,7 +281,7 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
             
             return [
                 .init(input: .sfSymbol,
-                      value: portValue)
+                      inputData: portValue)
             ]
         }
     }
@@ -451,7 +451,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             }
             
             list.append(.init(input: .layerGroupAlignment,
-                              value: value))
+                              inputData: value))
         }
         
         if let spacingArg = spacingArg {
@@ -460,7 +460,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             }
             
             list.append(.init(input: .spacing,
-                              value: value))
+                              inputData: value))
         }
         
         return list
@@ -530,7 +530,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             guard let value = try alignmentArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            list.append(.init(input: .layerGroupAlignment, value: value))
+            list.append(.init(input: .layerGroupAlignment, inputData: value))
         }
 
         // --- spacing (CGFloat?) → .spacing ---
@@ -538,7 +538,7 @@ enum VStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             guard let value = try spacingArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            list.append(.init(input: .spacing, value: value))
+            list.append(.init(input: .spacing, inputData: value))
         }
 
         return list
@@ -710,7 +710,7 @@ enum ZStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
                 guard let value = try arg.derivePortValues().first else {
                     throw SwiftUISyntaxError.portValueNotFound
                 }
-                list.append(.init(input: .layerGroupAlignment, value: value))
+                list.append(.init(input: .layerGroupAlignment, inputData: value))
             }
         }
 
@@ -947,11 +947,11 @@ enum ScrollViewViewConstructor: Equatable, FromSwiftUIViewToStitch {
 
             // What does PVD for `[.horizontal, .vertical]` look like? Do we get one PVD, or multiple?
             // The returned PortValue is just a bool, i.e. not enough to tell us
-            .map { (pv: AIGraphData_V0.PortValueVersion.PortValue) in
+            .map { pv in
                     // TODO: there's not really a good way to turn
                     // Can't know
                     ASTCustomInputValue(input: .scrollYEnabled,
-                                        value: pv)
+                                        inputData: pv)
                 }
 
         default:
@@ -1298,14 +1298,14 @@ enum LazyHStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             guard let value = try arg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            list.append(.init(input: .layerGroupAlignment, value: value))
+            list.append(.init(input: .layerGroupAlignment, inputData: value))
         }
 
         if let spacingArg = spacingArg {
             guard let value = try spacingArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            list.append(.init(input: .spacing, value: value))
+            list.append(.init(input: .spacing, inputData: value))
         }
         return list
     }
@@ -1357,14 +1357,14 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             guard let value = try arg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            list.append(.init(input: .layerGroupAlignment, value: value))
+            list.append(.init(input: .layerGroupAlignment, inputData: value))
         }
 
         if let spacingArg = spacingArg {
             guard let value = try spacingArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            list.append(.init(input: .spacing, value: value))
+            list.append(.init(input: .spacing, inputData: value))
         }
         return list
     }
@@ -1460,7 +1460,7 @@ struct OpacityViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
-        return [.init(input: .opacity, value: portValue)]
+        return [.init(input: .opacity, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1498,7 +1498,7 @@ enum ScaleEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
                 return [.init(input: .pivot, value: .anchoring(anch))]
             }
             if let anchorPV = try anchorArg.derivePortValues().first {
-                return [.init(input: .pivot, value: anchorPV)]
+                return [.init(input: .pivot, inputData: anchorPV)]
             }
             throw SwiftUISyntaxError.portValueNotFound
         }
@@ -1508,19 +1508,23 @@ enum ScaleEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
             guard let pv = try scaleArg.derivePortValues().first else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            var events: [ASTCustomInputValue] = [.init(input: .scale, value: pv)]
+            var events: [ASTCustomInputValue] = [.init(input: .scale, inputData: pv)]
             events += try pivotEvents(anchorArg)
             return events
 
         case .xy(let xArg, let yArg, let anchorArg):
-            guard let x = try xArg.derivePortValues().first?.getNumber,
-                  let y = try yArg.derivePortValues().first?.getNumber else {
+            guard let x = try xArg.derivePortValues().first?.value,
+                  let y = try yArg.derivePortValues().first?.value else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
-            guard x == y else {
+            
+            let portValueX = try PortValue(from: x)
+            let portValueY = try PortValue(from: y)
+            
+            guard portValueX == portValueY else {
                 throw SwiftUISyntaxError.unsupportedSyntaxArgument("scaleEffect(x:y:) requires uniform scale for Stitch .scale")
             }
-            var events: [ASTCustomInputValue] = [.init(input: .scale, value: .number(x))]
+            var events: [ASTCustomInputValue] = [.init(input: .scale, value: portValueX)]
             events += try pivotEvents(anchorArg)
             return events
 
@@ -1529,12 +1533,17 @@ enum ScaleEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
             if case .tuple(let fields) = sizeArg,
                let wField = fields.first(where: { $0.label == "width" })?.value,
                let hField = fields.first(where: { $0.label == "height" })?.value,
-               let w = try wField.derivePortValues().first?.getNumber,
-               let h = try hField.derivePortValues().first?.getNumber,
-               w == h {
-                var events: [ASTCustomInputValue] = [.init(input: .scale, value: .number(w))]
-                events += try pivotEvents(anchorArg)
-                return events
+               let w = try wField.derivePortValues().first?.value,
+               let h = try hField.derivePortValues().first?.value {
+                let portValueW = try PortValue(from: w)
+                let portValueH = try PortValue(from: h)
+                
+                if portValueW == portValueH {
+                    var events: [ASTCustomInputValue] = [.init(input: .scale, value: portValueW)]
+                    events += try pivotEvents(anchorArg)
+                    return events
+                }
+                
             }
             throw SwiftUISyntaxError.unsupportedSyntaxArgument("scaleEffect(CGSize) requires uniform width/height for Stitch .scale")
         }
@@ -1622,7 +1631,7 @@ struct BlurViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
-        return [.init(input: .blur, value: portValue)]
+        return [.init(input: .blur, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1650,7 +1659,7 @@ struct ZIndexViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
-        return [.init(input: .zIndex, value: portValue)]
+        return [.init(input: .zIndex, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1675,7 +1684,7 @@ struct CornerRadiusViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
-        return [.init(input: .cornerRadius, value: portValue)]
+        return [.init(input: .cornerRadius, inputData: portValue)]
     }
     
     static func from(_ args: [SyntaxViewArgumentData],
@@ -1702,16 +1711,16 @@ struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         var layerHeight: LayerDimension = .number(0) // default
         
         if let width = width {
-            guard let widthPortValues = try width.derivePortValues().first,
-                  let widthNumber = widthPortValues.getNumber else {
+            guard let widthPortValue = try width.derivePortValues().first?.value,
+                  let widthNumber = try PortValue(from: widthPortValue).getNumber else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
             layerWidth = .number(widthNumber)
         }
         
         if let height = height {
-            guard let heightPortValues = try height.derivePortValues().first,
-                  let heightNumber = heightPortValues.getNumber else {
+            guard let heightPortValues = try height.derivePortValues().first?.value,
+                  let heightNumber = try PortValue(from: heightPortValues).getNumber else {
                 throw SwiftUISyntaxError.portValueNotFound
             }
             layerHeight = .number(heightNumber)
@@ -1761,7 +1770,7 @@ struct ForegroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         guard let colorPortValue = try color.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound
         }
-        return [ASTCustomInputValue(input: .color, value: colorPortValue)]
+        return [ASTCustomInputValue(input: .color, inputData: colorPortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1790,7 +1799,7 @@ struct FillViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         guard let colorPortValue = try color.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound
         }
-        return [ASTCustomInputValue(input: .color, value: colorPortValue)]
+        return [ASTCustomInputValue(input: .color, inputData: colorPortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1812,7 +1821,7 @@ struct BrightnessViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound
         }
-        return [ASTCustomInputValue(input: .brightness, value: portValue)]
+        return [ASTCustomInputValue(input: .brightness, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1832,7 +1841,7 @@ struct ContrastViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound
         }
-        return [ASTCustomInputValue(input: .contrast, value: portValue)]
+        return [ASTCustomInputValue(input: .contrast, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1852,7 +1861,7 @@ struct SaturationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         guard let portValue = try value.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound
         }
-        return [ASTCustomInputValue(input: .saturation, value: portValue)]
+        return [ASTCustomInputValue(input: .saturation, inputData: portValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1872,7 +1881,7 @@ struct HueRotationViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         guard let anglePortValue = try angle.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound
         }
-        return [ASTCustomInputValue(input: .hueRotation, value: anglePortValue)]
+        return [ASTCustomInputValue(input: .hueRotation, inputData: anglePortValue)]
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1908,13 +1917,13 @@ struct PositionViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let y: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        guard let xPortValue = try x.derivePortValues().first,
-              let yPortValue = try y.derivePortValues().first else {
+        guard let xPortValue = try x.derivePortValues().first?.value,
+              let yPortValue = try y.derivePortValues().first?.value else {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
-        guard let xNumber = xPortValue.getNumber,
-              let yNumber = yPortValue.getNumber else {
+        guard let xNumber = try PortValue(from: xPortValue).getNumber,
+              let yNumber = try PortValue(from: yPortValue).getNumber else {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
@@ -1949,13 +1958,13 @@ struct OffsetViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let y: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        guard let xPortValue = try x.derivePortValues().first,
-              let yPortValue = try y.derivePortValues().first else {
+        guard let xPortValue = try x.derivePortValues().first?.value,
+              let yPortValue = try y.derivePortValues().first?.value else {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
-        guard let xNumber = xPortValue.getNumber,
-              let yNumber = yPortValue.getNumber else {
+        guard let xNumber = try PortValue(from: xPortValue).getNumber,
+              let yNumber = try PortValue(from: yPortValue).getNumber else {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
@@ -1993,8 +2002,8 @@ struct PaddingViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         // For now, handle uniform padding only
         guard let length = length,
-              let lengthPortValue = try length.derivePortValues().first,
-              let paddingNumber = lengthPortValue.getNumber else {
+              let lengthPortValue = try length.derivePortValues().first?.value,
+              let paddingNumber = try PortValue(from: lengthPortValue).getNumber else {
             throw SwiftUISyntaxError.portValueNotFound
         }
         
