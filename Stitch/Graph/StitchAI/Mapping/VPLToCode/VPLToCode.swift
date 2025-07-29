@@ -215,6 +215,28 @@ func viewModifierConstructorToStrictViewModifier(_ constructor: ViewModifierCons
         return .cornerRadius(modifier)
     case .frame(let modifier):
         return .frame(modifier)
+    case .foregroundColor(let modifier):
+        return .foregroundColor(modifier)
+    case .backgroundColor(let modifier):
+        return .backgroundColor(modifier)
+    case .brightness(let modifier):
+        return .brightness(modifier)
+    case .contrast(let modifier):
+        return .contrast(modifier)
+    case .saturation(let modifier):
+        return .saturation(modifier)
+    case .hueRotation(let modifier):
+        return .hueRotation(modifier)
+    case .colorInvert(let modifier):
+        return .colorInvert(modifier)
+    case .position(let modifier):
+        return .position(modifier)
+    case .offset(let modifier):
+        return .offset(modifier)
+    case .padding(let modifier):
+        return .padding(modifier)
+    case .clipped(let modifier):
+        return .clipped(modifier)
     }
 }
 
@@ -303,6 +325,32 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
         // Only generate .frame() if we have at least one parameter
         guard !parts.isEmpty else { return "" }
         return ".frame(\(parts.joined(separator: ", ")))"
+    case .foregroundColor(let m):
+        return ".foregroundColor(\(renderArg(m.color)))"
+    case .backgroundColor(let m):
+        return ".backgroundColor(\(renderArg(m.color)))"
+    case .brightness(let m):
+        return ".brightness(\(renderArg(m.value)))"
+    case .contrast(let m):
+        return ".contrast(\(renderArg(m.value)))"
+    case .saturation(let m):
+        return ".saturation(\(renderArg(m.value)))"
+    case .hueRotation(let m):
+        return ".hueRotation(\(renderArg(m.angle)))"
+    case .colorInvert(_):
+        return ".colorInvert()"
+    case .position(let m):
+        return ".position(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
+    case .offset(let m):
+        return ".offset(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
+    case .padding(let m):
+        if let length = m.length {
+            return ".padding(\(renderArg(length)))"
+        } else {
+            return ".padding()"
+        }
+    case .clipped(_):
+        return ".clipped()"
     }
 }
 
@@ -562,6 +610,97 @@ func makeViewModifierConstructor(from port: LayerInputPort,
             }
         }
         return nil
+    case .color:
+        if let color = value.getColor {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: "Color(\(color))", syntaxKind: .string)
+            )
+            return .foregroundColor(ForegroundColorViewModifier(color: arg))
+        }
+        return nil
+    case .backgroundColor:
+        if let color = value.getColor {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: "Color(\(color))", syntaxKind: .string)
+            )
+            return .backgroundColor(BackgroundColorViewModifier(color: arg))
+        }
+        return nil
+    case .brightness:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .brightness(BrightnessViewModifier(value: arg))
+        }
+        return nil
+    case .contrast:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .contrast(ContrastViewModifier(value: arg))
+        }
+        return nil
+    case .saturation:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .saturation(SaturationViewModifier(value: arg))
+        }
+        return nil
+    case .hueRotation:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: ".degrees(\(number))", syntaxKind: .string)
+            )
+            return .hueRotation(HueRotationViewModifier(angle: arg))
+        }
+        return nil
+    case .colorInvert:
+        if let bool = value.getBool, bool {
+            return .colorInvert(ColorInvertViewModifier())
+        }
+        return nil
+    case .position:
+        if let position = value.getPosition {
+            let xArg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .float)
+            )
+            let yArg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .float)
+            )
+            return .position(PositionViewModifier(x: xArg, y: yArg))
+        }
+        return nil
+    case .offsetInGroup:
+        if let position = value.getPosition {
+            let xArg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: position.x.description, syntaxKind: .float)
+            )
+            let yArg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: position.y.description, syntaxKind: .float)
+            )
+            return .offset(OffsetViewModifier(x: xArg, y: yArg))
+        }
+        return nil
+    case .padding:
+        if let padding = value.getPadding {
+            // For now, handle uniform padding only
+            if padding.top == padding.right && padding.right == padding.bottom && padding.bottom == padding.left {
+                let arg = SyntaxViewModifierArgumentType.simple(
+                    SyntaxViewSimpleData(value: padding.top.description, syntaxKind: .float)
+                )
+                return .padding(PaddingViewModifier(edges: nil, length: arg))
+            }
+        }
+        return nil
+    case .isClipped:
+        if let bool = value.getBool, bool {
+            return .clipped(ClippedViewModifier())
+        }
+        return nil
     default:
         return nil
     }
@@ -601,6 +740,32 @@ func renderViewModifierConstructor(_ modifier: ViewModifierConstructor) -> Strin
         // Only generate .frame() if we have at least one parameter
         guard !parts.isEmpty else { return "" }
         return ".frame(\(parts.joined(separator: ", ")))"
+    case .foregroundColor(let m):
+        return ".foregroundColor(\(renderArg(m.color)))"
+    case .backgroundColor(let m):
+        return ".backgroundColor(\(renderArg(m.color)))"
+    case .brightness(let m):
+        return ".brightness(\(renderArg(m.value)))"
+    case .contrast(let m):
+        return ".contrast(\(renderArg(m.value)))"
+    case .saturation(let m):
+        return ".saturation(\(renderArg(m.value)))"
+    case .hueRotation(let m):
+        return ".hueRotation(\(renderArg(m.angle)))"
+    case .colorInvert(_):
+        return ".colorInvert()"
+    case .position(let m):
+        return ".position(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
+    case .offset(let m):
+        return ".offset(x: \(renderArg(m.x)), y: \(renderArg(m.y)))"
+    case .padding(let m):
+        if let length = m.length {
+            return ".padding(\(renderArg(length)))"
+        } else {
+            return ".padding()"
+        }
+    case .clipped(_):
+        return ".clipped()"
     }
 }
 
@@ -630,76 +795,64 @@ func layerInputPortToSwiftUIModifier(port: LayerInputPort, value: AIGraphData_V0
         return nil
         
     case .brightness:
-        if let number = value.getNumber {
-            return ".brightness(\(number))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.brightness) pathway
+        return nil
         
     case .contrast:
-        if let number = value.getNumber {
-            return ".contrast(\(number))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.contrast) pathway
+        return nil
         
     case .saturation:
-        if let number = value.getNumber {
-            return ".saturation(\(number))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.saturation) pathway
+        return nil
         
     case .hueRotation:
-        if let number = value.getNumber {
-            return ".hueRotation(.degrees(\(number)))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.hueRotation) pathway
+        return nil
         
-    // Color modifiers - context dependent
+    // Color modifiers - handled via ViewModifierConstructor pathway
     case .color:
-        if let color = value.getColor {
-            return ".foregroundColor(\(renderColor(color)))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.foregroundColor) pathway
+        return nil
         
     case .backgroundColor:
-        if let color = value.getColor {
-            return ".background(\(renderColor(color)))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.backgroundColor) pathway
+        return nil
         
     // Boolean modifiers
     case .colorInvert:
-        if let bool = value.getBool, bool {
-            return ".colorInvert()"
-        }
+        // Handled via intermediate ViewModifierConstructor (.colorInvert) pathway
+        return nil
         
     case .isClipped, .clipped:
-        if let bool = value.getBool, bool {
-            return ".clipped()"
-        }
+        // Handled via intermediate ViewModifierConstructor (.clipped) pathway
+        return nil
         
 //    case .disabled:
 //        if let bool = value.getBool {
 //            return ".disabled(\(bool))"
 //        }
         
-    // Complex modifiers
+    // Complex modifiers - handled via ViewModifierConstructor pathway
     case .offsetInGroup:
-        if let position = value.getPosition {
-            return ".offset(x: \(position.x), y: \(position.y))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.offset) pathway
+        return nil
         
     case .size:
         // Handled via intermediate ViewModifierConstructor (.frame) pathway
         return nil
         
     case .padding:
-        if let padding = value.getPadding {
-            if padding.top == padding.right && padding.right == padding.bottom && padding.bottom == padding.left {
-                // Uniform padding
-                return ".padding(\(padding.top))"
-            } else {
-                // Non-uniform padding
-                return ".padding(.init(top: \(padding.top), leading: \(padding.left), bottom: \(padding.bottom), trailing: \(padding.right)))"
-            }
-        }
+        // Handled via intermediate ViewModifierConstructor (.padding) pathway
+        return nil
+        
+    case .position:
+        // Handled via intermediate ViewModifierConstructor (.position) pathway
+        return nil
         
     // TODO: this is not quite correct; `.text` needs to be
     // Modifiers that don't have direct SwiftUI equivalents or are handled at constructor level
-    case .position, .anchoring, .orientation, .text, .sfSymbol, .image, .video, .spacing, .layerGroupAlignment:
+    case .anchoring, .orientation, .text, .sfSymbol, .image, .video, .spacing, .layerGroupAlignment:
         return nil
         
     default:
