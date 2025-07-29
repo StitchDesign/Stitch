@@ -1457,11 +1457,23 @@ protocol FromSwiftUIViewModifierToStitch: Encodable {
 
 enum ViewModifierConstructor: Equatable, Encodable {
     case opacity(OpacityViewModifier)
+    case scaleEffect(ScaleEffectViewModifier)
+    case blur(BlurViewModifier)
+    case zIndex(ZIndexViewModifier)
+    case cornerRadius(CornerRadiusViewModifier)
     // Add more modifiers here as needed
     
     var value: any FromSwiftUIViewModifierToStitch {
         switch self {
         case .opacity(let modifier):
+            return modifier
+        case .scaleEffect(let modifier):
+            return modifier
+        case .blur(let modifier):
+            return modifier
+        case .zIndex(let modifier):
+            return modifier
+        case .cornerRadius(let modifier):
             return modifier
         }
     }
@@ -1492,6 +1504,221 @@ struct OpacityViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
+// MARK: - ScaleEffect View Modifier
+enum ScaleEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    // SwiftUI overloads we support
+    // 1) .scaleEffect(2.0, anchor: .center)
+    case uniform(scale: SyntaxViewModifierArgumentType,
+                 anchor: SyntaxViewModifierArgumentType?)
+    // 2) .scaleEffect(x: 2, y: 3, anchor: .top)
+    case xy(x: SyntaxViewModifierArgumentType,
+            y: SyntaxViewModifierArgumentType,
+            anchor: SyntaxViewModifierArgumentType?)
+    // 3) .scaleEffect(CGSize(width: 2, height: 3), anchor: .center)
+    case size(size: SyntaxViewModifierArgumentType,
+              anchor: SyntaxViewModifierArgumentType?)
+
+    // MARK: - Stitch mapping
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // local helper for optional anchor → .pivot
+        func pivotEvents(_ anchorArg: SyntaxViewModifierArgumentType?) throws -> [ASTCustomInputValue] {
+            guard let anchorArg else { return [] }
+            if case let .memberAccess(ma) = anchorArg, let anch = ma.unitPointAnchoring {
+                return [.init(input: .pivot, value: .anchoring(anch))]
+            }
+            if let anchorPV = try anchorArg.derivePortValues().first {
+                return [.init(input: .pivot, value: anchorPV)]
+            }
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+
+        switch self {
+        case .uniform(let scaleArg, let anchorArg):
+            guard let pv = try scaleArg.derivePortValues().first else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            var events: [ASTCustomInputValue] = [.init(input: .scale, value: pv)]
+            events += try pivotEvents(anchorArg)
+            return events
+
+        case .xy(let xArg, let yArg, let anchorArg):
+            guard let x = try xArg.derivePortValues().first?.getNumber,
+                  let y = try yArg.derivePortValues().first?.getNumber else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            guard x == y else {
+                throw SwiftUISyntaxError.unsupportedSyntaxArgument("scaleEffect(x:y:) requires uniform scale for Stitch .scale")
+            }
+            var events: [ASTCustomInputValue] = [.init(input: .scale, value: .number(x))]
+            events += try pivotEvents(anchorArg)
+            return events
+
+        case .size(let sizeArg, let anchorArg):
+            // Expect tuple(width:, height:) with equal values for uniform scale
+            if case .tuple(let fields) = sizeArg,
+               let wField = fields.first(where: { $0.label == "width" })?.value,
+               let hField = fields.first(where: { $0.label == "height" })?.value,
+               let w = try wField.derivePortValues().first?.getNumber,
+               let h = try hField.derivePortValues().first?.getNumber,
+               w == h {
+                var events: [ASTCustomInputValue] = [.init(input: .scale, value: .number(w))]
+                events += try pivotEvents(anchorArg)
+                return events
+            }
+            throw SwiftUISyntaxError.unsupportedSyntaxArgument("scaleEffect(CGSize) requires uniform width/height for Stitch .scale")
+        }
+    }
+
+    // MARK: - Parse from SwiftSyntax
+    static func from(_ args: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> ScaleEffectViewModifier? {
+        guard modifierName == .scaleEffect else { return nil }
+
+        var unlabeled: SyntaxViewModifierArgumentType?
+        var xArg: SyntaxViewModifierArgumentType?
+        var yArg: SyntaxViewModifierArgumentType?
+        var anchorArg: SyntaxViewModifierArgumentType?
+
+        for a in args {
+            switch a.label {
+            case nil:
+                unlabeled = a.value
+            case "x":
+                xArg = a.value
+            case "y":
+                yArg = a.value
+            case "anchor":
+                anchorArg = a.value
+            default:
+                break
+            }
+        }
+
+        // x/y variant takes precedence when either is present
+        if xArg != nil || yArg != nil {
+            let x = xArg ?? .simple(.init(value: "1.0", syntaxKind: .float))
+            let y = yArg ?? .simple(.init(value: "1.0", syntaxKind: .float))
+            return .xy(x: x, y: y, anchor: anchorArg)
+        }
+
+        // Distinguish CGSize vs scalar
+        if let unlabeled {
+            let isCGSize: Bool
+            switch unlabeled {
+            case .tuple(let fields):
+                isCGSize = fields.contains(where: { $0.label == "width" }) &&
+                           fields.contains(where: { $0.label == "height" })
+            case .complex(let c):
+                isCGSize = c.typeName.contains("CGSize")
+            default:
+                isCGSize = false
+            }
+
+            return isCGSize
+                ? .size(size: unlabeled, anchor: anchorArg)
+                : .uniform(scale: unlabeled, anchor: anchorArg)
+        }
+
+        return nil
+    }
+}
+
+// Helper: map UnitPoint-like member access (e.g. `.center`) to Anchoring
+extension SyntaxViewMemberAccess {
+    var unitPointAnchoring: Anchoring? {
+        switch self.property {
+        case "center":         return .centerCenter
+        case "top":            return .topCenter
+        case "bottom":         return .bottomCenter
+        case "leading":        return .centerLeft
+        case "trailing":       return .centerRight
+        case "topLeading":     return .topLeft
+        case "topTrailing":    return .topRight
+        case "bottomLeading":  return .bottomLeft
+        case "bottomTrailing": return .bottomRight
+        default: return nil
+        }
+    }
+}
+
+// MARK: - Blur View Modifier
+
+struct BlurViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let radius: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let portValue = try radius.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        return [.init(input: .blur, value: portValue)]
+    }
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> BlurViewModifier? {
+        guard modifierName == .blur else { return nil }
+        
+        // Find radius argument (either labeled "radius" or first unlabeled)
+        if let radiusArg = args.first(where: { $0.label == "radius" }) {
+            return BlurViewModifier(radius: radiusArg.value)
+        } else if let first = args.first, first.label == nil {
+            return BlurViewModifier(radius: first.value)
+        }
+        
+        return nil
+    }
+}
+
+// MARK: - ZIndex View Modifier
+
+struct ZIndexViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let value: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let portValue = try value.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        return [.init(input: .zIndex, value: portValue)]
+    }
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> ZIndexViewModifier? {
+        guard modifierName == .zIndex,
+              let first = args.first,
+              first.label == nil else {
+            return nil
+        }
+        
+        return ZIndexViewModifier(value: first.value)
+    }
+}
+
+// MARK: - CornerRadius View Modifier
+
+struct CornerRadiusViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let radius: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let portValue = try radius.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        return [.init(input: .cornerRadius, value: portValue)]
+    }
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> CornerRadiusViewModifier? {
+        guard modifierName == .cornerRadius,
+              let first = args.first,
+              first.label == nil else {
+            return nil
+        }
+        
+        return CornerRadiusViewModifier(radius: first.value)
+    }
+}
+
 /// Factory function to create ViewModifierConstructor from parsed SwiftUI syntax
 func createKnownViewModifier(modifierName: SyntaxViewModifierName,
                            arguments: [SyntaxViewArgumentData]) -> ViewModifierConstructor? {
@@ -1500,7 +1727,18 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .opacity:
         return OpacityViewModifier.from(arguments, modifierName: modifierName)
             .map { .opacity($0) }
-    
+    case .scaleEffect:
+        return ScaleEffectViewModifier.from(arguments, modifierName: modifierName)
+            .map { .scaleEffect($0) }
+    case .blur:
+        return BlurViewModifier.from(arguments, modifierName: modifierName)
+            .map { .blur($0) }
+    case .zIndex:
+        return ZIndexViewModifier.from(arguments, modifierName: modifierName)
+            .map { .zIndex($0) }
+    case .cornerRadius:
+        return CornerRadiusViewModifier.from(arguments, modifierName: modifierName)
+            .map { .cornerRadius($0) }
     default:
         return nil
     }
