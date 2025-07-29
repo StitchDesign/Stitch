@@ -133,7 +133,150 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
     }
 }
 
+// MARK: - LayerData → StrictSyntaxView Conversion
 
+/// Converts LayerData to StrictSyntaxView with constructor, modifiers, and children
+func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> StrictSyntaxView? {
+    // 1. Create the constructor
+    guard let constructor = makeConstructorFromLayerData(layerData, idMap: &idMap) else {
+        return nil
+    }
+    
+    // 2. Create modifiers from custom_layer_input_values
+    let modifiers = createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
+    
+    // 3. Convert children recursively
+    let children = layerData.children?.compactMap { childLayerData in
+        layerDataToStrictSyntaxView(childLayerData, idMap: &idMap)
+    } ?? []
+    
+    // 4. Generate or get UUID for this node
+    let nodeId: UUID
+    if let existingId = idMap[layerData.node_id] {
+        nodeId = existingId
+    } else {
+        nodeId = UUID()
+        idMap[layerData.node_id] = nodeId
+    }
+    
+    return StrictSyntaxView(
+        constructor: constructor,
+        modifiers: modifiers,
+        children: children,
+        id: nodeId
+    )
+}
+
+/// Creates StrictViewModifier array from LayerData custom input values
+func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [StrictViewModifier] {
+    var modifiers: [StrictViewModifier] = []
+    
+    for customInputValue in layerData.custom_layer_input_values {
+        let port = customInputValue.layer_input_coordinate.input_port_type.value
+        
+        if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
+            // Try to create a typed ViewModifierConstructor first
+            if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue) {
+                // Convert ViewModifierConstructor to StrictViewModifier
+                if let strictModifier = viewModifierConstructorToStrictViewModifier(constructorModifier) {
+                    modifiers.append(strictModifier)
+                }
+            }
+            // Note: Non-constructor modifiers are handled in the legacy string generation path
+            // and would need additional logic here if we want to support them in StrictSyntaxView
+        }
+    }
+    
+    return modifiers
+}
+
+/// Converts ViewModifierConstructor to StrictViewModifier
+func viewModifierConstructorToStrictViewModifier(_ constructor: ViewModifierConstructor) -> StrictViewModifier? {
+    switch constructor {
+    case .opacity(let modifier):
+        return .opacity(modifier)
+    case .scaleEffect(let modifier):
+        return .scaleEffect(modifier)
+    case .blur(let modifier):
+        return .blur(modifier)
+    case .zIndex(let modifier):
+        return .zIndex(modifier)
+    case .cornerRadius(let modifier):
+        return .cornerRadius(modifier)
+    }
+}
+
+/// Converts a list of LayerData to StrictSyntaxView list
+func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) -> [StrictSyntaxView] {
+    return layerDataList.compactMap { layerData in
+        layerDataToStrictSyntaxView(layerData, idMap: &idMap)
+    }
+}
+
+/// Converts GraphData to a list of StrictSyntaxView (root-level views)
+func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) -> [StrictSyntaxView] {
+    var idMap: [String: UUID] = [:]
+    return layerDataListToStrictSyntaxViews(graphData.layer_data_list, idMap: &idMap)
+}
+
+// MARK: - StrictSyntaxView → SwiftUI Code Generation
+
+extension StrictSyntaxView {
+    /// Generates complete SwiftUI code string for this view including modifiers and children
+    func toSwiftUICode() -> String {
+        let constructorString = constructor.swiftUICallString()
+        
+        // Apply modifiers
+        let modifiersString = modifiers.map { modifier in
+            renderStrictViewModifier(modifier)
+        }.joined()
+        
+        // Handle children for container views
+        let childrenString = generateChildrenCode()
+        
+        return constructorString + childrenString + modifiersString
+    }
+    
+    private func generateChildrenCode() -> String {
+        guard !children.isEmpty else { return "" }
+        
+        // Check if this is a container view that needs children
+        switch constructor {
+        case .hStack, .vStack, .zStack, .lazyHStack, .lazyVStack:
+            let childrenCode = children.map { $0.toSwiftUICode() }.joined(separator: "\n")
+            return " {\n\(childrenCode)\n}"
+        default:
+            // Non-container views - children are ignored or handled differently
+            return ""
+        }
+    }
+}
+
+/// Renders a StrictViewModifier to SwiftUI modifier string
+func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
+    switch modifier {
+    case .opacity(let m):
+        return ".opacity(\(renderArg(m.value)))"
+    case .scaleEffect(let m):
+        switch m {
+        case .uniform(let scale, let anchor):
+            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+            return ".scaleEffect(\(renderArg(scale))\(anchorPart))"
+        case .xy(let x, let y, let anchor):
+            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+            return ".scaleEffect(x: \(renderArg(x)), y: \(renderArg(y))\(anchorPart))"
+        case .size(let size, let anchor):
+            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+            return ".scaleEffect(\(renderArg(size))\(anchorPart))"
+        }
+    case .blur(let m):
+        return ".blur(radius: \(renderArg(m.radius)))"
+    case .zIndex(let m):
+        return ".zIndex(\(renderArg(m.value)))"
+    case .cornerRadius(let m):
+        return ".cornerRadius(\(renderArg(m.radius)))"
+    }
+}
 
 // MARK: - ViewConstructor → SwiftUI source string (constructors only)
 extension StrictViewConstructor {
