@@ -253,15 +253,15 @@ struct ASTExplorerView: View {
             stitchActions = stitchActionsResult.actions
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
-            // Actions → ViewConstructor (constructors only; no modifiers)
+            // Actions → ViewConstructor + ViewModifiers (complete SwiftUI code)
             var idMap: [String: UUID] = [:] // NOT REALLY USED ATM ?
             
-            // TODO: support more than just view constructors
+            // Generate complete SwiftUI code including both constructors and modifiers
             self.derivedConstructors = stitchActions.compactMap { makeConstructorFromLayerData($0, idMap: &idMap) }
             
-            self.regeneratedCode = self.derivedConstructors
-                .map { $0.swiftUICallString() }
-                .joined(separator: "\n")
+            self.regeneratedCode = stitchActions.compactMap { layerData in
+                generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
+            }.joined(separator: "\n\n")
 
             
             // OLD APPROACH
