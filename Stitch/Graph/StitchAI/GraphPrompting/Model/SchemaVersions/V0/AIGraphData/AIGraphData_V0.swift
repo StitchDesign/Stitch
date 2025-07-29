@@ -101,6 +101,8 @@ enum AIGraphData_V0 {
         var value: AIGraphData_V0.LayerInputPort
     }
     
+    // TODO: remove wrapper types
+    
     struct StitchAIPatchOrLayer: StitchAIStringConvertable {
         var value: AIGraphData_V0.PatchOrLayer
     }

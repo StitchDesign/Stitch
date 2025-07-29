@@ -8,13 +8,23 @@
 import Foundation
 import SwiftUI
 
-struct SwiftSyntaxActionsResult: Encodable {
+struct SwiftSyntaxLayerActionsResult: Encodable {
     var actions: [CurrentAIGraphData.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }
 
+struct SwiftSyntaxPatchActionsResult: Encodable {
+    var actions: CurrentAIGraphData.PatchData
+    var caughtErrors: [SwiftUISyntaxError]
+}
+
+struct SwiftSyntaxActionsResult: Encodable {
+    var graphData: CurrentAIGraphData.GraphData
+    var caughtErrors: [SwiftUISyntaxError]
+}
+
 extension Array where Element == SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
         let allResults = try self.map { try $0.deriveStitchActions() }
         
         return .init(actions: allResults.flatMap { $0.actions },
@@ -22,8 +32,122 @@ extension Array where Element == SyntaxView {
     }
 }
 
-extension SyntaxView {
+extension SwiftUIViewParserResult {
     func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+        // Extract layer data
+        let layerResults = try self.rootView?.deriveStitchActions()
+        let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
+        
+        // Extract patch data
+        let patchResults = try self.bindingDeclarations.deriveStitchActions()
+        
+        return .init(graphData: .init(layer_data_list: layerResults?.actions ?? [],
+                                      patch_data: patchResults.actions),
+                     caughtErrors: allLayerErrors + patchResults.caughtErrors)
+    }
+}
+
+//extension SwiftParserInitializerType {
+//    func deriveNodeId(from varName: String) -> UUID? {
+//        let nodeIdString = String(varName.split(separator: "_")[safe: 1] ?? "")
+//        let decodedId = UUID(uuidString: nodeIdString)
+//    }
+//}
+
+extension Dictionary where Key == String, Value == SwiftParserInitializerType {
+    func deriveStitchActions() throws -> SwiftSyntaxPatchActionsResult {
+        var caughtErrors: [SwiftUISyntaxError] = []
+        
+        // Maps some variable name to a node ID
+        var varNameIdMap = [String : UUID]()
+        
+        // Maps any declarations made of top-level outputs
+        var varNameOutputPortMap = [String : SwiftParserPort]()
+        
+        var nativePatchNodes = [CurrentAIGraphData.NativePatchNode]()
+        var nativePatchValueTypeSettings = [CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
+        var patchConnections = [CurrentAIGraphData.PatchConnection]()
+        var customPatchInputValues = [CurrentAIGraphData.CustomPatchInputValue]()
+        
+        // First pass: create patch nodes and make mappings of var names to specific data
+        for (varName, initializerType) in self {
+            switch initializerType {
+            case .patchNode(let patchNodeData):
+                guard let patchName = CurrentAIGraphData.StitchAIPatchOrLayer.init(value: .init(patchNodeData.patchName)) else {
+                    fatalError()
+                }
+                
+                let nodeIdString = String(varName.split(separator: "_")[safe: 1] ?? "")
+                let decodedId = UUID(uuidString: nodeIdString) ?? .init()
+                varNameIdMap.updateValue(decodedId, forKey: varName)
+                
+                let newPatchNode = CurrentAIGraphData
+                    .NativePatchNode(node_id: decodedId.uuidString,
+                                     node_name: patchName)
+                nativePatchNodes.append(newPatchNode)
+                
+            case .nodeOutputPort(let outputPortData):
+                // Track top-level bindings of some output port data
+                varNameOutputPortMap.updateValue(outputPortData, forKey: varName)
+            }
+        }
+        
+        // Second pass: derive custom values and edges
+        for (varName, initializerType) in self {
+            switch initializerType {
+            case .patchNode(let patchNodeData):
+                guard let nodeId = varNameIdMap.get(varName) else {
+                    fatalError()
+                }
+                
+                for (portIndex, arg) in patchNodeData.args.enumerated() {
+                    switch arg {
+                    case .binding(let declRefSyntax):
+                        // Get edge data
+                        let refName = declRefSyntax.baseName.text
+                        guard let outputPortData = varNameOutputPortMap.get(refName),
+                              let upstreamNodeId = varNameIdMap.get(outputPortData.nodeRef) else {
+                            fatalError()
+                        }
+                        
+                        patchConnections.append(
+                            .init(src_port: .init(node_id: upstreamNodeId.uuidString,
+                                                  port_index: outputPortData.portIndex),
+                                  dest_port: .init(node_id: nodeId.uuidString,                          port_index: portIndex))
+                        )
+                        
+                    case .value(let argType):
+                        guard let portValue = try argType.derivePortValues().first else {
+                            fatalError()
+                        }
+                        
+                        customPatchInputValues.append(
+                            .init(patch_input_coordinate: .init(
+                                node_id: nodeId.uuidString,
+                                port_index: portIndex),
+                                  value: portValue.anyCodable,
+                                  value_type: .init(value: portValue.nodeType)))
+                    }
+                }
+                
+            case .nodeOutputPort:
+                // Ignore here
+                continue
+            }
+        }
+        
+        return .init(actions: .init(javascript_patches: [],
+                                    native_patches: nativePatchNodes,
+                                    native_patch_value_type_settings: nativePatchValueTypeSettings,
+                                    patch_connections: patchConnections,
+                                    custom_patch_input_values: customPatchInputValues,
+                                    layer_connections: []),
+                     caughtErrors: caughtErrors)
+    }
+}
+
+extension SyntaxView {
+    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         

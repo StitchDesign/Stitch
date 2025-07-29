@@ -16,6 +16,7 @@ import SwiftSyntaxBuilder
 
 struct SwiftUIViewParserResult {
     let rootView: SyntaxView?
+    let bindingDeclarations: [String : SwiftParserInitializerType]
     let caughtErrors: [SwiftUISyntaxError]
 }
 
@@ -39,6 +40,7 @@ extension SwiftUIViewVisitor {
         visitor.walk(sourceFile)
                 
         return .init(rootView: visitor.rootViewNode,
+                     bindingDeclarations: visitor.bindingDeclarations,
                      caughtErrors: visitor.caughtErrors)
     }
 }
@@ -46,6 +48,9 @@ extension SwiftUIViewVisitor {
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 final class SwiftUIViewVisitor: SyntaxVisitor {
     var rootViewNode: SyntaxView?
+    
+    // Top-level declarations of patch data
+    var bindingDeclarations = [String : SwiftParserInitializerType]()
     
     private var currentNodeIndex: Int? // Index into the view stack
     private var viewStack: [SyntaxView] = []
@@ -181,9 +186,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         dbg("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
     }
 
-    // Top-level declarations of patch data
-    var bindingDeclarations = [String : SwiftParserInitializerType]()
-    
     override func visit(_ node: PatternBindingSyntax) -> SyntaxVisitorContinueKind {
         
         guard let identifierPattern = node.pattern.as(IdentifierPatternSyntax.self) else {
@@ -199,7 +201,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         if let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
-            guard let patchNode = Self.visitPatchData(funcExpr) else {
+            guard let patchNode = self.visitPatchData(funcExpr) else {
                 fatalError()
             }
             
@@ -211,7 +213,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
                 // Patch declarations can call here too
                 if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
-                    guard let patchNode = Self.visitPatchData(funcExpr) else {
+                    guard let patchNode = self.visitPatchData(funcExpr) else {
                         fatalError()
                     }
                     self.bindingDeclarations.updateValue(.patchNode(patchNode),
@@ -245,7 +247,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
-    static func visitPatchData(_ node: FunctionCallExprSyntax) -> SwiftParserPatchData? {
+    func visitPatchData(_ node: FunctionCallExprSyntax) -> SwiftParserPatchData? {
         guard
             let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
             let baseIdent = subscriptExpr.calledExpression.as(DeclReferenceExprSyntax.self),
@@ -270,14 +272,11 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 if let arrayElem = outerFirstElem.as(ArrayExprSyntax.self),
                    let innerFirstElem = arrayElem.elements.first?.expression {
  
-                    // PortValueDescription case
-                    if let funcCallSyntax = innerFirstElem.as(FunctionCallExprSyntax.self) {
-                        return .value(funcCallSyntax)
+                    guard let argData = self.parseArgumentType(from: innerFirstElem) else {
+                        fatalError()
                     }
-                    
-                    else {
-                        fatalError("other case: \(innerFirstElem)")
-                    }
+
+                    return .value(argData)
                 }
                 
                 else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
@@ -443,20 +442,25 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                      value: value)
     }
     
+    func parseFnArgumentType(_ funcExpr: FunctionCallExprSyntax) -> SyntaxViewModifierComplexType {
+        // Recursively create argument data
+        let complexTypeArgs = funcExpr.arguments
+            .compactMap { expr in
+                self.parseArgument(expr)
+            }
+        
+        let complexType = SyntaxViewModifierComplexType(
+            typeName: funcExpr.calledExpression.trimmedDescription,
+            arguments: complexTypeArgs)
+        
+        return complexType
+    }
+    
     /// Handles conditional logic for determining a type of syntax argument.
     func parseArgumentType(from expression: SwiftSyntax.ExprSyntax) -> SyntaxViewModifierArgumentType? {
         // Handles compelx types, like PortValueDescription
         if let funcExpr = expression.as(FunctionCallExprSyntax.self) {
-            // Recursively create argument data
-            let complexTypeArgs = funcExpr.arguments
-                .compactMap { expr in
-                    self.parseArgument(expr)
-                }
-            
-            let complexType = SyntaxViewModifierComplexType(
-                typeName: funcExpr.calledExpression.trimmedDescription,
-                arguments: complexTypeArgs)
-            
+            let complexType = self.parseFnArgumentType(funcExpr)
             return .complex(complexType)
         }
         
@@ -683,7 +687,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 
 // TODO: move
 enum SwiftParserPatternBindingArg {
-    case value(FunctionCallExprSyntax)
+    case value(SyntaxViewModifierArgumentType)
     case binding(DeclReferenceExprSyntax)
 }
 

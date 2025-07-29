@@ -44,7 +44,7 @@ struct ASTExplorerView: View {
 
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
-    @State private var stitchActions: [CurrentAIGraphData.LayerData] = []
+    @State private var stitchActions: CurrentAIGraphData.GraphData?
     @State private var rebuiltSyntax: [SyntaxView] = []
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
@@ -208,7 +208,7 @@ struct ASTExplorerView: View {
 
         // Reset all values
         firstSyntax = nil
-        stitchActions = []
+        stitchActions = nil
         rebuiltSyntax = []
         regeneratedCode = ""
         errorString = nil
@@ -217,18 +217,15 @@ struct ASTExplorerView: View {
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
         
         // Parse code → Syntax
-        guard let syntax = codeParserResult.rootView else {
-            return
-        }
-        firstSyntax = syntax
+        firstSyntax = codeParserResult.rootView
         
         silentlyCaughtErrors += codeParserResult.caughtErrors
 
         do {
             // Syntax → Actions
-            let stitchActionsResult = try syntax.deriveStitchActions()
+            let stitchActionsResult = try codeParserResult.deriveStitchActions()
             
-            stitchActions = stitchActionsResult.actions
+            stitchActions = stitchActionsResult.graphData
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
 //            // Actions → Syntax

@@ -56,7 +56,7 @@ extension AIGraphData_V0.CodeCreatorParams {
                 
                 // Native node scenario
                 else {
-                    nativeNodes.append(.init(node_id: patchNodeEntity.id.description,
+                    nativeNodes.append(.init(node_id: patchNodeEntity.id.uuidString,
                                              node_name: .init(value: .patch(patchNodeEntity.patch))))
                     
                     // Update node type
