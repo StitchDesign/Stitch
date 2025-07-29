@@ -12,6 +12,34 @@ import SwiftSyntax
 import SwiftParser
 import StitchSchemaKit
 
+// MARK: - StrictSyntaxView Formatting
+
+/// Formats a StrictSyntaxView into a readable string representation for display
+func formatStrictSyntaxView(_ node: StrictSyntaxView, indent: String = "") -> String {
+    var result = "\(indent)StrictSyntaxView("
+    result += "\n\(indent)    constructor: \(String(describing: node.constructor)),"
+    
+    // Format modifiers
+    let modifiersString = node.modifiers.isEmpty ? "[]" : node.modifiers.map { String(describing: $0) }.joined(separator: ", ")
+    result += "\n\(indent)    modifiers: [\(modifiersString)],"
+    
+    // Format children
+    if node.children.isEmpty {
+        result += "\n\(indent)    children: [],"
+    } else {
+        result += "\n\(indent)    children: ["
+        for child in node.children {
+            result += "\n\(formatStrictSyntaxView(child, indent: indent + "        ")),"
+        }
+        result += "\n\(indent)    ],"
+    }
+    
+    result += "\n\(indent)    id: \(node.id.uuidString.prefix(8))..."
+    result += "\n\(indent))"
+    
+    return result
+}
+
 
 /// Playground that shows the *full* Stitch round‑trip.
 /// You type SwiftUI code → it is parsed into `SyntaxView` → converted
@@ -46,7 +74,7 @@ struct ASTExplorerView: View {
     // Derived / transient state for current tab
     @State private var firstSyntax: SyntaxView?
     @State private var stitchActions: [CurrentAIGraphData.LayerData] = []
-    @State private var rebuiltSyntax: [SyntaxView] = []
+    @State private var rebuiltSyntax: [StrictSyntaxView] = []
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
     @State private var silentlyCaughtErrors: [SwiftUISyntaxError] = []
@@ -184,25 +212,11 @@ struct ASTExplorerView: View {
                                             removal:   .move(edge: .bottom).combined(with: .opacity)))
                     
                 case .rebuiltSyntax:
-                    let derivedText: String = {
-                        if derivedConstructors.isEmpty { return "—" }
-                        return derivedConstructors.enumerated().map { idx, ctor in
-                            "\(idx + 1). \(String(describing: ctor))"
-                        }.joined(separator: "\n")
-                    }()
-
                     let rebuiltText: String = rebuiltSyntax.reduce(into: "") { stringBuilder, syntax in
-                        stringBuilder += "\n\(formatSyntaxView(syntax))"
+                        stringBuilder += "\n\(formatStrictSyntaxView(syntax))"
                     }
-
-                    let display = """
-                    Derived Constructors:
-                    \(derivedText)
-
-                    Re-built Syntax:
-                    \(rebuiltText)
-                    """
-                    // \(rebuiltText.isEmpty ? "—" : rebuiltText)
+                    
+                    let display = rebuiltText.isEmpty ? "—" : rebuiltText
 
                     stageView(
                         title: Stage.rebuiltSyntax.title,
@@ -253,27 +267,21 @@ struct ASTExplorerView: View {
             stitchActions = stitchActionsResult.actions
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
-            // Actions → ViewConstructor + ViewModifiers (complete SwiftUI code)
-            var idMap: [String: UUID] = [:] // NOT REALLY USED ATM ?
+            // Actions → StrictSyntaxView (new approach using typed system)
+            var idMap: [String: UUID] = [:]
             
-            // Generate complete SwiftUI code including both constructors and modifiers
-            self.derivedConstructors = stitchActions.compactMap { makeConstructorFromLayerData($0, idMap: &idMap) }
+            // Convert LayerData to StrictSyntaxView
+            self.rebuiltSyntax = stitchActions.compactMap { layerData in
+                layerDataToStrictSyntaxView(layerData, idMap: &idMap)
+            }
             
-            self.regeneratedCode = stitchActions.compactMap { layerData in
-                generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
+            // Generate complete SwiftUI code from StrictSyntaxView
+            self.regeneratedCode = rebuiltSyntax.map { strictSyntaxView in
+                strictSyntaxView.toSwiftUICode()
             }.joined(separator: "\n\n")
-
             
-            // OLD APPROACH
-            
-//            // Actions → Syntax
-//            rebuiltSyntax = try SyntaxView.build(from: stitchActions)
-//
-//            // Syntax → Code
-//            regeneratedCode = rebuiltSyntax.reduce(into: "") { result, node in
-//                let codeString = swiftUICode(from: node)
-//                result += "\n\(codeString)"
-//            }
+            // Also maintain derivedConstructors for compatibility with existing UI
+            self.derivedConstructors = rebuiltSyntax.map { $0.constructor }
         } catch {
             errorString = "\(error)"
         }
