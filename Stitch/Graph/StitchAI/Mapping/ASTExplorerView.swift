@@ -254,17 +254,10 @@ struct ASTExplorerView: View {
             silentlyCaughtErrors += stitchActionsResult.caughtErrors
             
             // Actions → ViewConstructor (constructors only; no modifiers)
-            var idMap: [String: UUID] = [:]
-            let encoder = JSONEncoder()
-            let decoder = JSONDecoder()
-            let v0Layers: [AIGraphData_V0.LayerData] = stitchActions.compactMap { action in
-                guard let data = try? encoder.encode(action) else { return nil }
-                return try? decoder.decode(AIGraphData_V0.LayerData.self, from: data)
-            }
+            var idMap: [String: UUID] = [:] // NOT REALLY USED ATM ?
             
             // TODO: support more than just view constructors
-            self.derivedConstructors = v0Layers.compactMap { makeConstructorFromLayerData($0, idMap: &idMap) }
-            
+            self.derivedConstructors = stitchActions.compactMap { makeConstructorFromLayerData($0, idMap: &idMap) }
             
             self.regeneratedCode = self.derivedConstructors
                 .map { $0.swiftUICallString() }
