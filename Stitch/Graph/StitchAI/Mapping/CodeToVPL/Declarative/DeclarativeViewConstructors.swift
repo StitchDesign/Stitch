@@ -40,9 +40,9 @@ enum ViewConstructor: Equatable, Encodable {
     case hStack(HStackViewConstructor)
     case vStack(VStackViewConstructor)
     case zStack(ZStackViewConstructor)
-    case circle(NoArgViewConstructor)
+    case circle(CircleViewConstructor)
     case ellipse(NoArgViewConstructor)
-    case rectangle(NoArgViewConstructor)
+    case rectangle(RectangleViewConstructor)
     
     // Augmented Reality
     case stitchRealityView(StitchRealityViewConstructor)
@@ -112,7 +112,7 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
                                           viewName: viewName)
         .map { .zStack($0) }
     case .circle:
-        return NoArgViewConstructor.from(arguments,
+        return CircleViewConstructor.from(arguments,
                                          viewName: viewName)
         .map { .circle($0) }
     case .ellipse, .oval:
@@ -120,8 +120,8 @@ func createKnownViewConstructor(from node: FunctionCallExprSyntax,
                                          viewName: viewName)
         .map { .ellipse($0) }
     case .rectangle:
-        return NoArgViewConstructor.from(arguments,
-                                         viewName: viewName)
+        return RectangleViewConstructor.from(arguments,
+                                             viewName: viewName)
         .map { .rectangle($0) }
     case .stitchRealityView:
         return StitchRealityViewConstructor.from(arguments,
@@ -779,6 +779,20 @@ struct NoArgViewConstructor: Equatable, FromSwiftUIViewToStitch {
 struct CircleViewConstructor: Equatable, FromSwiftUIViewToStitch {
     
     var layer: AIGraphData_V0.Layer { .oval }
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        .init()
+    }
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     viewName: SyntaxViewName) -> Self? {
+        args.isEmpty ? .init() : nil
+    }
+}
+
+struct RectangleViewConstructor: Equatable, FromSwiftUIViewToStitch {
+    
+    var layer: AIGraphData_V0.Layer { .rectangle }
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         .init()
