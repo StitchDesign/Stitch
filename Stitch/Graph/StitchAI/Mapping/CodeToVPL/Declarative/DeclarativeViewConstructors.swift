@@ -1443,3 +1443,65 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
         return .parameters(alignment: alignment, spacing: spacing)
     }
 }
+
+// MARK: - View Modifier Support
+
+protocol FromSwiftUIViewModifierToStitch: Encodable {
+    associatedtype T
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> T?
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue]
+}
+
+enum ViewModifierConstructor: Equatable, Encodable {
+    case opacity(OpacityViewModifier)
+    // Add more modifiers here as needed
+    
+    var value: any FromSwiftUIViewModifierToStitch {
+        switch self {
+        case .opacity(let modifier):
+            return modifier
+        }
+    }
+}
+
+// MARK: - Opacity View Modifier
+
+struct OpacityViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let value: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let portValue = try value.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        
+        return [.init(input: .opacity, value: portValue)]
+    }
+    
+    static func from(_ args: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> OpacityViewModifier? {
+        guard modifierName == .opacity,
+              let first = args.first,
+              first.label == nil else {
+            return nil
+        }
+        
+        return OpacityViewModifier(value: first.value)
+    }
+}
+
+/// Factory function to create ViewModifierConstructor from parsed SwiftUI syntax
+func createKnownViewModifier(modifierName: SyntaxViewModifierName,
+                           arguments: [SyntaxViewArgumentData]) -> ViewModifierConstructor? {
+    
+    switch modifierName {
+    case .opacity:
+        return OpacityViewModifier.from(arguments, modifierName: modifierName)
+            .map { .opacity($0) }
+    
+    default:
+        return nil
+    }
+}
