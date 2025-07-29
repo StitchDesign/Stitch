@@ -422,6 +422,7 @@
 		EC0093E026D6F648000EAE08 /* ProgressNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0093DF26D6F648000EAE08 /* ProgressNode.swift */; };
 		EC00D80526FAC4E50024AAF6 /* GraphActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00D80426FAC4E50024AAF6 /* GraphActions.swift */; };
 		EC014FEF2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */; };
+		EC035BEA2E385E050002E109 /* VPLToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC035BE92E385E050002E109 /* VPLToCode.swift */; };
 		EC035BF828A56E84005FA607 /* ClassicAnimationFormulae.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */; };
 		EC067CE82BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */; };
 		EC067CEA2BAB710E00F8EB82 /* ClassicAnimationOpSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CE92BAB710E00F8EB82 /* ClassicAnimationOpSize.swift */; };
@@ -1586,6 +1587,7 @@
 		EC0093DF26D6F648000EAE08 /* ProgressNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressNode.swift; sourceTree = "<group>"; };
 		EC00D80426FAC4E50024AAF6 /* GraphActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphActions.swift; sourceTree = "<group>"; };
 		EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverColorUtil.swift; sourceTree = "<group>"; };
+		EC035BE92E385E050002E109 /* VPLToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLToCode.swift; sourceTree = "<group>"; };
 		EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationFormulae.swift; sourceTree = "<group>"; };
 		EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationPoint4D.swift; sourceTree = "<group>"; };
 		EC067CE92BAB710E00F8EB82 /* ClassicAnimationOpSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationOpSize.swift; sourceTree = "<group>"; };
@@ -4709,6 +4711,22 @@
 			path = RealityView;
 			sourceTree = "<group>";
 		};
+		EC035BE82E385DE70002E109 /* CodeToVPL */ = {
+			isa = PBXGroup;
+			children = (
+				EC6A705F2E22D2C7009ED3C1 /* Declarative */,
+			);
+			path = CodeToVPL;
+			sourceTree = "<group>";
+		};
+		EC035BEB2E385E0C0002E109 /* VPLToCode */ = {
+			isa = PBXGroup;
+			children = (
+				EC035BE92E385E050002E109 /* VPLToCode.swift */,
+			);
+			path = VPLToCode;
+			sourceTree = "<group>";
+		};
 		EC1587412DE1285A00A9C50A /* HardcodedSizes */ = {
 			isa = PBXGroup;
 			children = (
@@ -5429,7 +5447,8 @@
 			isa = PBXGroup;
 			children = (
 				ECE963A92E0C5710003420C5 /* ASTExplorerView.swift */,
-				EC6A705F2E22D2C7009ED3C1 /* Declarative */,
+				EC035BEB2E385E0C0002E109 /* VPLToCode */,
+				EC035BE82E385DE70002E109 /* CodeToVPL */,
 				ECC734722E0DE92F00AC266C /* Examples */,
 				ECB238D02E0B8BA100D55A25 /* Actions */,
 				ECB238C42E0A10F900D55A25 /* Syntax */,
@@ -6432,6 +6451,7 @@
 				ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */,
 				2084200C25AD1C4F00E26728 /* LoopLengths.swift in Sources */,
 				ECDBD8AB27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift in Sources */,
+				EC035BEA2E385E050002E109 /* VPLToCode.swift in Sources */,
 				EC8605AE269DF344007B8ED3 /* ValueAtIndexNode.swift in Sources */,
 				EC8967042B4E230A0066879B /* StraightLine.swift in Sources */,
 				EC48F0312C65975300DB3ACB /* PinningUtils.swift in Sources */,
