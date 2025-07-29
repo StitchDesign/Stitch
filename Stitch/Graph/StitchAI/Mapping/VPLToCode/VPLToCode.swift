@@ -322,3 +322,188 @@ func renderAnyEncodable(_ any: AnyEncodable) -> String {
     }
     return "_"
 }
+
+// MARK: - LayerInputPort → SwiftUI View Modifier Mapping
+
+/// Maps a LayerInputPort and its PortValue to a SwiftUI view modifier string.
+/// Returns nil if the LayerInputPort doesn't correspond to a view modifier.
+func layerInputPortToSwiftUIModifier(port: LayerInputPort, value: AIGraphData_V0.PortValue) -> String? {
+    switch port {
+    // Simple single-argument modifiers
+    case .opacity:
+        if let number = value.getNumber {
+            return ".opacity(\(number))"
+        }
+        
+    case .scale:
+        if let number = value.getNumber {
+            return ".scaleEffect(\(number))"
+        }
+        
+    case .zIndex:
+        if let number = value.getNumber {
+            return ".zIndex(\(number))"
+        }
+        
+    case .blur, .blurRadius:
+        if let number = value.getNumber {
+            return ".blur(radius: \(number))"
+        }
+        
+    case .brightness:
+        if let number = value.getNumber {
+            return ".brightness(\(number))"
+        }
+        
+    case .contrast:
+        if let number = value.getNumber {
+            return ".contrast(\(number))"
+        }
+        
+    case .saturation:
+        if let number = value.getNumber {
+            return ".saturation(\(number))"
+        }
+        
+    case .hueRotation:
+        if let number = value.getNumber {
+            return ".hueRotation(.degrees(\(number)))"
+        }
+        
+    case .cornerRadius:
+        if let number = value.getNumber {
+            return ".cornerRadius(\(number))"
+        }
+        
+    // Color modifiers - context dependent
+    case .color:
+        if let color = value.getColor {
+            return ".foregroundColor(\(renderColor(color)))"
+        }
+        
+    case .backgroundColor:
+        if let color = value.getColor {
+            return ".background(\(renderColor(color)))"
+        }
+        
+    // Boolean modifiers
+    case .colorInvert:
+        if let bool = value.getBool, bool {
+            return ".colorInvert()"
+        }
+        
+    case .isClipped, .clipped:
+        if let bool = value.getBool, bool {
+            return ".clipped()"
+        }
+        
+//    case .disabled:
+//        if let bool = value.getBool {
+//            return ".disabled(\(bool))"
+//        }
+        
+    // Complex modifiers
+    case .offsetInGroup:
+        if let position = value.getPosition {
+            return ".offset(x: \(position.x), y: \(position.y))"
+        }
+        
+    case .size:
+        if let size = value.getSize {
+            var parts: [String] = []
+            if case .number(let width) = size.width {
+                parts.append("width: \(width)")
+            }
+            if case .number(let height) = size.height {
+                parts.append("height: \(height)")
+            }
+            if !parts.isEmpty {
+                return ".frame(\(parts.joined(separator: ", ")))"
+            }
+        }
+        
+    case .padding:
+        if let padding = value.getPadding {
+            if padding.top == padding.right && padding.right == padding.bottom && padding.bottom == padding.left {
+                // Uniform padding
+                return ".padding(\(padding.top))"
+            } else {
+                // Non-uniform padding
+                return ".padding(.init(top: \(padding.top), leading: \(padding.left), bottom: \(padding.bottom), trailing: \(padding.right)))"
+            }
+        }
+        
+    // Modifiers that don't have direct SwiftUI equivalents or are handled at constructor level
+    case .position, .anchoring, .orientation, .text, .sfSymbol, .image, .video, .spacing, .layerGroupAlignment:
+        return nil
+        
+    default:
+        return nil
+    }
+    
+    return nil
+}
+
+/// Renders a Color value as SwiftUI code
+func renderColor(_ color: Color) -> String {
+    // Convert SwiftUI Color to a string representation
+    if color == .red { return "Color.red" }
+    if color == .blue { return "Color.blue" }
+    if color == .green { return "Color.green" }
+    if color == .yellow { return "Color.yellow" }
+    if color == .orange { return "Color.orange" }
+    if color == .purple { return "Color.purple" }
+    if color == .pink { return "Color.pink" }
+    if color == .black { return "Color.black" }
+    if color == .white { return "Color.white" }
+    if color == .gray { return "Color.gray" }
+    if color == .clear { return "Color.clear" }
+    
+    // For custom colors, fall back to a generic representation
+    return "Color(/* custom color */)"
+}
+
+/// Generates all view modifiers for a given LayerData
+func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [String] {
+    var modifiers: [String] = []
+    
+    for customInputValue in layerData.custom_layer_input_values {
+        let port = customInputValue.layer_input_coordinate.input_port_type.value
+        
+        if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap),
+           let modifierString = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
+            modifiers.append(modifierString)
+        }
+    }
+    
+    return modifiers
+}
+
+// MARK: - Complete SwiftUI Code Generation (Constructor + Modifiers)
+
+/// Generates complete SwiftUI code for a LayerData including constructor and view modifiers
+func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> String? {
+    // Generate the base constructor
+    guard let constructor = makeConstructorFromLayerData(layerData, idMap: &idMap) else {
+        return nil
+    }
+    
+    let baseSwiftUI = constructor.swiftUICallString()
+    
+    // Generate view modifiers
+    let modifiers = generateViewModifiersForLayerData(layerData, idMap: &idMap)
+    
+    // Combine constructor with modifiers
+    if modifiers.isEmpty {
+        return baseSwiftUI
+    } else {
+        let modifierChain = modifiers.joined(separator: "\n    ")
+        return baseSwiftUI + "\n    " + modifierChain
+    }
+}
+
+/// Example usage function showing how to convert a Stitch layer to SwiftUI
+func convertStitchLayerToSwiftUI(layerData: AIGraphData_V0.LayerData) -> String? {
+    var idMap: [String: UUID] = [:]
+    return generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
+}
