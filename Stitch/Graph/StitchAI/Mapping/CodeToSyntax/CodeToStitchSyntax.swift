@@ -46,6 +46,10 @@ extension SwiftUIViewVisitor {
 /// SwiftSyntax visitor that extracts ViewNode structure from SwiftUI code
 final class SwiftUIViewVisitor: SyntaxVisitor {
     var rootViewNode: SyntaxView?
+    
+    // Key: var name; Value: patch name
+    var patchNodesByVarName = [String : String]()
+    
     private var currentNodeIndex: Int? // Index into the view stack
     private var viewStack: [SyntaxView] = []
     private var idCounter = 0
@@ -179,100 +183,98 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
         dbg("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
     }
+
+    override func visit(_ node: PatternBindingSyntax) -> SyntaxVisitorContinueKind {
         
+        guard let identifierPattern = node.pattern.as(IdentifierPatternSyntax.self) else {
+            return .visitChildren
+        }
+              
+        let currentLHS = identifierPattern.identifier.text
+        
+        // Record the name that's being bound (`let added = …`)
+        guard let initializer = node.initializer else {
+            return .skipChildren
+        }
+        
+        guard let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) else {
+            // Check for edge
+            if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
+                log("TBD EDGES!")
+                return .skipChildren
+            }
+            
+            else {
+                fatalError()
+            }
+            
+            return .visitChildren
+        }
+        
+        return self.visitPatchData(funcExpr,
+                                   currentLHS: currentLHS)
+    }
+    
+    func visitPatchData(_ node: FunctionCallExprSyntax,
+                        currentLHS: String) -> SyntaxVisitorContinueKind {
+        guard
+            let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
+            let baseIdent = subscriptExpr.calledExpression.as(DeclReferenceExprSyntax.self),
+            baseIdent.baseName.text == "NATIVE_STITCH_PATCH_FUNCTIONS",
+            let firstArg = subscriptExpr.arguments.first,
+            let stringLit = firstArg.expression.as(StringLiteralExprSyntax.self)
+        else {
+            return .skipChildren
+        }
+        
+        guard let patchNode = stringLit.segments.first?.description else {
+            return .skipChildren
+        }
+        
+        self.patchNodesByVarName
+            .updateValue(patchNode, forKey: currentLHS)
+        
+        for (idx, arg) in node.arguments.enumerated() {
+            // ArrayExpr → might hold a PortValueDescription literal
+            if let arrayExpr = arg.expression.as(ArrayExprSyntax.self),
+               let outerFirstElem = arrayExpr.elements.first?.expression {
+                if let arrayElem = outerFirstElem.as(ArrayExprSyntax.self),
+                   let innerFirstElem = arrayElem.elements.first?.expression {
+ 
+                    // PortValueDescription case
+                    if let funcCallSyntax = innerFirstElem.as(FunctionCallExprSyntax.self) {
+                        log("PortValue: \(funcCallSyntax)")
+                    }
+                    
+                    else {
+                        log("other case: \(innerFirstElem)")
+                    }
+                }
+                
+                
+                else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
+                    log("Edge into input: \(declrRefSyntax)")
+                }
+                
+                else {
+                    fatalError()
+                }
+                
+            }
+        }
+        return .skipChildren // we already mined children we care about
+    }
+    
     // Visit function call expressions (which represent view initializations and modifiers)
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         log("Visiting function call: \(node.description)")
         log("Current stack depth: \(viewStack.count), current index: \(String(describing: currentNodeIndex))")
         
         if let identifierExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
-            // This might be a view initialization like Text("Hello")
-            let viewName = identifierExpr.baseName.text
+            log("LAYER DATA")
             
-            guard let nameType = SyntaxNameType.from(viewName) else {
-//                fatalErrorIfDebug("No view discovered for: \(viewName)")
-                log("No concept discovered for: \(viewName)")
-                
-                // Tracks for later silent failures
-                self.caughtErrors.append(.unsupportedSyntaxViewName(viewName))
-                
-                return .skipChildren
-            }
-            
-            log("Found view initialization: \(viewName)")
-            
-            // Parse args, catching arguments we don't yet support
-            let args = self.parseArguments(from: node)
-            
-            switch nameType {
-            case .view(let syntaxViewName):
-                // Create a new ViewNode for this view
-                let viewNode = SyntaxView(
-                    name: syntaxViewName,
-                    // This is creat
-                    constructorArguments: args,
-                    modifiers: [],
-                    children: [],
-                    id: UUID()
-                    //                errors: self.caughtErrors
-                )
-                
-                log("Created new ViewNode for \(viewName)")
-                
-                // Set as root or add as child to current node (context-aware)
-                if viewStack.isEmpty {
-                    log("Setting as root ViewNode: \(viewName)")
-                    viewStack.append(viewNode)
-                    currentNodeIndex = 0
-                    rootViewNode = viewNode
-
-                    log("Current node index set to: \(String(describing: currentNodeIndex))")
-                } else {
-                    // Check if this view initialization should be treated as a child
-                    // Only apply context-aware logic for top-level view statements that could be children
-                    let currentContext = contextStack.last ?? .root
-                    log("Current parsing context: \(currentContext)")
-                    
-                    switch currentContext {
-                    case .closure(let parentViewName):
-                        // We're inside a closure of a container view - this IS a legitimate child
-                        if let currentNode = currentViewNode {
-                            log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
-                            var updatedCurrentNode = currentNode
-                            updatedCurrentNode.children.append(viewNode)
-                            updateCurrentViewNode(updatedCurrentNode)
-                            
-                            // Push the new node onto the stack and update current node index
-                            viewStack.append(viewNode)
-                            currentNodeIndex = viewStack.count - 1
-                                                        
-                            log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
-                        } else {
-                            log("⚠️ Error: No current node to add child to")
-                        }
-                        
-                    case .arguments, .root:
-                        // We're parsing function arguments - this might be a modifier argument
-                        // Check if this is actually being used as a modifier argument
-                        if isWithinModifierArguments(node) {
-                            log("Found view \(viewName) in modifier argument context - allowing normal processing")
-                            // For modifier arguments, we still need to process the view normally
-                            // but we don't add it as a child to any parent view
-                            // Just add it to the stack temporarily so it can be processed
-                            viewStack.append(viewNode)
-                            currentNodeIndex = viewStack.count - 1
-                        } else {
-                            log("⚠️ Found view \(viewName) in argument context - skipping child addition")
-                            log("This view should be handled as an argument, not as a child")
-                            // Don't add to viewStack - this prevents it from being treated as a child
-                        }
-                    }
-                }
-                
-            case .value:
-                // No view here, just continue
-                return .skipChildren
-            }
+            return self.visitLayerData(identifierExpr: identifierExpr,
+                                       node: node)
             
         } else if let memberAccessExpr = node.calledExpression.as(MemberAccessExprSyntax.self) {
             // Detected a modifier call (e.g. .padding()).  We *do not* attach the modifier
@@ -283,6 +285,99 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         return .visitChildren
+    }
+    
+    func visitLayerData(identifierExpr: DeclReferenceExprSyntax,
+                        node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
+        // This might be a view initialization like Text("Hello")
+        let viewName = identifierExpr.baseName.text
+        
+        guard let nameType = SyntaxNameType.from(viewName) else {
+//                fatalErrorIfDebug("No view discovered for: \(viewName)")
+            log("No concept discovered for: \(viewName)")
+            
+            // Tracks for later silent failures
+            self.caughtErrors.append(.unsupportedSyntaxViewName(viewName))
+            
+            return .skipChildren
+        }
+        
+        log("Found view initialization: \(viewName)")
+        
+        // Parse args, catching arguments we don't yet support
+        let args = self.parseArguments(from: node)
+        
+        switch nameType {
+        case .view(let syntaxViewName):
+            // Create a new ViewNode for this view
+            let viewNode = SyntaxView(
+                name: syntaxViewName,
+                // This is creat
+                constructorArguments: args,
+                modifiers: [],
+                children: [],
+                id: UUID()
+                //                errors: self.caughtErrors
+            )
+            
+            log("Created new ViewNode for \(viewName)")
+            
+            // Set as root or add as child to current node (context-aware)
+            if viewStack.isEmpty {
+                log("Setting as root ViewNode: \(viewName)")
+                viewStack.append(viewNode)
+                currentNodeIndex = 0
+                rootViewNode = viewNode
+
+                log("Current node index set to: \(String(describing: currentNodeIndex))")
+            } else {
+                // Check if this view initialization should be treated as a child
+                // Only apply context-aware logic for top-level view statements that could be children
+                let currentContext = contextStack.last ?? .root
+                log("Current parsing context: \(currentContext)")
+                
+                switch currentContext {
+                case .closure(let parentViewName):
+                    // We're inside a closure of a container view - this IS a legitimate child
+                    if let currentNode = currentViewNode {
+                        log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
+                        var updatedCurrentNode = currentNode
+                        updatedCurrentNode.children.append(viewNode)
+                        updateCurrentViewNode(updatedCurrentNode)
+                        
+                        // Push the new node onto the stack and update current node index
+                        viewStack.append(viewNode)
+                        currentNodeIndex = viewStack.count - 1
+                                                    
+                        log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
+                    } else {
+                        log("⚠️ Error: No current node to add child to")
+                    }
+                    
+                case .arguments, .root:
+                    // We're parsing function arguments - this might be a modifier argument
+                    // Check if this is actually being used as a modifier argument
+                    if isWithinModifierArguments(node) {
+                        log("Found view \(viewName) in modifier argument context - allowing normal processing")
+                        // For modifier arguments, we still need to process the view normally
+                        // but we don't add it as a child to any parent view
+                        // Just add it to the stack temporarily so it can be processed
+                        viewStack.append(viewNode)
+                        currentNodeIndex = viewStack.count - 1
+                    } else {
+                        log("⚠️ Found view \(viewName) in argument context - skipping child addition")
+                        log("This view should be handled as an argument, not as a child")
+                        // Don't add to viewStack - this prevents it from being treated as a child
+                    }
+                }
+            }
+            
+            return .visitChildren
+            
+        case .value:
+            // No view here, just continue
+            return .skipChildren
+        }
     }
 
     // Parse arguments from function call
