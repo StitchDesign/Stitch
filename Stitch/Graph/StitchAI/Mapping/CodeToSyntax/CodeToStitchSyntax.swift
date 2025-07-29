@@ -80,112 +80,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 //    #endif
     }
     
-    // Helper to get current ViewNode
-    private var currentViewNode: SyntaxView? {
-        guard let index = currentNodeIndex, index < viewStack.count else { return nil }
-        return viewStack[index]
-    }
-    
-    /// Returns the modifier name if `node` is a *view modifier* call
-    /// (i.e. a `FunctionCallExprSyntax` whose `calledExpression` is a
-    /// `MemberAccessExprSyntax` **with a non‑nil base**).
-    /// Helper/static calls that appear only as *arguments* – such as
-    /// `.degrees(90)` or `.black` – have `base == nil`, so they are
-    /// filtered out.
-    private func modifierNameIfViewModifier(_ node: FunctionCallExprSyntax) -> String? {
-        guard
-            // Must look like `.something`  (i.e. a MemberAccessExpr)
-            let member = node.calledExpression.as(MemberAccessExprSyntax.self),
-            let base   = member.base            // no base ⇒ e.g. `.degrees(90)` helper
-        else {
-            return nil
-        }
-        
-        /// Walks the `base` chain and returns `true` iff we eventually hit a
-        /// `FunctionCallExprSyntax` (e.g. `Rectangle()` or `Color.red`), meaning
-        /// the member access is **chained onto a view instance**.  Static helper
-        /// calls such as `Double.random(in:)` terminate in an `IdentifierExpr`
-        /// (“Double”) and therefore return `false`.
-        func isChainedToView(_ syntax: SyntaxProtocol) -> Bool {
-            if syntax.is(FunctionCallExprSyntax.self) { return true }
-            if let m = syntax.as(MemberAccessExprSyntax.self), let inner = m.base {
-                return isChainedToView(inner)
-            }
-            return false
-        }
-
-        return isChainedToView(base) ? member.declName.baseName.text : nil
-    }
-    
-    /// Check if this function call is within the arguments of a modifier
-    /// This helps distinguish between legitimate child views and modifier arguments
-    private func isWithinModifierArguments(_ node: FunctionCallExprSyntax) -> Bool {
-        // Walk up the parent chain to see if we're inside a modifier's argument list
-        var currentNode: Syntax? = node.parent
-        
-        while let parent = currentNode {
-            // If we find a FunctionCallExprSyntax that is a modifier, and we're in its arguments
-            if let functionCall = parent.as(FunctionCallExprSyntax.self),
-               modifierNameIfViewModifier(functionCall) != nil {
-                // We're inside a modifier's argument list
-                return true
-            }
-            currentNode = parent.parent
-        }
-        
-        return false
-    }
-    
-    /// Propagate a mutation at `index` upward through `viewStack`
-    /// so that every ancestor’s `children` array is updated
-    /// and `rootViewNode` stays in sync.
-    private func bubbleChangeUp(from index: Int) {
-        var childIndex = index
-        while childIndex > 0 {
-            let parentIndex = childIndex - 1
-            var parent = viewStack[parentIndex]
-            let child = viewStack[childIndex]
-            
-            if let match = parent.children.firstIndex(where: { $0.id == child.id }) {
-                parent.children[match] = child
-                viewStack[parentIndex] = parent
-            } else {
-                // Shouldn’t happen, but avoid infinite loop
-                break
-            }
-            childIndex = parentIndex
-        }
-        if !viewStack.isEmpty {
-            rootViewNode = viewStack[0]
-        }
-    }
-
-    // Helper to update currentViewNode properly
-    private func updateCurrentViewNode(_ newNode: SyntaxView) {
-        guard let index = currentNodeIndex, index < viewStack.count else { return }
-        viewStack[index] = newNode
-        bubbleChangeUp(from: index)
-    }
-    
-    // Helper to add a modifier to the current view node
-    private func addModifier(_ modifier: SyntaxViewModifier) {
-        let modName = modifier.name.rawValue
-        dbg("addModifier → \(modName) to current index \(String(describing: currentNodeIndex))")
-        guard let index = currentNodeIndex, index < viewStack.count else {
-            log("⚠️ Cannot add modifier: no current view node")
-            return
-        }
-        
-        var node = viewStack[index]
-        log("Adding modifier \(modName) to \(node.name.rawValue)")
-        node.modifiers.append(modifier)
-        viewStack[index] = node
-        // Bubble the change up to keep all ancestors current
-        bubbleChangeUp(from: index)
-        log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
-        dbg("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
-    }
-
     override func visit(_ node: PatternBindingSyntax) -> SyntaxVisitorContinueKind {
         
         guard let identifierPattern = node.pattern.as(IdentifierPatternSyntax.self) else {
@@ -252,55 +146,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
-    func visitPatchData(_ node: FunctionCallExprSyntax) -> SwiftParserPatchData? {
-        guard
-            let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
-            let baseIdent = subscriptExpr.calledExpression.as(DeclReferenceExprSyntax.self),
-            baseIdent.baseName.text == "NATIVE_STITCH_PATCH_FUNCTIONS",
-            let firstArg = subscriptExpr.arguments.first,
-            let stringLit = firstArg.expression.as(StringLiteralExprSyntax.self)
-        else {
-            return nil
-        }
-        
-        guard let patchNode = stringLit.segments.first?.description else {
-            return nil
-        }
-        
-//        self.patchNodesByVarName
-//            .updateValue(patchNode, forKey: currentLHS)
-        
-        let patchNodeArgs = node.arguments.map { arg -> SwiftParserPatternBindingArg in
-            // ArrayExpr → might hold a PortValueDescription literal
-            if let arrayExpr = arg.expression.as(ArrayExprSyntax.self),
-               let outerFirstElem = arrayExpr.elements.first?.expression {
-                if let arrayElem = outerFirstElem.as(ArrayExprSyntax.self),
-                   let innerFirstElem = arrayElem.elements.first?.expression {
- 
-                    guard let argData = self.parseArgumentType(from: innerFirstElem) else {
-                        fatalError()
-                    }
-
-                    return .value(argData)
-                }
-                
-                else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
-                    print("Input param that points to some reference: \(declrRefSyntax)")
-                    return .binding(declrRefSyntax)
-                }
-                
-                else {
-                    fatalError()
-                }
-            }
-            
-            fatalError()
-        }
-        
-        return .init(patchName: patchNode,
-                     args: patchNodeArgs)
-    }
-    
     // Visit function call expressions (which represent view initializations and modifiers)
     override func visit(_ node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
         log("Visiting function call: \(node.description)")
@@ -323,99 +168,120 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
-    func visitLayerData(identifierExpr: DeclReferenceExprSyntax,
-                        node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
-        // This might be a view initialization like Text("Hello")
-        let viewName = identifierExpr.baseName.text
+    // Handle closure expressions (for container views like VStack, HStack, ZStack)
+    override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
+        log("Entering closure expression")
         
-        guard let nameType = SyntaxNameType.from(viewName) else {
-//                fatalErrorIfDebug("No view discovered for: \(viewName)")
-            log("No concept discovered for: \(viewName)")
-            
-            // Tracks for later silent failures
-            self.caughtErrors.append(.unsupportedSyntaxViewName(viewName))
-            
-            return .skipChildren
+        // Check if we're inside a container view that can have children
+        if let currentView = currentViewNode, currentView.name.canHaveChildren {
+            log("Entering closure for container view: \(currentView.name.rawValue)")
+            contextStack.append(.closure(parentView: currentView.name))
+        } else {
+            log("Entering closure in non-container context (likely function arguments)")
+            contextStack.append(.arguments)
         }
         
-        log("Found view initialization: \(viewName)")
+        return .visitChildren
+    }
+    
+    override func visitPost(_ node: ClosureExprSyntax) {
+        log("Exiting closure expression")
         
-        // Parse args, catching arguments we don't yet support
-        let args = self.parseArguments(from: node)
+        // Pop the context we pushed when entering the closure
+        if contextStack.count > 1 {
+            let poppedContext = contextStack.removeLast()
+            log("Popped context: \(poppedContext)")
+        }
+    }
+    
+    // MARK: - SyntaxVisitor Overrides
+    
+    // When we finish visiting a node, manage the view stack
+    override func visitPost(_ node: FunctionCallExprSyntax) {
+        log("Visiting post for function call: \(node.description)")
         
-        switch nameType {
-        case .view(let syntaxViewName):
-            // Create a new ViewNode for this view
-            let viewNode = SyntaxView(
-                name: syntaxViewName,
-                // This is creat
-                constructorArguments: args,
-                modifiers: [],
-                children: [],
-                id: UUID()
-                //                errors: self.caughtErrors
-            )
+        // Handle view initializations (constructor calls like `Rectangle()`, `Text("hello")`)
+        if let identExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
+            let viewName = identExpr.baseName.text
+            log("Found view initialization: \(viewName)")
+            log("Current context stack: \(contextStack)")
+            log("Node parent type: \(type(of: node.parent))")
             
-            log("Created new ViewNode for \(viewName)")
+            // If this view call is the *base* of a MemberAccessExpr (e.g. Rectangle() in
+            // Rectangle().frame(...)), we **keep** it on the stack so that the upcoming
+            // modifier call can still access and mutate the current view node.
+            if node.parent?.as(MemberAccessExprSyntax.self) != nil {
+                log("Deferring pop for \(viewName) because it is base of a modifier chain")
+                return
+            }
+            log("ViewStack before adjustment - count: \(viewStack.count), current node index: \(String(describing: currentNodeIndex))")
             
-            // Set as root or add as child to current node (context-aware)
-            if viewStack.isEmpty {
-                log("Setting as root ViewNode: \(viewName)")
-                viewStack.append(viewNode)
-                currentNodeIndex = 0
-                rootViewNode = viewNode
-
-                log("Current node index set to: \(String(describing: currentNodeIndex))")
-            } else {
-                // Check if this view initialization should be treated as a child
-                // Only apply context-aware logic for top-level view statements that could be children
-                let currentContext = contextStack.last ?? .root
-                log("Current parsing context: \(currentContext)")
-                
-                switch currentContext {
-                case .closure(let parentViewName):
-                    // We're inside a closure of a container view - this IS a legitimate child
-                    if let currentNode = currentViewNode {
-                        log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
-                        var updatedCurrentNode = currentNode
-                        updatedCurrentNode.children.append(viewNode)
-                        updateCurrentViewNode(updatedCurrentNode)
-                        
-                        // Push the new node onto the stack and update current node index
-                        viewStack.append(viewNode)
-                        currentNodeIndex = viewStack.count - 1
-                                                    
-                        log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
-                    } else {
-                        log("⚠️ Error: No current node to add child to")
-                    }
-                    
-                case .arguments, .root:
-                    // We're parsing function arguments - this might be a modifier argument
-                    // Check if this is actually being used as a modifier argument
-                    if isWithinModifierArguments(node) {
-                        log("Found view \(viewName) in modifier argument context - allowing normal processing")
-                        // For modifier arguments, we still need to process the view normally
-                        // but we don't add it as a child to any parent view
-                        // Just add it to the stack temporarily so it can be processed
-                        viewStack.append(viewNode)
-                        currentNodeIndex = viewStack.count - 1
-                    } else {
-                        log("⚠️ Found view \(viewName) in argument context - skipping child addition")
-                        log("This view should be handled as an argument, not as a child")
-                        // Don't add to viewStack - this prevents it from being treated as a child
-                    }
+            // Debug the current stack state
+            if !viewStack.isEmpty {
+                log("Current stack state:")
+                for (index, stackNode) in viewStack.enumerated() {
+                    log("  [\(index)] \(stackNode.name.rawValue) with \(stackNode.modifiers.count) modifiers")
                 }
             }
             
-            return .visitChildren
+            // We're exiting a view initialization
+            if let lastNode = viewStack.last,
+               let nameType = SyntaxNameType.from(viewName),
+               // Ensure a view here instead of a value
+               nameType.isView {
+                // Before removing the node, make sure we capture any modifiers that were added
+                log("Node being popped: \(lastNode.name.rawValue) with \(lastNode.modifiers.count) modifiers")
+                
+                // Remove the last node
+                viewStack.removeLast()
+                
+                // Update current node index to point to the new last node
+                currentNodeIndex = viewStack.count > 0 ? viewStack.count - 1 : nil
+                
+                log("Stack after pop - depth: \(viewStack.count), new current index: \(String(describing: currentNodeIndex))")
+                
+                // Debug the root node state
+                if let root = rootViewNode {
+                    log("Root node: \(root.name.rawValue) with \(root.modifiers.count) modifiers and \(root.children.count) children")
+                    if !root.children.isEmpty {
+                        for (index, child) in root.children.enumerated() {
+                            log("  Root child[\(index)]: \(child.name.rawValue) with \(child.modifiers.count) modifiers")
+                        }
+                    }
+                }
+            } else {
+                log("View stack empty, nothing to pop")
+            }
+        }
+        
+ 
+        // ─────────────────────────────────────────────────────────────
+        // Handle view‑modifier calls *after* the base view has been visited
+        else if let modifierName = modifierNameIfViewModifier(node) {
+            dbg("visitPost → handling view modifier '\(modifierName)'")
             
-        case .value:
-            // No view here, just continue
-            return .skipChildren
+            if let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName) {
+                    handleStandardModifier(node: node, modifierName: syntaxViewModifierName)
+                
+                // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
+                // we are at the end of the modifier chain; pop the base view.
+                if node.parent?.as(MemberAccessExprSyntax.self) == nil {
+                    if let popped = viewStack.popLast() {
+                        dbg("visitPost → popped view \(popped.name.rawValue) after completing modifier chain")
+                    }
+                    currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
+                }
+            } else {
+                print("visitPost error: unable to parse view modifier name: \(modifierName)")
+                self.caughtErrors.append(.unsupportedSyntaxViewModifierName(modifierName))
+            }
         }
     }
+}
 
+
+// TODO: move utils
+extension SwiftUIViewVisitor {
     // Parse arguments from function call
     func parseArguments(from node: FunctionCallExprSyntax) -> ViewConstructorType {
         // Default handling for other modifiers
@@ -528,35 +394,212 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
     }
     
-    // Handle closure expressions (for container views like VStack, HStack, ZStack)
-    override func visit(_ node: ClosureExprSyntax) -> SyntaxVisitorContinueKind {
-        log("Entering closure expression")
+}
+
+
+// TODO: move layer helpers
+
+extension SwiftUIViewVisitor {
+    func visitLayerData(identifierExpr: DeclReferenceExprSyntax,
+                        node: FunctionCallExprSyntax) -> SyntaxVisitorContinueKind {
+        // This might be a view initialization like Text("Hello")
+        let viewName = identifierExpr.baseName.text
         
-        // Check if we're inside a container view that can have children
-        if let currentView = currentViewNode, currentView.name.canHaveChildren {
-            log("Entering closure for container view: \(currentView.name.rawValue)")
-            contextStack.append(.closure(parentView: currentView.name))
-        } else {
-            log("Entering closure in non-container context (likely function arguments)")
-            contextStack.append(.arguments)
+        guard let nameType = SyntaxNameType.from(viewName) else {
+//                fatalErrorIfDebug("No view discovered for: \(viewName)")
+            log("No concept discovered for: \(viewName)")
+            
+            // Tracks for later silent failures
+            self.caughtErrors.append(.unsupportedSyntaxViewName(viewName))
+            
+            return .skipChildren
         }
         
-        return .visitChildren
-    }
-    
-    override func visitPost(_ node: ClosureExprSyntax) {
-        log("Exiting closure expression")
+        log("Found view initialization: \(viewName)")
         
-        // Pop the context we pushed when entering the closure
-        if contextStack.count > 1 {
-            let poppedContext = contextStack.removeLast()
-            log("Popped context: \(poppedContext)")
+        // Parse args, catching arguments we don't yet support
+        let args = self.parseArguments(from: node)
+        
+        switch nameType {
+        case .view(let syntaxViewName):
+            // Create a new ViewNode for this view
+            let viewNode = SyntaxView(
+                name: syntaxViewName,
+                // This is creat
+                constructorArguments: args,
+                modifiers: [],
+                children: [],
+                id: UUID()
+                //                errors: self.caughtErrors
+            )
+            
+            log("Created new ViewNode for \(viewName)")
+            
+            // Set as root or add as child to current node (context-aware)
+            if viewStack.isEmpty {
+                log("Setting as root ViewNode: \(viewName)")
+                viewStack.append(viewNode)
+                currentNodeIndex = 0
+                rootViewNode = viewNode
+
+                log("Current node index set to: \(String(describing: currentNodeIndex))")
+            } else {
+                // Check if this view initialization should be treated as a child
+                // Only apply context-aware logic for top-level view statements that could be children
+                let currentContext = contextStack.last ?? .root
+                log("Current parsing context: \(currentContext)")
+                
+                switch currentContext {
+                case .closure(let parentViewName):
+                    // We're inside a closure of a container view - this IS a legitimate child
+                    if let currentNode = currentViewNode {
+                        log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
+                        var updatedCurrentNode = currentNode
+                        updatedCurrentNode.children.append(viewNode)
+                        updateCurrentViewNode(updatedCurrentNode)
+                        
+                        // Push the new node onto the stack and update current node index
+                        viewStack.append(viewNode)
+                        currentNodeIndex = viewStack.count - 1
+                                                    
+                        log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
+                    } else {
+                        log("⚠️ Error: No current node to add child to")
+                    }
+                    
+                case .arguments, .root:
+                    // We're parsing function arguments - this might be a modifier argument
+                    // Check if this is actually being used as a modifier argument
+                    if isWithinModifierArguments(node) {
+                        log("Found view \(viewName) in modifier argument context - allowing normal processing")
+                        // For modifier arguments, we still need to process the view normally
+                        // but we don't add it as a child to any parent view
+                        // Just add it to the stack temporarily so it can be processed
+                        viewStack.append(viewNode)
+                        currentNodeIndex = viewStack.count - 1
+                    } else {
+                        log("⚠️ Found view \(viewName) in argument context - skipping child addition")
+                        log("This view should be handled as an argument, not as a child")
+                        // Don't add to viewStack - this prevents it from being treated as a child
+                    }
+                }
+            }
+            
+            return .visitChildren
+            
+        case .value:
+            // No view here, just continue
+            return .skipChildren
         }
     }
-    
-    // MARK: - Modifier Handling
 
     
+    // Helper to get current ViewNode
+    private var currentViewNode: SyntaxView? {
+        guard let index = currentNodeIndex, index < viewStack.count else { return nil }
+        return viewStack[index]
+    }
+    
+    /// Returns the modifier name if `node` is a *view modifier* call
+    /// (i.e. a `FunctionCallExprSyntax` whose `calledExpression` is a
+    /// `MemberAccessExprSyntax` **with a non‑nil base**).
+    /// Helper/static calls that appear only as *arguments* – such as
+    /// `.degrees(90)` or `.black` – have `base == nil`, so they are
+    /// filtered out.
+    private func modifierNameIfViewModifier(_ node: FunctionCallExprSyntax) -> String? {
+        guard
+            // Must look like `.something`  (i.e. a MemberAccessExpr)
+            let member = node.calledExpression.as(MemberAccessExprSyntax.self),
+            let base   = member.base            // no base ⇒ e.g. `.degrees(90)` helper
+        else {
+            return nil
+        }
+        
+        /// Walks the `base` chain and returns `true` iff we eventually hit a
+        /// `FunctionCallExprSyntax` (e.g. `Rectangle()` or `Color.red`), meaning
+        /// the member access is **chained onto a view instance**.  Static helper
+        /// calls such as `Double.random(in:)` terminate in an `IdentifierExpr`
+        /// (“Double”) and therefore return `false`.
+        func isChainedToView(_ syntax: SyntaxProtocol) -> Bool {
+            if syntax.is(FunctionCallExprSyntax.self) { return true }
+            if let m = syntax.as(MemberAccessExprSyntax.self), let inner = m.base {
+                return isChainedToView(inner)
+            }
+            return false
+        }
+
+        return isChainedToView(base) ? member.declName.baseName.text : nil
+    }
+    
+    /// Check if this function call is within the arguments of a modifier
+    /// This helps distinguish between legitimate child views and modifier arguments
+    private func isWithinModifierArguments(_ node: FunctionCallExprSyntax) -> Bool {
+        // Walk up the parent chain to see if we're inside a modifier's argument list
+        var currentNode: Syntax? = node.parent
+        
+        while let parent = currentNode {
+            // If we find a FunctionCallExprSyntax that is a modifier, and we're in its arguments
+            if let functionCall = parent.as(FunctionCallExprSyntax.self),
+               modifierNameIfViewModifier(functionCall) != nil {
+                // We're inside a modifier's argument list
+                return true
+            }
+            currentNode = parent.parent
+        }
+        
+        return false
+    }
+    
+    /// Propagate a mutation at `index` upward through `viewStack`
+    /// so that every ancestor’s `children` array is updated
+    /// and `rootViewNode` stays in sync.
+    private func bubbleChangeUp(from index: Int) {
+        var childIndex = index
+        while childIndex > 0 {
+            let parentIndex = childIndex - 1
+            var parent = viewStack[parentIndex]
+            let child = viewStack[childIndex]
+            
+            if let match = parent.children.firstIndex(where: { $0.id == child.id }) {
+                parent.children[match] = child
+                viewStack[parentIndex] = parent
+            } else {
+                // Shouldn’t happen, but avoid infinite loop
+                break
+            }
+            childIndex = parentIndex
+        }
+        if !viewStack.isEmpty {
+            rootViewNode = viewStack[0]
+        }
+    }
+
+    // Helper to update currentViewNode properly
+    private func updateCurrentViewNode(_ newNode: SyntaxView) {
+        guard let index = currentNodeIndex, index < viewStack.count else { return }
+        viewStack[index] = newNode
+        bubbleChangeUp(from: index)
+    }
+    
+    // Helper to add a modifier to the current view node
+    private func addModifier(_ modifier: SyntaxViewModifier) {
+        let modName = modifier.name.rawValue
+        dbg("addModifier → \(modName) to current index \(String(describing: currentNodeIndex))")
+        guard let index = currentNodeIndex, index < viewStack.count else {
+            log("⚠️ Cannot add modifier: no current view node")
+            return
+        }
+        
+        var node = viewStack[index]
+        log("Adding modifier \(modName) to \(node.name.rawValue)")
+        node.modifiers.append(modifier)
+        viewStack[index] = node
+        // Bubble the change up to keep all ancestors current
+        bubbleChangeUp(from: index)
+        log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
+        dbg("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
+    }
+
     /// Handles standard modifiers with generic argument parsing
     private func handleStandardModifier(node: FunctionCallExprSyntax,
                                         modifierName: SyntaxViewModifierName) {
@@ -567,90 +610,6 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             arguments: modifierArguments
         )
         addModifier(modifier)
-    }
-    
-    // MARK: - SyntaxVisitor Overrides
-    
-    // When we finish visiting a node, manage the view stack
-    override func visitPost(_ node: FunctionCallExprSyntax) {
-        log("Visiting post for function call: \(node.description)")
-        
-        // Handle view initializations (constructor calls like `Rectangle()`, `Text("hello")`)
-        if let identExpr = node.calledExpression.as(DeclReferenceExprSyntax.self) {
-            let viewName = identExpr.baseName.text
-            log("Found view initialization: \(viewName)")
-            log("Current context stack: \(contextStack)")
-            log("Node parent type: \(type(of: node.parent))")
-            
-            // If this view call is the *base* of a MemberAccessExpr (e.g. Rectangle() in
-            // Rectangle().frame(...)), we **keep** it on the stack so that the upcoming
-            // modifier call can still access and mutate the current view node.
-            if node.parent?.as(MemberAccessExprSyntax.self) != nil {
-                log("Deferring pop for \(viewName) because it is base of a modifier chain")
-                return
-            }
-            log("ViewStack before adjustment - count: \(viewStack.count), current node index: \(String(describing: currentNodeIndex))")
-            
-            // Debug the current stack state
-            if !viewStack.isEmpty {
-                log("Current stack state:")
-                for (index, stackNode) in viewStack.enumerated() {
-                    log("  [\(index)] \(stackNode.name.rawValue) with \(stackNode.modifiers.count) modifiers")
-                }
-            }
-            
-            // We're exiting a view initialization
-            if let lastNode = viewStack.last,
-               let nameType = SyntaxNameType.from(viewName),
-               // Ensure a view here instead of a value
-               nameType.isView {
-                // Before removing the node, make sure we capture any modifiers that were added
-                log("Node being popped: \(lastNode.name.rawValue) with \(lastNode.modifiers.count) modifiers")
-                
-                // Remove the last node
-                viewStack.removeLast()
-                
-                // Update current node index to point to the new last node
-                currentNodeIndex = viewStack.count > 0 ? viewStack.count - 1 : nil
-                
-                log("Stack after pop - depth: \(viewStack.count), new current index: \(String(describing: currentNodeIndex))")
-                
-                // Debug the root node state
-                if let root = rootViewNode {
-                    log("Root node: \(root.name.rawValue) with \(root.modifiers.count) modifiers and \(root.children.count) children")
-                    if !root.children.isEmpty {
-                        for (index, child) in root.children.enumerated() {
-                            log("  Root child[\(index)]: \(child.name.rawValue) with \(child.modifiers.count) modifiers")
-                        }
-                    }
-                }
-            } else {
-                log("View stack empty, nothing to pop")
-            }
-        }
-        
- 
-        // ─────────────────────────────────────────────────────────────
-        // Handle view‑modifier calls *after* the base view has been visited
-        else if let modifierName = modifierNameIfViewModifier(node) {
-            dbg("visitPost → handling view modifier '\(modifierName)'")
-            
-            if let syntaxViewModifierName = SyntaxViewModifierName(rawValue: modifierName) {
-                    handleStandardModifier(node: node, modifierName: syntaxViewModifierName)
-                
-                // If this FunctionCallExpr is not nested inside *another* MemberAccessExpr,
-                // we are at the end of the modifier chain; pop the base view.
-                if node.parent?.as(MemberAccessExprSyntax.self) == nil {
-                    if let popped = viewStack.popLast() {
-                        dbg("visitPost → popped view \(popped.name.rawValue) after completing modifier chain")
-                    }
-                    currentNodeIndex = viewStack.isEmpty ? nil : viewStack.count - 1
-                }
-            } else {
-                print("visitPost error: unable to parse view modifier name: \(modifierName)")
-                self.caughtErrors.append(.unsupportedSyntaxViewModifierName(modifierName))
-            }
-        }
     }
 }
 
@@ -691,6 +650,58 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 
 
 // TODO: move
+
+extension SwiftUIViewVisitor {
+    func visitPatchData(_ node: FunctionCallExprSyntax) -> SwiftParserPatchData? {
+        guard
+            let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
+            let baseIdent = subscriptExpr.calledExpression.as(DeclReferenceExprSyntax.self),
+            baseIdent.baseName.text == "NATIVE_STITCH_PATCH_FUNCTIONS",
+            let firstArg = subscriptExpr.arguments.first,
+            let stringLit = firstArg.expression.as(StringLiteralExprSyntax.self)
+        else {
+            return nil
+        }
+        
+        guard let patchNode = stringLit.segments.first?.description else {
+            return nil
+        }
+        
+//        self.patchNodesByVarName
+//            .updateValue(patchNode, forKey: currentLHS)
+        
+        let patchNodeArgs = node.arguments.map { arg -> SwiftParserPatternBindingArg in
+            // ArrayExpr → might hold a PortValueDescription literal
+            if let arrayExpr = arg.expression.as(ArrayExprSyntax.self),
+               let outerFirstElem = arrayExpr.elements.first?.expression {
+                if let arrayElem = outerFirstElem.as(ArrayExprSyntax.self),
+                   let innerFirstElem = arrayElem.elements.first?.expression {
+ 
+                    guard let argData = self.parseArgumentType(from: innerFirstElem) else {
+                        fatalError()
+                    }
+
+                    return .value(argData)
+                }
+                
+                else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
+                    print("Input param that points to some reference: \(declrRefSyntax)")
+                    return .binding(declrRefSyntax)
+                }
+                
+                else {
+                    fatalError()
+                }
+            }
+            
+            fatalError()
+        }
+        
+        return .init(patchName: patchNode,
+                     args: patchNodeArgs)
+    }
+}
+
 enum SwiftParserPatternBindingArg {
     case value(SyntaxViewModifierArgumentType)
     case binding(DeclReferenceExprSyntax)

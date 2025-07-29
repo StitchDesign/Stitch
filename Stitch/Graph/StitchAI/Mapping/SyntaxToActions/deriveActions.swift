@@ -111,7 +111,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         }
         
         // Second pass: derive custom values and edges
-        for (varName, initializerType) in self {
+        for initializerType in self.values {
             switch initializerType {
             case .patchNode(let patchNodeData):
                 for (portIndex, arg) in patchNodeData.args.enumerated() {
