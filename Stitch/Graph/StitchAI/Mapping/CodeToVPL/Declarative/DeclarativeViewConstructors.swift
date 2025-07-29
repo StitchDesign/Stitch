@@ -1457,6 +1457,7 @@ enum StrictViewModifier: Equatable, Encodable {
     case blur(BlurViewModifier)
     case zIndex(ZIndexViewModifier)
     case cornerRadius(CornerRadiusViewModifier)
+    case frame(FrameViewModifier)
     // Add further cases here as new typed modifiers are introduced
 
     /// Type-erased access to the underlying typed modifier for Stitch emission.
@@ -1467,6 +1468,7 @@ enum StrictViewModifier: Equatable, Encodable {
         case .blur(let m):           return m
         case .zIndex(let m):         return m
         case .cornerRadius(let m):   return m
+        case .frame(let m):          return m
         }
     }
 }
@@ -1486,6 +1488,7 @@ enum ViewModifierConstructor: Equatable, Encodable {
     case blur(BlurViewModifier)
     case zIndex(ZIndexViewModifier)
     case cornerRadius(CornerRadiusViewModifier)
+    case frame(FrameViewModifier)
     // Add more modifiers here as needed
     
     var value: any FromSwiftUIViewModifierToStitch {
@@ -1499,6 +1502,8 @@ enum ViewModifierConstructor: Equatable, Encodable {
         case .zIndex(let modifier):
             return modifier
         case .cornerRadius(let modifier):
+            return modifier
+        case .frame(let modifier):
             return modifier
         }
     }
@@ -1744,6 +1749,59 @@ struct CornerRadiusViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
+// MARK: - Frame View Modifier
+
+struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let width: SyntaxViewModifierArgumentType?
+    let height: SyntaxViewModifierArgumentType?
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // Convert width and height arguments to LayerDimensions
+        var layerWidth: LayerDimension = .number(0)  // default
+        var layerHeight: LayerDimension = .number(0) // default
+        
+        if let width = width {
+            guard let widthPortValues = try width.derivePortValues().first,
+                  let widthNumber = widthPortValues.getNumber else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            layerWidth = .number(widthNumber)
+        }
+        
+        if let height = height {
+            guard let heightPortValues = try height.derivePortValues().first,
+                  let heightNumber = heightPortValues.getNumber else {
+                throw SwiftUISyntaxError.portValueNotFound
+            }
+            layerHeight = .number(heightNumber)
+        }
+        
+        let layerSize = LayerSize(width: layerWidth, height: layerHeight)
+        let sizeValue = PortValue.size(layerSize)
+        
+        return [ASTCustomInputValue(input: .size, value: sizeValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> FrameViewModifier? {
+        var width: SyntaxViewModifierArgumentType?
+        var height: SyntaxViewModifierArgumentType?
+        
+        for arg in arguments {
+            switch arg.label {
+            case "width":  width = arg.value
+            case "height": height = arg.value
+            default: break
+            }
+        }
+        
+        // Require at least one dimension to be present
+        guard width != nil || height != nil else { return nil }
+        
+        return FrameViewModifier(width: width, height: height)
+    }
+}
+
 /// Factory function to create ViewModifierConstructor from parsed SwiftUI syntax
 func createKnownViewModifier(modifierName: SyntaxViewModifierName,
                            arguments: [SyntaxViewArgumentData]) -> ViewModifierConstructor? {
@@ -1764,6 +1822,9 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .cornerRadius:
         return CornerRadiusViewModifier.from(arguments, modifierName: modifierName)
             .map { .cornerRadius($0) }
+    case .frame:
+        return FrameViewModifier.from(arguments, modifierName: modifierName)
+            .map { .frame($0) }
     default:
         return nil
     }

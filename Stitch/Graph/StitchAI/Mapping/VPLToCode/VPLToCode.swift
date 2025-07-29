@@ -213,6 +213,8 @@ func viewModifierConstructorToStrictViewModifier(_ constructor: ViewModifierCons
         return .zIndex(modifier)
     case .cornerRadius(let modifier):
         return .cornerRadius(modifier)
+    case .frame(let modifier):
+        return .frame(modifier)
     }
 }
 
@@ -290,6 +292,17 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
         return ".zIndex(\(renderArg(m.value)))"
     case .cornerRadius(let m):
         return ".cornerRadius(\(renderArg(m.radius)))"
+    case .frame(let m):
+        var parts: [String] = []
+        if let width = m.width {
+            parts.append("width: \(renderArg(width))")
+        }
+        if let height = m.height {
+            parts.append("height: \(renderArg(height))")
+        }
+        // Only generate .frame() if we have at least one parameter
+        guard !parts.isEmpty else { return "" }
+        return ".frame(\(parts.joined(separator: ", ")))"
     }
 }
 
@@ -527,6 +540,28 @@ func makeViewModifierConstructor(from port: LayerInputPort,
             return .cornerRadius(CornerRadiusViewModifier(radius: arg))
         }
         return nil
+    case .size:
+        if let size = value.getSize {
+            var width: SyntaxViewModifierArgumentType?
+            var height: SyntaxViewModifierArgumentType?
+            
+            // Convert LayerDimension to SyntaxViewModifierArgumentType
+            if case .number(let widthValue) = size.width {
+                width = .simple(SyntaxViewSimpleData(value: widthValue.description,
+                                                     syntaxKind: .float))
+            }
+            
+            if case .number(let heightValue) = size.height {
+                height = .simple(SyntaxViewSimpleData(value: heightValue.description,
+                                                      syntaxKind: .float))
+            }
+            
+            // Only create the modifier if we have at least one dimension
+            if width != nil || height != nil {
+                return .frame(FrameViewModifier(width: width, height: height))
+            }
+        }
+        return nil
     default:
         return nil
     }
@@ -555,6 +590,17 @@ func renderViewModifierConstructor(_ modifier: ViewModifierConstructor) -> Strin
         return ".zIndex(\(renderArg(m.value)))"
     case .cornerRadius(let m):
         return ".cornerRadius(\(renderArg(m.radius)))"
+    case .frame(let m):
+        var parts: [String] = []
+        if let width = m.width {
+            parts.append("width: \(renderArg(width))")
+        }
+        if let height = m.height {
+            parts.append("height: \(renderArg(height))")
+        }
+        // Only generate .frame() if we have at least one parameter
+        guard !parts.isEmpty else { return "" }
+        return ".frame(\(parts.joined(separator: ", ")))"
     }
 }
 
@@ -637,18 +683,8 @@ func layerInputPortToSwiftUIModifier(port: LayerInputPort, value: AIGraphData_V0
         }
         
     case .size:
-        if let size = value.getSize {
-            var parts: [String] = []
-            if case .number(let width) = size.width {
-                parts.append("width: \(width)")
-            }
-            if case .number(let height) = size.height {
-                parts.append("height: \(height)")
-            }
-            if !parts.isEmpty {
-                return ".frame(\(parts.joined(separator: ", ")))"
-            }
-        }
+        // Handled via intermediate ViewModifierConstructor (.frame) pathway
+        return nil
         
     case .padding:
         if let padding = value.getPadding {
