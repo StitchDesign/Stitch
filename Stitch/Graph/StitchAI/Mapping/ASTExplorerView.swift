@@ -56,9 +56,9 @@ struct ASTExplorerView: View {
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
 
     init(
-//        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
+        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
 //        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions])
-        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions, .rebuiltSyntax])
+//        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions, .rebuiltSyntax])
     ) {
         _visibleStages = State(initialValue: initialVisibleStages)
     }
@@ -261,9 +261,18 @@ struct ASTExplorerView: View {
                 guard let data = try? encoder.encode(action) else { return nil }
                 return try? decoder.decode(AIGraphData_V0.LayerData.self, from: data)
             }
-            self.derivedConstructors = v0Layers.compactMap { makeConstructorFromLayerData($0, idMap: &idMap) }
             
             // TODO: support more than just view constructors
+            self.derivedConstructors = v0Layers.compactMap { makeConstructorFromLayerData($0, idMap: &idMap) }
+            
+            
+            self.regeneratedCode = self.derivedConstructors
+                .map { $0.swiftUICallString() }
+                .joined(separator: "\n")
+
+            
+            // OLD APPROACH
+            
 //            // Actions → Syntax
 //            rebuiltSyntax = try SyntaxView.build(from: stitchActions)
 //
