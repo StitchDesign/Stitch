@@ -452,7 +452,7 @@ extension SyntaxViewName {
                      silentErrors: silentErrors)
     }
     
-    func deriveInputValuesData(viewConstructor: ViewConstructor,
+    func deriveInputValuesData(viewConstructor: StrictViewConstructor,
                                id: UUID) throws -> LayerInputValuesDerivationResult {
         var silentErrors = [SwiftUISyntaxError]()
         let layerType = viewConstructor.value.layer

@@ -50,7 +50,7 @@ struct ASTExplorerView: View {
     @State private var regeneratedCode: String = ""
     @State private var errorString: String?
     @State private var silentlyCaughtErrors: [SwiftUISyntaxError] = []
-    @State private var derivedConstructors: [ViewConstructor] = []
+    @State private var derivedConstructors: [StrictViewConstructor] = []
 
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
