@@ -323,6 +323,83 @@ func renderAnyEncodable(_ any: AnyEncodable) -> String {
     return "_"
 }
 
+// MARK: - ViewModifierConstructor (intermediate) mapping & rendering
+
+/// Creates a typed view-modifier constructor from a layer input value, when supported.
+func makeViewModifierConstructor(from port: LayerInputPort,
+                                 value: AIGraphData_V0.PortValue) -> ViewModifierConstructor? {
+    switch port {
+    case .opacity:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .opacity(OpacityViewModifier(value: arg))
+        }
+        return nil
+    case .scale:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .scaleEffect(.uniform(scale: arg, anchor: nil))
+        }
+        return nil
+    case .blur, .blurRadius:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .blur(BlurViewModifier(radius: arg))
+        }
+        return nil
+    case .zIndex:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .zIndex(ZIndexViewModifier(value: arg))
+        }
+        return nil
+    case .cornerRadius:
+        if let number = value.getNumber {
+            let arg = SyntaxViewModifierArgumentType.simple(
+                SyntaxViewSimpleData(value: String(number), syntaxKind: .float)
+            )
+            return .cornerRadius(CornerRadiusViewModifier(radius: arg))
+        }
+        return nil
+    default:
+        return nil
+    }
+}
+
+/// Renders a typed view-modifier constructor back into SwiftUI source code.
+func renderViewModifierConstructor(_ modifier: ViewModifierConstructor) -> String {
+    switch modifier {
+    case .opacity(let m):
+        return ".opacity(\(renderArg(m.value)))"
+    case .scaleEffect(let m):
+        switch m {
+        case .uniform(let scale, let anchor):
+            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+            return ".scaleEffect(\(renderArg(scale))\(anchorPart))"
+        case .xy(let x, let y, let anchor):
+            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+            return ".scaleEffect(x: \(renderArg(x)), y: \(renderArg(y))\(anchorPart))"
+        case .size(let size, let anchor):
+            let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
+            return ".scaleEffect(\(renderArg(size))\(anchorPart))"
+        }
+    case .blur(let m):
+        return ".blur(radius: \(renderArg(m.radius)))"
+    case .zIndex(let m):
+        return ".zIndex(\(renderArg(m.value)))"
+    case .cornerRadius(let m):
+        return ".cornerRadius(\(renderArg(m.radius)))"
+    }
+}
+
 // MARK: - LayerInputPort → SwiftUI View Modifier Mapping
 
 /// Maps a LayerInputPort and its PortValue to a SwiftUI view modifier string.
@@ -331,24 +408,22 @@ func layerInputPortToSwiftUIModifier(port: LayerInputPort, value: AIGraphData_V0
     switch port {
     // Simple single-argument modifiers
     case .opacity:
-        if let number = value.getNumber {
-            return ".opacity(\(number))"
-        }
-        
+        // Handled via intermediate ViewModifierConstructor (.opacity) pathway
+        return nil
     case .scale:
-        if let number = value.getNumber {
-            return ".scaleEffect(\(number))"
-        }
-        
+        // Handled via intermediate ViewModifierConstructor (.scaleEffect) pathway
+        return nil
     case .zIndex:
-        if let number = value.getNumber {
-            return ".zIndex(\(number))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.zIndex) pathway
+        return nil
         
     case .blur, .blurRadius:
-        if let number = value.getNumber {
-            return ".blur(radius: \(number))"
-        }
+        // Handled via intermediate ViewModifierConstructor (.blur) pathway
+        return nil
+        
+    case .cornerRadius:
+        // Handled via intermediate ViewModifierConstructor (.cornerRadius) pathway
+        return nil
         
     case .brightness:
         if let number = value.getNumber {
@@ -368,11 +443,6 @@ func layerInputPortToSwiftUIModifier(port: LayerInputPort, value: AIGraphData_V0
     case .hueRotation:
         if let number = value.getNumber {
             return ".hueRotation(.degrees(\(number)))"
-        }
-        
-    case .cornerRadius:
-        if let number = value.getNumber {
-            return ".cornerRadius(\(number))"
         }
         
     // Color modifiers - context dependent
@@ -433,6 +503,7 @@ func layerInputPortToSwiftUIModifier(port: LayerInputPort, value: AIGraphData_V0
             }
         }
         
+    // TODO: this is not quite correct; `.text` needs to be
     // Modifiers that don't have direct SwiftUI equivalents or are handled at constructor level
     case .position, .anchoring, .orientation, .text, .sfSymbol, .image, .video, .spacing, .layerGroupAlignment:
         return nil
@@ -444,6 +515,7 @@ func layerInputPortToSwiftUIModifier(port: LayerInputPort, value: AIGraphData_V0
     return nil
 }
 
+// TODO: use the existing color helpers
 /// Renders a Color value as SwiftUI code
 func renderColor(_ color: Color) -> String {
     // Convert SwiftUI Color to a string representation
@@ -466,16 +538,24 @@ func renderColor(_ color: Color) -> String {
 /// Generates all view modifiers for a given LayerData
 func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [String] {
     var modifiers: [String] = []
-    
+
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.layer_input_coordinate.input_port_type.value
-        
-        if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap),
-           let modifierString = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
-            modifiers.append(modifierString)
+
+        if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
+            // 1) Preferred: go through a typed ViewModifierConstructor if we support it
+            if let ctor = makeViewModifierConstructor(from: port, value: portValue) {
+                modifiers.append(renderViewModifierConstructor(ctor))
+                continue
+            }
+
+            // 2) Fallback: legacy direct string mapping for ports not yet modeled
+            if let s = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
+                modifiers.append(s)
+            }
         }
     }
-    
+
     return modifiers
 }
 
