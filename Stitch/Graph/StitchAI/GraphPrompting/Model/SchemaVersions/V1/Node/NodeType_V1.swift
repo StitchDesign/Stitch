@@ -238,8 +238,12 @@ extension StitchAIPortValue_V1.NodeType {
             
             // Remap ID if from AI result
             guard let newId = idMap.get(xString) else {
-                fatalErrorIfDebug()
-                return .assignedLayer(nil)
+                // Try to decode UUID if no map
+                guard let uuid = UUID(xString) else {
+                    fatalErrorIfDebug()
+                    return .assignedLayer(nil)
+                }
+                return .assignedLayer(.init(uuid))
             }
             return .assignedLayer(.init(newId))
             
