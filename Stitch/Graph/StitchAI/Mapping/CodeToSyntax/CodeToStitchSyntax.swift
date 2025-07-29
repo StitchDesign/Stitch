@@ -211,25 +211,30 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         else {
             if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
+                guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
+                      let portIndex = Int(labeledExpr.literal.text) else {
+                    fatalError()
+                }
+                
                 // Patch declarations can call here too
                 if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
                     guard let patchNode = self.visitPatchData(funcExpr) else {
                         fatalError()
                     }
-                    self.bindingDeclarations.updateValue(.patchNode(patchNode),
+                    
+                    let subscriptRef = SwiftParserSubscript(subscriptType: .patchNode(patchNode),
+                                                            portIndex: portIndex)
+                    
+                    self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
                                                          forKey: currentLHS)
                 }
                 
                 // Output port index access of some patch node in the form of index access of a patch fn's output values
                 else if let declRef = subscriptCallExpr.calledExpression.as(DeclReferenceExprSyntax.self) {
-                    guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
-                          let portIndex = Int(labeledExpr.literal.text) else {
-                        fatalError()
-                    }
                     
-                    let outputPortData = SwiftParserPort(nodeRef: declRef.baseName.text,
-                                                         portIndex: portIndex)
-                    self.bindingDeclarations.updateValue(.nodeOutputPort(outputPortData),
+                    let outputPortData = SwiftParserSubscript(subscriptType: .ref(declRef.baseName.text),
+                                                              portIndex: portIndex)
+                    self.bindingDeclarations.updateValue(.subscriptRef(outputPortData),
                                                          forKey: currentLHS)
                 }
                 
@@ -692,20 +697,47 @@ enum SwiftParserPatternBindingArg {
 }
 
 struct SwiftParserPatchData {
+    // TODO: must be decoded
+    let id = UUID().uuidString
+    
     var patchName: String
     var args: [SwiftParserPatternBindingArg]
 }
 
-struct SwiftParserPort {
+struct SwiftParserSubscript {
     // The name of the variable
-    var nodeRef: String
+    var subscriptType: SwiftParserSubscriptType
     var portIndex: Int
 }
 
 enum SwiftParserInitializerType {
-    // creates some patch node
+    // creates some patch node from a declared function
     case patchNode(SwiftParserPatchData)
     
     // access an index of some node's outputs
-    case nodeOutputPort(SwiftParserPort)
+    case subscriptRef(SwiftParserSubscript)
+}
+
+// Subscripts can be used on references or nodes themselves
+enum SwiftParserSubscriptType {
+    case ref(String)
+    case patchNode(SwiftParserPatchData)
+}
+
+extension SwiftParserPatchData {
+    func createStitchData(varName: String,
+                          varNameIdMap: inout [String : String]) -> CurrentAIGraphData.NativePatchNode {
+        guard let patchName = CurrentAIGraphData.StitchAIPatchOrLayer.init(value: .init(self.patchName)) else {
+            fatalError()
+        }
+        
+//        let nodeIdString = String(varName.split(separator: "_")[safe: 1] ?? "")
+//        let decodedId = UUID(uuidString: nodeIdString) ?? .init()
+        varNameIdMap.updateValue(self.id, forKey: varName)
+        
+        let newPatchNode = CurrentAIGraphData
+            .NativePatchNode(node_id: self.id,
+                             node_name: patchName)
+        return newPatchNode
+    }
 }

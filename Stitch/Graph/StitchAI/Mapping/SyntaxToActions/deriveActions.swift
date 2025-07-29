@@ -54,15 +54,29 @@ extension SwiftUIViewParserResult {
 //    }
 //}
 
+//extension Dictionary where Key == String, Value == SwiftParserSubscript {
+//    // Recursively map some subscript access back to a node id
+//    func findUpstreamNodeId(refName: String,
+//                            varNameIdMap: [String : UUID]) -> NodeId {
+//        guard let outputPortData = self.get(refName) else {
+//            fatalError()
+//        }
+//        
+//        switch outputPortData.subscriptType {
+//        case .patchNode(let patchNode)
+//        }
+//    }
+//}
+
 extension Dictionary where Key == String, Value == SwiftParserInitializerType {
     func deriveStitchActions() throws -> SwiftSyntaxPatchActionsResult {
         var caughtErrors: [SwiftUISyntaxError] = []
         
-        // Maps some variable name to a node ID
-        var varNameIdMap = [String : UUID]()
+        // Maps some variable name to a node ID string
+        var varNameIdMap = [String : String]()
         
         // Maps any declarations made of top-level outputs
-        var varNameOutputPortMap = [String : SwiftParserPort]()
+        var varNameOutputPortMap = [String : SwiftParserSubscript]()
         
         var nativePatchNodes = [CurrentAIGraphData.NativePatchNode]()
         var nativePatchValueTypeSettings = [CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
@@ -73,22 +87,26 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         for (varName, initializerType) in self {
             switch initializerType {
             case .patchNode(let patchNodeData):
-                guard let patchName = CurrentAIGraphData.StitchAIPatchOrLayer.init(value: .init(patchNodeData.patchName)) else {
-                    fatalError()
-                }
-                
-                let nodeIdString = String(varName.split(separator: "_")[safe: 1] ?? "")
-                let decodedId = UUID(uuidString: nodeIdString) ?? .init()
-                varNameIdMap.updateValue(decodedId, forKey: varName)
-                
-                let newPatchNode = CurrentAIGraphData
-                    .NativePatchNode(node_id: decodedId.uuidString,
-                                     node_name: patchName)
+                let newPatchNode = patchNodeData
+                    .createStitchData(varName: varName,
+                                      varNameIdMap: &varNameIdMap)
                 nativePatchNodes.append(newPatchNode)
                 
-            case .nodeOutputPort(let outputPortData):
+            case .subscriptRef(let subscriptData):
                 // Track top-level bindings of some output port data
-                varNameOutputPortMap.updateValue(outputPortData, forKey: varName)
+                varNameOutputPortMap.updateValue(subscriptData, forKey: varName)
+                
+                switch subscriptData.subscriptType {
+                case .patchNode(let patchNodeData):
+                    // Track more patch nodes
+                    let newPatchNode = patchNodeData
+                        .createStitchData(varName: varName,
+                                          varNameIdMap: &varNameIdMap)
+                    nativePatchNodes.append(newPatchNode)
+                    
+                case .ref:
+                    continue
+                }
             }
         }
         
@@ -96,24 +114,36 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         for (varName, initializerType) in self {
             switch initializerType {
             case .patchNode(let patchNodeData):
-                guard let nodeId = varNameIdMap.get(varName) else {
-                    fatalError()
-                }
-                
                 for (portIndex, arg) in patchNodeData.args.enumerated() {
                     switch arg {
                     case .binding(let declRefSyntax):
                         // Get edge data
                         let refName = declRefSyntax.baseName.text
-                        guard let outputPortData = varNameOutputPortMap.get(refName),
-                              let upstreamNodeId = varNameIdMap.get(outputPortData.nodeRef) else {
+                                                
+                        guard let upstreamRefData = varNameOutputPortMap.get(refName) else {
                             fatalError()
                         }
                         
+                        let upstreamPortIndex = upstreamRefData.portIndex
+                        let upstreamNodeId: String
+                        
+                        // Get upstream node ID
+                        switch upstreamRefData.subscriptType {
+                        case .patchNode(let patchNodeData):
+                            upstreamNodeId = patchNodeData.id
+                            
+                        case .ref(let refName):
+                            guard let _upstreamNodeId = varNameIdMap.get(refName) else {
+                                fatalError()
+                            }
+                            
+                            upstreamNodeId = _upstreamNodeId
+                        }
+                        
                         patchConnections.append(
-                            .init(src_port: .init(node_id: upstreamNodeId.uuidString,
-                                                  port_index: outputPortData.portIndex),
-                                  dest_port: .init(node_id: nodeId.uuidString,                          port_index: portIndex))
+                            .init(src_port: .init(node_id: upstreamNodeId,
+                                                  port_index: upstreamPortIndex),
+                                  dest_port: .init(node_id: patchNodeData.id,                          port_index: portIndex))
                         )
                         
                     case .value(let argType):
@@ -123,14 +153,14 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                         
                         customPatchInputValues.append(
                             .init(patch_input_coordinate: .init(
-                                node_id: nodeId.uuidString,
+                                node_id: patchNodeData.id,
                                 port_index: portIndex),
                                   value: portValue.anyCodable,
                                   value_type: .init(value: portValue.nodeType)))
                     }
                 }
                 
-            case .nodeOutputPort:
+            case .subscriptRef:
                 // Ignore here
                 continue
             }
