@@ -797,6 +797,17 @@ extension SyntaxViewName {
         port: CurrentAIGraphData.LayerInputPort,
         layerType: CurrentAIGraphData.Layer
     ) throws -> CurrentAIGraphData.PortValue? {
+        // Try to use ViewModifierConstructor for structured parsing first
+        if let viewModifierConstructor = createKnownViewModifier(modifierName: modifierName, arguments: arguments) {
+            let customInputValues = try viewModifierConstructor.value.createCustomValueEvents()
+            // Return the first matching port value for this modifier
+            for customInput in customInputValues {
+                if customInput.input == port {
+                    return customInput.value
+                }
+            }
+        }
+        
         // Note: some modifiers can have no arguments, e.g. `.padding()`, `.clipped()`
         // In such a case, we return a default value for that SwiftUI view modifier.
         guard !arguments.isEmpty else {
@@ -866,7 +877,7 @@ extension SyntaxViewName {
             switch context {
             case .none:
                 // Edge case behavior needs context
-                fatalErrorIfDebug()
+                // fatalErrorIfDebug()
                 throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                                 
             case .viewConstructor(let viewName, let port):
