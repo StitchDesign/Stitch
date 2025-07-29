@@ -47,9 +47,6 @@ extension SwiftUIViewVisitor {
 final class SwiftUIViewVisitor: SyntaxVisitor {
     var rootViewNode: SyntaxView?
     
-    // Key: var name; Value: patch name
-    var patchNodesByVarName = [String : String]()
-    
     private var currentNodeIndex: Int? // Index into the view stack
     private var viewStack: [SyntaxView] = []
     private var idCounter = 0
@@ -184,6 +181,9 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         dbg("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
     }
 
+    // Top-level declarations of patch data
+    var bindingDeclarations = [String : SwiftParserInitializerType]()
+    
     override func visit(_ node: PatternBindingSyntax) -> SyntaxVisitorContinueKind {
         
         guard let identifierPattern = node.pattern.as(IdentifierPatternSyntax.self) else {
@@ -198,15 +198,42 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         if let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) {
-            return self.visitPatchData(funcExpr,
-                                       currentLHS: currentLHS)
+            // Assumed to be patch node
+            guard let patchNode = Self.visitPatchData(funcExpr) else {
+                fatalError()
+            }
+            
+            self.bindingDeclarations
+                .updateValue(.patchNode(patchNode), forKey: currentLHS)
         }
         
         else {
-            // Check for edge
             if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
-                log("TBD sub call: \(subscriptCallExpr)")
-                return .skipChildren
+                // Patch declarations can call here too
+                if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
+                    guard let patchNode = Self.visitPatchData(funcExpr) else {
+                        fatalError()
+                    }
+                    self.bindingDeclarations.updateValue(.patchNode(patchNode),
+                                                         forKey: currentLHS)
+                }
+                
+                // Output port index access of some patch node in the form of index access of a patch fn's output values
+                else if let declRef = subscriptCallExpr.calledExpression.as(DeclReferenceExprSyntax.self) {
+                    guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
+                          let portIndex = Int(labeledExpr.literal.text) else {
+                        fatalError()
+                    }
+                    
+                    let outputPortData = SwiftParserPort(nodeRef: declRef.baseName.text,
+                                                         portIndex: portIndex)
+                    self.bindingDeclarations.updateValue(.nodeOutputPort(outputPortData),
+                                                         forKey: currentLHS)
+                }
+                
+                else {
+                    fatalError()
+                }
             }
             
             else {
@@ -214,10 +241,11 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             }
         }
         
+        
+        return .visitChildren
     }
     
-    func visitPatchData(_ node: FunctionCallExprSyntax,
-                        currentLHS: String) -> SyntaxVisitorContinueKind {
+    static func visitPatchData(_ node: FunctionCallExprSyntax) -> SwiftParserPatchData? {
         guard
             let subscriptExpr = node.calledExpression.as(SubscriptCallExprSyntax.self),
             let baseIdent = subscriptExpr.calledExpression.as(DeclReferenceExprSyntax.self),
@@ -225,17 +253,17 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             let firstArg = subscriptExpr.arguments.first,
             let stringLit = firstArg.expression.as(StringLiteralExprSyntax.self)
         else {
-            return .skipChildren
+            return nil
         }
         
         guard let patchNode = stringLit.segments.first?.description else {
-            return .skipChildren
+            return nil
         }
         
-        self.patchNodesByVarName
-            .updateValue(patchNode, forKey: currentLHS)
+//        self.patchNodesByVarName
+//            .updateValue(patchNode, forKey: currentLHS)
         
-        for (idx, arg) in node.arguments.enumerated() {
+        let patchNodeArgs = node.arguments.map { arg -> SwiftParserPatternBindingArg in
             // ArrayExpr → might hold a PortValueDescription literal
             if let arrayExpr = arg.expression.as(ArrayExprSyntax.self),
                let outerFirstElem = arrayExpr.elements.first?.expression {
@@ -244,26 +272,29 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
  
                     // PortValueDescription case
                     if let funcCallSyntax = innerFirstElem.as(FunctionCallExprSyntax.self) {
-                        log("PortValue: \(funcCallSyntax)")
+                        return .value(funcCallSyntax)
                     }
                     
                     else {
-                        log("other case: \(innerFirstElem)")
+                        fatalError("other case: \(innerFirstElem)")
                     }
                 }
                 
-                
                 else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
-                    log("Input param that points to some reference: \(declrRefSyntax)")
+                    print("Input param that points to some reference: \(declrRefSyntax)")
+                    return .binding(declrRefSyntax)
                 }
                 
                 else {
                     fatalError()
                 }
-                
             }
+            
+            fatalError()
         }
-        return .skipChildren // we already mined children we care about
+        
+        return .init(patchName: patchNode,
+                     args: patchNodeArgs)
     }
     
     // Visit function call expressions (which represent view initializations and modifiers)
@@ -648,3 +679,29 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
 //
 //    print("\n==== TEST COMPLETE ====\n")
 //}
+
+
+// TODO: move
+enum SwiftParserPatternBindingArg {
+    case value(FunctionCallExprSyntax)
+    case binding(DeclReferenceExprSyntax)
+}
+
+struct SwiftParserPatchData {
+    var patchName: String
+    var args: [SwiftParserPatternBindingArg]
+}
+
+struct SwiftParserPort {
+    // The name of the variable
+    var nodeRef: String
+    var portIndex: Int
+}
+
+enum SwiftParserInitializerType {
+    // creates some patch node
+    case patchNode(SwiftParserPatchData)
+    
+    // access an index of some node's outputs
+    case nodeOutputPort(SwiftParserPort)
+}
