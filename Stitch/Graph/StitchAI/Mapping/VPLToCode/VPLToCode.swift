@@ -226,15 +226,15 @@ extension StrictSyntaxView {
     func toSwiftUICode() -> String {
         let constructorString = constructor.swiftUICallString()
         
-        // Apply modifiers
+        // Handle children for container views
+        let viewWithChildren = constructorString + generateChildrenCode()
+        
+        // Apply modifiers after the complete view (including children)
         let modifiersString = modifiers.map { modifier in
             renderStrictViewModifier(modifier)
         }.joined()
         
-        // Handle children for container views
-        let childrenString = generateChildrenCode()
-        
-        return constructorString + childrenString + modifiersString
+        return viewWithChildren + modifiersString
     }
     
     private func generateChildrenCode() -> String {
@@ -243,7 +243,12 @@ extension StrictSyntaxView {
         // Check if this is a container view that needs children
         switch constructor {
         case .hStack, .vStack, .zStack, .lazyHStack, .lazyVStack:
-            let childrenCode = children.map { $0.toSwiftUICode() }.joined(separator: "\n")
+            let childrenCode = children.map { child in
+                // Add proper indentation for each child
+                child.toSwiftUICode().components(separatedBy: "\n")
+                    .map { line in line.isEmpty ? "" : "    \(line)" }
+                    .joined(separator: "\n")
+            }.joined(separator: "\n")
             return " {\n\(childrenCode)\n}"
         default:
             // Non-container views - children are ignored or handled differently
@@ -297,7 +302,7 @@ extension StrictViewConstructor {
                     named("alignment", alignment),
                     named("spacing", spacing)
                 ])
-                return parts.isEmpty ? "HStack { }" : "HStack(\(parts)) { }"
+                return parts.isEmpty ? "HStack" : "HStack(\(parts))"
             }
             
         case .vStack(let ctor):
@@ -307,14 +312,14 @@ extension StrictViewConstructor {
                     named("alignment", alignment),
                     named("spacing", spacing)
                 ])
-                return parts.isEmpty ? "VStack { }" : "VStack(\(parts)) { }"
+                return parts.isEmpty ? "VStack" : "VStack(\(parts))"
             }
             
         case .zStack(let ctor):
             switch ctor {
             case .parameters(let alignment):
-                if let alignment = alignment { return "ZStack(alignment: \(renderArg(alignment))) { }" }
-                return "ZStack { }"
+                if let alignment = alignment { return "ZStack(alignment: \(renderArg(alignment)))" }
+                return "ZStack"
             }
             
         case .circle:
