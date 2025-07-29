@@ -59,7 +59,7 @@ func decodePortValueFromCIV(_ customInputValue: AIGraphData_V0.CustomLayerInputV
 /// Produces a `ViewConstructor` for a single `LayerData` node.
 /// Only constructor-surface arguments are considered; **no view modifiers**.
 func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
-                                  idMap: inout [String: UUID]) -> ViewConstructor? {
+                                  idMap: inout [String: UUID]) -> StrictViewConstructor? {
     let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
     
     switch inputs.layer {
@@ -136,7 +136,7 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
 
 
 // MARK: - ViewConstructor → SwiftUI source string (constructors only)
-extension ViewConstructor {
+extension StrictViewConstructor {
     /// Returns a SwiftUI call-site string for this constructor.
     /// NOTE: No modifiers or children are emitted here.
     func swiftUICallString() -> String {

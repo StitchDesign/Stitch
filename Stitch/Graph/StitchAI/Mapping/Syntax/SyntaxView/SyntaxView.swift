@@ -7,6 +7,19 @@
 
 import Foundation
 
+
+// MARK: intended for turning Stitch concepts into SwiftUI code; the mapping from vpl -> code is known and therefore "strict"
+
+struct StrictSyntaxView: Equatable {
+    var constructor: StrictViewConstructor
+    var modifiers: [StrictViewModifier]
+    var children: [StrictSyntaxView]
+    var id: UUID // unique identifier for this node
+}
+
+
+// MARK: intended for parsing arbitrary SwiftUI code that might or might not have a corresponding Stitch concept, i.e. the code -> vpl direction
+
 // fka `ViewNode`
 struct SyntaxView: Equatable {
         
@@ -28,7 +41,7 @@ struct SyntaxView: Equatable {
 }
 
 enum ViewConstructorType: Equatable, Sendable, Encodable {
-    case trackedConstructor(ViewConstructor)
+    case trackedConstructor(StrictViewConstructor)
     case other([SyntaxViewArgumentData])
 }
 

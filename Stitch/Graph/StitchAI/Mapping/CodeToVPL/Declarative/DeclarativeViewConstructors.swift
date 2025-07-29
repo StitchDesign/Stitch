@@ -34,7 +34,7 @@ protocol FromSwiftUIViewToStitch: Encodable {
 
 
 // TODO: can we just the `FromSwiftUIViewToStitch` protocol instead? But tricky, since `FromSwiftUIViewToStitch` has an associated i.e. generic type, which would bubble up elsewhere.
-enum ViewConstructor: Equatable, Encodable {
+enum StrictViewConstructor: Equatable, Encodable {
     case text(TextViewConstructor)
     case image(ImageViewConstructor)
     case hStack(HStackViewConstructor)
@@ -83,7 +83,7 @@ enum ViewConstructor: Equatable, Encodable {
 /// Runs every `…ViewConstructor.from(node)` helper once. If an enum is
 /// returned, attach it to the *current* SyntaxView.
 func createKnownViewConstructor(from node: FunctionCallExprSyntax,
-                                               arguments: [SyntaxViewArgumentData]) -> ViewConstructor? {
+                                               arguments: [SyntaxViewArgumentData]) -> StrictViewConstructor? {
     
     guard let name = node.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text,
           let viewName = SyntaxViewName(rawValue: name) else {
@@ -1444,7 +1444,32 @@ enum LazyVStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
     }
 }
 
+
 // MARK: - View Modifier Support
+
+/// Strict (typed) container for all supported SwiftUI view modifiers we map to Stitch.
+/// Mirrors how `ViewConstructor` wraps typed view constructors.
+/// Each case carries the specific typed modifier struct/enum and exposes a unified
+/// `value` that conforms to `FromSwiftUIViewModifierToStitch`.
+enum StrictViewModifier: Equatable, Encodable {
+    case opacity(OpacityViewModifier)
+    case scaleEffect(ScaleEffectViewModifier)
+    case blur(BlurViewModifier)
+    case zIndex(ZIndexViewModifier)
+    case cornerRadius(CornerRadiusViewModifier)
+    // Add further cases here as new typed modifiers are introduced
+
+    /// Type-erased access to the underlying typed modifier for Stitch emission.
+    var value: any FromSwiftUIViewModifierToStitch {
+        switch self {
+        case .opacity(let m):        return m
+        case .scaleEffect(let m):    return m
+        case .blur(let m):           return m
+        case .zIndex(let m):         return m
+        case .cornerRadius(let m):   return m
+        }
+    }
+}
 
 protocol FromSwiftUIViewModifierToStitch: Encodable {
     associatedtype T
