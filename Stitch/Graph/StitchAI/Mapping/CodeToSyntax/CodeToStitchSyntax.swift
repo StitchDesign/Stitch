@@ -197,22 +197,23 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return .skipChildren
         }
         
-        guard let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) else {
+        if let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) {
+            return self.visitPatchData(funcExpr,
+                                       currentLHS: currentLHS)
+        }
+        
+        else {
             // Check for edge
             if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
-                log("TBD EDGES!")
+                log("TBD sub call: \(subscriptCallExpr)")
                 return .skipChildren
             }
             
             else {
                 fatalError()
             }
-            
-            return .visitChildren
         }
         
-        return self.visitPatchData(funcExpr,
-                                   currentLHS: currentLHS)
     }
     
     func visitPatchData(_ node: FunctionCallExprSyntax,
@@ -253,7 +254,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 
                 
                 else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
-                    log("Edge into input: \(declrRefSyntax)")
+                    log("Input param that points to some reference: \(declrRefSyntax)")
                 }
                 
                 else {
