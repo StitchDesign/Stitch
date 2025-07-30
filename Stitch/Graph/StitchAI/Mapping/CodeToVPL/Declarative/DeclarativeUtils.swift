@@ -251,7 +251,7 @@ extension SyntaxViewModifierArgumentType {
 extension SyntaxViewMemberAccess {
     // New helper: horizontal alignment literal
     var horizAlignLiteral: HorizontalAlignment? {
-        let ident = self.base
+        let ident = self.property
         switch ident {
         case "leading": return .leading
         case "trailing": return .trailing
@@ -261,7 +261,7 @@ extension SyntaxViewMemberAccess {
     }
         
     var vertAlignLiteral: VerticalAlignment? {
-        let ident = self.base
+        let ident = self.property
         switch ident {
         case "top": return .top
         case "bottom": return .bottom
