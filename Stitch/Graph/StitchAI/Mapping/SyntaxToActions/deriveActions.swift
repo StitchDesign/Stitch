@@ -107,6 +107,10 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                 case .ref:
                     continue
                 }
+                
+            case .stateMutation, .stateVarName:
+                // TODO: come back here
+                continue
             }
         }
         
@@ -160,7 +164,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     }
                 }
                 
-            case .subscriptRef:
+            case .subscriptRef, .stateMutation, .stateVarName:
                 // Ignore here
                 continue
             }
@@ -178,6 +182,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
 
 extension SyntaxView {
     func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
+        // TODO: map references to specific layer IDs
+        
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         

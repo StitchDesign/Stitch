@@ -38,6 +38,9 @@ private func describe(_ argType: SyntaxViewModifierArgumentType) -> String {
     case .memberAccess(let data):
         return "memberAccess(\(data))"
         
+    case .stateAccess(let x):
+        return "state access: \(x)"
+        
     case .tuple(let args):
         return "tuple(\(args.map(describe(_:)).joined(separator: ", ")))"
         

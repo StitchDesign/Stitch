@@ -76,12 +76,15 @@ indirect enum SyntaxViewModifierArgumentType: Equatable, Hashable, Sendable, Enc
     
     // e.g. `.fill(.yellow)` or `Color.yellow`; `ScrollView(.horizontal)`
     case memberAccess(SyntaxViewMemberAccess)
+    
+    case stateAccess(String)
 }
 
 // Non-recursive sub-enum of `SyntaxViewModifierArgumentType` for when we are working in contexts where we have already flattened the nested argument-types like `tuple` and `array`
 enum SyntaxViewModifierArgumentFlatType: Equatable, Hashable, Sendable {
     case simple(SyntaxViewSimpleData)
     case complex(SyntaxViewModifierComplexType)
+    case stateAccess(String)
     case memberAccess(SyntaxViewMemberAccess)
     
     var toSyntaxViewModifierArgumentType: SyntaxViewModifierArgumentType {
@@ -90,6 +93,8 @@ enum SyntaxViewModifierArgumentFlatType: Equatable, Hashable, Sendable {
             return .simple(x)
         case .memberAccess(let x):
             return .memberAccess(x)
+        case .stateAccess(let x):
+            return .stateAccess(x)
         case .complex(let x):
             return .complex(x)
         }
@@ -106,6 +111,8 @@ extension SyntaxViewModifierArgumentType {
             return [.memberAccess(x)]
         case .complex(let x):
             return [.complex(x)]
+        case .stateAccess(let x):
+            return [.stateAccess(x)]
         case .tuple(let xs):
             return xs.flatMap(\.value.toSyntaxViewModifierArgumentFlatType)
         case .array(let xs):
@@ -131,6 +138,8 @@ extension SyntaxViewModifierArgumentType {
         case .complex(let syntaxViewModifierComplexType):
             return syntaxViewModifierComplexType.arguments
                 .flatMap(\.value.allNestedSimpleValues)
+        case .stateAccess(let x):
+            return [x]
         case .tuple(let array):
             return array.flatMap(\.value.allNestedSimpleValues)
         case .array(let array):
@@ -417,6 +426,9 @@ extension SyntaxViewModifierArgumentType {
         
         case .memberAccess(let memberData):
             return AnyEncodable(memberData.property)
+        
+        case .stateAccess(let x):
+            return AnyEncodable(x)
         }
     }
 }

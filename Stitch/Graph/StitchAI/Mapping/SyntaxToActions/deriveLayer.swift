@@ -948,6 +948,9 @@ extension SyntaxViewName {
             let data = try JSONEncoder().encode(aiPortValueEncoding)
             let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
             return [aiPortValue.value]
+            
+        case .stateAccess:
+            return []
         }
     }
     

@@ -90,9 +90,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         // Record the name that's being bound (`let added = …`)
         guard let initializer = node.initializer else {
-            return .skipChildren
+            return .visitChildren
         }
         
+        // Patch node declaration cases
         if let funcExpr = initializer.value.as(FunctionCallExprSyntax.self) {
             // Assumed to be patch node
             guard let patchNode = self.visitPatchData(funcExpr) else {
@@ -103,43 +104,48 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 .updateValue(.patchNode(patchNode), forKey: currentLHS)
         }
         
-        else {
-            if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
-                guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
-                      let portIndex = Int(labeledExpr.literal.text) else {
+        // Subscript callers used to access some node outputs
+        else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
+            guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
+                  let portIndex = Int(labeledExpr.literal.text) else {
+                fatalError()
+            }
+            
+            // Patch declarations can call here too
+            if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
+                guard let patchNode = self.visitPatchData(funcExpr) else {
                     fatalError()
                 }
                 
-                // Patch declarations can call here too
-                if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
-                    guard let patchNode = self.visitPatchData(funcExpr) else {
-                        fatalError()
-                    }
-                    
-                    let subscriptRef = SwiftParserSubscript(subscriptType: .patchNode(patchNode),
-                                                            portIndex: portIndex)
-                    
-                    self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
-                                                         forKey: currentLHS)
-                }
+                let subscriptRef = SwiftParserSubscript(subscriptType: .patchNode(patchNode),
+                                                        portIndex: portIndex)
                 
-                // Output port index access of some patch node in the form of index access of a patch fn's output values
-                else if let declRef = subscriptCallExpr.calledExpression.as(DeclReferenceExprSyntax.self) {
-                    
-                    let outputPortData = SwiftParserSubscript(subscriptType: .ref(declRef.baseName.text),
-                                                              portIndex: portIndex)
-                    self.bindingDeclarations.updateValue(.subscriptRef(outputPortData),
-                                                         forKey: currentLHS)
-                }
+                self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
+                                                     forKey: currentLHS)
+            }
+            
+            // Output port index access of some patch node in the form of index access of a patch fn's output values
+            else if let declRef = subscriptCallExpr.calledExpression.as(DeclReferenceExprSyntax.self) {
                 
-                else {
-                    fatalError()
-                }
+                let outputPortData = SwiftParserSubscript(subscriptType: .ref(declRef.baseName.text),
+                                                          portIndex: portIndex)
+                self.bindingDeclarations.updateValue(.subscriptRef(outputPortData),
+                                                     forKey: currentLHS)
             }
             
             else {
                 fatalError()
             }
+        }
+        
+        // @State var cases
+        else if let identifierPatternSyntax = node.pattern.as(IdentifierPatternSyntax.self) {
+            self.bindingDeclarations.updateValue(.stateVarName,
+                                                 forKey: currentLHS)
+        }
+        
+        else {
+            fatalError()
         }
         
         
@@ -164,6 +170,29 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             // base `FunctionCallExprSyntax` has been visited.
             dbg("visit → encountered potential modifier .\(memberAccessExpr.declName.baseName.text) – deferring to visitPost")
         }
+        
+        return .visitChildren
+    }
+    
+    override func visit(_ node: SequenceExprSyntax) -> SyntaxVisitorContinueKind {
+        let elements = Array(node.elements)
+
+        guard elements.count == 3 else {
+            fatalError()
+        }
+        
+        guard let assignmentExpr = elements[1].as(AssignmentExprSyntax.self),
+              assignmentExpr.trimmedDescription == "=" else {
+            return .skipChildren
+        }
+        
+        guard let refExpr = elements[0].as(DeclReferenceExprSyntax.self),
+              let valueExpr = elements[2].as(DeclReferenceExprSyntax.self) else {
+            return .skipChildren
+        }
+        
+        self.bindingDeclarations.updateValue(.stateMutation(valueExpr),
+                                             forKey: refExpr.baseName.trimmedDescription)
         
         return .visitChildren
     }
@@ -372,6 +401,11 @@ extension SwiftUIViewVisitor {
             
             // Testing tuple type for now, should be the same stuff
             return .tuple(recursedChildren)
+        }
+        
+        // Tracks references to state
+        else if let declrRefExpr = expression.as(DeclReferenceExprSyntax.self) {
+            return .stateAccess(declrRefExpr.trimmedDescription)
         }
         
         guard let syntaxKind = SyntaxArgumentKind.fromExpression(expression) else {
@@ -727,6 +761,12 @@ enum SwiftParserInitializerType {
     
     // access an index of some node's outputs
     case subscriptRef(SwiftParserSubscript)
+    
+    // initializes state
+    case stateVarName
+    
+    // mutates some existing state
+    case stateMutation(DeclReferenceExprSyntax)
 }
 
 // Subscripts can be used on references or nodes themselves
