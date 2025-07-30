@@ -89,7 +89,7 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
         //        let bindingExpr = ExprSyntax("/* binding */ .constant(\"\(raw: initial)\")")
         //        return .textField(.parameters(title: .literal(title), binding: bindingExpr))
         
-        // ───────── Group → H/V/Z stack (alignment/spacing constructor only) ─────────
+        // ───────── Group → H/V/Z stack or ScrollView ─────────
     case .group:
         let orient = inputs.orientation(.orientation) ?? .vertical
         let spacingNum = inputs.number(.spacing)
@@ -98,16 +98,43 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
         }
         let alignmentArg: SyntaxViewModifierArgumentType? = nil // keep minimal for now
         
-        switch orient {
-        case .horizontal:
-            return .hStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
-        case .vertical:
-            return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
-        case .none:
-            return .zStack(.parameters(alignment: alignmentArg))
-        case .grid:
-            // TODO: .grid orientation becomes SwiftUI LazyVGrid
-            return nil
+        // Check if scroll is enabled
+        let scrollXEnabled = inputs.bool(.scrollXEnabled) ?? false
+        let scrollYEnabled = inputs.bool(.scrollYEnabled) ?? false
+        let hasScrolling = scrollXEnabled || scrollYEnabled
+        
+        if hasScrolling {
+            // Generate ScrollView with appropriate axes
+            let axesArg: SyntaxViewModifierArgumentType?
+            if scrollXEnabled && scrollYEnabled {
+                // Both axes enabled → ScrollView([.horizontal, .vertical])
+                axesArg = .array([
+                    // TODO: should we use `base: "Axis.Set"` ?
+                    .memberAccess(SyntaxViewMemberAccess(base: nil, property: "horizontal")),
+                    .memberAccess(SyntaxViewMemberAccess(base: nil, property: "vertical"))
+                ])
+            } else if scrollXEnabled {
+                // Only horizontal → ScrollView(.horizontal)
+                axesArg = .memberAccess(SyntaxViewMemberAccess(base: nil, property: "horizontal"))
+            } else {
+                // Only vertical (default) → ScrollView() - no axes parameter needed as vertical is default
+                axesArg = nil
+            }
+            
+            return .scrollView(.parameters(axes: axesArg, showsIndicators: nil))
+        } else {
+            // No scrolling → regular stack based on orientation
+            switch orient {
+            case .horizontal:
+                return .hStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+            case .vertical:
+                return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+            case .none:
+                return .zStack(.parameters(alignment: alignmentArg))
+            case .grid:
+                // TODO: .grid orientation becomes SwiftUI LazyVGrid
+                return nil
+            }
         }
         
         // ───────── Reality primitives (no-arg) ─────────
@@ -169,12 +196,55 @@ func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData, idMap: i
         idMap[layerData.node_id] = nodeId
     }
     
+    // 5. Handle ScrollView + Stack nesting for scroll-enabled groups
+    if case .scrollView = constructor {
+        // Create the inner stack based on the group's orientation
+        let innerStackConstructor = createInnerStackConstructor(layerData, idMap: &idMap)
+        let innerStackView = StrictSyntaxView(
+            constructor: innerStackConstructor,
+            modifiers: [], // Stack doesn't get the modifiers, ScrollView does
+            children: children, // Original children go into the stack
+            id: UUID()
+        )
+        
+        // ScrollView contains the stack as its only child
+        return StrictSyntaxView(
+            constructor: constructor,
+            modifiers: modifiers,
+            children: [innerStackView], // ScrollView wraps the stack
+            id: nodeId
+        )
+    }
+    
     return StrictSyntaxView(
         constructor: constructor,
         modifiers: modifiers,
         children: children,
         id: nodeId
     )
+}
+
+/// Creates the inner stack constructor for a ScrollView based on the group's orientation
+func createInnerStackConstructor(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> StrictViewConstructor {
+    let inputs = LayerDataConstructorInputs(layerData: layerData, idMap: &idMap)
+    let orient = inputs.orientation(.orientation) ?? .vertical
+    let spacingNum = inputs.number(.spacing)
+    let spacingArg: SyntaxViewModifierArgumentType? = spacingNum.map {
+        .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .float))
+    }
+    let alignmentArg: SyntaxViewModifierArgumentType? = nil // keep minimal for now
+    
+    switch orient {
+    case .horizontal:
+        return .hStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+    case .vertical:
+        return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+    case .none:
+        return .zStack(.parameters(alignment: alignmentArg))
+    case .grid:
+        // Fallback to VStack for grid orientation
+        return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+    }
 }
 
 /// Creates StrictViewModifier array from LayerData custom input values
@@ -187,10 +257,7 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
         if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
             // Try to create a typed ViewModifierConstructor first
             if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue) {
-                // Convert ViewModifierConstructor to StrictViewModifier
-                if let strictModifier = viewModifierConstructorToStrictViewModifier(constructorModifier) {
-                    modifiers.append(strictModifier)
-                }
+                modifiers.append(constructorModifier)
             }
             // Note: Non-constructor modifiers are handled in the legacy string generation path
             // and would need additional logic here if we want to support them in StrictSyntaxView
@@ -200,45 +267,6 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
     return modifiers
 }
 
-/// Converts ViewModifierConstructor to StrictViewModifier
-func viewModifierConstructorToStrictViewModifier(_ constructor: StrictViewModifier) -> StrictViewModifier? {
-    switch constructor {
-    case .opacity(let modifier):
-        return .opacity(modifier)
-    case .scaleEffect(let modifier):
-        return .scaleEffect(modifier)
-    case .blur(let modifier):
-        return .blur(modifier)
-    case .zIndex(let modifier):
-        return .zIndex(modifier)
-    case .cornerRadius(let modifier):
-        return .cornerRadius(modifier)
-    case .frame(let modifier):
-        return .frame(modifier)
-    case .foregroundColor(let modifier):
-        return .foregroundColor(modifier)
-    case .backgroundColor(let modifier):
-        return .backgroundColor(modifier)
-    case .brightness(let modifier):
-        return .brightness(modifier)
-    case .contrast(let modifier):
-        return .contrast(modifier)
-    case .saturation(let modifier):
-        return .saturation(modifier)
-    case .hueRotation(let modifier):
-        return .hueRotation(modifier)
-    case .colorInvert(let modifier):
-        return .colorInvert(modifier)
-    case .position(let modifier):
-        return .position(modifier)
-    case .offset(let modifier):
-        return .offset(modifier)
-    case .padding(let modifier):
-        return .padding(modifier)
-    case .clipped(let modifier):
-        return .clipped(modifier)
-    }
-}
 
 /// Converts a list of LayerData to StrictSyntaxView list
 func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) -> [StrictSyntaxView] {
@@ -276,7 +304,7 @@ extension StrictSyntaxView {
         
         // Check if this is a container view that needs children
         switch constructor {
-        case .hStack, .vStack, .zStack, .lazyHStack, .lazyVStack:
+        case .hStack, .vStack, .zStack, .scrollView, .lazyHStack, .lazyVStack:
             let childrenCode = children.map { child in
                 // Add proper indentation for each child
                 child.toSwiftUICode().components(separatedBy: "\n")
@@ -408,15 +436,15 @@ extension StrictViewConstructor {
             //                return "RoundedRectangle(cornerRadius: \(renderArg(radius)))"
             //            }
             //
-            //        case .scrollView(let ctor):
-            //            switch ctor {
-            //            case .axes(let axes):
-            //                switch axes {
-            //                case .vertical:   return "ScrollView(.vertical) { }"
-            //                case .horizontal: return "ScrollView(.horizontal) { }"
-            //                case .both:       return "ScrollView([.horizontal, .vertical]) { }"
-            //                }
-            //            }
+        case .scrollView(let ctor):
+            switch ctor {
+            case .parameters(let axes, let showsIndicators):
+                let parts = callParts([
+                    unnamed(axes),
+                    named("showsIndicators", showsIndicators)
+                ])
+                return parts.isEmpty ? "ScrollView" : "ScrollView(\(parts))"
+            }
             //
             //        case .textField(let ctor):
             //            // Minimal placeholder to avoid binding complexity in this pass
@@ -532,6 +560,11 @@ func callParts(_ labeled: [String?]) -> String {
 func named(_ label: String, _ arg: SyntaxViewModifierArgumentType?) -> String? {
     guard let a = arg else { return nil }
     return "\(label): \(renderArg(a))"
+}
+
+func unnamed(_ arg: SyntaxViewModifierArgumentType?) -> String? {
+    guard let a = arg else { return nil }
+    return renderArg(a)
 }
 
 func renderAnyEncodable(_ any: AnyEncodable) -> String {
