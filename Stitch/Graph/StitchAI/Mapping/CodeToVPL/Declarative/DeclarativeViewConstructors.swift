@@ -1504,66 +1504,6 @@ protocol FromSwiftUIViewModifierToStitch: Encodable {
     func createCustomValueEvents() throws -> [ASTCustomInputValue]
 }
 
-enum ViewModifierConstructor: Equatable, Encodable {
-    case opacity(OpacityViewModifier)
-    case scaleEffect(ScaleEffectViewModifier)
-    case blur(BlurViewModifier)
-    case zIndex(ZIndexViewModifier)
-    case cornerRadius(CornerRadiusViewModifier)
-    case frame(FrameViewModifier)
-    case foregroundColor(ForegroundColorViewModifier)
-    case backgroundColor(BackgroundColorViewModifier)
-    case brightness(BrightnessViewModifier)
-    case contrast(ContrastViewModifier)
-    case saturation(SaturationViewModifier)
-    case hueRotation(HueRotationViewModifier)
-    case colorInvert(ColorInvertViewModifier)
-    case position(PositionViewModifier)
-    case offset(OffsetViewModifier)
-    case padding(PaddingViewModifier)
-    case clipped(ClippedViewModifier)
-    // Add more modifiers here as needed
-    
-    var value: any FromSwiftUIViewModifierToStitch {
-        switch self {
-        case .opacity(let modifier):
-            return modifier
-        case .scaleEffect(let modifier):
-            return modifier
-        case .blur(let modifier):
-            return modifier
-        case .zIndex(let modifier):
-            return modifier
-        case .cornerRadius(let modifier):
-            return modifier
-        case .frame(let modifier):
-            return modifier
-        case .foregroundColor(let modifier):
-            return modifier
-        case .backgroundColor(let modifier):
-            return modifier
-        case .brightness(let modifier):
-            return modifier
-        case .contrast(let modifier):
-            return modifier
-        case .saturation(let modifier):
-            return modifier
-        case .hueRotation(let modifier):
-            return modifier
-        case .colorInvert(let modifier):
-            return modifier
-        case .position(let modifier):
-            return modifier
-        case .offset(let modifier):
-            return modifier
-        case .padding(let modifier):
-            return modifier
-        case .clipped(let modifier):
-            return modifier
-        }
-    }
-}
-
 // MARK: - Opacity View Modifier
 
 struct OpacityViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
@@ -2153,7 +2093,7 @@ struct ClippedViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
 
 /// Factory function to create ViewModifierConstructor from parsed SwiftUI syntax
 func createKnownViewModifier(modifierName: SyntaxViewModifierName,
-                           arguments: [SyntaxViewArgumentData]) -> ViewModifierConstructor? {
+                           arguments: [SyntaxViewArgumentData]) -> StrictViewModifier? {
     
     switch modifierName {
     case .opacity:

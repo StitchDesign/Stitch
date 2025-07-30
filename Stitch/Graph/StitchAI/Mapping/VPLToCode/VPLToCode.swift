@@ -201,7 +201,7 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
 }
 
 /// Converts ViewModifierConstructor to StrictViewModifier
-func viewModifierConstructorToStrictViewModifier(_ constructor: ViewModifierConstructor) -> StrictViewModifier? {
+func viewModifierConstructorToStrictViewModifier(_ constructor: StrictViewModifier) -> StrictViewModifier? {
     switch constructor {
     case .opacity(let modifier):
         return .opacity(modifier)
@@ -546,7 +546,7 @@ func renderAnyEncodable(_ any: AnyEncodable) -> String {
 
 /// Creates a typed view-modifier constructor from a layer input value, when supported.
 func makeViewModifierConstructor(from port: LayerInputPort,
-                                 value: AIGraphData_V0.PortValue) -> ViewModifierConstructor? {
+                                 value: AIGraphData_V0.PortValue) -> StrictViewModifier? {
     switch port {
     case .opacity:
         if let number = value.getNumber {
@@ -707,7 +707,7 @@ func makeViewModifierConstructor(from port: LayerInputPort,
 }
 
 /// Renders a typed view-modifier constructor back into SwiftUI source code.
-func renderViewModifierConstructor(_ modifier: ViewModifierConstructor) -> String {
+func renderViewModifierConstructor(_ modifier: StrictViewModifier) -> String {
     switch modifier {
     case .opacity(let m):
         return ".opacity(\(renderArg(m.value)))"
