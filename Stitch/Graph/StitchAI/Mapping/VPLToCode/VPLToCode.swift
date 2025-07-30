@@ -124,13 +124,16 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
             return .scrollView(.parameters(axes: axesArg, showsIndicators: nil))
         } else {
             // No scrolling → regular stack based on orientation
+            // Extract alignment from layerGroupAlignment for regular stacks too
+            let stackAlignmentArg = createAlignmentArg(from: inputs, orientation: orient)
+            
             switch orient {
             case .horizontal:
-                return .hStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+                return .hStack(.parameters(alignment: stackAlignmentArg, spacing: spacingArg))
             case .vertical:
-                return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
+                return .vStack(.parameters(alignment: stackAlignmentArg, spacing: spacingArg))
             case .none:
-                return .zStack(.parameters(alignment: alignmentArg))
+                return .zStack(.parameters(alignment: stackAlignmentArg))
             case .grid:
                 // TODO: .grid orientation becomes SwiftUI LazyVGrid
                 return nil
@@ -232,7 +235,9 @@ func createInnerStackConstructor(_ layerData: AIGraphData_V0.LayerData, idMap: i
     let spacingArg: SyntaxViewModifierArgumentType? = spacingNum.map {
         .simple(SyntaxViewSimpleData(value: String($0), syntaxKind: .float))
     }
-    let alignmentArg: SyntaxViewModifierArgumentType? = nil // keep minimal for now
+    
+    // Extract alignment from layerGroupAlignment
+    let alignmentArg = createAlignmentArg(from: inputs, orientation: orient)
     
     switch orient {
     case .horizontal:
@@ -245,6 +250,88 @@ func createInnerStackConstructor(_ layerData: AIGraphData_V0.LayerData, idMap: i
         // Fallback to VStack for grid orientation
         return .vStack(.parameters(alignment: alignmentArg, spacing: spacingArg))
     }
+}
+
+/// Creates alignment argument from LayerData inputs based on stack orientation
+func createAlignmentArg(from inputs: LayerDataConstructorInputs, orientation: StitchOrientation) -> SyntaxViewModifierArgumentType? {
+    guard let anchoring = inputs.anchoring(.layerGroupAlignment) else {
+        return nil // Use SwiftUI default alignment
+    }
+    
+    // Convert Stitch Anchoring to SwiftUI alignment based on stack orientation
+    let alignmentProperty: String?
+    
+    switch orientation {
+    case .horizontal:
+        // HStack uses VerticalAlignment
+        switch anchoring {
+        case .topCenter, .topLeft, .topRight:
+            alignmentProperty = "top"
+        case .centerCenter, .centerLeft, .centerRight:
+            alignmentProperty = "center"
+        case .bottomCenter, .bottomLeft, .bottomRight:
+            alignmentProperty = "bottom"
+            
+        // Note: technically, Stitch Anchoring is a (0,0), which is many more values than SwiftUI Alignment
+        default:
+            alignmentProperty = "center"
+        }
+        
+    case .vertical:
+        // VStack uses HorizontalAlignment
+        switch anchoring {
+        case .centerLeft, .topLeft, .bottomLeft:
+            alignmentProperty = "leading"
+        case .centerCenter, .topCenter, .bottomCenter:
+            alignmentProperty = "center"
+        case .centerRight, .topRight, .bottomRight:
+            alignmentProperty = "trailing"
+        default:
+            alignmentProperty = "center"
+        }
+        
+    case .none:
+        // ZStack uses Alignment (both horizontal and vertical)
+        switch anchoring {
+        case .topLeft:
+            alignmentProperty = "topLeading"
+        case .topCenter:
+            alignmentProperty = "top"
+        case .topRight:
+            alignmentProperty = "topTrailing"
+        case .centerLeft:
+            alignmentProperty = "leading"
+        case .centerCenter:
+            alignmentProperty = "center"
+        case .centerRight:
+            alignmentProperty = "trailing"
+        case .bottomLeft:
+            alignmentProperty = "bottomLeading"
+        case .bottomCenter:
+            alignmentProperty = "bottom"
+        case .bottomRight:
+            alignmentProperty = "bottomTrailing"
+        default:
+            alignmentProperty = "center"
+        }
+        
+    case .grid:
+        // Grid uses HorizontalAlignment like VStack
+        switch anchoring {
+        case .centerLeft, .topLeft, .bottomLeft:
+            alignmentProperty = "leading"
+        case .centerCenter, .topCenter, .bottomCenter:
+            alignmentProperty = "center"
+        case .centerRight, .topRight, .bottomRight:
+            alignmentProperty = "trailing"
+        default:
+            alignmentProperty = "center"
+        }
+    }
+    
+    guard let property = alignmentProperty else { return nil }
+    
+    return .memberAccess(SyntaxViewMemberAccess(base: nil, property: property))
 }
 
 /// Creates StrictViewModifier array from LayerData custom input values
