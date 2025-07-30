@@ -662,6 +662,63 @@ func renderAnyEncodable(_ any: AnyEncodable) -> String {
     return "_"
 }
 
+// TODO: this is probably redundant vs. other ways of parsing semantic colors
+/// Creates proper SwiftUI color syntax for a Stitch color value
+func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
+    // Check if this is a semantic color (e.g., Color.blue, Color.red)
+    switch color {
+    case .black:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "black"))
+    case .blue:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "blue"))
+    case .brown:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "brown"))
+    case .clear:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "clear"))
+    case .cyan:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "cyan"))
+    case .gray:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "gray"))
+    case .green:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "green"))
+    case .indigo:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "indigo"))
+    case .mint:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "mint"))
+    case .orange:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "orange"))
+    case .pink:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "pink"))
+    case .purple:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "purple"))
+    case .red:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "red"))
+    case .teal:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "teal"))
+    case .white:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "white"))
+    case .yellow:
+        return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "yellow"))
+    default:
+        // For custom colors, use Color(...) initializer with RGBA values
+        let rgba = color.asRGBA
+        let redString = String(format: "%.3f", rgba.red)
+        let greenString = String(format: "%.3f", rgba.green)
+        let blueString = String(format: "%.3f", rgba.blue)
+        let alphaString = String(format: "%.3f", rgba.alpha)
+                
+        return .complex(SyntaxViewModifierComplexType(
+            typeName: "Color",
+            arguments: [
+                .init(label: "red", value: .simple(SyntaxViewSimpleData(value: redString, syntaxKind: .float))),
+                .init(label: "green", value: .simple(SyntaxViewSimpleData(value: greenString, syntaxKind: .float))),
+                .init(label: "blue", value: .simple(SyntaxViewSimpleData(value: blueString, syntaxKind: .float))),
+                .init(label: "opacity", value: .simple(SyntaxViewSimpleData(value: alphaString, syntaxKind: .float)))
+            ]
+        ))
+    }
+}
+
 // MARK: - ViewModifierConstructor (intermediate) mapping & rendering
 
 /// Creates a typed view-modifier constructor from a layer input value, when supported.
@@ -732,17 +789,13 @@ func makeViewModifierConstructor(from port: LayerInputPort,
         return nil
     case .color:
         if let color = value.getColor {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: "Color(\(color))", syntaxKind: .string)
-            )
+            let arg = createColorArgument(color)
             return .foregroundColor(ForegroundColorViewModifier(color: arg))
         }
         return nil
     case .backgroundColor:
         if let color = value.getColor {
-            let arg = SyntaxViewModifierArgumentType.simple(
-                SyntaxViewSimpleData(value: "Color(\(color))", syntaxKind: .string)
-            )
+            let arg = createColorArgument(color)
             return .backgroundColor(BackgroundColorViewModifier(color: arg))
         }
         return nil
