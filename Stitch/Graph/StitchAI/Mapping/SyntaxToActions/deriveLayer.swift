@@ -884,7 +884,7 @@ extension SyntaxViewName {
     }
 
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
-                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
+                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
         
         switch argument {
         
@@ -896,7 +896,8 @@ extension SyntaxViewName {
         case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
             return try tupleArgs.flatMap {
-                try Self.derivePortValues(from: $0.value, context: context)
+                try Self.derivePortValues(from: $0.value,
+                                          context: context)
             }
             
         case .array(let arrayArgs):
@@ -1079,7 +1080,7 @@ extension SyntaxViewName {
 }
 
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
-                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
+                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
     switch complexTypeName {
