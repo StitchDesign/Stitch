@@ -44,7 +44,7 @@ enum AIGraphData_V0 {
         var suggested_title: String?
         let node_name: StitchAIPatchOrLayer
         var children: [LayerData]?
-        var custom_layer_input_values: [CustomLayerInputValue] = []
+        var custom_layer_input_values: [LayerPortDerivation] = []
     }
     
     struct JsPatchNode: Codable {
@@ -77,7 +77,7 @@ enum AIGraphData_V0 {
     
     struct LayerInputCoordinate: Codable {
         var layer_id: String
-        let input_port_type: AILayerInputPort
+        let input_port_type: LayerInputType
     }
 
     struct NodeIndexedCoordinate: Codable, Hashable {
@@ -91,11 +91,11 @@ enum AIGraphData_V0 {
         let value_type: StitchAINodeType
     }
     
-    struct CustomLayerInputValue {
-        var layer_input_coordinate: LayerInputCoordinate
-        let value: any (Codable & Sendable)
-        let value_type: StitchAINodeType
-    }
+//    struct CustomLayerInputValue {
+//        var layer_input_coordinate: LayerInputCoordinate
+//        let value: any (Codable & Sendable)
+//        let value_type: StitchAINodeType
+//    }
     
     struct AILayerInputPort {
         var value: AIGraphData_V0.LayerInputPort

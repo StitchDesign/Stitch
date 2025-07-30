@@ -40,12 +40,12 @@ extension Array where Element == SyntaxView {
 
 extension SwiftUIViewParserResult {
     func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
-        // Extract layer data
-        let layerResults = try self.rootView?.deriveStitchActions()
-        let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
-        
         // Extract patch data
         let patchResults = try self.bindingDeclarations.deriveStitchActions()
+
+        // Extract layer data
+        let layerResults = try self.rootView?.deriveStitchActions(viewStatePatchConnections: patchResults.viewStatePatchConnections)
+        let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
         
         return .init(graphData: .init(layer_data_list: layerResults?.actions ?? [],
                                       patch_data: patchResults.actions),
@@ -195,7 +195,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
 }
 
 extension SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
+    func deriveStitchActions(viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]) throws -> SwiftSyntaxLayerActionsResult {
         // TODO: map references to specific layer IDs
         
         // Tracks all silent errors

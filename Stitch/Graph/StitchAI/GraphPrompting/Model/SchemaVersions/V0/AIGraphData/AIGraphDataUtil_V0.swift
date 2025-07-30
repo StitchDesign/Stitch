@@ -26,6 +26,7 @@ extension AIGraphData_V0 {
     typealias Patch = Patch_V33.Patch
     typealias Layer = Layer_V33.Layer
     typealias LayerInputPort = LayerInputPort_V33.LayerInputPort
+    typealias LayerInputType = LayerInputType_V33.LayerInputType
     typealias StitchAIPortValue = StitchAIPortValue_V1.StitchAIPortValue
     typealias PortValueVersion = PortValue_V33
     typealias PortValue = PortValueVersion.PortValue

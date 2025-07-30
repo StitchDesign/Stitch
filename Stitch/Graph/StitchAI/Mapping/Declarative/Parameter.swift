@@ -9,9 +9,28 @@ import SwiftUI
 import SwiftSyntax
 import SwiftParser
 
-struct ASTCustomInputValue: Equatable, Hashable {
-    let input: CurrentAIGraphData.LayerInputPort
-    let value: CurrentAIGraphData.PortValue
+//struct ASTCustomInputValue: Equatable, Hashable {
+//    let input: CurrentAIGraphData.LayerInputPort
+//    let value: LayerPortDerivationType
+//}
+
+typealias ASTCustomInputValue = LayerPortDerivation
+
+extension LayerPortDerivation {
+    // TODO: remove this init
+    init(id: NodeId,
+         input: LayerInputPort,
+         value: CurrentAIGraphData.PortValue) {
+        self.init(input: input,
+                  value: value)
+    }
+    
+    init(input: LayerInputPort,
+         value: CurrentAIGraphData.PortValue) {
+        self = .init(coordinate: .init(layerInput: input,
+                                       portType: .packed),
+                     inputData: .value(value))
+    }
 }
 
 /// A constructor argument that was either a compile‑time literal (`"logo"`,

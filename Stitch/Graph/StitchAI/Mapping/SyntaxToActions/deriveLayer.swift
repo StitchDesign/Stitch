@@ -15,8 +15,30 @@ struct LayerDerivationResult {
 }
 
 struct LayerInputValuesDerivationResult {
-    let inputValues: [CurrentAIGraphData.CustomLayerInputValue]
+    let inputValues: [LayerPortDerivation]
     let silentErrors: [SwiftUISyntaxError]
+}
+
+struct LayerPortDerivation {
+    let coordinate: CurrentAIGraphData.LayerInputType
+    let inputData: LayerPortDerivationType
+}
+
+enum LayerPortDerivationType {
+    case value(CurrentAIGraphData.PortValue)
+    case stateRef(String)
+}
+
+extension LayerPortDerivationType {
+    var value: CurrentAIGraphData.PortValue? {
+        switch self {
+        case .value(let value):
+            return value
+            
+        default:
+            return nil
+        }
+    }
 }
 
 extension SyntaxViewModifierName {
@@ -441,12 +463,12 @@ extension SyntaxViewName {
         }
         
         // Re-map all node IDs after processing layerIdAssignment
-        layerData.custom_layer_input_values = layerData.custom_layer_input_values
-            .map { customInputValue in
-                var customInputValue = customInputValue
-                customInputValue.layer_input_coordinate.layer_id = layerData.node_id
-                return customInputValue
-            }
+//        layerData.custom_layer_input_values = layerData.custom_layer_input_values
+//            .map { customInputValue in
+//                var customInputValue = customInputValue
+//                customInputValue.layer_input_coordinate.layer_id = layerData.node_id
+//                return customInputValue
+//            }
         
         return .init(layerData: layerData,
                      silentErrors: silentErrors)
@@ -462,13 +484,13 @@ extension SyntaxViewName {
         let customInputValues = try viewConstructor.value
             .createCustomValueEvents()
         
-        let values = try customInputValues.map { astInputValue in
-            try CurrentAIGraphData
-                .CustomLayerInputValue(id: id,
-                                       input: astInputValue.input,
-                                       value: astInputValue.value)
-        }
-        return .init(inputValues: values,
+//        let values = try customInputValues.map { astInputValue in
+//            try CurrentAIGraphData
+//                .CustomLayerInputValue(id: id,
+//                                       input: astInputValue.input,
+//                                       value: astInputValue.value)
+//        }
+        return .init(inputValues: customInputValues,
                      silentErrors: silentErrors)
     }
     
@@ -478,11 +500,10 @@ extension SyntaxViewName {
         var silentErrors = [SwiftUISyntaxError]()
         
         // Else fall back to legacy style:
-        var values = try args.flatMap { arg -> [CurrentAIGraphData.CustomLayerInputValue] in
+        var values = try args.flatMap { arg -> [LayerPortDerivation] in
             do {
                 return try self
-                    .deriveCustomValuesFromConstructorArgument(id: id,
-                                                               layerType: layerType,
+                    .deriveCustomValuesFromConstructorArgument(layerType: layerType,
                                                                arg: arg)
             } catch let error as SwiftUISyntaxError {
                 silentErrors.append(error)
@@ -495,9 +516,9 @@ extension SyntaxViewName {
         // TODO: remove and rely on ScrollViewConstructor instead
         if args.isEmpty && self == .scrollView {
             values += [
-                try .init(id: id,
-                          input: .scrollYEnabled,
-                          value: .bool(true))
+                try LayerPortDerivation(id: id,
+                                        input: .scrollYEnabled,
+                                        value: .bool(true))
             ]
         }
         
@@ -512,7 +533,7 @@ extension SyntaxViewName {
     ) throws -> (CurrentAIGraphData.Layer, CurrentAIGraphData.LayerData) {
         
         var layerType: CurrentAIGraphData.Layer
-        var customValues: [CurrentAIGraphData.CustomLayerInputValue] = []
+        var customValues: [LayerPortDerivation] = []
         
         switch self {
         case .rectangle:         layerType = .rectangle
@@ -674,10 +695,9 @@ extension SyntaxViewName {
         return (layerType, layerNode)
     }
     
-    func deriveCustomValuesFromConstructorArgument(id: UUID,
-                                                   layerType: CurrentAIGraphData.Layer,
+    func deriveCustomValuesFromConstructorArgument(layerType: CurrentAIGraphData.Layer,
                                                    arg: SyntaxViewArgumentData
-    ) throws -> [CurrentAIGraphData.CustomLayerInputValue] {
+    ) throws -> [LayerPortDerivation] {
         
 //        if arg.value.allArgumentTypesFlattened.isEmpty && self == .scrollView {
 //            return [
@@ -687,7 +707,7 @@ extension SyntaxViewName {
 //            ]
 //        }
         
-        return try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [CurrentAIGraphData.CustomLayerInputValue] in
+        return try arg.value.allArgumentTypesFlattened.flatMap { argFlatType -> [LayerPortDerivation] in
             guard let port = try SyntaxViewArgumentData.deriveLayerInputPort(
                 layerType,
                 label: arg.label, // the overall label for the entire argument
@@ -704,11 +724,7 @@ extension SyntaxViewName {
             
             // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
             
-            return try values.map { value in
-                try .init(id: id,
-                          input: port,
-                          value: value)
-            }
+            return values
         }
     }
     
@@ -726,17 +742,13 @@ extension SyntaxViewName {
             return nil
             
         case .simple(let port):
-            guard let newValue = try Self.deriveCustomValue(
+            let newValues = try Self.derivePortValues(
                 from: modifier.arguments.defaultArgs ?? [],
                 modifierName: modifier.name,
-                id: id,
                 port: port,
-                layerType: layerType) else {
-                // Valid nil scenarios for edges, variables etc
-                return nil
-            }
+                layerType: layerType)
             
-            return .layerInputValues([newValue])
+            return .layerInputValues(newValues)
             
         case .rotationScenario:
             // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
@@ -764,76 +776,115 @@ extension SyntaxViewName {
     
     // TODO: need to infer the value based on the view modifier, not the port (probably)
     
-    static func deriveCustomValue(
-        from arguments: [SyntaxViewArgumentData],
-        modifierName: SyntaxViewModifierName,
-        id: UUID,
-        port: CurrentAIGraphData.LayerInputPort, // simple because we have a single layer
-        layerType: CurrentAIGraphData.Layer
-    ) throws -> CurrentAIGraphData.CustomLayerInputValue? {
-        //        let migratedPort = try port.convert(to: LayerInputPort.self)
-        //        let migratedLayerType = try layerType.convert(to: Layer.self)
-        //        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
+//    static func deriveCustomValue(
+//        from arguments: [SyntaxViewArgumentData],
+//        modifierName: SyntaxViewModifierName,
+//        id: UUID,
+//        port: CurrentAIGraphData.LayerInputPort, // simple because we have a single layer
+//        layerType: CurrentAIGraphData.Layer
+//    ) throws -> [LayerPortDerivation] {
+//        //        let migratedPort = try port.convert(to: LayerInputPort.self)
+//        //        let migratedLayerType = try layerType.convert(to: Layer.self)
+//        //        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
+//        
+//        //
+//        
+//        let portValues = try Self.derivePortValues(
+//            from: arguments,
+//            modifierName: modifierName,
+//            port: port,
+//            layerType: layerType)
+//        
+//        // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
+//        return try .init(id: id,
+//                         input: port,
+//                         value: portValue)
+//    }
         
-        //
-        
-        guard let portValue = try Self.derivePortValue(
-            from: arguments,
-            modifierName: modifierName,
-            port: port,
-            layerType: layerType) else {
-            return nil
-        }
-        
-        // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
-        return try .init(id: id,
-                         input: port,
-                         value: portValue)
-    }
-        
-    private static func derivePortValue(
+    private static func derivePortValues(
         from arguments: [SyntaxViewArgumentData],
         modifierName: SyntaxViewModifierName,
         port: CurrentAIGraphData.LayerInputPort,
         layerType: CurrentAIGraphData.Layer
-    ) throws -> CurrentAIGraphData.PortValue? {
+    ) throws -> [LayerPortDerivation] {
         // Note: some modifiers can have no arguments, e.g. `.padding()`, `.clipped()`
         // In such a case, we return a default value for that SwiftUI view modifier.
         guard !arguments.isEmpty else {
-            return try modifierName.deriveDefaultPortValueForArgumentlessViewModifier()
+            guard let value = try modifierName.deriveDefaultPortValueForArgumentlessViewModifier() else {
+                return []
+            }
+            
+            return [
+                .init(coordinate: .init(layerInput: port,
+                                        portType: .packed),
+                      inputData: .value(value))
+            ]
         }
         
         // Convert every argument into a PortValue, later logic determines if we need to pack info
-        let portValuesFromArgs = try arguments.flatMap {
+        let portDataFromArgs = try arguments.flatMap {
             try Self.derivePortValues(from: $0.value,
                                       context: .viewModifier(port))
         }
         
-        // TODO: MAYBE NOT QUITE CORRECT?, SINCE E.G. CERTAIN CONSTRUCTOR ARGUMENTS CAN BE e.g. `ScrollView([.horizontal, .vertical])`
-        if arguments.count == 1,
-           let argument = arguments.first {
-            // Decode PortValue from full arguments data
-            let derivedPortValues = try Self.derivePortValues(from: argument.value,
-                                                              context: .viewModifier(port))
-            return derivedPortValues.first
+        let portValuesFromArgs = portDataFromArgs.compactMap {
+            switch $0.inputData {
+            case .value(let value):
+                return value
+            default:
+                return nil
+            }
         }
         
-        // Packing case
-        else {
-            let valueType = try port.getDefaultValue(layerType: layerType).nodeType
-            
-            let migratedValues = try portValuesFromArgs.map {
-                try $0.migrate()
+        // Scenarios where we assumed packed value or connection
+        if arguments.count == 1,
+           let argument = arguments.first,
+           // Decode PortValue from full arguments data
+           let derivedPortData = try Self.derivePortValues(from: argument.value,
+                                                           context: .viewModifier(port)).first?.inputData {
+            return [
+                .init(coordinate: .init(layerInput: port,
+                                        portType: .packed),
+                      inputData: derivedPortData)
+            ]
+        }
+        
+        // Unpacked scenarios
+        return portDataFromArgs.enumerated().compactMap { (portIndex, portDataFromArg) -> LayerPortDerivation? in
+            guard let unpackedType = UnpackedPortType(rawValue: portIndex) else {
+                fatalErrorIfDebug()
+                return nil
             }
             
-            let packedValue = migratedValues.pack(type: valueType)
-            let aiPackedValue = try packedValue.convert(to: CurrentAIGraphData.PortValue.self)
-            return aiPackedValue
+            return .init(coordinate: .init(layerInput: port,
+                                           portType: .unpacked(unpackedType)),
+                         inputData: portDataFromArg.inputData)
         }
+        
+    
+    
+        
+//        // Pack all values if each argument is PortValue data
+//        else if portValuesFromArgs.count == portDataFromArgs.count {
+//            let valueType = try port.getDefaultValue(layerType: layerType).nodeType
+//            
+//            let migratedValues = try portValuesFromArgs.map {
+//                try $0.migrate()
+//            }
+//            
+//            let packedValue = migratedValues.pack(type: valueType)
+//            let aiPackedValue = try packedValue.convert(to: CurrentAIGraphData.PortValue.self)
+//            return .value(aiPackedValue)
+//        }
+//        // Unpacked scenario because there's a mix of connections and values for this port
+//        else {
+//            ...
+//        }
+        
     }
 
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
-                                 context: SyntaxArgumentConstructorContext?) throws -> [CurrentAIGraphData.PortValue] {
+                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
         
         switch argument {
         
@@ -880,9 +931,19 @@ extension SyntaxViewName {
                     // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
                     switch port {
                     case .scrollYEnabled:
-                        return [.bool(memberAccess.property == "vertical")]
+                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "vertical")
+                        return [
+                            .init(input: port,
+                                  value: portValue)
+                        ]
+                        
                     case .scrollXEnabled:
-                        return [.bool(memberAccess.property == "horizontal")]
+                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "horizontal")
+                        return [
+                            .init(input: port,
+                                  value: portValue)
+                        ]
+                        
                     default:
                         throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                     }
@@ -893,14 +954,19 @@ extension SyntaxViewName {
                         if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
 //                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
                            let migrated = try? anchoring.convert(to: Anchoring.self) {
-                            return [.anchoring(migrated)]
+                            return [
+                                .init(input: port,
+                                      value: .anchoring(migrated))
+                            ]
                         } else {
                             throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                         }
                     
                     case .spacing:
                         if let n = toNumberBasic(memberAccess.property) {
-                            return [.spacing(.number(n))]
+                            return [
+                                .init(input: port,
+                                      value: .spacing(.number(n)))]
                         } else {
                             throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                         }
@@ -926,7 +992,10 @@ extension SyntaxViewName {
                     guard let color = Color.fromSystemName(colorStr) else {
                         throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                     }
-                    return [.color(color)]
+                    return [
+                        .init(input: port,
+                              value: .color(color))
+                    ]
                     
                 default:
                     throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
@@ -947,10 +1016,13 @@ extension SyntaxViewName {
             // Decode dictionary, getting a PortValue
             let data = try JSONEncoder().encode(aiPortValueEncoding)
             let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
-            return [aiPortValue.value]
+            return [.init(input: port,
+                          value: aiPortValue.value)]
             
-        case .stateAccess:
-            return []
+        case .stateAccess(let varName):
+            // TODO: need to pass in connection data here and update all helpers to support edge connections
+            
+            return [.stateRef(varName)]
         }
     }
     
@@ -1007,7 +1079,7 @@ extension SyntaxViewName {
 }
 
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
-                               context: SyntaxArgumentConstructorContext?) throws -> [CurrentAIGraphData.PortValue] {
+                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
     switch complexTypeName {
@@ -1024,7 +1096,7 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
     case .portValueDescription:
         do {
             let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
-            return [aiPortValue.value]
+            return [.value(aiPortValue.value)]
         } catch {
             print("PortValue decoding error: \(error)")
             throw error
@@ -1076,7 +1148,7 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues() throws -> [CurrentAIGraphData.PortValue] {
+    func derivePortValues() throws -> [LayerPortDerivation] {
         try SyntaxViewName.derivePortValues(from: self,
                                             context: nil)
     }
