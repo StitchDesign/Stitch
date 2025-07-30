@@ -15,6 +15,12 @@ struct SwiftSyntaxLayerActionsResult: Encodable {
 
 struct SwiftSyntaxPatchActionsResult: Encodable {
     var actions: CurrentAIGraphData.PatchData
+    
+    // Tracks any upstream patches that connect to some state
+    // Key = state variable name
+    // Value = upstream coordinate
+    let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+    
     var caughtErrors: [SwiftUISyntaxError]
 }
 
@@ -70,20 +76,29 @@ extension SwiftUIViewParserResult {
 
 extension Dictionary where Key == String, Value == SwiftParserInitializerType {
     func deriveStitchActions() throws -> SwiftSyntaxPatchActionsResult {
-        var caughtErrors: [SwiftUISyntaxError] = []
-        
+        // MARK: data we use as tracking
         // Maps some variable name to a node ID string
         var varNameIdMap = [String : String]()
         
         // Maps any declarations made of top-level outputs
         var varNameOutputPortMap = [String : SwiftParserSubscript]()
         
+        // Tracks @State variable declarations
+        var viewStateVarNames = Set<String>()
+        
+        // MARK: data to be returned
+        var caughtErrors: [SwiftUISyntaxError] = []
         var nativePatchNodes = [CurrentAIGraphData.NativePatchNode]()
         var nativePatchValueTypeSettings = [CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
         var patchConnections = [CurrentAIGraphData.PatchConnection]()
         var customPatchInputValues = [CurrentAIGraphData.CustomPatchInputValue]()
         
-        // First pass: create patch nodes and make mappings of var names to specific data
+        // Because patch data is decoded before layer data, we don't yet know the destination ports for layer edges, therefore, we just track the source patch to some state variable
+        var viewStatePatchConnections = [String : AIGraphData_V0.NodeIndexedCoordinate]()
+        
+        // First pass:
+        // 1. Create patch nodes
+        // 2. Make mappings of var names to specific data
         for (varName, initializerType) in self {
             switch initializerType {
             case .patchNode(let patchNodeData):
@@ -108,14 +123,14 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     continue
                 }
                 
-            case .stateMutation, .stateVarName:
-                // TODO: come back here
-                continue
+            case .stateMutation:
+                // Create state with disconnected upstream patch port, feed this into layer data and update all the helpers
+                viewStateVarNames.insert(varName)
             }
         }
         
         // Second pass: derive custom values and edges
-        for initializerType in self.values {
+        for (varName, initializerType) in self {
             switch initializerType {
             case .patchNode(let patchNodeData):
                 for (portIndex, arg) in patchNodeData.args.enumerated() {
@@ -128,25 +143,12 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                             fatalError()
                         }
                         
-                        let upstreamPortIndex = upstreamRefData.portIndex
-                        let upstreamNodeId: String
-                        
-                        // Get upstream node ID
-                        switch upstreamRefData.subscriptType {
-                        case .patchNode(let patchNodeData):
-                            upstreamNodeId = patchNodeData.id
-                            
-                        case .ref(let refName):
-                            guard let _upstreamNodeId = varNameIdMap.get(refName) else {
-                                fatalError()
-                            }
-                            
-                            upstreamNodeId = _upstreamNodeId
-                        }
+                        let usptreamCoordinate = SwiftParserPatchData
+                            .derivePatchUpstreamCoordinate(upstreamRefData: upstreamRefData,
+                                                           varNameIdMap: varNameIdMap)
                         
                         patchConnections.append(
-                            .init(src_port: .init(node_id: upstreamNodeId,
-                                                  port_index: upstreamPortIndex),
+                            .init(src_port: usptreamCoordinate,
                                   dest_port: .init(node_id: patchNodeData.id,                          port_index: portIndex))
                         )
                         
@@ -164,18 +166,30 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     }
                 }
                 
-            case .subscriptRef, .stateMutation, .stateVarName:
+            case .stateMutation(let subscriptData):
+                // Track upstream patch coordinate to some TBD layer input
+                let usptreamCoordinate = SwiftParserPatchData
+                    .derivePatchUpstreamCoordinate(upstreamRefData: subscriptData,
+                                                   varNameIdMap: varNameIdMap)
+                
+                viewStatePatchConnections.updateValue(usptreamCoordinate,
+                                                      forKey: varName)
+                
+            case .subscriptRef:
                 // Ignore here
                 continue
             }
         }
         
-        return .init(actions: .init(javascript_patches: [],
-                                    native_patches: nativePatchNodes,
-                                    native_patch_value_type_settings: nativePatchValueTypeSettings,
-                                    patch_connections: patchConnections,
-                                    custom_patch_input_values: customPatchInputValues,
-                                    layer_connections: []),
+        return .init(actions: AIGraphData_V0
+            .PatchData(javascript_patches: [],
+                       native_patches: nativePatchNodes,
+                       native_patch_value_type_settings: nativePatchValueTypeSettings,
+                       patch_connections: patchConnections,
+                       custom_patch_input_values: customPatchInputValues,
+                       // Layer connections cannot yet be determined here
+                       layer_connections: []),
+                     viewStatePatchConnections: viewStatePatchConnections,
                      caughtErrors: caughtErrors)
     }
 }

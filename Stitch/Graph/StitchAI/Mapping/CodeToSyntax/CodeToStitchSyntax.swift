@@ -106,46 +106,21 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         // Subscript callers used to access some node outputs
         else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
-            guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
-                  let portIndex = Int(labeledExpr.literal.text) else {
-                fatalError()
-            }
+            let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr)
             
-            // Patch declarations can call here too
-            if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
-                guard let patchNode = self.visitPatchData(funcExpr) else {
-                    fatalError()
-                }
-                
-                let subscriptRef = SwiftParserSubscript(subscriptType: .patchNode(patchNode),
-                                                        portIndex: portIndex)
-                
-                self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
-                                                     forKey: currentLHS)
-            }
-            
-            // Output port index access of some patch node in the form of index access of a patch fn's output values
-            else if let declRef = subscriptCallExpr.calledExpression.as(DeclReferenceExprSyntax.self) {
-                
-                let outputPortData = SwiftParserSubscript(subscriptType: .ref(declRef.baseName.text),
-                                                          portIndex: portIndex)
-                self.bindingDeclarations.updateValue(.subscriptRef(outputPortData),
-                                                     forKey: currentLHS)
-            }
-            
-            else {
-                fatalError()
-            }
-        }
-        
-        // @State var cases
-        else if let identifierPatternSyntax = node.pattern.as(IdentifierPatternSyntax.self) {
-            self.bindingDeclarations.updateValue(.stateVarName,
+            self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
                                                  forKey: currentLHS)
         }
         
+        // @State var cases
+//        else if let identifierPatternSyntax = node.pattern.as(IdentifierPatternSyntax.self) {
+//            self.bindingDeclarations.updateValue(.stateVarName,
+//                                                 forKey: currentLHS)
+//        }
+        
         else {
-            fatalError()
+            log("SwiftUIViewVisitor: unknown data at PatternBindingSyntax: \(node)")
+//            fatalError()
         }
         
         
@@ -187,11 +162,13 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         }
         
         guard let refExpr = elements[0].as(DeclReferenceExprSyntax.self),
-              let valueExpr = elements[2].as(DeclReferenceExprSyntax.self) else {
+              let subscriptExpr = elements[2].as(SubscriptCallExprSyntax.self) else {
             return .skipChildren
         }
         
-        self.bindingDeclarations.updateValue(.stateMutation(valueExpr),
+        let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr)
+        
+        self.bindingDeclarations.updateValue(.stateMutation(subscriptRef),
                                              forKey: refExpr.baseName.trimmedDescription)
         
         return .visitChildren
@@ -763,10 +740,10 @@ enum SwiftParserInitializerType {
     case subscriptRef(SwiftParserSubscript)
     
     // initializes state
-    case stateVarName
+//    case stateVarName
     
     // mutates some existing state
-    case stateMutation(DeclReferenceExprSyntax)
+    case stateMutation(SwiftParserSubscript)
 }
 
 // Subscripts can be used on references or nodes themselves
@@ -790,5 +767,65 @@ extension SwiftParserPatchData {
             .NativePatchNode(node_id: self.id,
                              node_name: patchName)
         return newPatchNode
+    }
+}
+
+// TODO: move
+extension SwiftParserPatchData {
+    static func derivePatchUpstreamCoordinate(upstreamRefData: SwiftParserSubscript,
+                                              varNameIdMap: [String : String]) -> AIGraphData_V0.NodeIndexedCoordinate {
+        let upstreamPortIndex = upstreamRefData.portIndex
+        let upstreamNodeId: String
+        
+        // Get upstream node ID
+        switch upstreamRefData.subscriptType {
+        case .patchNode(let patchNodeData):
+            upstreamNodeId = patchNodeData.id
+            
+        case .ref(let refName):
+            guard let _upstreamNodeId = varNameIdMap.get(refName) else {
+                fatalError()
+            }
+            
+            upstreamNodeId = _upstreamNodeId
+        }
+        
+        return .init(node_id: upstreamNodeId,
+                     port_index: upstreamPortIndex)
+    }
+}
+
+// TODO: move
+extension SwiftUIViewVisitor {
+    func deriveSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserSubscript {
+        guard let labeledExpr = subscriptCallExpr.arguments.first?.expression.as(IntegerLiteralExprSyntax.self),
+              let portIndex = Int(labeledExpr.literal.text) else {
+            fatalError()
+        }
+        
+        // Patch declarations can call here too
+        if let funcExpr = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
+            guard let patchNode = self.visitPatchData(funcExpr) else {
+                fatalError()
+            }
+            
+            let subscriptRef = SwiftParserSubscript(subscriptType: .patchNode(patchNode),
+                                                    portIndex: portIndex)
+            
+            return subscriptRef
+        }
+        
+        // Output port index access of some patch node in the form of index access of a patch fn's output values
+        else if let declRef = subscriptCallExpr.calledExpression.as(DeclReferenceExprSyntax.self) {
+            
+            let outputPortData = SwiftParserSubscript(subscriptType: .ref(declRef.baseName.text),
+                                                      portIndex: portIndex)
+            
+            return outputPortData
+        }
+        
+        else {
+            fatalError()
+        }
     }
 }
