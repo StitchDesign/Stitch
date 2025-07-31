@@ -36,6 +36,7 @@ enum SwiftUISyntaxError: Error, Sendable {
 //    case unsupportedConstructorArgument(SyntaxViewArgumentData)
     case unsupportedSyntaxFromLayerInput(CurrentAIGraphData.LayerInputPort)
     case unsupportedSyntaxViewLayer(CurrentAIGraphData.Layer)
+    case unexpectedPatch(CurrentAIGraphData.Patch)
     
     case unsupportedLayerIdParsing([SyntaxViewArgumentData])
     

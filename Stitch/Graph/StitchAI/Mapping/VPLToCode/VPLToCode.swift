@@ -176,18 +176,19 @@ func makeConstructorFromLayerData(_ layerData: AIGraphData_V0.LayerData,
 // MARK: - LayerData → StrictSyntaxView Conversion
 
 /// Converts LayerData to StrictSyntaxView with constructor, modifiers, and children
-func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> StrictSyntaxView? {
+func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData,
+                                 idMap: inout [String: UUID]) throws -> StrictSyntaxView? {
     // 1. Create the constructor
     guard let constructor = makeConstructorFromLayerData(layerData, idMap: &idMap) else {
         return nil
     }
     
     // 2. Create modifiers from custom_layer_input_values
-    let modifiers = createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
+    let modifiers = try createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
     
     // 3. Convert children recursively
-    let children = layerData.children?.compactMap { childLayerData in
-        layerDataToStrictSyntaxView(childLayerData, idMap: &idMap)
+    let children = try layerData.children?.compactMap { childLayerData in
+        try layerDataToStrictSyntaxView(childLayerData, idMap: &idMap)
     } ?? []
     
     // 4. Generate or get UUID for this node
@@ -335,15 +336,26 @@ func createAlignmentArg(from inputs: LayerDataConstructorInputs, orientation: St
 }
 
 /// Creates StrictViewModifier array from LayerData custom input values
-func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [StrictViewModifier] {
+func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerData,
+                                            idMap: inout [String: UUID]) throws -> [StrictViewModifier] {
     var modifiers: [StrictViewModifier] = []
+    
+    // Extract layer type from layerData
+    let layerType: AIGraphData_V0.Layer
+    switch layerData.node_name.value {
+    case .layer(let x):
+        layerType = x
+    case .patch(let x):
+        throw SwiftUISyntaxError.unexpectedPatch(x)
+        layerType = .group // BAD
+    }
     
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.layer_input_coordinate.input_port_type.value
         
         if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
             // Try to create a typed ViewModifierConstructor first
-            if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue) {
+            if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
                 modifiers.append(constructorModifier)
             }
             // Note: Non-constructor modifiers are handled in the legacy string generation path
@@ -356,16 +368,16 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
 
 
 /// Converts a list of LayerData to StrictSyntaxView list
-func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) -> [StrictSyntaxView] {
-    return layerDataList.compactMap { layerData in
-        layerDataToStrictSyntaxView(layerData, idMap: &idMap)
+func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) throws -> [StrictSyntaxView] {
+    return try layerDataList.compactMap { layerData in
+        try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
     }
 }
 
 /// Converts GraphData to a list of StrictSyntaxView (root-level views)
-func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) -> [StrictSyntaxView] {
+func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) throws -> [StrictSyntaxView] {
     var idMap: [String: UUID] = [:]
-    return layerDataListToStrictSyntaxViews(graphData.layer_data_list, idMap: &idMap)
+    return try layerDataListToStrictSyntaxViews(graphData.layer_data_list, idMap: &idMap)
 }
 
 // MARK: - StrictSyntaxView → SwiftUI Code Generation
@@ -442,8 +454,8 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
         return ".frame(\(parts.joined(separator: ", ")))"
     case .foregroundColor(let m):
         return ".foregroundColor(\(renderArg(m.color)))"
-    case .backgroundColor(let m):
-        return ".backgroundColor(\(renderArg(m.color)))"
+    case .fill(let m):
+        return ".fill(\(renderArg(m.color)))"
     case .brightness(let m):
         return ".brightness(\(renderArg(m.value)))"
     case .contrast(let m):
@@ -723,7 +735,8 @@ func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
 
 /// Creates a typed view-modifier constructor from a layer input value, when supported.
 func makeViewModifierConstructor(from port: LayerInputPort,
-                                 value: AIGraphData_V0.PortValue) -> StrictViewModifier? {
+                                 value: AIGraphData_V0.PortValue,
+                                 layerType: AIGraphData_V0.Layer) -> StrictViewModifier? {
     switch port {
     case .opacity:
         if let number = value.getNumber {
@@ -790,13 +803,18 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .color:
         if let color = value.getColor {
             let arg = createColorArgument(color)
-            return .foregroundColor(ForegroundColorViewModifier(color: arg))
-        }
-        return nil
-    case .backgroundColor:
-        if let color = value.getColor {
-            let arg = createColorArgument(color)
-            return .backgroundColor(BackgroundColorViewModifier(color: arg))
+            // Choose modifier based on layer type
+            switch layerType {
+            case .rectangle, .oval, .shape:
+                // Shape layers use .fill()
+                return .fill(FillViewModifier(color: arg))
+            case .text, .textField:
+                // Text layers use .foregroundColor()
+                return .foregroundColor(ForegroundColorViewModifier(color: arg))
+            default:
+                // Default to .foregroundColor() for other layer types
+                return .foregroundColor(ForegroundColorViewModifier(color: arg))
+            }
         }
         return nil
     case .brightness:
@@ -915,8 +933,8 @@ func renderViewModifierConstructor(_ modifier: StrictViewModifier) -> String {
         return ".frame(\(parts.joined(separator: ", ")))"
     case .foregroundColor(let m):
         return ".foregroundColor(\(renderArg(m.color)))"
-    case .backgroundColor(let m):
-        return ".backgroundColor(\(renderArg(m.color)))"
+    case .fill(let m):
+        return ".fill(\(renderArg(m.color)))"
     case .brightness(let m):
         return ".brightness(\(renderArg(m.value)))"
     case .contrast(let m):
@@ -1055,34 +1073,56 @@ func renderColor(_ color: Color) -> String {
     return "Color(/* custom color */)"
 }
 
-/// Generates all view modifiers for a given LayerData
-func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [String] {
-    var modifiers: [String] = []
-
+/// Generates all view modifiers for a given LayerData as strings
+/// This is a convenience wrapper around createStrictViewModifiersFromLayerData
+func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) throws -> [String] {
+    // Reuse the typed modifier creation logic
+    let typedModifiers = try createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
+    
+    // Convert typed modifiers to strings
+    var stringModifiers = typedModifiers.map { renderViewModifierConstructor($0) }
+    
+    // Handle any remaining ports that don't have typed modifiers yet (legacy fallback)
+    let handledPorts = Set(typedModifiers.compactMap { modifier -> LayerInputPort? in
+        // Extract the port type from each typed modifier for comparison
+        switch modifier {
+        case .opacity: return .opacity
+        case .scaleEffect: return .scale
+        case .blur: return .blur
+        case .zIndex: return .zIndex
+        case .cornerRadius: return .cornerRadius
+        case .frame: return .size
+        case .foregroundColor, .fill: return .color
+        case .brightness: return .brightness
+        case .contrast: return .contrast
+        case .saturation: return .saturation
+        case .hueRotation: return .hueRotation
+        case .colorInvert: return .colorInvert
+        case .position: return .position
+        case .offset: return .offsetInGroup
+        case .padding: return .padding
+        case .clipped: return .isClipped
+        }
+    })
+    
+    // Add legacy string modifiers for unhandled ports
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.layer_input_coordinate.input_port_type.value
-
-        if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
-            // 1) Preferred: go through a typed ViewModifierConstructor if we support it
-            if let ctor = makeViewModifierConstructor(from: port, value: portValue) {
-                modifiers.append(renderViewModifierConstructor(ctor))
-                continue
-            }
-
-            // 2) Fallback: legacy direct string mapping for ports not yet modeled
-            if let s = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
-                modifiers.append(s)
-            }
+        
+        if !handledPorts.contains(port),
+           let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap),
+           let s = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
+            stringModifiers.append(s)
         }
     }
-
-    return modifiers
+    
+    return stringModifiers
 }
 
 // MARK: - Complete SwiftUI Code Generation (Constructor + Modifiers)
 
 /// Generates complete SwiftUI code for a LayerData including constructor and view modifiers
-func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> String? {
+func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) throws -> String? {
     // Generate the base constructor
     guard let constructor = makeConstructorFromLayerData(layerData, idMap: &idMap) else {
         return nil
@@ -1091,7 +1131,7 @@ func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap:
     let baseSwiftUI = constructor.swiftUICallString()
     
     // Generate view modifiers
-    let modifiers = generateViewModifiersForLayerData(layerData, idMap: &idMap)
+    let modifiers = try generateViewModifiersForLayerData(layerData, idMap: &idMap)
     
     // Combine constructor with modifiers
     if modifiers.isEmpty {
@@ -1103,7 +1143,7 @@ func generateCompleteSwiftUICode(for layerData: AIGraphData_V0.LayerData, idMap:
 }
 
 /// Example usage function showing how to convert a Stitch layer to SwiftUI
-func convertStitchLayerToSwiftUI(layerData: AIGraphData_V0.LayerData) -> String? {
+func convertStitchLayerToSwiftUI(layerData: AIGraphData_V0.LayerData) throws -> String? {
     var idMap: [String: UUID] = [:]
-    return generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
+    return try generateCompleteSwiftUICode(for: layerData, idMap: &idMap)
 }

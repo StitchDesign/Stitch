@@ -212,7 +212,7 @@ extension SyntaxViewModifierName {
         case .zIndex:
             return .simple(.zIndex)
         
-        case .foregroundColor, .backgroundColor, .tint, .accentColor:
+        case .foregroundColor, .tint, .accentColor:
             return .simple(.color)
             
         case .onAppear:
