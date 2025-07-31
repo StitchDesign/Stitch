@@ -206,7 +206,6 @@ enum SyntaxViewModifierName: String, Codable, Hashable, Equatable, Sendable, Cas
     case aspectRatio = "aspectRatio"
     
     case background = "background"
-    case backgroundColor = "backgroundColor"
     case badge = "badge"
     case baselineOffset = "baselineOffset"
     case blendMode = "blendMode"

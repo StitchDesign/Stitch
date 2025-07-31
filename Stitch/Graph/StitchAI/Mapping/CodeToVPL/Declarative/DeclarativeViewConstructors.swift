@@ -1399,7 +1399,6 @@ enum StrictViewModifier: Equatable, Encodable {
     case cornerRadius(CornerRadiusViewModifier)
     case frame(FrameViewModifier)
     case foregroundColor(ForegroundColorViewModifier)
-    case backgroundColor(BackgroundColorViewModifier)
     case brightness(BrightnessViewModifier)
     case contrast(ContrastViewModifier)
     case saturation(SaturationViewModifier)
@@ -1421,7 +1420,6 @@ enum StrictViewModifier: Equatable, Encodable {
         case .cornerRadius(let m):   return m
         case .frame(let m):          return m
         case .foregroundColor(let m): return m
-        case .backgroundColor(let m): return m
         case .brightness(let m):     return m
         case .contrast(let m):       return m
         case .saturation(let m):     return m
@@ -1759,26 +1757,6 @@ struct ForegroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
-struct BackgroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
-    let color: SyntaxViewModifierArgumentType
-    
-    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        guard let colorPortValue = try color.derivePortValues().first else {
-            throw SwiftUISyntaxError.portValueNotFound
-        }
-        return [ASTCustomInputValue(input: .backgroundColor, value: colorPortValue)]
-    }
-    
-    static func from(_ arguments: [SyntaxViewArgumentData],
-                     modifierName: SyntaxViewModifierName) -> BackgroundColorViewModifier? {
-        guard let first = arguments.first,
-              first.label == nil else {
-            return nil
-        }
-        return BackgroundColorViewModifier(color: first.value)
-    }
-}
-
 // MARK: - Layer Effects View Modifiers
 
 struct BrightnessViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
@@ -2057,9 +2035,6 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .foregroundColor:
         return ForegroundColorViewModifier.from(arguments, modifierName: modifierName)
             .map { .foregroundColor($0) }
-    case .backgroundColor:
-        return BackgroundColorViewModifier.from(arguments, modifierName: modifierName)
-            .map { .backgroundColor($0) }
     case .brightness:
         return BrightnessViewModifier.from(arguments, modifierName: modifierName)
             .map { .brightness($0) }
