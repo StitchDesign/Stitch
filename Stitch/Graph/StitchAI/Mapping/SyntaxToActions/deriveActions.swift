@@ -181,7 +181,22 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                     }
                 }
                 
-            case .stateMutation(let subscriptData):
+            case .stateMutation(let mutationData):
+                let subscriptData: SwiftParserSubscript
+                
+                // Find subscript data which must exist for view state mutation
+                switch mutationData {
+                case .subscriptRef(let _subscriptData):
+                    subscriptData = _subscriptData
+                    
+                case .declrRef(let ref):
+                    guard let refData = varNameOutputPortMap.get(ref) else {
+                        throw SwiftUISyntaxError.unexpectedStateMutatorFound(mutationData)
+                    }
+                    
+                    subscriptData = refData
+                }
+                
                 // Track upstream patch coordinate to some TBD layer input
                 let usptreamCoordinate = SwiftParserPatchData
                     .derivePatchUpstreamCoordinate(upstreamRefData: subscriptData,

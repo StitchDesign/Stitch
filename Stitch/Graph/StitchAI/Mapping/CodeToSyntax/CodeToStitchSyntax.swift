@@ -149,6 +149,7 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         return .visitChildren
     }
     
+    // Tracks assignments to @State variables
     override func visit(_ node: SequenceExprSyntax) -> SyntaxVisitorContinueKind {
         let elements = Array(node.elements)
 
@@ -161,15 +162,26 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
             return .skipChildren
         }
         
-        guard let refExpr = elements[0].as(DeclReferenceExprSyntax.self),
-              let subscriptExpr = elements[2].as(SubscriptCallExprSyntax.self) else {
+        guard let refExpr = elements[0].as(DeclReferenceExprSyntax.self) else {
             return .skipChildren
         }
         
-        let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr)
+        let assinmentElem = elements[2]
         
-        self.bindingDeclarations.updateValue(.stateMutation(subscriptRef),
-                                             forKey: refExpr.baseName.trimmedDescription)
+        if let subscriptExpr = assinmentElem.as(SubscriptCallExprSyntax.self) {
+            let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptExpr)
+            self.bindingDeclarations
+                .updateValue(.stateMutation(.subscriptRef(subscriptRef)),
+                             forKey: refExpr.baseName.trimmedDescription)
+        }
+        
+        else if let declRefExpr = assinmentElem.as(DeclReferenceExprSyntax.self) {
+            let declLabel = declRefExpr.baseName.trimmedDescription
+            self.bindingDeclarations
+                .updateValue(.stateMutation(.declrRef(declLabel)),
+                             forKey: refExpr.baseName.trimmedDescription)
+            
+        }
         
         return .visitChildren
     }
@@ -743,7 +755,12 @@ enum SwiftParserInitializerType {
 //    case stateVarName
     
     // mutates some existing state
-    case stateMutation(SwiftParserSubscript)
+    case stateMutation(SwiftParserStateMutation)
+}
+
+enum SwiftParserStateMutation {
+    case declrRef(String)
+    case subscriptRef(SwiftParserSubscript)
 }
 
 // Subscripts can be used on references or nodes themselves

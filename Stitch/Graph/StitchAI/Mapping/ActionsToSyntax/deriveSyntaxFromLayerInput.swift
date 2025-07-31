@@ -13,16 +13,6 @@ enum SwiftUISyntaxError: Error, Sendable {
     case viewNodeNotFound
     case couldNotParseVarBody
     
-    case unsupportedViewModifier(SyntaxViewModifierName)
-    
-    // e.g. `.cornerRadius()`, when that view modifier *requires* an explicit number argument
-    case unsupportedViewModifierCall(SyntaxViewModifierName)
-    
-    // e.g. `.cornerRadius()`, when that view modifier *requires* an explicit number argument
-    case unsupportedConstructorArgument(CurrentAIGraphData.Layer, String?, SyntaxViewModifierArgumentFlatType?)
-    
-    case unsupportedViewModifierForLayer(SyntaxViewModifierName, CurrentAIGraphData.Layer)
-    
     // Decoding from string
     case unsupportedSyntaxArgumentKind(String)
     case unsupportedSyntaxArgument(String?)
@@ -33,13 +23,20 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedPortValueTypeDecoding(SyntaxViewModifierArgumentType)
     case unsupportedConstructorForPortValueDecoding(ViewConstructor)
     
-    // Layer decoding errors
+    // MARK: - Layer decoding errors
     case unsupportedLayer(SyntaxViewName)
 //    case unsupportedConstructorArgument(SyntaxViewArgumentData)
     case unsupportedSyntaxFromLayerInput(CurrentAIGraphData.LayerInputPort)
     case unsupportedSyntaxViewLayer(CurrentAIGraphData.Layer)
     case unsupportedLayerIdParsing([SyntaxViewArgumentData])
+    case unsupportedViewModifierForLayer(SyntaxViewModifierName, CurrentAIGraphData.Layer)
+    case unsupportedViewModifier(SyntaxViewModifierName)
+    // e.g. `.cornerRadius()`, when that view modifier *requires* an explicit number argument
+    case unsupportedViewModifierCall(SyntaxViewModifierName)
+    // e.g. `.cornerRadius()`, when that view modifier *requires* an explicit number argument
+    case unsupportedConstructorArgument(CurrentAIGraphData.Layer, String?, SyntaxViewModifierArgumentFlatType?)
     case unexpectedUpstreamLayerCoordinate
+    case unexpectedStateMutatorFound(SwiftParserStateMutation)
     
     // Patch decoding errors
     case unsupportedStateInPatchInputParsing(SwiftParserPatchData)
