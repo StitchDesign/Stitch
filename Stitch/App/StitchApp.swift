@@ -41,7 +41,7 @@ struct StitchApp: App {
         FirebaseApp.configure()
     }
 
-#if STITCH_AI_TESTING
+#if STITCH_AI_TESTING_FAKE
     var body: some Scene {
         WindowGroup {
 //            ConstructorDemoView()

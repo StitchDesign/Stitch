@@ -60,27 +60,6 @@ extension SwiftUIViewParserResult {
     }
 }
 
-//extension SwiftParserInitializerType {
-//    func deriveNodeId(from varName: String) -> UUID? {
-//        let nodeIdString = String(varName.split(separator: "_")[safe: 1] ?? "")
-//        let decodedId = UUID(uuidString: nodeIdString)
-//    }
-//}
-
-//extension Dictionary where Key == String, Value == SwiftParserSubscript {
-//    // Recursively map some subscript access back to a node id
-//    func findUpstreamNodeId(refName: String,
-//                            varNameIdMap: [String : UUID]) -> NodeId {
-//        guard let outputPortData = self.get(refName) else {
-//            fatalError()
-//        }
-//        
-//        switch outputPortData.subscriptType {
-//        case .patchNode(let patchNode)
-//        }
-//    }
-//}
-
 extension Dictionary where Key == String, Value == SwiftParserInitializerType {
     func deriveStitchActions() throws -> SwiftSyntaxPatchActionsResult {
         // MARK: data we use as tracking

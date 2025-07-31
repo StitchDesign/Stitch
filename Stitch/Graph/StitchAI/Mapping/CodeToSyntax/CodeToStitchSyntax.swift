@@ -112,18 +112,11 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
                 .updateValue(.subscriptRef(subscriptData),
                              forKey: currentLHS)
         }
-        
-        // @State var cases
-//        else if let identifierPatternSyntax = node.pattern.as(IdentifierPatternSyntax.self) {
-//            self.bindingDeclarations.updateValue(.stateVarName,
-//                                                 forKey: currentLHS)
-//        }
-        
+
         else {
             log("SwiftUIViewVisitor: unknown data at PatternBindingSyntax: \(node)")
 //            fatalError()
         }
-        
         
         return .visitChildren
     }
@@ -690,9 +683,6 @@ extension SwiftUIViewVisitor {
         guard let patchNode = stringLit.segments.first?.description else {
             return nil
         }
-        
-//        self.patchNodesByVarName
-//            .updateValue(patchNode, forKey: currentLHS)
         
         guard let elements = node.arguments.first?.expression.as(ArrayExprSyntax.self)?.elements else {
             fatalErrorIfDebug()

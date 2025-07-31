@@ -214,7 +214,6 @@ extension StitchAICodeCreator {
 //        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
         let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
-//        var allDiscoveredErrors = codeParserResult.caughtErrors
         
         guard let viewNode = codeParserResult.rootView else {
             logToServerIfRelease("SwiftUISyntaxError.viewNodeNotFound.localizedDescription: \(SwiftUISyntaxError.viewNodeNotFound.localizedDescription)")
@@ -225,31 +224,6 @@ extension StitchAICodeCreator {
         
         print("Derived Stitch layer data:\n\((try? actionsResult.encodeToPrintableString()) ?? "")")
         
-        
-        // TODO: remove patch builder
-//        let layerDataList = actionsResult.actions
-//        allDiscoveredErrors += actionsResult.caughtErrors
-        
-//        let patchBuilderInputs = AIPatchBuilderFunctionInputs(
-//            swiftui_source_code: swiftUICode,
-//            layer_data_list: try layerDataList.encodeToString())
-//        
-//        let patchBuilderRequest = try OpenAIChatCompletionStructuredOutputsRequest(
-//            id: self.id,
-//            requestType: Self.type,
-//            systemPrompt: systemPrompt,
-//            assistantPrompt: try StitchAIManager.aiPatchBuilderSystemPromptGenerator(),
-//            responseFormat: AIPatchBuilderResponseFormat_V0.AIPatchBuilderResponseFormat(),
-//            inputs: patchBuilderInputs)
-//        
-//        let patchBuilderResult = try await patchBuilderRequest
-//            .request(document: document,
-//                     aiManager: aiManager)
-//        
-//        logToServerIfRelease("Successful patch builder result: \(try patchBuilderResult.encodeToPrintableString())")
-//        
-//        let graphData = AIGraphData_V0.GraphData(layer_data_list: layerDataList,
-//                                                 patch_data: patchBuilderResult)
         return actionsResult
     }
 }

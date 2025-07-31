@@ -91,17 +91,9 @@ enum AIGraphData_V0 {
         let value_type: StitchAINodeType
     }
     
-//    struct CustomLayerInputValue {
-//        var layer_input_coordinate: LayerInputCoordinate
-//        let value: any (Codable & Sendable)
-//        let value_type: StitchAINodeType
-//    }
-    
     struct AILayerInputPort {
         var value: AIGraphData_V0.LayerInputPort
     }
-    
-    // TODO: remove wrapper types
     
     struct StitchAIPatchOrLayer: StitchAIStringConvertable {
         var value: AIGraphData_V0.PatchOrLayer
@@ -289,20 +281,6 @@ extension AIGraphData_V0.LayerData: Codable {
         }
     }
 }
-
-//extension AIGraphData_V0.CustomLayerInputValue {
-//    init(id: UUID,
-//         input: AIGraphData_V0.LayerInputPort,
-//         value: AIGraphData_V0.PortValue) throws {
-//        let data = value.anyCodable
-//        
-//        self = .init(layer_input_coordinate: .init(
-//            layer_id: .init(id),
-//            input_port_type: .init(value: input)),
-//                     value: data,
-//                     value_type: .init(value: value.nodeType))
-//    }
-//}
 
 extension LayerPortDerivation: Encodable {
     enum CodingKeys: String, CodingKey {

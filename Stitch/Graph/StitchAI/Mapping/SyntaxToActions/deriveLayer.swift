@@ -41,18 +41,6 @@ extension PortValueDescription {
     }
 }
 
-extension LayerPortDerivationType {
-//    var value: CurrentAIGraphData.PortValue? {
-//        switch self {
-//        case .value(let value):
-//            return value
-//            
-//        default:
-//            return nil
-//        }
-//    }
-}
-
 extension SyntaxViewModifierName {
     // May or may not correspond to SwiftUI view modifier's own default argument,
     // e.g. `.clipped`'s default argument is for antialiasing, not whether the view is clipped or not (which is what Stitch's clipped layer-input is about).
@@ -474,14 +462,6 @@ extension SyntaxViewName {
             }
         }
         
-        // Re-map all node IDs after processing layerIdAssignment
-//        layerData.custom_layer_input_values = layerData.custom_layer_input_values
-//            .map { customInputValue in
-//                var customInputValue = customInputValue
-//                customInputValue.layer_input_coordinate.layer_id = layerData.node_id
-//                return customInputValue
-//            }
-        
         return .init(layerData: layerData,
                      silentErrors: silentErrors)
     }
@@ -496,12 +476,6 @@ extension SyntaxViewName {
         let customInputValues = try viewConstructor.value
             .createCustomValueEvents()
         
-//        let values = try customInputValues.map { astInputValue in
-//            try CurrentAIGraphData
-//                .CustomLayerInputValue(id: id,
-//                                       input: astInputValue.input,
-//                                       value: astInputValue.value)
-//        }
         return .init(inputValues: customInputValues,
                      silentErrors: silentErrors)
     }
@@ -786,33 +760,6 @@ extension SyntaxViewName {
 //            throws SwiftUISyntaxError.unsupportedViewModifier(<#T##SyntaxViewModifierName#>)
         }
     }
-    
-    // TODO: need to infer the value based on the view modifier, not the port (probably)
-    
-//    static func deriveCustomValue(
-//        from arguments: [SyntaxViewArgumentData],
-//        modifierName: SyntaxViewModifierName,
-//        id: UUID,
-//        port: CurrentAIGraphData.LayerInputPort, // simple because we have a single layer
-//        layerType: CurrentAIGraphData.Layer
-//    ) throws -> [LayerPortDerivation] {
-//        //        let migratedPort = try port.convert(to: LayerInputPort.self)
-//        //        let migratedLayerType = try layerType.convert(to: Layer.self)
-//        //        let migratedPortValue = migratedPort.getDefaultValue(for: migratedLayerType)
-//        
-//        //
-//        
-//        let portValues = try Self.derivePortValues(
-//            from: arguments,
-//            modifierName: modifierName,
-//            port: port,
-//            layerType: layerType)
-//        
-//        // Important: save the `customValue` event *at the end*, after we've iterated over all the arguments to this single modifier
-//        return try .init(id: id,
-//                         input: port,
-//                         value: portValue)
-//    }
         
     private static func derivePortValues(
         from arguments: [SyntaxViewArgumentData],
@@ -876,27 +823,6 @@ extension SyntaxViewName {
                                            portType: .unpacked(unpackedType)),
                          inputData: portDataFromArg.inputData)
         }
-        
-    
-    
-        
-//        // Pack all values if each argument is PortValue data
-//        else if portValuesFromArgs.count == portDataFromArgs.count {
-//            let valueType = try port.getDefaultValue(layerType: layerType).nodeType
-//            
-//            let migratedValues = try portValuesFromArgs.map {
-//                try $0.migrate()
-//            }
-//            
-//            let packedValue = migratedValues.pack(type: valueType)
-//            let aiPackedValue = try packedValue.convert(to: CurrentAIGraphData.PortValue.self)
-//            return .value(aiPackedValue)
-//        }
-//        // Unpacked scenario because there's a mix of connections and values for this port
-//        else {
-//            ...
-//        }
-        
     }
     
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
