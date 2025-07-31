@@ -843,6 +843,8 @@ extension SyntaxViewName {
         }
     }
 
+    // TODO: we should not actually need `context` when calling `derivePortValues` from within the `createCustomValueEvents` method of an explicitly supported view-constructors and view-modifiers (which *just is* the "context");
+    // in practice, this function is mostly helpful for handling the PortValueDescriptions returned by our LLM
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
                                  context: SyntaxArgumentConstructorContext?) throws -> [CurrentAIGraphData.PortValue] {
         
@@ -1084,8 +1086,8 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues() throws -> [CurrentAIGraphData.PortValue] {
+    func derivePortValues(_ context: SyntaxArgumentConstructorContext? = nil) throws -> [CurrentAIGraphData.PortValue] {
         try SyntaxViewName.derivePortValues(from: self,
-                                            context: nil)
+                                            context: context)
     }
 }

@@ -1399,6 +1399,7 @@ enum StrictViewModifier: Equatable, Encodable {
     case cornerRadius(CornerRadiusViewModifier)
     case frame(FrameViewModifier)
     case foregroundColor(ForegroundColorViewModifier)
+    case fill(FillViewModifier)
     case brightness(BrightnessViewModifier)
     case contrast(ContrastViewModifier)
     case saturation(SaturationViewModifier)
@@ -1420,6 +1421,7 @@ enum StrictViewModifier: Equatable, Encodable {
         case .cornerRadius(let m):   return m
         case .frame(let m):          return m
         case .foregroundColor(let m): return m
+        case .fill(let m):           return m
         case .brightness(let m):     return m
         case .contrast(let m):       return m
         case .saturation(let m):     return m
@@ -1766,6 +1768,35 @@ struct ForegroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
+struct FillViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let color: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // First try to parse as Color type for semantic colors like .blue
+        if case let .memberAccess(memberAccess) = color {
+            let colorStr = memberAccess.property
+            if let color = Color.fromSystemName(colorStr) {
+                return [ASTCustomInputValue(input: .color, value: .color(color))]
+            }
+        }
+        
+        // Fall back to generic port value derivation
+        guard let colorPortValue = try color.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .color, value: colorPortValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> FillViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return FillViewModifier(color: first.value)
+    }
+}
+
 // MARK: - Layer Effects View Modifiers
 
 struct BrightnessViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
@@ -2044,6 +2075,9 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .foregroundColor:
         return ForegroundColorViewModifier.from(arguments, modifierName: modifierName)
             .map { .foregroundColor($0) }
+    case .fill:
+        return FillViewModifier.from(arguments, modifierName: modifierName)
+            .map { .fill($0) }
     case .brightness:
         return BrightnessViewModifier.from(arguments, modifierName: modifierName)
             .map { .brightness($0) }

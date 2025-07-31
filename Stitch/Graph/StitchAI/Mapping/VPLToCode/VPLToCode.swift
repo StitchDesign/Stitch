@@ -442,6 +442,8 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
         return ".frame(\(parts.joined(separator: ", ")))"
     case .foregroundColor(let m):
         return ".foregroundColor(\(renderArg(m.color)))"
+    case .fill(let m):
+        return ".fill(\(renderArg(m.color)))"
     case .brightness(let m):
         return ".brightness(\(renderArg(m.value)))"
     case .contrast(let m):
@@ -907,6 +909,8 @@ func renderViewModifierConstructor(_ modifier: StrictViewModifier) -> String {
         return ".frame(\(parts.joined(separator: ", ")))"
     case .foregroundColor(let m):
         return ".foregroundColor(\(renderArg(m.color)))"
+    case .fill(let m):
+        return ".fill(\(renderArg(m.color)))"
     case .brightness(let m):
         return ".brightness(\(renderArg(m.value)))"
     case .contrast(let m):
