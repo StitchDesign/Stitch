@@ -1069,36 +1069,50 @@ func renderColor(_ color: Color) -> String {
     return "Color(/* custom color */)"
 }
 
-/// Generates all view modifiers for a given LayerData
+/// Generates all view modifiers for a given LayerData as strings
+/// This is a convenience wrapper around createStrictViewModifiersFromLayerData
 func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [String] {
-    var modifiers: [String] = []
-
-    // Extract layer type from layerData
-    let layerType: AIGraphData_V0.Layer
-    if case let .layer(kind) = layerData.node_name.value {
-        layerType = kind
-    } else {
-        layerType = .group
-    }
-
+    // Reuse the typed modifier creation logic
+    let typedModifiers = createStrictViewModifiersFromLayerData(layerData, idMap: &idMap)
+    
+    // Convert typed modifiers to strings
+    var stringModifiers = typedModifiers.map { renderViewModifierConstructor($0) }
+    
+    // Handle any remaining ports that don't have typed modifiers yet (legacy fallback)
+    let handledPorts = Set(typedModifiers.compactMap { modifier -> LayerInputPort? in
+        // Extract the port type from each typed modifier for comparison
+        switch modifier {
+        case .opacity: return .opacity
+        case .scaleEffect: return .scale
+        case .blur: return .blur
+        case .zIndex: return .zIndex
+        case .cornerRadius: return .cornerRadius
+        case .frame: return .size
+        case .foregroundColor, .fill: return .color
+        case .brightness: return .brightness
+        case .contrast: return .contrast
+        case .saturation: return .saturation
+        case .hueRotation: return .hueRotation
+        case .colorInvert: return .colorInvert
+        case .position: return .position
+        case .offset: return .offsetInGroup
+        case .padding: return .padding
+        case .clipped: return .isClipped
+        }
+    })
+    
+    // Add legacy string modifiers for unhandled ports
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.layer_input_coordinate.input_port_type.value
-
-        if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
-            // 1) Preferred: go through a typed ViewModifierConstructor if we support it
-            if let ctor = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
-                modifiers.append(renderViewModifierConstructor(ctor))
-                continue
-            }
-
-            // 2) Fallback: legacy direct string mapping for ports not yet modeled
-            if let s = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
-                modifiers.append(s)
-            }
+        
+        if !handledPorts.contains(port),
+           let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap),
+           let s = layerInputPortToSwiftUIModifier(port: port, value: portValue) {
+            stringModifiers.append(s)
         }
     }
-
-    return modifiers
+    
+    return stringModifiers
 }
 
 // MARK: - Complete SwiftUI Code Generation (Constructor + Modifiers)
