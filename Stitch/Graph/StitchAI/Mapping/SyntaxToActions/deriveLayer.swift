@@ -25,20 +25,32 @@ struct LayerPortDerivation {
 }
 
 enum LayerPortDerivationType {
-    case value(CurrentAIGraphData.PortValue)
+    case value(PortValueDescription)
     case stateRef(String)
 }
 
-extension LayerPortDerivationType {
-    var value: CurrentAIGraphData.PortValue? {
-        switch self {
-        case .value(let value):
-            return value
-            
-        default:
-            return nil
-        }
+struct PortValueDescription {
+    let value: any (Codable & Sendable)
+    let value_type: AIGraphData_V0.StitchAINodeType
+}
+
+extension PortValueDescription {
+    init(_ value: PortValue) {
+        self.value = value.anyCodable
+        self.value_type = .init(value: value.nodeType)
     }
+}
+
+extension LayerPortDerivationType {
+//    var value: CurrentAIGraphData.PortValue? {
+//        switch self {
+//        case .value(let value):
+//            return value
+//            
+//        default:
+//            return nil
+//        }
+//    }
 }
 
 extension SyntaxViewModifierName {
@@ -479,8 +491,6 @@ extension SyntaxViewName {
         var silentErrors = [SwiftUISyntaxError]()
         let layerType = viewConstructor.value.layer
         
-        let values =
-        
         // Handle constructor-arguments
         // Try to access the SyntaxView.ViewConstructor, if we have one
         let customInputValues = try viewConstructor.value
@@ -518,9 +528,9 @@ extension SyntaxViewName {
         // TODO: remove and rely on ScrollViewConstructor instead
         if args.isEmpty && self == .scrollView {
             values += [
-                try LayerPortDerivation(id: id,
-                                        input: .scrollYEnabled,
-                                        value: .bool(true))
+                LayerPortDerivation(id: id,
+                                    input: .scrollYEnabled,
+                                    value: .bool(true))
             ]
         }
         
@@ -819,7 +829,7 @@ extension SyntaxViewName {
             return [
                 .init(coordinate: .init(layerInput: port,
                                         portType: .packed),
-                      inputData: .value(value))
+                      inputData: .value(.init(value)))
             ]
         }
         
@@ -924,85 +934,85 @@ extension SyntaxViewName {
                 throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                                 
             case .viewConstructor(let viewName, let port):
-
-                switch viewName {
-
-                case .scrollView:
-                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
-                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
-                    // https://developer.apple.com/documentation/swiftui/scrollview
-                    // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
-                    switch port {
-                    case .scrollYEnabled:
-                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "vertical")
-                        return [
-                            .init(input: port,
-                                  value: portValue)
-                        ]
-                        
-                    case .scrollXEnabled:
-                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "horizontal")
-                        return [
-                            .init(input: port,
-                                  value: portValue)
-                        ]
-                        
-                    default:
-                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                    }
-                    
-                case .vStack, .hStack, .lazyVStack, .lazyHStack:
-                    switch port {
-                    case .layerGroupAlignment:
-                        if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
-//                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
-                           let migrated = try? anchoring.convert(to: Anchoring.self) {
-                            return [
-                                .init(input: port,
-                                      value: .anchoring(migrated))
-                            ]
-                        } else {
-                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                        }
-                    
-                    case .spacing:
-                        if let n = toNumberBasic(memberAccess.property) {
-                            return [
-                                .init(input: port,
-                                      value: .spacing(.number(n)))]
-                        } else {
-                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                        }
-                        
-                    default:
-                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                    }
-                    
-                default:
-                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                }
-                
-//                let string = memberAccess.valueText
-//                
-//                // View constructor support needed
-//                throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                // TODO: move scroll logic upstream
+                fatalError()
+//
+//                switch viewName {
+//
+//                case .scrollView:
+//                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
+//                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
+//                    // https://developer.apple.com/documentation/swiftui/scrollview
+//                    // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
+//                    switch port {
+//                    case .scrollYEnabled:
+//                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "vertical")
+//                        return [
+//                            .init(input: port,
+//                                  value: portValue)
+//                        ]
+//                        
+//                    case .scrollXEnabled:
+//                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "horizontal")
+//                        return [
+//                            .init(input: port,
+//                                  value: portValue)
+//                        ]
+//                        
+//                    default:
+//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                    }
+//                    
+//                case .vStack, .hStack, .lazyVStack, .lazyHStack:
+//                    switch port {
+//                    case .layerGroupAlignment:
+//                        if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
+////                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
+//                           let migrated = try? anchoring.convert(to: Anchoring.self) {
+//                            return [
+//                                .init(input: port,
+//                                      value: .anchoring(migrated))
+//                            ]
+//                        } else {
+//                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                        }
+//                    
+//                    case .spacing:
+//                        if let n = toNumberBasic(memberAccess.property) {
+//                            return [
+//                                .init(input: port,
+//                                      value: .spacing(.number(n)))]
+//                        } else {
+//                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                        }
+//                        
+//                    default:
+//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                    }
+//                    
+//                default:
+//                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                }
                 
             case .viewModifier(let port):
-                switch port {
-                case .color:
-                    // Tricky color case, for Color.systemName etc.
-                    let colorStr = memberAccess.property
-                    guard let color = Color.fromSystemName(colorStr) else {
-                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                    }
-                    return [
-                        .init(input: port,
-                              value: .color(color))
-                    ]
-                    
-                default:
-                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-                }
+                // TODO: bubble up view modifier support
+                fatalError()
+//                
+//                switch port {
+//                case .color:
+//                    // Tricky color case, for Color.systemName etc.
+//                    let colorStr = memberAccess.property
+//                    guard let color = Color.fromSystemName(colorStr) else {
+//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                    }
+//                    return [
+//                        .init(input: port,
+//                              value: .color(color))
+//                    ]
+//                    
+//                default:
+//                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+//                }
             }
             
             
@@ -1019,8 +1029,8 @@ extension SyntaxViewName {
             // Decode dictionary, getting a PortValue
             let data = try JSONEncoder().encode(aiPortValueEncoding)
             let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
-            return [.init(input: port,
-                          value: aiPortValue.value)]
+            
+            return [.value(.init(aiPortValue.value))]
             
         case .stateAccess(let varName):
             // TODO: need to pass in connection data here and update all helpers to support edge connections

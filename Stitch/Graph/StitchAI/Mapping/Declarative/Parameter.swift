@@ -29,7 +29,7 @@ extension LayerPortDerivation {
          value: CurrentAIGraphData.PortValue) {
         self = .init(coordinate: .init(layerInput: input,
                                        portType: .packed),
-                     inputData: .value(value))
+                     inputData: .value(.init(value)))
     }
     
     init(input: LayerInputPort,
