@@ -20,7 +20,7 @@ struct LayerInputValuesDerivationResult {
 }
 
 struct LayerPortDerivation {
-    let coordinate: CurrentAIGraphData.LayerInputType
+    var coordinate: CurrentAIGraphData.LayerInputType
     let inputData: LayerPortDerivationType
 }
 
@@ -907,12 +907,9 @@ extension SyntaxViewName {
         
         // Handles types like PortValueDescription
         case .complex(let complexType):
-            let values = try handleComplexArgumentType(complexType,
-                                                       context: context)
-            return values.map {
-                .init(input: port,
-                      inputData: $0)
-            }
+            return try handleComplexArgumentType(complexType,
+                                                 port: port,
+                                                 context: context)
             
         case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
@@ -1053,8 +1050,8 @@ extension SyntaxViewName {
     
     static func deriveCustomValuesFromRotationLayerInputTranslation(id: UUID,
                                                                     layerType: CurrentAIGraphData.Layer,
-                                                                    modifier: SyntaxViewModifier) throws -> [CurrentAIGraphData.CustomLayerInputValue] {
-        var customValues = [CurrentAIGraphData.CustomLayerInputValue]()
+                                                                    modifier: SyntaxViewModifier) throws -> [LayerPortDerivation] {
+        var customValues = [LayerPortDerivation]()
         
         guard let angleArgument = modifier.arguments.defaultArgs?[safe: 0],
               // TODO: JULY 2: could be degrees OR radians; Stitch currently only supports degrees
@@ -1067,36 +1064,44 @@ extension SyntaxViewName {
         
         // degrees = *how much* we're rotating the given rotation layer input
         // axes = *which* layer input (rotationX vs rotationY vs rotationZ) we're rotating
-        let fn = { (port: CurrentAIGraphData.LayerInputPort, portValue: CurrentAIGraphData.PortValue) in
-            customValues.append(try .init(id: id, input: port, value: portValue))
+        let fn = { (port: CurrentAIGraphData.LayerInputPort, portDerivation: LayerPortDerivation) in
+            var portDerivation = portDerivation
+            portDerivation.coordinate = .init(layerInput: port,
+                                              portType: .packed)
+            customValues.append(portDerivation)
         }
         
         // i.e. viewModifier was .rotation3DEffect, since it had an `axis:` argument
         if let axisArgument = modifier.arguments.defaultArgs?[safe: 1],
            axisArgument.label == "axis" {
-            let axisPortValues = try Self.derivePortValues(from: axisArgument.value,
-                                                           context: nil)  // we can ignore context here
+            let axisPortValues = try Self
+                .derivePortValues(from: axisArgument.value,
+                                  // port will be ignored
+                                  port: .rotationX,
+                                  context: nil)  // we can ignore context here
             guard let xAxis = axisPortValues[safe: 0],
                   let yAxis = axisPortValues[safe: 1],
                   let zAxis = axisPortValues[safe: 2] else {
                 throw SwiftUISyntaxError.incorrectParsing(message: "Unable to decode axis arguments for rotation input.")
             }
             
-            try fn(.rotationX, xAxis)
-            try fn(.rotationY, yAxis)
-            try fn(.rotationZ, zAxis)
+            fn(.rotationX, xAxis)
+            fn(.rotationY, yAxis)
+            fn(.rotationZ, zAxis)
         }
         
         // i.e. viewModifier was .rotationEffect, since it did not have an `axis:` argument
         else {
             let portValues = try Self.derivePortValues(from: angleArgument.value,
+                                                       // port is ignored
+                                                       port: .rotationX,
                                                        context: nil)
             assertInDebug(portValues.count == 1)
             guard let angleArgumentValue = portValues.first else {
                 throw SwiftUISyntaxError.incorrectParsing(message: "Unable to parse PortValue from angle data.")
             }
             
-            try fn(.rotationZ, angleArgumentValue)
+            fn(.rotationZ, angleArgumentValue)
         }
         
         return customValues
@@ -1104,7 +1109,8 @@ extension SyntaxViewName {
 }
 
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
-                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
+                               port: LayerInputPort,
+                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
     switch complexTypeName {
@@ -1116,12 +1122,18 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         }
         
         // Search for simple value recursively
-        return try SyntaxViewName.derivePortValues(from: firstArg.value, context: context)
+        return try SyntaxViewName
+            .derivePortValues(from: firstArg.value,
+                              port: port,
+                              context: context)
         
     case .portValueDescription:
         do {
             let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
-            return [.value(aiPortValue.value)]
+            return [
+                .init(input: port,
+                      value: aiPortValue.value)
+            ]
         } catch {
             print("PortValue decoding error: \(error)")
             throw error
@@ -1173,7 +1185,7 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues() throws -> [LayerPortDerivationType] {
+    func derivePortValues() throws -> [LayerPortDerivation] {
         try SyntaxViewName.derivePortValues(from: self,
                                             context: nil)
     }
