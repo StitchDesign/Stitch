@@ -1741,6 +1741,15 @@ struct ForegroundColorViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let color: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // First try to parse as Color type for semantic colors like .blue
+        if case let .memberAccess(memberAccess) = color {
+            let colorStr = memberAccess.property
+            if let color = Color.fromSystemName(colorStr) {
+                return [ASTCustomInputValue(input: .color, value: .color(color))]
+            }
+        }
+        
+        // Fall back to generic port value derivation
         guard let colorPortValue = try color.derivePortValues().first else {
             throw SwiftUISyntaxError.portValueNotFound
         }
