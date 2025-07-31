@@ -88,18 +88,21 @@ extension StitchDocumentViewModel {
 extension CurrentAIGraphData.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
+                      viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
                       requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws {
         switch requestType {
         case .userPrompt:
             // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-            try self.createAIGraph(graphCenter: document.viewPortCenter,
+            try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
+                                   graphCenter: document.viewPortCenter,
                                    highestZIndex: document.visibleGraph.highestZIndex,
                                    document: document)
             
         case .imagePrompt:
             // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
             let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
-            try self.createAIGraph(graphCenter: document.viewPortCenter,
+            try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
+                                   graphCenter: document.viewPortCenter,
                                    highestZIndex: document.visibleGraph.highestZIndex,
                                    document: mockDocumentViewModel)
             let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
@@ -118,7 +121,8 @@ extension CurrentAIGraphData.GraphData {
     }
     
     @MainActor
-    func createAIGraph(graphCenter: CGPoint,
+    func createAIGraph(viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
+                       graphCenter: CGPoint,
                        highestZIndex: Double,
                        document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
@@ -264,10 +268,19 @@ extension CurrentAIGraphData.GraphData {
                 from: .init(layer_id: layerNodeId,
                             input_port_type: newInputValueSetting.coordinate),
                 idMap: idMap)
-            try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-                                                      valueType: newInputValueSetting.value_type.value,
-                                                      data: newInputValueSetting.value,
-                                                      idMap: &idMap)
+            
+            switch newInputValueSetting.inputData {
+            case .value(let value):
+                try document
+                    .updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
+                                                  valueType: value.value_type.value,
+                                                  data: value.value,
+                                                  idMap: &idMap)
+
+            case .stateRef(let string):
+                <#code#>
+            }
+            
         }
         
         // new edges to downstream patches
@@ -358,8 +371,8 @@ extension NodeIOCoordinate {
         }
         
         let portType = AIGraphData_V0.NodeIOPortType
-            .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.value,
-                           portType: .packed))
+            .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.layerInput,
+                           portType: aiLayerCoordinate.input_port_type.portType ))
         
         let migratedPortType = try portType.convert(to: NodeIOPortType.self)
         

@@ -169,8 +169,8 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                                     .init(patch_input_coordinate: .init(
                                         node_id: patchNodeData.id,
                                         port_index: portIndex),
-                                          value: portValue.anyCodable,
-                                          value_type: .init(value: portValue.nodeType))
+                                          value: portValue.value,
+                                          value_type: portValue.value_type)
                                 )
                                 
                             case .stateRef(let string):
