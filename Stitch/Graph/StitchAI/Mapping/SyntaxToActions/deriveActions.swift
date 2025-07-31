@@ -26,6 +26,12 @@ struct SwiftSyntaxPatchActionsResult: Encodable {
 
 struct SwiftSyntaxActionsResult: Encodable {
     var graphData: CurrentAIGraphData.GraphData
+    
+    // Tracks any upstream patches that connect to some state
+    // Key = state variable name
+    // Value = upstream coordinate
+    let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+    
     var caughtErrors: [SwiftUISyntaxError]
 }
 
@@ -44,11 +50,12 @@ extension SwiftUIViewParserResult {
         let patchResults = try self.bindingDeclarations.deriveStitchActions()
 
         // Extract layer data
-        let layerResults = try self.rootView?.deriveStitchActions(viewStatePatchConnections: patchResults.viewStatePatchConnections)
+        let layerResults = try self.rootView?.deriveStitchActions()
         let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
         
         return .init(graphData: .init(layer_data_list: layerResults?.actions ?? [],
                                       patch_data: patchResults.actions),
+                     viewStatePatchConnections: patchResults.viewStatePatchConnections,
                      caughtErrors: allLayerErrors + patchResults.caughtErrors)
     }
 }
@@ -203,7 +210,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
 }
 
 extension SyntaxView {
-    func deriveStitchActions(viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]) throws -> SwiftSyntaxLayerActionsResult {
+    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
         // TODO: map references to specific layer IDs
         
         // Tracks all silent errors
@@ -287,10 +294,8 @@ extension SyntaxViewName {
                            children: childrenLayers,
                            // the new group node should be a VStack, i.e. a layer group with orientation = .vertical
                            custom_layer_input_values: [
-                            try AIGraphData_V0.CustomLayerInputValue.init(
-                                id: newId,
-                                input: .orientation,
-                                value: .orientation(.vertical))
+                            LayerPortDerivation(input: .orientation,
+                                                value: .orientation(.vertical))
                            ])
                         
             return newGroupNode
