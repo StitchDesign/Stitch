@@ -898,38 +898,11 @@ extension SyntaxViewName {
 //        }
         
     }
-
+    
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
                                  port: LayerInputPort,
                                  context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
-        
         switch argument {
-        
-        // Handles types like PortValueDescription
-        case .complex(let complexType):
-            return try handleComplexArgumentType(complexType,
-                                                 port: port,
-                                                 context: context)
-            
-        case .tuple(let tupleArgs):
-            // Recursively determine PortValue of each arg
-            return try tupleArgs.flatMap {
-                try Self.derivePortValues(from: $0.value,
-                                          port: port,
-                                          context: context)
-            }
-            
-        case .array(let arrayArgs):
-            // Recursively determine PortValue of each arg
-            log("SyntaxViewName: derivePortValue: had array: arrayArgs: \(arrayArgs)")
-            return try arrayArgs.flatMap {
-                log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
-                log("SyntaxViewName: derivePortValue: had array: context: \(context)")
-                return try Self.derivePortValues(from: $0,
-                                                 port: port,
-                                                 context: context)
-            }
-            
         case .memberAccess(let memberAccess):
             // need to return PortValue, but need to know which is the relevant type
             // e.g. Color is base name
@@ -1018,6 +991,44 @@ extension SyntaxViewName {
                 }
             }
             
+        default:
+            let values = try Self
+                .derivePortValues(from: argument,
+                                  context: context)
+            
+            return values.map {
+                .init(input: port,
+                      inputData: $0)
+            }
+        }
+    }
+
+    static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
+                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
+        
+        switch argument {
+        
+        // Handles types like PortValueDescription
+        case .complex(let complexType):
+            return try handleComplexArgumentType(complexType,
+                                                 context: context)
+            
+        case .tuple(let tupleArgs):
+            // Recursively determine PortValue of each arg
+            return try tupleArgs.flatMap {
+                try Self.derivePortValues(from: $0.value,
+                                          context: context)
+            }
+            
+        case .array(let arrayArgs):
+            // Recursively determine PortValue of each arg
+            log("SyntaxViewName: derivePortValue: had array: arrayArgs: \(arrayArgs)")
+            return try arrayArgs.flatMap {
+                log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
+                log("SyntaxViewName: derivePortValue: had array: context: \(context)")
+                return try Self.derivePortValues(from: $0,
+                                                 context: context)
+            }
             
         case .simple(let data):
             let valueType = try data.syntaxKind.getValueType()
@@ -1033,18 +1044,15 @@ extension SyntaxViewName {
             let data = try JSONEncoder().encode(aiPortValueEncoding)
             let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
             
-            return [
-                .init(input: port,
-                      inputData: .value(.init(aiPortValue.value)))
-            ]
+            return [.value(.init(aiPortValue.value))]
             
         case .stateAccess(let varName):
             // TODO: need to pass in connection data here and update all helpers to support edge connections
             
-            return [
-                .init(input: port,
-                      inputData: .stateRef(varName))
-            ]
+            return [.stateRef(varName)]
+            
+        case .memberAccess:
+            fatalError("Not supported here")
         }
     }
     
@@ -1109,8 +1117,7 @@ extension SyntaxViewName {
 }
 
 func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
-                               port: LayerInputPort,
-                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
+                               context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
     
     let complexTypeName = SyntaxValueName(rawValue: complexType.typeName)
     switch complexTypeName {
@@ -1124,16 +1131,12 @@ func handleComplexArgumentType(_ complexType: SyntaxViewModifierComplexType,
         // Search for simple value recursively
         return try SyntaxViewName
             .derivePortValues(from: firstArg.value,
-                              port: port,
                               context: context)
         
     case .portValueDescription:
         do {
             let aiPortValue = try complexType.arguments.decode(CurrentAIGraphData.StitchAIPortValue.self)
-            return [
-                .init(input: port,
-                      value: aiPortValue.value)
-            ]
+            return [.value(.init(aiPortValue.value))]
         } catch {
             print("PortValue decoding error: \(error)")
             throw error
@@ -1185,7 +1188,7 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues() throws -> [LayerPortDerivation] {
+    func derivePortValues() throws -> [LayerPortDerivationType] {
         try SyntaxViewName.derivePortValues(from: self,
                                             context: nil)
     }
