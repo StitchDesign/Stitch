@@ -161,41 +161,49 @@ extension AIGraphData_V0.LayerData {
         let children = try sidebarData.children?.createAIData(nodesDict: nodesDict,
                                                               layerConnections: &layerConnections)
         
-        var customInputValues = [AIGraphData_V0.CustomLayerInputValue]()
+        var customInputValues = [LayerPortDerivation]()
         for port in LayerInputPort.allCases {
             let portData = layerData[keyPath: port.schemaPortKeyPath]
             
-            switch portData.packedData.inputPort {
-            case .values(let values):
-                let defaultData = port.getDefaultValueForAI(for: layerData.layer)
-                let defaultEncodedData = try defaultData.anyCodable.encodeToData()
-                
-                // Save data if different from default value
-                if let firstValue = values.first {
-                    let firstValueEncodedData = try firstValue.anyCodable.encodeToData()
+            switch portData.mode {
+            case .packed:
+                switch portData.packedData.inputPort {
+                case .values(let values):
+                    let defaultData = port.getDefaultValueForAI(for: layerData.layer)
+                    let defaultEncodedData = try defaultData.anyCodable.encodeToData()
                     
-                    // Check if values are equal
-                    if defaultData != firstValue &&
-                        // Redundant check because sometimes values are the same but different (like for color)
-                        defaultEncodedData != firstValueEncodedData {
-                        customInputValues.append(
-                            try .init(id: layerData.id,
-                                      input: port,
+                    // Save data if different from default value
+                    if let firstValue = values.first {
+                        let firstValueEncodedData = try firstValue.anyCodable.encodeToData()
+                        
+                        // Check if values are equal
+                        if defaultData != firstValue &&
+                            // Redundant check because sometimes values are the same but different (like for color)
+                            defaultEncodedData != firstValueEncodedData {
+                            customInputValues.append(
+                                .init(input: port,
                                       value: firstValue)
-                        )
+                            )
+                        }
+                    }
+                    
+                case .upstreamConnection(let upstream):
+                    if let upstreamPortIndex = upstream.portId {
+                        layerConnections.append(
+                            .init(src_port: .init(node_id: upstream.nodeId.description,
+                                                  port_index: upstreamPortIndex),
+                                  dest_port: .init(layer_id: layerData.id.description,
+                                                   input_port_type: .init(layerInput: port,
+                                                                          portType: .packed)
+                                                  )
+                            ))
                     }
                 }
                 
-            case .upstreamConnection(let upstream):
-                if let upstreamPortIndex = upstream.portId {
-                    layerConnections.append(
-                        .init(src_port: .init(node_id: upstream.nodeId.description,
-                                              port_index: upstreamPortIndex),
-                              dest_port: .init(layer_id: layerData.id.description,
-                                               input_port_type: .init(value: port)))
-                    )
-                }
+            case .unpacked:
+                fatalErrorIfDebug("come back to unpacked")
             }
+            
         }
         
         self = .init(node_id: sidebarData.id.description,
