@@ -26,7 +26,7 @@ struct LayerDataConstructorInputs {
         
         var explicit: [LayerInputPort : AIGraphData_V0.PortValue] = [:]
         for customInputValue in layerData.custom_layer_input_values {
-            let port = customInputValue.layer_input_coordinate.input_port_type.value
+            let port = customInputValue.coordinate.layerInput
             if let v = decodePortValueFromCIV(customInputValue, idMap: &idMap) { explicit[port] = v }
         }
         self.explicit = explicit
@@ -47,11 +47,15 @@ struct LayerDataConstructorInputs {
 
 /// Decodes a single `CustomLayerInputValue` into a `PortValue` using your
 /// existing AI decoding helpers.
-func decodePortValueFromCIV(_ customInputValue: AIGraphData_V0.CustomLayerInputValue,
+func decodePortValueFromCIV(_ customInputValue: LayerPortDerivation,
                             idMap: inout [String: UUID]) -> AIGraphData_V0.PortValue? {
-    try? AIGraphData_V0.PortValue.decodeFromAI(
-        data: customInputValue.value,
-        valueType: customInputValue.value_type.value,
+    guard let portValueDescription = customInputValue.inputData.value else {
+        return nil
+    }
+    
+    return try? AIGraphData_V0.PortValue.decodeFromAI(
+        data: portValueDescription.value,
+        valueType: portValueDescription.value_type.value,
         idMap: &idMap
     )
 }
@@ -351,7 +355,7 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
     }
     
     for customInputValue in layerData.custom_layer_input_values {
-        let port = customInputValue.layer_input_coordinate.input_port_type.value
+        let port = customInputValue.coordinate.layerInput
         
         if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
             // Try to create a typed ViewModifierConstructor first
@@ -634,6 +638,9 @@ func renderArg(_ arg: SyntaxViewModifierArgumentType) -> String {
                 .sorted().joined(separator: ", ")
         } ?? ""
         return "\(c.typeName)(\(inner))"
+    case .stateAccess(_):
+        // State isn't used here
+        fatalError()
     }
 }
 
@@ -1216,7 +1223,7 @@ func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, id
     
     // Add legacy string modifiers for unhandled ports
     for customInputValue in layerData.custom_layer_input_values {
-        let port = customInputValue.layer_input_coordinate.input_port_type.value
+        let port = customInputValue.coordinate.layerInput
         
         if !handledPorts.contains(port),
            let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap),

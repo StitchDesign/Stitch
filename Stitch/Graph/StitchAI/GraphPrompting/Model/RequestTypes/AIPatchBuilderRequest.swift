@@ -65,21 +65,21 @@ extension StitchDocumentViewModel {
                                       valueType: AIGraphData_V0.NodeType,
                                       data: (any Codable & Sendable),
                                       idMap: inout [String : UUID]) throws {
+        guard let inputObserver = graph.getInputObserver(coordinate: inputCoordinate) else {
+            log("applyAction: could not apply setInput")
+            // fatalErrorIfDebug()
+            throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+        }
+        
         let graph = self.visibleGraph
         
         let value = try AIGraphData_V0.PortValue.decodeFromAI(data: data,
                                                        valueType: valueType,
                                                        idMap: &idMap)
         let migratedValue = try value.migrate()
-
-        guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
-            log("applyAction: could not apply setInput")
-            // fatalErrorIfDebug()
-            throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
-        }
         
         // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
-        graph.inputEditCommitted(input: input,
+        graph.inputEditCommitted(input: inputObserver,
                                  value: migratedValue,
                                  activeIndex: self.activeIndex)
     }
@@ -88,18 +88,21 @@ extension StitchDocumentViewModel {
 extension CurrentAIGraphData.GraphData {
     @MainActor
     func applyAIGraph(to document: StitchDocumentViewModel,
+                      viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
                       requestType: StitchAIRequestBuilder_V0.StitchAIRequestType) throws {
         switch requestType {
         case .userPrompt:
             // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
-            try self.createAIGraph(graphCenter: document.viewPortCenter,
+            try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
+                                   graphCenter: document.viewPortCenter,
                                    highestZIndex: document.visibleGraph.highestZIndex,
                                    document: document)
             
         case .imagePrompt:
             // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
             let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
-            try self.createAIGraph(graphCenter: document.viewPortCenter,
+            try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
+                                   graphCenter: document.viewPortCenter,
                                    highestZIndex: document.visibleGraph.highestZIndex,
                                    document: mockDocumentViewModel)
             let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
@@ -118,7 +121,8 @@ extension CurrentAIGraphData.GraphData {
     }
     
     @MainActor
-    func createAIGraph(graphCenter: CGPoint,
+    func createAIGraph(viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
+                       graphCenter: CGPoint,
                        highestZIndex: Double,
                        document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
@@ -258,15 +262,36 @@ extension CurrentAIGraphData.GraphData {
                                                       idMap: &idMap)
         }
         
-        // new constants for layers
-        for newInputValueSetting in self.layer_data_list.allNestedCustomInputValues {
+        // new state for layers
+        try self.layer_data_list.allNestedCustomInputValues { layerNodeId, newInputValueSetting in
             let inputCoordinate = try NodeIOCoordinate(
-                from: newInputValueSetting.layer_input_coordinate,
+                from: .init(layer_id: layerNodeId,
+                            input_port_type: newInputValueSetting.coordinate),
                 idMap: idMap)
-            try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
-                                                      valueType: newInputValueSetting.value_type.value,
-                                                      data: newInputValueSetting.value,
-                                                      idMap: &idMap)
+            
+            switch newInputValueSetting.inputData {
+            case .value(let value):
+                try document
+                    .updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
+                                                  valueType: value.value_type.value,
+                                                  data: value.value,
+                                                  idMap: &idMap)
+
+            case .stateRef(let varName):
+                // Get upstream patch data from variable name
+                guard let upstreamPatchCoordinate = viewStatePatchConnections
+                    .get(varName),
+                      let upstreamNodeId = idMap.get(upstreamPatchCoordinate.node_id) else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.port_index,
+                                                           nodeId: upstreamNodeId),
+                                               to: inputCoordinate)
+                
+                graph.edgeAdded(edge: newEdgeData)
+            }
         }
         
         // new edges to downstream patches
@@ -357,8 +382,8 @@ extension NodeIOCoordinate {
         }
         
         let portType = AIGraphData_V0.NodeIOPortType
-            .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.value,
-                           portType: .packed))
+            .keyPath(.init(layerInput: aiLayerCoordinate.input_port_type.layerInput,
+                           portType: aiLayerCoordinate.input_port_type.portType ))
         
         let migratedPortType = try portType.convert(to: NodeIOPortType.self)
         

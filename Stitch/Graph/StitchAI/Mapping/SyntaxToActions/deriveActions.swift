@@ -8,13 +8,35 @@
 import Foundation
 import SwiftUI
 
-struct SwiftSyntaxActionsResult: Encodable {
+struct SwiftSyntaxLayerActionsResult: Encodable {
     var actions: [CurrentAIGraphData.LayerData]
     var caughtErrors: [SwiftUISyntaxError]
 }
 
+struct SwiftSyntaxPatchActionsResult: Encodable {
+    var actions: CurrentAIGraphData.PatchData
+    
+    // Tracks any upstream patches that connect to some state
+    // Key = state variable name
+    // Value = upstream coordinate
+    let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+    
+    var caughtErrors: [SwiftUISyntaxError]
+}
+
+struct SwiftSyntaxActionsResult: Encodable {
+    var graphData: CurrentAIGraphData.GraphData
+    
+    // Tracks any upstream patches that connect to some state
+    // Key = state variable name
+    // Value = upstream coordinate
+    let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
+    
+    var caughtErrors: [SwiftUISyntaxError]
+}
+
 extension Array where Element == SyntaxView {
-    func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
         let allResults = try self.map { try $0.deriveStitchActions() }
         
         return .init(actions: allResults.flatMap { $0.actions },
@@ -22,8 +44,106 @@ extension Array where Element == SyntaxView {
     }
 }
 
-extension SyntaxView {
+extension SwiftUIViewParserResult {
     func deriveStitchActions() throws -> SwiftSyntaxActionsResult {
+        // Extract patch data
+        let patchResults = try self.bindingDeclarations.deriveStitchActions()
+
+        // Extract layer data
+        let layerResults = try self.rootView?.deriveStitchActions()
+        let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
+        
+        return .init(graphData: .init(layer_data_list: layerResults?.actions ?? [],
+                                      patch_data: patchResults.actions),
+                     viewStatePatchConnections: patchResults.viewStatePatchConnections,
+                     caughtErrors: allLayerErrors + patchResults.caughtErrors)
+    }
+}
+
+extension Dictionary where Key == String, Value == SwiftParserInitializerType {
+    func deriveStitchActions() throws -> SwiftSyntaxPatchActionsResult {
+        // MARK: data we use as tracking
+        // Maps some variable name to a node ID string
+        var varNameIdMap = [String : String]()
+        
+        // Maps any declarations made of top-level outputs
+        var varNameOutputPortMap = [String : SwiftParserSubscript]()
+        
+        // Tracks @State variable declarations
+        var viewStateVarNames = Set<String>()
+        
+        // MARK: data to be returned
+        var caughtErrors: [SwiftUISyntaxError] = []
+        var nativePatchNodes = [CurrentAIGraphData.NativePatchNode]()
+        var nativePatchValueTypeSettings = [CurrentAIGraphData.NativePatchNodeValueTypeSetting]()
+        var patchConnections = [CurrentAIGraphData.PatchConnection]()
+        var customPatchInputValues = [CurrentAIGraphData.CustomPatchInputValue]()
+        
+        // Because patch data is decoded before layer data, we don't yet know the destination ports for layer edges, therefore, we just track the source patch to some state variable
+        var viewStatePatchConnections = [String : AIGraphData_V0.NodeIndexedCoordinate]()
+        
+        // First pass:
+        // 1. Create patch nodes
+        // 2. Make mappings of var names to specific data
+        for (varName, initializerType) in self {
+            switch initializerType {
+            case .patchNode(let patchNodeData):
+                let newPatchNode = patchNodeData
+                    .createStitchData(varName: varName,
+                                      varNameIdMap: &varNameIdMap)
+                nativePatchNodes.append(newPatchNode)
+                
+            case .subscriptRef(let subscriptData):
+                // Track top-level bindings of some output port data
+                varNameOutputPortMap.updateValue(subscriptData, forKey: varName)
+                
+                switch subscriptData.subscriptType {
+                case .patchNode(let patchNodeData):
+                    // Track more patch nodes
+                    let newPatchNode = patchNodeData
+                        .createStitchData(varName: varName,
+                                          varNameIdMap: &varNameIdMap)
+                    nativePatchNodes.append(newPatchNode)
+                    
+                case .ref:
+                    continue
+                }
+                
+            case .stateMutation:
+                // Create state with disconnected upstream patch port, feed this into layer data and update all the helpers
+                viewStateVarNames.insert(varName)
+            }
+        }
+        
+        // Second pass: derive custom values and edges
+        for (varName, initializerType) in self {
+            // Recursively calls argument data
+            try initializerType
+                .parseStitchActions(varName: varName,
+                                    varNameIdMap: varNameIdMap,
+                                    varNameOutputPortMap: varNameOutputPortMap,
+                                    customPatchInputValues: &customPatchInputValues,
+                                    patchConnections: &patchConnections,
+                                    viewStatePatchConnections: &viewStatePatchConnections)
+        }
+        
+        return .init(actions: AIGraphData_V0
+            .PatchData(javascript_patches: [],
+                       native_patches: nativePatchNodes,
+                       native_patch_value_type_settings: nativePatchValueTypeSettings,
+                       patch_connections: patchConnections,
+                       custom_patch_input_values: customPatchInputValues,
+                       // Layer connections cannot yet be determined here
+                       layer_connections: []),
+                     viewStatePatchConnections: viewStatePatchConnections,
+                     caughtErrors: caughtErrors)
+    }
+}
+
+extension SyntaxView {
+    func deriveStitchActions() throws -> SwiftSyntaxLayerActionsResult {
+        // TODO: map references to specific layer IDs
+        
         // Tracks all silent errors
         var silentErrors = [SwiftUISyntaxError]()
         
@@ -105,10 +225,8 @@ extension SyntaxViewName {
                            children: childrenLayers,
                            // the new group node should be a VStack, i.e. a layer group with orientation = .vertical
                            custom_layer_input_values: [
-                            try AIGraphData_V0.CustomLayerInputValue.init(
-                                id: newId,
-                                input: .orientation,
-                                value: .orientation(.vertical))
+                            LayerPortDerivation(input: .orientation,
+                                                value: .orientation(.vertical))
                            ])
                         
             return newGroupNode
