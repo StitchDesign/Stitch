@@ -224,7 +224,7 @@ extension SyntaxViewModifierName {
         case .background:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
         case .font:
-            throw SwiftUISyntaxError.unsupportedViewModifier(self)
+            return .simple(.textFont)
         case .multilineTextAlignment:
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
             
@@ -252,12 +252,13 @@ extension SyntaxViewModifierName {
         
             // TODO: this is a text case
         case .bold,
-                .fontDesign,
-                .fontWeight,
                 .monospacedDigit,
                 .monospaced:
-//            return .textFont
             throw SwiftUISyntaxError.unsupportedViewModifier(self)
+        case .fontDesign:
+            return .simple(.textFont)
+        case .fontWeight:
+            return .simple(.textFont)
             
             // MARK: Could be implemented someday?
         case .textCase,

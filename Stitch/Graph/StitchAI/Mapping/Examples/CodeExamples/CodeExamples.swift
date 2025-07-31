@@ -37,6 +37,24 @@ extension MappingExamples {
         ColorCodeExamples.colorAsValue,
         ColorCodeExamples.colorAsView,
         
+        // Font Modifiers
+        FontCodeExamples.systemFontBody,
+        FontCodeExamples.systemFontHeadline,
+        FontCodeExamples.systemFontLargeTitle,
+        FontCodeExamples.customSystemFont,
+        FontCodeExamples.customSystemFontWithWeight,
+        FontCodeExamples.customSystemFontWithDesign,
+        FontCodeExamples.customSystemFontComplete,
+        FontCodeExamples.fontWeightBold,
+        FontCodeExamples.fontWeightLight,
+        FontCodeExamples.fontDesignRounded,
+        FontCodeExamples.fontDesignMonospaced,
+        FontCodeExamples.fontDesignSerif,
+        FontCodeExamples.combinedFontModifiers,
+        FontCodeExamples.fontWithColorAndWeight,
+        FontCodeExamples.stackWithDifferentFonts,
+        FontCodeExamples.fontInScrollView,
+        
         // ScrollView
         ScrollViewCodeExamples.scrollViewVStack,
         ScrollViewCodeExamples.scrollViewHStack,

@@ -1409,6 +1409,9 @@ enum StrictViewModifier: Equatable, Encodable {
     case offset(OffsetViewModifier)
     case padding(PaddingViewModifier)
     case clipped(ClippedViewModifier)
+    case font(FontViewModifier)
+    case fontDesign(FontDesignViewModifier)
+    case fontWeight(FontWeightViewModifier)
     // Add further cases here as new typed modifiers are introduced
 
     /// Type-erased access to the underlying typed modifier for Stitch emission.
@@ -1431,6 +1434,9 @@ enum StrictViewModifier: Equatable, Encodable {
         case .offset(let m):         return m
         case .padding(let m):        return m
         case .clipped(let m):        return m
+        case .font(let m):           return m
+        case .fontDesign(let m):     return m
+        case .fontWeight(let m):     return m
         }
     }
 }
@@ -2049,6 +2055,251 @@ struct ClippedViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
+// MARK: - Font View Modifiers
+
+struct FontViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let font: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // For .font() modifier, we need to create both textFont and fontSize events
+        let fontEvents = try createFontEvents(from: font)
+        return fontEvents
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> FontViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return FontViewModifier(font: first.value)
+    }
+}
+
+struct FontDesignViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let design: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // FontDesign affects the fontChoice part of StitchFont
+        let fontEvents = try createFontDesignEvents(from: design)
+        return fontEvents
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> FontDesignViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return FontDesignViewModifier(design: first.value)
+    }
+}
+
+struct FontWeightViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let weight: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // FontWeight affects the fontWeight part of StitchFont
+        let fontEvents = try createFontWeightEvents(from: weight)
+        return fontEvents
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> FontWeightViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return FontWeightViewModifier(weight: first.value)
+    }
+}
+
+// MARK: - Font Helper Functions
+
+/// Creates font events from SwiftUI .font() modifier
+func createFontEvents(from fontArg: SyntaxViewModifierArgumentType) throws -> [ASTCustomInputValue] {
+    // Handle .memberAccess directly (e.g., .headline, .body, .title)
+    if case .memberAccess(let memberData) = fontArg,
+       let swiftUIFont = parseSwiftUISystemFont(memberData.property) {
+        let stitchFont = mapSwiftUIFontToStitchFont(swiftUIFont)
+        let fontSize = mapSwiftUIFontToSize(swiftUIFont)
+        
+        return [
+            ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont)),
+            ASTCustomInputValue(input: .fontSize, value: .number(fontSize))
+        ]
+    }
+    
+    // Handle .complex (e.g., .system(size: 16, weight: .bold))
+    if case .complex(let complexData) = fontArg {
+        // Parse .system() font specifications
+        if complexData.typeName == "Font" || complexData.typeName.contains("system") {
+            // Extract size, weight, design from arguments
+            var fontSize: Double = 17 // default
+            var fontChoice: StitchFontChoice = .sf
+            var fontWeight: StitchFontWeight = .SF_regular
+            
+            for arg in complexData.arguments {
+                switch arg.label {
+                case "size":
+                    if case .simple(let simpleData) = arg.value,
+                       let size = Double(simpleData.value) {
+                        fontSize = size
+                    }
+                case "weight":
+                    if case .memberAccess(let memberData) = arg.value {
+                        fontWeight = mapSwiftUIFontWeightToStitchFontWeight(memberData.property)
+                    }
+                case "design":
+                    if case .memberAccess(let memberData) = arg.value {
+                        fontChoice = mapSwiftUIFontDesignToStitchFontChoice(memberData.property)
+                    }
+                default:
+                    break
+                }
+            }
+            
+            let stitchFont = StitchFont(fontChoice: fontChoice, fontWeight: fontWeight)
+            return [
+                ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont)),
+                ASTCustomInputValue(input: .fontSize, value: .number(fontSize))
+            ]
+        }
+    }
+    
+    // Fallback: treat as generic font and use default mapping
+    let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
+    return [ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont))]
+}
+
+/// Creates font design events from SwiftUI .fontDesign() modifier
+func createFontDesignEvents(from designArg: SyntaxViewModifierArgumentType) throws -> [ASTCustomInputValue] {
+    if case .memberAccess(let memberData) = designArg {
+        let fontChoice = mapSwiftUIFontDesignToStitchFontChoice(memberData.property)
+        let defaultWeight = getDefaultWeightForFontChoice(fontChoice)
+        let stitchFont = StitchFont(fontChoice: fontChoice, fontWeight: defaultWeight)
+        
+        return [ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont))]
+    }
+    
+    // Fallback
+    let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
+    return [ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont))]
+}
+
+/// Creates font weight events from SwiftUI .fontWeight() modifier
+func createFontWeightEvents(from weightArg: SyntaxViewModifierArgumentType) throws -> [ASTCustomInputValue] {
+    if case .memberAccess(let memberData) = weightArg {
+        let fontWeight = mapSwiftUIFontWeightToStitchFontWeight(memberData.property)
+        // We need to preserve the current font choice, so we'll use SF as default
+        let stitchFont = StitchFont(fontChoice: .sf, fontWeight: fontWeight)
+        
+        return [ASTCustomInputValue(input: .textFont, value: .textFont(stitchFont))]
+    }
+    
+    // Fallback
+    let defaultFont = StitchFont(fontChoice: .sf, fontWeight: .SF_regular)
+    return [ASTCustomInputValue(input: .textFont, value: .textFont(defaultFont))]
+}
+
+// MARK: - Font Mapping Functions
+
+struct SwiftUISystemFont {
+    let size: Double
+    let design: StitchFontChoice
+    let weight: StitchFontWeight
+}
+
+func parseSwiftUISystemFont(_ property: String) -> SwiftUISystemFont? {
+    switch property {
+    case "largeTitle":
+        return SwiftUISystemFont(size: 34, design: .sf, weight: .SF_regular)
+    case "title":
+        return SwiftUISystemFont(size: 28, design: .sf, weight: .SF_regular)
+    case "title2":
+        return SwiftUISystemFont(size: 22, design: .sf, weight: .SF_regular)
+    case "title3":
+        return SwiftUISystemFont(size: 20, design: .sf, weight: .SF_regular)
+    case "headline":
+        return SwiftUISystemFont(size: 17, design: .sf, weight: .SF_semibold)
+    case "body":
+        return SwiftUISystemFont(size: 17, design: .sf, weight: .SF_regular)
+    case "callout":
+        return SwiftUISystemFont(size: 16, design: .sf, weight: .SF_regular)
+    case "subheadline":
+        return SwiftUISystemFont(size: 15, design: .sf, weight: .SF_regular)
+    case "footnote":
+        return SwiftUISystemFont(size: 13, design: .sf, weight: .SF_regular)
+    case "caption":
+        return SwiftUISystemFont(size: 12, design: .sf, weight: .SF_regular)
+    case "caption2":
+        return SwiftUISystemFont(size: 11, design: .sf, weight: .SF_regular)
+    default:
+        return nil
+    }
+}
+
+func mapSwiftUIFontToStitchFont(_ swiftUIFont: SwiftUISystemFont) -> StitchFont {
+    return StitchFont(fontChoice: swiftUIFont.design, fontWeight: swiftUIFont.weight)
+}
+
+func mapSwiftUIFontToSize(_ swiftUIFont: SwiftUISystemFont) -> Double {
+    return swiftUIFont.size
+}
+
+func mapSwiftUIFontDesignToStitchFontChoice(_ design: String) -> StitchFontChoice {
+    switch design {
+    case "default":
+        return .sf
+    case "serif":
+        return .newYorkSerif
+    case "rounded":
+        return .sfRounded
+    case "monospaced":
+        return .sfMono
+    default:
+        return .sf
+    }
+}
+
+func mapSwiftUIFontWeightToStitchFontWeight(_ weight: String) -> StitchFontWeight {
+    switch weight {
+    case "ultraLight":
+        return .SF_ultraLight
+    case "thin":
+        return .SF_thin
+    case "light":
+        return .SF_light
+    case "regular":
+        return .SF_regular
+    case "medium":
+        return .SF_medium
+    case "semibold":
+        return .SF_semibold
+    case "bold":
+        return .SF_bold
+    case "heavy":
+        return .SF_heavy
+    case "black":
+        return .SF_black
+    default:
+        return .SF_regular
+    }
+}
+
+func getDefaultWeightForFontChoice(_ fontChoice: StitchFontChoice) -> StitchFontWeight {
+    switch fontChoice {
+    case .sf:
+        return .SF_regular
+    case .sfMono:
+        return .SFMono_regular
+    case .sfRounded:
+        return .SFRounded_regular
+    case .newYorkSerif:
+        return .NewYorkSerif_regular
+    }
+}
+
 /// Factory function to create ViewModifierConstructor from parsed SwiftUI syntax
 func createKnownViewModifier(modifierName: SyntaxViewModifierName,
                            arguments: [SyntaxViewArgumentData]) -> StrictViewModifier? {
@@ -2105,6 +2356,15 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .clipped:
         return ClippedViewModifier.from(arguments, modifierName: modifierName)
             .map { .clipped($0) }
+    case .font:
+        return FontViewModifier.from(arguments, modifierName: modifierName)
+            .map { .font($0) }
+    case .fontDesign:
+        return FontDesignViewModifier.from(arguments, modifierName: modifierName)
+            .map { .fontDesign($0) }
+    case .fontWeight:
+        return FontWeightViewModifier.from(arguments, modifierName: modifierName)
+            .map { .fontWeight($0) }
     default:
         return nil
     }
