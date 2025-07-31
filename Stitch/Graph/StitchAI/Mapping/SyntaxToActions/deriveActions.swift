@@ -153,16 +153,24 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                         )
                         
                     case .value(let argType):
-                        guard let portValue = try argType.derivePortValues().first else {
-                            fatalError()
-                        }
+                        let portDataList = try argType.derivePortValues()
                         
-                        customPatchInputValues.append(
-                            .init(patch_input_coordinate: .init(
-                                node_id: patchNodeData.id,
-                                port_index: portIndex),
-                                  value: portValue.anyCodable,
-                                  value_type: .init(value: portValue.nodeType)))
+                        for portData in portDataList {
+                            switch portData {
+                            case .value(let portValue):
+                                customPatchInputValues.append(
+                                    .init(patch_input_coordinate: .init(
+                                        node_id: patchNodeData.id,
+                                        port_index: portIndex),
+                                          value: portValue.anyCodable,
+                                          value_type: .init(value: portValue.nodeType))
+                                )
+                                
+                            case .stateRef(let string):
+                                fatalErrorIfDebug("State variables should never be passed into patch nodes")
+                                throw SwiftUISyntaxError.unsupportedStateInPatchInputParsing(patchNodeData)
+                            }
+                        }
                     }
                 }
                 

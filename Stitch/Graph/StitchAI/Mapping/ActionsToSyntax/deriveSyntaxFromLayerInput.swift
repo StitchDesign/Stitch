@@ -33,12 +33,15 @@ enum SwiftUISyntaxError: Error, Sendable {
     case unsupportedPortValueTypeDecoding(SyntaxViewModifierArgumentType)
     case unsupportedConstructorForPortValueDecoding(ViewConstructor)
     
+    // Layer decoding errors
     case unsupportedLayer(SyntaxViewName)
 //    case unsupportedConstructorArgument(SyntaxViewArgumentData)
     case unsupportedSyntaxFromLayerInput(CurrentAIGraphData.LayerInputPort)
     case unsupportedSyntaxViewLayer(CurrentAIGraphData.Layer)
-    
     case unsupportedLayerIdParsing([SyntaxViewArgumentData])
+    
+    // Patch decoding errors
+    case unsupportedStateInPatchInputParsing(SwiftParserPatchData)
     
     case incorrectParsing(message: String)
     case groupLayerDecodingFailed

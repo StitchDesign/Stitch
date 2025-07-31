@@ -479,6 +479,8 @@ extension SyntaxViewName {
         var silentErrors = [SwiftUISyntaxError]()
         let layerType = viewConstructor.value.layer
         
+        let values =
+        
         // Handle constructor-arguments
         // Try to access the SyntaxView.ViewConstructor, if we have one
         let customInputValues = try viewConstructor.value
@@ -1149,7 +1151,7 @@ enum SyntaxArgumentConstructorContext {
 }
 
 extension SyntaxViewModifierArgumentType {
-    func derivePortValues() throws -> [LayerPortDerivation] {
+    func derivePortValues() throws -> [LayerPortDerivationType] {
         try SyntaxViewName.derivePortValues(from: self,
                                             context: nil)
     }

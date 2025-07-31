@@ -254,11 +254,11 @@ extension TextViewConstructor {
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
         let arg = self.arg
-        guard let value = try arg.derivePortValues().first else {
-            throw SwiftUISyntaxError.portValueNotFound
-        }
+        let values = try arg.derivePortValues()
         
-        return [.init(input: .text, value: value)]
+        return values.map {
+            .init(input: .text, inputData: $0)
+        }
     }
     
     // Factory that infers the correct overload from a `FunctionCallExprSyntax`
@@ -323,24 +323,18 @@ enum ImageViewConstructor: Equatable, FromSwiftUIViewToStitch {
         case .asset(let arg),
                 .decorative(let arg),
                 .uiImage(let arg):
-            guard let portValue = try arg.derivePortValues().first else {
-                throw SwiftUISyntaxError.portValueNotFound
-            }
-            
-            return [
+            let portValues = try arg.derivePortValues()
+            return portValues.map {
                 .init(input: .image,
-                      value: portValue)
-            ]
+                      inputData: $0)
+            }
             
         case .sfSymbol(let arg):
-            guard let portValue = try arg.derivePortValues().first else {
-                throw SwiftUISyntaxError.portValueNotFound
-            }
-            
-            return [
+            let portValues = try arg.derivePortValues()
+            return portValues.map {
                 .init(input: .sfSymbol,
-                      value: portValue)
-            ]
+                      inputData: $0)
+            }
         }
     }
     
@@ -509,7 +503,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             }
             
             list.append(.init(input: .layerGroupAlignment,
-                              value: value))
+                              inputData: value))
         }
         
         if let spacingArg = spacingArg {
@@ -518,7 +512,7 @@ enum HStackViewConstructor: Equatable, FromSwiftUIViewToStitch {
             }
             
             list.append(.init(input: .spacing,
-                              value: value))
+                              inputData: value))
         }
         
         return list

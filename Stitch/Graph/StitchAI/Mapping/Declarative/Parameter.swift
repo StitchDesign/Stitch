@@ -31,6 +31,13 @@ extension LayerPortDerivation {
                                        portType: .packed),
                      inputData: .value(value))
     }
+    
+    init(input: LayerInputPort,
+         inputData: LayerPortDerivationType) {
+        self = .init(coordinate: .init(layerInput: input,
+                                       portType: .packed),
+                     inputData: inputData)
+    }
 }
 
 /// A constructor argument that was either a compile‑time literal (`"logo"`,
