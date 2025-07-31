@@ -631,6 +631,7 @@
 		EC5043A52874CDDB00590D07 /* RGBA.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5043A42874CDDB00590D07 /* RGBA.swift */; };
 		EC519E372BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC519E362BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift */; };
 		EC51AA7926B307E3007919D6 /* groupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC51AA7826B307E3007919D6 /* groupTests.swift */; };
+		EC5251E12E3B0B2800E1AAC1 /* FontCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */; };
 		EC5263032B59D83600EE1E52 /* HandleStitchAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5263022B59D83600EE1E52 /* HandleStitchAction.swift */; };
 		EC53C0EE2D543A32002ECAEB /* LayerInspectorRowButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */; };
 		EC53F3BA287E25D60021095B /* SineNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC53F3B9287E25D60021095B /* SineNode.swift */; };
@@ -1791,6 +1792,7 @@
 		EC5043A42874CDDB00590D07 /* RGBA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGBA.swift; sourceTree = "<group>"; };
 		EC519E362BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathExpressionSubmenuButtonView.swift; sourceTree = "<group>"; };
 		EC51AA7826B307E3007919D6 /* groupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = groupTests.swift; sourceTree = "<group>"; };
+		EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontCodeExamples.swift; sourceTree = "<group>"; };
 		EC5263022B59D83600EE1E52 /* HandleStitchAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandleStitchAction.swift; sourceTree = "<group>"; };
 		EC53C0ED2D543A32002ECAEB /* LayerInspectorRowButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorRowButton.swift; sourceTree = "<group>"; };
 		EC53F3B9287E25D60021095B /* SineNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SineNode.swift; sourceTree = "<group>"; };
@@ -5110,6 +5112,7 @@
 			children = (
 				ECC734732E0DE95A00AC266C /* CodeExamples.swift */,
 				EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */,
+				EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */,
 				EC7062C22E15E78C0017A9F0 /* VarBodyCodeExamples.swift */,
 				EC7062C42E15E8120017A9F0 /* MultiparameterViewModifierCodeExamples.swift */,
 				EC1FF4622E171BD500B0D8FC /* ViewModifierCodeExamples.swift */,
@@ -6753,6 +6756,7 @@
 				EC0E1AFE2D4B2288004AAA37 /* LLMValueParsingUtils.swift in Sources */,
 				EC4914A229359AC300D74344 /* TextEndsWithNode.swift in Sources */,
 				B59660982C1A498800BE75D7 /* StitchMLModel.swift in Sources */,
+				EC5251E12E3B0B2800E1AAC1 /* FontCodeExamples.swift in Sources */,
 				ECC2BCD72B9B73C900D5F942 /* SidebarListItemGestureRecognizerView.swift in Sources */,
 				EC560E0B293A758600350046 /* LoopCountNode.swift in Sources */,
 				EC91B56429AE7891006E823D /* NodesOnlyView.swift in Sources */,
