@@ -259,9 +259,10 @@ extension CurrentAIGraphData.GraphData {
         }
         
         // new constants for layers
-        for newInputValueSetting in self.layer_data_list.allNestedCustomInputValues {
+        try self.layer_data_list.allNestedCustomInputValues { layerNodeId, newInputValueSetting in
             let inputCoordinate = try NodeIOCoordinate(
-                from: newInputValueSetting.layer_input_coordinate,
+                from: .init(layer_id: layerNodeId,
+                            input_port_type: newInputValueSetting.coordinate),
                 idMap: idMap)
             try document.updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
                                                       valueType: newInputValueSetting.value_type.value,

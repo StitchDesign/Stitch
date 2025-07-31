@@ -401,10 +401,13 @@ extension AIGraphData_V0.PortValue {
 }
 
 extension Array where Element == AIGraphData_V0.LayerData {
-    var allNestedCustomInputValues: [LayerPortDerivation] {
-        self.flatMap {
-            $0.custom_layer_input_values +
-            ($0.children?.allNestedCustomInputValues ?? [])
+    func allNestedCustomInputValues(callback: @escaping (String, LayerPortDerivation) throws -> ()) throws {
+        for layerData in self {
+            for customInputValue in layerData.custom_layer_input_values {
+                try callback(layerData.node_id, customInputValue)
+            }
+            
+            try layerData.children?.allNestedCustomInputValues(callback: callback)
         }
     }
 }
