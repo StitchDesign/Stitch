@@ -442,8 +442,6 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
         return ".frame(\(parts.joined(separator: ", ")))"
     case .foregroundColor(let m):
         return ".foregroundColor(\(renderArg(m.color)))"
-    case .backgroundColor(let m):
-        return ".backgroundColor(\(renderArg(m.color)))"
     case .brightness(let m):
         return ".brightness(\(renderArg(m.value)))"
     case .contrast(let m):
@@ -793,12 +791,6 @@ func makeViewModifierConstructor(from port: LayerInputPort,
             return .foregroundColor(ForegroundColorViewModifier(color: arg))
         }
         return nil
-    case .backgroundColor:
-        if let color = value.getColor {
-            let arg = createColorArgument(color)
-            return .backgroundColor(BackgroundColorViewModifier(color: arg))
-        }
-        return nil
     case .brightness:
         if let number = value.getNumber {
             let arg = SyntaxViewModifierArgumentType.simple(
@@ -915,8 +907,6 @@ func renderViewModifierConstructor(_ modifier: StrictViewModifier) -> String {
         return ".frame(\(parts.joined(separator: ", ")))"
     case .foregroundColor(let m):
         return ".foregroundColor(\(renderArg(m.color)))"
-    case .backgroundColor(let m):
-        return ".backgroundColor(\(renderArg(m.color)))"
     case .brightness(let m):
         return ".brightness(\(renderArg(m.value)))"
     case .contrast(let m):
