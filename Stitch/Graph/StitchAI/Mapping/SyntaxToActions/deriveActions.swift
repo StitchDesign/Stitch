@@ -138,77 +138,14 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
         
         // Second pass: derive custom values and edges
         for (varName, initializerType) in self {
-            switch initializerType {
-            case .patchNode(let patchNodeData):
-                for (portIndex, arg) in patchNodeData.args.enumerated() {
-                    switch arg {
-                    case .binding(let declRefSyntax):
-                        // Get edge data
-                        let refName = declRefSyntax.baseName.text
-                                                
-                        guard let upstreamRefData = varNameOutputPortMap.get(refName) else {
-                            fatalError()
-                        }
-                        
-                        let usptreamCoordinate = SwiftParserPatchData
-                            .derivePatchUpstreamCoordinate(upstreamRefData: upstreamRefData,
-                                                           varNameIdMap: varNameIdMap)
-                        
-                        patchConnections.append(
-                            .init(src_port: usptreamCoordinate,
-                                  dest_port: .init(node_id: patchNodeData.id,                          port_index: portIndex))
-                        )
-                        
-                    case .value(let argType):
-                        let portDataList = try argType.derivePortValues()
-                        
-                        for portData in portDataList {
-                            switch portData {
-                            case .value(let portValue):
-                                customPatchInputValues.append(
-                                    .init(patch_input_coordinate: .init(
-                                        node_id: patchNodeData.id,
-                                        port_index: portIndex),
-                                          value: portValue.value,
-                                          value_type: portValue.value_type)
-                                )
-                                
-                            case .stateRef(let string):
-                                fatalErrorIfDebug("State variables should never be passed into patch nodes")
-                                throw SwiftUISyntaxError.unsupportedStateInPatchInputParsing(patchNodeData)
-                            }
-                        }
-                    }
-                }
-                
-            case .stateMutation(let mutationData):
-                let subscriptData: SwiftParserSubscript
-                
-                // Find subscript data which must exist for view state mutation
-                switch mutationData {
-                case .subscriptRef(let _subscriptData):
-                    subscriptData = _subscriptData
-                    
-                case .declrRef(let ref):
-                    guard let refData = varNameOutputPortMap.get(ref) else {
-                        throw SwiftUISyntaxError.unexpectedStateMutatorFound(mutationData)
-                    }
-                    
-                    subscriptData = refData
-                }
-                
-                // Track upstream patch coordinate to some TBD layer input
-                let usptreamCoordinate = SwiftParserPatchData
-                    .derivePatchUpstreamCoordinate(upstreamRefData: subscriptData,
-                                                   varNameIdMap: varNameIdMap)
-                
-                viewStatePatchConnections.updateValue(usptreamCoordinate,
-                                                      forKey: varName)
-                
-            case .subscriptRef:
-                // Ignore here
-                continue
-            }
+            // Recursively calls argument data
+            try initializerType
+                .parseStitchActions(varName: varName,
+                                    varNameIdMap: varNameIdMap,
+                                    varNameOutputPortMap: varNameOutputPortMap,
+                                    customPatchInputValues: &customPatchInputValues,
+                                    patchConnections: &patchConnections,
+                                    viewStatePatchConnections: &viewStatePatchConnections)
         }
         
         return .init(actions: AIGraphData_V0
