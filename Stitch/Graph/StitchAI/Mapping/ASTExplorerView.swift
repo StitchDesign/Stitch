@@ -271,8 +271,8 @@ struct ASTExplorerView: View {
             var idMap: [String: UUID] = [:]
             
             // Convert LayerData to StrictSyntaxView
-            self.rebuiltSyntax = stitchActions.compactMap { layerData in
-                layerDataToStrictSyntaxView(layerData, idMap: &idMap)
+            self.rebuiltSyntax = try stitchActions.compactMap { layerData in
+                try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
             }
             
             // Generate complete SwiftUI code from StrictSyntaxView
