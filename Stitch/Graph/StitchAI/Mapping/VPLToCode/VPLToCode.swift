@@ -338,12 +338,20 @@ func createAlignmentArg(from inputs: LayerDataConstructorInputs, orientation: St
 func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [StrictViewModifier] {
     var modifiers: [StrictViewModifier] = []
     
+    // Extract layer type from layerData
+    let layerType: AIGraphData_V0.Layer
+    if case let .layer(kind) = layerData.node_name.value {
+        layerType = kind
+    } else {
+        layerType = .group
+    }
+    
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.layer_input_coordinate.input_port_type.value
         
         if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
             // Try to create a typed ViewModifierConstructor first
-            if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue) {
+            if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
                 modifiers.append(constructorModifier)
             }
             // Note: Non-constructor modifiers are handled in the legacy string generation path
@@ -723,7 +731,8 @@ func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
 
 /// Creates a typed view-modifier constructor from a layer input value, when supported.
 func makeViewModifierConstructor(from port: LayerInputPort,
-                                 value: AIGraphData_V0.PortValue) -> StrictViewModifier? {
+                                 value: AIGraphData_V0.PortValue,
+                                 layerType: AIGraphData_V0.Layer) -> StrictViewModifier? {
     switch port {
     case .opacity:
         if let number = value.getNumber {
@@ -790,7 +799,18 @@ func makeViewModifierConstructor(from port: LayerInputPort,
     case .color:
         if let color = value.getColor {
             let arg = createColorArgument(color)
-            return .foregroundColor(ForegroundColorViewModifier(color: arg))
+            // Choose modifier based on layer type
+            switch layerType {
+            case .rectangle, .oval, .shape:
+                // Shape layers use .fill()
+                return .fill(FillViewModifier(color: arg))
+            case .text, .textField:
+                // Text layers use .foregroundColor()
+                return .foregroundColor(ForegroundColorViewModifier(color: arg))
+            default:
+                // Default to .foregroundColor() for other layer types
+                return .foregroundColor(ForegroundColorViewModifier(color: arg))
+            }
         }
         return nil
     case .brightness:
@@ -1053,12 +1073,20 @@ func renderColor(_ color: Color) -> String {
 func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, idMap: inout [String: UUID]) -> [String] {
     var modifiers: [String] = []
 
+    // Extract layer type from layerData
+    let layerType: AIGraphData_V0.Layer
+    if case let .layer(kind) = layerData.node_name.value {
+        layerType = kind
+    } else {
+        layerType = .group
+    }
+
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.layer_input_coordinate.input_port_type.value
 
         if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
             // 1) Preferred: go through a typed ViewModifierConstructor if we support it
-            if let ctor = makeViewModifierConstructor(from: port, value: portValue) {
+            if let ctor = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
                 modifiers.append(renderViewModifierConstructor(ctor))
                 continue
             }
