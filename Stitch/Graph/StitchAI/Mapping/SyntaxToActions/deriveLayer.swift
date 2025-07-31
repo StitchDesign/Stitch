@@ -732,6 +732,7 @@ extension SyntaxViewName {
             
             let values = try SyntaxViewName.derivePortValues(
                 from: argFlatType.toSyntaxViewModifierArgumentType,
+                port: port,
                 context: .viewConstructor(self, port))
             
             // log("SyntaxViewName: deriveCustomValuesFromConstructorArguments: values: \(values)")
@@ -836,6 +837,7 @@ extension SyntaxViewName {
         // Convert every argument into a PortValue, later logic determines if we need to pack info
         let portDataFromArgs = try arguments.flatMap {
             try Self.derivePortValues(from: $0.value,
+                                      port: port,
                                       context: .viewModifier(port))
         }
         
@@ -852,8 +854,10 @@ extension SyntaxViewName {
         if arguments.count == 1,
            let argument = arguments.first,
            // Decode PortValue from full arguments data
-           let derivedPortData = try Self.derivePortValues(from: argument.value,
-                                                           context: .viewModifier(port)).first?.inputData {
+           let derivedPortData = try Self
+            .derivePortValues(from: argument.value,
+                              port: port,
+                              context: .viewModifier(port)).first?.inputData {
             return [
                 .init(coordinate: .init(layerInput: port,
                                         portType: .packed),
@@ -896,19 +900,25 @@ extension SyntaxViewName {
     }
 
     static func derivePortValues(from argument: SyntaxViewModifierArgumentType,
-                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivationType] {
+                                 port: LayerInputPort,
+                                 context: SyntaxArgumentConstructorContext?) throws -> [LayerPortDerivation] {
         
         switch argument {
         
         // Handles types like PortValueDescription
         case .complex(let complexType):
-            return try handleComplexArgumentType(complexType,
-                                                 context: context)
+            let values = try handleComplexArgumentType(complexType,
+                                                       context: context)
+            return values.map {
+                .init(input: port,
+                      inputData: $0)
+            }
             
         case .tuple(let tupleArgs):
             // Recursively determine PortValue of each arg
             return try tupleArgs.flatMap {
                 try Self.derivePortValues(from: $0.value,
+                                          port: port,
                                           context: context)
             }
             
@@ -918,7 +928,9 @@ extension SyntaxViewName {
             return try arrayArgs.flatMap {
                 log("SyntaxViewName: derivePortValue: had array: $0: \($0)")
                 log("SyntaxViewName: derivePortValue: had array: context: \(context)")
-                return try Self.derivePortValues(from: $0, context: context)
+                return try Self.derivePortValues(from: $0,
+                                                 port: port,
+                                                 context: context)
             }
             
         case .memberAccess(let memberAccess):
@@ -934,85 +946,79 @@ extension SyntaxViewName {
                 throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
                                 
             case .viewConstructor(let viewName, let port):
-                // TODO: move scroll logic upstream
-                fatalError()
-//
-//                switch viewName {
-//
-//                case .scrollView:
-//                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
-//                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
-//                    // https://developer.apple.com/documentation/swiftui/scrollview
-//                    // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
-//                    switch port {
-//                    case .scrollYEnabled:
-//                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "vertical")
-//                        return [
-//                            .init(input: port,
-//                                  value: portValue)
-//                        ]
-//                        
-//                    case .scrollXEnabled:
-//                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "horizontal")
-//                        return [
-//                            .init(input: port,
-//                                  value: portValue)
-//                        ]
-//                        
-//                    default:
-//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-//                    }
-//                    
-//                case .vStack, .hStack, .lazyVStack, .lazyHStack:
-//                    switch port {
-//                    case .layerGroupAlignment:
-//                        if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
-////                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
-//                           let migrated = try? anchoring.convert(to: Anchoring.self) {
-//                            return [
-//                                .init(input: port,
-//                                      value: .anchoring(migrated))
-//                            ]
-//                        } else {
-//                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-//                        }
-//                    
-//                    case .spacing:
-//                        if let n = toNumberBasic(memberAccess.property) {
-//                            return [
-//                                .init(input: port,
-//                                      value: .spacing(.number(n)))]
-//                        } else {
-//                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-//                        }
-//                        
-//                    default:
-//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-//                    }
-//                    
-//                default:
-//                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-//                }
+                switch viewName {
+                    
+                case .scrollView:
+                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: port: \(port)")
+                    log("SyntaxViewName: derivePortValue: had view constructor for scroll view: memberAccess.valueText: \(memberAccess.property)")
+                    // https://developer.apple.com/documentation/swiftui/scrollview
+                    // ScrollView only supports a single un-labeled constructor-argument? The other constructor was deprecated?
+                    switch port {
+                    case .scrollYEnabled:
+                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "vertical")
+                        return [
+                            .init(input: port,
+                                  value: portValue)
+                        ]
+                        
+                    case .scrollXEnabled:
+                        let portValue = CurrentAIGraphData.PortValue.bool(memberAccess.property == "horizontal")
+                        return [
+                            .init(input: port,
+                                  value: portValue)
+                        ]
+                        
+                    default:
+                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                    }
+                    
+                case .vStack, .hStack, .lazyVStack, .lazyHStack:
+                    switch port {
+                    case .layerGroupAlignment:
+                        if let anchoring = Anchoring.fromAlignmentString(memberAccess.property),
+                           //                            let migrated = try! anchoring.convert(to: Anchoring_V31.Anchoring.self)
+                           let migrated = try? anchoring.convert(to: Anchoring.self) {
+                            return [
+                                .init(input: port,
+                                      value: .anchoring(migrated))
+                            ]
+                        } else {
+                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                        }
+                        
+                    case .spacing:
+                        if let n = toNumberBasic(memberAccess.property) {
+                            return [
+                                .init(input: port,
+                                      value: .spacing(.number(n)))]
+                        } else {
+                            throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                        }
+                        
+                    default:
+                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                    }
+                    
+                default:
+                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                }
                 
             case .viewModifier(let port):
-                // TODO: bubble up view modifier support
-                fatalError()
-//                
-//                switch port {
-//                case .color:
-//                    // Tricky color case, for Color.systemName etc.
-//                    let colorStr = memberAccess.property
-//                    guard let color = Color.fromSystemName(colorStr) else {
-//                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-//                    }
-//                    return [
-//                        .init(input: port,
-//                              value: .color(color))
-//                    ]
-//                    
-//                default:
-//                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
-//                }
+                switch port {
+                case .color:
+                    // Tricky color case, for Color.systemName etc.
+                    let colorStr = memberAccess.property
+                    guard let color = Color.fromSystemName(colorStr) else {
+                        throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                    }
+                    return [
+                        .init(input: port,
+                              value: .color(color))
+                    ]
+                    
+                default:
+                    throw SwiftUISyntaxError.unsupportedPortValueTypeDecoding(argument)
+                }
             }
             
             
@@ -1030,12 +1036,18 @@ extension SyntaxViewName {
             let data = try JSONEncoder().encode(aiPortValueEncoding)
             let aiPortValue = try JSONDecoder().decode(CurrentAIGraphData.StitchAIPortValue.self, from: data)
             
-            return [.value(.init(aiPortValue.value))]
+            return [
+                .init(input: port,
+                      inputData: .value(.init(aiPortValue.value)))
+            ]
             
         case .stateAccess(let varName):
             // TODO: need to pass in connection data here and update all helpers to support edge connections
             
-            return [.stateRef(varName)]
+            return [
+                .init(input: port,
+                      inputData: .stateRef(varName))
+            ]
         }
     }
     
