@@ -61,7 +61,7 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
+    func updateCustomInputValueFromAI(inputObserver: InputNodeRowObserver,
                                       valueType: AIGraphData_V0.NodeType,
                                       data: (any Codable & Sendable),
                                       idMap: inout [String : UUID]) throws {
@@ -71,15 +71,9 @@ extension StitchDocumentViewModel {
                                                        valueType: valueType,
                                                        idMap: &idMap)
         let migratedValue = try value.migrate()
-
-        guard let input = graph.getInputObserver(coordinate: inputCoordinate) else {
-            log("applyAction: could not apply setInput")
-            // fatalErrorIfDebug()
-            throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
-        }
         
         // Use the common input-edit-committed function, so that we remove edges, block or unblock fields, etc.
-        graph.inputEditCommitted(input: input,
+        graph.inputEditCommitted(input: inputObserver,
                                  value: migratedValue,
                                  activeIndex: self.activeIndex)
     }
@@ -262,25 +256,39 @@ extension CurrentAIGraphData.GraphData {
                                                       idMap: &idMap)
         }
         
-        // new constants for layers
+        // new state for layers
         try self.layer_data_list.allNestedCustomInputValues { layerNodeId, newInputValueSetting in
             let inputCoordinate = try NodeIOCoordinate(
                 from: .init(layer_id: layerNodeId,
                             input_port_type: newInputValueSetting.coordinate),
                 idMap: idMap)
             
+            guard let inputObserver = graph.getInputObserver(coordinate: inputCoordinate) else {
+                log("applyAction: could not apply setInput")
+                // fatalErrorIfDebug()
+                throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+            }
+            
             switch newInputValueSetting.inputData {
             case .value(let value):
                 try document
-                    .updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
+                    .updateCustomInputValueFromAI(inputObserver: inputObserver,
                                                   valueType: value.value_type.value,
                                                   data: value.value,
                                                   idMap: &idMap)
 
-            case .stateRef(let string):
-                <#code#>
+            case .stateRef(let varName):
+                // Get upstream patch data from variable name
+                guard let upstreamPatchCoordinate = viewStatePatchConnections
+                    .get(varName) else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.port_index,
+                                                           nodeId: upstreamPatchCoordinate.node_id),
+                                               to: inputCoordinate)
             }
-            
         }
         
         // new edges to downstream patches
