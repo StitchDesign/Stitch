@@ -188,28 +188,69 @@ extension AIGraphData_V0.LayerData {
                     }
                     
                 case .upstreamConnection(let upstream):
-                    if let upstreamPortIndex = upstream.portId {
-                        layerConnections.append(
-                            .init(src_port: .init(node_id: upstream.nodeId.description,
-                                                  port_index: upstreamPortIndex),
-                                  dest_port: .init(layer_id: layerData.id.description,
-                                                   input_port_type: .init(layerInput: port,
-                                                                          portType: .packed)
-                                                  )
-                            ))
-                    }
+                    let layerConnection = try Self
+                        .createLayerConnection(upstream: upstream,
+                                               downstreamNodeId: layerData.id,
+                                               downstreamPort: port,
+                                               downstreamKeyPathType: .packed)
+                    
+                    layerConnections.append(layerConnection)
                 }
                 
             case .unpacked:
-                fatalErrorIfDebug("come back to unpacked")
+                for (portIndex, unpackedData) in portData.unpackedData.enumerated() {
+                    guard let unpackedPortType = UnpackedPortType_V33.UnpackedPortType(rawValue: portIndex) else {
+                        fatalErrorIfDebug()
+                        continue
+                    }
+                    
+                    switch unpackedData.inputPort {
+                    case .values(let values):
+                        guard let firstValue = values.first else {
+                            fatalErrorIfDebug()
+                            continue
+                        }
+                        
+                        customInputValues.append(.init(
+                            coordinate: .init(layerInput: port,
+                                              portType: .unpacked(unpackedPortType)) , inputData: .value(firstValue))
+                        )
+                        
+                    case .upstreamConnection(let upstream):
+                        let layerConnection = try Self
+                            .createLayerConnection(upstream: upstream,
+                                                   downstreamNodeId: layerData.id,
+                                                   downstreamPort: port,
+                                                   downstreamKeyPathType: .unpacked(unpackedPortType))
+                        
+                        layerConnections.append(layerConnection)
+                    }
+                }
             }
-            
         }
         
         self = .init(node_id: sidebarData.id.description,
                      node_name: .init(value: .layer(layerData.layer)),
                      children: children,
                      custom_layer_input_values: customInputValues)
+    }
+    
+    static func createLayerConnection(upstream: NodeIOCoordinate,
+                                      downstreamNodeId: UUID,
+                                      downstreamPort: LayerInputPort,
+                                      downstreamKeyPathType: LayerInputKeyPathType) throws -> AIGraphData_V0.LayerConnection {
+        guard let upstreamPortIndex = upstream.portId else {
+            throw SwiftUISyntaxError.unexpectedUpstreamLayerCoordinate
+        }
+            
+        return .init(
+            src_port: .init(node_id: upstream.nodeId.description,
+                            port_index: upstreamPortIndex),
+            dest_port: .init(layer_id: downstreamNodeId.description,
+                             input_port_type: .init(layerInput: downstreamPort,
+                                                    portType: downstreamKeyPathType)
+                            )
+        )
     }
 }
 
