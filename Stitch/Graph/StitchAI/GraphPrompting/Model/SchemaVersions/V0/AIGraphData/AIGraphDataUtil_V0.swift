@@ -212,9 +212,11 @@ extension AIGraphData_V0.LayerData {
                         }
                         
                         customInputValues.append(.init(
-                            coordinate: .init(layerInput: port,
-                                              portType: .unpacked(unpackedPortType)) , inputData: .value(firstValue))
-                        )
+                            coordinate: .init(
+                                layerInput: port,
+                                portType: .unpacked(unpackedPortType)),
+                            inputData: .value(.init(firstValue))
+                        ))
                         
                     case .upstreamConnection(let upstream):
                         let layerConnection = try Self

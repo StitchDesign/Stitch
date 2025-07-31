@@ -335,8 +335,8 @@ extension LayerPortDerivation: Encodable {
         case .value(let value):
             // Encodes values in manner that produces friendly printable result
             try AIGraphData_V0.PortValue.encodeFromAI(container: &container,
-                                                      valueData: value,
-                                                      valueType: .init(value: value.nodeType),
+                                                      valueData: value.value,
+                                                      valueType: value.value_type,
                                                       valueKey: .value,
                                                       valueTypeKey: .value_type)
 

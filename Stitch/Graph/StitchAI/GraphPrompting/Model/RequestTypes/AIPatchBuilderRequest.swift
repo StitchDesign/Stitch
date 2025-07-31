@@ -61,10 +61,16 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func updateCustomInputValueFromAI(inputObserver: InputNodeRowObserver,
+    func updateCustomInputValueFromAI(inputCoordinate: NodeIOCoordinate,
                                       valueType: AIGraphData_V0.NodeType,
                                       data: (any Codable & Sendable),
                                       idMap: inout [String : UUID]) throws {
+        guard let inputObserver = graph.getInputObserver(coordinate: inputCoordinate) else {
+            log("applyAction: could not apply setInput")
+            // fatalErrorIfDebug()
+            throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
+        }
+        
         let graph = self.visibleGraph
         
         let value = try AIGraphData_V0.PortValue.decodeFromAI(data: data,
@@ -263,16 +269,10 @@ extension CurrentAIGraphData.GraphData {
                             input_port_type: newInputValueSetting.coordinate),
                 idMap: idMap)
             
-            guard let inputObserver = graph.getInputObserver(coordinate: inputCoordinate) else {
-                log("applyAction: could not apply setInput")
-                // fatalErrorIfDebug()
-                throw StitchAIStepHandlingError.actionValidationError("Could not retrieve input \(inputCoordinate)")
-            }
-            
             switch newInputValueSetting.inputData {
             case .value(let value):
                 try document
-                    .updateCustomInputValueFromAI(inputObserver: inputObserver,
+                    .updateCustomInputValueFromAI(inputCoordinate: inputCoordinate,
                                                   valueType: value.value_type.value,
                                                   data: value.value,
                                                   idMap: &idMap)
@@ -280,14 +280,17 @@ extension CurrentAIGraphData.GraphData {
             case .stateRef(let varName):
                 // Get upstream patch data from variable name
                 guard let upstreamPatchCoordinate = viewStatePatchConnections
-                    .get(varName) else {
+                    .get(varName),
+                      let upstreamNodeId = idMap.get(upstreamPatchCoordinate.node_id) else {
                     fatalErrorIfDebug()
                     return
                 }
                 
                 let newEdgeData = PortEdgeData(from: .init(portId: upstreamPatchCoordinate.port_index,
-                                                           nodeId: upstreamPatchCoordinate.node_id),
+                                                           nodeId: upstreamNodeId),
                                                to: inputCoordinate)
+                
+                graph.edgeAdded(edge: newEdgeData)
             }
         }
         
