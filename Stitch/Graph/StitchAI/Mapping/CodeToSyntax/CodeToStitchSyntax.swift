@@ -106,10 +106,24 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         
         // Subscript callers used to access some node outputs
         else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
-            let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr)
+            // Check for function expressions here too, needed for deriving patch data
+            if let patchFn = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
+                // Assumed to be patch node
+                guard let patchNode = self.visitPatchData(patchFn) else {
+                    fatalError()
+                }
+                
+                self.bindingDeclarations
+                    .updateValue(.patchNode(patchNode), forKey: currentLHS)
+            }
             
-            self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
-                                                 forKey: currentLHS)
+            else {
+                // Subscript reference to some existing outputs
+                let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr)
+                
+                self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
+                                                     forKey: currentLHS)
+            }
         }
         
         // @State var cases
@@ -693,17 +707,14 @@ extension SwiftUIViewVisitor {
 //        self.patchNodesByVarName
 //            .updateValue(patchNode, forKey: currentLHS)
         
-        let patchNodeArgs = node.arguments.compactMap { arg -> SwiftParserPatternBindingArg? in
+        guard let elements = node.arguments.first?.expression.as(ArrayExprSyntax.self)?.elements else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        let patchNodeArgs = elements.compactMap { arg -> SwiftParserPatternBindingArg? in
             // ArrayExpr → might hold a PortValueDescription literal
-            guard let arrayExpr = arg.expression.as(ArrayExprSyntax.self) else {
-                fatalError()
-            }
-            
-            guard let outerFirstElem = arrayExpr.elements.first?.expression else {
-                return nil
-            }
-            
-            if let arrayElem = outerFirstElem.as(ArrayExprSyntax.self),
+            if let arrayElem = arg.expression.as(ArrayExprSyntax.self),
                let innerFirstElem = arrayElem.elements.first?.expression {
                 
                 guard let argData = self.parseArgumentType(from: innerFirstElem) else {
@@ -713,7 +724,7 @@ extension SwiftUIViewVisitor {
                 return .value(argData)
             }
             
-            else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
+            else if let declrRefSyntax = arg.expression.as(DeclReferenceExprSyntax.self) {
                 print("Input param that points to some reference: \(declrRefSyntax)")
                 return .binding(declrRefSyntax)
             }
