@@ -107,25 +107,10 @@ final class SwiftUIViewVisitor: SyntaxVisitor {
         // Subscript callers used to access some node outputs
         else if let subscriptCallExpr = initializer.value.as(SubscriptCallExprSyntax.self) {
             // Subscript reference to some existing outputs
-            let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr)
-            
-            // Check for function expressions here too, needed for deriving patch data
-            if let patchFn = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
-                // Assumed to be patch node
-                guard let patchNode = self.visitPatchData(patchFn) else {
-                    fatalError()
-                }
-                
-                self.bindingDeclarations
-                    .updateValue(.subscriptRef(.init(subscriptType: .patchNode(patchNode),
-                                                     portIndex: subscriptRef.portIndex)),
-                                 forKey: currentLHS)
-            }
-            
-            else {
-                self.bindingDeclarations.updateValue(.subscriptRef(subscriptRef),
-                                                     forKey: currentLHS)
-            }
+            let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr)
+            self.bindingDeclarations
+                .updateValue(.subscriptRef(subscriptData),
+                             forKey: currentLHS)
         }
         
         // @State var cases
@@ -731,6 +716,11 @@ extension SwiftUIViewVisitor {
                 return .binding(declrRefSyntax)
             }
             
+            else if let subscriptCallExpr = arg.expression.as(SubscriptCallExprSyntax.self) {
+                let subscriptData = self.visitSubscriptData(subscriptCallExpr: subscriptCallExpr)
+                return .subscriptRef(subscriptData)
+            }
+            
             else {
                 fatalError()
             }
@@ -739,11 +729,32 @@ extension SwiftUIViewVisitor {
         return .init(patchName: patchNode,
                      args: patchNodeArgs)
     }
+    
+    func visitSubscriptData(subscriptCallExpr: SubscriptCallExprSyntax) -> SwiftParserSubscript {
+        // Subscript reference to some existing outputs
+        let subscriptRef = self.deriveSubscriptData(subscriptCallExpr: subscriptCallExpr)
+        
+        // Check for function expressions here too, needed for deriving patch data
+        if let patchFn = subscriptCallExpr.calledExpression.as(FunctionCallExprSyntax.self) {
+            // Assumed to be patch node
+            guard let patchNode = self.visitPatchData(patchFn) else {
+                fatalError()
+            }
+            
+            return .init(subscriptType: .patchNode(patchNode),
+                         portIndex: subscriptRef.portIndex)
+        }
+        
+        else {
+            return subscriptRef
+        }
+    }
 }
 
 enum SwiftParserPatternBindingArg {
     case value(SyntaxViewModifierArgumentType)
     case binding(DeclReferenceExprSyntax)
+    case subscriptRef(SwiftParserSubscript)
 }
 
 struct SwiftParserPatchData {
@@ -754,7 +765,7 @@ struct SwiftParserPatchData {
     var args: [SwiftParserPatternBindingArg]
 }
 
-struct SwiftParserSubscript {
+struct SwiftParserSubscript: Sendable {
     // The name of the variable
     var subscriptType: SwiftParserSubscriptType
     var portIndex: Int
@@ -774,7 +785,7 @@ enum SwiftParserInitializerType {
     case stateMutation(SwiftParserStateMutation)
 }
 
-enum SwiftParserStateMutation {
+enum SwiftParserStateMutation: Sendable {
     case declrRef(String)
     case subscriptRef(SwiftParserSubscript)
 }
@@ -905,11 +916,22 @@ extension SwiftParserInitializerType {
                                       value_type: portValue.value_type)
                             )
                             
-                        case .stateRef(let string):
+                        case .stateRef:
                             fatalErrorIfDebug("State variables should never be passed into patch nodes")
                             throw SwiftUISyntaxError.unsupportedStateInPatchInputParsing(patchNodeData)
                         }
                     }
+                    
+                case .subscriptRef(let subscriptRef):
+                    // Recursively call subscript data
+                    let subscriptInitializer = SwiftParserInitializerType.subscriptRef(subscriptRef)
+                    try subscriptInitializer
+                        .parseStitchActions(varName: varName,
+                                            varNameIdMap: varNameIdMap,
+                                            varNameOutputPortMap: varNameOutputPortMap,
+                                            customPatchInputValues: &customPatchInputValues,
+                                            patchConnections: &patchConnections,
+                                            viewStatePatchConnections: &viewStatePatchConnections)
                 }
             }
             
