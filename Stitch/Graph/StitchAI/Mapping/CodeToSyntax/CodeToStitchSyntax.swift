@@ -693,31 +693,34 @@ extension SwiftUIViewVisitor {
 //        self.patchNodesByVarName
 //            .updateValue(patchNode, forKey: currentLHS)
         
-        let patchNodeArgs = node.arguments.map { arg -> SwiftParserPatternBindingArg in
+        let patchNodeArgs = node.arguments.compactMap { arg -> SwiftParserPatternBindingArg? in
             // ArrayExpr → might hold a PortValueDescription literal
-            if let arrayExpr = arg.expression.as(ArrayExprSyntax.self),
-               let outerFirstElem = arrayExpr.elements.first?.expression {
-                if let arrayElem = outerFirstElem.as(ArrayExprSyntax.self),
-                   let innerFirstElem = arrayElem.elements.first?.expression {
- 
-                    guard let argData = self.parseArgumentType(from: innerFirstElem) else {
-                        fatalError()
-                    }
-
-                    return .value(argData)
-                }
-                
-                else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
-                    print("Input param that points to some reference: \(declrRefSyntax)")
-                    return .binding(declrRefSyntax)
-                }
-                
-                else {
-                    fatalError()
-                }
+            guard let arrayExpr = arg.expression.as(ArrayExprSyntax.self) else {
+                fatalError()
             }
             
-            fatalError()
+            guard let outerFirstElem = arrayExpr.elements.first?.expression else {
+                return nil
+            }
+            
+            if let arrayElem = outerFirstElem.as(ArrayExprSyntax.self),
+               let innerFirstElem = arrayElem.elements.first?.expression {
+                
+                guard let argData = self.parseArgumentType(from: innerFirstElem) else {
+                    fatalError()
+                }
+                
+                return .value(argData)
+            }
+            
+            else if let declrRefSyntax = outerFirstElem.as(DeclReferenceExprSyntax.self) {
+                print("Input param that points to some reference: \(declrRefSyntax)")
+                return .binding(declrRefSyntax)
+            }
+            
+            else {
+                fatalError()
+            }
         }
         
         return .init(patchName: patchNode,
