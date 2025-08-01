@@ -248,6 +248,7 @@ struct ASTExplorerView: View {
 
     // MARK: Helpers
     private func transform() {
+        let fakeDoc = StitchDocumentViewModel.createEmpty()
         let currentCode = codes[selectedTab]
 
         // Reset all values
@@ -259,7 +260,8 @@ struct ASTExplorerView: View {
         silentlyCaughtErrors = []
         derivedConstructors = []
 
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode)
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(currentCode,
+                                                                   varNameIdMap: [:])
         
         // Parse code → Syntax
         firstSyntax = codeParserResult.rootView
@@ -276,15 +278,24 @@ struct ASTExplorerView: View {
             // Actions → StrictSyntaxView (new approach using typed system)
             var idMap: [String: UUID] = [:]
             
+            // Apply AI result to fake document
+            try stitchActionsResult.graphData
+                .createAIGraph(viewStatePatchConnections: stitchActionsResult.viewStatePatchConnections,
+                               document: fakeDoc)
+            
+            let graphEntity = fakeDoc.graph.createSchema()
+            
             // Convert LayerData to StrictSyntaxView
             self.rebuiltSyntax = try stitchActions?.graphData.layer_data_list.compactMap { layerData in
                 try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
             } ?? []
             
+            let patchCode = try graphEntity.createBindingDeclarations(nodeIdsInTopologicalOrder: fakeDoc.graph.nodeIdsInTopologicalOrder).script
+            
             // Generate complete SwiftUI code from StrictSyntaxView
             self.regeneratedCode = rebuiltSyntax.map { strictSyntaxView in
-                strictSyntaxView.toSwiftUICode(usePortValueDescription: usePortValueDescription)
-            }.joined(separator: "\n\n")
+                strictSyntaxView.toSwiftUICode()
+            }.joined(separator: "\n\n") + patchCode
             
             // Also maintain derivedConstructors for compatibility with existing UI
             self.derivedConstructors = rebuiltSyntax.map { $0.constructor }

@@ -94,16 +94,12 @@ extension CurrentAIGraphData.GraphData {
         case .userPrompt:
             // User prompt-based requests are always assumed to be edit requests, which completely replace existing graph data
             try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
-                                   graphCenter: document.viewPortCenter,
-                                   highestZIndex: document.visibleGraph.highestZIndex,
                                    document: document)
             
         case .imagePrompt:
             // Image upload-based requests are assumed to provide supplementary graph data, rather than full-on replacements. We create a mock document view model and then use copy-paste logic for support.
             let mockDocumentViewModel = StitchDocumentViewModel.createEmpty()
             try self.createAIGraph(viewStatePatchConnections: viewStatePatchConnections,
-                                   graphCenter: document.viewPortCenter,
-                                   highestZIndex: document.visibleGraph.highestZIndex,
                                    document: mockDocumentViewModel)
             let graphEntity = mockDocumentViewModel.visibleGraph.createSchema()
             
@@ -122,10 +118,10 @@ extension CurrentAIGraphData.GraphData {
     
     @MainActor
     func createAIGraph(viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate],
-                       graphCenter: CGPoint,
-                       highestZIndex: Double,
                        document: StitchDocumentViewModel) throws {
         let graph = document.visibleGraph
+        let graphCenter = document.viewPortCenter
+        let highestZIndex = document.visibleGraph.highestZIndex
         
         // Track node ID map to create new IDs, fixing ID reusage issue
         // Make sure currently used IDs are tracked so we don't create redundant nodes

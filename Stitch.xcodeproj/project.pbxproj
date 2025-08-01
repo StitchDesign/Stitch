@@ -58,6 +58,7 @@
 		B50CE3082908D0C40065378E /* StitchTextEditingField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE3072908D0C40065378E /* StitchTextEditingField.swift */; };
 		B50F41712C1F52C00082262F /* LayerInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50F41702C1F52C00082262F /* LayerInspectorView.swift */; };
 		B5115A252E2D9E2E00068FB1 /* StitchAIFunctionRequestable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5115A242E2D9E2800068FB1 /* StitchAIFunctionRequestable.swift */; };
+		B512A9AE2E3D757A00CF70E1 /* PatchVPLToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B512A9AD2E3D757400CF70E1 /* PatchVPLToCode.swift */; };
 		B5136F452DED264A007F12D0 /* StitchAIPosition_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F442DED2642007F12D0 /* StitchAIPosition_V0.swift */; };
 		B5136F492DED2723007F12D0 /* StitchAICurrentVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */; };
 		B5136F4B2DED27BB007F12D0 /* StitchAIPortValue_V0.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5136F4A2DED27B7007F12D0 /* StitchAIPortValue_V0.swift */; };
@@ -427,7 +428,7 @@
 		EC0093E026D6F648000EAE08 /* ProgressNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0093DF26D6F648000EAE08 /* ProgressNode.swift */; };
 		EC00D80526FAC4E50024AAF6 /* GraphActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC00D80426FAC4E50024AAF6 /* GraphActions.swift */; };
 		EC014FEF2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */; };
-		EC035BEA2E385E050002E109 /* VPLToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC035BE92E385E050002E109 /* VPLToCode.swift */; };
+		EC035BEA2E385E050002E109 /* LayerVPLToCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC035BE92E385E050002E109 /* LayerVPLToCode.swift */; };
 		EC035BF828A56E84005FA607 /* ClassicAnimationFormulae.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */; };
 		EC067CE82BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */; };
 		EC067CEA2BAB710E00F8EB82 /* ClassicAnimationOpSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC067CE92BAB710E00F8EB82 /* ClassicAnimationOpSize.swift */; };
@@ -1243,6 +1244,7 @@
 		B50CE3072908D0C40065378E /* StitchTextEditingField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchTextEditingField.swift; sourceTree = "<group>"; };
 		B50F41702C1F52C00082262F /* LayerInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorView.swift; sourceTree = "<group>"; };
 		B5115A242E2D9E2800068FB1 /* StitchAIFunctionRequestable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIFunctionRequestable.swift; sourceTree = "<group>"; };
+		B512A9AD2E3D757400CF70E1 /* PatchVPLToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchVPLToCode.swift; sourceTree = "<group>"; };
 		B5136F442DED2642007F12D0 /* StitchAIPosition_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPosition_V0.swift; sourceTree = "<group>"; };
 		B5136F482DED271E007F12D0 /* StitchAICurrentVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAICurrentVersions.swift; sourceTree = "<group>"; };
 		B5136F4A2DED27B7007F12D0 /* StitchAIPortValue_V0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPortValue_V0.swift; sourceTree = "<group>"; };
@@ -1599,7 +1601,7 @@
 		EC0093DF26D6F648000EAE08 /* ProgressNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressNode.swift; sourceTree = "<group>"; };
 		EC00D80426FAC4E50024AAF6 /* GraphActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphActions.swift; sourceTree = "<group>"; };
 		EC014FEE2BED4F7700E6C51B /* NodeRowObserverColorUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverColorUtil.swift; sourceTree = "<group>"; };
-		EC035BE92E385E050002E109 /* VPLToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPLToCode.swift; sourceTree = "<group>"; };
+		EC035BE92E385E050002E109 /* LayerVPLToCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerVPLToCode.swift; sourceTree = "<group>"; };
 		EC035BF728A56E84005FA607 /* ClassicAnimationFormulae.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationFormulae.swift; sourceTree = "<group>"; };
 		EC067CE72BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationPoint4D.swift; sourceTree = "<group>"; };
 		EC067CE92BAB710E00F8EB82 /* ClassicAnimationOpSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationOpSize.swift; sourceTree = "<group>"; };
@@ -4736,7 +4738,8 @@
 		EC035BEB2E385E0C0002E109 /* VPLToCode */ = {
 			isa = PBXGroup;
 			children = (
-				EC035BE92E385E050002E109 /* VPLToCode.swift */,
+				B512A9AD2E3D757400CF70E1 /* PatchVPLToCode.swift */,
+				EC035BE92E385E050002E109 /* LayerVPLToCode.swift */,
 			);
 			path = VPLToCode;
 			sourceTree = "<group>";
@@ -5833,6 +5836,7 @@
 				ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */,
 				EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */,
 				EC4914A429359B3F00D74344 /* TextStartsWithNode.swift in Sources */,
+				B512A9AE2E3D757A00CF70E1 /* PatchVPLToCode.swift in Sources */,
 				EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */,
 				EC211A482698A6F10068A0F0 /* JSONUtils.swift in Sources */,
 				B5EC874F28256DD0004C2AB3 /* AlertsViewModifier.swift in Sources */,
@@ -6476,7 +6480,7 @@
 				2084200C25AD1C4F00E26728 /* LoopLengths.swift in Sources */,
 				ECDBD8AB27A1D21C00F8DC91 /* FullScreenGestureRecognizerView.swift in Sources */,
 				B5F8EEE72E3C2B60009432C5 /* CodeToStitchModel.swift in Sources */,
-				EC035BEA2E385E050002E109 /* VPLToCode.swift in Sources */,
+				EC035BEA2E385E050002E109 /* LayerVPLToCode.swift in Sources */,
 				EC8605AE269DF344007B8ED3 /* ValueAtIndexNode.swift in Sources */,
 				EC8967042B4E230A0066879B /* StraightLine.swift in Sources */,
 				EC48F0312C65975300DB3ACB /* PinningUtils.swift in Sources */,

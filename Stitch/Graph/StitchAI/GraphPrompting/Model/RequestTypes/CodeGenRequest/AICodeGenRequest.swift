@@ -28,37 +28,42 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String {
-        // Request for code creation
-        let codeCreateRequest = try OpenAIChatCompletionRequest(
-            id: self.id,
-            requestType: Self.type,
-            systemPrompt: systemPrompt,
-            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type),
-            inputs: self.currentGraphData)
+//        // Request for code creation
+//        let codeCreateRequest = try OpenAIChatCompletionRequest(
+//            id: self.id,
+//            requestType: Self.type,
+//            systemPrompt: systemPrompt,
+//            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type),
+//            inputs: self.currentGraphData)
+//        
+//        let codeResult = try await codeCreateRequest
+//            .request(document: document,
+//                     aiManager: aiManager)
         
-        let codeResult = try await codeCreateRequest
-            .request(document: document,
-                     aiManager: aiManager)
         
-        log("AICodeGenFromGraphRequest.createCode initial result:\n\(codeResult)")
         
-        let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
-            source_code: codeResult,
-            user_prompt: userPrompt)
         
-        // Request for code edit
-        let codeEditRequest = try OpenAIChatCompletionRequest(
-            id: self.id,
-            requestType: Self.type,
-            systemPrompt: systemPrompt,
-            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
-            inputs: editInputs)
-        
-        let codeEditResult = try await codeEditRequest
-            .request(document: document,
-                     aiManager: aiManager)
-        
-        return codeEditResult
+        fatalError("come back here")
+//
+//        log("AICodeGenFromGraphRequest.createCode initial result:\n\(codeResult)")
+//        
+//        let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
+//            source_code: codeResult,
+//            user_prompt: userPrompt)
+//        
+//        // Request for code edit
+//        let codeEditRequest = try OpenAIChatCompletionRequest(
+//            id: self.id,
+//            requestType: Self.type,
+//            systemPrompt: systemPrompt,
+//            assistantPrompt: try StitchAIManager.aiCodeEditSystemPromptGenerator(requestType: Self.type),
+//            inputs: editInputs)
+//        
+//        let codeEditResult = try await codeEditRequest
+//            .request(document: document,
+//                     aiManager: aiManager)
+//        
+//        return codeEditResult
     }
 }
 
@@ -213,7 +218,10 @@ extension StitchAICodeCreator {
         
 //        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
+        // TODO: come back here and get dictionary
+        fatalError()
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode,
+                                                                   varNameIdMap: [:])
         
         guard let viewNode = codeParserResult.rootView else {
             logToServerIfRelease("SwiftUISyntaxError.viewNodeNotFound.localizedDescription: \(SwiftUISyntaxError.viewNodeNotFound.localizedDescription)")

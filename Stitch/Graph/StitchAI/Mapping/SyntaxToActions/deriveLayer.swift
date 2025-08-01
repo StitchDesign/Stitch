@@ -1022,8 +1022,6 @@ extension SyntaxViewName {
             return [.value(.init(aiPortValue.value))]
             
         case .stateAccess(let varName):
-            // TODO: need to pass in connection data here and update all helpers to support edge connections
-            
             return [.stateRef(varName)]
             
         case .memberAccess:
