@@ -993,12 +993,8 @@ func renderArg(_ arg: SyntaxViewModifierArgumentType, usePortValueDescription: B
     }
     
     if usePortValueDescription && !valueType.isEmpty {
-        // For array-based modifiers (like fill, foregroundColor), wrap in array
-        if valueType == "color" {
-            return "[\(renderArgAsPortValueDescription(arg, valueType: valueType))]"
-        } else {
-            return renderArgAsPortValueDescription(arg, valueType: valueType)
-        }
+        // Always wrap PortValueDescription in arrays for consistency
+        return "[\(renderArgAsPortValueDescription(arg, valueType: valueType))]"
     }
     
     return renderArgWithoutPortValueDescription(arg)
