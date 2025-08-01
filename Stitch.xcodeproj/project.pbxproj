@@ -819,6 +819,7 @@
 		EC9486A42AE2007800B51AB1 /* HoverGestureModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */; };
 		EC95748729B0231200048382 /* ProjectsHomeCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC95748629B0231200048382 /* ProjectsHomeCommands.swift */; };
 		EC96B0462B8D097D00B58227 /* MoveToPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC96B0452B8D097D00B58227 /* MoveToPackNode.swift */; };
+		EC9700502E3C80870049202B /* PortValueDescriptionCodeExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC97004F2E3C80860049202B /* PortValueDescriptionCodeExamples.swift */; };
 		EC98130F2AB247C700828A20 /* DrawnEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC98130E2AB247C600828A20 /* DrawnEdge.swift */; };
 		EC981F74273049F800B25F14 /* sidebarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC981F73273049F800B25F14 /* sidebarTests.swift */; };
 		EC9832692B69C926003F9462 /* EdgeEditModeInputLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9832682B69C926003F9462 /* EdgeEditModeInputLabelView.swift */; };
@@ -1978,6 +1979,7 @@
 		EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverGestureModifier.swift; sourceTree = "<group>"; };
 		EC95748629B0231200048382 /* ProjectsHomeCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsHomeCommands.swift; sourceTree = "<group>"; };
 		EC96B0452B8D097D00B58227 /* MoveToPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveToPackNode.swift; sourceTree = "<group>"; };
+		EC97004F2E3C80860049202B /* PortValueDescriptionCodeExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueDescriptionCodeExamples.swift; sourceTree = "<group>"; };
 		EC98130E2AB247C600828A20 /* DrawnEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawnEdge.swift; sourceTree = "<group>"; };
 		EC981F73273049F800B25F14 /* sidebarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sidebarTests.swift; sourceTree = "<group>"; };
 		EC9832682B69C926003F9462 /* EdgeEditModeInputLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeInputLabelView.swift; sourceTree = "<group>"; };
@@ -5122,6 +5124,7 @@
 				EC7062B22E14BFC50017A9F0 /* ScrollViewCodeExamples.swift */,
 				EC5251E02E3B0B2800E1AAC1 /* FontCodeExamples.swift */,
 				EC7062C22E15E78C0017A9F0 /* VarBodyCodeExamples.swift */,
+				EC97004F2E3C80860049202B /* PortValueDescriptionCodeExamples.swift */,
 				EC7062C42E15E8120017A9F0 /* MultiparameterViewModifierCodeExamples.swift */,
 				EC1FF4622E171BD500B0D8FC /* ViewModifierCodeExamples.swift */,
 				EC7062BC2E15E61F0017A9F0 /* ColorCodeExamples.swift */,
@@ -6241,6 +6244,7 @@
 				ECA92A28260A6A3400281B52 /* DelayNode.swift in Sources */,
 				ECB9A86B2AEB4935006E65EE /* SaturationSliderView.swift in Sources */,
 				B57C8EAF2DE5408300942EDF /* GroupCandidate.swift in Sources */,
+				EC9700502E3C80870049202B /* PortValueDescriptionCodeExamples.swift in Sources */,
 				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
 				EC1D03BD2CFF86FA0094EE9F /* NativeScrollInteraction.swift in Sources */,
