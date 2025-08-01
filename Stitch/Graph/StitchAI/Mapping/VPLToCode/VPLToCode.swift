@@ -402,10 +402,14 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
                 }
             }
         } else {
-            // Multiple unpacked inputs - handle specially for frame modifier
+            // Multiple unpacked inputs - handle specially for frame and offset modifiers
             if port == .size {
                 if let frameModifier = createFrameViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
                     modifiers.append(frameModifier)
+                }
+            } else if port == .position {
+                if let offsetModifier = createOffsetViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
+                    modifiers.append(offsetModifier)
                 }
             } else {
                 // For other ports with unpacked inputs, handle each separately for now
@@ -470,6 +474,54 @@ func createFrameViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
     // Create FrameViewModifier if we have at least width or height
     if width != nil || height != nil {
         return .frame(FrameViewModifier(width: width, height: height))
+    }
+    
+    return nil
+}
+
+/// Creates an OffsetViewModifier from unpacked position inputs (x and y)
+func createOffsetViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
+                                               idMap: inout [String: UUID]) -> StrictViewModifier? {
+    guard !inputs.isEmpty else { return nil }
+    
+    var x: SyntaxViewModifierArgumentType?
+    var y: SyntaxViewModifierArgumentType?
+    
+    for input in inputs {
+        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
+        
+        let syntaxArg: SyntaxViewModifierArgumentType
+        
+        // Handle both concrete values and state references
+        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
+            // Concrete value case
+            if let number = portValue.getNumber {
+                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float))
+            } else {
+                continue // Skip if we can't extract a number
+            }
+        } else if case .stateRef(let stateRefName) = input.inputData {
+            // State reference case
+            syntaxArg = .stateAccess(stateRefName)
+        } else {
+            continue // Skip if we can't handle this input
+        }
+        
+        // Map unpacked port index to x/y
+        switch unpackedType {
+        case .port0: // X
+            x = syntaxArg
+        case .port1: // Y  
+            y = syntaxArg
+        default:
+            // Ignore other ports for now
+            continue
+        }
+    }
+    
+    // Create OffsetViewModifier if we have both x and y
+    if let x = x, let y = y {
+        return .offset(OffsetViewModifier(x: x, y: y))
     }
     
     return nil
