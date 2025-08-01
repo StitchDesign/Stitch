@@ -82,6 +82,9 @@ struct ASTExplorerView: View {
 
     /// Controls which columns are visible.  Defaults to showing all.
     @State private var visibleStages: Set<Stage> = Set(Stage.allCases)
+    
+    /// Controls whether regenerated code uses PortValueDescription format
+    @State private var usePortValueDescription: Bool = false
 
     init(
         initialVisibleStages: Set<Stage> = Set(Stage.allCases)
@@ -112,8 +115,14 @@ struct ASTExplorerView: View {
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .center)
 
-            Button("Transform") { transform() }
-                .buttonStyle(.borderedProminent)
+            HStack(spacing: 16) {
+                Button("Transform") { transform() }
+                    .buttonStyle(.borderedProminent)
+                
+                Toggle("Use PortValueDescription", isOn: $usePortValueDescription)
+                    .toggleStyle(.switch)
+                    .onChange(of: usePortValueDescription) { _, _ in transform() }
+            }
 
             TabView(selection: $selectedTab) {
                 ForEach(Self.examples.indices, id: \.self) { idx in
@@ -274,7 +283,7 @@ struct ASTExplorerView: View {
             
             // Generate complete SwiftUI code from StrictSyntaxView
             self.regeneratedCode = rebuiltSyntax.map { strictSyntaxView in
-                strictSyntaxView.toSwiftUICode()
+                strictSyntaxView.toSwiftUICode(usePortValueDescription: usePortValueDescription)
             }.joined(separator: "\n\n")
             
             // Also maintain derivedConstructors for compatibility with existing UI
