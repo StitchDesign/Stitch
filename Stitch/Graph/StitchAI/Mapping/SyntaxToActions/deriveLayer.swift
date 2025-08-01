@@ -52,6 +52,20 @@ extension PortValueDescription {
     }
 }
 
+// TODO: move
+
+struct PrintablePortValueDescription: Encodable {
+    let value: AnyEncodable
+    let value_type: AIGraphData_V0.StitchAINodeType
+}
+
+extension PrintablePortValueDescription {
+    init(_ value: PortValue) {
+        self.value = .init(value.anyCodable)
+        self.value_type = .init(value: value.nodeType)
+    }
+}
+
 extension PortValue {
     init(from valueDesc: PortValueDescription) throws {
         var fakeMap = [String : UUID]()

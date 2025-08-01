@@ -42,7 +42,7 @@ struct StitchApp: App {
     }
 
 //#if FAKE_FLAG
-#if DEV_DEBUG
+#if STITCH_AI_TESTING
     var body: some Scene {
         WindowGroup {
 //            ConstructorDemoView()

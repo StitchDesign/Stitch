@@ -257,6 +257,15 @@ extension AIGraphData_V0.LayerData {
 }
 
 extension AIGraphData_V0.PatchOrLayer {
+    var patch: Patch? {
+        switch self {
+        case .layer(let layer):
+            return nil
+        case .patch(let patch):
+            return patch
+        }
+    }
+
     var layer: Layer? {
         switch self {
         case .layer(let layer):
