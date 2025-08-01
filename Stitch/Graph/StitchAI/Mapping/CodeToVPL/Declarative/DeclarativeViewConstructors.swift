@@ -1714,7 +1714,13 @@ struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         if let width = width {
             let widthPortDerivations = try width.derivePortValues()
             for derivation in widthPortDerivations {
-                result.append(ASTCustomInputValue(input: .size, inputData: derivation))
+                
+                let customValue = ASTCustomInputValue(
+                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
+                                                                       portType: .unpacked(.port0)),
+                    inputData: derivation)
+                
+                result.append(customValue)
             }
         }
         
@@ -1722,13 +1728,19 @@ struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         if let height = height {
             let heightPortDerivations = try height.derivePortValues()
             for derivation in heightPortDerivations {
-                result.append(ASTCustomInputValue(input: .size, inputData: derivation))
+                
+                let customValue = ASTCustomInputValue(
+                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
+                                                                       portType: .unpacked(.port1)),
+                    inputData: derivation)
+                
+                result.append(customValue)
             }
         }
         
         // If no width or height provided, create default size
         if result.isEmpty {
-            let layerSize = LayerSize(width: .number(0), height: .number(0))
+            let layerSize = LayerSize(width: .auto, height: .auto)
             result.append(ASTCustomInputValue(input: .size, value: .size(layerSize)))
         }
         
