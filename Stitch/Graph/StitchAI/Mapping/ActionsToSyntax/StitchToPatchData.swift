@@ -11,7 +11,7 @@ import SwiftSyntaxBuilder
 import SwiftUI
 
 struct StitchPatchCodeConversionResult {
-    let script: String
+    let patchNodeDeclarations: [String]
     let varNameIdMap: [String : String]
 }
 
@@ -43,7 +43,10 @@ extension GraphEntity {
                     
                     let valueDesc = PrintablePortValueDescription(firstValue)
                     let string = try valueDesc.encodeToString()
-                    return string
+                    
+                    // gets rid of brackets
+                    let trimmedStr = string.dropFirst().dropLast()
+                    return "PortValueDescription(\(trimmedStr))"
                     
                 case .upstreamConnection(let upstream):
                     // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
@@ -57,23 +60,19 @@ extension GraphEntity {
             }
             
             let patchDeclaration = """
-                let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiNodeDescription)"](\(args.joined(separator: ",")))
+                let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"](\(args.joined(separator: ", ")))
                 """
             
             varIdNameMap.updateValue(varName, forKey: nodeId)
             return patchDeclaration
         }
         
-        // TODO: find all layer inputs with connections, get the upstream patch node id, and make assignment
-        
-        let script = patchNodeDeclarations.joined(separator: "\n")
-        
         // Create new script that maps var names to some ID, which we use later to get actual UUID for node
         let varNameIdMap = varIdNameMap.reduce(into: [String : String]()) { result, data in
             result.updateValue(data.key.uuidString, forKey: data.value)
         }
         
-        return .init(script: script,
+        return .init(patchNodeDeclarations: patchNodeDeclarations,
                      varNameIdMap: varNameIdMap)
     }
 }

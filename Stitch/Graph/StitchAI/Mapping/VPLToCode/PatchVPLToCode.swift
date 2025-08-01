@@ -7,8 +7,22 @@
 
 import SwiftUI
 
-//extension GraphEntity {
-//    static func createSwiftUICode() throws -> String {
-//        
-//    }
-//}
+extension GraphState {
+    @MainActor
+    func createSwiftUICode() throws -> String {
+        let graphEntity = self.createSchema()
+        
+        let patchNodeDeclarations = try graphEntity.createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder)
+            .patchNodeDeclarations
+        
+        // TODO: need layer data
+        
+        let script = """
+func updateLayerInputs() {
+    \(patchNodeDeclarations.joined(separator: "\n"))
+}
+"""
+        
+        return script
+    }
+}
