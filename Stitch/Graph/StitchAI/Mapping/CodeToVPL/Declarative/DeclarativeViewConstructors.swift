@@ -1932,18 +1932,29 @@ struct PositionViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let y: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        guard let xPortValue = try x.derivePortValues().first?.value,
-              let yPortValue = try y.derivePortValues().first?.value else {
-            throw SwiftUISyntaxError.portValueNotFound
+        var result: [ASTCustomInputValue] = []
+        
+        // Handle x argument
+        let xPortDerivations = try x.derivePortValues()
+        for derivation in xPortDerivations {
+            let customValue = ASTCustomInputValue(
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
+                                                                   portType: .unpacked(.port0)),
+                inputData: derivation)
+            result.append(customValue)
         }
         
-        guard let xNumber = try PortValue(from: xPortValue).getNumber,
-              let yNumber = try PortValue(from: yPortValue).getNumber else {
-            throw SwiftUISyntaxError.portValueNotFound
+        // Handle y argument  
+        let yPortDerivations = try y.derivePortValues()
+        for derivation in yPortDerivations {
+            let customValue = ASTCustomInputValue(
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
+                                                                   portType: .unpacked(.port1)),
+                inputData: derivation)
+            result.append(customValue)
         }
         
-        let positionValue = PortValue.position(StitchPosition(x: xNumber, y: yNumber))
-        return [ASTCustomInputValue(input: .position, value: positionValue)]
+        return result
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1980,7 +1991,7 @@ struct OffsetViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         for derivation in xPortDerivations {
             
             let customValue = ASTCustomInputValue(
-                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .offsetInGroup,
                                                                    portType: .unpacked(.port0)),
                 inputData: derivation)
             
@@ -1991,7 +2002,7 @@ struct OffsetViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
         let yPortDerivations = try y.derivePortValues()
         for derivation in yPortDerivations {
             let customValue = ASTCustomInputValue(
-                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .offsetInGroup,
                                                                    portType: .unpacked(.port1)),
                 inputData: derivation)
             
