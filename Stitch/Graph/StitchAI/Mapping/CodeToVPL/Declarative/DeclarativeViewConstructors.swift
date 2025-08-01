@@ -1412,6 +1412,7 @@ enum StrictViewModifier: Equatable, Encodable {
     case font(FontViewModifier)
     case fontDesign(FontDesignViewModifier)
     case fontWeight(FontWeightViewModifier)
+    case layerId(LayerIdViewModifier)
     // Add further cases here as new typed modifiers are introduced
 
     /// Type-erased access to the underlying typed modifier for Stitch emission.
@@ -1437,6 +1438,7 @@ enum StrictViewModifier: Equatable, Encodable {
         case .font(let m):           return m
         case .fontDesign(let m):     return m
         case .fontWeight(let m):     return m
+        case .layerId(let m):        return m
         }
     }
 }
@@ -2123,6 +2125,25 @@ struct FontWeightViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
+struct LayerIdViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let layerId: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        // LayerId modifier doesn't create LayerInputPort values,
+        // it uses the layer's own ID from StrictSyntaxView/LayerData
+        return []
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> LayerIdViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return LayerIdViewModifier(layerId: first.value)
+    }
+}
+
 // MARK: - Font Helper Functions
 
 /// Creates font events from SwiftUI .font() modifier
@@ -2374,6 +2395,9 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .fontWeight:
         return FontWeightViewModifier.from(arguments, modifierName: modifierName)
             .map { .fontWeight($0) }
+    case .layerId:
+        return LayerIdViewModifier.from(arguments, modifierName: modifierName)
+            .map { .layerId($0) }
     default:
         return nil
     }
