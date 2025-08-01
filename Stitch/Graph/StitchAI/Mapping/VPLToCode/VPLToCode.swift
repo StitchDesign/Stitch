@@ -411,21 +411,21 @@ func graphDataToStrictSyntaxViews(_ graphData: AIGraphData_V0.GraphData) throws 
 
 extension StrictSyntaxView {
     /// Generates complete SwiftUI code string for this view including modifiers and children
-    func toSwiftUICode() -> String {
+    func toSwiftUICode(usePortValueDescription: Bool = false) -> String {
         let constructorString = constructor.swiftUICallString()
         
         // Handle children for container views
-        let viewWithChildren = constructorString + generateChildrenCode()
+        let viewWithChildren = constructorString + generateChildrenCode(usePortValueDescription: usePortValueDescription)
         
         // Apply modifiers after the complete view (including children)
         let modifiersString = modifiers.map { modifier in
-            renderStrictViewModifier(modifier)
+            renderStrictViewModifier(modifier, usePortValueDescription: usePortValueDescription)
         }.joined()
         
         return viewWithChildren + modifiersString
     }
     
-    private func generateChildrenCode() -> String {
+    private func generateChildrenCode(usePortValueDescription: Bool = false) -> String {
         guard !children.isEmpty else { return "" }
         
         // Check if this is a container view that needs children
@@ -433,7 +433,7 @@ extension StrictSyntaxView {
         case .hStack, .vStack, .zStack, .scrollView, .lazyHStack, .lazyVStack:
             let childrenCode = children.map { child in
                 // Add proper indentation for each child
-                child.toSwiftUICode().components(separatedBy: "\n")
+                child.toSwiftUICode(usePortValueDescription: usePortValueDescription).components(separatedBy: "\n")
                     .map { line in line.isEmpty ? "" : "    \(line)" }
                     .joined(separator: "\n")
             }.joined(separator: "\n")
@@ -446,43 +446,43 @@ extension StrictSyntaxView {
 }
 
 /// Renders a StrictViewModifier to SwiftUI modifier string
-func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
+func renderStrictViewModifier(_ modifier: StrictViewModifier, usePortValueDescription: Bool = false) -> String {
     switch modifier {
     case .opacity(let m):
-        return ".opacity(\(renderArg(m.value)))"
+        return ".opacity(\(renderArg(m.value, usePortValueDescription: usePortValueDescription, valueType: "number")))"
     case .scaleEffect(let m):
         switch m {
         case .uniform(let scale, let anchor):
             let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
-            return ".scaleEffect(\(renderArg(scale))\(anchorPart))"
+            return ".scaleEffect(\(renderArg(scale, usePortValueDescription: usePortValueDescription, valueType: "number"))\(anchorPart))"
         case .xy(let x, let y, let anchor):
             let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
-            return ".scaleEffect(x: \(renderArg(x)), y: \(renderArg(y))\(anchorPart))"
+            return ".scaleEffect(x: \(renderArg(x, usePortValueDescription: usePortValueDescription, valueType: "number")), y: \(renderArg(y, usePortValueDescription: usePortValueDescription, valueType: "number"))\(anchorPart))"
         case .size(let size, let anchor):
             let anchorPart = anchor.map { ", anchor: \(renderArg($0))" } ?? ""
-            return ".scaleEffect(\(renderArg(size))\(anchorPart))"
+            return ".scaleEffect(\(renderArg(size, usePortValueDescription: usePortValueDescription, valueType: "size"))\(anchorPart))"
         }
     case .blur(let m):
-        return ".blur(radius: \(renderArg(m.radius)))"
+        return ".blur(radius: \(renderArg(m.radius, usePortValueDescription: usePortValueDescription, valueType: "number")))"
     case .zIndex(let m):
-        return ".zIndex(\(renderArg(m.value)))"
+        return ".zIndex(\(renderArg(m.value, usePortValueDescription: usePortValueDescription, valueType: "number")))"
     case .cornerRadius(let m):
-        return ".cornerRadius(\(renderArg(m.radius)))"
+        return ".cornerRadius(\(renderArg(m.radius, usePortValueDescription: usePortValueDescription, valueType: "number")))"
     case .frame(let m):
         var parts: [String] = []
         if let width = m.width {
-            parts.append("width: \(renderArg(width))")
+            parts.append("width: \(renderArg(width, usePortValueDescription: usePortValueDescription, valueType: "number"))")
         }
         if let height = m.height {
-            parts.append("height: \(renderArg(height))")
+            parts.append("height: \(renderArg(height, usePortValueDescription: usePortValueDescription, valueType: "number"))")
         }
         // Only generate .frame() if we have at least one parameter
         guard !parts.isEmpty else { return "" }
         return ".frame(\(parts.joined(separator: ", ")))"
     case .foregroundColor(let m):
-        return ".foregroundColor(\(renderArg(m.color)))"
+        return ".foregroundColor(\(renderArg(m.color, usePortValueDescription: usePortValueDescription, valueType: "color")))"
     case .fill(let m):
-        return ".fill(\(renderArg(m.color)))"
+        return ".fill(\(renderArg(m.color, usePortValueDescription: usePortValueDescription, valueType: "color")))"
     case .brightness(let m):
         return ".brightness(\(renderArg(m.value)))"
     case .contrast(let m):
@@ -642,18 +642,153 @@ func renderImage(_ ctor: ImageViewConstructor) -> String {
 }
 
 // MARK: - Argument rendering helpers
-func renderArg(_ arg: SyntaxViewModifierArgumentType) -> String {
+
+/// Renders an argument as PortValueDescription format
+func renderArgAsPortValueDescription(_ arg: SyntaxViewModifierArgumentType, valueType: String) -> String {
+    let value = extractValueForPortValueDescription(arg)
+    return "PortValueDescription(value: \(value), value_type: \"\(valueType)\")"
+}
+
+/// Extracts the raw value from a SyntaxViewModifierArgumentType for PortValueDescription
+func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) -> String {
+    switch arg {
+    case .simple(let data):
+        // For simple values, use the raw value with appropriate quoting
+        switch data.syntaxKind {
+        case .string:
+            return "\"\(data.value)\""
+        case .float, .integer:
+            return data.value
+        default:
+            // For other cases, treat as string
+            return "\"\(data.value)\""
+        }
+    case .memberAccess(let m):
+        // Handle member access like .green, .blue etc.
+        if let base = m.base, base == "Color" {
+            // Convert Color.green to hex format
+            return "\"#\(colorToHex(m.property))\""
+        } else if m.base == nil && m.property.count > 0 {
+            // Handle direct member access like .green
+            return "\"#\(colorToHex(m.property))\""
+        }
+        return "\".\(m.property)\""
+    case .complex(let c):
+        // Handle complex types like CGSize, etc.
+        if c.typeName == "CGSize" {
+            // Extract width and height for size type
+            let dict = (try? c.arguments.createValuesDict()) ?? [:]
+            return "{\(dict.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", "))}"
+        }
+        return "\"\(c.typeName)(...)\""
+    case .array(let elements):
+        // Arrays should be wrapped as individual PortValueDescriptions
+        let renderedElements = elements.map { extractValueForPortValueDescription($0) }
+        return "[\(renderedElements.joined(separator: ", "))]"
+    case .tuple(let fields):
+        // Tuples become dictionary-like structures
+        let dict = fields.compactMap { field -> String? in
+            guard let label = field.label else { return nil }
+            let value = extractValueForPortValueDescription(field.value)
+            return "\"\(label)\": \(value)"
+        }.joined(separator: ", ")
+        return "{\(dict)}"
+    case .stateAccess(_):
+        // State access should not use PortValueDescription according to system prompt
+        return "/* state access - should not be wrapped */"
+    }
+}
+
+/// Converts color names to hex values for PortValueDescription
+func colorToHex(_ colorName: String) -> String {
+    switch colorName.lowercased() {
+    case "red":
+        return "FF0000FF"
+    case "green":
+        return "00FF00FF"
+    case "blue":
+        return "0000FFFF"
+    case "white":
+        return "FFFFFFFF"
+    case "black":
+        return "000000FF"
+    case "yellow":
+        return "FFFF00FF"
+    case "orange":
+        return "FFA500FF"
+    case "purple":
+        return "800080FF"
+    case "pink":
+        return "FFC0CBFF"
+    case "gray", "grey":
+        return "808080FF"
+    case "clear":
+        return "00000000"
+    default:
+        return "808080FF" // Default to gray
+    }
+}
+
+/// Maps a view modifier context to the appropriate PortValueDescription value_type
+func getPortValueDescriptionType(for modifierName: String, argumentIndex: Int = 0) -> String {
+    switch modifierName {
+    case "fill", "foregroundColor":
+        return "color"
+    case "frame":
+        return "size"
+    case "opacity", "brightness", "contrast", "saturation", "scaleEffect", "zIndex":
+        return "number"
+    case "cornerRadius", "blur":
+        return "number"
+    case "position", "offset":
+        return "position"
+    case "padding":
+        return "padding"
+    case "font":
+        return "textFont"
+    case "fontWeight":
+        return "textFont" 
+    case "fontDesign":
+        return "textFont"
+    case "layerId":
+        return "string"
+    default:
+        // Default fallback
+        return "string"
+    }
+}
+
+func renderArg(_ arg: SyntaxViewModifierArgumentType, usePortValueDescription: Bool = false, valueType: String = "") -> String {
+    // Check for special cases that should never use PortValueDescription
+    if case .stateAccess(_) = arg {
+        // State variables should never be wrapped according to system prompt
+        return renderArgWithoutPortValueDescription(arg)
+    }
+    
+    if usePortValueDescription && !valueType.isEmpty {
+        // For array-based modifiers (like fill, foregroundColor), wrap in array
+        if valueType == "color" {
+            return "[\(renderArgAsPortValueDescription(arg, valueType: valueType))]"
+        } else {
+            return renderArgAsPortValueDescription(arg, valueType: valueType)
+        }
+    }
+    
+    return renderArgWithoutPortValueDescription(arg)
+}
+
+func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType) -> String {
     switch arg {
     case .simple(let data):
         return renderSimple(data)
     case .memberAccess(let m):
         return m.base.map { "\($0).\(m.property)" } ?? ".\(m.property)"
     case .array(let elements):
-        return "[" + elements.map(renderArg).joined(separator: ", ") + "]"
+        return "[" + elements.map(renderArgWithoutPortValueDescription).joined(separator: ", ") + "]"
     case .tuple(let fields):
         let inner = fields.map { f in
             let label = f.label ?? "_"
-            return "\(label): \(renderArg(f.value))"
+            return "\(label): \(renderArgWithoutPortValueDescription(f.value))"
         }.joined(separator: ", ")
         return "(\(inner))"
     case .complex(let c):

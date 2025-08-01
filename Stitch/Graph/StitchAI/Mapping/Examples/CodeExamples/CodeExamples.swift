@@ -89,6 +89,13 @@ extension MappingExamples {
         RotationModifierCodeExamples.rotationEffectBasic,
         RotationModifierCodeExamples.rotation3DEffectBasic,
         
+        // PortValueDescription examples
+        PortValueDescriptionCodeExamples.rectangleWithColorPVD,
+        PortValueDescriptionCodeExamples.ellipseWithSizePVD,
+        PortValueDescriptionCodeExamples.textWithOpacityPVD,
+        PortValueDescriptionCodeExamples.rectangleWithBlurPVD,
+        PortValueDescriptionCodeExamples.stackWithPortValueDescriptions,
+        
         //        // // NOT YET SUPPORTED:
         //        RotationModifierCodeExamples.rotationEffectAnchor,
         //        RotationModifierCodeExamples.rotationEffectRadians,
