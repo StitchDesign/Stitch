@@ -883,6 +883,11 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         // For simple values, use the raw value with appropriate quoting
         switch data.syntaxKind {
         case .string:
+            // Check if this is a hex color string and preserve it
+            if data.value.starts(with: "#") && (data.value.count == 7 || data.value.count == 9) {
+                // This is likely a hex color string (#RRGGBB or #RRGGBBAA)
+                return "\"\(data.value)\""
+            }
             return "\"\(data.value)\""
         case .float, .integer:
             return data.value
@@ -901,8 +906,19 @@ func extractValueForPortValueDescription(_ arg: SyntaxViewModifierArgumentType) 
         }
         return "\".\(m.property)\""
     case .complex(let c):
-        // Handle complex types like CGSize, etc.
-        if c.typeName == "CGSize" {
+        // Handle complex types like CGSize, Color, etc.
+        if c.typeName == "Color" {
+            // Check if this is a hex color (single string argument)
+            if c.arguments.count == 1,
+               let firstArg = c.arguments.first,
+               firstArg.label == nil,
+               case .simple(let simpleData) = firstArg.value,
+               simpleData.syntaxKind == .string,
+               simpleData.value.starts(with: "#") {
+                // Return the hex string directly for PortValueDescription
+                return "\"\(simpleData.value)\""
+            }
+        } else if c.typeName == "CGSize" {
             // Extract width and height for size type
             let dict = (try? c.arguments.createValuesDict()) ?? [:]
             return "{\(dict.map { "\"\($0.key)\": \"\($0.value)\"" }.joined(separator: ", "))}"
@@ -1108,7 +1124,17 @@ func createColorArgument(_ color: Color) -> SyntaxViewModifierArgumentType {
     case .yellow:
         return .memberAccess(SyntaxViewMemberAccess(base: "Color", property: "yellow"))
     default:
-        // For custom colors, use Color(...) initializer with RGBA values
+        // Try to convert the color back to a hex string using ColorConversionUtils
+        if let hexString = ColorConversionUtils.colorToHex(color) {
+            return .complex(SyntaxViewModifierComplexType(
+                typeName: "Color",
+                arguments: [
+                    .init(label: nil, value: .simple(SyntaxViewSimpleData(value: "#\(hexString)", syntaxKind: .string)))
+                ]
+            ))
+        }
+        
+        // For custom colors that can't be converted to hex, use Color(...) initializer with RGBA values
         let rgba = color.asRGBA
         let redString = String(format: "%.3f", rgba.red)
         let greenString = String(format: "%.3f", rgba.green)
@@ -1567,8 +1593,14 @@ func renderColor(_ color: Color) -> String {
     if color == .gray { return "Color.gray" }
     if color == .clear { return "Color.clear" }
     
-    // For custom colors, fall back to a generic representation
-    return "Color(/* custom color */)"
+    // Try to convert the color back to a hex string using ColorConversionUtils
+    if let hexString = ColorConversionUtils.colorToHex(color) {
+        return "Color(\"#\(hexString)\")"
+    }
+    
+    // For custom colors that can't be converted to hex, get RGBA values for a more accurate representation
+    let rgba = color.asRGBA
+    return "Color(red: \(rgba.red), green: \(rgba.green), blue: \(rgba.blue), opacity: \(rgba.alpha))"
 }
 
 /// Generates all view modifiers for a given LayerData as strings
