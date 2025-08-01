@@ -1031,7 +1031,24 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
         }.joined(separator: ", ")
         return "(\(inner))"
     case .complex(let c):
-        // Best-effort for complex types
+        // Special handling for Color types
+        if c.typeName == "Color" {
+            // Check if this is a hex color (single string argument)
+            if c.arguments.count == 1,
+               let firstArg = c.arguments.first,
+               firstArg.label == nil,
+               case .simple(let simpleData) = firstArg.value,
+               simpleData.syntaxKind == .string,
+               simpleData.value.starts(with: "#") {
+                // Convert hex string to RGBA Color format
+                if let color = ColorConversionUtils.hexToColor(simpleData.value) {
+                    let rgba = color.asRGBA
+                    return "Color(red: \(rgba.red), green: \(rgba.green), blue: \(rgba.blue), opacity: \(rgba.alpha))"
+                }
+            }
+        }
+        
+        // Best-effort for other complex types
         let inner = (try? c.arguments.createValuesDict()).map { dict in
             dict.map { "\($0.key): \(renderAnyEncodable($0.value))" }
                 .sorted().joined(separator: ", ")
