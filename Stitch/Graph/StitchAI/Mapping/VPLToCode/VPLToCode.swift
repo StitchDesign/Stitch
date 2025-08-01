@@ -194,39 +194,62 @@ func layerDataToStrictSyntaxView(_ layerData: AIGraphData_V0.LayerData,
     let children = try layerData.children?.compactMap { childLayerData in
         try layerDataToStrictSyntaxView(childLayerData, idMap: &idMap)
     } ?? []
+
+    log("layerDataToStrictSyntaxView: layerData.node_id: \(layerData.node_id)")
     
-    // 4. Generate or get UUID for this node
-    let nodeId: UUID
-    if let existingId = idMap[layerData.node_id] {
-        nodeId = existingId
-    } else {
-        nodeId = UUID()
-        idMap[layerData.node_id] = nodeId
+    // 4. parse the
+    guard let parsedNodeId = UUID(uuidString: layerData.node_id) else {
+        return nil // TODO: how or when can this really fail?
     }
+    
+    let nodeId: UUID = parsedNodeId
+    
+    // Not needed?
+    idMap[layerData.node_id] = nodeId
+        
+    log("layerDataToStrictSyntaxView: nodeId: \(nodeId)")
     
     // 5. Handle ScrollView + Stack nesting for scroll-enabled groups
     if case .scrollView = constructor {
         // Create the inner stack based on the group's orientation
         let innerStackConstructor = createInnerStackConstructor(layerData, idMap: &idMap)
+        let innerStackNodeId = UUID()
+        // Add LayerIdViewModifier to the inner stack as well
+        let innerStackLayerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
+            layerId: .simple(SyntaxViewSimpleData(value: innerStackNodeId.uuidString, syntaxKind: .string))
+        ))
         let innerStackView = StrictSyntaxView(
             constructor: innerStackConstructor,
-            modifiers: [], // Stack doesn't get the modifiers, ScrollView does
+            modifiers: [innerStackLayerIdModifier], // Stack gets layerId modifier
             children: children, // Original children go into the stack
-            id: UUID()
+            id: innerStackNodeId
         )
         
         // ScrollView contains the stack as its only child
+        // Add LayerIdViewModifier to every StrictSyntaxView
+        let layerIdModifier = StrictViewModifier.layerId(
+            LayerIdViewModifier(
+                layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .string))
+        ))
+        let allModifiers = modifiers + [layerIdModifier]
+        
         return StrictSyntaxView(
             constructor: constructor,
-            modifiers: modifiers,
+            modifiers: allModifiers,
             children: [innerStackView], // ScrollView wraps the stack
             id: nodeId
         )
     }
     
+    // Add LayerIdViewModifier to every StrictSyntaxView
+    let layerIdModifier = StrictViewModifier.layerId(LayerIdViewModifier(
+        layerId: .simple(SyntaxViewSimpleData(value: nodeId.uuidString, syntaxKind: .string))
+    ))
+    let allModifiers = modifiers + [layerIdModifier]
+    
     return StrictSyntaxView(
         constructor: constructor,
-        modifiers: modifiers,
+        modifiers: allModifiers,
         children: children,
         id: nodeId
     )
@@ -488,6 +511,8 @@ func renderStrictViewModifier(_ modifier: StrictViewModifier) -> String {
         return ".fontDesign(\(renderArg(m.design)))"
     case .fontWeight(let m):
         return ".fontWeight(\(renderArg(m.weight)))"
+    case .layerId(let m):
+        return ".layerId(\(renderArg(m.layerId)))"
     }
 }
 
@@ -1070,6 +1095,8 @@ func renderViewModifierConstructor(_ modifier: StrictViewModifier) -> String {
         return ".fontDesign(\(renderArg(m.design)))"
     case .fontWeight(let m):
         return ".fontWeight(\(renderArg(m.weight)))"
+    case .layerId(let m):
+        return ".layerId(\(renderArg(m.layerId)))"
     }
 }
 
@@ -1218,6 +1245,7 @@ func generateViewModifiersForLayerData(_ layerData: AIGraphData_V0.LayerData, id
         case .font: return .textFont
         case .fontDesign: return .textFont
         case .fontWeight: return .textFont
+        case .layerId(_): return nil // Nothing to do
         }
     })
     
