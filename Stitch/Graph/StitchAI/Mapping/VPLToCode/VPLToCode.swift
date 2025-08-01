@@ -380,19 +380,64 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.coordinate.layerInput
         
+        // Handle both concrete values and state references
         if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
-            // Try to create a typed ViewModifierConstructor first
+            // Concrete value case
             if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
                 modifiers.append(constructorModifier)
             }
-            // Note: Non-constructor modifiers are handled in the legacy string generation path
-            // and would need additional logic here if we want to support them in StrictSyntaxView
+        } else if case .stateRef(let stateRefName) = customInputValue.inputData {
+            // State reference case - create modifier with stateAccess argument
+            if let constructorModifier = makeViewModifierConstructorFromStateRef(from: port, stateRef: stateRefName, layerType: layerType) {
+                modifiers.append(constructorModifier)
+            }
         }
     }
     
     return modifiers
 }
 
+/// Creates a StrictViewModifier from a state reference (for variables like myVar)
+func makeViewModifierConstructorFromStateRef(from port: LayerInputPort,
+                                             stateRef: String,
+                                             layerType: AIGraphData_V0.Layer) -> StrictViewModifier? {
+    // Create a stateAccess argument type
+    let stateAccessArg = SyntaxViewModifierArgumentType.stateAccess(stateRef)
+    
+    switch port {
+    case .opacity:
+        return .opacity(OpacityViewModifier(value: stateAccessArg))
+    case .scale:
+        return .scaleEffect(.uniform(scale: stateAccessArg, anchor: nil))
+    case .blur, .blurRadius:
+        return .blur(BlurViewModifier(radius: stateAccessArg))
+    case .zIndex:
+        return .zIndex(ZIndexViewModifier(value: stateAccessArg))
+    case .cornerRadius:
+        return .cornerRadius(CornerRadiusViewModifier(radius: stateAccessArg))
+    case .color:
+        return .fill(FillViewModifier(color: stateAccessArg))
+    case .brightness:
+        return .brightness(BrightnessViewModifier(value: stateAccessArg))
+    case .contrast:
+        return .contrast(ContrastViewModifier(value: stateAccessArg))
+    case .saturation:
+        return .saturation(SaturationViewModifier(value: stateAccessArg))
+    case .hueRotation:
+        return .hueRotation(HueRotationViewModifier(angle: stateAccessArg))
+    case .position:
+        // Position needs x and y, but we only have one state ref - use it for both
+        return .position(PositionViewModifier(x: stateAccessArg, y: stateAccessArg))
+    case .offsetInGroup:
+        // Offset needs x and y, but we only have one state ref - use it for both  
+        return .offset(OffsetViewModifier(x: stateAccessArg, y: stateAccessArg))
+    case .textFont:
+        return .font(FontViewModifier(font: stateAccessArg))
+    default:
+        // For unsupported ports, don't create a modifier
+        return nil
+    }
+}
 
 /// Converts a list of LayerData to StrictSyntaxView list
 func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) throws -> [StrictSyntaxView] {
@@ -798,9 +843,9 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
                 .sorted().joined(separator: ", ")
         } ?? ""
         return "\(c.typeName)(\(inner))"
-    case .stateAccess(_):
-        // State isn't used here
-        fatalError()
+    case .stateAccess(let stateName):
+        // Render state variables directly by name
+        return stateName
     }
 }
 

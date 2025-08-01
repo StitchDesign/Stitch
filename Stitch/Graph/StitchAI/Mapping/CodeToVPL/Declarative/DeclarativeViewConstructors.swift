@@ -1708,30 +1708,31 @@ struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let height: SyntaxViewModifierArgumentType?
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        // Convert width and height arguments to LayerDimensions
-        var layerWidth: LayerDimension = .number(0)  // default
-        var layerHeight: LayerDimension = .number(0) // default
+        var result: [ASTCustomInputValue] = []
         
+        // Handle width argument
         if let width = width {
-            guard let widthPortValue = try width.derivePortValues().first?.value,
-                  let widthNumber = try PortValue(from: widthPortValue).getNumber else {
-                throw SwiftUISyntaxError.portValueNotFound
+            let widthPortDerivations = try width.derivePortValues()
+            for derivation in widthPortDerivations {
+                result.append(ASTCustomInputValue(input: .size, inputData: derivation))
             }
-            layerWidth = .number(widthNumber)
         }
         
+        // Handle height argument  
         if let height = height {
-            guard let heightPortValues = try height.derivePortValues().first?.value,
-                  let heightNumber = try PortValue(from: heightPortValues).getNumber else {
-                throw SwiftUISyntaxError.portValueNotFound
+            let heightPortDerivations = try height.derivePortValues()
+            for derivation in heightPortDerivations {
+                result.append(ASTCustomInputValue(input: .size, inputData: derivation))
             }
-            layerHeight = .number(heightNumber)
         }
         
-        let layerSize = LayerSize(width: layerWidth, height: layerHeight)
-        let sizeValue = PortValue.size(layerSize)
+        // If no width or height provided, create default size
+        if result.isEmpty {
+            let layerSize = LayerSize(width: .number(0), height: .number(0))
+            result.append(ASTCustomInputValue(input: .size, value: .size(layerSize)))
+        }
         
-        return [ASTCustomInputValue(input: .size, value: sizeValue)]
+        return result
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
