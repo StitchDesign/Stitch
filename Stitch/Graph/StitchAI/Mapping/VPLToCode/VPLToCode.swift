@@ -377,22 +377,249 @@ func createStrictViewModifiersFromLayerData(_ layerData: AIGraphData_V0.LayerDat
         layerType = .group // BAD
     }
     
+    // Group custom input values by layer input port to handle unpacked ports
+    var groupedInputs: [LayerInputPort: [LayerPortDerivation]] = [:]
+    
     for customInputValue in layerData.custom_layer_input_values {
         let port = customInputValue.coordinate.layerInput
-        
-        if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
-            // Try to create a typed ViewModifierConstructor first
-            if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
-                modifiers.append(constructorModifier)
+        groupedInputs[port, default: []].append(customInputValue)
+    }
+    
+    // Process each group of inputs for the same port
+    for (port, inputs) in groupedInputs {
+        if inputs.count == 1 && inputs.first?.coordinate.portType == .packed {
+            // Single packed input - handle normally
+            let customInputValue = inputs[0]
+            if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
+                // Concrete value case
+                if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
+                    modifiers.append(constructorModifier)
+                }
+            } else if case .stateRef(let stateRefName) = customInputValue.inputData {
+                // State reference case - create modifier with stateAccess argument
+                if let constructorModifier = makeViewModifierConstructorFromStateRef(from: port, stateRef: stateRefName, layerType: layerType) {
+                    modifiers.append(constructorModifier)
+                }
             }
-            // Note: Non-constructor modifiers are handled in the legacy string generation path
-            // and would need additional logic here if we want to support them in StrictSyntaxView
+        } else {
+            // Multiple unpacked inputs - handle specially for frame and offset modifiers
+            if port == .size {
+                if let frameModifier = createFrameViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
+                    modifiers.append(frameModifier)
+                }
+            } else if port == .position {
+                if let positionModifier = createPositionViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
+                    modifiers.append(positionModifier)
+                }
+            } else if port == .offsetInGroup {
+                if let offsetModifier = createOffsetViewModifierFromUnpackedInputs(inputs, idMap: &idMap) {
+                    modifiers.append(offsetModifier)
+                }
+            } else {
+                // For other ports with unpacked inputs, handle each separately for now
+                for customInputValue in inputs {
+                    if let portValue = decodePortValueFromCIV(customInputValue, idMap: &idMap) {
+                        if let constructorModifier = makeViewModifierConstructor(from: port, value: portValue, layerType: layerType) {
+                            modifiers.append(constructorModifier)
+                        }
+                    } else if case .stateRef(let stateRefName) = customInputValue.inputData {
+                        if let constructorModifier = makeViewModifierConstructorFromStateRef(from: port, stateRef: stateRefName, layerType: layerType) {
+                            modifiers.append(constructorModifier)
+                        }
+                    }
+                }
+            }
         }
     }
     
     return modifiers
 }
 
+/// Creates a FrameViewModifier from unpacked size inputs (width and height)
+func createFrameViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
+                                               idMap: inout [String: UUID]) -> StrictViewModifier? {
+    guard !inputs.isEmpty else { return nil }
+    
+    var width: SyntaxViewModifierArgumentType?
+    var height: SyntaxViewModifierArgumentType?
+    
+    for input in inputs {
+        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
+        
+        let syntaxArg: SyntaxViewModifierArgumentType
+        
+        // Handle both concrete values and state references
+        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
+            // Concrete value case
+            if let number = portValue.getNumber {
+                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float))
+            } else {
+                continue // Skip if we can't extract a number
+            }
+        } else if case .stateRef(let stateRefName) = input.inputData {
+            // State reference case
+            syntaxArg = .stateAccess(stateRefName)
+        } else {
+            continue // Skip if we can't handle this input
+        }
+        
+        // Map unpacked port index to width/height
+        switch unpackedType {
+        case .port0: // Width
+            width = syntaxArg
+        case .port1: // Height  
+            height = syntaxArg
+        default:
+            // Ignore other ports for now
+            continue
+        }
+    }
+    
+    // Create FrameViewModifier if we have at least width or height
+    if width != nil || height != nil {
+        return .frame(FrameViewModifier(width: width, height: height))
+    }
+    
+    return nil
+}
+
+/// Creates an OffsetViewModifier from unpacked offsetInGroup inputs (x and y)
+func createOffsetViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
+                                               idMap: inout [String: UUID]) -> StrictViewModifier? {
+    guard !inputs.isEmpty else { return nil }
+    
+    var x: SyntaxViewModifierArgumentType?
+    var y: SyntaxViewModifierArgumentType?
+    
+    for input in inputs {
+        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
+        
+        let syntaxArg: SyntaxViewModifierArgumentType
+        
+        // Handle both concrete values and state references
+        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
+            // Concrete value case
+            if let number = portValue.getNumber {
+                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float))
+            } else {
+                continue // Skip if we can't extract a number
+            }
+        } else if case .stateRef(let stateRefName) = input.inputData {
+            // State reference case
+            syntaxArg = .stateAccess(stateRefName)
+        } else {
+            continue // Skip if we can't handle this input
+        }
+        
+        // Map unpacked port index to x/y
+        switch unpackedType {
+        case .port0: // X
+            x = syntaxArg
+        case .port1: // Y  
+            y = syntaxArg
+        default:
+            // Ignore other ports for now
+            continue
+        }
+    }
+    
+    // Create OffsetViewModifier if we have both x and y
+    if let x = x, let y = y {
+        return .offset(OffsetViewModifier(x: x, y: y))
+    }
+    
+    return nil
+}
+
+/// Creates a PositionViewModifier from unpacked position inputs (x and y)
+func createPositionViewModifierFromUnpackedInputs(_ inputs: [LayerPortDerivation],
+                                                  idMap: inout [String: UUID]) -> StrictViewModifier? {
+    guard !inputs.isEmpty else { return nil }
+    
+    var x: SyntaxViewModifierArgumentType?
+    var y: SyntaxViewModifierArgumentType?
+    
+    for input in inputs {
+        guard case .unpacked(let unpackedType) = input.coordinate.portType else { continue }
+        
+        let syntaxArg: SyntaxViewModifierArgumentType
+        
+        // Handle both concrete values and state references
+        if let portValue = decodePortValueFromCIV(input, idMap: &idMap) {
+            // Concrete value case
+            if let number = portValue.getNumber {
+                syntaxArg = .simple(SyntaxViewSimpleData(value: String(number), syntaxKind: .float))
+            } else {
+                continue // Skip if we can't extract a number
+            }
+        } else if case .stateRef(let stateRefName) = input.inputData {
+            // State reference case
+            syntaxArg = .stateAccess(stateRefName)
+        } else {
+            continue // Skip if we can't handle this input
+        }
+        
+        // Map unpacked port index to x/y
+        switch unpackedType {
+        case .port0: // X
+            x = syntaxArg
+        case .port1: // Y  
+            y = syntaxArg
+        default:
+            // Ignore other ports for now
+            continue
+        }
+    }
+    
+    // Create PositionViewModifier if we have both x and y
+    if let x = x, let y = y {
+        return .position(PositionViewModifier(x: x, y: y))
+    }
+    
+    return nil
+}
+
+/// Creates a StrictViewModifier from a state reference (for variables like myVar)
+func makeViewModifierConstructorFromStateRef(from port: LayerInputPort,
+                                             stateRef: String,
+                                             layerType: AIGraphData_V0.Layer) -> StrictViewModifier? {
+    // Create a stateAccess argument type
+    let stateAccessArg = SyntaxViewModifierArgumentType.stateAccess(stateRef)
+    
+    switch port {
+    case .opacity:
+        return .opacity(OpacityViewModifier(value: stateAccessArg))
+    case .scale:
+        return .scaleEffect(.uniform(scale: stateAccessArg, anchor: nil))
+    case .blur, .blurRadius:
+        return .blur(BlurViewModifier(radius: stateAccessArg))
+    case .zIndex:
+        return .zIndex(ZIndexViewModifier(value: stateAccessArg))
+    case .cornerRadius:
+        return .cornerRadius(CornerRadiusViewModifier(radius: stateAccessArg))
+    case .color:
+        return .fill(FillViewModifier(color: stateAccessArg))
+    case .brightness:
+        return .brightness(BrightnessViewModifier(value: stateAccessArg))
+    case .contrast:
+        return .contrast(ContrastViewModifier(value: stateAccessArg))
+    case .saturation:
+        return .saturation(SaturationViewModifier(value: stateAccessArg))
+    case .hueRotation:
+        return .hueRotation(HueRotationViewModifier(angle: stateAccessArg))
+    case .position:
+        // Position needs x and y, but we only have one state ref - use it for both
+        return .position(PositionViewModifier(x: stateAccessArg, y: stateAccessArg))
+    case .offsetInGroup:
+        // Offset needs x and y, but we only have one state ref - use it for both  
+        return .offset(OffsetViewModifier(x: stateAccessArg, y: stateAccessArg))
+    case .textFont:
+        return .font(FontViewModifier(font: stateAccessArg))
+    default:
+        // For unsupported ports, don't create a modifier
+        return nil
+    }
+}
 
 /// Converts a list of LayerData to StrictSyntaxView list
 func layerDataListToStrictSyntaxViews(_ layerDataList: [AIGraphData_V0.LayerData], idMap: inout [String: UUID]) throws -> [StrictSyntaxView] {
@@ -798,9 +1025,9 @@ func renderArgWithoutPortValueDescription(_ arg: SyntaxViewModifierArgumentType)
                 .sorted().joined(separator: ", ")
         } ?? ""
         return "\(c.typeName)(\(inner))"
-    case .stateAccess(_):
-        // State isn't used here
-        fatalError()
+    case .stateAccess(let stateName):
+        // Render state variables directly by name
+        return stateName
     }
 }
 

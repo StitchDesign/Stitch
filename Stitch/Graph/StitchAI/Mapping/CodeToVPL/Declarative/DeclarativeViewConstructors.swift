@@ -1708,30 +1708,43 @@ struct FrameViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let height: SyntaxViewModifierArgumentType?
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        // Convert width and height arguments to LayerDimensions
-        var layerWidth: LayerDimension = .number(0)  // default
-        var layerHeight: LayerDimension = .number(0) // default
+        var result: [ASTCustomInputValue] = []
         
+        // Handle width argument
         if let width = width {
-            guard let widthPortValue = try width.derivePortValues().first?.value,
-                  let widthNumber = try PortValue(from: widthPortValue).getNumber else {
-                throw SwiftUISyntaxError.portValueNotFound
+            let widthPortDerivations = try width.derivePortValues()
+            for derivation in widthPortDerivations {
+                
+                let customValue = ASTCustomInputValue(
+                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
+                                                                       portType: .unpacked(.port0)),
+                    inputData: derivation)
+                
+                result.append(customValue)
             }
-            layerWidth = .number(widthNumber)
         }
         
+        // Handle height argument  
         if let height = height {
-            guard let heightPortValues = try height.derivePortValues().first?.value,
-                  let heightNumber = try PortValue(from: heightPortValues).getNumber else {
-                throw SwiftUISyntaxError.portValueNotFound
+            let heightPortDerivations = try height.derivePortValues()
+            for derivation in heightPortDerivations {
+                
+                let customValue = ASTCustomInputValue(
+                    coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .size,
+                                                                       portType: .unpacked(.port1)),
+                    inputData: derivation)
+                
+                result.append(customValue)
             }
-            layerHeight = .number(heightNumber)
         }
         
-        let layerSize = LayerSize(width: layerWidth, height: layerHeight)
-        let sizeValue = PortValue.size(layerSize)
+        // If no width or height provided, create default size
+        if result.isEmpty {
+            let layerSize = LayerSize(width: .auto, height: .auto)
+            result.append(ASTCustomInputValue(input: .size, value: .size(layerSize)))
+        }
         
-        return [ASTCustomInputValue(input: .size, value: sizeValue)]
+        return result
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1919,18 +1932,29 @@ struct PositionViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let y: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        guard let xPortValue = try x.derivePortValues().first?.value,
-              let yPortValue = try y.derivePortValues().first?.value else {
-            throw SwiftUISyntaxError.portValueNotFound
+        var result: [ASTCustomInputValue] = []
+        
+        // Handle x argument
+        let xPortDerivations = try x.derivePortValues()
+        for derivation in xPortDerivations {
+            let customValue = ASTCustomInputValue(
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
+                                                                   portType: .unpacked(.port0)),
+                inputData: derivation)
+            result.append(customValue)
         }
         
-        guard let xNumber = try PortValue(from: xPortValue).getNumber,
-              let yNumber = try PortValue(from: yPortValue).getNumber else {
-            throw SwiftUISyntaxError.portValueNotFound
+        // Handle y argument  
+        let yPortDerivations = try y.derivePortValues()
+        for derivation in yPortDerivations {
+            let customValue = ASTCustomInputValue(
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .position,
+                                                                   portType: .unpacked(.port1)),
+                inputData: derivation)
+            result.append(customValue)
         }
         
-        let positionValue = PortValue.position(StitchPosition(x: xNumber, y: yNumber))
-        return [ASTCustomInputValue(input: .position, value: positionValue)]
+        return result
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
@@ -1960,18 +1984,32 @@ struct OffsetViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let y: SyntaxViewModifierArgumentType
     
     func createCustomValueEvents() throws -> [ASTCustomInputValue] {
-        guard let xPortValue = try x.derivePortValues().first?.value,
-              let yPortValue = try y.derivePortValues().first?.value else {
-            throw SwiftUISyntaxError.portValueNotFound
+        var result: [ASTCustomInputValue] = []
+        
+        // Handle x argument
+        let xPortDerivations = try x.derivePortValues()
+        for derivation in xPortDerivations {
+            
+            let customValue = ASTCustomInputValue(
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .offsetInGroup,
+                                                                   portType: .unpacked(.port0)),
+                inputData: derivation)
+            
+            result.append(customValue)
         }
         
-        guard let xNumber = try PortValue(from: xPortValue).getNumber,
-              let yNumber = try PortValue(from: yPortValue).getNumber else {
-            throw SwiftUISyntaxError.portValueNotFound
+        // Handle y argument  
+        let yPortDerivations = try y.derivePortValues()
+        for derivation in yPortDerivations {
+            let customValue = ASTCustomInputValue(
+                coordinate: CurrentAIGraphData.LayerInputType.init(layerInput: .offsetInGroup,
+                                                                   portType: .unpacked(.port1)),
+                inputData: derivation)
+            
+            result.append(customValue)
         }
         
-        let positionValue = PortValue.position(StitchPosition(x: xNumber, y: yNumber))
-        return [ASTCustomInputValue(input: .offsetInGroup, value: positionValue)]
+        return result
     }
     
     static func from(_ arguments: [SyntaxViewArgumentData],
