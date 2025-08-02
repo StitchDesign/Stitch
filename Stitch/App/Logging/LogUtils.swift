@@ -22,6 +22,7 @@ struct FatalErrorIfDebugView: View {
 
 func logToServerIfRelease(_ message: String) {
     #if RELEASE
+    // #if DEV_DEBUG
     log(message, .logToServer)
     #else
     log(message)
@@ -76,12 +77,13 @@ func log(_ message: Any,
         fatalError("FATAL: \(message)")
 #endif
     case .logToServer:
-        print("HAD MAJOR ERROR: \(message)")
+        print("WILL LOG TO SERVER: \(message)")
         // Always send AI-related logs to Sentry regardless of build configuration
         let messageString = String(describing: message)
-        if messageString.contains("StitchAI") || messageString.contains("SupabaseManager") {
-            SentrySDK.capture(message: messageString)
-        }
+        SentrySDK.capture(message: messageString)
+//        if messageString.contains("StitchAI") || messageString.contains("SupabaseManager") {
+//            SentrySDK.capture(message: messageString)
+//        }
     }
 #else
     // In production, send ALL logs to Sentry

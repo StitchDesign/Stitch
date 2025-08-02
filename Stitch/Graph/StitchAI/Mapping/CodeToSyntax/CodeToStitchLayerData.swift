@@ -18,7 +18,7 @@ extension SwiftUIViewVisitor {
         
         guard let nameType = SyntaxNameType.from(viewName) else {
 //                fatalErrorIfDebug("No view discovered for: \(viewName)")
-            log("No concept discovered for: \(viewName)")
+//            log("No concept discovered for: \(viewName)")
             
             // Tracks for later silent failures
             self.caughtErrors.append(.unsupportedSyntaxViewName(viewName))
@@ -26,7 +26,7 @@ extension SwiftUIViewVisitor {
             return .skipChildren
         }
         
-        log("Found view initialization: \(viewName)")
+//        log("Found view initialization: \(viewName)")
         
         // Parse args, catching arguments we don't yet support
         let args = self.parseArguments(from: node)
@@ -44,27 +44,27 @@ extension SwiftUIViewVisitor {
                 //                errors: self.caughtErrors
             )
             
-            log("Created new ViewNode for \(viewName)")
+//            log("Created new ViewNode for \(viewName)")
             
             // Set as root or add as child to current node (context-aware)
             if viewStack.isEmpty {
-                log("Setting as root ViewNode: \(viewName)")
+//                log("Setting as root ViewNode: \(viewName)")
                 viewStack.append(viewNode)
                 currentNodeIndex = 0
                 rootViewNode = viewNode
 
-                log("Current node index set to: \(String(describing: currentNodeIndex))")
+//                log("Current node index set to: \(String(describing: currentNodeIndex))")
             } else {
                 // Check if this view initialization should be treated as a child
                 // Only apply context-aware logic for top-level view statements that could be children
                 let currentContext = contextStack.last ?? .root
-                log("Current parsing context: \(currentContext)")
+//                log("Current parsing context: \(currentContext)")
                 
                 switch currentContext {
                 case .closure(let parentViewName):
                     // We're inside a closure of a container view - this IS a legitimate child
                     if let currentNode = currentViewNode {
-                        log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
+//                        log("Adding \(viewName) as child to \(currentNode.name.rawValue) (inside closure)")
                         var updatedCurrentNode = currentNode
                         updatedCurrentNode.children.append(viewNode)
                         updateCurrentViewNode(updatedCurrentNode)
@@ -73,24 +73,24 @@ extension SwiftUIViewVisitor {
                         viewStack.append(viewNode)
                         currentNodeIndex = viewStack.count - 1
                                                     
-                        log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
+//                        log("Pushed \(viewName) onto stack, new index: \(String(describing: currentNodeIndex))")
                     } else {
-                        log("⚠️ Error: No current node to add child to")
+//                        log("⚠️ Error: No current node to add child to")
                     }
                     
                 case .arguments, .root:
                     // We're parsing function arguments - this might be a modifier argument
                     // Check if this is actually being used as a modifier argument
                     if isWithinModifierArguments(node) {
-                        log("Found view \(viewName) in modifier argument context - allowing normal processing")
+//                        log("Found view \(viewName) in modifier argument context - allowing normal processing")
                         // For modifier arguments, we still need to process the view normally
                         // but we don't add it as a child to any parent view
                         // Just add it to the stack temporarily so it can be processed
                         viewStack.append(viewNode)
                         currentNodeIndex = viewStack.count - 1
                     } else {
-                        log("⚠️ Found view \(viewName) in argument context - skipping child addition")
-                        log("This view should be handled as an argument, not as a child")
+//                        log("⚠️ Found view \(viewName) in argument context - skipping child addition")
+//                        log("This view should be handled as an argument, not as a child")
                         // Don't add to viewStack - this prevents it from being treated as a child
                     }
                 }
@@ -195,20 +195,20 @@ extension SwiftUIViewVisitor {
     // Helper to add a modifier to the current view node
     private func addModifier(_ modifier: SyntaxViewModifier) {
         let modName = modifier.name.rawValue
-        log("addModifier → \(modName) to current index \(String(describing: currentNodeIndex))")
+//        log("addModifier → \(modName) to current index \(String(describing: currentNodeIndex))")
         guard let index = currentNodeIndex, index < viewStack.count else {
-            log("⚠️ Cannot add modifier: no current view node")
+//            log("⚠️ Cannot add modifier: no current view node")
             return
         }
         
         var node = viewStack[index]
-        log("Adding modifier \(modName) to \(node.name.rawValue)")
+//        log("Adding modifier \(modName) to \(node.name.rawValue)")
         node.modifiers.append(modifier)
         viewStack[index] = node
         // Bubble the change up to keep all ancestors current
         bubbleChangeUp(from: index)
-        log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
-        log("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
+//        log("✅ After adding modifier - modifiers count: \(node.modifiers.count)")
+//        log("addModifier → completed. Node \(node.name.rawValue) now has \(node.modifiers.count) modifier(s).")
     }
 
     /// Handles standard modifiers with generic argument parsing
