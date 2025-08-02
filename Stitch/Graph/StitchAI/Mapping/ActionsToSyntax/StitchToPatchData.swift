@@ -33,6 +33,7 @@ extension GraphEntity {
             }
             
             let varName = "\(patchNodeEntity.patch.rawValue)_\(nodeId.uuidString)"
+                .replacingOccurrences(of: "-", with: "_")
             
             let args: [String] = try patchNodeEntity.inputs.map { inputData in
                 switch inputData.portData {
@@ -46,7 +47,7 @@ extension GraphEntity {
                     
                     // gets rid of brackets
                     let trimmedStr = string.dropFirst().dropLast()
-                    return "PortValueDescription(\(trimmedStr))"
+                    return "[PortValueDescription(\(trimmedStr))]"
                     
                 case .upstreamConnection(let upstream):
                     // Variable name should already exist given topological order, otherwise its a cycle case which we should ignore
@@ -60,7 +61,9 @@ extension GraphEntity {
             }
             
             let patchDeclaration = """
-                let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"](\(args.joined(separator: ", ")))
+                let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]([
+                    \(args.joined(separator: ", "))
+                ])
                 """
             
             varIdNameMap.updateValue(varName, forKey: nodeId)

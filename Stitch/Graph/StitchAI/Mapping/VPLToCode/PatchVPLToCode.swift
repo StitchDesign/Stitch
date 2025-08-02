@@ -19,7 +19,7 @@ extension GraphState {
         
         let script = """
 func updateLayerInputs() {
-    \(patchNodeDeclarations.joined(separator: "\n"))
+    \(patchNodeDeclarations.joined(separator: "\n\t"))
 }
 """
         

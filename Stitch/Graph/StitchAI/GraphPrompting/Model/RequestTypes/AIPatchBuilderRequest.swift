@@ -355,6 +355,10 @@ extension CurrentAIGraphData.GraphData {
             nodes: document.visibleGraph.visibleNodesViewModel,
             viewPortCenter: document.viewPortCenter,
             graph: document.visibleGraph)
+        
+        // Update topological data--needs to be forced here because of script building using this data
+        document.graph.updateGraphData(document)
+        document.graph.updateTopologicalData()
     }
 }
 
