@@ -280,7 +280,7 @@ struct ASTExplorerView: View {
             
             // Apply AI result to fake document
             try stitchActionsResult.graphData
-                .createAIGraph(viewStatePatchConnections: stitchActionsResult.viewStatePatchConnections,
+                .createAIGraph(viewStatePatchConnections: stitchActionsResult.graphData.viewStatePatchConnections,
                                document: fakeDoc)
             
             // Convert LayerData to StrictSyntaxView

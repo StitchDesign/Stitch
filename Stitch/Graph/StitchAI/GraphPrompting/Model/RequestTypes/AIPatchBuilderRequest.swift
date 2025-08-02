@@ -286,6 +286,22 @@ extension CurrentAIGraphData.GraphData {
                                                            nodeId: upstreamNodeId),
                                                to: inputCoordinate)
                 
+                // create canvas node
+                guard let fromNodeLocation = document.visibleGraph.getNode(upstreamNodeId)?.nonLayerCanvasItem?.position,
+                      let destinationNode = document.visibleGraph.getNode(inputCoordinate.nodeId),
+                      let layerInput = inputCoordinate.keyPath?.layerInput else {
+                    throw SwiftUISyntaxError.layerEdgeDataFailure(varName)
+                }
+
+                var position = fromNodeLocation
+                position.x += 200
+                
+                document.addLayerInputToCanvas(node: destinationNode,
+                                               layerInput: layerInput,
+                                               draggedOutput: nil,
+                                               canvasHeightOffset: nil,
+                                               position: position)
+                
                 graph.edgeAdded(edge: newEdgeData)
             }
         }
@@ -306,35 +322,35 @@ extension CurrentAIGraphData.GraphData {
         }
         
         // new edges to downstream layers
-        for newLayerEdge in self.patch_data.layer_connections {
-            let inputPort = try NodeIOCoordinate(
-                from: newLayerEdge.dest_port,
-                idMap: idMap)
-            let outputPort = try NodeIOCoordinate(
-                from: newLayerEdge.src_port,
-                idMap: idMap)
-            let edge: PortEdgeData = PortEdgeData(
-                from: outputPort,
-                to: inputPort)
-            
-            guard let fromNodeLocation = document.visibleGraph.getNode(outputPort.nodeId)?.nonLayerCanvasItem?.position,
-                  let destinationNode = document.visibleGraph.getNode(inputPort.nodeId),
-                  let layerInput = inputPort.keyPath?.layerInput else {
-                throw SwiftUISyntaxError.layerEdgeDataFailure(newLayerEdge)
-            }
-
-            // create canvas node
-            var position = fromNodeLocation
-            position.x += 200
-            
-            document.addLayerInputToCanvas(node: destinationNode,
-                                           layerInput: layerInput,
-                                           draggedOutput: nil,
-                                           canvasHeightOffset: nil,
-                                           position: position)
-            
-            let _ = document.visibleGraph.edgeAdded(edge: edge)
-        }
+//        for newLayerEdge in self.patch_data.layer_connections {
+//            let inputPort = try NodeIOCoordinate(
+//                from: newLayerEdge.dest_port,
+//                idMap: idMap)
+//            let outputPort = try NodeIOCoordinate(
+//                from: newLayerEdge.src_port,
+//                idMap: idMap)
+//            let edge: PortEdgeData = PortEdgeData(
+//                from: outputPort,
+//                to: inputPort)
+//            
+//            guard let fromNodeLocation = document.visibleGraph.getNode(outputPort.nodeId)?.nonLayerCanvasItem?.position,
+//                  let destinationNode = document.visibleGraph.getNode(inputPort.nodeId),
+//                  let layerInput = inputPort.keyPath?.layerInput else {
+//                throw SwiftUISyntaxError.layerEdgeDataFailure(newLayerEdge)
+//            }
+//
+//            // create canvas node
+//            var position = fromNodeLocation
+//            position.x += 200
+//            
+//            document.addLayerInputToCanvas(node: destinationNode,
+//                                           layerInput: layerInput,
+//                                           draggedOutput: nil,
+//                                           canvasHeightOffset: nil,
+//                                           position: position)
+//            
+//            let _ = document.visibleGraph.edgeAdded(edge: edge)
+//        }
         
         // Delete unused nodes
         let allNewIds = self.patch_data.javascript_patches.map(\.node_id) +

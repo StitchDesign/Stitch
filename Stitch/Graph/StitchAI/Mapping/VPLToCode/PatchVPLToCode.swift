@@ -15,7 +15,12 @@ extension GraphState {
         let patchNodeDeclarations = try graphEntity.createBindingDeclarations(nodeIdsInTopologicalOrder: self.nodeIdsInTopologicalOrder)
             .patchNodeDeclarations
         
+        
+        
+        
         // TODO: need layer data
+        
+        
         
         let script = """
 func updateLayerInputs() {

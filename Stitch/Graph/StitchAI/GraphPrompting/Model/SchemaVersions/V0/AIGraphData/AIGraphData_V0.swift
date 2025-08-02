@@ -9,15 +9,18 @@ import StitchSchemaKit
 import SwiftUI
 
 enum AIGraphData_V0 {
-    struct CodeCreatorParams: Codable {
-        // String because layer data isn't supported for structured params given nesting
-        let layer_data_list: String
-        let patch_data: PatchData
-    }
+//    struct CodeCreatorParams: Codable {
+//        // String because layer data isn't supported for structured params given nesting
+//        let layer_data_list: String
+//        let patch_data: PatchData
+//    }
     
     struct GraphData: Codable {
         let layer_data_list: [LayerData]
         let patch_data: PatchData
+
+        // Maps upstream patch output coordinate to some new created @State var name
+        let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
     }
     
     struct GraphDataSchema: Encodable {
@@ -36,7 +39,7 @@ enum AIGraphData_V0 {
         let custom_patch_input_values: [CustomPatchInputValue]
     
         // All connections are captured by patch data regardless of patch or layer
-        let layer_connections: [LayerConnection]
+//        let layer_connections: [LayerConnection]
     }
 
     struct LayerData {
@@ -70,10 +73,10 @@ enum AIGraphData_V0 {
         let dest_port: NodeIndexedCoordinate  // destination patch node's input port
     }
     
-    struct LayerConnection: Codable {
-        let src_port: NodeIndexedCoordinate   // source node's output port
-        let dest_port: LayerInputCoordinate   // destination patch node's input port
-    }
+//    struct LayerConnection: Codable {
+//        let src_port: NodeIndexedCoordinate   // source node's output port
+//        let dest_port: LayerInputCoordinate   // destination patch node's input port
+//    }
     
     struct LayerInputCoordinate: Codable {
         var layer_id: String

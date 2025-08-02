@@ -47,7 +47,7 @@ enum SwiftUISyntaxError: Error, Sendable {
     case layerDecodingFailed
     case unexpectedPatchFound(CurrentAIGraphData.PatchOrLayer)
     case portValueDataDecodingFailure
-    case layerEdgeDataFailure(CurrentAIGraphData.LayerConnection)
+    case layerEdgeDataFailure(String)
     case unexpectedPatchInputRowCount(Patch)
     case portValueNotFound
     

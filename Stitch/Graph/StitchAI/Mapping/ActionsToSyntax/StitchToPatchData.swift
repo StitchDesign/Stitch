@@ -32,8 +32,7 @@ extension GraphEntity {
                 return nil
             }
             
-            let varName = "\(patchNodeEntity.patch.rawValue)_\(nodeId.uuidString)"
-                .replacingOccurrences(of: "-", with: "_")
+            let varName = patchNodeEntity.patch.rawValue.createUniqueVarName(nodeId: nodeId)
             
             let args: [String] = try patchNodeEntity.inputs.map { inputData in
                 switch inputData.portData {
@@ -77,5 +76,12 @@ extension GraphEntity {
         
         return .init(patchNodeDeclarations: patchNodeDeclarations,
                      varNameIdMap: varNameIdMap)
+    }
+}
+
+extension String {
+    func createUniqueVarName(nodeId: UUID) -> String {
+        "\(self)_\(nodeId.uuidString)"
+            .replacingOccurrences(of: "-", with: "_")
     }
 }

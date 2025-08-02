@@ -12,11 +12,11 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     let id: UUID
     let userPrompt: String             // User's input prompt
-    let currentGraphData: CurrentAIGraphData.CodeCreatorParams
+    let currentGraphData: CurrentAIGraphData.GraphData
     
     @MainActor
     init(prompt: String,
-         currentGraphData: CurrentAIGraphData.CodeCreatorParams) throws {
+         currentGraphData: CurrentAIGraphData.GraphData) throws {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
@@ -167,7 +167,7 @@ extension StitchAICodeCreator {
                     do {
                         try graphData
                             .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.viewStatePatchConnections,
+                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
                                           requestType: Self.type)
                         
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG

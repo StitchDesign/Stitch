@@ -27,11 +27,6 @@ struct SwiftSyntaxPatchActionsResult: Encodable {
 struct SwiftSyntaxActionsResult: Encodable {
     var graphData: CurrentAIGraphData.GraphData
     
-    // Tracks any upstream patches that connect to some state
-    // Key = state variable name
-    // Value = upstream coordinate
-    let viewStatePatchConnections: [String : AIGraphData_V0.NodeIndexedCoordinate]
-    
     var caughtErrors: [SwiftUISyntaxError]
 }
 
@@ -54,8 +49,8 @@ extension SwiftUIViewParserResult {
         let allLayerErrors = layerResults.flatMap { $0.caughtErrors } ?? []
         
         return .init(graphData: .init(layer_data_list: layerResults?.actions ?? [],
-                                      patch_data: patchResults.actions),
-                     viewStatePatchConnections: patchResults.viewStatePatchConnections,
+                                      patch_data: patchResults.actions,
+                                      viewStatePatchConnections: patchResults.viewStatePatchConnections),
                      caughtErrors: allLayerErrors + patchResults.caughtErrors)
     }
 }
@@ -132,9 +127,7 @@ extension Dictionary where Key == String, Value == SwiftParserInitializerType {
                        native_patches: nativePatchNodes,
                        native_patch_value_type_settings: nativePatchValueTypeSettings,
                        patch_connections: patchConnections,
-                       custom_patch_input_values: customPatchInputValues,
-                       // Layer connections cannot yet be determined here
-                       layer_connections: []),
+                       custom_patch_input_values: customPatchInputValues),
                      viewStatePatchConnections: viewStatePatchConnections,
                      caughtErrors: caughtErrors)
     }

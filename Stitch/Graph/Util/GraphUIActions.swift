@@ -179,7 +179,7 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         
 
         do {
-            let graphData = try AIGraphData_V0.CodeCreatorParams(from: document.visibleGraph.createSchema())
+            let graphData = try AIGraphData_V0.GraphData(from: document.visibleGraph.createSchema())
             
             let requestTask = try AICodeGenFromGraphRequest(
                 prompt: prompt,
