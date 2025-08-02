@@ -62,8 +62,8 @@ extension GraphEntity {
             
             let patchDeclaration = """
                 let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]([
-                    \(args.joined(separator: ",\n"))
-                ])
+                        \(args.joined(separator: ",\n\t\t"))
+                    ])
                 """
             
             varIdNameMap.updateValue(varName, forKey: nodeId)
