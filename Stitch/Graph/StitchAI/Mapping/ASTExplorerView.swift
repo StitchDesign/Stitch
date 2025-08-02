@@ -280,27 +280,15 @@ struct ASTExplorerView: View {
             
             // Apply AI result to fake document
             try stitchActionsResult.graphData
-                .createAIGraph(viewStatePatchConnections: stitchActionsResult.graphData.viewStatePatchConnections,
-                               document: fakeDoc)
+                .createAIGraph(document: fakeDoc)
             
             // Convert LayerData to StrictSyntaxView
             self.rebuiltSyntax = try stitchActions?.graphData.layer_data_list.compactMap { layerData in
                 try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
             } ?? []
             
-            // TODO: repurpose for all code
-            let patchCode = try fakeDoc.graph.createSwiftUICode()
-            
-            // Generate complete SwiftUI code from StrictSyntaxView
-            let viewCode = rebuiltSyntax.map { strictSyntaxView in
-                strictSyntaxView.toSwiftUICode()
-            }.joined(separator: "\n\n")
-            
-            self.regeneratedCode = """
-                \(viewCode)
-                
-                \(patchCode)
-                """
+            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode()
+            self.regeneratedCode = newSwiftUICode
             
             // Also maintain derivedConstructors for compatibility with existing UI
             self.derivedConstructors = rebuiltSyntax.map { $0.constructor }
