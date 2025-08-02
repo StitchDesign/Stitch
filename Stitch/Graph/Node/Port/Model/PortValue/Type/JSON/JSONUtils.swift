@@ -134,6 +134,28 @@ extension Data {
 //    }
 }
 
+extension Encodable {
+    /// Encodes self as pretty-printed JSON, then strips quotes from property names via regex.
+    func jsonWithoutQuotedKeys() throws -> String {
+        guard let data = try? JSONEncoder().encode(self),
+              let jsonString = String(data: data, encoding: .utf8) else {
+            throw NSError()
+        }
+        
+        // Remove quotes around property names
+        let pattern = "\"([^\"]+)\":"
+        let regex = try! NSRegularExpression(pattern: pattern)
+        let range = NSRange(location: 0, length: jsonString.count)
+        
+        return regex.stringByReplacingMatches(
+            in: jsonString,
+            options: [],
+            range: range,
+            withTemplate: "$1:"
+        )
+    }
+}
+
 // Lift a `JSON?` into a Result
 extension Optional where Wrapped == JSON {
     var toJSONResult: Result<JSON, Error> {

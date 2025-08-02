@@ -43,7 +43,7 @@ extension GraphEntity {
                     }
                     
                     let valueDesc = PrintablePortValueDescription(firstValue)
-                    let string = try valueDesc.encodeToString()
+                    let string = try valueDesc.jsonWithoutQuotedKeys()
                     
                     // gets rid of brackets
                     let trimmedStr = string.dropFirst().dropLast()
@@ -62,7 +62,7 @@ extension GraphEntity {
             
             let patchDeclaration = """
                 let \(varName) = NATIVE_STITCH_PATCH_FUNCTIONS["\(patchNodeEntity.patch.aiDisplayTitle)"]([
-                    \(args.joined(separator: ", "))
+                    \(args.joined(separator: ",\n"))
                 ])
                 """
             
