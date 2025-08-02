@@ -18,7 +18,7 @@ extension SwiftUIViewVisitor {
             self.parseArgument(argument)
         }
         
-        log("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
+        // log("parseArguments → for \(node.calledExpression.trimmedDescription)  |  \(arguments.count) arg(s): \(arguments)")
         
         guard let knownViewConstructor = createKnownViewConstructor(
             from: node,

@@ -197,7 +197,7 @@ extension StitchAICodeCreator {
                                 document: StitchDocumentViewModel,
                                 aiManager: StitchAIManager,
                                 systemPrompt: String) async throws -> SwiftSyntaxActionsResult {
-        log("SUCCESS: userPrompt: \(userPrompt)")
+        logToServerIfRelease("SUCCESS: userPrompt: \(userPrompt)")
         
         let swiftUICode = try await self
             .createCode(document: document,

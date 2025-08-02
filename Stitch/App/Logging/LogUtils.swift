@@ -79,9 +79,10 @@ func log(_ message: Any,
         print("HAD MAJOR ERROR: \(message)")
         // Always send AI-related logs to Sentry regardless of build configuration
         let messageString = String(describing: message)
-        if messageString.contains("StitchAI") || messageString.contains("SupabaseManager") {
-            SentrySDK.capture(message: messageString)
-        }
+        SentrySDK.capture(message: messageString)
+//        if messageString.contains("StitchAI") || messageString.contains("SupabaseManager") {
+//            SentrySDK.capture(message: messageString)
+//        }
     }
 #else
     // In production, send ALL logs to Sentry
