@@ -179,11 +179,11 @@ struct SubmitUserPromptToOpenAI: StitchStoreEvent {
         
 
         do {
-            let graphData = try AIGraphData_V0.CodeCreatorParams(from: document.visibleGraph.createSchema())
+            let swiftUICodeOfGraph = try document.visibleGraph.createSwiftUICode()
             
             let requestTask = try AICodeGenFromGraphRequest(
                 prompt: prompt,
-                currentGraphData: graphData)
+                swiftUICodeOfGraph: swiftUICodeOfGraph)
             
             // TODO: AI IMAGE IS WIP
 //            let testImage: UIImage = UIImage (named: "TEST_IMAGE_7")!

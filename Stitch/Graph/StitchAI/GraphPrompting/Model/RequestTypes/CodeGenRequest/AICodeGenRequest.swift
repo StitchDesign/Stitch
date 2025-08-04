@@ -12,38 +12,26 @@ struct AICodeGenFromGraphRequest: StitchAICodeCreator {
     
     let id: UUID
     let userPrompt: String             // User's input prompt
-    let currentGraphData: CurrentAIGraphData.CodeCreatorParams
+    let swiftUICodeOfGraph: String
     
     @MainActor
     init(prompt: String,
-         currentGraphData: CurrentAIGraphData.CodeCreatorParams) throws {
+         swiftUICodeOfGraph: String) throws {
         
         // The id of the user's inference call; does not change across retries etc.
         self.id = .init()
         
         self.userPrompt = prompt
-        self.currentGraphData = currentGraphData
+        self.swiftUICodeOfGraph = swiftUICodeOfGraph
     }
     
     func createCode(document: StitchDocumentViewModel,
                     aiManager: StitchAIManager,
                     systemPrompt: String) async throws -> String {
-        // Request for code creation
-        let codeCreateRequest = try OpenAIChatCompletionRequest(
-            id: self.id,
-            requestType: Self.type,
-            systemPrompt: systemPrompt,
-            assistantPrompt: try StitchAIManager.aiCodeGenSystemPromptGenerator(requestType: Self.type),
-            inputs: self.currentGraphData)
-        
-        let codeResult = try await codeCreateRequest
-            .request(document: document,
-                     aiManager: aiManager)
-        
-        log("AICodeGenFromGraphRequest.createCode initial result:\n\(codeResult)")
+        log("AICodeGenFromGraphRequest.createCode initial code:\n\(self.swiftUICodeOfGraph)")
         
         let editInputs = StitchAIRequestBuilder_V0.EditCodeParams(
-            source_code: codeResult,
+            source_code: swiftUICodeOfGraph,
             user_prompt: userPrompt)
         
         // Request for code edit
@@ -162,7 +150,7 @@ extension StitchAICodeCreator {
                     do {
                         try graphData
                             .applyAIGraph(to: document,
-                                          viewStatePatchConnections: actionsResult.viewStatePatchConnections,
+                                          viewStatePatchConnections: actionsResult.graphData .viewStatePatchConnections,
                                           requestType: Self.type)
                         
 #if STITCH_AI_TESTING || DEBUG || DEV_DEBUG
@@ -213,12 +201,9 @@ extension StitchAICodeCreator {
         
 //        logToServerIfRelease("parsedVarBody:\n\(parsedVarBody)")
         
-        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode)
-        
-        guard let viewNode = codeParserResult.rootView else {
-            logToServerIfRelease("SwiftUISyntaxError.viewNodeNotFound.localizedDescription: \(SwiftUISyntaxError.viewNodeNotFound.localizedDescription)")
-            throw SwiftUISyntaxError.viewNodeNotFound
-        }
+
+        let codeParserResult = SwiftUIViewVisitor.parseSwiftUICode(swiftUICode,
+                                                                   varNameIdMap: [:])
         
         let actionsResult = try codeParserResult.deriveStitchActions()
         

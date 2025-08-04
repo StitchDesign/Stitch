@@ -23,9 +23,7 @@ enum SwiftParserPatternBindingArg {
 }
 
 struct SwiftParserPatchData {
-    // TODO: must be decoded
-    let id = UUID().uuidString
-    
+    let id: String
     var patchName: String
     var args: [SwiftParserPatternBindingArg]
 }

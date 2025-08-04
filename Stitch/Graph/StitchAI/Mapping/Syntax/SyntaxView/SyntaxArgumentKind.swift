@@ -197,7 +197,10 @@ extension SyntaxViewSimpleData {
             }
             return enc
             
-        case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple, .nilLiteral:
+        case .nilLiteral:
+            return "nil"
+            
+        case .regex, .colorLiteral, .imageLiteral, .fileLiteral, .memberAccess, .tuple:
             throw SwiftUISyntaxError.unsupportedSimpleLiteralDecoding(self)
         }
     }
