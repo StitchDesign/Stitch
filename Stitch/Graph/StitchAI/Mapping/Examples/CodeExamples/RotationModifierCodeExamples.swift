@@ -59,4 +59,58 @@ struct RotationModifierCodeExamples {
     """
     )
 
+    // MARK: - PortValueDescription Examples
+    
+    static let rotationEffectPortValueDescription = MappingCodeExample(
+        title: "rotationEffect with PortValueDescription",
+        code:
+    """
+    Rectangle()
+        .rotationEffect([PortValueDescription(value: 45, value_type: "number")])
+    """
+    )
+
+    static let rotation3DEffectPortValueDescription = MappingCodeExample(
+        title: "rotation3DEffect with PortValueDescription",
+        code:
+    """
+    Rectangle()
+        .rotation3DEffect(
+            [PortValueDescription(value: 60, value_type: "number")],
+            axis: [
+                PortValueDescription(
+                    value: ["x": 0, "y": 1, "z": 0],
+                    value_type: "3dPoint"
+                )
+            ]
+        )
+    """
+    )
+
+    static let rotationEffectPortValueDescriptionVariable = MappingCodeExample(
+        title: "rotationEffect with PortValueDescription variable",
+        code:
+    """
+    Rectangle()
+        .rotationEffect([PortValueDescription(value: rotationAngle, value_type: "number")])
+    """
+    )
+
+    static let rotation3DEffectPortValueDescriptionMultiAxis = MappingCodeExample(
+        title: "rotation3DEffect with PortValueDescription multi-axis",
+        code:
+    """
+    Text("3D Rotated")
+        .rotation3DEffect(
+            [PortValueDescription(value: 45, value_type: "number")],
+            axis: [
+                PortValueDescription(
+                    value: ["x": 1, "y": 1, "z": 0],
+                    value_type: "3dPoint"
+                )
+            ]
+        )
+    """
+    )
+
 }

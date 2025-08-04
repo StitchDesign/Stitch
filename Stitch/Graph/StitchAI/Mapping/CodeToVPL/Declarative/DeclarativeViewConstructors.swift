@@ -1412,6 +1412,8 @@ enum StrictViewModifier: Equatable, Encodable {
     case font(FontViewModifier)
     case fontDesign(FontDesignViewModifier)
     case fontWeight(FontWeightViewModifier)
+    case rotationEffect(RotationEffectViewModifier)
+    case rotation3DEffect(Rotation3DEffectViewModifier)
     case layerId(LayerIdViewModifier)
     // Add further cases here as new typed modifiers are introduced
 
@@ -1438,6 +1440,8 @@ enum StrictViewModifier: Equatable, Encodable {
         case .font(let m):           return m
         case .fontDesign(let m):     return m
         case .fontWeight(let m):     return m
+        case .rotationEffect(let m): return m
+        case .rotation3DEffect(let m): return m
         case .layerId(let m):        return m
         }
     }
@@ -2163,6 +2167,142 @@ struct FontWeightViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     }
 }
 
+struct RotationEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let angle: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let anglePortValue = try angle.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        return [ASTCustomInputValue(input: .rotationZ, inputData: anglePortValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> RotationEffectViewModifier? {
+        guard let first = arguments.first,
+              first.label == nil else {
+            return nil
+        }
+        return RotationEffectViewModifier(angle: first.value)
+    }
+}
+
+enum Rotation3DAxis: Equatable, Codable {
+    case x  // axis: (x: 1, y: 0, z: 0)
+    case y  // axis: (x: 0, y: 1, z: 0)
+    case z  // axis: (x: 0, y: 0, z: 1)
+    
+    var layerInputPort: LayerInputPort {
+        switch self {
+        case .x: return .rotationX
+        case .y: return .rotationY
+        case .z: return .rotationZ
+        }
+    }
+    
+    var axisString: String {
+        switch self {
+        case .x: return "(x: 1, y: 0, z: 0)"
+        case .y: return "(x: 0, y: 1, z: 0)"
+        case .z: return "(x: 0, y: 0, z: 1)"
+        }
+    }
+    
+    /// Parse axis from a SyntaxViewModifierArgumentType
+    /// Handles tuples like (x: 0, y: 1, z: 0) and determines primary axis
+    static func parseAxis(from argument: SyntaxViewModifierArgumentType) -> Rotation3DAxis {
+        switch argument {
+        case .tuple(let fields):
+            return parseAxisFromTuple(fields)
+        case .complex(let complex):
+            // Handle dictionary-like structures: ["x": 0, "y": 1, "z": 0]
+            return parseAxisFromComplex(complex)
+        default:
+            // Default to Z axis if parsing fails
+            return .z
+        }
+    }
+    
+    private static func parseAxisFromTuple(_ fields: [SyntaxViewArgumentData]) -> Rotation3DAxis {
+        var x: Double = 0, y: Double = 0, z: Double = 0
+        
+        for field in fields {
+            guard let label = field.label else { continue }
+            
+            if case .simple(let data) = field.value,
+               let value = Double(data.value) {
+                switch label {
+                case "x": x = value
+                case "y": y = value
+                case "z": z = value
+                default: break
+                }
+            }
+        }
+        
+        return determinePrimaryAxis(x: x, y: y, z: z)
+    }
+    
+    private static func parseAxisFromComplex(_ complex: SyntaxViewModifierComplexType) -> Rotation3DAxis {
+        var x: Double = 0, y: Double = 0, z: Double = 0
+        
+        for arg in complex.arguments {
+            guard let label = arg.label else { continue }
+            
+            if case .simple(let data) = arg.value,
+               let value = Double(data.value) {
+                switch label {
+                case "x": x = value
+                case "y": y = value  
+                case "z": z = value
+                default: break
+                }
+            }
+        }
+        
+        return determinePrimaryAxis(x: x, y: y, z: z)
+    }
+    
+    private static func determinePrimaryAxis(x: Double, y: Double, z: Double) -> Rotation3DAxis {
+        let absX = abs(x)
+        let absY = abs(y)
+        let absZ = abs(z)
+        
+        // Find the axis with the largest absolute value
+        if absX >= absY && absX >= absZ {
+            return .x
+        } else if absY >= absX && absY >= absZ {
+            return .y
+        } else {
+            return .z
+        }
+    }
+}
+
+struct Rotation3DEffectViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
+    let angle: SyntaxViewModifierArgumentType
+    
+    func createCustomValueEvents() throws -> [ASTCustomInputValue] {
+        guard let anglePortValue = try angle.derivePortValues().first else {
+            throw SwiftUISyntaxError.portValueNotFound
+        }
+        // For now, always map to rotationZ regardless of axis
+        return [ASTCustomInputValue(input: .rotationZ, inputData: anglePortValue)]
+    }
+    
+    static func from(_ arguments: [SyntaxViewArgumentData],
+                     modifierName: SyntaxViewModifierName) -> Rotation3DEffectViewModifier? {
+        guard arguments.count >= 1,
+              let angleArg = arguments.first,
+              angleArg.label == nil else {
+            return nil
+        }
+        
+        // Simplified: just use the angle argument, ignore axis for now
+        return Rotation3DEffectViewModifier(angle: angleArg.value)
+    }
+}
+
 struct LayerIdViewModifier: Equatable, FromSwiftUIViewModifierToStitch {
     let layerId: SyntaxViewModifierArgumentType
     
@@ -2433,6 +2573,12 @@ func createKnownViewModifier(modifierName: SyntaxViewModifierName,
     case .fontWeight:
         return FontWeightViewModifier.from(arguments, modifierName: modifierName)
             .map { .fontWeight($0) }
+    case .rotationEffect:
+        return RotationEffectViewModifier.from(arguments, modifierName: modifierName)
+            .map { .rotationEffect($0) }
+    case .rotation3DEffect:
+        return Rotation3DEffectViewModifier.from(arguments, modifierName: modifierName)
+            .map { .rotation3DEffect($0) }
     case .layerId:
         return LayerIdViewModifier.from(arguments, modifierName: modifierName)
             .map { .layerId($0) }

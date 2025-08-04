@@ -769,16 +769,7 @@ extension SyntaxViewName {
                 layerType: layerType)
             
             return .layerInputValues(newValues)
-            
-        case .rotationScenario:
-            // Certain modifiers, e.g. `.rotation3DEffect` correspond to multiple layer-inputs (.rotationX, .rotationY, .rotationZ)
-            let newValues = try Self.deriveCustomValuesFromRotationLayerInputTranslation(
-                id: id,
-                layerType: layerType,
-                modifier: modifier)
-            
-            return .layerInputValues(newValues)
-            
+                        
         case .layerId:
             guard let rawValue = modifier.arguments.defaultArgs?.first?.value.simpleValue else {
                 throw SwiftUISyntaxError.unsupportedLayerIdParsing(modifier.arguments.defaultArgs ?? [])

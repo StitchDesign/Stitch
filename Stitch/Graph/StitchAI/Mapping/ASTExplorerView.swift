@@ -87,9 +87,10 @@ struct ASTExplorerView: View {
     @State private var usePortValueDescription: Bool = false
 
     init(
-        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
+//        initialVisibleStages: Set<Stage> = Set(Stage.allCases)
 //        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions])
 //        initialVisibleStages: Set<Stage> = Set([.originalCode, .parsedSyntax, .derivedActions, .rebuiltSyntax])
+        initialVisibleStages: Set<Stage> = Set([.originalCode, .derivedActions, .regeneratedCode])
     ) {
         _visibleStages = State(initialValue: initialVisibleStages)
     }
@@ -287,7 +288,8 @@ struct ASTExplorerView: View {
                 try layerDataToStrictSyntaxView(layerData, idMap: &idMap)
             } ?? []
             
-            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode()
+            // TODO: let us toggle whether we wrap the regenerated SwiftUI code into
+            let newSwiftUICode = try fakeDoc.graph.createSwiftUICode(ignoreScript: true)
             self.regeneratedCode = newSwiftUICode
             
             // Also maintain derivedConstructors for compatibility with existing UI

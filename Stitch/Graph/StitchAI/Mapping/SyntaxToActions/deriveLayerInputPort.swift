@@ -94,7 +94,7 @@ enum DerivedLayerInputPortsResult: Equatable, Hashable, Sendable {
     case simple(CurrentAIGraphData.LayerInputPort)
     
     // Special case: .rotation3DEffect modifier corresponds to *three* different layer inputs; .rotation also requires special parsing of its `.degrees(x)` arguments
-    case rotationScenario
+//    case rotationScenario
     
     // Tracks some layer ID assigned to a view
     case layerId
@@ -160,11 +160,17 @@ extension SyntaxViewModifierName {
             return .simple(.position)
         
         // Rotation is a more complicated scenario which we handle with special logic
-        case .rotationEffect,
-            .rotation3DEffect:
+        case .rotationEffect:
+            return .simple(.rotationZ)
+            
+            // tricky: this view modifier corresponds to
+        case .rotation3DEffect:
             // .rotationEffect is always a z-axis rotation, i.e. .rotationZ
             // .rotation3DEffect is .rotationX or .rotationY or .rotationZ
-            return .rotationScenario
+//            return .rotationScenario
+            
+            // TODO: the .rotation3DEffect view modifier actually corresponds to 3 separate layer inputs (.rotationX, .rotationY, .rotationZ)
+            return .simple(.rotationZ)
                     
         case .blur:
             return .simple(.blurRadius)
