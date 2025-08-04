@@ -145,9 +145,9 @@ extension GraphState {
         // If the downstream observer is a pulse-type, we must manually flow the values down when edge first created,
         // since pulse inputs are skipped whenever the upstream output's values "did not change"
         // (the skipping is how we avoid e.g. the down output on a Press node from constantly triggering a downstream pulse).
-        if downstreamInputObserver.allLoopedValues.first?.getPulse.isDefined ?? false {
-            assertInDebug(!upstreamOutputObserver.allLoopedValues.isEmpty)
-            
+        if downstreamInputObserver.allLoopedValues.first?.getPulse.isDefined ?? false,
+           // Values can be empty if edge made on initialization (valid for AI case
+           !upstreamOutputObserver.allLoopedValues.isEmpty {
             downstreamInputObserver.setValuesInInput(upstreamOutputObserver.allLoopedValues)
         }
         

@@ -241,9 +241,6 @@ extension CurrentAIGraphData.GraphData {
         // Update sidebar view model data with new layer data
         graph.layersSidebarViewModel.update(from: newSidebarData)
         
-        // Update graph data so that input observers are created
-        graph.updateGraphData(document)
-        
         // new constants for patches
         for newInputValueSetting in self.patch_data.custom_patch_input_values {
             let inputCoordinate = try NodeIOCoordinate(
@@ -370,8 +367,19 @@ extension CurrentAIGraphData.GraphData {
             graph: document.visibleGraph)
         
         // Update topological data--needs to be forced here because of script building using this data
+        
+        // TODO: explore here?
         document.graph.updateGraphData(document)
-        document.graph.updateTopologicalData()
+        
+        // Tests SwiftUI code creation to make sure this can work later
+//        #if !RELEASE
+//        do {
+//            let _ = try document.graph.createSwiftUICode()
+//        } catch {
+//            throw error
+////            fatalError(error.localizedDescription)
+//        }
+//        #endif
     }
 }
 
